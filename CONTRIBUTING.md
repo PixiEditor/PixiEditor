@@ -9,7 +9,8 @@ Please note we have a [code of conduct](https://github.com/flabbet/PixiEditor/bl
 
 ## Issues
 
-If you want to report a bug, follow this steps:
+If you want to report a bug, follow steps below, if you want to request a feature, check [this](https://github.com/flabbet/PixiEditor/blob/master/.github/ISSUE_TEMPLATE/feature_request.md)
+
 * First of all, check if the issue is on the [list](https://github.com/flabbet/PixiEditor/issues), if yes, upvote it.
 
 * If not, report an issue [here](https://github.com/flabbet/PixiEditor/issues) like that:
