@@ -13,7 +13,7 @@ Follow these instructions to get Pixi working on your machine.
 
 ### Installing
 
-1. Download this file: [Link](https://www.somelink.com)
+1. Download this file: [Link](not_availabe_yet)
 
 2. Open installer 
 
