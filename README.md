@@ -30,6 +30,7 @@ Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/
 
 ## Authors
 * **Krzysztof Krysiński** *Creator of the project* - [flabbet](https://github.com/flabbet)
+* [Contributors](https://github.com/flabbet/PixiEditor/graphs/contributors)
 
 ## License
 
