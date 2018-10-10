@@ -1,0 +1,47 @@
+﻿<Window x:Class="PixiEditor.Views.SaveFilePopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PixiEditor.Views"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:vm="clr-namespace:PixiEditor.ViewModels"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours"
+        mc:Ignorable="d"
+        Title="SaveFilePopup" Height="250" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"  Name="saveFilePopup">
+    <Grid Background="#303030">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="229*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="#FF2C2C2C">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDown">
+                    <i:InvokeCommandAction Command="{Binding DragMoveCommand}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <Button Width="20" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" BorderThickness="0" Command="{Binding CloseButtonCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
+                <Button.Background>
+                    <ImageBrush ImageSource="/PixiEditor;component/Images/Cross.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+        </Grid>
+        <TextBlock Grid.Row="1" Height="30" Width="120" Foreground="Snow" VerticalAlignment="Top" HorizontalAlignment="Center" Text="File settings" TextAlignment="Center" FontSize="20"/>
+        <DockPanel Grid.Row="1" Height="70" Width="320" Margin="0,0,0,100" Background="#FF2E2E2E">
+            <TextBlock Foreground="Snow" Width="40" Height="40" HorizontalAlignment="Left" Margin="50,0,0,0" Text="Width:" TextAlignment="Center" Padding="0,11.5,0,0"/>
+            <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="70" Height="20" HorizontalAlignment="Left" Margin="5,0,0,0" Text="{Binding ElementName=saveFilePopup, Path=SaveWidth, Mode=TwoWay}">
+                <i:Interaction.Behaviors>
+                    <helpers:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <TextBlock Foreground="Snow" Width="40" Height="40"  HorizontalAlignment="Left" Margin="5,0,0,0" Text="Height:" TextAlignment="Center" Padding="0,11.5,0,0"/>
+            <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="70" Height="20" HorizontalAlignment="Left" Margin="5,0,0,0" Text="{Binding ElementName=saveFilePopup, Path=SaveHeight,Mode=TwoWay}">
+                <i:Interaction.Behaviors>
+                    <helpers:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
+                </i:Interaction.Behaviors>
+            </TextBox>
+        </DockPanel>
+        <Button Grid.Row="1" Foreground="Snow" Height="40" Width="160" Margin="0,50,0,0" Content="Path" Background="#303030" BorderBrush="{Binding PathButtonBorder}" Command="{Binding ChoosePathCommand}"/>
+        <Button Grid.Row="1" Height="30" Width="60" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10" Style="{StaticResource DarkRoundButton}" Content="OK" Command="{Binding OkCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
+    </Grid>
+</Window>

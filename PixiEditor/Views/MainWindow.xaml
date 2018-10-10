@@ -1,0 +1,206 @@
+﻿<Window x:Class="PixiEditor.MainWindow" MinHeight="1000" MinWidth="1100"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PixiEditor"
+        xmlns:vm="clr-namespace:PixiEditor.ViewModels"
+        xmlns:vws="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="Pixi" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+    <Window.Resources>
+        <vm:ViewModelMain x:Key="ViewModelMain"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding 
+            Modifiers="Ctrl" 
+            Key="N"
+            Command="{Binding GenerateDrawAreaCommand}"/>
+        <KeyBinding
+            Modifiers="Ctrl"
+            Key="S"
+            Command="{Binding SaveFileCommand}"/>
+        <KeyBinding
+            Modifiers="Ctrl"
+            Key="Z"
+            Command="{Binding UndoCommand}"/>
+        <KeyBinding 
+            Modifiers="Ctrl"
+            Key="Y"
+            Command="{Binding RedoCommand}"/>
+        <KeyBinding            
+            Key="B"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Pen"/>
+        <KeyBinding
+            Key="G"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Bucket"/>
+        <KeyBinding
+            Key="L"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Line"/>
+        <KeyBinding
+            Key="C"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Circle"/>
+        <KeyBinding Key="R"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Rectangle"/>
+        <KeyBinding Key="O"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="ColorPicker"/>
+        <KeyBinding Key="E"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Earser"/>
+        <KeyBinding Key="U"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Lighten"/>
+
+
+    </Window.InputBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="70*"/>
+            <ColumnDefinition Width="1420*"/>
+            <ColumnDefinition Width="110*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="908*"/>
+            <RowDefinition Height="30*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0" Height="30"/>
+        <WrapPanel Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="100">
+            <vws:MenuButton Text="File" Margin="0,0,-140,0">
+                <vws:MenuButton.Item>
+                    <StackPanel>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="New" Command="{Binding GenerateDrawAreaCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Save" Command="{Binding SaveFileCommand}"/>
+                    </StackPanel>
+                </vws:MenuButton.Item>
+            </vws:MenuButton>
+            <vws:MenuButton Text="Edit" Margin="0,0,-140,0">
+                <vws:MenuButton.Item>
+                    <StackPanel>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Undo" Command="{Binding UndoCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Redo" Command="{Binding RedoCommand}"/>
+                    </StackPanel>
+                </vws:MenuButton.Item>
+            </vws:MenuButton>
+
+            <vws:MenuButton Text="View" Margin="0,0,-140,0">
+                <vws:MenuButton.Item>
+                    <StackPanel>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Recenter" Command="{Binding RecenterZoomboxCommand}" CommandParameter="{Binding ElementName=Zoombox}"/>
+                    </StackPanel>
+                </vws:MenuButton.Item>
+            </vws:MenuButton>
+        </WrapPanel>
+        <Grid Grid.Column="1" Grid.Row="1" Background="DimGray" Margin="0,5,0,0">
+            <Grid>
+                <vws:MainDrawingPanel CenterOnStart="True">
+                    <vws:MainDrawingPanel.Item>
+                        <Canvas Width="{Binding ActiveLayer.Width}" Height="{Binding ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseMove">
+                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <i:Interaction.Behaviors>
+                                <behaviors:MouseBehaviour MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
+                            </i:Interaction.Behaviors>
+                            <Image Source="/Images/transparent bg.png" Height="{Binding ActiveLayer.Height}" Width="{Binding ActiveLayer.Width}" Opacity="0.2" Stretch="UniformToFill"/>
+                            <ItemsControl ItemsSource="{Binding Layers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ContentControl Content="{Binding LayerImage}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+
+                        </Canvas>
+                    </vws:MainDrawingPanel.Item>
+                </vws:MainDrawingPanel>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#363434" Grid.RowSpan="2">
+            <TextBox Style="{StaticResource DarkTextBoxStyle}" Margin="0,10,0,0" Text="{Binding ToolSize, Mode=TwoWay,Converter={StaticResource ToolSizeToIntConverter}}" TextAlignment="Center" MaxLength="4">
+                <i:Interaction.Behaviors>
+                    <behaviors:TextBoxNumericFinisherBehavior/>
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Pen">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Pen Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Bucket">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Bucket Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Line">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Line Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Circle">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Circle Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Rectangle">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Rectangle Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="ColorPicker">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Pipette Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Earser">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Earser Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Lighten">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Lighten Image.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+
+        <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="60" Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" Height="65">
+            <Rectangle Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="{Binding PrimaryColor, Mode=OneWay}"/>
+                </Rectangle.Fill>
+            </Rectangle>
+            <xctk:ColorPicker Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
+            <Rectangle Height="40" Width="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="{Binding SecondaryColor, Mode=OneWay}"/>
+                </Rectangle.Fill>
+            </Rectangle>
+            <xctk:ColorPicker Width="40" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
+        </Grid>
+
+    </Grid>
+</Window>
