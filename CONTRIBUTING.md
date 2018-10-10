@@ -1,8 +1,18 @@
 # Contributing
 
+Hey! Thanks for being interested in project! It means a lot. But, before contributing please read this guide :) 
+
 When contributing to this repository, please first discuss the change you wish to make via issue,
 email, or any other method with the owners of this repository before making a change. 
 
-Please note we have a code of conduct, please follow it in all your interactions with the project.
+Please note we have a [code of conduct](https://github.com/flabbet/PixiEditor/blob/master/CODE_OF_CONDUCT), please follow it in all your interactions with the project.
 
-More details soon
+## Issues
+
+If you want to report a bug, follow this steps:
+* First of all, check if the issue is on the [list](https://github.com/flabbet/PixiEditor/issues), if yes, upvote it.
+
+* If not, report an issue [here](https://github.com/flabbet/PixiEditor/issues) like that:
+ 1. Clear as short as possible title
+ 2. Describe issue as detailed as possible
+ 3. Include screenshots, error logs, etc.
