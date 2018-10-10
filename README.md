@@ -26,7 +26,7 @@ Follow these instructions to get Pixi working on your machine.
 
 ## Contributing 
 
-Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/CONTRIBUTING.md/) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 * **Krzysztof Krysiński** *Creator of the project* - [flabbet](https://github.com/flabbet)
