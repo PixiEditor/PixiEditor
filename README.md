@@ -13,7 +13,7 @@ Follow these instructions to get Pixi working on your machine.
 
 ### Installing
 
-1. Download this file: [Link](not_availabe_yet)
+1. Download .zip file from [here](https://github.com/flabbet/PixiEditor/releases)
 
 2. Open installer 
 
