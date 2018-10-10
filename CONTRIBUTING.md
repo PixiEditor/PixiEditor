@@ -16,3 +16,11 @@ If you want to report a bug, follow this steps:
  1. Clear as short as possible title
  2. Describe issue as detailed as possible
  3. Include screenshots, error logs, etc.
+ 
+ ## Pull Requests
+ 
+ Before pull request, relate to this rules:
+ 
+ 1. Clearly describe changes, as detailed as possible
+ 2. If possible, show examples of usage
+ 3. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
