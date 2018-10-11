@@ -42,7 +42,6 @@ namespace PixiEditor.ViewModels
         public RelayCommand RedoCommand { get; set; }
         public RelayCommand MouseUpCommand { get; set; }
         public RelayCommand RecenterZoomboxCommand { get; set; }
-        public RelayCommand SendFeedbackCommand { get; set; }
 
         private Layer _activeLayer;
 
@@ -128,7 +127,6 @@ namespace PixiEditor.ViewModels
             RedoCommand = new RelayCommand(Redo, CanRedo);
             MouseUpCommand = new RelayCommand(MouseUp);
             RecenterZoomboxCommand = new RelayCommand(RecenterZoombox);
-            SendFeedbackCommand = new RelayCommand(SendFeedback);
             primaryToolSet = new ToolSet();
             UndoManager.SetMainRoot(this);
         }
