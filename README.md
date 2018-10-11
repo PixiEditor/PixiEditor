@@ -1,6 +1,8 @@
 # PixiEditor
 Pixi is lightweighted pixel art creator.
 
+![ss](https://user-images.githubusercontent.com/25402427/46804050-fb832d80-cd61-11e8-9df6-f9fafd3fa354.jpg)
+
 ## Getting started with Pixi
 
 Follow these instructions to get Pixi working on your machine.
