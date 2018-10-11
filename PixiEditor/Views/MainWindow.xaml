@@ -145,42 +145,42 @@
                     <behaviors:TextBoxNumericFinisherBehavior/>
                 </i:Interaction.Behaviors>
             </TextBox>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Pen">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Pen" ToolTip="Standard brush (B)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Pen Image.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Bucket">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Bucket" ToolTip="Fills area with color (G)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Bucket Image.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Line">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Line" ToolTip="Draws line on canvas (L)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Line Image.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Circle">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Circle" ToolTip="Draws circle on cavnas (C)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Circle Image.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Rectangle">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Rectangle" ToolTip="Draws rectanlge on cavnas (R)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Rectangle Image.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="ColorPicker">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="ColorPicker" ToolTip="Color picker, sets color from pixel as active (O)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Pipette Image.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Earser">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Earser" ToolTip="Earser, Earsers color from pixel (E)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Earser Image.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Lighten">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Lighten" ToolTip="Makes pixel brighter or darker pixel (U)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Lighten Image.png" Stretch="Uniform"/>
                 </Button.Background>
