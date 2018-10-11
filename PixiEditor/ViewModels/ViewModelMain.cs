@@ -287,11 +287,5 @@ namespace PixiEditor.ViewModels
         {
             MessageBox.Show("This feature is not implemented yet.", "Feature not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
-        public void SendFeedback(object parameter)
-        {
-            FeedbackMenuDialog feedbackMenuDialog = new FeedbackMenuDialog();
-            feedbackMenuDialog.ShowDialog();
-        }
     }
 }

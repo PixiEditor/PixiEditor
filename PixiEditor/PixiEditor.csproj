@@ -111,6 +111,9 @@
     <Compile Include="Views\FeedbackDialog.xaml.cs">
       <DependentUpon>FeedbackDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ImportFilePopup.xaml.cs">
+      <DependentUpon>ImportFilePopup.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainDrawingPanel.xaml.cs">
       <DependentUpon>MainDrawingPanel.xaml</DependentUpon>
     </Compile>
@@ -128,6 +131,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\FeedbackDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ImportFilePopup.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

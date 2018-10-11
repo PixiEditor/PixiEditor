@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace PixiEditor.Views
 {
     /// <summary>
-    /// Interaction logic for FeedbackDialog.xaml
+    /// Interaction logic for ImportFilePopup.xaml
     /// </summary>
-    public partial class FeedbackDialog : Window
+    public partial class ImportFilePopup : Window
     {
-        public FeedbackDialog()
+        public ImportFilePopup()
         {
             InitializeComponent();
         }
