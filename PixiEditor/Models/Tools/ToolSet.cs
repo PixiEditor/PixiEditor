@@ -116,7 +116,12 @@ namespace PixiEditor.Models.Tools
             bm.FillRectangle(x1, y1, x2, y2, color);
             return bm;
         }
-
+        /// <summary>
+        /// Calculates center of thickness * thickness rectangle
+        /// </summary>
+        /// <param name="startPosition">Top left position of rectangle</param>
+        /// <param name="thickness">Thickness of rectangle</param>
+        /// <returns></returns>
         private static DCords CalculateThicknessCenter(Coordinates startPosition, int thickness)
         {
             int x1, x2, y1, y2;

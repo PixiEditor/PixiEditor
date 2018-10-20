@@ -42,6 +42,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand RedoCommand { get; set; }
         public RelayCommand MouseUpCommand { get; set; }
         public RelayCommand RecenterZoomboxCommand { get; set; }
+        public RelayCommand OpenFileCommand { get; set; }
 
         private Layer _activeLayer;
 
@@ -127,6 +128,7 @@ namespace PixiEditor.ViewModels
             RedoCommand = new RelayCommand(Redo, CanRedo);
             MouseUpCommand = new RelayCommand(MouseUp);
             RecenterZoomboxCommand = new RelayCommand(RecenterZoombox);
+            OpenFileCommand = new RelayCommand(OpenFile);
             primaryToolSet = new ToolSet();
             UndoManager.SetMainRoot(this);
         }
@@ -248,7 +250,7 @@ namespace PixiEditor.ViewModels
                 Layers.Clear();
                 Layers.Add(new Layer(newFile.Width, newFile.Height));
                 ActiveLayer = Layers[0];
-            }            
+            }
         }
         #region SaveFile
         /// <summary>
@@ -276,6 +278,23 @@ namespace PixiEditor.ViewModels
             return ActiveLayer != null;
         }
         #endregion
+
+        /// <summary>
+        /// Opens file from path.
+        /// </summary>
+        /// <param name="parameter"></param>
+        public void OpenFile(object parameter)
+        {
+            ImportFileDialog dialog = new ImportFileDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                Layers.Clear();
+                Layers.Add(new Layer(dialog.FileWidth, dialog.FileHeight));
+                ActiveLayer = Layers[0];
+                ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
+                RefreshImage();
+            }
+        }
 
         /// <summary>
         /// For now, shows not implemented info, lol.

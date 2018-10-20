@@ -62,6 +62,8 @@
         <KeyBinding Key="U"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="Lighten"/>
+        <KeyBinding Key="O" Modifiers="Ctrl"
+                    Command="{Binding OpenFileCommand}"/>
 
 
     </Window.InputBindings>
@@ -84,6 +86,7 @@
                     <StackPanel>
                         <Button Style="{StaticResource MenuInsideButtonStyle}" Content="New" Command="{Binding GenerateDrawAreaCommand}"/>
                         <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Save" Command="{Binding SaveFileCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Open" Command="{Binding OpenFileCommand}"/>
                     </StackPanel>
                 </vws:MenuButton.Item>
             </vws:MenuButton>

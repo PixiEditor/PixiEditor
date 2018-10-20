@@ -92,7 +92,8 @@
     <Compile Include="Models\Enums\FileType.cs" />
     <Compile Include="Models\ExColor.cs" />
     <Compile Include="Models\Exporter.cs" />
-    <Compile Include="Models\FeedbackDialog.cs" />
+    <Compile Include="Models\Importer.cs" />
+    <Compile Include="Models\ImportFileDialog.cs" />
     <Compile Include="Models\LayerGenerator.cs" />
     <Compile Include="Models\Layer.cs" />
     <Compile Include="Models\MousePositionConverter.cs" />
@@ -103,14 +104,12 @@
     <Compile Include="Models\Tools\ToolType.cs" />
     <Compile Include="Models\UndoManager.cs" />
     <Compile Include="ViewModels\FeedbackDialogViewModel.cs" />
+    <Compile Include="ViewModels\ImportFilePopupViewModel.cs" />
     <Compile Include="ViewModels\MenuButtonViewModel.cs" />
     <Compile Include="ViewModels\NewFileMenuViewModel.cs" />
     <Compile Include="ViewModels\SaveFilePopupViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="ViewModels\ViewModelMain.cs" />
-    <Compile Include="Views\FeedbackDialog.xaml.cs">
-      <DependentUpon>FeedbackDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\ImportFilePopup.xaml.cs">
       <DependentUpon>ImportFilePopup.xaml</DependentUpon>
     </Compile>
@@ -127,10 +126,6 @@
       <DependentUpon>SaveFilePopup.xaml</DependentUpon>
     </Compile>
     <Page Include="Styles\ThemeStyle.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FeedbackDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -8,7 +8,7 @@
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d"
-        Title="SaveFilePopup" Height="250" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"  Name="saveFilePopup">
+        Title="SaveFilePopup" Height="250" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Name="saveFilePopup">
     <Grid Background="#303030">
         <Grid.RowDefinitions>
             <RowDefinition Height="20*"/>
@@ -27,7 +27,7 @@
             </Button>
         </Grid>
         <TextBlock Grid.Row="1" Height="30" Width="120" Foreground="Snow" VerticalAlignment="Top" HorizontalAlignment="Center" Text="File settings" TextAlignment="Center" FontSize="20"/>
-        <DockPanel Grid.Row="1" Height="70" Width="320" Margin="0,0,0,100" Background="#FF2E2E2E">
+        <DockPanel Grid.Row="1" Height="70" Width="320" Margin="0,0,0,100" Background="#2D2D2D">
             <TextBlock Foreground="Snow" Width="40" Height="40" HorizontalAlignment="Left" Margin="50,0,0,0" Text="Width:" TextAlignment="Center" Padding="0,11.5,0,0"/>
             <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="70" Height="20" HorizontalAlignment="Left" Margin="5,0,0,0" Text="{Binding ElementName=saveFilePopup, Path=SaveWidth, Mode=TwoWay}">
                 <i:Interaction.Behaviors>
