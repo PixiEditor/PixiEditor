@@ -14,10 +14,11 @@ namespace PixiEditor.Models
 {
     public static class UndoManager
     {
-        public static Stack<Change> UndoStack { get; set; } = new Stack<Change>(); 
-        public static Stack<Change> RedoStack { get; set; } = new Stack<Change>();
+        public static StackEx<Change> UndoStack { get; set; } = new StackEx<Change>(); 
+        public static StackEx<Change> RedoStack { get; set; } = new StackEx<Change>();
         private static bool _stopRecording = false; 
         private static List<Change> _recordedChanges = new List<Change>();
+        private static int _stackLimit = 25;
         private static bool _lastChangeWasUndo = false;
         public static bool CanUndo
         {
@@ -56,7 +57,10 @@ namespace PixiEditor.Models
         {
             if (_stopRecording == false)
             {
-                _recordedChanges.Add(new Change(property, oldValue, newValue, undoDescription));
+                if (_recordedChanges.Count < 3)
+                {
+                    _recordedChanges.Add(new Change(property, oldValue, newValue, undoDescription));
+                }
             }
         }
 
@@ -83,13 +87,17 @@ namespace PixiEditor.Models
         /// <param name="undoDescription">Description of change.</param>
         public static void AddUndoChange(string property, object oldValue, object newValue, string undoDescription = null)
         {
-            if(_lastChangeWasUndo == false && RedoStack.Count > 0)
+            if(_lastChangeWasUndo == false && RedoStack.Count > 0) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
             {
                 RedoStack.Clear();
             }
             _lastChangeWasUndo = false;
-            UndoStack.Push(new Change(property, oldValue, newValue, undoDescription));
-
+            UndoStack.Push(new Change(property, oldValue, newValue, undoDescription)); //Adds change to UndoStack
+            if(UndoStack.Count > _stackLimit) //If Undostack hits limit, removes elements from beggining of stack
+            {
+                UndoStack.Remove(0);
+            }
+            Debug.WriteLine(UndoStack.Count + " " + RedoStack.Count);
         }
         /// <summary>
         /// Sets top property in UndoStack to Old Value

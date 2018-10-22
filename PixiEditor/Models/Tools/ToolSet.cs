@@ -18,14 +18,27 @@ namespace PixiEditor.Models.Tools
         private Coordinates _activeCoordinates = new Coordinates();
         private bool _toolIsExecuting = false;
         private int _asyncDelay = 15;
+        private WriteableBitmap _oldBitmap;
+        private Image _oldImage;
 
+        /// <summary>
+        /// Executes tool action
+        /// </summary>
+        /// <param name="layer">Layer to operate on.</param>
+        /// <param name="startingCoords">Click coordinates.</param>
+        /// <param name="color">Color that tool will use.</param>
+        /// <param name="toolSize">Size/thickness of tool</param>
+        /// <param name="tool">Tool to execute</param>
+        /// <returns></returns>
         public Layer ExecuteTool(Layer layer, Coordinates startingCoords, Color color,int toolSize, ToolType tool)
         {
             if (toolSize < 1) return null;
             Layer cLayer = layer;
-            WriteableBitmap oldBitmap = layer.LayerBitmap.Clone();
-            Image oldImage = layer.LayerImage;
-            oldImage.Source = oldBitmap;
+
+            _oldBitmap = new WriteableBitmap(layer.LayerBitmap);
+            _oldImage = layer.LayerImage;
+            _oldImage.Source = _oldBitmap;
+
             switch (tool)
             {
                 case ToolType.Pen:
@@ -70,10 +83,12 @@ namespace PixiEditor.Models.Tools
             }
             if (tool != ToolType.ColorPicker)
             {
-                UndoManager.RecordChanges("ActiveLayer", new Layer(oldBitmap, oldImage), cLayer, string.Format("{0} Tool.", tool.ToString()));
+                UndoManager.RecordChanges("ActiveLayer", new Layer(_oldBitmap, _oldImage), cLayer, string.Format("{0} Tool.", tool.ToString()));
             }
+
             return cLayer;
         }
+
         /// <summary>
         /// Not working yet.
         /// </summary>

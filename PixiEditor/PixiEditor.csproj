@@ -99,6 +99,7 @@
     <Compile Include="Models\MousePositionConverter.cs" />
     <Compile Include="Models\NewFileDialog.cs" />
     <Compile Include="Models\ExportFileDialog.cs" />
+    <Compile Include="Models\StackEx.cs" />
     <Compile Include="Models\Tools\ToolSet.cs" />
     <Compile Include="Models\ToolManager.cs" />
     <Compile Include="Models\Tools\ToolType.cs" />
