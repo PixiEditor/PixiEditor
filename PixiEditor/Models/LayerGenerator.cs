@@ -20,17 +20,15 @@ namespace PixiEditor.Models
         /// <param name="imageWidth">Width of layer.</param>
         /// <param name="imageHeight">Height of layer.</param>
         /// <returns></returns>
-        public static Layer GenerateLayer(int imageWidth, int imageHeight)
+        public static Layer Generate(int imageWidth, int imageHeight)
         {
-            Image image = new Image();
-            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
-            RenderOptions.SetEdgeMode(image, EdgeMode.Aliased);
-            image.Stretch = Stretch.Uniform;
-            image.Width = imageWidth;
-            image.Height = imageHeight;
-            WriteableBitmap bitmap = GenerateBitmap(imageWidth, imageHeight);
-            image.Source = bitmap;
-            return new Layer(bitmap, image);
+            return new Layer(GenerateBitmap(imageWidth, imageHeight));
+        }
+
+        public static LightLayer GenerateWithByteArray(int width, int height)
+        {
+            WriteableBitmap bitmap = GenerateBitmap(width, height);
+            return new LightLayer(bitmap.ToByteArray(), height, width);
         }
 
         /// <summary>

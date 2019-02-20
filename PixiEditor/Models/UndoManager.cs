@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -53,13 +54,13 @@ namespace PixiEditor.Models
         /// <param name="oldValue">Old change value.</param>
         /// <param name="newValue">New change value.</param>
         /// <param name="undoDescription">Description of change.</param>
-        public static void RecordChanges(string property, object oldValue, object newValue, string undoDescription = null)
+        public static void RecordChanges(string property, object oldValue, string undoDescription = null)
         {
             if (_stopRecording == false)
             {
                 if (_recordedChanges.Count < 3)
                 {
-                    _recordedChanges.Add(new Change(property, oldValue, newValue, undoDescription));
+                    _recordedChanges.Add(new Change(property, oldValue, undoDescription));
                 }
             }
         }
@@ -73,7 +74,7 @@ namespace PixiEditor.Models
             if (_recordedChanges.Count > 0)
             {
                 Change changeToSave = _recordedChanges[0];
-                AddUndoChange(changeToSave.Property, changeToSave.OldValue, changeToSave.NewValue, changeToSave.Description);
+                AddUndoChange(changeToSave.Property, changeToSave.OldValue, changeToSave.Description);
                 _recordedChanges.Clear();
             }
             _stopRecording = false;
@@ -85,15 +86,15 @@ namespace PixiEditor.Models
         /// <param name="oldValue">Old value of property.</param>
         /// <param name="newValue">New value of property.</param>
         /// <param name="undoDescription">Description of change.</param>
-        public static void AddUndoChange(string property, object oldValue, object newValue, string undoDescription = null)
+        public static void AddUndoChange(string property, object oldValue, string undoDescription = null)
         {
             if(_lastChangeWasUndo == false && RedoStack.Count > 0) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
             {
                 RedoStack.Clear();
             }
             _lastChangeWasUndo = false;
-            UndoStack.Push(new Change(property, oldValue, newValue, undoDescription)); //Adds change to UndoStack
-            if(UndoStack.Count > _stackLimit) //If Undostack hits limit, removes elements from beggining of stack
+            UndoStack.Push(new Change(property, oldValue, undoDescription)); //Adds change to UndoStack
+            if(UndoStack.Count > _stackLimit) //If Undostack hits limit, removes elements from beginning of stack
             {
                 UndoStack.Remove(0);
             }

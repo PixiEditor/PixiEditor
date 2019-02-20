@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Tools
@@ -19,7 +19,6 @@ namespace PixiEditor.Models.Tools
         private bool _toolIsExecuting = false;
         private int _asyncDelay = 15;
         private WriteableBitmap _oldBitmap;
-        private Image _oldImage;
 
         /// <summary>
         /// Executes tool action
@@ -36,8 +35,6 @@ namespace PixiEditor.Models.Tools
             Layer cLayer = layer;
 
             _oldBitmap = new WriteableBitmap(layer.LayerBitmap);
-            _oldImage = layer.LayerImage;
-            _oldImage.Source = _oldBitmap;
 
             switch (tool)
             {
@@ -78,12 +75,11 @@ namespace PixiEditor.Models.Tools
                         cLayer.LayerBitmap = Darken(cLayer.LayerBitmap, startingCoords);
                     }
                     break;
-                default:
-                    break;
             }
             if (tool != ToolType.ColorPicker)
             {
-                UndoManager.RecordChanges("ActiveLayer", new Layer(_oldBitmap, _oldImage), cLayer, string.Format("{0} Tool.", tool.ToString()));
+                UndoManager.RecordChanges("ActiveLightLayer", new LightLayer(_oldBitmap.ToByteArray(), (int)_oldBitmap.Height, (int)_oldBitmap.Width),
+                    $"{tool.ToString()} Tool.");
             }
 
             return cLayer;
@@ -305,7 +301,8 @@ namespace PixiEditor.Models.Tools
         private WriteableBitmap Lighten(WriteableBitmap bitmap, Coordinates coordinates)
         {
             WriteableBitmap wb = bitmap;
-            Color newColor = ExColor.ChangeColorBrightness(wb.GetPixel(coordinates.X, coordinates.Y), 0.1f);
+            Color pixel = wb.GetPixel(coordinates.X, coordinates.Y);
+            Color newColor = ExColor.ChangeColorBrightness(System.Drawing.Color.FromArgb(pixel.R, pixel.G, pixel.B), 0.1f);
             wb.SetPixel(coordinates.X, coordinates.Y, newColor);
             return wb;
         }
@@ -318,7 +315,8 @@ namespace PixiEditor.Models.Tools
         private WriteableBitmap Darken(WriteableBitmap bitmap, Coordinates coordinates)
         {
             WriteableBitmap wb = bitmap;
-            Color newColor = ExColor.ChangeColorBrightness(wb.GetPixel(coordinates.X, coordinates.Y), -0.06f);
+            Color pixel = wb.GetPixel(coordinates.X, coordinates.Y);
+            Color newColor = ExColor.ChangeColorBrightness(System.Drawing.Color.FromArgb(pixel.R,pixel.G,pixel.B), -0.06f);
             wb.SetPixel(coordinates.X, coordinates.Y, newColor);
             return wb;
         }

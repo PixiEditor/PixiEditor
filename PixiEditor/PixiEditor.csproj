@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Expression.Blend.Sdk.1.0.2\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
@@ -85,6 +86,8 @@
     <Compile Include="Helpers\NotifyableObject.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\ToolSizeToIntConverter.cs" />
+    <Compile Include="Models\BasicLayer.cs" />
+    <Compile Include="Models\BitmapConverter.cs" />
     <Compile Include="Models\Change.cs" />
     <Compile Include="Models\Coordinates.cs" />
     <Compile Include="Models\CustomDialog.cs" />
@@ -92,10 +95,12 @@
     <Compile Include="Models\Enums\FileType.cs" />
     <Compile Include="Models\ExColor.cs" />
     <Compile Include="Models\Exporter.cs" />
+    <Compile Include="Models\ImageGenerator.cs" />
     <Compile Include="Models\Importer.cs" />
     <Compile Include="Models\ImportFileDialog.cs" />
     <Compile Include="Models\LayerGenerator.cs" />
     <Compile Include="Models\Layer.cs" />
+    <Compile Include="Models\LightLayer.cs" />
     <Compile Include="Models\MousePositionConverter.cs" />
     <Compile Include="Models\NewFileDialog.cs" />
     <Compile Include="Models\ExportFileDialog.cs" />

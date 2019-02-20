@@ -44,17 +44,41 @@ namespace PixiEditor.ViewModels
         public RelayCommand RecenterZoomboxCommand { get; set; }
         public RelayCommand OpenFileCommand { get; set; }
 
+        private Image _activeImage;
+
+        public Image ActiveImage
+        {
+            get => _activeImage;
+            set
+            {
+                _activeImage = value;
+                RaisePropertyChanged("ActiveImage");
+            }
+        }
+
         private Layer _activeLayer;
 
         public Layer ActiveLayer //Active drawing layer
         {
             get { return _activeLayer; }
             set {
-                UndoManager.AddUndoChange("ActiveLayer", _activeLayer, value, "Layer Changed");
+                if (_activeLayer != null)
+                {
+                    UndoManager.AddUndoChange("ActiveLightLayer",
+                        new LightLayer(_activeLayer.LayerBitmap.ToByteArray(), ActiveLayer.Height, ActiveLayer.Width),
+                        "Layer Changed");
+                }
+
                 _activeLayer = value;
                 RefreshImage();
                 RaisePropertyChanged("ActiveLayer");
             }
+        }
+
+        public LightLayer ActiveLightLayer
+        {
+            get => new LightLayer(_activeLayer.LayerBitmap.ToByteArray(), ActiveLayer.Height, ActiveLayer.Width);
+            set => ActiveLayer = new Layer(BitmapConverter.BytesToWriteableBitmap(ActiveLayer.Width, ActiveLayer.Height,value.LayerBytes));
         }
 
         private double _mouseXonCanvas;
@@ -231,10 +255,10 @@ namespace PixiEditor.ViewModels
 
         private void RefreshImage()
         {
-            //Jak nie będzie działać z layerami to tutaj szukaj błędu
+            //If it won't work with layers, bug might occur here
             if (ActiveLayer != null)
             {
-                Layers[0].LayerImage.Source = ActiveLayer.LayerBitmap;
+                ActiveImage.Source = ActiveLayer.LayerBitmap;
             }
         }
 
@@ -249,6 +273,7 @@ namespace PixiEditor.ViewModels
             {
                 Layers.Clear();
                 Layers.Add(new Layer(newFile.Width, newFile.Height));
+                ActiveImage = ImageGenerator.GenerateForPixelArts(newFile.Width, newFile.Height);
                 ActiveLayer = Layers[0];
             }
         }
@@ -261,11 +286,11 @@ namespace PixiEditor.ViewModels
         {
             if (Exporter._savePath == null)
             {
-                Exporter.Export(FileType.PNG, ActiveLayer.LayerImage, new Size(ActiveLayer.Width, ActiveLayer.Height));
+                Exporter.Export(FileType.PNG, ActiveImage, new Size(ActiveLayer.Width, ActiveLayer.Height));
             }
             else
             {
-                Exporter.ExportWithoutDialog(FileType.PNG, ActiveLayer.LayerImage);
+                Exporter.ExportWithoutDialog(FileType.PNG, ActiveImage);
             }
         }
         /// <summary>
@@ -290,6 +315,7 @@ namespace PixiEditor.ViewModels
             {
                 Layers.Clear();
                 Layers.Add(new Layer(dialog.FileWidth, dialog.FileHeight));
+                ActiveImage = ImageGenerator.GenerateForPixelArts(dialog.FileWidth, dialog.FileHeight);
                 ActiveLayer = Layers[0];
                 ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
                 RefreshImage();

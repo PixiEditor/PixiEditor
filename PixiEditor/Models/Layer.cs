@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models
 {
-    public class Layer : NotifyableObject
+    public class Layer : BasicLayer
     {
         private WriteableBitmap _layerBitmap;
 
@@ -26,51 +26,20 @@ namespace PixiEditor.Models
             }
         }
 
-        private Image _layerImage;
-
-        public Image LayerImage
-        {
-            get { return _layerImage; }
-            set {
-                _layerImage = value;
-                RaisePropertyChanged("LayerImage");
-            }
-        }
-
-        private int _width;
-
-        public int Width
-        {
-            get { return _width; }
-            set { _width = value; RaisePropertyChanged("Width"); }
-        }
-
-        private int _height;
-
-        public int Height
-        {
-            get { return _height; }
-            set { _height = value; RaisePropertyChanged("Height"); }
-        }
-
-
-
         public Layer(int width, int height)
         {
-            Layer layer = LayerGenerator.GenerateLayer(width, height);
+            Layer layer = LayerGenerator.Generate(width, height);
             LayerBitmap = layer.LayerBitmap;
-            LayerImage = layer.LayerImage;
             Width = width;
             Height = height;
         }
 
 
-        public Layer(WriteableBitmap layerBitmap, Image layerImage)
+        public Layer(WriteableBitmap layerBitmap)
         {
             LayerBitmap = layerBitmap;
-            LayerImage = layerImage;
-            Width = (int)layerImage.Width;
-            Height = (int)layerImage.Height;
+            Width = (int) layerBitmap.Width;
+            Height = (int) layerBitmap.Height;
         }
     }
 }

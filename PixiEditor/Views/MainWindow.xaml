@@ -127,15 +127,7 @@
                                 <behaviors:MouseBehaviour MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
                             <Image Source="/Images/transparent bg.png" Height="{Binding ActiveLayer.Height}" Width="{Binding ActiveLayer.Width}" Opacity="0.2" Stretch="UniformToFill"/>
-                            <ItemsControl ItemsSource="{Binding Layers}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <ContentControl Content="{Binding LayerImage}"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-
+                            <ContentControl Content="{Binding ActiveImage}"/>
                         </Canvas>
                     </vws:MainDrawingPanel.Item>
                 </vws:MainDrawingPanel>
