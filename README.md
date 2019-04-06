@@ -10,7 +10,7 @@ Follow these instructions to get Pixi working on your machine.
 ### Software Requirements
 
 ```
-.NET Framework 4.6.1
+.NET Core 3.0
 ```
 
 ### Installing
