@@ -22,7 +22,7 @@
             </i:Interaction.Triggers>
             <Button Width="20" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" BorderThickness="0" Command="{Binding CloseButtonCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
                 <Button.Background>
-                    <ImageBrush ImageSource="/PixiEditor;component/Images/Cross.png" Stretch="Uniform"/>
+                    <ImageBrush ImageSource="/Images/Cross.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
         </Grid>
