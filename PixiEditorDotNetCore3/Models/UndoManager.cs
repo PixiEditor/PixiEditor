@@ -96,42 +96,10 @@ namespace PixiEditor.Models
             if(_lastChangeWasUndo == false && RedoStack.Count > 0) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
             {
                 RedoStack.Clear();
-                PixiFilesManager.ClearDirectory(PixiFilesManager.RedoStackPath);
-            }
-            else if(_lastChangeWasUndo == true)
-            {
-                LoadChangeFromDiskIfAvailable(@"UndoStack\UndoChange", UndoStack, ref _undosSavedOnDisk);
-            }
-            else
-            {
-                WriteUndoChangeToDisk();
             }
             _lastChangeWasUndo = false;
             UndoStack.Push(new Change(property, oldValue, undoDescription));
             Debug.WriteLine("UndoStackCount: " + UndoStack.Count + " RedoStackCount: " + RedoStack.Count);
-        }
-
-        /// <summary>
-        /// Writes change to file if it is higher than some value (Saves only changes that contain serialized classes)
-        /// </summary>
-        private static void WriteUndoChangeToDisk()
-        {
-            if(UndoStack.Count > MaximumChangesInRam && _stopRecording == true)
-            {
-                _undosSavedOnDisk++;
-                PixiFilesManager.SaveObjectToJsonFile(new Change(UndoStack.First.Property, UndoStack.First.OldValue, UndoStack.First.Description), Path.Combine(PixiFilesManager.TempFolderPath, $@"UndoStack\UndoChange{_undosSavedOnDisk}.puc"));
-                UndoStack.Remove(0);
-            }
-        }
-
-        private static void WriteRedoChangeToDisk()
-        {
-            if (RedoStack.Count > MaximumChangesInRam)
-            {
-                PixiFilesManager.SaveObjectToJsonFile(new Change(RedoStack.First.Property, RedoStack.First.OldValue, RedoStack.First.Description), Path.Combine(PixiFilesManager.TempFolderPath, $@"RedoStack\RedoChange{_redosSavedOnDisk}.puc"));
-                RedoStack.Remove(0);
-                _redosSavedOnDisk++;
-            }
         }
 
         /// <summary>
@@ -154,53 +122,6 @@ namespace PixiEditor.Models
             PropertyInfo propinfo = MainRoot.GetType().GetProperty(RedoStack.Peek().Property);
             propinfo.SetValue(MainRoot, RedoStack.Pop().OldValue);
 
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="relativePath">Path to the folder inside Temp</param>
-        /// <param name="stack"></param>
-        /// <param name="changesSavedOnDisk"></param>
-        private static void LoadChangeFromDiskIfAvailable(string relativePath,StackEx<Change> stack, ref int changesSavedOnDisk)
-        {
-            if (changesSavedOnDisk > 0)
-            {
-                stack.PushToBottom(LoadChangeFromDisk(relativePath,ref changesSavedOnDisk));
-                PixiFilesManager.RemoveFile(Path.Combine(PixiFilesManager.TempFolderPath, $@"{relativePath}{changesSavedOnDisk+1}.puc"));
-            }
-        }
-
-        private static Change LoadChangeFromDisk(string relativePath, ref int changesSavedOnDisk)
-        {
-            Change result = PixiFilesManager.ReadObjectFromFile<Change>(Path.Combine(PixiFilesManager.TempFolderPath, $@"{relativePath}{changesSavedOnDisk}.puc"));
-            result.OldValue = TryFixOldValueDeserialization(result.OldValue);
-            changesSavedOnDisk--;
-            return result;
-        }
-
-        private static void FixUndoRecursionEffect()
-        {
-            PixiFilesManager.RemoveFile(Path.Combine(PixiFilesManager.UndoStackPath, $@"UndoStack/UndoChange{_undosSavedOnDisk}.puc"));
-            _undosSavedOnDisk--;
-        }
-
-
-        /// <summary>
-        /// Deserialzies JObject to LightLayer if possible
-        /// </summary>
-        /// <param name="changeToFix"></param>
-        /// <returns></returns>
-        private static object TryFixOldValueDeserialization(object oldValue)
-        {
-            try
-            {
-                return LightLayer.Deserialize(oldValue);
-            }
-            catch
-            {
-                return oldValue;
-            }
         }
     }
 }
