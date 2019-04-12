@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Models
 {
+    [Serializable]
     public class LightLayer : BasicLayer
     {
         private byte[] _layerBytes;
@@ -35,6 +38,16 @@ namespace PixiEditor.Models
             LayerBytes = layerBytes;
             Width = height;
             Height = width;
+        }
+
+        public LightLayer()
+        {
+
+        }
+
+        public static LightLayer Deserialize(object value)
+        {
+            return JsonConvert.DeserializeObject<LightLayer>(((JObject)value).ToString());
         }
 
     }

@@ -8,6 +8,7 @@ using PixiEditor.Helpers;
 
 namespace PixiEditor.Models
 {
+    [Serializable]
     public class BasicLayer : NotifyableObject
     {
 

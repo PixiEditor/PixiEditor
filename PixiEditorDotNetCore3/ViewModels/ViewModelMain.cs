@@ -4,11 +4,13 @@ using PixiEditor.Models;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Tools;
 using PixiEditor.Views;
+using PixiEditorDotNetCore3.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -143,6 +145,7 @@ namespace PixiEditor.ViewModels
 
         public ViewModelMain()
         {
+            PixiFilesManager.InitializeTempDirectories();
             Layers = new ObservableCollection<Layer>();
             SelectToolCommand = new RelayCommand(RecognizeTool);
             GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
@@ -255,7 +258,7 @@ namespace PixiEditor.ViewModels
 
         private void RefreshImage()
         {
-            //If it won't work with layers, bug might occur here
+            //If it won't work with layers, bug may occur here
             if (ActiveLayer != null)
             {
                 ActiveImage.Source = ActiveLayer.LayerBitmap;

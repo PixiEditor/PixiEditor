@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace PixiEditor.Helpers
 {
+    [Serializable]
     public class NotifyableObject : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
