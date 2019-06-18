@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditor.Models.Tools
+namespace PixiEditorDotNetCore3.Models.Tools
 {
     public class ToolSet
     {

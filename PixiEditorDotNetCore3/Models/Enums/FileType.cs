@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditor.Models.Enums
+namespace PixiEditorDotNetCore3.Models.Enums
 {
     public enum FileType
     {

@@ -13,14 +13,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     public static class UndoManager
     {
         private const int MaximumChangesInRam = 1;
 
-        private static int _undosSavedOnDisk = 0;
-        private static int _redosSavedOnDisk = 0;
         public static StackEx<Change> UndoStack { get; set; } = new StackEx<Change>(); 
         public static StackEx<Change> RedoStack { get; set; } = new StackEx<Change>();
         private static bool _stopRecording = false; 

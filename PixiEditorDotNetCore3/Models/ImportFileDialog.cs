@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     class ImportFileDialog : CustomDialog
     {

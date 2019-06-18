@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     public static class MousePositionConverter
     {

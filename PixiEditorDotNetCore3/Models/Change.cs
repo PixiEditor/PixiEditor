@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PixiEditorDotNetCore3.Models;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     [Serializable]
     public class Change

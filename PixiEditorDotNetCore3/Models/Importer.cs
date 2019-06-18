@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     public class Importer : NotifyableObject
     { 

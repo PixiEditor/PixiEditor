@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     [Serializable]
     public class LightLayer : BasicLayer

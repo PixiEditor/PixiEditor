@@ -1,8 +1,7 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
-using PixiEditor.Models;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.Tools;
+using PixiEditorDotNetCore3.Models.Enums;
+using PixiEditorDotNetCore3.Models.Tools;
 using PixiEditor.Views;
 using PixiEditorDotNetCore3.Models;
 using System;

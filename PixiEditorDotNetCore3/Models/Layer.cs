@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     public class Layer : BasicLayer
     {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using PixiEditor.Helpers;
 
-namespace PixiEditor.Models
+namespace PixiEditorDotNetCore3.Models
 {
     [Serializable]
     public class BasicLayer : NotifyableObject
