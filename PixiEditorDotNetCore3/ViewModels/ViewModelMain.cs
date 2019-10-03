@@ -21,6 +21,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Xceed.Wpf.Toolkit.Zoombox;
+using PixiTools = PixiEditorDotNetCore3.Models.Tools.Tools;
 
 namespace PixiEditor.ViewModels
 {
@@ -155,7 +156,7 @@ namespace PixiEditor.ViewModels
             MouseUpCommand = new RelayCommand(MouseUp);
             RecenterZoomboxCommand = new RelayCommand(RecenterZoombox);
             OpenFileCommand = new RelayCommand(OpenFile);
-            primaryToolSet = new ToolSet(new List<Tool> { new PixiEditorDotNetCore3.Models.Tools.Tools.Pen() });
+            primaryToolSet = new ToolSet(new List<Tool> { new PixiTools.Pen(), new PixiTools.FloodFill() });
             UndoManager.SetMainRoot(this);
         }
 

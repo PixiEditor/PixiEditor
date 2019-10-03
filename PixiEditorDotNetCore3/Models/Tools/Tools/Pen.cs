@@ -7,6 +7,9 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
 {
     public class Pen : Tool
     {
+        public override ToolType GetToolType => ToolType.Pen;
+
+
         public override BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize)
         {
             return Draw(startingCoords, color, toolSize);
@@ -21,11 +24,6 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
             x2 = centeredCoords.Coords2.X;
             y2 = centeredCoords.Coords2.Y;
             return new BitmapPixelChanges(CoordinatesCalculator.RectangleToCoordinates(x1, y1, x2, y2), color);
-        }
-
-        public override ToolType GetToolType()
-        {
-            return ToolType.Pen;
         }
     }
 }

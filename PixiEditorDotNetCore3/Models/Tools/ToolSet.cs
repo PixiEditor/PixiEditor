@@ -1,13 +1,8 @@
-﻿using PixiEditor.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -17,7 +12,7 @@ namespace PixiEditorDotNetCore3.Models.Tools
     {
         public List<Tool> Tools { get; set; } = new List<Tool>();
         private Coordinates _activeCoordinates = new Coordinates();
-        private bool _toolIsExecuting = false;
+        private bool _toolIsExecuting;
         private int _asyncDelay = 15;
 
 
@@ -41,7 +36,7 @@ namespace PixiEditorDotNetCore3.Models.Tools
             BitmapPixelChanges changes;
 
 
-            Tool selectedTool = Tools.Find(x => x.GetToolType() == tool);
+            Tool selectedTool = Tools.Find(x => x.GetToolType == tool);
             changes = selectedTool.Use(layer, startingCoords, color, toolSize);
 
             if (tool != ToolType.ColorPicker)
@@ -50,23 +45,11 @@ namespace PixiEditorDotNetCore3.Models.Tools
                     $"{tool.ToString()} Tool.");
             }
 
-            layer.ApplyPixels(changes, color);
+            if (selectedTool.ExecutesItself == false)
+            {
+                layer.ApplyPixels(changes, color);
+            }
 
-        }
-
-        /// <summary>
-        /// Not working yet.
-        /// </summary>
-        /// <param name="bitmap"></param>
-        /// <param name="pixelCoordinates"></param>
-        /// <param name="color"></param>
-        /// <param name="highlightThickness"></param>
-        public static void HighlightPixel(WriteableBitmap bitmap,Coordinates pixelCoordinates, Color color, int highlightThickness)
-        {
-            bitmap.Clear();
-            bitmap.Blit(new Rect(new Size(bitmap.Width, bitmap.Height)), bitmap, new Rect(new Size(bitmap.Width, bitmap.Height)), WriteableBitmapExtensions.BlendMode.Additive);
-            DoubleCords centerCords = CoordinatesCalculator.CalculateThicknessCenter(pixelCoordinates, highlightThickness);
-            bitmap.FillRectangle(centerCords.Coords1.X, centerCords.Coords1.Y, centerCords.Coords2.X, centerCords.Coords2.Y, color);
         }
 
         /// <summary>
