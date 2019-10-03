@@ -15,10 +15,16 @@ namespace PixiEditorDotNetCore3.Models.Tools
 {
     public class ToolSet
     {
+        public List<Tool> Tools { get; set; } = new List<Tool>();
         private Coordinates _activeCoordinates = new Coordinates();
         private bool _toolIsExecuting = false;
         private int _asyncDelay = 15;
-        private WriteableBitmap _oldBitmap;
+
+
+        public ToolSet(List<Tool> tools)
+        {
+            Tools = tools;
+        }
 
         /// <summary>
         /// Executes tool action
@@ -29,60 +35,23 @@ namespace PixiEditorDotNetCore3.Models.Tools
         /// <param name="toolSize">Size/thickness of tool</param>
         /// <param name="tool">Tool to execute</param>
         /// <returns></returns>
-        public Layer ExecuteTool(Layer layer, Coordinates startingCoords, Color color,int toolSize, ToolType tool)
+        public void ExecuteTool(Layer layer, Coordinates startingCoords, Color color,int toolSize, ToolType tool)
         {
-            if (toolSize < 1) return null;
-            Layer cLayer = layer;
+            if (toolSize < 1) return;
+            BitmapPixelChanges changes;
 
-            _oldBitmap = new WriteableBitmap(layer.LayerBitmap);
 
-            switch (tool)
-            {
-                case ToolType.Pen:
-                    cLayer.LayerBitmap = DrawPixel(cLayer.LayerBitmap, startingCoords, toolSize,color);
-                    break;
-                case ToolType.Bucket:
-                    cLayer.LayerBitmap = FloodFill(cLayer.LayerBitmap, startingCoords, color);
-                    break;
-                case ToolType.Line:
-                    if (_toolIsExecuting == false)
-                    {
-                        LineAsync(cLayer, startingCoords, color, toolSize);
-                    }
-                    break;
-                case ToolType.Circle:
-                    if(_toolIsExecuting == false)
-                    {
-                        CircleAsync(cLayer, startingCoords, color);
-                    }
-                    break;
-                case ToolType.Rectangle:
-                    if(_toolIsExecuting == false)
-                    {
-                        RectangleAsync(cLayer, startingCoords, color);
-                    }
-                    break;              
-                case ToolType.Earser:
-                    cLayer.LayerBitmap = DrawPixel(cLayer.LayerBitmap, startingCoords, toolSize, Colors.Transparent);
-                    break;
-                case ToolType.Lighten:
-                    if(Mouse.LeftButton == MouseButtonState.Pressed)
-                    {
-                        cLayer.LayerBitmap = Lighten(cLayer.LayerBitmap, startingCoords);
-                    }
-                    else if(Mouse.RightButton == MouseButtonState.Pressed)
-                    {
-                        cLayer.LayerBitmap = Darken(cLayer.LayerBitmap, startingCoords);
-                    }
-                    break;
-            }
+            Tool selectedTool = Tools.Find(x => x.GetToolType() == tool);
+            changes = selectedTool.Use(layer, startingCoords, color, toolSize);
+
             if (tool != ToolType.ColorPicker)
             {
-                UndoManager.RecordChanges("ActiveLightLayer", new LightLayer(_oldBitmap.ToByteArray(), (int)_oldBitmap.Height, (int)_oldBitmap.Width),
+                UndoManager.RecordChanges("ActiveLightLayer", new LightLayer(layer.LayerBitmap.ToByteArray(), (int)layer.LayerBitmap.Height, (int)layer.LayerBitmap.Width),
                     $"{tool.ToString()} Tool.");
             }
 
-            return cLayer;
+            layer.ApplyPixels(changes, color);
+
         }
 
         /// <summary>
@@ -96,7 +65,7 @@ namespace PixiEditorDotNetCore3.Models.Tools
         {
             bitmap.Clear();
             bitmap.Blit(new Rect(new Size(bitmap.Width, bitmap.Height)), bitmap, new Rect(new Size(bitmap.Width, bitmap.Height)), WriteableBitmapExtensions.BlendMode.Additive);
-            DCords centerCords = CalculateThicknessCenter(pixelCoordinates, highlightThickness);
+            DoubleCords centerCords = CoordinatesCalculator.CalculateThicknessCenter(pixelCoordinates, highlightThickness);
             bitmap.FillRectangle(centerCords.Coords1.X, centerCords.Coords1.Y, centerCords.Coords2.X, centerCords.Coords2.Y, color);
         }
 
@@ -106,52 +75,9 @@ namespace PixiEditorDotNetCore3.Models.Tools
         /// <param name="cords">Current coordinates</param>
         public void UpdateCoordinates(Coordinates cords)
         {
-                _activeCoordinates = cords;
+            _activeCoordinates = cords;
         }
-
-        /// <summary>
-        /// Fills pixel(s) with choosen color
-        /// </summary>
-        /// <param name="canvas">Bitmap to operate on.</param>
-        /// <param name="pixelPosition">Coordinates of pixel.</param>
-        /// <param name="color">Color to be set.</param>
-        private WriteableBitmap DrawPixel(WriteableBitmap canvas, Coordinates pixelPosition,int thickness,Color color)
-        {
-            WriteableBitmap bm = canvas;
-            int x1, y1, x2, y2;
-            DCords centeredCoords = CalculateThicknessCenter(pixelPosition, thickness);
-            x1 = centeredCoords.Coords1.X;
-            y1 = centeredCoords.Coords1.Y;
-            x2 = centeredCoords.Coords2.X;
-            y2 = centeredCoords.Coords2.Y;
-            bm.FillRectangle(x1, y1, x2, y2, color);
-            return bm;
-        }
-        /// <summary>
-        /// Calculates center of thickness * thickness rectangle
-        /// </summary>
-        /// <param name="startPosition">Top left position of rectangle</param>
-        /// <param name="thickness">Thickness of rectangle</param>
-        /// <returns></returns>
-        private static DCords CalculateThicknessCenter(Coordinates startPosition, int thickness)
-        {
-            int x1, x2, y1, y2;
-            if (thickness % 2 == 0)
-            {
-                x2 = startPosition.X + thickness / 2;
-                y2 = startPosition.Y + thickness / 2;
-                x1 = x2 - thickness;
-                y1 = y2 - thickness;
-            }
-            else
-            {
-                x2 = startPosition.X + (((thickness - 1) / 2) + 1);
-                y2 = startPosition.Y + (((thickness - 1) / 2) + 1);
-                x1 = x2 - thickness;
-                y1 = y2 - thickness;
-            }
-            return new DCords(new Coordinates(x1, y1), new Coordinates(x2, y2));
-        }
+        
 
         /// <summary>
         /// Fills area with color (forest fire alghoritm)

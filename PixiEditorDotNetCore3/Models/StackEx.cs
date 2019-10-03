@@ -44,7 +44,7 @@ namespace PixiEditorDotNetCore3.Models
                 return temp;
             }
             else
-                return default(T);
+                return default;
         }
 
         public void PushToBottom(T item)

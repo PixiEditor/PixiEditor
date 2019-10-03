@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditorDotNetCore3.Models.Tools;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,6 +41,14 @@ namespace PixiEditorDotNetCore3.Models
             LayerBitmap = layerBitmap;
             Width = (int) layerBitmap.Width;
             Height = (int) layerBitmap.Height;
+        }
+
+        public void ApplyPixels(BitmapPixelChanges pixels, Color color)
+        {
+            foreach (var coords in pixels.ChangedCoordinates)
+            {
+                LayerBitmap.SetPixel(coords.X, coords.Y, color);
+            }
         }
     }
 }

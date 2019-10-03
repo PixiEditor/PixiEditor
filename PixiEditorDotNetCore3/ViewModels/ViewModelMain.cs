@@ -155,7 +155,7 @@ namespace PixiEditor.ViewModels
             MouseUpCommand = new RelayCommand(MouseUp);
             RecenterZoomboxCommand = new RelayCommand(RecenterZoombox);
             OpenFileCommand = new RelayCommand(OpenFile);
-            primaryToolSet = new ToolSet();
+            primaryToolSet = new ToolSet(new List<Tool> { new PixiEditorDotNetCore3.Models.Tools.Tools.Pen() });
             UndoManager.SetMainRoot(this);
         }
 
