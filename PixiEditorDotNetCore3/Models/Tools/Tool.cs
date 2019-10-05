@@ -7,8 +7,9 @@ namespace PixiEditorDotNetCore3.Models.Tools
 {
     public abstract class Tool
     {
+        public bool IsShapeCreating = false;
         public abstract BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize);
-        public abstract ToolType GetToolType { get; }
+        public abstract ToolType ToolType { get; }
         public bool ExecutesItself = false;
     }
 }

@@ -7,7 +7,7 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
 {
     public class Pen : Tool
     {
-        public override ToolType GetToolType => ToolType.Pen;
+        public override ToolType ToolType => ToolType.Pen;
 
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize)

@@ -11,6 +11,8 @@ namespace PixiEditorDotNetCore3.Models
 {
     public static class MousePositionConverter
     {
+        public static Coordinates CurrentCoordinates { get; set; }
+
         public static Coordinates MousePositionToCoordinates(Layer baseLayer, Point mousePosition)
         {
             int xCoord = (int)(mousePosition.X / baseLayer.Width);

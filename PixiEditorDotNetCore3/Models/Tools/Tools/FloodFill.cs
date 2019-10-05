@@ -7,7 +7,7 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
 {
     public class FloodFill : Tool
     {
-        public override ToolType GetToolType => ToolType.Bucket;
+        public override ToolType ToolType => ToolType.Bucket;
 
         public FloodFill()
         {
