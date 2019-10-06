@@ -18,6 +18,6 @@ namespace PixiEditorDotNetCore3.Models
             int xCoord = (int)(mousePosition.X / baseLayer.Width);
             int yCoord = (int)(mousePosition.Y / baseLayer.Height);
             return new Coordinates(xCoord, yCoord);
-        }
+        }       
     }
 }

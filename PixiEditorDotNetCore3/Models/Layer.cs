@@ -47,7 +47,7 @@ namespace PixiEditorDotNetCore3.Models
         {
             foreach (var coords in pixels.ChangedCoordinates)
             {
-                LayerBitmap.SetPixel(coords.X, coords.Y, color);
+                LayerBitmap.SetPixel(Math.Clamp(coords.X, 0, Width - 1), Math.Clamp(coords.Y, 0, Height - 1), color);
             }
         }
     }

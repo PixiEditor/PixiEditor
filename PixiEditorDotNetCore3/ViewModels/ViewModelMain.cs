@@ -68,7 +68,13 @@ namespace PixiEditor.ViewModels
 
         public LightLayer ActiveLightLayer
         {
-            get => new LightLayer(_activeLayer.LayerBitmap.ToByteArray(), ActiveLayer.Height, ActiveLayer.Width);
+            get 
+            {
+                if (_activeLayer != null)
+                    return new LightLayer(_activeLayer.LayerBitmap.ToByteArray(), ActiveLayer.Height, ActiveLayer.Width);
+                else
+                    return null;
+            }
             set => ActiveLayer = new Layer(BitmapConverter.BytesToWriteableBitmap(ActiveLayer.Width, ActiveLayer.Height,value.LayerBytes));
         }
 
@@ -159,7 +165,8 @@ namespace PixiEditor.ViewModels
             MouseUpCommand = new RelayCommand(MouseUp);
             RecenterZoomboxCommand = new RelayCommand(RecenterZoombox);
             OpenFileCommand = new RelayCommand(OpenFile);
-            primaryToolSet = new ToolsManager(new List<Tool> { new PixiTools.Pen(), new PixiTools.FloodFill(), new PixiTools.LineTool() });
+            primaryToolSet = new ToolsManager(new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
+            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool()});
             UndoManager.SetMainRoot(this);
             primaryToolSet.SetTool(SelectedTool);
         }
@@ -241,8 +248,28 @@ namespace PixiEditor.ViewModels
             {
                 return;
             }
-            primaryToolSet.ExecuteTool(ActiveLayer, cords, SelectedColor, ToolSize);
-            RefreshImage();
+
+            if (SelectedTool != ToolType.ColorPicker)
+            {
+                primaryToolSet.ExecuteTool(ActiveLayer, cords, SelectedColor, ToolSize);
+                RefreshImage();
+            }
+            else
+            {
+                ExecuteColorPicker(cords);
+            }
+        }
+
+        private void ExecuteColorPicker(Coordinates cords)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                PrimaryColor = ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
+            }
+            else
+            {
+                SecondaryColor = ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
+            }
         }
 
         private void RefreshImage()

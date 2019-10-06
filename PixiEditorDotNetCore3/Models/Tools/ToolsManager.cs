@@ -47,9 +47,10 @@ namespace PixiEditorDotNetCore3.Models.Tools
                     _layer.LayerBitmap.Blit(new Rect(new Size(_layer.Width, _layer.Height)), _clonedBitmap, new Rect(new Size(_layer.Width, _layer.Height)), WriteableBitmapExtensions.BlendMode.Additive);
                 }
                 BitmapPixelChanges changes = SelectedTool.Use(_layer, _startCoordinates, _color, _toolSzie);
+
                 if (!SelectedTool.ExecutesItself)
                 {
-                    _layer.ApplyPixels(changes, _color);
+                    _layer.ApplyPixels(changes, changes.PixelsColor);
                 }
             });
         }
@@ -74,7 +75,7 @@ namespace PixiEditorDotNetCore3.Models.Tools
 
         private void CloneBitmapIfToolIsShape()
         {
-            if (SelectedTool.IsShapeCreating == true)
+            if (SelectedTool.GetType().BaseType == typeof(ShapeTool))
             {
                 _clonedBitmap = _layer.LayerBitmap.Clone();                
             }
@@ -94,7 +95,7 @@ namespace PixiEditorDotNetCore3.Models.Tools
             if (toolSize < 1)
                 return;
 
-            if(_toolRecievedData == false || (_toolRecievedData == true && !SelectedTool.IsShapeCreating))
+            if(_toolRecievedData == false || (_toolRecievedData == true && SelectedTool.GetType().BaseType != typeof(ShapeTool)))
             {
                 _startCoordinates = startingCoords;
                 _layer = layer;
@@ -110,46 +111,5 @@ namespace PixiEditorDotNetCore3.Models.Tools
             }
         }
 
-      
-
-       
-        /// <summary>
-        /// Returns color of pixel.
-        /// </summary>
-        /// <param name="layer">Layer in which bitmap with pixels are stored.</param>
-        /// <param name="coordinates">Pixel coordinate.</param>
-        /// <returns></returns>
-        public static Color ColorPicker(Layer layer, Coordinates coordinates)
-        {
-            return layer.LayerBitmap.GetPixel(coordinates.X, coordinates.Y);
-        }
-        /// <summary>
-        /// Ligtens pixel color.
-        /// </summary>
-        /// <param name="bitmap">Bitmap to work on.</param>
-        /// <param name="coordinates">Pixel coordinates.</param>
-        /// <returns></returns>
-        private WriteableBitmap Lighten(WriteableBitmap bitmap, Coordinates coordinates)
-        {
-            WriteableBitmap wb = bitmap;
-            Color pixel = wb.GetPixel(coordinates.X, coordinates.Y);
-            Color newColor = ExColor.ChangeColorBrightness(System.Drawing.Color.FromArgb(pixel.R, pixel.G, pixel.B), 0.1f);
-            wb.SetPixel(coordinates.X, coordinates.Y, newColor);
-            return wb;
-        }
-        /// <summary>
-        /// Darkens pixel color.
-        /// </summary>
-        /// <param name="bitmap">Bitmap to work on.</param>
-        /// <param name="coordinates">Pixel coordinates.</param>
-        /// <returns></returns>
-        private WriteableBitmap Darken(WriteableBitmap bitmap, Coordinates coordinates)
-        {
-            WriteableBitmap wb = bitmap;
-            Color pixel = wb.GetPixel(coordinates.X, coordinates.Y);
-            Color newColor = ExColor.ChangeColorBrightness(System.Drawing.Color.FromArgb(pixel.R,pixel.G,pixel.B), -0.06f);
-            wb.SetPixel(coordinates.X, coordinates.Y, newColor);
-            return wb;
-        }
     }
 }

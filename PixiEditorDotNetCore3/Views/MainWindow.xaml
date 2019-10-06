@@ -175,7 +175,7 @@
                     <ImageBrush ImageSource="/Images/EarserImage.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Lighten" ToolTip="Makes pixel brighter or darker pixel (U)">
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Brightness" ToolTip="Makes pixel brighter or darker pixel (U)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/LightenImage.png" Stretch="Uniform"/>
                 </Button.Background>
@@ -183,12 +183,12 @@
         </StackPanel>
 
         <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="60" Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" Height="65">
-            <Rectangle Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1">
+            <Rectangle Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
                 <Rectangle.Fill>
                     <SolidColorBrush Color="{Binding PrimaryColor, Mode=OneWay}"/>
                 </Rectangle.Fill>
             </Rectangle>
-            <xctk:ColorPicker Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
+            <xctk:ColorPicker Width="40" Panel.ZIndex="2" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
             <Rectangle Height="40" Width="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
                 <Rectangle.Fill>
                     <SolidColorBrush Color="{Binding SecondaryColor, Mode=OneWay}"/>

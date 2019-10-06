@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace PixiEditorDotNetCore3.Models.Tools.Tools
 {
-    public class Pen : Tool
+    public class PenTool : Tool
     {
         public override ToolType ToolType => ToolType.Pen;
 
