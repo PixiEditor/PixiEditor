@@ -13,6 +13,8 @@ namespace PixiEditorDotNetCore3.Models
     {
         public object OldValue { get; set; }
 
+        public object NewValue { get; set; }
+
         public string Description { get; set; }
 
         public string Property { get; set; }
@@ -22,11 +24,12 @@ namespace PixiEditorDotNetCore3.Models
             Property = property;
             OldValue = oldValue;
             Description = description;
+            NewValue = OldValue;
         }
 
         public Change()
         {
-
+           
         }
 
     }
