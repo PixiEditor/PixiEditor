@@ -17,8 +17,6 @@ namespace PixiEditorDotNetCore3.Models
 {
     public static class UndoManager
     {
-        private const int MaximumChangesInRam = 1;
-
         public static StackEx<Change> UndoStack { get; set; } = new StackEx<Change>(); 
         public static StackEx<Change> RedoStack { get; set; } = new StackEx<Change>();
         private static bool _stopRecording = false; 
@@ -61,10 +59,12 @@ namespace PixiEditorDotNetCore3.Models
         {
             if (_stopRecording == false)
             {
-                if (_recordedChanges.Count < 2)
+                if (_recordedChanges.Count >= 2)
                 {
-                    _recordedChanges.Add(new Change(property, oldValue, undoDescription));
+                    _recordedChanges.RemoveAt(_recordedChanges.Count - 1);
                 }
+                _recordedChanges.Add(new Change(property, oldValue, undoDescription));
+
             }
         }
 
@@ -77,10 +77,22 @@ namespace PixiEditorDotNetCore3.Models
             if (_recordedChanges.Count > 0)
             {
                 Change changeToSave = _recordedChanges[0];
-                AddUndoChange(changeToSave.Property, changeToSave.OldValue, changeToSave.Description);
+                changeToSave.NewValue = _recordedChanges.Last().OldValue;
+                AddUndoChange(changeToSave);
                 _recordedChanges.Clear();
             }
             _stopRecording = false;
+        }
+
+        public static void AddUndoChange(Change change)
+        {
+            if (_lastChangeWasUndo == false && RedoStack.Count > 0) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
+            {
+                RedoStack.Clear();
+            }
+            _lastChangeWasUndo = false;
+            UndoStack.Push(change);
+            Debug.WriteLine("UndoStackCount: " + UndoStack.Count + " RedoStackCount: " + RedoStack.Count);
         }
         /// <summary>
         /// Adds property change to UndoStack
@@ -94,7 +106,7 @@ namespace PixiEditorDotNetCore3.Models
             if(_lastChangeWasUndo == false && RedoStack.Count > 0) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
             {
                 RedoStack.Clear();
-            }
+            }            
             _lastChangeWasUndo = false;
             UndoStack.Push(new Change(property, oldValue, undoDescription));
             Debug.WriteLine("UndoStackCount: " + UndoStack.Count + " RedoStackCount: " + RedoStack.Count);
@@ -118,7 +130,8 @@ namespace PixiEditorDotNetCore3.Models
         {
             _lastChangeWasUndo = true;
             PropertyInfo propinfo = MainRoot.GetType().GetProperty(RedoStack.Peek().Property);
-            propinfo.SetValue(MainRoot, RedoStack.Pop().OldValue);
+            propinfo.SetValue(MainRoot, RedoStack.Peek().NewValue);
+            UndoStack.Push(RedoStack.Pop());
 
         }
     }

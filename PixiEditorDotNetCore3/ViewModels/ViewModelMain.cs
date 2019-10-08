@@ -53,13 +53,6 @@ namespace PixiEditor.ViewModels
         {
             get { return _activeLayer; }
             set {
-                if (_activeLayer != null)
-                {
-                    UndoManager.AddUndoChange("ActiveLightLayer",
-                        new LightLayer(_activeLayer.LayerBitmap.ToByteArray(), ActiveLayer.Height, ActiveLayer.Width),
-                        "Layer Changed");
-                }
-
                 _activeLayer = value;
                 RefreshImage();
                 RaisePropertyChanged("ActiveLayer");
@@ -251,6 +244,8 @@ namespace PixiEditor.ViewModels
 
             if (SelectedTool != ToolType.ColorPicker)
             {
+                UndoManager.RecordChanges("ActiveLightLayer", new LightLayer(ActiveLayer.LayerBitmap.ToByteArray(), (int)ActiveLayer.LayerBitmap.Height, 
+                    (int)ActiveLayer.LayerBitmap.Width), $"Used {SelectedTool.ToString()}");
                 primaryToolSet.ExecuteTool(ActiveLayer, cords, SelectedColor, ToolSize);
                 RefreshImage();
             }

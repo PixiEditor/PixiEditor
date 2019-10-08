@@ -102,7 +102,6 @@ namespace PixiEditorDotNetCore3.Models.Tools
                 _color = color;
                 _toolSzie = toolSize;
             }
-                     
 
             if (_loopTimer.Enabled == false)
             {
