@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PixiEditorDotNetCore3.Models.Layers;
 using System.Windows;
-using System.Windows.Input;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.Position
 {
     public static class MousePositionConverter
     {
@@ -18,6 +12,6 @@ namespace PixiEditorDotNetCore3.Models
             int xCoord = (int)(mousePosition.X / baseLayer.Width);
             int yCoord = (int)(mousePosition.Y / baseLayer.Height);
             return new Coordinates(xCoord, yCoord);
-        }       
+        }
     }
 }

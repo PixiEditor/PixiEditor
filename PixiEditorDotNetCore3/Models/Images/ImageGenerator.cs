@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.Images
 {
     public static class ImageGenerator
     {

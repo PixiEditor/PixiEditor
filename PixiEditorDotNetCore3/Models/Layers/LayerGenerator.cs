@@ -10,9 +10,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.Layers
 {
-    public static class LayerGenerator 
+    public static class LayerGenerator
     {
         /// <summary>
         /// Generating useable layer with image and bitmap
@@ -40,8 +40,8 @@ namespace PixiEditorDotNetCore3.Models
         private static WriteableBitmap GenerateBitmap(int bitmapWidth, int imageHeight)
         {
             WriteableBitmap bitmap = BitmapFactory.New(bitmapWidth, imageHeight);
-            bitmap.Clear(Colors.Transparent);
+            bitmap.Clear(System.Windows.Media.Colors.Transparent);
             return bitmap;
-        }      
+        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditorDotNetCore3.Models.Enums;
 using PixiEditorDotNetCore3.Models.Tools;
-using PixiEditorDotNetCore3.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,6 +10,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiTools = PixiEditorDotNetCore3.Models.Tools.Tools;
+using PixiEditorDotNetCore3.Models.Controllers;
+using PixiEditorDotNetCore3.Models.Dialogs;
+using PixiEditorDotNetCore3.Models.Images;
+using PixiEditorDotNetCore3.Models.IO;
+using PixiEditorDotNetCore3.Models.Layers;
+using PixiEditorDotNetCore3.Models.Position;
 
 namespace PixiEditor.ViewModels
 {

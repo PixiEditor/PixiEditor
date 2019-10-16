@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.IO
 {
     public class Importer : NotifyableObject
-    { 
+    {
         /// <summary>
         /// Imports image from path and resizes it to given dimensions
         /// </summary>
