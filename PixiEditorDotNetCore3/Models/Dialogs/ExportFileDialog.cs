@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.Dialogs
 {
     public class ExportFileDialog : CustomDialog
     {

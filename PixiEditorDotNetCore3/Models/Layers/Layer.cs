@@ -12,7 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.Layers
 {
     public class Layer : BasicLayer
     {
@@ -21,7 +21,8 @@ namespace PixiEditorDotNetCore3.Models
         public WriteableBitmap LayerBitmap
         {
             get { return _layerBitmap; }
-            set {
+            set
+            {
                 _layerBitmap = value;
                 RaisePropertyChanged("LayerBitmap");
             }
@@ -39,8 +40,8 @@ namespace PixiEditorDotNetCore3.Models
         public Layer(WriteableBitmap layerBitmap)
         {
             LayerBitmap = layerBitmap;
-            Width = (int) layerBitmap.Width;
-            Height = (int) layerBitmap.Height;
+            Width = (int)layerBitmap.Width;
+            Height = (int)layerBitmap.Height;
         }
 
         public void ApplyPixels(BitmapPixelChanges pixels, Color color)

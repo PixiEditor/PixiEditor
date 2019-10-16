@@ -9,6 +9,8 @@ using PixiEditor.ViewModels;
 using System.Timers;
 using System.Windows.Threading;
 using System.Threading;
+using PixiEditorDotNetCore3.Models.Layers;
+using PixiEditorDotNetCore3.Models.Position;
 
 namespace PixiEditorDotNetCore3.Models.Tools
 {

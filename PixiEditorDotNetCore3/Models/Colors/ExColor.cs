@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.Colors
 {
-    public class ExColor
+    public static class ExColor
     {
         /// <summary>
         /// Creates color with corrected brightness.
@@ -18,11 +13,11 @@ namespace PixiEditorDotNetCore3.Models
         /// <returns>
         /// Corrected <see cref="Color"/> structure.
         /// </returns>
-        public static Color ChangeColorBrightness(System.Drawing.Color color, float correctionFactor)
+        public static Color ChangeColorBrightness(Color color, float correctionFactor)
         {
-            float red = (float)color.R;
-            float green = (float)color.G;
-            float blue = (float)color.B;
+            float red = color.R;
+            float green = color.G;
+            float blue = color.B;
 
             if (correctionFactor < 0)
             {

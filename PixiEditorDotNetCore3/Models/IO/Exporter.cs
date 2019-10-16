@@ -10,9 +10,10 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using PixiEditorDotNetCore3.Models.Dialogs;
 using PixiEditorDotNetCore3.Models.Enums;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.IO
 {
     public class Exporter
     {
@@ -24,23 +25,23 @@ namespace PixiEditorDotNetCore3.Models
         /// </summary>
         /// <param name="type">Type of file to be saved in.</param>
         /// <param name="imageToSave">Image to be saved as file.</param>
-        public static void Export(FileType type,Image imageToSave, Size fileDimensions)
+        public static void Export(FileType type, Image imageToSave, Size fileDimensions)
         {
-                ExportFileDialog info = new ExportFileDialog(fileDimensions);
-                //If OK on dialog has been clicked
-                if (info.ShowDialog() == true)
+            ExportFileDialog info = new ExportFileDialog(fileDimensions);
+            //If OK on dialog has been clicked
+            if (info.ShowDialog() == true)
+            {
+                //If sizes are incorrect
+                if (info.FileWidth < imageToSave.Width || info.FileHeight < imageToSave.Height)
                 {
-                    //If sizes are incorrect
-                    if(info.FileWidth < imageToSave.Width || info.FileHeight < imageToSave.Height)
-                    {
-                        MessageBox.Show("Incorrect height or width value", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    _savePath = info.FilePath;
-                    _fileDimensions = new Size(info.FileWidth, info.FileHeight);
-                    SaveAsPng(info.FilePath, (int)imageToSave.Width, (int)imageToSave.Height, info.FileHeight, info.FileWidth, imageToSave);
+                    MessageBox.Show("Incorrect height or width value", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
+
+                _savePath = info.FilePath;
+                _fileDimensions = new Size(info.FileWidth, info.FileHeight);
+                SaveAsPng(info.FilePath, (int)imageToSave.Width, (int)imageToSave.Height, info.FileHeight, info.FileWidth, imageToSave);
+            }
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace PixiEditorDotNetCore3.Models
             {
                 SaveAsPng(_savePath, (int)imageToSave.Width, (int)imageToSave.Height, (int)_fileDimensions.Height, (int)_fileDimensions.Width, imageToSave);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -74,7 +75,7 @@ namespace PixiEditorDotNetCore3.Models
             double dpi = 96d;
 
 
-            RenderTargetBitmap rtb = new RenderTargetBitmap(originalWidth * (exportWidth / originalWidth), originalHeight * (exportHeight/originalHeight), dpi, dpi, PixelFormats.Default);
+            RenderTargetBitmap rtb = new RenderTargetBitmap(originalWidth * (exportWidth / originalWidth), originalHeight * (exportHeight / originalHeight), dpi, dpi, PixelFormats.Default);
 
 
             DrawingVisual dv = new DrawingVisual();
@@ -99,7 +100,7 @@ namespace PixiEditorDotNetCore3.Models
             }
             catch (Exception err)
             {
-                System.Windows.MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

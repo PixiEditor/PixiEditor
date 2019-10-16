@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.Position
 {
     public static class CoordinatesCalculator
     {
@@ -24,16 +24,18 @@ namespace PixiEditorDotNetCore3.Models
             }
             else
             {
-                x2 = startPosition.X + (((thickness - 1) / 2) + 1);
-                y2 = startPosition.Y + (((thickness - 1) / 2) + 1);
+                x2 = startPosition.X + (thickness - 1) / 2 + 1;
+                y2 = startPosition.Y + (thickness - 1) / 2 + 1;
                 x1 = x2 - thickness;
                 y1 = y2 - thickness;
             }
-            return new DoubleCords(new Coordinates(x1, y1), new Coordinates(x2, y2));
+            return new DoubleCords(new Coordinates(x1, y1), new Coordinates(x2 - 1, y2 - 1));
         }
 
         public static Coordinates[] RectangleToCoordinates(int x1, int y1, int x2, int y2)
         {
+            x2++;
+            y2++;
             List<Coordinates> coordinates = new List<Coordinates>();
             for (int y = y1; y < y1 + (y2 - y1); y++)
             {

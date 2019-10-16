@@ -1,4 +1,7 @@
-﻿using System.Windows.Input;
+﻿using PixiEditorDotNetCore3.Models.Colors;
+using PixiEditorDotNetCore3.Models.Layers;
+using PixiEditorDotNetCore3.Models.Position;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -23,7 +26,7 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
         {
             PenTool pen = new PenTool();
             Color pixel = layer.LayerBitmap.GetPixel(coordinates.X, coordinates.Y);
-            Color newColor = ExColor.ChangeColorBrightness(System.Drawing.Color.FromArgb(pixel.R, pixel.G, pixel.B), correctionFactor);
+            Color newColor = ExColor.ChangeColorBrightness(Color.FromArgb(pixel.A,pixel.R, pixel.G, pixel.B), correctionFactor);
             return pen.Draw(coordinates, newColor, toolSize);
         }
     }

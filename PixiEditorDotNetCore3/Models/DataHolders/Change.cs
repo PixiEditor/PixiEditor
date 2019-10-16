@@ -4,9 +4,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using PixiEditorDotNetCore3.Models;
 
-namespace PixiEditorDotNetCore3.Models
+namespace PixiEditorDotNetCore3.Models.DataHolders
 {
     [Serializable]
     public class Change
@@ -29,7 +28,7 @@ namespace PixiEditorDotNetCore3.Models
 
         public Change()
         {
-           
+
         }
 
     }
