@@ -42,18 +42,21 @@ namespace PixiEditorDotNetCore3.Models.Tools
         private void LoopTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
-            {              
-                if(_clonedBitmap != null)
+            {           
+                _layer.LayerBitmap.Lock();
+                if (_clonedBitmap != null)
                 {
                     _layer.LayerBitmap.Clear();
                     _layer.LayerBitmap.Blit(new Rect(new Size(_layer.Width, _layer.Height)), _clonedBitmap, new Rect(new Size(_layer.Width, _layer.Height)), WriteableBitmapExtensions.BlendMode.Additive);
-                }
+                }                
                 BitmapPixelChanges changes = SelectedTool.Use(_layer, _startCoordinates, _color, _toolSzie);
 
                 if (!SelectedTool.ExecutesItself)
                 {
                     _layer.ApplyPixels(changes, changes.PixelsColor);
                 }
+                _layer.LayerBitmap.Unlock();
+
             });
         }
 

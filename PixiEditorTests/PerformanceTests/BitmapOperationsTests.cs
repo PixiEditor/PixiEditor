@@ -18,10 +18,15 @@ namespace PixiEditorTests.PerformanceTests
         public void FillBitmapWithPixelsTest(int width, int height)
         {
             WriteableBitmap bitmap = BitmapFactory.New(width, height);
+            bitmap.Lock();
+
             for (int i = 0; i < width * height; i++)
             {
                 bitmap.SetPixeli(i, 0xFFFFF);
+
             }
+            bitmap.Unlock();
+
             Assert.Pass();
         }
     }
