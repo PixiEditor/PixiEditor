@@ -46,10 +46,12 @@ namespace PixiEditorDotNetCore3.Models.Layers
 
         public void ApplyPixels(BitmapPixelChanges pixels, Color color)
         {
+            LayerBitmap.Lock();
             foreach (var coords in pixels.ChangedCoordinates)
             {
                 LayerBitmap.SetPixel(Math.Clamp(coords.X, 0, Width - 1), Math.Clamp(coords.Y, 0, Height - 1), color);
             }
+            LayerBitmap.Unlock();
         }
     }
 }
