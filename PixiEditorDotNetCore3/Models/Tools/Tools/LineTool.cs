@@ -16,7 +16,7 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
         }
 
         public void CreateLine(Layer layer, Coordinates coordinates, Color color, int size)
-        {           
+        {
             layer.LayerBitmap.DrawLineBresenham(coordinates.X, coordinates.Y, MousePositionConverter.CurrentCoordinates.X,
                 MousePositionConverter.CurrentCoordinates.Y, color);
         }

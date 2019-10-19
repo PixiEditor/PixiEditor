@@ -11,7 +11,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="Pixi" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+        Title="PixiEditor" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
     <Window.Resources>
         <vm:ViewModelMain x:Key="ViewModelMain"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

@@ -1,14 +1,9 @@
-﻿using PixiEditor.Helpers;
-using PixiEditorDotNetCore3.Models.Tools;
+﻿using PixiEditorDotNetCore3.Models.Tools;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -46,10 +41,33 @@ namespace PixiEditorDotNetCore3.Models.Layers
 
         public void ApplyPixels(BitmapPixelChanges pixels, Color color)
         {
+            LayerBitmap.Lock();
+
             foreach (var coords in pixels.ChangedCoordinates)
             {
-                LayerBitmap.SetPixel(Math.Clamp(coords.X, 0, Width - 1), Math.Clamp(coords.Y, 0, Height - 1), color);
+                LayerBitmap.SetPixel(Math.Clamp(coords.X, 0, Width - 1), Math.Clamp(coords.Y, 0, Height - 1),
+                    color);
             }
+
+            LayerBitmap.Unlock();
         }
+
+       
+        public byte[] ConvertBitmapToBytes()
+        {            
+            LayerBitmap.Lock();
+            byte[] byteArray = LayerBitmap.ToByteArray();
+            LayerBitmap.Unlock();
+            return byteArray;
+        }
+
+        public byte[] ConvertBitmapToBytes(WriteableBitmap bitmap)
+        {
+            bitmap.Lock();
+            byte[] byteArray = bitmap.ToByteArray();
+            bitmap.Unlock();
+            return byteArray;
+        }
+
     }
 }

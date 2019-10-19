@@ -28,7 +28,10 @@ namespace PixiEditorDotNetCore3.Models.Layers
         public static LightLayer GenerateWithByteArray(int width, int height)
         {
             WriteableBitmap bitmap = GenerateBitmap(width, height);
-            return new LightLayer(bitmap.ToByteArray(), height, width);
+            bitmap.Lock();
+            byte[] byteArray = bitmap.ToByteArray();
+            bitmap.Unlock();
+            return new LightLayer(byteArray, height, width);
         }
 
         /// <summary>

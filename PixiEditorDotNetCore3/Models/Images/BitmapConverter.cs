@@ -17,6 +17,6 @@ namespace PixiEditorDotNetCore3.Models.Images
             WriteableBitmap bitmap = BitmapFactory.New(currentBitmapWidth, currentBitmapHeight);
             bitmap.FromByteArray(byteArray);
             return bitmap;
-        }
+        }      
     }
 }
