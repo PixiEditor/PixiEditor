@@ -26,7 +26,7 @@ namespace PixiEditor.ViewModels
 
         public ObservableCollection<Layer> Layers
         {
-            get { return _layers; }
+            get => _layers;
             set { if (_layers != value) { _layers = value;} }
         }
 
@@ -56,7 +56,7 @@ namespace PixiEditor.ViewModels
 
         public Layer ActiveLayer //Active drawing layer
         {
-            get { return _activeLayer; }
+            get => _activeLayer;
             set {
                 _activeLayer = value;
                 RefreshImage();
@@ -66,14 +66,13 @@ namespace PixiEditor.ViewModels
 
         public LightLayer ActiveLightLayer
         {
-            get 
+            get
             {
                 if (_activeLayer != null)
                     return new LightLayer(
                         _activeLayer.ConvertBitmapToBytes(), 
                         ActiveLayer.Height, ActiveLayer.Width);
-                else
-                    return null;
+                return null;
             }
             set => ActiveLayer = new Layer(BitmapConverter.BytesToWriteableBitmap(ActiveLayer.Width, ActiveLayer.Height,value.LayerBytes));
         }
@@ -82,7 +81,7 @@ namespace PixiEditor.ViewModels
 
         public double MouseXOnCanvas //Mouse X coordinate relative to canvas
         {
-            get { return _mouseXonCanvas; }
+            get => _mouseXonCanvas;
             set { _mouseXonCanvas = value;  RaisePropertyChanged("MouseXonCanvas"); }
         }
 
@@ -90,7 +89,7 @@ namespace PixiEditor.ViewModels
 
         public double MouseYOnCanvas //Mouse Y coordinate relative to canvas
         {
-            get { return _mouseYonCanvas; }
+            get => _mouseYonCanvas;
             set { _mouseYonCanvas = value; RaisePropertyChanged("MouseYonCanvas"); }
         }
 
@@ -99,7 +98,7 @@ namespace PixiEditor.ViewModels
 
         public Color PrimaryColor //Primary color, hooked with left mouse button
         {
-            get { return _primaryColor; }
+            get => _primaryColor;
             set
             {
                 if (_primaryColor != value)
@@ -114,7 +113,7 @@ namespace PixiEditor.ViewModels
 
         public Color SecondaryColor //Secondary color, hooked with right mouse button
         {
-            get { return _secondaryColor; }
+            get => _secondaryColor;
             set { if (_secondaryColor != value) { _secondaryColor = value; RaisePropertyChanged("SecondaryColor"); } }
         }
 
@@ -293,7 +292,7 @@ namespace PixiEditor.ViewModels
             if (newFile.ShowDialog() == true)
             {
                 Layers.Clear();
-                Layers.Add(new Layer(newFile.Width, newFile.Height));
+                Layers.Add(new Layer("Base Layer",newFile.Width, newFile.Height));
                 ActiveImage = ImageGenerator.GenerateForPixelArts(newFile.Width, newFile.Height);
                 ActiveLayer = Layers[0];
             }
@@ -335,7 +334,7 @@ namespace PixiEditor.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 Layers.Clear();
-                Layers.Add(new Layer(dialog.FileWidth, dialog.FileHeight));
+                Layers.Add(new Layer("Base Layer",dialog.FileWidth, dialog.FileHeight));
                 ActiveImage = ImageGenerator.GenerateForPixelArts(dialog.FileWidth, dialog.FileHeight);
                 ActiveLayer = Layers[0];
                 ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);

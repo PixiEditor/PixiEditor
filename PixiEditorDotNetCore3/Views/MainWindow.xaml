@@ -69,9 +69,9 @@
     </Window.InputBindings>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="70*"/>
+            <ColumnDefinition Width="60*"/>
             <ColumnDefinition Width="1420*"/>
-            <ColumnDefinition Width="110*"/>
+            <ColumnDefinition Width="150*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30*"/>
@@ -80,7 +80,7 @@
         </Grid.RowDefinitions>
 
         <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0" Height="30"/>
-        <WrapPanel Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="100">
+        <WrapPanel Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Panel.ZIndex="100">
             <vws:MenuButton Text="File" Margin="0,0,-140,0">
                 <vws:MenuButton.Item>
                     <StackPanel>
@@ -196,6 +196,16 @@
             </Rectangle>
             <xctk:ColorPicker Width="40" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
         </Grid>
+
+        <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Vertical">
+            <ListView ItemsSource="{Binding Layers}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"></TextBlock>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
 
     </Grid>
 </Window>

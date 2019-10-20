@@ -12,6 +12,7 @@ namespace PixiEditorDotNetCore3.Models.Layers
     public class Layer : BasicLayer
     {
         private WriteableBitmap _layerBitmap;
+        public string Name { get; set; }
 
         public WriteableBitmap LayerBitmap
         {
@@ -23,8 +24,9 @@ namespace PixiEditorDotNetCore3.Models.Layers
             }
         }
 
-        public Layer(int width, int height)
+        public Layer(string name,int width, int height)
         {
+            Name = name;
             Layer layer = LayerGenerator.Generate(width, height);
             LayerBitmap = layer.LayerBitmap;
             Width = width;

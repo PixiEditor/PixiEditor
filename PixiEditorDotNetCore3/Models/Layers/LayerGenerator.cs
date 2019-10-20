@@ -46,5 +46,6 @@ namespace PixiEditorDotNetCore3.Models.Layers
             bitmap.Clear(System.Windows.Media.Colors.Transparent);
             return bitmap;
         }
+
     }
 }
