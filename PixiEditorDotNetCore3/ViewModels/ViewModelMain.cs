@@ -4,6 +4,7 @@ using PixiEditorDotNetCore3.Models.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing.Drawing2D;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -47,7 +48,7 @@ namespace PixiEditor.ViewModels
             get => _activeImage;
             set
             {
-                _activeImage = value;
+                _activeImage = BuildFinalImage(value);
                 RaisePropertyChanged("ActiveImage");
             }
         }
@@ -170,6 +171,28 @@ namespace PixiEditor.ViewModels
             primaryToolSet.SetTool(SelectedTool);
         }
 
+        public Image BuildFinalImage(Image image)
+        {
+            if (ActiveLayer == null) return image;
+            WriteableBitmap bitmap = BlendLayersBitmaps();
+            Image finalImage = image;
+            image.Source = bitmap;
+            return finalImage;
+        }
+
+        public WriteableBitmap BlendLayersBitmaps()
+        {
+            Rect size = new Rect(new Size(ActiveLayer.Width, ActiveLayer.Height));
+            WriteableBitmap bitmap = Layers[0].LayerBitmap;
+            for (int i = 1; i < Layers.Count; i++)
+            {
+                bitmap.Blit(size, Layers[i].LayerBitmap,
+                    size, WriteableBitmapExtensions.BlendMode.Additive);
+            }
+
+            return bitmap;
+        }
+
         #region Undo/Redo
         /// <summary>
         /// Undo last action
@@ -278,7 +301,9 @@ namespace PixiEditor.ViewModels
             //If it won't work with layers, bug may occur here
             if (ActiveLayer != null)
             {
-                ActiveImage.Source = ActiveLayer.LayerBitmap;
+                Image activeImage = ActiveImage;
+                activeImage.Source = ActiveLayer.LayerBitmap;
+                ActiveImage = activeImage;
             }
         }
 
@@ -348,6 +373,11 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         public void RecenterZoombox(object parameter)
         {
+            Layer testLayer = new Layer("Test Layer", Layers[0].Width, Layers[0].Height);
+            testLayer.LayerBitmap.SetPixel(5, 5, Colors.Black);
+            Layers.Add(testLayer);
+            RefreshImage();
+
             MessageBox.Show("This feature is not implemented yet.", "Feature not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }

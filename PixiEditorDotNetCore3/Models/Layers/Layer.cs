@@ -13,6 +13,7 @@ namespace PixiEditorDotNetCore3.Models.Layers
     {
         private WriteableBitmap _layerBitmap;
         public string Name { get; set; }
+        public bool IsVisible { get; set; } = true;
 
         public WriteableBitmap LayerBitmap
         {
