@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -40,6 +41,8 @@ namespace PixiEditor.ViewModels
         public RelayCommand MouseUpCommand { get; set; }
         public RelayCommand RecenterZoomboxCommand { get; set; }
         public RelayCommand OpenFileCommand { get; set; }
+        public RelayCommand SetActiveLayerCommand { get; set; }
+        public RelayCommand NewLayerCommand { get; set; }
 
         private Image _activeImage;
 
@@ -165,6 +168,8 @@ namespace PixiEditor.ViewModels
             MouseUpCommand = new RelayCommand(MouseUp);
             RecenterZoomboxCommand = new RelayCommand(RecenterZoombox);
             OpenFileCommand = new RelayCommand(OpenFile);
+            SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
+            NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
             primaryToolSet = new ToolsManager(new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool()});
             UndoManager.SetMainRoot(this);
@@ -284,6 +289,7 @@ namespace PixiEditor.ViewModels
             }
         }
 
+
         private void ExecuteColorPicker(Coordinates cords)
         {
             if (Mouse.LeftButton == MouseButtonState.Pressed)
@@ -379,6 +385,22 @@ namespace PixiEditor.ViewModels
             RefreshImage();
 
             MessageBox.Show("This feature is not implemented yet.", "Feature not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        public void SetActiveLayer(object parameter)
+        {
+            ActiveLayer = Layers[(int) parameter];
+        }
+
+        public void NewLayer(object parameter)
+        {
+            Layers.Add(new Layer("New Layer", Layers[0].Width, Layers[0].Height));
+            Layers.Move(Layers.Count - 1, 0);
+        }
+
+        public bool CanCreateNewLayer(object parameter)
+        {
+            return Layers.Count > 0;
         }
     }
 }

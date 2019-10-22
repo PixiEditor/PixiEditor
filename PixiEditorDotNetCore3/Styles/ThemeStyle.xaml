@@ -16,8 +16,8 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Background" Value="#404040"/>
-                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="Gray"/>
                             <Setter Property="Cursor" Value="Arrow"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">

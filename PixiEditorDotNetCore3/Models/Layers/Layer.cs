@@ -55,7 +55,7 @@ namespace PixiEditorDotNetCore3.Models.Layers
             LayerBitmap.Unlock();
         }
 
-       
+
         public byte[] ConvertBitmapToBytes()
         {            
             LayerBitmap.Lock();
@@ -70,6 +70,13 @@ namespace PixiEditorDotNetCore3.Models.Layers
             byte[] byteArray = bitmap.ToByteArray();
             bitmap.Unlock();
             return byteArray;
+        }
+
+        public void Resize(int newWidth, int newHeight)
+        {
+            LayerBitmap.Resize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            Height = newHeight;
+            Width = newWidth;
         }
 
     }
