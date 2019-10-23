@@ -43,7 +43,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand OpenFileCommand { get; set; }
         public RelayCommand SetActiveLayerCommand { get; set; }
         public RelayCommand NewLayerCommand { get; set; }
-        public RelayCommand RefreshImageCommand { get; set; }
+        public RelayCommand ReloadImageCommand { get; set; }
 
         private Image _activeImage;
 
@@ -52,7 +52,7 @@ namespace PixiEditor.ViewModels
             get => _activeImage;
             set
             {
-                _activeImage = BuildFinalImage(value);
+                _activeImage = value;
                 RaisePropertyChanged("ActiveImage");
             }
         }
@@ -64,7 +64,7 @@ namespace PixiEditor.ViewModels
             get => _activeLayer;
             set {
                 _activeLayer = value;
-                RefreshImage();
+                ReloadImage();
                 RaisePropertyChanged("ActiveLayer");
             }
         }
@@ -171,19 +171,19 @@ namespace PixiEditor.ViewModels
             OpenFileCommand = new RelayCommand(OpenFile);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            RefreshImageCommand = new RelayCommand(RefreshImage);
+            ReloadImageCommand = new RelayCommand(ReloadImage);
             primaryToolSet = new ToolsManager(new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool()});
             UndoManager.SetMainRoot(this);
             primaryToolSet.SetTool(SelectedTool);
         }
 
-        public Image BuildFinalImage(Image image)
+        public Image BuildFinalImage()
         {
-            if (ActiveLayer == null) return image;
+            if (ActiveLayer == null) return null;
             WriteableBitmap bitmap = BlendLayersBitmaps();
-            Image finalImage = image;
-            image.Source = bitmap;
+            Image finalImage =  ImageGenerator.GenerateForPixelArts(ActiveLayer.Width,ActiveLayer.Height);
+            finalImage.Source = bitmap;
             return finalImage;
         }
 
@@ -195,7 +195,8 @@ namespace PixiEditor.ViewModels
             {
                 return BitmapFactory.New(0,0);
             }
-            WriteableBitmap bitmap = visibleLayers[0].LayerBitmap;
+
+            WriteableBitmap bitmap = visibleLayers[0].LayerBitmap.Clone();
 
             for (int i = 1; i < visibleLayers.Length; i++)
             {
@@ -310,13 +311,19 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private void RefreshImage(object property=null)
+        private void ReloadImage(object property=null)
         {
             if (ActiveLayer != null)
             {
-                Image activeImage = ActiveImage;
-                activeImage.Source = ActiveLayer.LayerBitmap;
-                ActiveImage = activeImage;
+                ActiveImage = BuildFinalImage();
+            }
+        }
+
+        private void RefreshImage()
+        {
+            if (ActiveLayer != null)
+            {
+                ActiveImage.Source = ActiveLayer.LayerBitmap;
             }
         }
 
@@ -369,14 +376,14 @@ namespace PixiEditor.ViewModels
         public void OpenFile(object parameter)
         {
             ImportFileDialog dialog = new ImportFileDialog();
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog())
             {
                 Layers.Clear();
                 Layers.Add(new Layer("Base Layer",dialog.FileWidth, dialog.FileHeight));
                 ActiveImage = ImageGenerator.GenerateForPixelArts(dialog.FileWidth, dialog.FileHeight);
-                ActiveLayer = Layers[0];
+                SetActiveLayer(0);
                 ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
-                RefreshImage();
+                ReloadImage();
             }
         }
 
@@ -393,6 +400,7 @@ namespace PixiEditor.ViewModels
         {
             UndoManager.AddUndoChange("ActiveLayer", ActiveLayer, $"Changed layer to {Layers[(int)parameter].Name}");
             ActiveLayer = Layers[(int) parameter];
+            ReloadImage();
         }
 
         public void NewLayer(object parameter)

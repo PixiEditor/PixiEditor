@@ -214,7 +214,7 @@
                                         <DataTemplate>
                                             <Border BorderBrush="Gray" BorderThickness="1">
                                             <DockPanel>
-                                                <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.RefreshImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
+                                                <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
                                                 <Button Style="{StaticResource BaseDarkButton}" Background="Transparent" FontSize="16" DockPanel.Dock="Left" Content="{Binding Name}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
                             Path=DataContext.SetActiveLayerCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
