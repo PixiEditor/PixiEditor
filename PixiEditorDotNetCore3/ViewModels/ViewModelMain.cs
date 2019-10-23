@@ -43,6 +43,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand OpenFileCommand { get; set; }
         public RelayCommand SetActiveLayerCommand { get; set; }
         public RelayCommand NewLayerCommand { get; set; }
+        public RelayCommand RefreshImageCommand { get; set; }
 
         private Image _activeImage;
 
@@ -58,7 +59,7 @@ namespace PixiEditor.ViewModels
 
         private Layer _activeLayer;
 
-        public Layer ActiveLayer //Active drawing layer
+        public Layer ActiveLayer
         {
             get => _activeLayer;
             set {
@@ -170,6 +171,7 @@ namespace PixiEditor.ViewModels
             OpenFileCommand = new RelayCommand(OpenFile);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
+            RefreshImageCommand = new RelayCommand(RefreshImage);
             primaryToolSet = new ToolsManager(new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool()});
             UndoManager.SetMainRoot(this);
@@ -188,10 +190,16 @@ namespace PixiEditor.ViewModels
         public WriteableBitmap BlendLayersBitmaps()
         {
             Rect size = new Rect(new Size(ActiveLayer.Width, ActiveLayer.Height));
-            WriteableBitmap bitmap = Layers[0].LayerBitmap;
-            for (int i = 1; i < Layers.Count; i++)
+            Layer[] visibleLayers = Layers.Where(x => x.IsVisible).ToArray();
+            if (visibleLayers.Length == 0)
             {
-                bitmap.Blit(size, Layers[i].LayerBitmap,
+                return BitmapFactory.New(0,0);
+            }
+            WriteableBitmap bitmap = visibleLayers[0].LayerBitmap;
+
+            for (int i = 1; i < visibleLayers.Length; i++)
+            {
+                bitmap.Blit(size, visibleLayers[i].LayerBitmap,
                     size, WriteableBitmapExtensions.BlendMode.Additive);
             }
 
@@ -302,9 +310,8 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private void RefreshImage()
+        private void RefreshImage(object property=null)
         {
-            //If it won't work with layers, bug may occur here
             if (ActiveLayer != null)
             {
                 Image activeImage = ActiveImage;
@@ -320,7 +327,7 @@ namespace PixiEditor.ViewModels
         private void GenerateDrawArea(object parameter)
         {
             NewFileDialog newFile = new NewFileDialog();
-            if (newFile.ShowDialog() == true)
+            if (newFile.ShowDialog())
             {
                 Layers.Clear();
                 Layers.Add(new Layer("Base Layer",newFile.Width, newFile.Height));
@@ -379,16 +386,12 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         public void RecenterZoombox(object parameter)
         {
-            Layer testLayer = new Layer("Test Layer", Layers[0].Width, Layers[0].Height);
-            testLayer.LayerBitmap.SetPixel(5, 5, Colors.Black);
-            Layers.Add(testLayer);
-            RefreshImage();
-
             MessageBox.Show("This feature is not implemented yet.", "Feature not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public void SetActiveLayer(object parameter)
         {
+            UndoManager.AddUndoChange("ActiveLayer", ActiveLayer, $"Changed layer to {Layers[(int)parameter].Name}");
             ActiveLayer = Layers[(int) parameter];
         }
 
@@ -396,6 +399,7 @@ namespace PixiEditor.ViewModels
         {
             Layers.Add(new Layer("New Layer", Layers[0].Width, Layers[0].Height));
             Layers.Move(Layers.Count - 1, 0);
+            ActiveLayer = Layers[0];
         }
 
         public bool CanCreateNewLayer(object parameter)

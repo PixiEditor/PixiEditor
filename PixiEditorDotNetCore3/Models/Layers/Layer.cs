@@ -17,7 +17,7 @@ namespace PixiEditorDotNetCore3.Models.Layers
 
         public WriteableBitmap LayerBitmap
         {
-            get { return _layerBitmap; }
+            get => _layerBitmap;
             set
             {
                 _layerBitmap = value;
