@@ -155,6 +155,7 @@ namespace PixiEditor.ViewModels
         }
 
         private ToolsManager primaryToolSet;
+        private WriteableBitmap _lastBlendedBitmap;
 
         public ViewModelMain()
         {
@@ -176,15 +177,6 @@ namespace PixiEditor.ViewModels
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool()});
             UndoManager.SetMainRoot(this);
             primaryToolSet.SetTool(SelectedTool);
-        }
-
-        public Image BuildFinalImage()
-        {
-            if (ActiveLayer == null) return null;
-            WriteableBitmap bitmap = BlendLayersBitmaps();
-            Image finalImage =  ImageGenerator.GenerateForPixelArts(ActiveLayer.Width,ActiveLayer.Height);
-            finalImage.Source = bitmap;
-            return finalImage;
         }
 
         public WriteableBitmap BlendLayersBitmaps()
@@ -315,7 +307,8 @@ namespace PixiEditor.ViewModels
         {
             if (ActiveLayer != null)
             {
-                ActiveImage = BuildFinalImage();
+                _lastBlendedBitmap = BlendLayersBitmaps();
+                ActiveImage.Source = _lastBlendedBitmap;
             }
         }
 
@@ -323,7 +316,10 @@ namespace PixiEditor.ViewModels
         {
             if (ActiveLayer != null)
             {
-                ActiveImage.Source = ActiveLayer.LayerBitmap;
+                Rect size = new Rect(new Size(ActiveLayer.Height, ActiveLayer.Width));
+                 _lastBlendedBitmap.Blit(size, ActiveLayer.LayerBitmap,
+                    size);
+                ActiveImage.Source = _lastBlendedBitmap;
             }
         }
 
