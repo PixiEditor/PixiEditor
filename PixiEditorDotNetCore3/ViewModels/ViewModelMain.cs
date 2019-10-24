@@ -135,8 +135,6 @@ namespace PixiEditor.ViewModels
             }
         }
 
-
-
         private ToolType _selectedTool = ToolType.Pen;
 
         public ToolType SelectedTool
@@ -345,6 +343,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void SaveFile(object parameter)
         {
+            ReloadImage();
             if (Exporter._savePath == null)
             {
                 Exporter.Export(FileType.PNG, ActiveImage, new Size(ActiveLayer.Width, ActiveLayer.Height));

@@ -182,22 +182,23 @@
             </Button>
         </StackPanel>
 
-        <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="60" Grid.Column="0" Grid.Row="1" Margin="0,0,0,0" Height="65">
-            <Rectangle Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
+        <DockPanel Grid.Column="2" Grid.Row="1">
+            <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="100"  Margin="0,20,0,0" Height="100">
+            <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
                 <Rectangle.Fill>
                     <SolidColorBrush Color="{Binding PrimaryColor, Mode=OneWay}"/>
                 </Rectangle.Fill>
             </Rectangle>
-            <xctk:ColorPicker Width="40" Panel.ZIndex="2" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
-            <Rectangle Height="40" Width="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
+            <xctk:ColorPicker Width="70" Panel.ZIndex="2" Height="70" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
+            <Rectangle Height="70" Width="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
                 <Rectangle.Fill>
                     <SolidColorBrush Color="{Binding SecondaryColor, Mode=OneWay}"/>
                 </Rectangle.Fill>
             </Rectangle>
-            <xctk:ColorPicker Width="40" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
+            <xctk:ColorPicker Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
         </Grid>
-
-        <xcad:DockingManager Grid.Column="2" Grid.Row="1">
+        
+        <xcad:DockingManager Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top">
             <xcad:DockingManager.Style>
                 <Style TargetType="xcad:DockingManager">
                     <Setter Property="Foreground" Value="Snow"/>
@@ -213,12 +214,12 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border BorderBrush="Gray" BorderThickness="1">
-                                            <DockPanel>
-                                                <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
-                                                <Button Style="{StaticResource BaseDarkButton}" Background="Transparent" FontSize="16" DockPanel.Dock="Left" Content="{Binding Name}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
+                                                <DockPanel>
+                                                    <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
+                                                    <Button Style="{StaticResource BaseDarkButton}" Background="Transparent" FontSize="16" DockPanel.Dock="Left" Content="{Binding Name}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
                             Path=DataContext.SetActiveLayerCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
-                                            </DockPanel>
+                                                </DockPanel>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -228,7 +229,8 @@
                     </xcad:LayoutAnchorablePane>
                 </xcad:LayoutPanel>
             </xcad:LayoutRoot>
-            
         </xcad:DockingManager>
+        </DockPanel>
+
     </Grid>
 </Window>
