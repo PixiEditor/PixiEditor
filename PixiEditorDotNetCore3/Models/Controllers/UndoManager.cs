@@ -1,17 +1,8 @@
-﻿using PixiEditor.Helpers;
-using PixiEditorDotNetCore3.Models.DataHolders;
-using System;
+﻿using PixiEditorDotNetCore3.Models.DataHolders;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing.Printing;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
 
 namespace PixiEditorDotNetCore3.Models.Controllers
 {
@@ -101,14 +92,14 @@ namespace PixiEditorDotNetCore3.Models.Controllers
         /// <param name="oldValue">Old value of property.</param>
         /// <param name="newValue">New value of property.</param>
         /// <param name="undoDescription">Description of change.</param>
-        public static void AddUndoChange(string property, object oldValue, string undoDescription = "")
+        public static void AddUndoChange(string property, object oldValue, object newValue, string undoDescription = "")
         {
             if (_lastChangeWasUndo == false && RedoStack.Count > 0) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
             {
                 RedoStack.Clear();
             }
             _lastChangeWasUndo = false;
-            UndoStack.Push(new Change(property, oldValue, undoDescription));
+            UndoStack.Push(new Change(property, oldValue, newValue, undoDescription));
             Debug.WriteLine("UndoStackCount: " + UndoStack.Count + " RedoStackCount: " + RedoStack.Count);
         }
 

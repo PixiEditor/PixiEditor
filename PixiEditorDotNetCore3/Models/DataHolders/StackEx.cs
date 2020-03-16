@@ -25,6 +25,10 @@ namespace PixiEditorDotNetCore3.Models.DataHolders
             items.Clear();
         }
 
+        /// <summary>
+        /// Returns top object without deleting it.
+        /// </summary>
+        /// <returns>Returns n - 1 item from stack.</returns>
         public T Peek()
         {
             return items[items.Count - 1];

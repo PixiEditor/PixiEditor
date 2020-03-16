@@ -18,12 +18,12 @@ namespace PixiEditorDotNetCore3.Models.DataHolders
 
         public string Property { get; set; }
 
-        public Change(string property, object oldValue, string description = "")
+        public Change(string property, object oldValue, object newValue, string description = "")
         {
             Property = property;
             OldValue = oldValue;
             Description = description;
-            NewValue = OldValue;
+            NewValue = newValue;
         }
 
         public Change()
