@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditorDotNetCore3.Models.Tools
+namespace PixiEditor.Models.Tools
 {
     public enum ToolType
     {

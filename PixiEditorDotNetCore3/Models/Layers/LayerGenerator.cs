@@ -1,4 +1,4 @@
-﻿using PixiEditorDotNetCore3.Models.Tools;
+﻿using PixiEditor.Models.Tools;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditorDotNetCore3.Models.Layers
+namespace PixiEditor.Models.Layers
 {
     public static class LayerGenerator
     {

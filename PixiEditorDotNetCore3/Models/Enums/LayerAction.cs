@@ -4,8 +4,8 @@ using System.Text;
 
 namespace PixiEditor.Models.Enums
 {
-    public enum MouseAction
+    public enum LayerAction
     {
-        Move, MouseDown, MouseUp
+        Add, Remove, Move, SetActive
     }
 }

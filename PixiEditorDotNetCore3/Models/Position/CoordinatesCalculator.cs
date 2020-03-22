@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PixiEditorDotNetCore3.Models.Position
+namespace PixiEditor.Models.Position
 {
     public static class CoordinatesCalculator
     {

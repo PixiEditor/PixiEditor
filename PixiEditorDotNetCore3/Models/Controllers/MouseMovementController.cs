@@ -1,4 +1,4 @@
-﻿using PixiEditorDotNetCore3.Models.Position;
+﻿using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,6 +16,7 @@ namespace PixiEditor.Models.Controllers
         {
             if (IsRecordingChanges == false)
             {
+                LastMouseMoveCoordinates.Clear();
                 IsRecordingChanges = true;
             }
         }

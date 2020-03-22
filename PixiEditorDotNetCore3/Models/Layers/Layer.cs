@@ -1,13 +1,10 @@
-﻿using PixiEditorDotNetCore3.Models.Tools;
+﻿using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
 using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
+using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditorDotNetCore3.Models.Layers
+namespace PixiEditor.Models.Layers
 {
     public class Layer : BasicLayer
     {
@@ -25,7 +22,7 @@ namespace PixiEditorDotNetCore3.Models.Layers
             }
         }
 
-        public Layer(string name,int width, int height)
+        public Layer(string name, int width, int height)
         {
             Name = name;
             Layer layer = LayerGenerator.Generate(width, height);
@@ -55,6 +52,21 @@ namespace PixiEditorDotNetCore3.Models.Layers
             LayerBitmap.Unlock();
         }
 
+        public Coordinates[] GetNonTransprarentPixels()
+        {
+            List<Coordinates> coordinates = new List<Coordinates>();
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (LayerBitmap.GetPixeli(x, y) != 0)
+                    {
+                        coordinates.Add(new Coordinates(x, y));
+                    }
+                }
+            }
+            return coordinates.ToArray();
+        }
 
         public byte[] ConvertBitmapToBytes()
         {            

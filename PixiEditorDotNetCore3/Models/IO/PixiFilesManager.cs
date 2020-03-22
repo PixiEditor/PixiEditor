@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace PixiEditorDotNetCore3.Models.IO
+namespace PixiEditor.Models.IO
 {
     public static class PixiFilesManager
     {

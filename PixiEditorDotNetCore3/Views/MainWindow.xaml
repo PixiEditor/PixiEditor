@@ -115,13 +115,13 @@
                         <Canvas Width="{Binding BitmapUtility.ActiveLayer.Width}" Height="{Binding BitmapUtility.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseMove">
-                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}" CommandParameter="{x:Static enums:MouseAction.Move}"/>
+                                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"/>
                                 </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}" CommandParameter="{x:Static enums:MouseAction.MouseDown}"/>
+                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
                                 </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseUp">
-                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}" CommandParameter="{x:Static enums:MouseAction.MouseUp}"/>
+                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <i:Interaction.Behaviors>

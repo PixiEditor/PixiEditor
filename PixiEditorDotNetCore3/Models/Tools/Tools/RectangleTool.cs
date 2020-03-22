@@ -1,9 +1,9 @@
-﻿using PixiEditorDotNetCore3.Models.Layers;
-using PixiEditorDotNetCore3.Models.Position;
+﻿using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditorDotNetCore3.Models.Tools.Tools
+namespace PixiEditor.Models.Tools.Tools
 {
     public class RectangleTool : ShapeTool
     {
@@ -11,7 +11,7 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
-            CreateRectangle(layer,coordinates[0] ,color,toolSize);
+            CreateRectangle(layer,coordinates[0], color, toolSize);
             return new BitmapPixelChanges();
         }
 

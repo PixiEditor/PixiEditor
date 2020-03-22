@@ -1,13 +1,16 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
-using PixiEditorDotNetCore3.Models.Layers;
-using PixiEditorDotNetCore3.Models.Position;
-using PixiEditorDotNetCore3.Models.Tools;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -42,6 +45,7 @@ namespace PixiEditor.Models.Controllers
         public int ToolSize { get; set; }
 
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
+        public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
         public BitmapOperationsUtility()
         {
@@ -70,12 +74,43 @@ namespace PixiEditor.Models.Controllers
             {
                 ActiveLayerIndex = 0;
             }
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
 
         public void SetActiveLayer(int index)
         {
             ActiveLayerIndex = index;
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
         }
+
+        public WriteableBitmap GetCombinedBitmaps()
+        {
+            Layer[] visibleLayers = Layers.Where(x => x.IsVisible).ToArray();
+            visibleLayers.Reverse();
+            int width = visibleLayers[0].Width;
+            int height = visibleLayers[0].Height;
+            WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
+            finalBitmap.Lock();
+            finalBitmap = WriteLayersToBitmap(finalBitmap, visibleLayers);
+            finalBitmap.Unlock();
+            return finalBitmap;
+        }
+
+        private WriteableBitmap WriteLayersToBitmap(WriteableBitmap targetBitmap, Layer[] layers)
+        {
+            for (int i = 0; i < layers.Length; i++)
+            {
+                Coordinates[] nonTransparentCords = layers[i].GetNonTransprarentPixels();
+                for (int j = 0; j < nonTransparentCords.Length; j++)
+                {
+                    int x = nonTransparentCords[j].X;
+                    int y = nonTransparentCords[j].Y;
+                    targetBitmap.SetPixel(x, y, layers[i].LayerBitmap.GetPixel(x,y));
+                }
+            }
+            return targetBitmap;
+        }
+
     }
 }
 
@@ -88,5 +123,17 @@ public class BitmapChangedEventArgs : EventArgs
     {
         PixelsChanged = pixelsChanged;
         ChangedLayerIndex = changedLayerIndex;
+    }
+}
+
+public class LayersChangedEventArgs : EventArgs
+{
+    public int LayerAffected { get; set; }
+    public LayerAction LayerChangeType { get; set; }
+
+    public LayersChangedEventArgs(int layerAffected, LayerAction layerChangeType)
+    {
+        LayerAffected = layerAffected;
+        LayerChangeType = layerChangeType;
     }
 }

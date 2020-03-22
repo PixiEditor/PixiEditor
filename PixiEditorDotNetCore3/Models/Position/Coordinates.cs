@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditorDotNetCore3.Models.Position
+namespace PixiEditor.Models.Position
 {
     public struct Coordinates
     {

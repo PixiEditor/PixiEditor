@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditorDotNetCore3.Models.Images
+namespace PixiEditor.Models.Images
 {
     public static class BitmapConverter
     {

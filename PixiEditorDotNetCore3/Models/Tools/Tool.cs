@@ -1,11 +1,11 @@
-﻿using PixiEditorDotNetCore3.Models.Layers;
-using PixiEditorDotNetCore3.Models.Position;
+﻿using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Media;
 
-namespace PixiEditorDotNetCore3.Models.Tools
+namespace PixiEditor.Models.Tools
 {
     public abstract class Tool
     {

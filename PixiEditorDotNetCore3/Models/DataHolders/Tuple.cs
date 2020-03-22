@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PixiEditorDotNetCore3.Models.DataHolders
+namespace PixiEditor.Models.DataHolders
 {
     public class Tuple<T1, T2, T3> : IEquatable<object>
     {

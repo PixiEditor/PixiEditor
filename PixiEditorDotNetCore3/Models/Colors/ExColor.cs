@@ -1,6 +1,6 @@
 ﻿using System.Windows.Media;
 
-namespace PixiEditorDotNetCore3.Models.Colors
+namespace PixiEditor.Models.Colors
 {
     public static class ExColor
     {

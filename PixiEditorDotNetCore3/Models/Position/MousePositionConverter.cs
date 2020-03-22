@@ -1,7 +1,7 @@
-﻿using PixiEditorDotNetCore3.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using System.Windows;
 
-namespace PixiEditorDotNetCore3.Models.Position
+namespace PixiEditor.Models.Position
 {
     public static class MousePositionConverter
     {

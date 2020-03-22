@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditorDotNetCore3.Models.DataHolders
+namespace PixiEditor.Models.DataHolders
 {
     [Serializable]
     public class Change

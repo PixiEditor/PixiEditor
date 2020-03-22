@@ -1,6 +1,6 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditorDotNetCore3.Models.Enums;
-using PixiEditorDotNetCore3.Models.Tools;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,13 +11,13 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiTools = PixiEditorDotNetCore3.Models.Tools.Tools;
+using PixiTools = PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Controllers;
-using PixiEditorDotNetCore3.Models.Dialogs;
-using PixiEditorDotNetCore3.Models.Images;
-using PixiEditorDotNetCore3.Models.IO;
-using PixiEditorDotNetCore3.Models.Layers;
-using PixiEditorDotNetCore3.Models.Position;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Images;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using PixiEditor.Models.Enums;
 
 namespace PixiEditor.ViewModels
@@ -27,7 +27,8 @@ namespace PixiEditor.ViewModels
 
         public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
         public RelayCommand GenerateDrawAreaCommand { get; set; } //Command that generates draw area
-        public RelayCommand MouseMoveOrClickCommand { get; set; } //Command that is used to draw
+        public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
+        public RelayCommand MouseDownCommand { get; set; }
         public RelayCommand SaveFileCommand { get; set; } //Command that is used to save file
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RedoCommand { get; set; }
@@ -131,9 +132,11 @@ namespace PixiEditor.ViewModels
             PixiFilesManager.InitializeTempDirectories();
             BitmapUtility = new BitmapOperationsUtility();
             BitmapUtility.BitmapChanged += BitmapUtility_BitmapChanged;
+            BitmapUtility.LayersChanged += BitmapUtility_LayersChanged;
             SelectToolCommand = new RelayCommand(RecognizeTool);
             GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
-            MouseMoveOrClickCommand = new RelayCommand(MouseMoveOrClick);
+            MouseMoveCommand = new RelayCommand(MouseMove);
+            MouseDownCommand = new RelayCommand(MouseDown);
             SaveFileCommand = new RelayCommand(SaveFile, CanSave);
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
@@ -150,14 +153,20 @@ namespace PixiEditor.ViewModels
             ToolSize = 1;
         }
 
-        public void SetActiveLayer(object parameter)
+        private void BitmapUtility_LayersChanged(object sender, LayersChangedEventArgs e)
         {
-            BitmapUtility.SetActiveLayer((int)parameter);
+            RefreshImage();
         }
 
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
             RefreshImage();
+        }
+
+        public void SetActiveLayer(object parameter)
+        {
+            BitmapUtility.SetActiveLayer((int)parameter);
+            ActiveImage.Source = BitmapUtility.GetCombinedBitmaps();
         }
 
         #region Undo/Redo
@@ -223,29 +232,28 @@ namespace PixiEditor.ViewModels
             primaryToolSet.StopExectuingTool();
         }
 
+        private void MouseDown(object parameter)
+        {
+            if (!BitmapUtility.MouseController.IsRecordingChanges)
+            {
+                BitmapUtility.MouseController.StartRecordingMouseMovementChanges();
+                BitmapUtility.MouseController.RecordMouseMovementChanges(MousePositionConverter.CurrentCoordinates);
+            }
+        }
+
         /// <summary>
         /// Method connected with command, it executes tool "activity"
         /// </summary>
         /// <param name="parameter"></param>
-        private void MouseMoveOrClick(object parameter)
+        private void MouseMove(object parameter)
         {
             Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
-            if ((Models.Enums.MouseAction)parameter == Models.Enums.MouseAction.MouseDown)
-            {
-                if (!BitmapUtility.MouseController.IsRecordingChanges)
-                {
-                    BitmapUtility.MouseController.StartRecordingMouseMovementChanges();
-                }
-            }
-            if((Models.Enums.MouseAction)parameter == Models.Enums.MouseAction.Move)
-            {
                 if (BitmapUtility.MouseController.IsRecordingChanges)
                 {
                     BitmapUtility.MouseController.RecordMouseMovementChanges(cords);
                 }
-            }
         }
 
 
@@ -330,12 +338,15 @@ namespace PixiEditor.ViewModels
 
         public void RefreshImage()
         {
-            ActiveImage.Source = BitmapUtility.ActiveLayer.LayerBitmap;
+            if (ActiveImage != null)
+            {
+                ActiveImage.Source = BitmapUtility.ActiveLayer.LayerBitmap;
+            }
         }
 
         public void NewLayer(object parameter)
         {
-            BitmapUtility.AddNewLayer("New Layer", BitmapUtility.Layers[0].Width, BitmapUtility.Layers[0].Height);
+            BitmapUtility.AddNewLayer("New Layer", BitmapUtility.Layers[0].Width, BitmapUtility.Layers[0].Height);         
         }
 
         public bool CanCreateNewLayer(object parameter)

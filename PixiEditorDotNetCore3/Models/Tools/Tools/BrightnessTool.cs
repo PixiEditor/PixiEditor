@@ -1,11 +1,11 @@
-﻿using PixiEditorDotNetCore3.Models.Colors;
-using PixiEditorDotNetCore3.Models.Layers;
-using PixiEditorDotNetCore3.Models.Position;
+﻿using PixiEditor.Models.Colors;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditorDotNetCore3.Models.Tools.Tools
+namespace PixiEditor.Models.Tools.Tools
 {
     public class BrightnessTool : Tool
     {

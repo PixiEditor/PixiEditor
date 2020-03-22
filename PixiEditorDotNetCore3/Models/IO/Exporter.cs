@@ -10,10 +10,10 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
-using PixiEditorDotNetCore3.Models.Dialogs;
-using PixiEditorDotNetCore3.Models.Enums;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 
-namespace PixiEditorDotNetCore3.Models.IO
+namespace PixiEditor.Models.IO
 {
     public class Exporter
     {

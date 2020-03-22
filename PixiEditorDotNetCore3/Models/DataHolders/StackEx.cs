@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditorDotNetCore3.Models.DataHolders
+namespace PixiEditor.Models.DataHolders
 {
     public class StackEx<T>
     {
