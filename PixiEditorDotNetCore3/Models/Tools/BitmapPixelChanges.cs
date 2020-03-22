@@ -8,13 +8,21 @@ namespace PixiEditorDotNetCore3.Models.Tools
 {
     public struct BitmapPixelChanges
     {
-        public Coordinates[] ChangedCoordinates { get; set; }
-        public Color PixelsColor { get; set; }
+        public Dictionary<Coordinates, Color> ChangedPixels;
 
-        public BitmapPixelChanges(Coordinates[] changedCoordinates, Color color)
+        public BitmapPixelChanges(Dictionary<Coordinates, Color> changedPixels)
         {
-            ChangedCoordinates = changedCoordinates;
-            PixelsColor = color;
+            ChangedPixels = changedPixels;
+        }
+
+        public static BitmapPixelChanges FromSingleColoredArray(Coordinates[] coordinates, Color color)
+        {
+            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
+            for (int i = 0; i < coordinates.Length; i++)
+            {
+                dict.Add(coordinates[i], color);
+            }
+            return new BitmapPixelChanges(dict);
         }
     }
 }

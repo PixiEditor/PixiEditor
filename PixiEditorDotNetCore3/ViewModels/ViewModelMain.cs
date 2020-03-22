@@ -12,25 +12,18 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiTools = PixiEditorDotNetCore3.Models.Tools.Tools;
-using PixiEditorDotNetCore3.Models.Controllers;
+using PixiEditor.Models.Controllers;
 using PixiEditorDotNetCore3.Models.Dialogs;
 using PixiEditorDotNetCore3.Models.Images;
 using PixiEditorDotNetCore3.Models.IO;
 using PixiEditorDotNetCore3.Models.Layers;
 using PixiEditorDotNetCore3.Models.Position;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.ViewModels
 {
     class ViewModelMain : ViewModelBase
     {
-
-        private ObservableCollection<Layer> _layers;
-
-        public ObservableCollection<Layer> Layers
-        {
-            get => _layers;
-            set { if (_layers != value) { _layers = value;} }
-        }
 
         public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
         public RelayCommand GenerateDrawAreaCommand { get; set; } //Command that generates draw area
@@ -57,37 +50,12 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private Layer _activeLayer;
-
-        public Layer ActiveLayer
-        {
-            get => _activeLayer;
-            set {
-                _activeLayer = value;
-                ReloadImage();
-                RaisePropertyChanged("ActiveLayer");
-            }
-        }
-
-        public LightLayer ActiveLightLayer
-        {
-            get
-            {
-                if (_activeLayer != null)
-                    return new LightLayer(
-                        _activeLayer.ConvertBitmapToBytes(), 
-                        ActiveLayer.Height, ActiveLayer.Width);
-                return null;
-            }
-            set => ActiveLayer = new Layer(BitmapConverter.BytesToWriteableBitmap(ActiveLayer.Width, ActiveLayer.Height,value.LayerBytes));
-        }
-
         private double _mouseXonCanvas;
 
         public double MouseXOnCanvas //Mouse X coordinate relative to canvas
         {
             get => _mouseXonCanvas;
-            set { _mouseXonCanvas = value;  RaisePropertyChanged("MouseXonCanvas"); }
+            set { _mouseXonCanvas = value; RaisePropertyChanged("MouseXonCanvas"); }
         }
 
         private double _mouseYonCanvas;
@@ -108,7 +76,8 @@ namespace PixiEditor.ViewModels
             {
                 if (_primaryColor != value)
                 {
-                   _primaryColor = value;
+                    _primaryColor = value;
+                    BitmapUtility.PrimaryColor = value;
                     RaisePropertyChanged("PrimaryColor");
                 }
             }
@@ -122,43 +91,46 @@ namespace PixiEditor.ViewModels
             set { if (_secondaryColor != value) { _secondaryColor = value; RaisePropertyChanged("SecondaryColor"); } }
         }
 
-        private Color _selectedColor = Colors.White;
-
-        public Color SelectedColor
-        {
-            get { return _selectedColor; }
-            set 
-            { 
-                if(_selectedColor != value) 
-                    _selectedColor = value;
-                RaisePropertyChanged("SelectedColor");
-            }
-        }
-
-        private ToolType _selectedTool = ToolType.Pen;
+        private ToolType _selectedTool;
 
         public ToolType SelectedTool
         {
             get { return _selectedTool; }
-            set { if (_selectedTool != value) { _selectedTool = value; primaryToolSet.SetTool(SelectedTool); RaisePropertyChanged("SelectedTool"); } }
-        }
+            set 
+            { 
+                if (_selectedTool != value) 
+                { 
+                    _selectedTool = value; 
+                    SetActiveTool(value); 
+                    RaisePropertyChanged("SelectedTool"); } }
+        }        
 
 
-        private int _toolSize = 1;
+        private int _toolSize;
 
         public int ToolSize
         {
             get { return _toolSize; }
-            set { if (_toolSize != value) { _toolSize = value; RaisePropertyChanged("ToolSize"); } }
+            set 
+            { 
+                if (_toolSize != value) 
+                { 
+                    _toolSize = value;
+                    BitmapUtility.ToolSize = value;
+                    RaisePropertyChanged("ToolSize"); 
+                } 
+            }
         }
 
         private ToolsManager primaryToolSet;
-        private WriteableBitmap _lastBlendedBitmap;
+
+        public BitmapOperationsUtility BitmapUtility { get; set; }
 
         public ViewModelMain()
         {
             PixiFilesManager.InitializeTempDirectories();
-            Layers = new ObservableCollection<Layer>();
+            BitmapUtility = new BitmapOperationsUtility();
+            BitmapUtility.BitmapChanged += BitmapUtility_BitmapChanged;
             SelectToolCommand = new RelayCommand(RecognizeTool);
             GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
             MouseMoveOrClickCommand = new RelayCommand(MouseMoveOrClick);
@@ -170,31 +142,22 @@ namespace PixiEditor.ViewModels
             OpenFileCommand = new RelayCommand(OpenFile);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            ReloadImageCommand = new RelayCommand(ReloadImage);
             primaryToolSet = new ToolsManager(new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool()});
             UndoManager.SetMainRoot(this);
-            primaryToolSet.SetTool(SelectedTool);
+            SetActiveTool(ToolType.Pen);
+            BitmapUtility.PrimaryColor = PrimaryColor;
+            ToolSize = 1;
         }
 
-        public WriteableBitmap BlendLayersBitmaps()
+        public void SetActiveLayer(object parameter)
         {
-            Rect size = new Rect(new Size(ActiveLayer.Width, ActiveLayer.Height));
-            Layer[] visibleLayers = Layers.Where(x => x.IsVisible).ToArray();
-            if (visibleLayers.Length == 0)
-            {
-                return BitmapFactory.New(0,0);
-            }
+            BitmapUtility.SetActiveLayer((int)parameter);
+        }
 
-            WriteableBitmap bitmap = visibleLayers[0].LayerBitmap.Clone();
-
-            for (int i = 1; i < visibleLayers.Length; i++)
-            {
-                bitmap.Blit(size, visibleLayers[i].LayerBitmap,
-                    size, WriteableBitmapExtensions.BlendMode.Additive);
-            }
-
-            return bitmap;
+        private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
+        {
+            RefreshImage();
         }
 
         #region Undo/Redo
@@ -243,6 +206,12 @@ namespace PixiEditor.ViewModels
             ToolType tool = (ToolType)Enum.Parse(typeof(ToolType), parameter.ToString());
             SelectedTool = tool;
         }
+
+        private void SetActiveTool(ToolType tool)
+        {
+            primaryToolSet.SetTool(tool);
+            BitmapUtility.SelectedTool = primaryToolSet.SelectedTool;
+        }
         /// <summary>
         /// When mouse is up stops recording changes.
         /// </summary>
@@ -250,6 +219,7 @@ namespace PixiEditor.ViewModels
         private void MouseUp(object parameter)
         {
             UndoManager.StopRecording();
+            BitmapUtility.MouseController.StopRecordingMouseMovementChanges();
             primaryToolSet.StopExectuingTool();
         }
 
@@ -262,62 +232,33 @@ namespace PixiEditor.ViewModels
             Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            if ((Models.Enums.MouseAction)parameter == Models.Enums.MouseAction.MouseDown)
             {
-                SelectedColor = PrimaryColor;
+                if (!BitmapUtility.MouseController.IsRecordingChanges)
+                {
+                    BitmapUtility.MouseController.StartRecordingMouseMovementChanges();
+                }
             }
-            else if(Mouse.RightButton == MouseButtonState.Pressed)
+            if((Models.Enums.MouseAction)parameter == Models.Enums.MouseAction.Move)
             {
-                SelectedColor = SecondaryColor;
-            }
-            else
-            {
-                return;
-            }
-
-            if (SelectedTool != ToolType.ColorPicker)
-            {
-                UndoManager.RecordChanges("ActiveLightLayer", new LightLayer(ActiveLayer.ConvertBitmapToBytes(), (int)ActiveLayer.LayerBitmap.Height, 
-                    (int)ActiveLayer.LayerBitmap.Width), $"Used {SelectedTool.ToString()}");
-                primaryToolSet.ExecuteTool(ActiveLayer, cords, SelectedColor, ToolSize);
-                RefreshImage();
-            }
-            else
-            {
-                ExecuteColorPicker(cords);
+                if (BitmapUtility.MouseController.IsRecordingChanges)
+                {
+                    BitmapUtility.MouseController.RecordMouseMovementChanges(cords);
+                }
             }
         }
+
 
 
         private void ExecuteColorPicker(Coordinates cords)
         {
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                PrimaryColor = ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
+                PrimaryColor = BitmapUtility.ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
             }
             else
             {
-                SecondaryColor = ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
-            }
-        }
-
-        private void ReloadImage(object property=null)
-        {
-            if (ActiveLayer != null)
-            {
-                _lastBlendedBitmap = BlendLayersBitmaps();
-                ActiveImage.Source = _lastBlendedBitmap;
-            }
-        }
-
-        private void RefreshImage()
-        {
-            if (ActiveLayer != null)
-            {
-                Rect size = new Rect(new Size(ActiveLayer.Height, ActiveLayer.Width));
-                 _lastBlendedBitmap.Blit(size, ActiveLayer.LayerBitmap,
-                    size);
-                ActiveImage.Source = _lastBlendedBitmap;
+                SecondaryColor = BitmapUtility.ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
             }
         }
 
@@ -330,10 +271,9 @@ namespace PixiEditor.ViewModels
             NewFileDialog newFile = new NewFileDialog();
             if (newFile.ShowDialog())
             {
-                Layers.Clear();
-                Layers.Add(new Layer("Base Layer",newFile.Width, newFile.Height));
+                BitmapUtility.Layers.Clear();
+                BitmapUtility.AddNewLayer("Base Layer", newFile.Width, newFile.Height, true);
                 ActiveImage = ImageGenerator.GenerateForPixelArts(newFile.Width, newFile.Height);
-                ActiveLayer = Layers[0];
             }
         }
         #region SaveFile
@@ -343,10 +283,9 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void SaveFile(object parameter)
         {
-            ReloadImage();
-            if (Exporter._savePath == null)
+            if (Exporter.SavePath == null)
             {
-                Exporter.Export(FileType.PNG, ActiveImage, new Size(ActiveLayer.Width, ActiveLayer.Height));
+                Exporter.Export(FileType.PNG, ActiveImage, new Size(BitmapUtility.ActiveLayer.Width, BitmapUtility.ActiveLayer.Height));
             }
             else
             {
@@ -360,7 +299,7 @@ namespace PixiEditor.ViewModels
         /// <returns></returns>
         private bool CanSave(object property)
         {
-            return ActiveLayer != null;
+            return BitmapUtility.ActiveLayer != null;
         }
         #endregion
 
@@ -373,12 +312,10 @@ namespace PixiEditor.ViewModels
             ImportFileDialog dialog = new ImportFileDialog();
             if (dialog.ShowDialog())
             {
-                Layers.Clear();
-                Layers.Add(new Layer("Base Layer",dialog.FileWidth, dialog.FileHeight));
+                BitmapUtility.Layers.Clear();
+                BitmapUtility.AddNewLayer("Base Layer", dialog.FileWidth, dialog.FileHeight, true);
                 ActiveImage = ImageGenerator.GenerateForPixelArts(dialog.FileWidth, dialog.FileHeight);
-                SetActiveLayer(0);
-                ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
-                ReloadImage();
+                BitmapUtility.ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
             }
         }
 
@@ -391,23 +328,19 @@ namespace PixiEditor.ViewModels
             MessageBox.Show("This feature is not implemented yet.", "Feature not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        public void SetActiveLayer(object parameter)
+        public void RefreshImage()
         {
-            UndoManager.AddUndoChange("ActiveLayer", ActiveLayer, $"Changed layer to {Layers[(int)parameter].Name}");
-            ActiveLayer = Layers[(int) parameter];
-            ReloadImage();
+            ActiveImage.Source = BitmapUtility.ActiveLayer.LayerBitmap;
         }
 
         public void NewLayer(object parameter)
         {
-            Layers.Add(new Layer("New Layer", Layers[0].Width, Layers[0].Height));
-            Layers.Move(Layers.Count - 1, 0);
-            ActiveLayer = Layers[0];
+            BitmapUtility.AddNewLayer("New Layer", BitmapUtility.Layers[0].Width, BitmapUtility.Layers[0].Height);
         }
 
         public bool CanCreateNewLayer(object parameter)
         {
-            return Layers.Count > 0;
+                return BitmapUtility.Layers.Count > 0;
         }
     }
 }

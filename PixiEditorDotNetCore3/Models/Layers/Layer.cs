@@ -42,14 +42,14 @@ namespace PixiEditorDotNetCore3.Models.Layers
             Height = (int)layerBitmap.Height;
         }
 
-        public void ApplyPixels(BitmapPixelChanges pixels, Color color)
+        public void ApplyPixels(BitmapPixelChanges pixels)
         {
             LayerBitmap.Lock();
 
-            foreach (var coords in pixels.ChangedCoordinates)
+            foreach (var coords in pixels.ChangedPixels)
             {
-                LayerBitmap.SetPixel(Math.Clamp(coords.X, 0, Width - 1), Math.Clamp(coords.Y, 0, Height - 1),
-                    color);
+                LayerBitmap.SetPixel(Math.Clamp(coords.Key.X, 0, Width - 1), Math.Clamp(coords.Key.Y, 0, Height - 1),
+                    coords.Value);
             }
 
             LayerBitmap.Unlock();

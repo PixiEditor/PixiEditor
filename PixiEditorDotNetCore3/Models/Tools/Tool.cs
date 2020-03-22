@@ -9,7 +9,7 @@ namespace PixiEditorDotNetCore3.Models.Tools
 {
     public abstract class Tool
     {
-        public abstract BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize);
+        public abstract BitmapPixelChanges Use(Layer layer, Coordinates[] pixels, Color color, int toolSize);
         public abstract ToolType ToolType { get; }
         public bool ExecutesItself = false;
     }

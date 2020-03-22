@@ -16,9 +16,9 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
             ExecutesItself = true;
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
-            return ForestFire(layer, startingCoords, color);
+            return ForestFire(layer, coordinates[0], color);
         }
 
         public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)
@@ -47,7 +47,7 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
                     stack.Push(Tuple.Create(point.Item1 - 1, point.Item2));
                 }
             }
-            return new BitmapPixelChanges(changedCoords.ToArray(), newColor);
+            return BitmapPixelChanges.FromSingleColoredArray(changedCoords.ToArray(), newColor);
         }
     }
 }

@@ -50,11 +50,11 @@ namespace PixiEditorDotNetCore3.Models.Tools
                     RestoreLastBitmap();
                 }
 
-                BitmapPixelChanges changes = SelectedTool.Use(_layer, _startCoordinates, _color, _toolSzie);
+                BitmapPixelChanges changes = SelectedTool.Use(_layer, new[] { _startCoordinates }, _color, _toolSzie);
 
                 if (!SelectedTool.ExecutesItself)
                 {
-                    _layer.ApplyPixels(changes, changes.PixelsColor);
+                    _layer.ApplyPixels(changes);
                 }
                 _layer.LayerBitmap.Unlock();
 

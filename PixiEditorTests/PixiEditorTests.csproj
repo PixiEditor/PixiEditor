@@ -17,11 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PixiEditorDotNetCore3\PixiEditorDotNetCore3.csproj" />
+    <Folder Include="ViewModelsTests\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModelsTests\" />
+    <ProjectReference Include="..\PixiEditorDotNetCore3\PixiEditor.csproj" />
   </ItemGroup>
 
 </Project>

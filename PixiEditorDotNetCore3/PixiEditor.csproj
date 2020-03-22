@@ -7,6 +7,8 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <AssemblyName>PixiEditor</AssemblyName>
+    <RootNamespace>PixiEditor</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Expression.Blend.Sdk">

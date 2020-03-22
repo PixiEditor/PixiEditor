@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
-namespace PixiEditorDotNetCore3.Models.Controllers
+namespace PixiEditor.Models.Controllers
 {
     public static class UndoManager
     {
@@ -46,7 +46,7 @@ namespace PixiEditorDotNetCore3.Models.Controllers
         /// <param name="oldValue">Old change value.</param>
         /// <param name="newValue">New change value.</param>
         /// <param name="undoDescription">Description of change.</param>
-        public static void RecordChanges(string property, object oldValue, string undoDescription = "")
+        public static void RecordChanges(string property, object oldValue, object newValue, string undoDescription = "")
         {
             if (_stopRecording == false)
             {
@@ -54,7 +54,7 @@ namespace PixiEditorDotNetCore3.Models.Controllers
                 {
                     _recordedChanges.RemoveAt(_recordedChanges.Count - 1);
                 }
-                _recordedChanges.Add(new Change(property, oldValue, undoDescription));
+                _recordedChanges.Add(new Change(property, oldValue, newValue, undoDescription));
 
             }
         }

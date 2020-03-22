@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
+        xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
@@ -111,22 +112,22 @@
             <Grid>
                 <vws:MainDrawingPanel CenterOnStart="True">
                     <vws:MainDrawingPanel.Item>
-                        <Canvas Width="{Binding ActiveLayer.Width}" Height="{Binding ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Canvas Width="{Binding BitmapUtility.ActiveLayer.Width}" Height="{Binding BitmapUtility.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseMove">
-                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}"/>
+                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}" CommandParameter="{x:Static enums:MouseAction.Move}"/>
                                 </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}"/>
+                                    <i:InvokeCommandAction Command="{Binding MouseMoveOrClickCommand}" CommandParameter="{x:Static enums:MouseAction.MouseDown}"/>
                                 </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseUp">
-                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}"/>
+                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}" CommandParameter="{x:Static enums:MouseAction.MouseUp}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                             <i:Interaction.Behaviors>
                                 <behaviors:MouseBehaviour MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
-                            <Image Source="/Images/transparentbg.png" Height="{Binding ActiveLayer.Height}" Width="{Binding ActiveLayer.Width}" Opacity="0.2" Stretch="UniformToFill"/>
+                            <Image Source="/Images/transparentbg.png" Height="{Binding BitmapUtility.ActiveLayer.Height}" Width="{Binding BitmapUtility.ActiveLayer.Width}" Opacity="0.2" Stretch="UniformToFill"/>
                             <ContentControl Content="{Binding ActiveImage}"/>
                         </Canvas>
                     </vws:MainDrawingPanel.Item>
@@ -210,7 +211,7 @@
                         <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
                             <StackPanel  Orientation="Vertical">
                                 <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
-                                <ItemsControl ItemsSource="{Binding Layers}" AlternationCount="9999">
+                                <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}" AlternationCount="9999">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border BorderBrush="Gray" BorderThickness="1">

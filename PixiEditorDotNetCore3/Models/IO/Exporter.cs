@@ -17,8 +17,8 @@ namespace PixiEditorDotNetCore3.Models.IO
 {
     public class Exporter
     {
-        public static string _savePath = null;
-        public static Size _fileDimensions;
+        public static string SavePath = null;
+        public static Size FileDimensions;
 
         /// <summary>
         /// Creates ExportFileDialog to get width, height and path of file.
@@ -38,8 +38,8 @@ namespace PixiEditorDotNetCore3.Models.IO
                     return;
                 }
 
-                _savePath = info.FilePath;
-                _fileDimensions = new Size(info.FileWidth, info.FileHeight);
+                SavePath = info.FilePath;
+                FileDimensions = new Size(info.FileWidth, info.FileHeight);
                 SaveAsPng(info.FilePath, (int)imageToSave.Width, (int)imageToSave.Height, info.FileHeight, info.FileWidth, imageToSave);
             }
         }
@@ -53,7 +53,7 @@ namespace PixiEditorDotNetCore3.Models.IO
         {
             try
             {
-                SaveAsPng(_savePath, (int)imageToSave.Width, (int)imageToSave.Height, (int)_fileDimensions.Height, (int)_fileDimensions.Width, imageToSave);
+                SaveAsPng(SavePath, (int)imageToSave.Width, (int)imageToSave.Height, (int)FileDimensions.Height, (int)FileDimensions.Width, imageToSave);
             }
             catch (Exception ex)
             {

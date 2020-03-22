@@ -9,9 +9,9 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Rectangle;
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
-            CreateRectangle(layer,startingCoords,color,toolSize);
+            CreateRectangle(layer,coordinates[0] ,color,toolSize);
             return new BitmapPixelChanges();
         }
 

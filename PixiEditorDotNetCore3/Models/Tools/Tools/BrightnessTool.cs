@@ -13,13 +13,13 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
         public const float DarkenFactor = -0.06f;
         public const float LightenFactor = 0.1f;
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             if(Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                return ChangeBrightness(layer, startingCoords, toolSize, LightenFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, LightenFactor);
             }
-                return ChangeBrightness(layer, startingCoords, toolSize, DarkenFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, DarkenFactor);
         }       
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)

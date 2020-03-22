@@ -11,10 +11,10 @@ namespace PixiEditorDotNetCore3.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Earser;
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             PenTool pen = new PenTool();
-            return pen.Draw(startingCoords, System.Windows.Media.Colors.Transparent, toolSize);
+            return pen.Draw(coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace PixiEditorDotNetCore3.Models.Tools
             ExecutesItself = true;
         }
 
-        public abstract override BitmapPixelChanges Use(Layer layer, Coordinates startingCoords, Color color, int toolSize);
+        public abstract override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize);
 
         protected DoubleCords CalculateCoordinatesForShapeRotation(Coordinates startingCords)
         {
