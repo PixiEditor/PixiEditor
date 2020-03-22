@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Controllers
         public MouseMovementController MouseController { get; set; }
         public Tool SelectedTool { get; set; }
 
-        private ObservableCollection<Layer> _layers;
+        private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
 
         public ObservableCollection<Layer> Layers
         {
@@ -49,7 +49,6 @@ namespace PixiEditor.Models.Controllers
 
         public BitmapOperationsUtility()
         {
-            Layers = new ObservableCollection<Layer>();
             MouseController = new MouseMovementController();
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
         }
@@ -69,10 +68,9 @@ namespace PixiEditor.Models.Controllers
         public void AddNewLayer(string name, int height, int width, bool setAsActive = true)
         {
             Layers.Add(new Layer(name, width, height));
-            Layers.Move(Layers.Count - 1, 0);
             if (setAsActive)
             {
-                ActiveLayerIndex = 0;
+                ActiveLayerIndex = Layers.Count - 1;
             }
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
@@ -81,34 +79,6 @@ namespace PixiEditor.Models.Controllers
         {
             ActiveLayerIndex = index;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
-        }
-
-        public WriteableBitmap GetCombinedBitmaps()
-        {
-            Layer[] visibleLayers = Layers.Where(x => x.IsVisible).ToArray();
-            visibleLayers.Reverse();
-            int width = visibleLayers[0].Width;
-            int height = visibleLayers[0].Height;
-            WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
-            finalBitmap.Lock();
-            finalBitmap = WriteLayersToBitmap(finalBitmap, visibleLayers);
-            finalBitmap.Unlock();
-            return finalBitmap;
-        }
-
-        private WriteableBitmap WriteLayersToBitmap(WriteableBitmap targetBitmap, Layer[] layers)
-        {
-            for (int i = 0; i < layers.Length; i++)
-            {
-                Coordinates[] nonTransparentCords = layers[i].GetNonTransprarentPixels();
-                for (int j = 0; j < nonTransparentCords.Length; j++)
-                {
-                    int x = nonTransparentCords[j].X;
-                    int y = nonTransparentCords[j].Y;
-                    targetBitmap.SetPixel(x, y, layers[i].LayerBitmap.GetPixel(x,y));
-                }
-            }
-            return targetBitmap;
         }
 
     }

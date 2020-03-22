@@ -18,7 +18,6 @@ using PixiEditor.Models.Images;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Enums;
 
 namespace PixiEditor.ViewModels
 {
@@ -38,18 +37,6 @@ namespace PixiEditor.ViewModels
         public RelayCommand SetActiveLayerCommand { get; set; }
         public RelayCommand NewLayerCommand { get; set; }
         public RelayCommand ReloadImageCommand { get; set; }
-
-        private Image _activeImage;
-
-        public Image ActiveImage
-        {
-            get => _activeImage;
-            set
-            {
-                _activeImage = value;
-                RaisePropertyChanged("ActiveImage");
-            }
-        }
 
         private double _mouseXonCanvas;
 
@@ -131,8 +118,6 @@ namespace PixiEditor.ViewModels
         {
             PixiFilesManager.InitializeTempDirectories();
             BitmapUtility = new BitmapOperationsUtility();
-            BitmapUtility.BitmapChanged += BitmapUtility_BitmapChanged;
-            BitmapUtility.LayersChanged += BitmapUtility_LayersChanged;
             SelectToolCommand = new RelayCommand(RecognizeTool);
             GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
             MouseMoveCommand = new RelayCommand(MouseMove);
@@ -153,20 +138,9 @@ namespace PixiEditor.ViewModels
             ToolSize = 1;
         }
 
-        private void BitmapUtility_LayersChanged(object sender, LayersChangedEventArgs e)
-        {
-            RefreshImage();
-        }
-
-        private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
-        {
-            RefreshImage();
-        }
-
         public void SetActiveLayer(object parameter)
         {
             BitmapUtility.SetActiveLayer((int)parameter);
-            ActiveImage.Source = BitmapUtility.GetCombinedBitmaps();
         }
 
         #region Undo/Redo
@@ -281,7 +255,6 @@ namespace PixiEditor.ViewModels
             {
                 BitmapUtility.Layers.Clear();
                 BitmapUtility.AddNewLayer("Base Layer", newFile.Width, newFile.Height, true);
-                ActiveImage = ImageGenerator.GenerateForPixelArts(newFile.Width, newFile.Height);
             }
         }
         #region SaveFile
@@ -291,14 +264,15 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void SaveFile(object parameter)
         {
-            if (Exporter.SavePath == null)
-            {
-                Exporter.Export(FileType.PNG, ActiveImage, new Size(BitmapUtility.ActiveLayer.Width, BitmapUtility.ActiveLayer.Height));
-            }
-            else
-            {
-                Exporter.ExportWithoutDialog(FileType.PNG, ActiveImage);
-            }
+            //TODO: Blend bitmaps and save file
+        //    if (Exporter.SavePath == null)
+        //    {
+        //        Exporter.Export(FileType.PNG, ActiveImage, new Size(BitmapUtility.ActiveLayer.Width, BitmapUtility.ActiveLayer.Height));
+        //    }
+        //    else
+        //    {
+        //        Exporter.ExportWithoutDialog(FileType.PNG, ActiveImage);
+        //    }
         }
         /// <summary>
         /// Returns true if file save is possible.
@@ -322,7 +296,6 @@ namespace PixiEditor.ViewModels
             {
                 BitmapUtility.Layers.Clear();
                 BitmapUtility.AddNewLayer("Base Layer", dialog.FileWidth, dialog.FileHeight, true);
-                ActiveImage = ImageGenerator.GenerateForPixelArts(dialog.FileWidth, dialog.FileHeight);
                 BitmapUtility.ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
             }
         }
@@ -336,17 +309,9 @@ namespace PixiEditor.ViewModels
             MessageBox.Show("This feature is not implemented yet.", "Feature not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        public void RefreshImage()
-        {
-            if (ActiveImage != null)
-            {
-                ActiveImage.Source = BitmapUtility.ActiveLayer.LayerBitmap;
-            }
-        }
-
         public void NewLayer(object parameter)
         {
-            BitmapUtility.AddNewLayer("New Layer", BitmapUtility.Layers[0].Width, BitmapUtility.Layers[0].Height);         
+            BitmapUtility.AddNewLayer($"New Layer {BitmapUtility.Layers.Count}", BitmapUtility.Layers[0].Width, BitmapUtility.Layers[0].Height);         
         }
 
         public bool CanCreateNewLayer(object parameter)

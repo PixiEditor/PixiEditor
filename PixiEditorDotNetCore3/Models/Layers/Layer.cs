@@ -1,7 +1,5 @@
-﻿using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
+﻿using PixiEditor.Models.Tools;
 using System;
-using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Layers
@@ -10,7 +8,16 @@ namespace PixiEditor.Models.Layers
     {
         private WriteableBitmap _layerBitmap;
         public string Name { get; set; }
-        public bool IsVisible { get; set; } = true;
+        private bool _isVisible = true;
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                _isVisible = value;
+                RaisePropertyChanged("IsVisible");
+            }
+        }
 
         public WriteableBitmap LayerBitmap
         {
@@ -50,22 +57,6 @@ namespace PixiEditor.Models.Layers
             }
 
             LayerBitmap.Unlock();
-        }
-
-        public Coordinates[] GetNonTransprarentPixels()
-        {
-            List<Coordinates> coordinates = new List<Coordinates>();
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    if (LayerBitmap.GetPixeli(x, y) != 0)
-                    {
-                        coordinates.Add(new Coordinates(x, y));
-                    }
-                }
-            }
-            return coordinates.ToArray();
         }
 
         public byte[] ConvertBitmapToBytes()
