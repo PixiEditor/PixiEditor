@@ -1,19 +1,19 @@
 ﻿using NUnit.Framework;
 using PixiEditor.Models.Position;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PixiEditorTests.ModelsTests.PositionTests
 {
     [TestFixture]
     public class CoordinatesCalculatorTests
     {
-        [TestCase(5,5, 1)]
-        public void TestCenterOfThickness(int x1, int y1, int thickness)
+        [TestCase(0, 0, 3, 3, 2, 2)]
+        [TestCase(0, 0, 2, 2, 1, 1)]
+        [TestCase(5, 5, 7, 7, 6, 6)]
+        [TestCase(5, 5, 9, 9, 7, 7)]
+        public void TestGetCenter(int x1, int y1, int x2, int y2, int expectedX, int expectedY)
         {
-            CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(x1, y1), thickness);
-            
+            Coordinates center = CoordinatesCalculator.GetCenterPoint(new Coordinates(x1, y1), new Coordinates(x2, y2));
+            Assert.AreEqual(center, new Coordinates(expectedX, expectedY));
         }
 
     }

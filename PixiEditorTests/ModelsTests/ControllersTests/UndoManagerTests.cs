@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
-using PixiEditorDotNetCore3.Models.Controllers;
-using PixiEditorDotNetCore3.Models.DataHolders;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
 using System;
 using System.Collections.Generic;
 using System.Text;

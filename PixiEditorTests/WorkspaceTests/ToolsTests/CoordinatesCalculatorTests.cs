@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
-using PixiEditorDotNetCore3.Models.Position;
-using PixiEditorDotNetCore3.Models.Tools.Tools;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.Tools;
 using System;
 using System.Collections.Generic;
 using System.Text;

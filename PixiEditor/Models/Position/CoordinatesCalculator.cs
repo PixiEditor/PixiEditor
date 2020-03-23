@@ -32,6 +32,16 @@ namespace PixiEditor.Models.Position
             return new DoubleCords(new Coordinates(x1, y1), new Coordinates(x2 - 1, y2 - 1));
         }
 
+        public static Coordinates GetCenterPoint(Coordinates startingPoint, Coordinates endPoint)
+        {
+            double width = endPoint.X - startingPoint.X + 1;
+            double height = endPoint.Y - startingPoint.Y + 1;
+
+            int x = startingPoint.X + (int)Math.Floor(width / 2);
+            int y = startingPoint.Y + (int)Math.Floor(height / 2);
+            return new Coordinates(x, y);
+        }
+
         public static Coordinates[] RectangleToCoordinates(int x1, int y1, int x2, int y2)
         {
             x2++;

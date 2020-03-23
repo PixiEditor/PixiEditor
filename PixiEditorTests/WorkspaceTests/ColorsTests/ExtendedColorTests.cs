@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using PixiEditorDotNetCore3.Models.Colors;
+using PixiEditor.Models.Colors;
 using System;
 using System.Collections.Generic;
 using System.Text;

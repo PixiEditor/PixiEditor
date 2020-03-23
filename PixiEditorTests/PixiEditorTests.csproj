@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PixiEditorDotNetCore3\PixiEditor.csproj" />
+    <ProjectReference Include="..\PixiEditor\PixiEditor.csproj" />
   </ItemGroup>
 
 </Project>
