@@ -15,11 +15,11 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
-            if(Mouse.LeftButton == MouseButtonState.Pressed)
+            if(Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                return ChangeBrightness(layer, coordinates[0], toolSize, LightenFactor);
-            }
                 return ChangeBrightness(layer, coordinates[0], toolSize, DarkenFactor);
+            }
+                return ChangeBrightness(layer, coordinates[0], toolSize, LightenFactor);
         }       
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)

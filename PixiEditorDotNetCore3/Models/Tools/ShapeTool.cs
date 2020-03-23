@@ -119,9 +119,13 @@ namespace PixiEditor.Models.Tools
             {
                 return new DoubleCords(new Coordinates(startingCords.X, currentCoordinates.Y), new Coordinates(currentCoordinates.X, startingCords.Y));
             }
-            else
+            else if(startingCords.X > currentCoordinates.X && startingCords.Y <= currentCoordinates.Y)
             {
                 return new DoubleCords(new Coordinates(currentCoordinates.X, startingCords.Y), new Coordinates(startingCords.X, currentCoordinates.Y));
+            }
+            else
+            {
+                return new DoubleCords(startingCords, secondCoordinates);
             }
         }
     }

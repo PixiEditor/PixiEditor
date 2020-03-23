@@ -25,12 +25,13 @@ namespace PixiEditor.Models.Tools.Tools
         private Coordinates[] CalculateRectanglePoints(DoubleCords coordinates, bool filled)
         {
             List<Coordinates> finalCoordinates = new List<Coordinates>();
-            for (int i = coordinates.Coords1.X; i < coordinates.Coords2.X; i++)
+
+            for (int i = coordinates.Coords1.X; i < coordinates.Coords2.X + 1; i++)
             {
                 finalCoordinates.Add(new Coordinates(i, coordinates.Coords1.Y));
                 finalCoordinates.Add(new Coordinates(i, coordinates.Coords2.Y));
             }
-            for (int i = coordinates.Coords1.Y; i < coordinates.Coords2.Y + 1; i++)
+            for (int i = coordinates.Coords1.Y + 1; i <= coordinates.Coords2.Y - 1; i++)
             {
                 finalCoordinates.Add(new Coordinates(coordinates.Coords1.X, i));
                 finalCoordinates.Add(new Coordinates(coordinates.Coords2.X, i));

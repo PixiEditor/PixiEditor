@@ -11,13 +11,13 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
-            CreateCircle(coordinates, color, toolSize);
-            return new BitmapPixelChanges();
+
+            return BitmapPixelChanges.FromSingleColoredArray(CreateCircle(coordinates, toolSize), color);
         }
 
-        public void CreateCircle(Coordinates[] coordinates, Color color, int size)
+        public Coordinates[] CreateCircle(Coordinates[] coordinates, int size)
         {
-            
+            return System.Array.Empty<Coordinates>();
         }
 
         
