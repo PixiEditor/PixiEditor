@@ -10,6 +10,7 @@ namespace PixiEditor.Models.Controllers
     {
         public List<Coordinates> LastMouseMoveCoordinates { get; } = new List<Coordinates>();
         public event EventHandler<MouseMovementEventArgs> MousePositionChanged;
+        public event EventHandler StoppedRecordingChanges;
         public bool IsRecordingChanges { get; private set; } = false;
 
         public void StartRecordingMouseMovementChanges()
@@ -20,7 +21,7 @@ namespace PixiEditor.Models.Controllers
                 IsRecordingChanges = true;
             }
         }
-        public void RecordMouseMovementChanges(Coordinates mouseCoordinates)
+        public void RecordMouseMovementChange(Coordinates mouseCoordinates)
         {
             if (IsRecordingChanges == true)
             {
@@ -37,6 +38,7 @@ namespace PixiEditor.Models.Controllers
             if (IsRecordingChanges)
             {
                 IsRecordingChanges = false;
+                StoppedRecordingChanges?.Invoke(this, EventArgs.Empty);
             }
         }
     }

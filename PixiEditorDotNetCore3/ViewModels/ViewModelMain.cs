@@ -110,7 +110,8 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private ToolsManager primaryToolSet;
+        public List<Tool> ToolSet { get; set; }
+
 
         public BitmapOperationsUtility BitmapUtility { get; set; }
 
@@ -130,8 +131,8 @@ namespace PixiEditor.ViewModels
             OpenFileCommand = new RelayCommand(OpenFile);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            primaryToolSet = new ToolsManager(new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
-            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool()});
+            ToolSet = new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
+            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };       
             UndoManager.SetMainRoot(this);
             SetActiveTool(ToolType.Pen);
             BitmapUtility.PrimaryColor = PrimaryColor;
@@ -192,8 +193,7 @@ namespace PixiEditor.ViewModels
 
         private void SetActiveTool(ToolType tool)
         {
-            primaryToolSet.SetTool(tool);
-            BitmapUtility.SelectedTool = primaryToolSet.SelectedTool;
+            BitmapUtility.SelectedTool = ToolSet.Find(x=> x.ToolType == tool);
         }
         /// <summary>
         /// When mouse is up stops recording changes.
@@ -203,7 +203,6 @@ namespace PixiEditor.ViewModels
         {
             UndoManager.StopRecording();
             BitmapUtility.MouseController.StopRecordingMouseMovementChanges();
-            primaryToolSet.StopExectuingTool();
         }
 
         private void MouseDown(object parameter)
@@ -211,7 +210,7 @@ namespace PixiEditor.ViewModels
             if (!BitmapUtility.MouseController.IsRecordingChanges)
             {
                 BitmapUtility.MouseController.StartRecordingMouseMovementChanges();
-                BitmapUtility.MouseController.RecordMouseMovementChanges(MousePositionConverter.CurrentCoordinates);
+                BitmapUtility.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
             }
         }
 
@@ -224,9 +223,9 @@ namespace PixiEditor.ViewModels
             Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
-                if (BitmapUtility.MouseController.IsRecordingChanges)
+                if (BitmapUtility.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
                 {
-                    BitmapUtility.MouseController.RecordMouseMovementChanges(cords);
+                    BitmapUtility.MouseController.RecordMouseMovementChange(cords);
                 }
         }
 

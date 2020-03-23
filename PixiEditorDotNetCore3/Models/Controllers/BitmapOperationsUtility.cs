@@ -5,6 +5,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -38,6 +39,19 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        private Layer _previewLayer;
+
+        public Layer PreviewLayer
+        {
+            get { return _previewLayer; }
+            set 
+            {
+                _previewLayer = value;
+                RaisePropertyChanged("PreviewLayer");
+            }
+        }
+
+
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
 
         public Color PrimaryColor { get; set; }
@@ -47,21 +61,64 @@ namespace PixiEditor.Models.Controllers
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
+        private Coordinates _lastMousePos;
+        private BitmapPixelChanges _lastChangedPixels;
+
         public BitmapOperationsUtility()
         {
             MouseController = new MouseMovementController();
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
+            MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+        }
+
+        private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
+        {
+            if(SelectedTool.RequiresPreviewLayer)
+            {
+                Layers[ActiveLayerIndex].ApplyPixels(_lastChangedPixels);
+                _previewLayer.Clear();
+            }
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
             if(SelectedTool != null && Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                var pixels = MouseController.LastMouseMoveCoordinates;
-                pixels.Reverse();
-                var changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], pixels.ToArray(), PrimaryColor, ToolSize);
-                ActiveLayer.ApplyPixels(changedPixels);
+                var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
+                mouseMove.Reverse();
+                BitmapPixelChanges changedPixels = new BitmapPixelChanges();
+                if (!SelectedTool.RequiresPreviewLayer)
+                {
+                    changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor, ToolSize);
+                    ActiveLayer.ApplyPixels(changedPixels);
+                }
+                else
+                {
+                    UseToolOnPreviewLayer(mouseMove);
+                }
                 BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, ActiveLayerIndex));
+                _lastMousePos = e.NewPosition;
+            }
+        }
+
+        private void UseToolOnPreviewLayer(List<Coordinates> mouseMove)
+        {
+            BitmapPixelChanges changedPixels;
+            if (mouseMove[0] != _lastMousePos)
+            {
+                GeneratePreviewLayer();
+                PreviewLayer.Clear();
+                changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor, ToolSize);
+                PreviewLayer.ApplyPixels(changedPixels);
+                _lastChangedPixels = changedPixels;
+            }
+        }
+
+        private void GeneratePreviewLayer()
+        {
+            if (PreviewLayer == null)
+            {
+                PreviewLayer = new Layer("_previewLayer", Layers[0].Width, Layers[0].Height);
             }
         }
 

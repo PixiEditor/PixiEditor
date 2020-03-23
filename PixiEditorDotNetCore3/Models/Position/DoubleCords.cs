@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PixiEditor.Models.Position
 {
-    public class DoubleCords
+    public struct DoubleCords
     {
         public Coordinates Coords1 { get; set; }
         public Coordinates Coords2 { get; set; }

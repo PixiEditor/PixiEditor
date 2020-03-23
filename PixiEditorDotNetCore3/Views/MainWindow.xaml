@@ -127,6 +127,7 @@
                                 <behaviors:MouseBehaviour MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
                             <Image Source="/Images/transparentbg.png" Height="{Binding BitmapUtility.ActiveLayer.Height}" Width="{Binding BitmapUtility.ActiveLayer.Width}" Opacity="0.2" Stretch="UniformToFill"/>
+                            <Image Source="{Binding BitmapUtility.PreviewLayer.LayerBitmap}" Panel.ZIndex="2" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding BitmapUtility.PreviewLayer.Width}" Height="{Binding BitmapUtility.PreviewLayer.Height}"/>
                             <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>

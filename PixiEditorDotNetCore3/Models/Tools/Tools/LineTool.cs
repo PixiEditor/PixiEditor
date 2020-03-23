@@ -11,14 +11,14 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
-            CreateLine(layer, coordinates[0], color, toolSize);
-            return new BitmapPixelChanges();
+            return BitmapPixelChanges.FromSingleColoredArray(CreateLine(coordinates), color);
         }
 
-        public void CreateLine(Layer layer, Coordinates coordinates, Color color, int size)
+        public Coordinates[] CreateLine(Coordinates[] coordinates)
         {
-            layer.LayerBitmap.DrawLineBresenham(coordinates.X, coordinates.Y, MousePositionConverter.CurrentCoordinates.X,
-                MousePositionConverter.CurrentCoordinates.Y, color);
+            Coordinates startingCoordinates = coordinates[^1];
+            Coordinates latestCoordinates = coordinates[0];
+            return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
         }
     }
 }

@@ -59,6 +59,13 @@ namespace PixiEditor.Models.Layers
             LayerBitmap.Unlock();
         }
 
+        public void Clear()
+        {
+            LayerBitmap.Lock();
+            LayerBitmap.Clear();
+            LayerBitmap.Unlock();
+        }
+
         public byte[] ConvertBitmapToBytes()
         {            
             LayerBitmap.Lock();

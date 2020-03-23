@@ -11,6 +11,6 @@ namespace PixiEditor.Models.Tools
     {
         public abstract BitmapPixelChanges Use(Layer layer, Coordinates[] pixels, Color color, int toolSize);
         public abstract ToolType ToolType { get; }
-        public bool ExecutesItself = false;
+        public bool RequiresPreviewLayer { get; set; }
     }
 }
