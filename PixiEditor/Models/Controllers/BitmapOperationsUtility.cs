@@ -138,7 +138,7 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        public void AddNewLayer(string name, int height, int width, bool setAsActive = true)
+        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
         {
             Layers.Add(new Layer(name, width, height));
             if (setAsActive)
@@ -154,6 +154,27 @@ namespace PixiEditor.Models.Controllers
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
         }
 
+        public WriteableBitmap GetCombinedLayersBitmap()
+        {
+            WriteableBitmap finalBitmap = Layers[0].LayerBitmap.Clone();
+            finalBitmap.Lock();
+            for (int i = 1; i < Layers.Count; i++)
+            {
+                for (int y = 0; y < finalBitmap.Height; y++)
+                {
+                    for (int x = 0; x < finalBitmap.Width; x++)
+                    {
+                        Color color = Layers[i].LayerBitmap.GetPixel(x, y);
+                        if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0)
+                        {
+                            finalBitmap.SetPixel(x, y, color);
+                        }
+                    }
+                }
+            }
+            finalBitmap.Unlock();
+            return finalBitmap;
+        }
     }
 }
 

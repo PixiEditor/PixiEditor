@@ -56,8 +56,8 @@ namespace PixiEditor.Models.Controllers
             var oldValuesTmp = new LayerChanges(new BitmapPixelChanges(oldValues), LastOldValues.LayerIndex);
             
             Tuple<LayerChanges, LayerChanges> outputChanges = new Tuple<LayerChanges, LayerChanges>(tmp, oldValuesTmp);
-            LastChanges.PixelChanges.ChangedPixels.Clear();
-            LastOldValues.PixelChanges.ChangedPixels.Clear();
+            LastChanges = null;
+            LastOldValues = null;
             return outputChanges;
         }
     }

@@ -291,15 +291,15 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void SaveFile(object parameter)
         {
-            //TODO: Blend bitmaps and save file
-        //    if (Exporter.SavePath == null)
-        //    {
-        //        Exporter.Export(FileType.PNG, ActiveImage, new Size(BitmapUtility.ActiveLayer.Width, BitmapUtility.ActiveLayer.Height));
-        //    }
-        //    else
-        //    {
-        //        Exporter.ExportWithoutDialog(FileType.PNG, ActiveImage);
-        //    }
+            WriteableBitmap bitmap = BitmapUtility.GetCombinedLayersBitmap();
+            if (Exporter.SavePath == null)
+            {
+                Exporter.Export(FileType.PNG, bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
+            }
+            else
+            {
+                Exporter.ExportWithoutDialog(FileType.PNG, bitmap);
+            }
         }
         /// <summary>
         /// Returns true if file save is possible.

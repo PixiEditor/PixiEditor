@@ -24,15 +24,15 @@ namespace PixiEditor.Models.IO
         /// Creates ExportFileDialog to get width, height and path of file.
         /// </summary>
         /// <param name="type">Type of file to be saved in.</param>
-        /// <param name="imageToSave">Image to be saved as file.</param>
-        public static void Export(FileType type, Image imageToSave, Size fileDimensions)
+        /// <param name="bitmap">Bitmap to be saved as file.</param>
+        public static void Export(FileType type, WriteableBitmap bitmap, Size fileDimensions)
         {
             ExportFileDialog info = new ExportFileDialog(fileDimensions);
             //If OK on dialog has been clicked
             if (info.ShowDialog() == true)
             {
                 //If sizes are incorrect
-                if (info.FileWidth < imageToSave.Width || info.FileHeight < imageToSave.Height)
+                if (info.FileWidth < bitmap.Width || info.FileHeight < bitmap.Height)
                 {
                     MessageBox.Show("Incorrect height or width value", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -40,7 +40,7 @@ namespace PixiEditor.Models.IO
 
                 SavePath = info.FilePath;
                 FileDimensions = new Size(info.FileWidth, info.FileHeight);
-                SaveAsPng(info.FilePath, (int)imageToSave.Width, (int)imageToSave.Height, info.FileHeight, info.FileWidth, imageToSave);
+                SaveAsPng(info.FilePath, info.FileHeight, info.FileWidth, bitmap);
             }
         }
 
@@ -48,12 +48,12 @@ namespace PixiEditor.Models.IO
         /// Saves file with info that has been recieved from ExportFileDialog before, doesn't work without before Export() usage.
         /// </summary>
         /// <param name="type">Type of file</param>
-        /// <param name="imageToSave">Image to be saved as file.</param>
-        public static void ExportWithoutDialog(FileType type, Image imageToSave)
+        /// <param name="bitmap">Image to be saved as file.</param>
+        public static void ExportWithoutDialog(FileType type, WriteableBitmap bitmap)
         {
             try
             {
-                SaveAsPng(SavePath, (int)imageToSave.Width, (int)imageToSave.Height, (int)FileDimensions.Height, (int)FileDimensions.Width, imageToSave);
+                SaveAsPng(SavePath, (int)FileDimensions.Height, (int)FileDimensions.Width, bitmap);
             }
             catch (Exception ex)
             {
@@ -64,39 +64,19 @@ namespace PixiEditor.Models.IO
         /// Saves image to PNG file
         /// </summary>
         /// <param name="savePath">Save file path</param>
-        /// <param name="originalWidth">Original width of image</param>
-        /// <param name="originalHeight">Original height of image</param>
         /// <param name="exportWidth">File width</param>
         /// <param name="exportHeight">File height</param>
-        /// <param name="imageToExport">Image to be saved</param>
-        private static void SaveAsPng(string savePath, int originalWidth, int originalHeight, int exportWidth, int exportHeight, Image imageToExport)
+        private static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
-            Rect bounds = VisualTreeHelper.GetDescendantBounds(imageToExport);
-            double dpi = 96d;
-
-
-            RenderTargetBitmap rtb = new RenderTargetBitmap(originalWidth * (exportWidth / originalWidth), originalHeight * (exportHeight / originalHeight), dpi, dpi, PixelFormats.Default);
-
-
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
-            {
-                VisualBrush vb = new VisualBrush(imageToExport);
-                dc.DrawRectangle(vb, null, new Rect(new Point(), new Size(originalWidth * (exportWidth / originalWidth), originalHeight * (exportHeight / originalHeight))));
-            }
-
-            rtb.Render(dv);
-            BitmapEncoder pngEncoder = new PngBitmapEncoder();
-            pngEncoder.Frames.Add(BitmapFrame.Create(rtb));
-
             try
             {
-                MemoryStream ms = new MemoryStream();
-
-                pngEncoder.Save(ms);
-                ms.Close();
-
-                File.WriteAllBytes(savePath, ms.ToArray());
+                bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+                using(FileStream stream = new FileStream(savePath, FileMode.Create))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                    encoder.Save(stream);
+                }
             }
             catch (Exception err)
             {
