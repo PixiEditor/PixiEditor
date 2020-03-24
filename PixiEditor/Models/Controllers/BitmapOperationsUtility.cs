@@ -84,7 +84,7 @@ namespace PixiEditor.Models.Controllers
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            if(SelectedTool != null && Mouse.LeftButton == MouseButtonState.Pressed)
+            if(SelectedTool != null && SelectedTool.ToolType != ToolType.None && Mouse.LeftButton == MouseButtonState.Pressed)
             {
                 var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
                 mouseMove.Reverse();

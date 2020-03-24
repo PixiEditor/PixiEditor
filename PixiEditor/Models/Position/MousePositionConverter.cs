@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.Layers;
+using System.Runtime.InteropServices;
 using System.Windows;
 
 namespace PixiEditor.Models.Position
@@ -12,6 +13,16 @@ namespace PixiEditor.Models.Position
             int xCoord = (int)(mousePosition.X / baseLayer.Width);
             int yCoord = (int)(mousePosition.Y / baseLayer.Height);
             return new Coordinates(xCoord, yCoord);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out System.Drawing.Point point);
+        
+        public static System.Drawing.Point GetCursorPosition()
+        {
+            System.Drawing.Point point;
+            GetCursorPos(out point);
+            return point;
         }
     }
 }

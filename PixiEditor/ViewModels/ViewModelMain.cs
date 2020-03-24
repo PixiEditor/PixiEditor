@@ -3,20 +3,14 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Tools;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing.Drawing2D;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiTools = PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Images;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.DataHolders;
 
@@ -235,10 +229,17 @@ namespace PixiEditor.ViewModels
 
         private void MouseDown(object parameter)
         {
-            if (!BitmapUtility.MouseController.IsRecordingChanges)
+            if(SelectedTool == ToolType.ColorPicker)
             {
-                BitmapUtility.MouseController.StartRecordingMouseMovementChanges();
-                BitmapUtility.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
+                ExecuteColorPicker();
+            }
+            else if(Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                if (!BitmapUtility.MouseController.IsRecordingChanges)
+                {
+                    BitmapUtility.MouseController.StartRecordingMouseMovementChanges();
+                    BitmapUtility.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
+                }
             }
         }
 
@@ -259,15 +260,19 @@ namespace PixiEditor.ViewModels
 
 
 
-        private void ExecuteColorPicker(Coordinates cords)
+        private void ExecuteColorPicker()
         {
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                PrimaryColor = BitmapUtility.ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
-            }
-            else
-            {
-                SecondaryColor = BitmapUtility.ActiveLayer.LayerBitmap.GetPixel(cords.X, cords.Y);
+                using (var bitmap = new System.Drawing.Bitmap(1, 1))
+                {
+                    using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
+                    {
+                        graphics.CopyFromScreen(MousePositionConverter.GetCursorPosition(), new System.Drawing.Point(0, 0), new System.Drawing.Size(1, 1));
+                    }
+                    var color = bitmap.GetPixel(0, 0);
+                    PrimaryColor = Color.FromArgb(color.A, color.R, color.G, color.B);
+                }
             }
         }
 

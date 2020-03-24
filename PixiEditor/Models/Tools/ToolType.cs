@@ -8,6 +8,6 @@ namespace PixiEditor.Models.Tools
 {
     public enum ToolType
     {
-        Pen = 0, Bucket, Line, Circle, Rectangle, ColorPicker, Earser, Brightness
+        None, Pen, Bucket, Line, Circle, Rectangle, Earser, Brightness, ColorPicker
     }
 }
