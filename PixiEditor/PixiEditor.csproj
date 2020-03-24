@@ -35,8 +35,5 @@
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\transparentbg.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helpers\UI\" />
-  </ItemGroup>
   
 </Project>

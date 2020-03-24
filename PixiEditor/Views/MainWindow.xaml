@@ -10,6 +10,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         mc:Ignorable="d"
         Title="PixiEditor" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
     <Window.Resources>
@@ -223,17 +224,22 @@
                             <StackPanel  Orientation="Vertical">
                                 <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
                                     <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}" AlternationCount="9999">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ui:ReversedOrderStackPanel Orientation="Vertical"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="Gray" BorderThickness="1">
+                                            <DataTemplate>
+                                                <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60">
                                                 <DockPanel>
                                                     <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
                                                     <Button Style="{StaticResource BaseDarkButton}" Background="Transparent" FontSize="16" DockPanel.Dock="Left" Content="{Binding Name}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
                             Path=DataContext.SetActiveLayerCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
                                                 </DockPanel>
-                                            </Border>
-                                        </DataTemplate>
+                                                </Border>
+                                            </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </StackPanel>
