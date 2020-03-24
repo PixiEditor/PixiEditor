@@ -75,7 +75,9 @@ namespace PixiEditor.Models.Controllers
         {
             if(SelectedTool.RequiresPreviewLayer)
             {
+                BitmapPixelChanges oldValues = GetOldPixelsValues(_lastChangedPixels.ChangedPixels.Keys.ToArray());
                 Layers[ActiveLayerIndex].ApplyPixels(_lastChangedPixels);
+                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastChangedPixels, oldValues, ActiveLayerIndex));
                 _previewLayer.Clear();
             }
         }
@@ -86,19 +88,33 @@ namespace PixiEditor.Models.Controllers
             {
                 var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
                 mouseMove.Reverse();
-                BitmapPixelChanges changedPixels = new BitmapPixelChanges();
+
                 if (!SelectedTool.RequiresPreviewLayer)
                 {
-                    changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor, ToolSize);
+                    BitmapPixelChanges changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor, ToolSize);
+                    BitmapPixelChanges oldPixelsValues = GetOldPixelsValues(changedPixels.ChangedPixels.Keys.ToArray());
                     ActiveLayer.ApplyPixels(changedPixels);
+                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, oldPixelsValues, ActiveLayerIndex));
                 }
                 else
                 {
                     UseToolOnPreviewLayer(mouseMove);
                 }
-                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, ActiveLayerIndex));
+
                 _lastMousePos = e.NewPosition;
             }
+        }
+
+        private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)
+        {
+            Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
+            Layers[ActiveLayerIndex].LayerBitmap.Lock();
+            for (int i = 0; i < coordinates.Length; i++)
+            {
+                values.Add(coordinates[i], Layers[ActiveLayerIndex].LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
+            }
+            Layers[ActiveLayerIndex].LayerBitmap.Unlock();
+            return new BitmapPixelChanges(values);
         }
 
         private void UseToolOnPreviewLayer(List<Coordinates> mouseMove)
@@ -144,11 +160,13 @@ namespace PixiEditor.Models.Controllers
 public class BitmapChangedEventArgs : EventArgs
 {
     public BitmapPixelChanges PixelsChanged { get; set; }
+    public BitmapPixelChanges OldPixelsValues { get; set; }
     public int ChangedLayerIndex { get; set; }
 
-    public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, int changedLayerIndex)
+    public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, BitmapPixelChanges oldPixelsValues, int changedLayerIndex)
     {
         PixelsChanged = pixelsChanged;
+        OldPixelsValues = oldPixelsValues;
         ChangedLayerIndex = changedLayerIndex;
     }
 }

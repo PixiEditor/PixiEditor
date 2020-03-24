@@ -18,6 +18,7 @@ using PixiEditor.Models.Images;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.ViewModels
 {
@@ -112,13 +113,29 @@ namespace PixiEditor.ViewModels
 
         public List<Tool> ToolSet { get; set; }
 
+        private LayerChanges _undoChanges;
+
+        public LayerChanges UndoChanges
+        {
+            get { return _undoChanges; }
+            set 
+            { 
+                _undoChanges = value;
+                BitmapUtility.Layers[value.LayerIndex].ApplyPixels(value.PixelChanges);
+            }
+        }
+
 
         public BitmapOperationsUtility BitmapUtility { get; set; }
+        public PixelChangesController ChangesController { get; set; }
 
         public ViewModelMain()
         {
             PixiFilesManager.InitializeTempDirectories();
             BitmapUtility = new BitmapOperationsUtility();
+            BitmapUtility.BitmapChanged += BitmapUtility_BitmapChanged;
+            BitmapUtility.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            ChangesController = new PixelChangesController();
             SelectToolCommand = new RelayCommand(RecognizeTool);
             GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
             MouseMoveCommand = new RelayCommand(MouseMove);
@@ -137,6 +154,18 @@ namespace PixiEditor.ViewModels
             SetActiveTool(ToolType.Pen);
             BitmapUtility.PrimaryColor = PrimaryColor;
             ToolSize = 1;
+        }
+
+        private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
+        {
+            Tuple<LayerChanges, LayerChanges> changes = ChangesController.PopChanges();
+            UndoManager.AddUndoChange(new Change("UndoChanges", changes.Item2, changes.Item1)); //Item2 is old value
+        }
+
+        private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
+        {
+            ChangesController.AddChanges(new LayerChanges(e.PixelsChanged, e.ChangedLayerIndex), 
+                new LayerChanges(e.OldPixelsValues, e.ChangedLayerIndex));
         }
 
         public void SetActiveLayer(object parameter)
@@ -201,7 +230,6 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void MouseUp(object parameter)
         {
-            UndoManager.StopRecording();
             BitmapUtility.MouseController.StopRecordingMouseMovementChanges();
         }
 

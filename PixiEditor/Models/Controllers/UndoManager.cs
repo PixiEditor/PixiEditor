@@ -83,7 +83,6 @@ namespace PixiEditor.Models.Controllers
             }
             _lastChangeWasUndo = false;
             UndoStack.Push(change);
-            Debug.WriteLine("UndoStackCount: " + UndoStack.Count + " RedoStackCount: " + RedoStack.Count);
         }
         /// <summary>
         /// Adds property change to UndoStack
@@ -100,7 +99,6 @@ namespace PixiEditor.Models.Controllers
             }
             _lastChangeWasUndo = false;
             UndoStack.Push(new Change(property, oldValue, newValue, undoDescription));
-            Debug.WriteLine("UndoStackCount: " + UndoStack.Count + " RedoStackCount: " + RedoStack.Count);
         }
 
         /// <summary>

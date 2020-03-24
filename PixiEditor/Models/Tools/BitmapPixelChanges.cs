@@ -8,7 +8,8 @@ namespace PixiEditor.Models.Tools
 {
     public struct BitmapPixelChanges
     {
-        public Dictionary<Coordinates, Color> ChangedPixels;
+        public Dictionary<Coordinates, Color> ChangedPixels { get; set; } 
+
 
         public BitmapPixelChanges(Dictionary<Coordinates, Color> changedPixels)
         {
