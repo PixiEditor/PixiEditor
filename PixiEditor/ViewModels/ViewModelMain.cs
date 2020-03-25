@@ -32,6 +32,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand SetActiveLayerCommand { get; set; }
         public RelayCommand NewLayerCommand { get; set; }
         public RelayCommand ReloadImageCommand { get; set; }
+        public RelayCommand DeleteLayerCommand { get; set; }
 
         private double _mouseXonCanvas;
 
@@ -142,6 +143,7 @@ namespace PixiEditor.ViewModels
             OpenFileCommand = new RelayCommand(OpenFile);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
+            DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             ToolSet = new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };       
             UndoManager.SetMainRoot(this);
@@ -165,6 +167,16 @@ namespace PixiEditor.ViewModels
         public void SetActiveLayer(object parameter)
         {
             BitmapUtility.SetActiveLayer((int)parameter);
+        }
+
+        public void DeleteLayer(object parameter)
+        {
+            BitmapUtility.RemoveLayer((int)parameter);
+        }
+
+        public bool CanDeleteLayer(object property)
+        {
+            return BitmapUtility.Layers.Count > 1;
         }
 
         #region Undo/Redo

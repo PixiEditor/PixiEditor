@@ -12,41 +12,43 @@
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel"/>
     </Window.Resources>
-    <Grid Background="#303030">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="25*"/>
-            <RowDefinition Height="577*"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="#FF2C2C2C">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDown">
-                    <i:InvokeCommandAction Command="{Binding DragMoveCommand}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-            <Button Width="20" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" BorderThickness="0" Command="{Binding CloseCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
-            <Button.Background>
-                <ImageBrush ImageSource="/Images/Cross.png" Stretch="Uniform"/>
-            </Button.Background>
-        </Button>
+    <Border BorderBrush="Black" BorderThickness="1">
+        <Grid Background="#404040">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25*"/>
+                <RowDefinition Height="577*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Background="#303030">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding DragMoveCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Button Width="20" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" BorderThickness="0" Command="{Binding CloseCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Cross.png" Stretch="Uniform"/>
+                    </Button.Background>
+                </Button>
+            </Grid>
+            <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" Background="#303030" VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
+                <DockPanel Margin="50,35,0,0">
+                    <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" HorizontalAlignment="Left" TextAlignment="Center" Margin="5,0,0,0" Text="{Binding ElementName=newFilePopup, Path=FileHeight, Mode=TwoWay}" MaxLength="4">
+                        <i:Interaction.Behaviors>
+                            <helpers:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
+                        </i:Interaction.Behaviors>
+                    </TextBox>
+                </DockPanel>
+                <DockPanel Margin="50,10,0,0">
+                    <TextBlock Height="30" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" HorizontalAlignment="Left" Margin="10,0,0,0" TextAlignment="Center" Text="{Binding ElementName=newFilePopup, Path=FileWidth, Mode=TwoWay}" MaxLength="4">
+                        <i:Interaction.Behaviors>
+                            <helpers:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
+                        </i:Interaction.Behaviors>
+                    </TextBox>
+                </DockPanel>
+            </StackPanel>
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="60" Style="{StaticResource DarkRoundButton}" Content="OK" Margin="0,0,10,10" Grid.Row="1" Command="{Binding OkCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
         </Grid>
-        <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" Background="#FF2E2E2E" VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
-            <DockPanel Margin="50,35,0,0">
-            <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" HorizontalAlignment="Left" TextAlignment="Center" Margin="5,0,0,0" Text="{Binding ElementName=newFilePopup, Path=FileHeight, Mode=TwoWay}" MaxLength="4">
-                    <i:Interaction.Behaviors>
-                        <helpers:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
-                    </i:Interaction.Behaviors>
-                </TextBox>
-            </DockPanel>
-            <DockPanel Margin="50,10,0,0">
-                <TextBlock Height="30" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" HorizontalAlignment="Left" Margin="10,0,0,0" TextAlignment="Center" Text="{Binding ElementName=newFilePopup, Path=FileWidth, Mode=TwoWay}" MaxLength="4">
-                    <i:Interaction.Behaviors>
-                        <helpers:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
-                    </i:Interaction.Behaviors>
-                </TextBox>
-            </DockPanel>
-        </StackPanel>
-        <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="60" Style="{StaticResource DarkRoundButton}" Content="OK" Margin="0,0,10,10" Grid.Row="1" Command="{Binding OkCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
-    </Grid>
+    </Border>
 </Window>

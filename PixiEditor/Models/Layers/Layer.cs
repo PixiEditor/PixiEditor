@@ -8,6 +8,17 @@ namespace PixiEditor.Models.Layers
     {
         private WriteableBitmap _layerBitmap;
         public string Name { get; set; }
+
+        private bool _isActive = false;
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                _isActive = value;
+                RaisePropertyChanged("IsActive");
+            }
+        }
         private bool _isVisible = true;
         public bool IsVisible
         {

@@ -138,19 +138,36 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public void RemoveLayer(int layerIndex)
+        {
+            if (Layers.Count <= 1) return;
+
+            bool wasActive = Layers[layerIndex].IsActive;
+            Layers.RemoveAt(layerIndex);
+            if (wasActive)
+            {
+                SetActiveLayer(0);
+            }
+        }
+
         public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
         {
             Layers.Add(new Layer(name, width, height));
             if (setAsActive)
             {
-                ActiveLayerIndex = Layers.Count - 1;
+                SetActiveLayer(Layers.Count - 1);
             }
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
 
         public void SetActiveLayer(int index)
         {
-            ActiveLayerIndex = index;
+            if (ActiveLayerIndex <= Layers.Count - 1)
+            {
+                Layers[ActiveLayerIndex].IsActive = false;
+            }
+                ActiveLayerIndex = index;
+            Layers[ActiveLayerIndex].IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
         }
 

@@ -6,6 +6,7 @@
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -17,6 +18,7 @@
         <vm:ViewModelMain x:Key="ViewModelMain"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding 
@@ -108,7 +110,7 @@
                 </vws:MenuButton.Item>
             </vws:MenuButton>
         </WrapPanel>
-        <Grid Grid.Column="1" Grid.Row="1" Background="DimGray" Margin="0,5,0,0">
+        <Grid Grid.Column="1" Grid.Row="1" Background="#303030" Margin="0,5,5,0">
             <Grid>
                 <vws:MainDrawingPanel CenterOnStart="True">
                     <vws:MainDrawingPanel.Item>
@@ -127,7 +129,7 @@
                             <i:Interaction.Behaviors>
                                 <behaviors:MouseBehaviour MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
                             </i:Interaction.Behaviors>
-                            <Image Source="/Images/transparentbg.png" Height="{Binding BitmapUtility.ActiveLayer.Height}" Width="{Binding BitmapUtility.ActiveLayer.Width}" Opacity="0.2" Stretch="UniformToFill"/>
+                            <Image Source="/Images/transparentbg.png" Height="{Binding BitmapUtility.ActiveLayer.Height}" Width="{Binding BitmapUtility.ActiveLayer.Width}" Opacity="0.9" Stretch="UniformToFill"/>
                             <Image Source="{Binding BitmapUtility.PreviewLayer.LayerBitmap}" Panel.ZIndex="2" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding BitmapUtility.PreviewLayer.Width}" Height="{Binding BitmapUtility.PreviewLayer.Height}"/>
                             <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}">
                                 <ItemsControl.ItemsPanel>
@@ -147,7 +149,7 @@
             </Grid>
         </Grid>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#363434" Grid.RowSpan="2">
+        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#404040">
             <TextBox Style="{StaticResource DarkTextBoxStyle}" Margin="0,10,0,0" Text="{Binding ToolSize, Mode=TwoWay,Converter={StaticResource ToolSizeToIntConverter}}" TextAlignment="Center" MaxLength="4">
                 <i:Interaction.Behaviors>
                     <behaviors:TextBoxNumericFinisherBehavior/>
@@ -195,7 +197,7 @@
             </Button>
         </StackPanel>
 
-        <DockPanel Grid.Column="2" Grid.Row="1">
+        <DockPanel Grid.Column="2" Grid.Row="1" Background="#404040">
             <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="100"  Margin="0,20,0,0" Height="100">
             <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
                 <Rectangle.Fill>
@@ -210,8 +212,8 @@
             </Rectangle>
             <xctk:ColorPicker Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
         </Grid>
-        
-        <xcad:DockingManager Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top">
+
+            <xcad:DockingManager Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top">
             <xcad:DockingManager.Style>
                 <Style TargetType="xcad:DockingManager">
                     <Setter Property="Foreground" Value="Snow"/>
@@ -223,7 +225,7 @@
                         <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
                             <StackPanel  Orientation="Vertical">
                                 <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
-                                    <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}" AlternationCount="9999">
+                                    <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ui:ReversedOrderStackPanel Orientation="Vertical"/>
@@ -231,13 +233,20 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60">
-                                                <DockPanel>
-                                                    <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
-                                                    <Button Style="{StaticResource BaseDarkButton}" Background="Transparent" FontSize="16" DockPanel.Dock="Left" Content="{Binding Name}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
+                                                <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60" Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
+                                                    <DockPanel>
+                                                        <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
+                                                        <Button Background="Transparent" Style="{StaticResource BaseDarkButton}" FontSize="16" DockPanel.Dock="Left" Content="{Binding Name}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
                             Path=DataContext.SetActiveLayerCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}">
+                                                            <Button.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <MenuItem Header="Delete" Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
-                                                </DockPanel>
+                                                                </ContextMenu>
+                                                            </Button.ContextMenu>
+                                                        </Button>
+                                                    </DockPanel>
                                                 </Border>
                                             </DataTemplate>
                                     </ItemsControl.ItemTemplate>
