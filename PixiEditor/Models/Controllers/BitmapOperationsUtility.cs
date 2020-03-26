@@ -148,6 +148,10 @@ namespace PixiEditor.Models.Controllers
             {
                 SetActiveLayer(0);
             }
+            else if(ActiveLayerIndex > Layers.Count - 1)
+            {
+                SetActiveLayer(Layers.Count - 1);
+            }
         }
 
         public void AddNewLayer(string name, int width, int height, bool setAsActive = true)

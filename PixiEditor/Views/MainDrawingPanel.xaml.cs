@@ -92,7 +92,6 @@ namespace PixiEditor.Views
         {
             if(CenterOnStart == true)
             {
-                var dragKeys = new Xceed.Wpf.Toolkit.Core.Input.KeyModifierCollection();
                 ((Zoombox)sender).CenterContent();
             }
         }
