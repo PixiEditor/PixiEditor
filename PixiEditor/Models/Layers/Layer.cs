@@ -7,7 +7,18 @@ namespace PixiEditor.Models.Layers
     public class Layer : BasicLayer
     {
         private WriteableBitmap _layerBitmap;
-        public string Name { get; set; }
+        private string _name;
+
+        public string Name
+        {
+            get { return _name; }
+            set 
+            { 
+                _name = value;
+                RaisePropertyChanged("Name");
+            }
+        }
+
 
         private bool _isActive = false;
         public bool IsActive

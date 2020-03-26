@@ -215,7 +215,7 @@
                             Path=(ItemsControl.AlternationIndex)}"/>
                                                                 </ContextMenu>
                                                             </Button.ContextMenu>
-                                                            <vws:EditableTextBlock Text="{Binding Name}"/>
+                                                            <vws:EditableTextBlock Text="{Binding Name, Mode=TwoWay}"/>
                                                         </Button>
                                                     </DockPanel>
                                                 </Border>
