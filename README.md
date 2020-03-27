@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/flabbet/PixiEditor/_apis/build/status/flabbet.PixiEditor?branchName=master)](https://dev.azure.com/flabbet/PixiEditor/_build/latest?definitionId=3&branchName=master)
+
 # PixiEditor
 Pixi is lightweighted pixel art creator.
 
