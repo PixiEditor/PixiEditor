@@ -37,6 +37,14 @@
             Modifiers="Ctrl"
             Key="Y"
             Command="{Binding RedoCommand}"/>
+        <KeyBinding
+            Modifiers="Ctrl"
+            Key="Z"
+            Command="{Binding UndoCommand}"/>
+        <KeyBinding 
+            Modifiers="Ctrl"
+            Key="Y"
+            Command="{Binding RedoCommand}"/>
 
 
     </Window.InputBindings>
@@ -83,6 +91,38 @@
         <Grid Grid.Column="1" Grid.Row="1" Background="#303030" Margin="0,5,5,0">
             <Grid>
                 <vws:MainDrawingPanel CenterOnStart="True">
+                    <vws:MainDrawingPanel.InputBindings>
+                        <KeyBinding            
+            Key="B"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Pen"/>
+                        <KeyBinding
+            Key="G"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Bucket"/>
+                        <KeyBinding
+            Key="L"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Line"/>
+                        <KeyBinding
+            Key="C"
+            Command="{Binding SelectToolCommand}"
+            CommandParameter="Circle"/>
+                        <KeyBinding Key="R"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Rectangle"/>
+                        <KeyBinding Key="O"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="ColorPicker"/>
+                        <KeyBinding Key="E"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Earser"/>
+                        <KeyBinding Key="U"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Lighten"/>
+                        <KeyBinding Key="O" Modifiers="Ctrl"
+                    Command="{Binding OpenFileCommand}"/>
+                    </vws:MainDrawingPanel.InputBindings>
                     <vws:MainDrawingPanel.Item>
                         <Canvas Width="{Binding BitmapUtility.ActiveLayer.Width}" Height="{Binding BitmapUtility.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <i:Interaction.Triggers>
