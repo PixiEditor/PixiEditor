@@ -9,6 +9,8 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <AssemblyName>PixiEditor</AssemblyName>
     <RootNamespace>PixiEditor</RootNamespace>
+    <RepositoryUrl>https://github.com/flabbet/PixiEditor</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Expression.Blend.Sdk">
@@ -34,6 +36,12 @@
     <Resource Include="Images\PipetteImage.png" />
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\transparentbg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   
 </Project>
