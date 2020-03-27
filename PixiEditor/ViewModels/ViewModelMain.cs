@@ -13,6 +13,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels
 {
@@ -161,16 +162,16 @@ namespace PixiEditor.ViewModels
                 Shortcuts = new List<Shortcut> { 
                     new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
                     new Shortcut(Key.X, SwapColorsCommand),
-                    new Shortcut(Key.O, OpenFileCommand, ModifierKeys.Control),
+                    new Shortcut(Key.O, OpenFileCommand, null, ModifierKeys.Control),
                     new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
                     new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
                     new Shortcut(Key.C, SelectToolCommand, ToolType.Rectangle),
                     new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
                     new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
-                    new Shortcut(Key.Y, RedoCommand, ModifierKeys.Control),
+                    new Shortcut(Key.Y, RedoCommand, null, ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand),
-                    new Shortcut(Key.S, UndoCommand, ModifierKeys.Control),
-                    new Shortcut(Key.N, GenerateDrawAreaCommand, ModifierKeys.Control),
+                    new Shortcut(Key.S, UndoCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.N, GenerateDrawAreaCommand, null, ModifierKeys.Control),
                 }
             };
             UndoManager.SetMainRoot(this);

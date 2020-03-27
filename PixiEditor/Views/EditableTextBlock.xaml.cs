@@ -37,12 +37,25 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty TextBlockVisibilityProperty =
             DependencyProperty.Register("TextBlockVisibility", typeof(Visibility), typeof(EditableTextBlock), new PropertyMetadata(Visibility.Visible));
 
-
-
+      
 
         // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock), new PropertyMetadata(default(string)));
+
+
+
+        public RelayCommand EnableEditingCommand
+        {
+            get { return (RelayCommand)GetValue(EnableEditingCommandProperty); }
+            set { SetValue(EnableEditingCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for EnableEditingCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty EnableEditingCommandProperty =
+            DependencyProperty.Register("EnableEditingCommand", typeof(RelayCommand), typeof(EditableTextBlock), new PropertyMetadata(null));
+
+
 
         public string Text
         {
@@ -50,7 +63,7 @@ namespace PixiEditor.Views
             set { SetValue(TextProperty, value); }
         }
 
-        private void EnableEditing()
+        public void EnableEditing()
         {
             ShortcutController.BlockShortcutExecution = true;
             TextBlockVisibility = Visibility.Hidden;
