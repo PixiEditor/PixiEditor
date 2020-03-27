@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -49,12 +50,24 @@ namespace PixiEditor.Views
             set { SetValue(TextProperty, value); }
         }
 
+        private void EnableEditing()
+        {
+            ShortcutController.BlockShortcutExecution = true;
+            TextBlockVisibility = Visibility.Hidden;
+        }
+
+        private void DisableEditing()
+        {
+            TextBlockVisibility = Visibility.Visible;
+            ShortcutController.BlockShortcutExecution = false;
+        }
+
 
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if(e.ClickCount == 2)
             {
-                TextBlockVisibility = Visibility.Hidden;
+                EnableEditing();
             }
         }
 
@@ -62,18 +75,18 @@ namespace PixiEditor.Views
         {
             if(e.Key == Key.Enter)
             {
-                TextBlockVisibility = Visibility.Visible;
+                DisableEditing();
             }
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-             TextBlockVisibility = Visibility.Visible;
+            DisableEditing();
         }
 
         private void textBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-               TextBlockVisibility = Visibility.Visible;
+            DisableEditing();
         }
     }
 }

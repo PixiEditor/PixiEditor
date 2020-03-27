@@ -11,43 +11,22 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
-        xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"      
+        xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+        xmlns:cmd="http://www.galasoft.ch/mvvmlight"
         mc:Ignorable="d"
-        Title="PixiEditor" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
     <Window.Resources>
         <vm:ViewModelMain x:Key="ViewModelMain"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Window.Resources>
-    <Window.InputBindings>
-        <KeyBinding 
-            Modifiers="Ctrl" 
-            Key="N"                  
-            Command="{Binding GenerateDrawAreaCommand}"/>
-        <KeyBinding
-            Modifiers="Ctrl"
-            Key="S"
-            Command="{Binding SaveFileCommand}"/>
-        <KeyBinding
-            Modifiers="Ctrl"
-            Key="Z"
-            Command="{Binding UndoCommand}"/>
-        <KeyBinding 
-            Modifiers="Ctrl"
-            Key="Y"
-            Command="{Binding RedoCommand}"/>
-        <KeyBinding
-            Modifiers="Ctrl"
-            Key="Z"
-            Command="{Binding UndoCommand}"/>
-        <KeyBinding 
-            Modifiers="Ctrl"
-            Key="Y"
-            Command="{Binding RedoCommand}"/>
 
-
-    </Window.InputBindings>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="KeyDown">
+            <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="60*"/>
@@ -91,38 +70,6 @@
         <Grid Grid.Column="1" Grid.Row="1" Background="#303030" Margin="0,5,5,0">
             <Grid>
                 <vws:MainDrawingPanel CenterOnStart="True">
-                    <vws:MainDrawingPanel.InputBindings>
-                        <KeyBinding            
-            Key="B"
-            Command="{Binding SelectToolCommand}"
-            CommandParameter="Pen"/>
-                        <KeyBinding
-            Key="G"
-            Command="{Binding SelectToolCommand}"
-            CommandParameter="Bucket"/>
-                        <KeyBinding
-            Key="L"
-            Command="{Binding SelectToolCommand}"
-            CommandParameter="Line"/>
-                        <KeyBinding
-            Key="C"
-            Command="{Binding SelectToolCommand}"
-            CommandParameter="Circle"/>
-                        <KeyBinding Key="R"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="Rectangle"/>
-                        <KeyBinding Key="O"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="ColorPicker"/>
-                        <KeyBinding Key="E"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="Earser"/>
-                        <KeyBinding Key="U"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="Lighten"/>
-                        <KeyBinding Key="O" Modifiers="Ctrl"
-                    Command="{Binding OpenFileCommand}"/>
-                    </vws:MainDrawingPanel.InputBindings>
                     <vws:MainDrawingPanel.Item>
                         <Canvas Width="{Binding BitmapUtility.ActiveLayer.Width}" Height="{Binding BitmapUtility.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <i:Interaction.Triggers>

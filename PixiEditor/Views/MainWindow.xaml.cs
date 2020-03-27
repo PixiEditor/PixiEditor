@@ -1,4 +1,5 @@
-﻿using PixiEditor.ViewModels;
+﻿using PixiEditor.Models.Controllers;
+using PixiEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
