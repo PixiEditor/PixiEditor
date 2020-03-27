@@ -195,7 +195,7 @@
                         <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
                             <StackPanel  Orientation="Vertical">
                                 <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
-                                    <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
+                                    <ItemsControl AllowDrop="True" ItemsSource="{Binding BitmapUtility.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ui:ReversedOrderStackPanel Orientation="Vertical"/>
@@ -213,9 +213,14 @@
                                                                 <ContextMenu>
                                                                     <MenuItem Header="Delete" Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
+                                                                    <MenuItem Header="Move to front" Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}"/>
+                                                                    <MenuItem Header="Move to back" Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}"/>
                                                                 </ContextMenu>
                                                             </Button.ContextMenu>
-                                                            <vws:EditableTextBlock Text="{Binding Name, Mode=TwoWay}"/>
+                                                            <vws:EditableTextBlock x:Name="layerNameTB" Text="{Binding Name, Mode=TwoWay}">
+                                                            </vws:EditableTextBlock>
                                                         </Button>
                                                     </DockPanel>
                                                 </Border>

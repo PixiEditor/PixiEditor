@@ -33,6 +33,8 @@ namespace PixiEditor.ViewModels
         public RelayCommand NewLayerCommand { get; set; }
         public RelayCommand ReloadImageCommand { get; set; }
         public RelayCommand DeleteLayerCommand { get; set; }
+        public RelayCommand MoveToBackCommand { get; set; }
+        public RelayCommand MoveToFrontCommand { get; set; }
 
         private double _mouseXonCanvas;
 
@@ -144,6 +146,8 @@ namespace PixiEditor.ViewModels
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
             DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
+            MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
+            MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             ToolSet = new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };       
             UndoManager.SetMainRoot(this);
@@ -162,6 +166,28 @@ namespace PixiEditor.ViewModels
         {
             ChangesController.AddChanges(new LayerChanges(e.PixelsChanged, e.ChangedLayerIndex), 
                 new LayerChanges(e.OldPixelsValues, e.ChangedLayerIndex));
+        }
+
+        public void MoveLayerToFront(object parameter)
+        {
+            int oldIndex = (int)parameter;
+            BitmapUtility.Layers.Move(oldIndex, oldIndex + 1);
+        }
+
+        public void MoveLayerToBack(object parameter)
+        {
+            int oldIndex = (int)parameter;
+            BitmapUtility.Layers.Move(oldIndex, oldIndex - 1);
+        }
+
+        public bool CanMoveToFront(object property)
+        {
+            return BitmapUtility.Layers.Count - 1 > (int)property;
+        }
+
+        public bool CanMoveToBack(object property)
+        {
+            return (int)property > 0;
         }
 
         public void SetActiveLayer(object parameter)

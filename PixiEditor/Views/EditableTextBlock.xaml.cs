@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,11 +20,11 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class EditableTextBlock : UserControl
     {
+
         public EditableTextBlock()
         {
-            InitializeComponent();            
+            InitializeComponent();
         }
-
 
         public Visibility TextBlockVisibility
         {
