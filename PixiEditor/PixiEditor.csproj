@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <AssemblyName>PixiEditor</AssemblyName>
+    <RootNamespace>PixiEditor</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Expression.Blend.Sdk">
+      <Version>1.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Extended.Wpf.Toolkit">
+      <Version>3.8.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+    <PackageReference Include="WriteableBitmapEx">
+      <Version>1.6.5</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\BucketImage.png" />
+    <Resource Include="Images\CircleImage.png" />
+    <Resource Include="Images\Cross.png" />
+    <Resource Include="Images\EarserImage.png" />
+    <Resource Include="Images\LightenImage.png" />
+    <Resource Include="Images\LineImage.png" />
+    <Resource Include="Images\PenImage.png" />
+    <Resource Include="Images\PipetteImage.png" />
+    <Resource Include="Images\RectangleImage.png" />
+    <Resource Include="Images\transparentbg.png" />
+  </ItemGroup>
+  
+</Project>

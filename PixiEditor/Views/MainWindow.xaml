@@ -1,0 +1,239 @@
+﻿<Window x:Class="PixiEditor.MainWindow" MinHeight="1000" MinWidth="1100"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PixiEditor.ViewModels"
+        xmlns:vws="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"      
+        mc:Ignorable="d"
+        Title="PixiEditor" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+    <Window.Resources>
+        <vm:ViewModelMain x:Key="ViewModelMain"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding 
+            Modifiers="Ctrl" 
+            Key="N"                  
+            Command="{Binding GenerateDrawAreaCommand}"/>
+        <KeyBinding
+            Modifiers="Ctrl"
+            Key="S"
+            Command="{Binding SaveFileCommand}"/>
+        <KeyBinding
+            Modifiers="Ctrl"
+            Key="Z"
+            Command="{Binding UndoCommand}"/>
+        <KeyBinding 
+            Modifiers="Ctrl"
+            Key="Y"
+            Command="{Binding RedoCommand}"/>
+
+
+    </Window.InputBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60*"/>
+            <ColumnDefinition Width="1420*"/>
+            <ColumnDefinition Width="150*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="908*"/>
+            <RowDefinition Height="30*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0" Height="30"/>
+        <WrapPanel Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Panel.ZIndex="100">
+            <vws:MenuButton Text="File" Margin="0,0,-140,0">
+                <vws:MenuButton.Item>
+                    <StackPanel>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="New" Command="{Binding GenerateDrawAreaCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Save" Command="{Binding SaveFileCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Open" Command="{Binding OpenFileCommand}"/>
+                    </StackPanel>
+                </vws:MenuButton.Item>
+            </vws:MenuButton>
+            <vws:MenuButton Text="Edit" Margin="0,0,-140,0">
+                <vws:MenuButton.Item>
+                    <StackPanel>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Undo" Command="{Binding UndoCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Redo" Command="{Binding RedoCommand}"/>
+                    </StackPanel>
+                </vws:MenuButton.Item>
+            </vws:MenuButton>
+
+            <vws:MenuButton Text="View" Margin="0,0,-140,0">
+                <vws:MenuButton.Item>
+                    <StackPanel>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Recenter" Command="{Binding RecenterZoomboxCommand}" CommandParameter="{Binding ElementName=Zoombox}"/>
+                    </StackPanel>
+                </vws:MenuButton.Item>
+            </vws:MenuButton>
+        </WrapPanel>
+        <Grid Grid.Column="1" Grid.Row="1" Background="#303030" Margin="0,5,5,0">
+            <Grid>
+                <vws:MainDrawingPanel CenterOnStart="True">
+                    <vws:MainDrawingPanel.Item>
+                        <Canvas Width="{Binding BitmapUtility.ActiveLayer.Width}" Height="{Binding BitmapUtility.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseMove">
+                                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <i:Interaction.Behaviors>
+                                <behaviors:MouseBehaviour MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
+                            </i:Interaction.Behaviors>
+                            <Image Source="/Images/transparentbg.png" Height="{Binding BitmapUtility.ActiveLayer.Height}" Width="{Binding BitmapUtility.ActiveLayer.Width}" Opacity="0.9" Stretch="UniformToFill"/>
+                            <Image Source="{Binding BitmapUtility.PreviewLayer.LayerBitmap}" Panel.ZIndex="2" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding BitmapUtility.PreviewLayer.Width}" Height="{Binding BitmapUtility.PreviewLayer.Height}"/>
+                            <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Grid/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding LayerBitmap}" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding Width}" Height="{Binding Height}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Canvas>
+                    </vws:MainDrawingPanel.Item>
+                </vws:MainDrawingPanel>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#404040">
+            <TextBox Style="{StaticResource DarkTextBoxStyle}" Margin="0,10,0,0" Text="{Binding ToolSize, Mode=TwoWay,Converter={StaticResource ToolSizeToIntConverter}}" TextAlignment="Center" MaxLength="4">
+                <i:Interaction.Behaviors>
+                    <behaviors:TextBoxNumericFinisherBehavior/>
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Pen" ToolTip="Standard brush (B)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/PenImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Bucket" ToolTip="Fills area with color (G)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/BucketImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Line" ToolTip="Draws line on canvas (L)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/LineImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Circle" ToolTip="Draws circle on cavnas (C)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/CircleImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Rectangle" ToolTip="Draws rectanlge on cavnas (R)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/RectangleImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="ColorPicker" ToolTip="Color picker, sets color from pixel as active (O)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/PipetteImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Earser" ToolTip="Earser, Earsers color from pixel (E)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/EarserImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Brightness" ToolTip="Makes pixel brighter or darker pixel (U)">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/LightenImage.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+        </StackPanel>
+
+        <DockPanel Grid.Column="2" Grid.Row="1" Background="#404040">
+            <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="100"  Margin="0,20,0,0" Height="100">
+            <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="{Binding PrimaryColor, Mode=OneWay}"/>
+                </Rectangle.Fill>
+            </Rectangle>
+            <xctk:ColorPicker Width="70" Panel.ZIndex="2" Height="70" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
+            <Rectangle Height="70" Width="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="{Binding SecondaryColor, Mode=OneWay}"/>
+                </Rectangle.Fill>
+            </Rectangle>
+            <xctk:ColorPicker Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
+        </Grid>
+
+            <xcad:DockingManager Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top">
+            <xcad:DockingManager.Style>
+                <Style TargetType="xcad:DockingManager">
+                    <Setter Property="Foreground" Value="Snow"/>
+                </Style>
+            </xcad:DockingManager.Style>
+            <xcad:LayoutRoot x:Name="LayoutRoot">
+                <xcad:LayoutPanel Orientation="Vertical">
+                    <xcad:LayoutAnchorablePane>
+                        <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
+                            <StackPanel  Orientation="Vertical">
+                                <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
+                                    <ItemsControl AllowDrop="True" ItemsSource="{Binding BitmapUtility.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ui:ReversedOrderStackPanel Orientation="Vertical"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60" Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
+                                                    <DockPanel>
+                                                        <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
+                                                        <Button Background="Transparent" Style="{StaticResource BaseDarkButton}" FontSize="16" DockPanel.Dock="Left" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
+                            Path=DataContext.SetActiveLayerCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}">
+                                                            <Button.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <MenuItem Header="Delete" Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}"/>
+                                                                    <MenuItem Header="Move to front" Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}"/>
+                                                                    <MenuItem Header="Move to back" Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}"/>
+                                                                </ContextMenu>
+                                                            </Button.ContextMenu>
+                                                            <vws:EditableTextBlock x:Name="layerNameTB" Text="{Binding Name, Mode=TwoWay}">
+                                                            </vws:EditableTextBlock>
+                                                        </Button>
+                                                    </DockPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </xcad:LayoutAnchorable>
+                    </xcad:LayoutAnchorablePane>
+                </xcad:LayoutPanel>
+            </xcad:LayoutRoot>
+        </xcad:DockingManager>
+        </DockPanel>
+
+    </Grid>
+</Window>
