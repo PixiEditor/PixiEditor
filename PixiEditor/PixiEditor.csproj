@@ -9,7 +9,6 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <AssemblyName>PixiEditor</AssemblyName>
     <RootNamespace>PixiEditor</RootNamespace>
-    <PackageProjectUrl>https://github.com/flabbet/PixiEditor</PackageProjectUrl>
     <RepositoryUrl>https://github.com/flabbet/PixiEditor</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
@@ -47,6 +46,12 @@
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SwapArrows.png" />
     <Resource Include="Images\transparentbg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   
 </Project>
