@@ -87,7 +87,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
-                    <Border Background="#303030" BorderBrush="White" BorderThickness="1" Opacity="0.96">
+                    <Border Background="#202020" BorderBrush="Black" BorderThickness="1" Opacity="0.96">
                         <StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True"/>
                     </Border>
                 </ControlTemplate>
@@ -95,12 +95,35 @@
         </Setter>
     </Style>
     <ControlTemplate x:Key="{x:Static MenuItem.TopLevelItemTemplateKey}" TargetType="{x:Type MenuItem}">
-        <Border Name="Border" >
+        <Border x:Name="Bd">
             <Grid>
                 <ContentPresenter Margin="6,3,6,3" ContentSource="Header" RecognizesAccessKey="True" />
             </Grid>
         </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted"  Value="True">
+                <Setter Property="Background" TargetName="Bd" Value="Gray"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
     </ControlTemplate>
+
+    <Style TargetType="Button" x:Key="ImageButtonStyle">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border BorderThickness="0" Opacity="0.3" Name="brd" Background="{TemplateBinding Background}">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" TargetName="brd" Value="1"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 
 </ResourceDictionary>

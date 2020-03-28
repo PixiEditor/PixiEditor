@@ -10,6 +10,10 @@
     <AssemblyName>PixiEditor</AssemblyName>
     <RootNamespace>PixiEditor</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\SwapArrows.png" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
@@ -34,6 +38,7 @@
     <Resource Include="Images\PenImage.png" />
     <Resource Include="Images\PipetteImage.png" />
     <Resource Include="Images\RectangleImage.png" />
+    <Resource Include="Images\SwapArrows.png" />
     <Resource Include="Images\transparentbg.png" />
   </ItemGroup>
   
