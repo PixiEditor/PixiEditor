@@ -9,10 +9,17 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <AssemblyName>PixiEditor</AssemblyName>
     <RootNamespace>PixiEditor</RootNamespace>
+    <PackageProjectUrl>https://github.com/flabbet/PixiEditor</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/flabbet/PixiEditor</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Images\SwapArrows.png" />
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Expression.Blend.Sdk">
