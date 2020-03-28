@@ -213,7 +213,7 @@
                             Path=(ItemsControl.AlternationIndex)}"/>
                                                                 </ContextMenu>
                                                             </Button.ContextMenu>
-                                                            <vws:EditableTextBlock PlaceholderIndex="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}" IsEditing="{Binding IsRenaming, Mode=TwoWay}" Text="{Binding Name, Mode=TwoWay}">
+                                                            <vws:EditableTextBlock IsEditing="{Binding IsRenaming, Mode=TwoWay}" Text="{Binding Name, Mode=TwoWay}">
                                                             </vws:EditableTextBlock>
                                                         </Button>
                                                     </DockPanel>
