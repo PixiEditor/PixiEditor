@@ -45,16 +45,26 @@ namespace PixiEditor.Views
 
 
 
-        public RelayCommand EnableEditingCommand
+
+        public bool IsEditing
         {
-            get { return (RelayCommand)GetValue(EnableEditingCommandProperty); }
-            set { SetValue(EnableEditingCommandProperty, value); }
+            get { return (bool)GetValue(EnableEditingProperty); }
+            set { SetValue(EnableEditingProperty, value);}
         }
 
-        // Using a DependencyProperty as the backing store for EnableEditingCommand.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty EnableEditingCommandProperty =
-            DependencyProperty.Register("EnableEditingCommand", typeof(RelayCommand), typeof(EditableTextBlock), new PropertyMetadata(null));
+        // Using a DependencyProperty as the backing store for EnableEditing.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty EnableEditingProperty =
+            DependencyProperty.Register("IsEditing", typeof(bool), typeof(EditableTextBlock), new PropertyMetadata(OnIsEditingChanged));
 
+        private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if((bool)e.NewValue == true)
+            {
+                EditableTextBlock tb = (EditableTextBlock)d;
+                tb.EnableEditing();
+                
+            }
+        }
 
 
         public string Text
@@ -67,18 +77,20 @@ namespace PixiEditor.Views
         {
             ShortcutController.BlockShortcutExecution = true;
             TextBlockVisibility = Visibility.Hidden;
+            IsEditing = true;
         }
 
         private void DisableEditing()
         {
             TextBlockVisibility = Visibility.Visible;
             ShortcutController.BlockShortcutExecution = false;
+            IsEditing = false;
         }
 
 
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.ClickCount == 2)
+            if (e.ChangedButton == MouseButton.Left)
             {
                 EnableEditing();
             }

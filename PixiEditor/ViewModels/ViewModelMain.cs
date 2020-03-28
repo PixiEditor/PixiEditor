@@ -35,6 +35,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand NewLayerCommand { get; set; }
         public RelayCommand ReloadImageCommand { get; set; }
         public RelayCommand DeleteLayerCommand { get; set; }
+        public RelayCommand RenameLayerCommand { get; set; }
         public RelayCommand MoveToBackCommand { get; set; }
         public RelayCommand MoveToFrontCommand { get; set; }
         public RelayCommand SwapColorsCommand { get; set; }
@@ -155,6 +156,7 @@ namespace PixiEditor.ViewModels
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             SwapColorsCommand = new RelayCommand(SwapColors);
             KeyDownCommand = new RelayCommand(KeyDown);
+            RenameLayerCommand = new RelayCommand(RenameLayer);
             ToolSet = new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };
             ShortcutController = new ShortcutController
@@ -178,6 +180,11 @@ namespace PixiEditor.ViewModels
             SetActiveTool(ToolType.Pen);
             BitmapUtility.PrimaryColor = PrimaryColor;
             ToolSize = 1;
+        }
+
+        public void RenameLayer(object parameter)
+        {
+            BitmapUtility.Layers[(int)parameter].IsRenaming = true;
         }
 
         public void KeyDown(object parameter)

@@ -200,13 +200,15 @@
                                                                 <ContextMenu>
                                                                     <MenuItem Header="Delete" Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
+                                                                    <MenuItem Header="Rename" Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}"/>
                                                                     <MenuItem Header="Move to front" Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
                                                                     <MenuItem Header="Move to back" Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
                                                                 </ContextMenu>
                                                             </Button.ContextMenu>
-                                                            <vws:EditableTextBlock x:Name="layerNameTB" Text="{Binding Name, Mode=TwoWay}">
+                                                            <vws:EditableTextBlock IsEditing="{Binding IsRenaming, Mode=TwoWay}" Text="{Binding Name, Mode=TwoWay}">
                                                             </vws:EditableTextBlock>
                                                         </Button>
                                                     </DockPanel>
