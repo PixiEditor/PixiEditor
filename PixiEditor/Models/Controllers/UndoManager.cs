@@ -38,42 +38,7 @@ namespace PixiEditor.Models.Controllers
         {
             MainRoot = root;
         }
-
-        /// <summary>
-        /// Records changes, used to save multiple changes as one
-        /// </summary>
-        /// <param name="property">Record property name.</param>
-        /// <param name="oldValue">Old change value.</param>
-        /// <param name="newValue">New change value.</param>
-        /// <param name="undoDescription">Description of change.</param>
-        public static void RecordChanges(string property, object oldValue, object newValue, string undoDescription = "")
-        {
-            if (_stopRecording == false)
-            {
-                if (_recordedChanges.Count >= 2)
-                {
-                    _recordedChanges.RemoveAt(_recordedChanges.Count - 1);
-                }
-                _recordedChanges.Add(new Change(property, oldValue, newValue, undoDescription));
-
-            }
-        }
-
-        /// <summary>
-        /// Stops recording changes and saves it as one.
-        /// </summary>
-        public static void StopRecording()
-        {
-            _stopRecording = true;
-            if (_recordedChanges.Count > 0)
-            {
-                Change changeToSave = _recordedChanges[0];
-                changeToSave.NewValue = _recordedChanges.Last().OldValue;
-                AddUndoChange(changeToSave);
-                _recordedChanges.Clear();
-            }
-            _stopRecording = false;
-        }
+      
 
         public static void AddUndoChange(Change change)
         {
@@ -84,6 +49,7 @@ namespace PixiEditor.Models.Controllers
             _lastChangeWasUndo = false;
             UndoStack.Push(change);
         }
+
         /// <summary>
         /// Adds property change to UndoStack
         /// </summary>

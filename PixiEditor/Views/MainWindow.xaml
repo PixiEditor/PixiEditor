@@ -147,7 +147,7 @@
                     <ImageBrush ImageSource="/Images/EarserImage.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Brightness" ToolTip="Makes pixel brighter or darker pixel (U)">
+            <Button Style="{StaticResource ToolButtonStyle}" Opacity="1" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Brightness" ToolTip="Makes pixel brighter or darker pixel (U)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/LightenImage.png" Stretch="Uniform"/>
                 </Button.Background>
@@ -162,7 +162,7 @@
                     </Rectangle.Fill>
                 </Rectangle>
                 <xctk:ColorPicker Width="70" Panel.ZIndex="2" Height="70" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
-                <Button ToolTip="Swap colors (X)" Command="{Binding SwapColorsCommand}" Width="25" Height="25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 0 0 3" Style="{StaticResource ImageButtonStyle}">
+                <Button Opacity="0.3" ToolTip="Swap colors (X)" Command="{Binding SwapColorsCommand}" Width="25" Height="25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 0 0 3" Style="{StaticResource ImageButtonStyle}">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/SwapArrows.png" Stretch="Fill"/>
                     </Button.Background>

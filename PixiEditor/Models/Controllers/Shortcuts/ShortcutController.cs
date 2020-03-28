@@ -21,11 +21,16 @@ namespace PixiEditor.Models.Controllers
         {
             if (!BlockShortcutExecution)
             {
-                Shortcut shortcut = Shortcuts.Find(x => x.ShortcutKey == key);
-                if (shortcut == null) return;
-                if (Keyboard.Modifiers.HasFlag(shortcut.Modifier))
+                Shortcut[] shortcuts = Shortcuts.FindAll(x => x.ShortcutKey == key).ToArray();
+                if (shortcuts.Length < 1) return;
+                shortcuts = shortcuts.OrderByDescending(x => x.Modifier).ToArray();
+                for (int i = 0; i < shortcuts.Length; i++)
                 {
-                    shortcut.Execute();
+                    if (Keyboard.Modifiers.HasFlag(shortcuts[i].Modifier))
+                    {
+                        shortcuts[i].Execute();
+                        break;
+                    }
                 }
             }
         }
