@@ -298,6 +298,16 @@ namespace PixiEditor.ViewModels
         private void SetActiveTool(ToolType tool)
         {
             BitmapUtility.SelectedTool = ToolSet.Find(x=> x.ToolType == tool);
+            Cursor cursor;
+            if (tool != ToolType.None && tool != ToolType.ColorPicker)
+            {
+               cursor = BitmapUtility.SelectedTool.Cursor;
+            }
+            else
+            {
+                cursor = Cursors.Arrow;
+            }
+            Mouse.OverrideCursor = cursor;
         }
         /// <summary>
         /// When mouse is up stops recording changes.

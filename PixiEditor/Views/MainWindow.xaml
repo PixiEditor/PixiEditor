@@ -106,7 +106,7 @@
             </Grid>
         </Grid>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#404040">
+        <StackPanel Cursor="Arrow" Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#404040">
             <TextBox Style="{StaticResource DarkTextBoxStyle}" Margin="0,10,0,0" Text="{Binding ToolSize, Mode=TwoWay,Converter={StaticResource ToolSizeToIntConverter}}" TextAlignment="Center" MaxLength="4">
                 <i:Interaction.Behaviors>
                     <behaviors:TextBoxNumericFinisherBehavior/>

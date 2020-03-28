@@ -3,6 +3,7 @@ using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -11,6 +12,10 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Pen;
 
+        public PenTool()
+        {
+            Cursor = Cursors.Pen;
+        }
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
