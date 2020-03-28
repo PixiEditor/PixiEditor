@@ -41,6 +41,19 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private bool _isRenaming = false;
+
+        public bool IsRenaming
+        {
+            get { return _isRenaming; }
+            set
+            {
+                _isRenaming = value;
+                RaisePropertyChanged("IsRenaming");
+            }
+        }
+
+
         public WriteableBitmap LayerBitmap
         {
             get => _layerBitmap;

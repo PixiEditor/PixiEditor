@@ -11,35 +11,22 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
-        xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"      
+        xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+        xmlns:cmd="http://www.galasoft.ch/mvvmlight"
         mc:Ignorable="d"
-        Title="PixiEditor" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
     <Window.Resources>
         <vm:ViewModelMain x:Key="ViewModelMain"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Window.Resources>
-    <Window.InputBindings>
-        <KeyBinding 
-            Modifiers="Ctrl" 
-            Key="N"                  
-            Command="{Binding GenerateDrawAreaCommand}"/>
-        <KeyBinding
-            Modifiers="Ctrl"
-            Key="S"
-            Command="{Binding SaveFileCommand}"/>
-        <KeyBinding
-            Modifiers="Ctrl"
-            Key="Z"
-            Command="{Binding UndoCommand}"/>
-        <KeyBinding 
-            Modifiers="Ctrl"
-            Key="Y"
-            Command="{Binding RedoCommand}"/>
 
-
-    </Window.InputBindings>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="KeyDown">
+            <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="60*"/>
@@ -119,7 +106,7 @@
             </Grid>
         </Grid>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#404040">
+        <StackPanel Cursor="Arrow" Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#404040">
             <TextBox Style="{StaticResource DarkTextBoxStyle}" Margin="0,10,0,0" Text="{Binding ToolSize, Mode=TwoWay,Converter={StaticResource ToolSizeToIntConverter}}" TextAlignment="Center" MaxLength="4">
                 <i:Interaction.Behaviors>
                     <behaviors:TextBoxNumericFinisherBehavior/>
@@ -160,7 +147,7 @@
                     <ImageBrush ImageSource="/Images/EarserImage.png" Stretch="Uniform"/>
                 </Button.Background>
             </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Brightness" ToolTip="Makes pixel brighter or darker pixel (U)">
+            <Button Style="{StaticResource ToolButtonStyle}" Opacity="1" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Brightness" ToolTip="Makes pixel brighter or darker pixel (U)">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/LightenImage.png" Stretch="Uniform"/>
                 </Button.Background>
@@ -169,33 +156,38 @@
 
         <DockPanel Grid.Column="2" Grid.Row="1" Background="#404040">
             <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="100"  Margin="0,20,0,0" Height="100">
-            <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
-                <Rectangle.Fill>
-                    <SolidColorBrush Color="{Binding PrimaryColor, Mode=OneWay}"/>
-                </Rectangle.Fill>
-            </Rectangle>
-            <xctk:ColorPicker Width="70" Panel.ZIndex="2" Height="70" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
-            <Rectangle Height="70" Width="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
-                <Rectangle.Fill>
-                    <SolidColorBrush Color="{Binding SecondaryColor, Mode=OneWay}"/>
-                </Rectangle.Fill>
-            </Rectangle>
-            <xctk:ColorPicker Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
-        </Grid>
+                <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding PrimaryColor, Mode=OneWay}"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <xctk:ColorPicker Width="70" Panel.ZIndex="2" Height="70" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
+                <Button Opacity="0.3" ToolTip="Swap colors (X)" Command="{Binding SwapColorsCommand}" Width="25" Height="25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 0 0 3" Style="{StaticResource ImageButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/SwapArrows.png" Stretch="Fill"/>
+                    </Button.Background>
+                </Button>
+                <Rectangle Height="70" Width="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding SecondaryColor, Mode=OneWay}"/>
+                    </Rectangle.Fill>
+                </Rectangle>
+                <xctk:ColorPicker Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
+            </Grid>
 
             <xcad:DockingManager Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top">
-            <xcad:DockingManager.Style>
-                <Style TargetType="xcad:DockingManager">
-                    <Setter Property="Foreground" Value="Snow"/>
-                </Style>
-            </xcad:DockingManager.Style>
-            <xcad:LayoutRoot x:Name="LayoutRoot">
-                <xcad:LayoutPanel Orientation="Vertical">
-                    <xcad:LayoutAnchorablePane>
-                        <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
-                            <StackPanel  Orientation="Vertical">
-                                <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
-                                    <ItemsControl AllowDrop="True" ItemsSource="{Binding BitmapUtility.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
+                <xcad:DockingManager.Style>
+                    <Style TargetType="xcad:DockingManager">
+                        <Setter Property="Foreground" Value="Snow"/>
+                    </Style>
+                </xcad:DockingManager.Style>
+                <xcad:LayoutRoot x:Name="LayoutRoot">
+                    <xcad:LayoutPanel Orientation="Vertical">
+                        <xcad:LayoutAnchorablePane>
+                            <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
+                                <StackPanel  Orientation="Vertical">
+                                    <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
+                                    <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ui:ReversedOrderStackPanel Orientation="Vertical"/>
@@ -213,26 +205,28 @@
                                                                 <ContextMenu>
                                                                     <MenuItem Header="Delete" Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
+                                                                    <MenuItem Header="Rename" Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}"/>
                                                                     <MenuItem Header="Move to front" Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
                                                                     <MenuItem Header="Move to back" Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}"/>
                                                                 </ContextMenu>
                                                             </Button.ContextMenu>
-                                                            <vws:EditableTextBlock x:Name="layerNameTB" Text="{Binding Name, Mode=TwoWay}">
+                                                            <vws:EditableTextBlock IsEditing="{Binding IsRenaming, Mode=TwoWay}" Text="{Binding Name, Mode=TwoWay}">
                                                             </vws:EditableTextBlock>
                                                         </Button>
                                                     </DockPanel>
                                                 </Border>
                                             </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </xcad:LayoutAnchorable>
-                    </xcad:LayoutAnchorablePane>
-                </xcad:LayoutPanel>
-            </xcad:LayoutRoot>
-        </xcad:DockingManager>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
+                    </xcad:LayoutPanel>
+                </xcad:LayoutRoot>
+            </xcad:DockingManager>
         </DockPanel>
 
     </Grid>

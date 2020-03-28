@@ -2,7 +2,7 @@
 using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools
@@ -16,6 +16,7 @@ namespace PixiEditor.Models.Tools
         public ShapeTool()
         {
             RequiresPreviewLayer = true;
+            Cursor = Cursors.Cross;
         }
 
         protected Coordinates[] BresenhamLine(int x1, int y1, int x2, int y2)

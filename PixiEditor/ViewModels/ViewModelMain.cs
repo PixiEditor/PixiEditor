@@ -13,6 +13,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels
 {
@@ -23,6 +24,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand GenerateDrawAreaCommand { get; set; } //Command that generates draw area
         public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
         public RelayCommand MouseDownCommand { get; set; }
+        public RelayCommand KeyDownCommand { get; set; }
         public RelayCommand SaveFileCommand { get; set; } //Command that is used to save file
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RedoCommand { get; set; }
@@ -33,8 +35,10 @@ namespace PixiEditor.ViewModels
         public RelayCommand NewLayerCommand { get; set; }
         public RelayCommand ReloadImageCommand { get; set; }
         public RelayCommand DeleteLayerCommand { get; set; }
+        public RelayCommand RenameLayerCommand { get; set; }
         public RelayCommand MoveToBackCommand { get; set; }
         public RelayCommand MoveToFrontCommand { get; set; }
+        public RelayCommand SwapColorsCommand { get; set; }
 
         private double _mouseXonCanvas;
 
@@ -126,6 +130,8 @@ namespace PixiEditor.ViewModels
         public BitmapOperationsUtility BitmapUtility { get; set; }
         public PixelChangesController ChangesController { get; set; }
 
+        public ShortcutController ShortcutController { get; set; }
+
         public ViewModelMain()
         {
             PixiFilesManager.InitializeTempDirectories();
@@ -148,12 +154,44 @@ namespace PixiEditor.ViewModels
             DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
+            SwapColorsCommand = new RelayCommand(SwapColors);
+            KeyDownCommand = new RelayCommand(KeyDown);
+            RenameLayerCommand = new RelayCommand(RenameLayer);
             ToolSet = new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
-            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };       
+            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };
+            ShortcutController = new ShortcutController
+            {
+                Shortcuts = new List<Shortcut> { 
+                    new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
+                    new Shortcut(Key.X, SwapColorsCommand),
+                    new Shortcut(Key.O, OpenFileCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
+                    new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
+                    new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
+                    new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
+                    new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
+                    new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
+                    new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
+                    new Shortcut(Key.Y, RedoCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.Z, UndoCommand),
+                    new Shortcut(Key.S, UndoCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.N, GenerateDrawAreaCommand, null, ModifierKeys.Control),
+                }
+            };
             UndoManager.SetMainRoot(this);
             SetActiveTool(ToolType.Pen);
             BitmapUtility.PrimaryColor = PrimaryColor;
             ToolSize = 1;
+        }
+
+        public void RenameLayer(object parameter)
+        {
+            BitmapUtility.Layers[(int)parameter].IsRenaming = true;
+        }
+
+        public void KeyDown(object parameter)
+        {
+            ShortcutController.KeyPressed(((KeyEventArgs)parameter).Key);
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -166,6 +204,13 @@ namespace PixiEditor.ViewModels
         {
             ChangesController.AddChanges(new LayerChanges(e.PixelsChanged, e.ChangedLayerIndex), 
                 new LayerChanges(e.OldPixelsValues, e.ChangedLayerIndex));
+        }
+
+        public void SwapColors(object parameter)
+        {
+            var tmp = PrimaryColor;
+            PrimaryColor = SecondaryColor;
+            SecondaryColor = tmp;
         }
 
         public void MoveLayerToFront(object parameter)
@@ -255,6 +300,16 @@ namespace PixiEditor.ViewModels
         private void SetActiveTool(ToolType tool)
         {
             BitmapUtility.SelectedTool = ToolSet.Find(x=> x.ToolType == tool);
+            Cursor cursor;
+            if (tool != ToolType.None && tool != ToolType.ColorPicker)
+            {
+               cursor = BitmapUtility.SelectedTool.Cursor;
+            }
+            else
+            {
+                cursor = Cursors.Arrow;
+            }
+            Mouse.OverrideCursor = cursor;
         }
         /// <summary>
         /// When mouse is up stops recording changes.

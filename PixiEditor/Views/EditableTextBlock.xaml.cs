@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -36,12 +37,35 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty TextBlockVisibilityProperty =
             DependencyProperty.Register("TextBlockVisibility", typeof(Visibility), typeof(EditableTextBlock), new PropertyMetadata(Visibility.Visible));
 
-
-
+      
 
         // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock), new PropertyMetadata(default(string)));
+            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock), new PropertyMetadata(default(string)));       
+
+
+
+
+        public bool IsEditing
+        {
+            get { return (bool)GetValue(EnableEditingProperty); }
+            set { SetValue(EnableEditingProperty, value);}
+        }
+
+        // Using a DependencyProperty as the backing store for EnableEditing.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty EnableEditingProperty =
+            DependencyProperty.Register("IsEditing", typeof(bool), typeof(EditableTextBlock), new PropertyMetadata(OnIsEditingChanged));
+
+        private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if((bool)e.NewValue == true)
+            {
+                EditableTextBlock tb = (EditableTextBlock)d;
+                tb.EnableEditing();
+                
+            }
+        }
+
 
         public string Text
         {
@@ -49,12 +73,26 @@ namespace PixiEditor.Views
             set { SetValue(TextProperty, value); }
         }
 
+        public void EnableEditing()
+        {
+            ShortcutController.BlockShortcutExecution = true;
+            TextBlockVisibility = Visibility.Hidden;
+            IsEditing = true;
+        }
+
+        private void DisableEditing()
+        {
+            TextBlockVisibility = Visibility.Visible;
+            ShortcutController.BlockShortcutExecution = false;
+            IsEditing = false;
+        }
+
 
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.ClickCount == 2)
+            if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2)
             {
-                TextBlockVisibility = Visibility.Hidden;
+                EnableEditing();
             }
         }
 
@@ -62,18 +100,18 @@ namespace PixiEditor.Views
         {
             if(e.Key == Key.Enter)
             {
-                TextBlockVisibility = Visibility.Visible;
+                DisableEditing();
             }
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-             TextBlockVisibility = Visibility.Visible;
+            DisableEditing();
         }
 
         private void textBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-               TextBlockVisibility = Visibility.Visible;
+            DisableEditing();
         }
     }
 }
