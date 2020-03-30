@@ -126,6 +126,18 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private Cursor _toolCursor;
+
+        public Cursor ToolCursor
+        {
+            get { return _toolCursor; }
+            set {
+                _toolCursor = value;
+                RaisePropertyChanged("ToolCursor");
+            }
+        }
+
+
 
         public BitmapOperationsUtility BitmapUtility { get; set; }
         public PixelChangesController ChangesController { get; set; }
@@ -300,16 +312,14 @@ namespace PixiEditor.ViewModels
         private void SetActiveTool(ToolType tool)
         {
             BitmapUtility.SelectedTool = ToolSet.Find(x=> x.ToolType == tool);
-            Cursor cursor;
             if (tool != ToolType.None && tool != ToolType.ColorPicker)
             {
-               cursor = BitmapUtility.SelectedTool.Cursor;
+               ToolCursor = BitmapUtility.SelectedTool.Cursor;
             }
             else
             {
-                cursor = Cursors.Arrow;
+                ToolCursor = Cursors.Arrow;
             }
-            Mouse.OverrideCursor = cursor;
         }
         /// <summary>
         /// When mouse is up stops recording changes.

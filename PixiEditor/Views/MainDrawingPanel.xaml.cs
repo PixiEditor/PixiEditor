@@ -29,7 +29,6 @@ namespace PixiEditor.Views
         }
 
 
-
         public double MouseX
         {
             get { return (double)GetValue(MouseXProperty); }
