@@ -36,8 +36,30 @@ namespace PixiEditor.Models.Tools.Tools
                 finalCoordinates.Add(new Coordinates(coordinates.Coords1.X, i));
                 finalCoordinates.Add(new Coordinates(coordinates.Coords2.X, i));
             }
+
+            if (filled)
+            {
+                finalCoordinates.AddRange(CalculatedFillForRectangle(coordinates));
+            }
             finalCoordinates = finalCoordinates.Distinct().ToList();
             return finalCoordinates.ToArray();
+        }
+
+        private Coordinates[] CalculatedFillForRectangle(DoubleCords cords)
+        {
+            int height = cords.Coords2.Y - cords.Coords1.Y;
+            int width = cords.Coords2.X - cords.Coords1.X;
+            Coordinates[] filledCoordinates = new Coordinates[width * height];
+            int i = 0;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    filledCoordinates[i] = new Coordinates(cords.Coords1.X + x, cords.Coords1.Y + y);
+                    i++;
+                }
+            }
+            return filledCoordinates;
         }
     }
 }
