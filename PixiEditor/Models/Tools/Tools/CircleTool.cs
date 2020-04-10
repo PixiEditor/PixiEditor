@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
@@ -14,15 +15,20 @@ namespace PixiEditor.Models.Tools.Tools
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2), color);
+            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, true), color);
         }
 
-        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates)
+        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, bool filled)
         {            
             Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);
             int radiusX = endCoordinates.X - centerCoordinates.X;
             int radiusY = endCoordinates.Y - centerCoordinates.Y;
-            return MidpointEllipse(radiusX, radiusY, centerCoordinates.X, centerCoordinates.Y);
+            Coordinates[] ellipse = MidpointEllipse(radiusX, radiusY, centerCoordinates.X, centerCoordinates.Y);
+            if (filled)
+            {
+                ellipse = ellipse.Concat(CalculateFillForEllipse(ellipse)).Distinct().ToArray();
+            }
+            return ellipse;
         }
 
         public Coordinates[] MidpointEllipse(double rx, double ry, double xc, double yc)
@@ -80,6 +86,24 @@ namespace PixiEditor.Models.Tools.Tools
 
             return outputCoordinates.Distinct().ToArray();
 
+        }
+
+        private Coordinates[] CalculateFillForEllipse(Coordinates[] outlineCoordinates)
+        {
+            List<Coordinates> finalCoordinates = new List<Coordinates>();
+            int bottom = outlineCoordinates.Max(x => x.Y);
+            int top = outlineCoordinates.Min(x => x.Y);
+            for (int i = top + 1; i < bottom; i++)
+            {
+                var rowCords = outlineCoordinates.Where(x => x.Y == i);
+                int right = rowCords.Max(x => x.X);
+                int left = rowCords.Min(x => x.X);
+                for (int j = left + 1; j < right; j++)
+                {
+                    finalCoordinates.Add(new Coordinates(j, i));
+                }
+            }
+            return finalCoordinates.ToArray();
         }
 
         private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)
