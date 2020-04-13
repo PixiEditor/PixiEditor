@@ -12,6 +12,11 @@ namespace PixiEditor.Models.Tools.Tools
         public override ToolType ToolType => ToolType.Brightness;
         public const float DarkenFactor = -0.06f;
         public const float LightenFactor = 0.1f;
+        
+        public BrightnessTool()
+        {
+            Tooltip = "Makes pixel brighter or darker pixel (U)";
+        }
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {

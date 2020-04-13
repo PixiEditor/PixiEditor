@@ -11,6 +11,11 @@ namespace PixiEditor.Models.Tools.Tools
         public override ToolType ToolType => ToolType.Rectangle;
         public bool Filled { get; set; } = false;
 
+        public RectangleTool()
+        {
+            Tooltip = "Draws rectanlge on cavnas (R)";
+        }
+
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             return BitmapPixelChanges.FromSingleColoredArray(CreateRectangle(coordinates, toolSize), color);

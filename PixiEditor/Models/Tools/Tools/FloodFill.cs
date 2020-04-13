@@ -11,6 +11,11 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Bucket;
 
+        public FloodFill()
+        {
+            Tooltip = "Fills area with color (G)";
+        }
+
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             return ForestFire(layer, coordinates[0], color);

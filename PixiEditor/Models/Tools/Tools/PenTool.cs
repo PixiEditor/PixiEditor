@@ -15,6 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
         public PenTool()
         {
             Cursor = Cursors.Pen;
+            Tooltip = "Standard brush (B)";
         }
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)

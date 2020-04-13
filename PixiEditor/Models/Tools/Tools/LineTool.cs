@@ -9,6 +9,11 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Line;
 
+        public LineTool()
+        {
+            Tooltip = "Draws line on canvas (L)";
+        }
+
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             return BitmapPixelChanges.FromSingleColoredArray(CreateLine(coordinates), color);

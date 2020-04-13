@@ -12,6 +12,11 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Circle;
 
+        public CircleTool()
+        {
+            Tooltip = "Draws circle on cavnas (C)";
+        }
+
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);

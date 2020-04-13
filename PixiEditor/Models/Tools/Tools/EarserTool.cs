@@ -11,6 +11,11 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Earser;
 
+        public EarserTool()
+        {
+            Tooltip = "Earsers color from pixel (E)";
+        }
+
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             PenTool pen = new PenTool();
