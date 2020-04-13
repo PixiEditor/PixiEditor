@@ -13,7 +13,8 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Views;
+using System.Linq;
+using System.Collections.ObjectModel;
 
 namespace PixiEditor.ViewModels
 {
@@ -112,7 +113,7 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        public List<Tool> ToolSet { get; set; }
+        public ObservableCollection<Tool> ToolSet { get; set; }
 
         private LayerChanges _undoChanges;
 
@@ -151,7 +152,7 @@ namespace PixiEditor.ViewModels
             BitmapUtility.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapUtility.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             ChangesController = new PixelChangesController();
-            SelectToolCommand = new RelayCommand(RecognizeTool);
+            SelectToolCommand = new RelayCommand(SetTool);
             GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
             MouseMoveCommand = new RelayCommand(MouseMove);
             MouseDownCommand = new RelayCommand(MouseDown);
@@ -169,7 +170,7 @@ namespace PixiEditor.ViewModels
             SwapColorsCommand = new RelayCommand(SwapColors);
             KeyDownCommand = new RelayCommand(KeyDown);
             RenameLayerCommand = new RelayCommand(RenameLayer);
-            ToolSet = new List<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
+            ToolSet = new ObservableCollection<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
             new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };
             ShortcutController = new ShortcutController
             {
@@ -194,6 +195,11 @@ namespace PixiEditor.ViewModels
             SetActiveTool(ToolType.Pen);
             BitmapUtility.PrimaryColor = PrimaryColor;
             ToolSize = 1;
+        }
+
+        public void SetTool(object parameter)
+        {
+            SetActiveTool((ToolType)parameter);
         }
 
         public void RenameLayer(object parameter)
@@ -299,28 +305,31 @@ namespace PixiEditor.ViewModels
         }
         #endregion
 
-        /// <summary>
-        /// Recognizes selected tool from UI
-        /// </summary>
-        /// <param name="parameter"></param>
-        private void RecognizeTool(object parameter)
-        {
-            ToolType tool = (ToolType)Enum.Parse(typeof(ToolType), parameter.ToString());
-            SelectedTool = tool;
-        }
-
         private void SetActiveTool(ToolType tool)
         {
-            BitmapUtility.SelectedTool = ToolSet.Find(x=> x.ToolType == tool);
+            BitmapUtility.SelectedTool = ToolSet.First(x=> x.ToolType == tool);
+            Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
+            if(activeTool != null)
+            {
+                activeTool.IsActive = false;
+            }
+
+            BitmapUtility.SelectedTool.IsActive = true;
+            SetToolCursor(tool);
+        }
+
+        private void SetToolCursor(ToolType tool)
+        {
             if (tool != ToolType.None && tool != ToolType.ColorPicker)
             {
-               ToolCursor = BitmapUtility.SelectedTool.Cursor;
+                ToolCursor = BitmapUtility.SelectedTool.Cursor;
             }
             else
             {
                 ToolCursor = Cursors.Arrow;
             }
         }
+
         /// <summary>
         /// When mouse is up stops recording changes.
         /// </summary>
