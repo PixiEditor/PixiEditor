@@ -8,7 +8,7 @@
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
-             d:DesignHeight="330" d:DesignWidth="200" x:Name="menuButton" DataContext="{DynamicResource MenuButtonViewModel}">
+             d:DesignHeight="40" d:DesignWidth="80" x:Name="menuButton" DataContext="{DynamicResource MenuButtonViewModel}">
     <UserControl.Resources>
         <vm:MenuButtonViewModel x:Key="MenuButtonViewModel"/>
         <Style TargetType="ListViewItem">

@@ -30,9 +30,9 @@
     </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60*"/>
-            <ColumnDefinition Width="1420*"/>
-            <ColumnDefinition Width="150*"/>
+            <ColumnDefinition Width="37*"/>
+            <ColumnDefinition Width="1416*"/>
+            <ColumnDefinition Width="147*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30*"/>
@@ -42,7 +42,7 @@
         </Grid.RowDefinitions>
 
         <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0"/>
-        <WrapPanel Grid.ColumnSpan="3" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Panel.ZIndex="100" Margin="0,0,147,0">
+        <WrapPanel Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Panel.ZIndex="100">
             <vws:MenuButton Text="File" Margin="0,0,-140,0">
                 <vws:MenuButton.Item>
                     <StackPanel>
@@ -69,9 +69,7 @@
                 </vws:MenuButton.Item>
             </vws:MenuButton>
         </WrapPanel>
-        <StackPanel Background="#404040" Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
-            
-        </StackPanel>
+        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2"/>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0" Grid.RowSpan="2">
             <Grid>
                 <vws:MainDrawingPanel CenterOnStart="True" Cursor="{Binding ToolCursor}">
@@ -120,7 +118,11 @@
             <ItemsControl ItemsSource="{Binding ToolSet}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button BorderBrush="White" BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}" Style="{StaticResource ToolButtonStyle}" Command="{Binding Path=DataContext.SelectToolCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding ToolType}" ToolTip="{Binding Tooltip}">
+                        <Button BorderBrush="White" BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
+                                Style="{StaticResource ToolButtonStyle}" 
+                                Command="{Binding Path=DataContext.SelectToolCommand,
+                            RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding ToolType}" ToolTip="{Binding Tooltip}">
                             <Button.Background>
                                 <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform"/>
                             </Button.Background>
@@ -130,7 +132,7 @@
             </ItemsControl>
         </StackPanel>
 
-        <DockPanel Grid.Column="2" Background="#404040" Grid.Row="1" Margin="0,0,0,0" Grid.RowSpan="2">
+        <DockPanel Grid.Column="2" Background="#404040" Margin="0,30,0,0" Grid.RowSpan="3">
             <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="100"  Margin="0,20,0,0" Height="100">
                 <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
                     <Rectangle.Fill>
