@@ -20,7 +20,7 @@ namespace PixiEditor.Models.Tools.Tools
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, true), color);
+            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, false), color);
         }
 
         public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, bool filled)
@@ -120,33 +120,7 @@ namespace PixiEditor.Models.Tools.Tools
             outputCoordinates[3] = (new Coordinates((int)-x + (int)xc, (int)-y + (int)yc));
             return outputCoordinates;
         }
-
-        public Coordinates[] BresenhamCircle(Coordinates startCoordinates, Coordinates endCoordinates, int size)
-        {
-            List<Coordinates> outputCoordinates = new List<Coordinates>();
-            Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);
-            int radius = endCoordinates.X - centerCoordinates.X;
-            int x = 0;
-            int y = radius;
-            int decision = 3 - 2 * radius;
-            outputCoordinates.AddRange(GetPixelsForOctant(centerCoordinates.X, centerCoordinates.Y, x, y));
-
-            while (x <= y)
-            {
-                if (decision <= 0)
-                {
-                    decision = decision + (4 * x) + 6;
-                }
-                else
-                {
-                    decision = decision + (4 * x) - (4 * y) + 10;
-                    y--;
-                }
-                x++;
-                outputCoordinates.AddRange(GetPixelsForOctant(centerCoordinates.X, centerCoordinates.Y, x, y));
-            }
-            return outputCoordinates.Distinct().ToArray();
-        }
+       
 
         private Coordinates[] GetPixelsForOctant(int xc, int yc, int x, int y)
         {

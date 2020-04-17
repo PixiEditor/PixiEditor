@@ -88,21 +88,51 @@ namespace PixiEditor.Models.Controllers
             {
                 var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
                 mouseMove.Reverse();
-
-                if (!SelectedTool.RequiresPreviewLayer)
-                {
-                    BitmapPixelChanges changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor, ToolSize);
-                    BitmapPixelChanges oldPixelsValues = GetOldPixelsValues(changedPixels.ChangedPixels.Keys.ToArray());
-                    ActiveLayer.ApplyPixels(changedPixels);
-                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, oldPixelsValues, ActiveLayerIndex));
-                }
-                else
-                {
-                    UseToolOnPreviewLayer(mouseMove);
-                }
+                UseTool(mouseMove);
+                
 
                 _lastMousePos = e.NewPosition;
             }
+        }
+
+        private void UseTool(List<Coordinates> mouseMoveCords)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
+            {
+                mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
+            }
+            if (!SelectedTool.RequiresPreviewLayer)
+            {
+                BitmapPixelChanges changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMoveCords.ToArray(), PrimaryColor, ToolSize);
+                BitmapPixelChanges oldPixelsValues = GetOldPixelsValues(changedPixels.ChangedPixels.Keys.ToArray());
+                ActiveLayer.ApplyPixels(changedPixels);
+                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, oldPixelsValues, ActiveLayerIndex));
+            }
+            else
+            {
+                UseToolOnPreviewLayer(mouseMoveCords);
+            }
+        }
+
+        private bool MouseCordsNotInLine(List<Coordinates> cords)
+        {
+            return cords[0].X == cords[^1].X || cords[0].Y == cords[^1].Y;
+        }
+
+        private List<Coordinates> GetSquareCoordiantes(List<Coordinates> mouseMoveCords)
+        {
+            int xLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
+            int yLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
+            if(mouseMoveCords[^1].Y > mouseMoveCords[0].Y)
+            {
+                xLength *= -1;
+            }
+            if(mouseMoveCords[^1].X > mouseMoveCords[0].X)
+            {
+                xLength *= -1;
+            }
+            mouseMoveCords[0] = new Coordinates(mouseMoveCords[^1].X + xLength, mouseMoveCords[^1].Y + yLength);
+            return mouseMoveCords;
         }
 
         private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)

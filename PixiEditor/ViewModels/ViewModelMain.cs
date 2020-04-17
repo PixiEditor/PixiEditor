@@ -392,13 +392,12 @@ namespace PixiEditor.ViewModels
         /// Generates new Layer and sets it as active one
         /// </summary>
         /// <param name="parameter"></param>
-        private void GenerateDrawArea(object parameter)
+        public void GenerateDrawArea(object parameter)
         {
             NewFileDialog newFile = new NewFileDialog();
             if (newFile.ShowDialog())
             {
-                BitmapUtility.Layers.Clear();
-                BitmapUtility.AddNewLayer("Base Layer", newFile.Width, newFile.Height, true);
+                NewDocument(newFile.Width, newFile.Height);
             }
         }
         #region SaveFile
@@ -438,10 +437,16 @@ namespace PixiEditor.ViewModels
             ImportFileDialog dialog = new ImportFileDialog();
             if (dialog.ShowDialog())
             {
-                BitmapUtility.Layers.Clear();
-                BitmapUtility.AddNewLayer("Base Layer", dialog.FileWidth, dialog.FileHeight, true);
+                NewDocument(dialog.FileWidth, dialog.FileHeight);
                 BitmapUtility.ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
             }
+        }
+
+        private void NewDocument(int width, int height)
+        {
+            BitmapUtility.Layers.Clear();
+            BitmapUtility.AddNewLayer("Base Layer", width, height, true);
+            BitmapUtility.PreviewLayer = null;
         }
 
         /// <summary>

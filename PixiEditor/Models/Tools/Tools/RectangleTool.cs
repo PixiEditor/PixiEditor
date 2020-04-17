@@ -46,8 +46,7 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 finalCoordinates.AddRange(CalculatedFillForRectangle(coordinates));
             }
-            finalCoordinates = finalCoordinates.Distinct().ToList();
-            return finalCoordinates.ToArray();
+            return finalCoordinates.Distinct().ToArray();
         }
 
         private Coordinates[] CalculatedFillForRectangle(DoubleCords cords)
