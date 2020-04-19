@@ -235,12 +235,20 @@ namespace PixiEditor.ViewModels
         {
             int oldIndex = (int)parameter;
             BitmapUtility.Layers.Move(oldIndex, oldIndex + 1);
+            if(BitmapUtility.ActiveLayerIndex == oldIndex)
+            {
+                BitmapUtility.SetActiveLayer(oldIndex + 1);
+            }
         }
 
         public void MoveLayerToBack(object parameter)
         {
             int oldIndex = (int)parameter;
             BitmapUtility.Layers.Move(oldIndex, oldIndex - 1);
+            if (BitmapUtility.ActiveLayerIndex == oldIndex)
+            {
+                BitmapUtility.SetActiveLayer(oldIndex - 1);
+            }
         }
 
         public bool CanMoveToFront(object property)

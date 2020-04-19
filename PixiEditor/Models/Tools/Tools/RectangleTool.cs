@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
@@ -21,10 +22,27 @@ namespace PixiEditor.Models.Tools.Tools
             return BitmapPixelChanges.FromSingleColoredArray(CreateRectangle(coordinates, toolSize), color);
         }
 
-        public Coordinates[] CreateRectangle(Coordinates[] coordinates, int toolSize)
+        public Coordinates[] CreateRectangle(Coordinates[] coordinates, int thickness)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            return CalculateRectanglePoints(fixedCoordinates, Filled);
+            List<Coordinates> output = new List<Coordinates>();
+            Coordinates[] rectangle =  CalculateRectanglePoints(fixedCoordinates, Filled);
+            output.AddRange(rectangle);
+
+            for (int i = 1; i < (int)Math.Floor(thickness / 2f) + 1; i++)
+            {
+                output.AddRange(CalculateRectanglePoints(new DoubleCords(
+                    new Coordinates(fixedCoordinates.Coords1.X - i, fixedCoordinates.Coords1.Y - i),
+                    new Coordinates(fixedCoordinates.Coords2.X + i, fixedCoordinates.Coords2.Y + i)), false));
+            }
+            for (int i = 1; i < (int)Math.Ceiling(thickness / 2f); i++)
+            {
+                output.AddRange(CalculateRectanglePoints(new DoubleCords(
+                    new Coordinates(fixedCoordinates.Coords1.X + i, fixedCoordinates.Coords1.Y + i),
+                    new Coordinates(fixedCoordinates.Coords2.X - i, fixedCoordinates.Coords2.Y - i)), false));
+            }
+
+            return output.Distinct().ToArray();
         }
 
         private Coordinates[] CalculateRectanglePoints(DoubleCords coordinates, bool filled)
@@ -40,13 +58,13 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 finalCoordinates.Add(new Coordinates(coordinates.Coords1.X, i));
                 finalCoordinates.Add(new Coordinates(coordinates.Coords2.X, i));
-            }
+            }            
 
             if (filled)
             {
                 finalCoordinates.AddRange(CalculatedFillForRectangle(coordinates));
             }
-            return finalCoordinates.Distinct().ToArray();
+            return finalCoordinates.ToArray();
         }
 
         private Coordinates[] CalculatedFillForRectangle(DoubleCords cords)

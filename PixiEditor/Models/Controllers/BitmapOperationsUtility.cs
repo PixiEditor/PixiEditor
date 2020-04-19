@@ -141,6 +141,8 @@ namespace PixiEditor.Models.Controllers
             Layers[ActiveLayerIndex].LayerBitmap.Lock();
             for (int i = 0; i < coordinates.Length; i++)
             {
+                if (coordinates[i].X < 0 || coordinates[i].X > Layers[0].Width - 1 || coordinates[i].Y < 0 || coordinates[i].Y > Layers[0].Height - 1) 
+                    continue;
                 values.Add(coordinates[i], Layers[ActiveLayerIndex].LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
             }
             Layers[ActiveLayerIndex].LayerBitmap.Unlock();
