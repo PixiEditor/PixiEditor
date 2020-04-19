@@ -56,5 +56,10 @@ namespace PixiEditor.Models.Position
             }
             return coordinates.ToArray();
         }
+
+        public static Coordinates[] RectangleToCoordinates(DoubleCords coordinates)
+        {
+            return RectangleToCoordinates(coordinates.Coords1.X, coordinates.Coords1.Y, coordinates.Coords2.X, coordinates.Coords2.Y);
+        }
     }
 }

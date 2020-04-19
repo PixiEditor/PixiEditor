@@ -67,8 +67,17 @@ namespace PixiEditor.Models.Controllers
         public BitmapOperationsUtility()
         {
             MouseController = new MouseMovementController();
+            MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+        }
+
+        private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
+        {
+            if (PreviewLayer != null)
+            {
+                PreviewLayer.Clear();
+            }
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -86,13 +95,26 @@ namespace PixiEditor.Models.Controllers
         {
             if(SelectedTool != null && SelectedTool.ToolType != ToolType.None && Mouse.LeftButton == MouseButtonState.Pressed)
             {
+                if (Layers.Count == 0) return;
                 var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
                 mouseMove.Reverse();
                 UseTool(mouseMove);
                 
-
                 _lastMousePos = e.NewPosition;
             }
+            else if(Mouse.LeftButton == MouseButtonState.Released)
+            {
+                HighlightPixels(e.NewPosition);
+            }
+        }
+
+        private void HighlightPixels(Coordinates newPosition)
+        {
+            if (Layers.Count == 0) return;
+            GeneratePreviewLayer();
+            PreviewLayer.Clear();
+            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));    
+            PreviewLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77,0,0,0)));
         }
 
         private void UseTool(List<Coordinates> mouseMoveCords)
@@ -119,6 +141,11 @@ namespace PixiEditor.Models.Controllers
             return cords[0].X == cords[^1].X || cords[0].Y == cords[^1].Y;
         }
 
+        /// <summary>
+        /// Extracts square from rectangle mouse drag, used to draw symmetric shapes.
+        /// </summary>
+        /// <param name="mouseMoveCords"></param>
+        /// <returns></returns>
         private List<Coordinates> GetSquareCoordiantes(List<Coordinates> mouseMoveCords)
         {
             int xLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;

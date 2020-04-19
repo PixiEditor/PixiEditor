@@ -187,7 +187,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
                     new Shortcut(Key.Y, RedoCommand, null, ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand),
-                    new Shortcut(Key.S, UndoCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveFileCommand, null, ModifierKeys.Control),
                     new Shortcut(Key.N, GenerateDrawAreaCommand, null, ModifierKeys.Control),
                 }
             };
@@ -372,10 +372,14 @@ namespace PixiEditor.ViewModels
             Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
-                if (BitmapUtility.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
-                {
-                    BitmapUtility.MouseController.RecordMouseMovementChange(cords);
-                }
+            if (BitmapUtility.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                BitmapUtility.MouseController.RecordMouseMovementChange(cords);
+            }
+            else
+            {
+                BitmapUtility.MouseController.MouseMoved(cords);
+            }
         }
 
 
