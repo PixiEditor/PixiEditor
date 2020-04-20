@@ -349,6 +349,7 @@ namespace PixiEditor.ViewModels
 
         private void MouseDown(object parameter)
         {
+            if (BitmapUtility.Layers.Count == 0) return;
             if(SelectedTool == ToolType.ColorPicker)
             {
                 ExecuteColorPicker();
@@ -420,7 +421,7 @@ namespace PixiEditor.ViewModels
         private void SaveFile(object parameter)
         {
             WriteableBitmap bitmap = BitmapUtility.GetCombinedLayersBitmap();
-            if (Exporter.SavePath == null)
+            if (Exporter.SavePath == null || (string)parameter == "AsNew")
             {
                 Exporter.Export(FileType.PNG, bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
             }

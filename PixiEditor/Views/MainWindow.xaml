@@ -47,7 +47,8 @@
                 <vws:MenuButton.Item>
                     <StackPanel>
                         <Button Style="{StaticResource MenuInsideButtonStyle}" Content="New" Command="{Binding GenerateDrawAreaCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Save" Command="{Binding SaveFileCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export" Command="{Binding SaveFileCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export As..." Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
                         <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Open" Command="{Binding OpenFileCommand}"/>
                     </StackPanel>
                 </vws:MenuButton.Item>
