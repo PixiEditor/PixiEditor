@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
@@ -20,20 +21,30 @@ namespace PixiEditor.Models.Tools.Tools
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, false), color);
+            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, false, toolSize), color);
         }
 
-        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, bool filled)
-        {            
+        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, bool filled, int thickness)
+        {
             Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);
             int radiusX = endCoordinates.X - centerCoordinates.X;
             int radiusY = endCoordinates.Y - centerCoordinates.Y;
+            List<Coordinates> output = new List<Coordinates>();
             Coordinates[] ellipse = MidpointEllipse(radiusX, radiusY, centerCoordinates.X, centerCoordinates.Y);
+            if (thickness == 1)
+            {
+                output.AddRange(ellipse);
+            }
+            else
+            {
+                output.AddRange(GetThickShape(ellipse, thickness));
+            }
+
             if (filled)
             {
-                ellipse = ellipse.Concat(CalculateFillForEllipse(ellipse)).Distinct().ToArray();
+                output.AddRange(CalculateFillForEllipse(ellipse));
             }
-            return ellipse;
+            return output.Distinct().ToArray();
         }
 
         public Coordinates[] MidpointEllipse(double rx, double ry, double xc, double yc)
@@ -66,14 +77,14 @@ namespace PixiEditor.Models.Tools.Tools
                 }
             }
 
-            //Yeah, it scares me too
-            d2 = (ry * ry * ((x + 0.5f) * (x + 0.5f))) + (rx * rx * ((y - 1) * (y - 1))) - (rx * rx * ry * ry);
+            //Decision parameter of region 2
+            d2 = ((ry * ry) * ((x + 0.5f) * (x + 0.5f))) + ((rx * rx) * ((y - 1) * (y - 1))) - (rx * rx * ry * ry);
 
-            while(y >= 0)
+            while (y >= 0)
             {
                 outputCoordinates.AddRange(GetRegionPoints(x, xc, y, yc));
 
-                if(d2 > 0)
+                if (d2 > 0)
                 {
                     y--;
                     dy -= (2 * rx * rx);
@@ -120,21 +131,5 @@ namespace PixiEditor.Models.Tools.Tools
             outputCoordinates[3] = (new Coordinates((int)-x + (int)xc, (int)-y + (int)yc));
             return outputCoordinates;
         }
-       
-
-        private Coordinates[] GetPixelsForOctant(int xc, int yc, int x, int y)
-        {
-            Coordinates[] outputCords = new Coordinates[8];
-            outputCords[0] = new Coordinates(x + xc, y + yc);
-            outputCords[1] = new Coordinates(x + xc, -y + yc);
-            outputCords[2] = new Coordinates(-x + xc, -y + yc);
-            outputCords[3] = new Coordinates(-x + xc, y + yc);
-            outputCords[4] = new Coordinates(y + xc, x + yc);
-            outputCords[5] = new Coordinates(y + xc, -x + yc);
-            outputCords[6] = new Coordinates(-y + xc, -x + yc);
-            outputCords[7] = new Coordinates(-y + xc, x + yc);
-            return outputCords;
-        }
-
     }
 }

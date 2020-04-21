@@ -34,11 +34,8 @@ namespace PixiEditor.Models.Position
 
         public static Coordinates GetCenterPoint(Coordinates startingPoint, Coordinates endPoint)
         {
-            double width = endPoint.X - startingPoint.X + 1;
-            double height = endPoint.Y - startingPoint.Y + 1;
-
-            int x = startingPoint.X + (int)Math.Floor(width / 2);
-            int y = startingPoint.Y + (int)Math.Floor(height / 2);
+            int x = (int)Math.Truncate((startingPoint.X + endPoint.X) / 2f);
+            int y = (int)Math.Truncate((startingPoint.Y + endPoint.Y) / 2f);
             return new Coordinates(x, y);
         }
 
