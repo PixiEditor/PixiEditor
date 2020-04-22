@@ -298,7 +298,7 @@ namespace PixiEditor.ViewModels
 
         private void SetActiveTool(ToolType tool)
         {
-            BitmapUtility.SelectedTool = ToolSet.First(x=> x.ToolType == tool);
+            BitmapUtility.SetActiveTool(ToolSet.First(x=> x.ToolType == tool));
             Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
             if(activeTool != null)
             {

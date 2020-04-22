@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Models.Colors;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.ToolSettings;
 using System.Collections.Generic;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -17,15 +18,17 @@ namespace PixiEditor.Models.Tools.Tools
         public BrightnessTool()
         {
             Tooltip = "Makes pixel brighter or darker pixel (U)";
+            Toolbar = new BasicToolbar();
         }
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
+            int toolSize = (int)Toolbar.GetSetting("ToolSize").Value;
             if(Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                return ChangeBrightness(layer, coordinates[0], 1, DarkenFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, DarkenFactor);
             }
-                return ChangeBrightness(layer, coordinates[0], 1, LightenFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, LightenFactor);
         }       
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)

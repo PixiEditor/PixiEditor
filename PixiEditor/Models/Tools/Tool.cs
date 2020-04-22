@@ -27,6 +27,6 @@ namespace PixiEditor.Models.Tools
         }
 
         public Cursor Cursor { get; set; } = Cursors.Arrow;
-        public Toolbar Toolbar { get; set; }
+        public Toolbar Toolbar { get; set; } = new EmptyToolbar();
     }
 }

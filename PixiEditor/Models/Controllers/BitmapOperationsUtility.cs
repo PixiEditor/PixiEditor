@@ -22,8 +22,8 @@ namespace PixiEditor.Models.Controllers
         public Tool SelectedTool
         {
             get => _selectedTool;
-            set
-            {
+            private set
+            {                
                 _selectedTool = value;
                 RaisePropertyChanged("SelectedTool");
             }
@@ -79,6 +79,16 @@ namespace PixiEditor.Models.Controllers
             MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+        }
+
+        public void SetActiveTool(Tool tool)
+        {
+            if (SelectedTool != null)
+            {
+                SelectedTool.Toolbar.SaveToolbarSettings();
+            }
+            SelectedTool = tool;
+            SelectedTool.Toolbar.LoadSharedSettings();
         }
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
