@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.ImageManipulation;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System;
@@ -20,12 +21,21 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
+            int thickness = (int)Toolbar.GetSetting("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            return BitmapPixelChanges.FromSingleColoredArray(
-                CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, false, (int)Toolbar.GetSetting("ToolSize").Value), color);
+            Coordinates[] outline = CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, thickness);
+            BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(outline, color);
+            if ((bool)Toolbar.GetSetting("Fill").Value)
+            {
+                Color fillColor = (Color)Toolbar.GetSetting("FillColor").Value;
+                pixels.ChangedPixels.AddRangeNewOnly(
+                    BitmapPixelChanges.FromSingleColoredArray(CalculateFillForEllipse(outline), fillColor).ChangedPixels);
+            }
+
+            return pixels;
         }
 
-        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, bool filled, int thickness)
+        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
             Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);
             int radiusX = endCoordinates.X - centerCoordinates.X;
@@ -39,11 +49,6 @@ namespace PixiEditor.Models.Tools.Tools
             else
             {
                 output.AddRange(GetThickShape(ellipse, thickness));
-            }
-
-            if (filled)
-            {
-                output.AddRange(CalculateFillForEllipse(ellipse));
             }
             return output.Distinct().ToArray();
         }
