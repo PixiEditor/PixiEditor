@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.ToolSettings;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -8,9 +9,9 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
-        public abstract BitmapPixelChanges Use(Layer layer, Coordinates[] pixels, Color color, int toolSize);
+        public abstract BitmapPixelChanges Use(Layer layer, Coordinates[] pixels, Color color);
         public abstract ToolType ToolType { get; }
-        public string ImagePath => $"/Images/{ToolType.ToString()}Image.png";
+        public string ImagePath => $"/Images/{ToolType}Image.png";
         public bool RequiresPreviewLayer { get; set; }
         public string Tooltip { get; set; }
 
@@ -26,5 +27,6 @@ namespace PixiEditor.Models.Tools
         }
 
         public Cursor Cursor { get; set; } = Cursors.Arrow;
+        public Toolbar Toolbar { get; set; }
     }
 }

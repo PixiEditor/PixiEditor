@@ -41,6 +41,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand MoveToFrontCommand { get; set; }
         public RelayCommand SwapColorsCommand { get; set; }
 
+
         private double _mouseXonCanvas;
 
         public double MouseXOnCanvas //Mouse X coordinate relative to canvas

@@ -18,10 +18,10 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Draws circle on cavnas (C)";
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, false, toolSize), color);
+            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, false, 1), color);
         }
 
         public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, bool filled, int thickness)

@@ -53,7 +53,7 @@ namespace PixiEditor.Helpers.Behaviours
         private void ConvertValue()
         {
             if (_valueConverted == true) return;
-            if (int.TryParse(AssociatedObject.Text, out int result) == true)
+            if (int.TryParse(AssociatedObject.Text, out _) == true)
             {
                 AssociatedObject.Text = string.Format("{0} {1}", AssociatedObject.Text, "px");
             }

@@ -16,10 +16,10 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Earsers color from pixel (E)";
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             PenTool pen = new PenTool();
-            return pen.Draw(coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
+            return pen.Draw(coordinates[0], System.Windows.Media.Colors.Transparent, 1);
         }
     }
 }

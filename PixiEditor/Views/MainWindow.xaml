@@ -70,7 +70,15 @@
                 </vws:MenuButton.Item>
             </vws:MenuButton>
         </WrapPanel>
-        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2"/>
+        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2">
+            <ItemsControl ItemsSource="{Binding BitmapUtility.SelectedTool.Toolbar.Settings}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ContentPresenter Content="{Binding SettingControl}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
                 <vws:MainDrawingPanel x:Name="DrawingPanel" CenterOnStart="True" Cursor="{Binding ToolCursor}">

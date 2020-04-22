@@ -13,7 +13,7 @@ namespace PixiEditor.Models.Tools
     {
         public override abstract ToolType ToolType { get; }
 
-        public abstract override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize);
+        public abstract override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color);
 
         public ShapeTool()
         {

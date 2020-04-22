@@ -19,13 +19,13 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Makes pixel brighter or darker pixel (U)";
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             if(Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                return ChangeBrightness(layer, coordinates[0], toolSize, DarkenFactor);
+                return ChangeBrightness(layer, coordinates[0], 1, DarkenFactor);
             }
-                return ChangeBrightness(layer, coordinates[0], toolSize, LightenFactor);
+                return ChangeBrightness(layer, coordinates[0], 1, LightenFactor);
         }       
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
