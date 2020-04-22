@@ -10,7 +10,7 @@ namespace PixiEditor.Models.Tools.ToolSettings
 
         public virtual Setting GetSetting(string name)
         {
-            return Settings.First(x => x.Name == name);
+            return Settings.FirstOrDefault(x => x.Name == name);
         }
     }
 }

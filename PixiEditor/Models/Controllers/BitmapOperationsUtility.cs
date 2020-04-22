@@ -18,7 +18,16 @@ namespace PixiEditor.Models.Controllers
     public class BitmapOperationsUtility : NotifyableObject
     {
         public MouseMovementController MouseController { get; set; }
-        public Tool SelectedTool { get; set; }
+        private Tool _selectedTool;
+        public Tool SelectedTool
+        {
+            get => _selectedTool;
+            set
+            {
+                _selectedTool = value;
+                RaisePropertyChanged("SelectedTool");
+            }
+        }
 
         private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
 
@@ -55,8 +64,8 @@ namespace PixiEditor.Models.Controllers
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
 
         public Color PrimaryColor { get; set; }
-        
-        public int ToolSize { get; set; }
+
+        public int ToolSize => SelectedTool.Toolbar.GetSetting("ToolSize") != null ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value : 1;
 
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
@@ -179,7 +188,7 @@ namespace PixiEditor.Models.Controllers
         private void UseToolOnPreviewLayer(List<Coordinates> mouseMove)
         {
             BitmapPixelChanges changedPixels;
-            if (mouseMove[0] != _lastMousePos)
+            if (mouseMove.Count > 0 && mouseMove[0] != _lastMousePos)
             {
                 GeneratePreviewLayer();
                 PreviewLayer.Clear();

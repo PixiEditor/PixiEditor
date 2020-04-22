@@ -9,6 +9,8 @@ namespace PixiEditor.Models.Tools.ToolSettings
     public abstract class Setting : NotifyableObject
     {
         public string Name { get; protected set; }
+        public string Label { get; set; }
+        public bool HasLabel => !string.IsNullOrEmpty(Label);
         private object value;
         public object Value { get => value;
             set

@@ -21,7 +21,7 @@ namespace PixiEditor.Helpers
         {
             if (string.IsNullOrWhiteSpace(value as string)) return null;
             string slicedString = value.ToString().Split(' ').First();
-            slicedString = Regex.Replace(slicedString, "[^0-9.]", "");
+            slicedString = Regex.Replace(slicedString, "\\p{L}", "");
             if (slicedString == "") return null;
             return int.Parse(slicedString);
         }

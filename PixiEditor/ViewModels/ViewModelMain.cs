@@ -97,23 +97,6 @@ namespace PixiEditor.ViewModels
                     RaisePropertyChanged("SelectedTool"); } }
         }        
 
-
-        private int _toolSize;
-
-        public int ToolSize
-        {
-            get { return _toolSize; }
-            set 
-            { 
-                if (_toolSize != value) 
-                { 
-                    _toolSize = value;
-                    BitmapUtility.ToolSize = value;
-                    RaisePropertyChanged("ToolSize"); 
-                } 
-            }
-        }
-
         public ObservableCollection<Tool> ToolSet { get; set; }
 
         private LayerChanges _undoChanges;
@@ -195,7 +178,6 @@ namespace PixiEditor.ViewModels
             UndoManager.SetMainRoot(this);
             SetActiveTool(ToolType.Pen);
             BitmapUtility.PrimaryColor = PrimaryColor;
-            ToolSize = 1;
         }
 
         public void SetTool(object parameter)

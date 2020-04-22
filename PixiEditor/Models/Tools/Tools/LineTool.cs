@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.ToolSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,12 @@ namespace PixiEditor.Models.Tools.Tools
         public LineTool()
         {
             Tooltip = "Draws line on canvas (L)";
+            Toolbar = new BasicToolbar();
         }
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return BitmapPixelChanges.FromSingleColoredArray(CreateLine(coordinates, 1), color);
+            return BitmapPixelChanges.FromSingleColoredArray(CreateLine(coordinates, (int)Toolbar.GetSetting("ToolSize").Value), color);
         }
 
         public Coordinates[] CreateLine(Coordinates[] coordinates, int thickness)

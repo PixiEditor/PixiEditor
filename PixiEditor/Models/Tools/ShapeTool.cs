@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.Tools.ToolSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace PixiEditor.Models.Tools
         {
             RequiresPreviewLayer = true;
             Cursor = Cursors.Cross;
+            Toolbar = new BasicShapeToolbar();
         }
 
         protected Coordinates[] GetThickShape(Coordinates[] shape, int thickness)

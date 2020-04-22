@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Interactivity;
@@ -33,7 +34,7 @@ namespace PixiEditor.Helpers.Behaviours
             if (e.Key != System.Windows.Input.Key.Enter) return;
 
             ConvertValue();
-            AssociatedObject.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
+            AssociatedObject.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Previous));
         }
 
         private void AssociatedObject_GotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
@@ -53,7 +54,7 @@ namespace PixiEditor.Helpers.Behaviours
         private void ConvertValue()
         {
             if (_valueConverted == true) return;
-            if (int.TryParse(AssociatedObject.Text, out _) == true)
+            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out _) == true)
             {
                 AssociatedObject.Text = string.Format("{0} {1}", AssociatedObject.Text, "px");
             }

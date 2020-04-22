@@ -11,7 +11,7 @@ namespace PixiEditor.Models.Tools.ToolSettings
     {
         public BasicToolbar()
         {
-            Settings.Add(new SizeSetting("ToolSize"));
+            Settings.Add(new SizeSetting("ToolSize", "Tool size:"));
         }
     }
 }

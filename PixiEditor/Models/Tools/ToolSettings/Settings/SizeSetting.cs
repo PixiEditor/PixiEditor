@@ -12,10 +12,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class SizeSetting : Setting
     {
-        public SizeSetting(string name) : base(name)
+        public SizeSetting(string name, string label = null) : base(name)
         {
             Value = 1;
             SettingControl = GenerateTextBox();
+            Label = label;
         }
 
         private TextBox GenerateTextBox()
@@ -26,16 +27,16 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 TextAlignment = TextAlignment.Center,
                 MaxLength = 4,
                 Width = 40,
+                Height = 20
             };
-            //TextBoxNumericFinisherBehavior behavor = new TextBoxNumericFinisherBehavior();
-            //Interaction.GetBehaviors(tb).Add(behavor);
             Binding binding = new Binding("Value")
             {
                 Converter = new ToolSizeToIntConverter(),
                 Mode = BindingMode.TwoWay,
-                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
             };
             tb.SetBinding(TextBox.TextProperty, binding);
+            TextBoxNumericFinisherBehavior behavor = new TextBoxNumericFinisherBehavior();
+            Interaction.GetBehaviors(tb).Add(behavor);
             return tb;
         }
     }
