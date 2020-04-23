@@ -12,8 +12,7 @@ namespace PixiEditor.Models.Tools.Tools
     public class BrightnessTool : Tool
     {
         public override ToolType ToolType => ToolType.Brightness;
-        public const float DarkenFactor = -0.06f;
-        public const float LightenFactor = 0.1f;
+        public const float CorrectionFactor = 5f;
         
         public BrightnessTool()
         {
@@ -26,9 +25,9 @@ namespace PixiEditor.Models.Tools.Tools
             int toolSize = (int)Toolbar.GetSetting("ToolSize").Value;
             if(Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                return ChangeBrightness(layer, coordinates[0], toolSize, DarkenFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, -CorrectionFactor);
             }
-                return ChangeBrightness(layer, coordinates[0], toolSize, LightenFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, CorrectionFactor);
         }       
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)

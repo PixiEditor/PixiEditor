@@ -83,6 +83,10 @@ namespace PixiEditor.Models.Controllers
 
         public void SetActiveTool(Tool tool)
         {
+            if(PreviewLayer != null)
+            {
+                PreviewLayer.Clear();
+            }
             if (SelectedTool != null)
             {
                 SelectedTool.Toolbar.SaveToolbarSettings();
@@ -114,8 +118,8 @@ namespace PixiEditor.Models.Controllers
         {
             if(SelectedTool != null && SelectedTool.ToolType != ToolType.None && Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                if (Layers.Count == 0) return;
                 var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
+                if (Layers.Count == 0 || mouseMove.Count == 0) return;
                 mouseMove.Reverse();
                 UseTool(mouseMove);
                 
@@ -129,7 +133,7 @@ namespace PixiEditor.Models.Controllers
 
         private void HighlightPixels(Coordinates newPosition)
         {
-            if (Layers.Count == 0) return;
+            if (Layers.Count == 0 || SelectedTool.HideHighlight) return;
             GeneratePreviewLayer();
             PreviewLayer.Clear();
             Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));    
@@ -138,6 +142,7 @@ namespace PixiEditor.Models.Controllers
 
         private void UseTool(List<Coordinates> mouseMoveCords)
         {
+            if (SelectedTool.PerformsOperationOnBitmap == false) return;
             if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
             {
                 mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);

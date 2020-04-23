@@ -155,7 +155,7 @@ namespace PixiEditor.ViewModels
             KeyDownCommand = new RelayCommand(KeyDown);
             RenameLayerCommand = new RelayCommand(RenameLayer);
             ToolSet = new ObservableCollection<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
-            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.BrightnessTool() };
+            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.ColorPickerTool(), new PixiTools.BrightnessTool() };
             ShortcutController = new ShortcutController
             {
                 Shortcuts = new List<Shortcut> { 
@@ -197,8 +197,12 @@ namespace PixiEditor.ViewModels
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            Tuple<LayerChanges, LayerChanges> changes = ChangesController.PopChanges();
-            UndoManager.AddUndoChange(new Change("UndoChanges", changes.Item2, changes.Item1)); //Item2 is old value
+            if (BitmapUtility.SelectedTool.PerformsOperationOnBitmap)
+            {
+                Tuple<LayerChanges, LayerChanges> changes = ChangesController.PopChanges();
+                if (changes.Item1.PixelChanges.ChangedPixels.Count > 0)
+                    UndoManager.AddUndoChange(new Change("UndoChanges", changes.Item2, changes.Item1)); //Item2 is old value
+            }
         }
 
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
@@ -333,11 +337,11 @@ namespace PixiEditor.ViewModels
         private void MouseDown(object parameter)
         {
             if (BitmapUtility.Layers.Count == 0) return;
-            if(SelectedTool == ToolType.ColorPicker)
+            if(BitmapUtility.SelectedTool.ToolType == ToolType.ColorPicker)
             {
                 ExecuteColorPicker();
             }
-            else if(Mouse.LeftButton == MouseButtonState.Pressed)
+            else if(Mouse.LeftButton == MouseButtonState.Pressed && BitmapUtility.SelectedTool.PerformsOperationOnBitmap)
             {
                 if (!BitmapUtility.MouseController.IsRecordingChanges)
                 {

@@ -12,6 +12,8 @@ namespace PixiEditor.Models.Tools
         public abstract BitmapPixelChanges Use(Layer layer, Coordinates[] pixels, Color color);
         public abstract ToolType ToolType { get; }
         public string ImagePath => $"/Images/{ToolType}Image.png";
+        public bool PerformsOperationOnBitmap { get; set; } = true;
+        public bool HideHighlight { get; set; } = false;
         public bool RequiresPreviewLayer { get; set; }
         public string Tooltip { get; set; }
 
