@@ -11,10 +11,16 @@
     <RootNamespace>PixiEditor</RootNamespace>
     <RepositoryUrl>https://github.com/flabbet/PixiEditor</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>icon.ico</PackageIcon>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Images\SwapArrows.png" />
+    <None Include="..\icon.ico">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

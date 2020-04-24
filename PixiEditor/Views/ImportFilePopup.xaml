@@ -7,13 +7,15 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         Title="ImportFilePopup" Height="350" Width="300" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Name="importFilePopup" DataContext="{DynamicResource ImportFilePopupViewModel}">
     <Window.Resources>
         <vm:ImportFilePopupViewModel x:Key="ImportFilePopupViewModel"/>
+        <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
-    <Grid Background="#303030">
+    <Grid Background="#404040">
         <Grid.RowDefinitions>
             <RowDefinition Height="4*"/>
             <RowDefinition Height="67*"/>
@@ -24,7 +26,7 @@
                     <i:InvokeCommandAction Command="{Binding DragMoveCommand}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <Button Width="20" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" BorderThickness="0" Command="{Binding CloseButtonCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
+            <Button Width="20" Height="20" Style="{StaticResource ImageButtonStyle}" Cursor="Hand" VerticalAlignment="Top" HorizontalAlignment="Right" BorderThickness="0" Command="{Binding CloseButtonCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Cross.png" Stretch="Uniform"/>
                 </Button.Background>
@@ -32,21 +34,21 @@
         </Grid>
         <StackPanel Grid.Row="1" >
             <Label Height="40" Width="120" VerticalAlignment="Top" Content="Import" Foreground="Snow" HorizontalContentAlignment="Center" FontSize="24" Margin="0,10,0,0"/>
-        <StackPanel Background="#2D2D2D" Height="85" Width="190" Margin="0,10,0,0">
+        <StackPanel Background="#2D2D2D" Height="85" Width="200" Margin="0,10,0,0">
                 <DockPanel Height="20" Margin="0,15,0,0" Width="150">
                     <TextBlock Width="40" HorizontalAlignment="Left" Text="Width:" Foreground="Snow" FontSize="14"/>
-                    <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="75" Margin="-10,0,0,0" Text="{Binding ImportWidth, Mode=TwoWay}">
+                    <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="75" Margin="-10,0,0,0" Text="{Binding ImportWidth, Converter={StaticResource ToolSizeToIntConverter}, Mode=TwoWay}">
                         <i:Interaction.Behaviors>
-                            <behaviors:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
-                        </i:Interaction.Behaviors>
+                                <behaviors:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                            </i:Interaction.Behaviors>
                     </TextBox>
                 </DockPanel>
                 <DockPanel Height="20" Margin="0,15,0,0" Width="150">
                     <TextBlock Width="45" HorizontalAlignment="Left" Text="Height:" Foreground="Snow" FontSize="14"/>
-                    <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="75" Margin="-15,0,0,0" Text="{Binding ImportHeight, Mode=TwoWay}">
+                    <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="75" Margin="-15,0,0,0" Text="{Binding ImportHeight, Converter={StaticResource ToolSizeToIntConverter}, Mode=TwoWay}">
                         <i:Interaction.Behaviors>
-                            <behaviors:AllowableCharactersTextBoxBehavior RegularExpression="^[0-9./-]+$" MaxLength="4"/>
-                        </i:Interaction.Behaviors>
+                                <behaviors:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                            </i:Interaction.Behaviors>
                     </TextBox>
                 </DockPanel>
 
