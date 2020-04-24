@@ -2,6 +2,7 @@
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using System.Collections.Generic;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -12,22 +13,23 @@ namespace PixiEditor.Models.Tools.Tools
     public class BrightnessTool : Tool
     {
         public override ToolType ToolType => ToolType.Brightness;
-        public const float CorrectionFactor = 5f;
+        private const float CorrectionFactor = 5f; //Initial correction factor
         
         public BrightnessTool()
         {
             Tooltip = "Makes pixel brighter or darker pixel (U)";
-            Toolbar = new BasicToolbar();
+            Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             int toolSize = (int)Toolbar.GetSetting("ToolSize").Value;
+            float correctionFactor = (float)Toolbar.GetSetting("CorrectionFactor").Value;
             if(Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                return ChangeBrightness(layer, coordinates[0], toolSize, -CorrectionFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor);
             }
-                return ChangeBrightness(layer, coordinates[0], toolSize, CorrectionFactor);
+                return ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor);
         }       
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)

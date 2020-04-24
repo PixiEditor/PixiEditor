@@ -35,7 +35,10 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 Mode = BindingMode.TwoWay,
             };
             tb.SetBinding(TextBox.TextProperty, binding);
-            TextBoxNumericFinisherBehavior behavor = new TextBoxNumericFinisherBehavior();
+            TextBoxFocusBehavior behavor = new TextBoxFocusBehavior
+            {
+                FillSize = true
+            };
             Interaction.GetBehaviors(tb).Add(behavor);
             return tb;
         }
