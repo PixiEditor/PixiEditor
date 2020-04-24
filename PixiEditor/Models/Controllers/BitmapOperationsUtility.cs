@@ -18,7 +18,16 @@ namespace PixiEditor.Models.Controllers
     public class BitmapOperationsUtility : NotifyableObject
     {
         public MouseMovementController MouseController { get; set; }
-        public Tool SelectedTool { get; set; }
+        private Tool _selectedTool;
+        public Tool SelectedTool
+        {
+            get => _selectedTool;
+            private set
+            {                
+                _selectedTool = value;
+                RaisePropertyChanged("SelectedTool");
+            }
+        }
 
         private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
 
@@ -55,8 +64,8 @@ namespace PixiEditor.Models.Controllers
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
 
         public Color PrimaryColor { get; set; }
-        
-        public int ToolSize { get; set; }
+
+        public int ToolSize => SelectedTool.Toolbar.GetSetting("ToolSize") != null ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value : 1;
 
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
@@ -67,8 +76,31 @@ namespace PixiEditor.Models.Controllers
         public BitmapOperationsUtility()
         {
             MouseController = new MouseMovementController();
+            MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+        }
+
+        public void SetActiveTool(Tool tool)
+        {
+            if(PreviewLayer != null)
+            {
+                PreviewLayer.Clear();
+            }
+            if (SelectedTool != null)
+            {
+                SelectedTool.Toolbar.SaveToolbarSettings();
+            }
+            SelectedTool = tool;
+            SelectedTool.Toolbar.LoadSharedSettings();
+        }
+
+        private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
+        {
+            if (PreviewLayer != null)
+            {
+                PreviewLayer.Clear();
+            }
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -87,22 +119,71 @@ namespace PixiEditor.Models.Controllers
             if(SelectedTool != null && SelectedTool.ToolType != ToolType.None && Mouse.LeftButton == MouseButtonState.Pressed)
             {
                 var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
+                if (Layers.Count == 0 || mouseMove.Count == 0) return;
                 mouseMove.Reverse();
-
-                if (!SelectedTool.RequiresPreviewLayer)
-                {
-                    BitmapPixelChanges changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor, ToolSize);
-                    BitmapPixelChanges oldPixelsValues = GetOldPixelsValues(changedPixels.ChangedPixels.Keys.ToArray());
-                    ActiveLayer.ApplyPixels(changedPixels);
-                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, oldPixelsValues, ActiveLayerIndex));
-                }
-                else
-                {
-                    UseToolOnPreviewLayer(mouseMove);
-                }
-
+                UseTool(mouseMove);
+                
                 _lastMousePos = e.NewPosition;
             }
+            else if(Mouse.LeftButton == MouseButtonState.Released)
+            {
+                HighlightPixels(e.NewPosition);
+            }
+        }
+
+        private void HighlightPixels(Coordinates newPosition)
+        {
+            if (Layers.Count == 0 || SelectedTool.HideHighlight) return;
+            GeneratePreviewLayer();
+            PreviewLayer.Clear();
+            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));    
+            PreviewLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77,0,0,0)));
+        }
+
+        private void UseTool(List<Coordinates> mouseMoveCords)
+        {
+            if (SelectedTool.PerformsOperationOnBitmap == false) return;
+            if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
+            {
+                mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
+            }
+            if (!SelectedTool.RequiresPreviewLayer)
+            {
+                BitmapPixelChanges changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMoveCords.ToArray(), PrimaryColor);
+                BitmapPixelChanges oldPixelsValues = GetOldPixelsValues(changedPixels.ChangedPixels.Keys.ToArray());
+                ActiveLayer.ApplyPixels(changedPixels);
+                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, oldPixelsValues, ActiveLayerIndex));
+            }
+            else
+            {
+                UseToolOnPreviewLayer(mouseMoveCords);
+            }
+        }
+
+        private bool MouseCordsNotInLine(List<Coordinates> cords)
+        {
+            return cords[0].X == cords[^1].X || cords[0].Y == cords[^1].Y;
+        }
+
+        /// <summary>
+        /// Extracts square from rectangle mouse drag, used to draw symmetric shapes.
+        /// </summary>
+        /// <param name="mouseMoveCords"></param>
+        /// <returns></returns>
+        private List<Coordinates> GetSquareCoordiantes(List<Coordinates> mouseMoveCords)
+        {
+            int xLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
+            int yLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
+            if(mouseMoveCords[^1].Y > mouseMoveCords[0].Y)
+            {
+                xLength *= -1;
+            }
+            if(mouseMoveCords[^1].X > mouseMoveCords[0].X)
+            {
+                xLength *= -1;
+            }
+            mouseMoveCords[0] = new Coordinates(mouseMoveCords[^1].X + xLength, mouseMoveCords[^1].Y + yLength);
+            return mouseMoveCords;
         }
 
         private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)
@@ -111,6 +192,8 @@ namespace PixiEditor.Models.Controllers
             Layers[ActiveLayerIndex].LayerBitmap.Lock();
             for (int i = 0; i < coordinates.Length; i++)
             {
+                if (coordinates[i].X < 0 || coordinates[i].X > Layers[0].Width - 1 || coordinates[i].Y < 0 || coordinates[i].Y > Layers[0].Height - 1) 
+                    continue;
                 values.Add(coordinates[i], Layers[ActiveLayerIndex].LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
             }
             Layers[ActiveLayerIndex].LayerBitmap.Unlock();
@@ -120,11 +203,11 @@ namespace PixiEditor.Models.Controllers
         private void UseToolOnPreviewLayer(List<Coordinates> mouseMove)
         {
             BitmapPixelChanges changedPixels;
-            if (mouseMove[0] != _lastMousePos)
+            if (mouseMove.Count > 0 && mouseMove[0] != _lastMousePos)
             {
                 GeneratePreviewLayer();
                 PreviewLayer.Clear();
-                changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor, ToolSize);
+                changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor);
                 PreviewLayer.ApplyPixels(changedPixels);
                 _lastChangedPixels = changedPixels;
             }

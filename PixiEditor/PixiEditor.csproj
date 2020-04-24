@@ -39,10 +39,10 @@
     <Resource Include="Images\CircleImage.png" />
     <Resource Include="Images\Cross.png" />
     <Resource Include="Images\EarserImage.png" />
-    <Resource Include="Images\LightenImage.png" />
+    <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\PenImage.png" />
-    <Resource Include="Images\PipetteImage.png" />
+    <Resource Include="Images\ColorPickerImage.png" />
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SwapArrows.png" />
     <Resource Include="Images\transparentbg.png" />

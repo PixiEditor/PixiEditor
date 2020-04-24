@@ -1,5 +1,8 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
@@ -11,18 +14,43 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Circle;
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
+        public CircleTool()
         {
-            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            return BitmapPixelChanges.FromSingleColoredArray(CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2), color);
+            Tooltip = "Draws circle on cavnas (C)";
         }
 
-        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates)
-        {            
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        {
+            int thickness = (int)Toolbar.GetSetting("ToolSize").Value;
+            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
+            Coordinates[] outline = CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, thickness);
+            BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(outline, color);
+            if ((bool)Toolbar.GetSetting("Fill").Value)
+            {
+                Color fillColor = (Color)Toolbar.GetSetting("FillColor").Value;
+                pixels.ChangedPixels.AddRangeNewOnly(
+                    BitmapPixelChanges.FromSingleColoredArray(CalculateFillForEllipse(outline), fillColor).ChangedPixels);
+            }
+
+            return pixels;
+        }
+
+        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
+        {
             Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);
             int radiusX = endCoordinates.X - centerCoordinates.X;
             int radiusY = endCoordinates.Y - centerCoordinates.Y;
-            return MidpointEllipse(radiusX, radiusY, centerCoordinates.X, centerCoordinates.Y);
+            List<Coordinates> output = new List<Coordinates>();
+            Coordinates[] ellipse = MidpointEllipse(radiusX, radiusY, centerCoordinates.X, centerCoordinates.Y);
+            if (thickness == 1)
+            {
+                output.AddRange(ellipse);
+            }
+            else
+            {
+                output.AddRange(GetThickShape(ellipse, thickness));
+            }
+            return output.Distinct().ToArray();
         }
 
         public Coordinates[] MidpointEllipse(double rx, double ry, double xc, double yc)
@@ -55,14 +83,14 @@ namespace PixiEditor.Models.Tools.Tools
                 }
             }
 
-            //Yeah, it scares me too
-            d2 = (ry * ry * ((x + 0.5f) * (x + 0.5f))) + (rx * rx * ((y - 1) * (y - 1))) - (rx * rx * ry * ry);
+            //Decision parameter of region 2
+            d2 = ((ry * ry) * ((x + 0.5f) * (x + 0.5f))) + ((rx * rx) * ((y - 1) * (y - 1))) - (rx * rx * ry * ry);
 
-            while(y >= 0)
+            while (y >= 0)
             {
                 outputCoordinates.AddRange(GetRegionPoints(x, xc, y, yc));
 
-                if(d2 > 0)
+                if (d2 > 0)
                 {
                     y--;
                     dy -= (2 * rx * rx);
@@ -82,6 +110,24 @@ namespace PixiEditor.Models.Tools.Tools
 
         }
 
+        private Coordinates[] CalculateFillForEllipse(Coordinates[] outlineCoordinates)
+        {
+            List<Coordinates> finalCoordinates = new List<Coordinates>();
+            int bottom = outlineCoordinates.Max(x => x.Y);
+            int top = outlineCoordinates.Min(x => x.Y);
+            for (int i = top + 1; i < bottom; i++)
+            {
+                var rowCords = outlineCoordinates.Where(x => x.Y == i);
+                int right = rowCords.Max(x => x.X);
+                int left = rowCords.Min(x => x.X);
+                for (int j = left + 1; j < right; j++)
+                {
+                    finalCoordinates.Add(new Coordinates(j, i));
+                }
+            }
+            return finalCoordinates.ToArray();
+        }
+
         private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)
         {
             Coordinates[] outputCoordinates = new Coordinates[4];
@@ -91,47 +137,5 @@ namespace PixiEditor.Models.Tools.Tools
             outputCoordinates[3] = (new Coordinates((int)-x + (int)xc, (int)-y + (int)yc));
             return outputCoordinates;
         }
-
-        public Coordinates[] BresenhamCircle(Coordinates startCoordinates, Coordinates endCoordinates, int size)
-        {
-            List<Coordinates> outputCoordinates = new List<Coordinates>();
-            Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);
-            int radius = endCoordinates.X - centerCoordinates.X;
-            int x = 0;
-            int y = radius;
-            int decision = 3 - 2 * radius;
-            outputCoordinates.AddRange(GetPixelsForOctant(centerCoordinates.X, centerCoordinates.Y, x, y));
-
-            while (x <= y)
-            {
-                if (decision <= 0)
-                {
-                    decision = decision + (4 * x) + 6;
-                }
-                else
-                {
-                    decision = decision + (4 * x) - (4 * y) + 10;
-                    y--;
-                }
-                x++;
-                outputCoordinates.AddRange(GetPixelsForOctant(centerCoordinates.X, centerCoordinates.Y, x, y));
-            }
-            return outputCoordinates.Distinct().ToArray();
-        }
-
-        private Coordinates[] GetPixelsForOctant(int xc, int yc, int x, int y)
-        {
-            Coordinates[] outputCords = new Coordinates[8];
-            outputCords[0] = new Coordinates(x + xc, y + yc);
-            outputCords[1] = new Coordinates(x + xc, -y + yc);
-            outputCords[2] = new Coordinates(-x + xc, -y + yc);
-            outputCords[3] = new Coordinates(-x + xc, y + yc);
-            outputCords[4] = new Coordinates(y + xc, x + yc);
-            outputCords[5] = new Coordinates(y + xc, -x + yc);
-            outputCords[6] = new Coordinates(-y + xc, -x + yc);
-            outputCords[7] = new Coordinates(-y + xc, x + yc);
-            return outputCords;
-        }
-
     }
 }

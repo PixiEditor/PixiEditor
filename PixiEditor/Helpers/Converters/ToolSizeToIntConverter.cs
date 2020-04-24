@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
@@ -20,6 +21,8 @@ namespace PixiEditor.Helpers
         {
             if (string.IsNullOrWhiteSpace(value as string)) return null;
             string slicedString = value.ToString().Split(' ').First();
+            slicedString = Regex.Replace(slicedString, "\\p{L}", "");
+            if (slicedString == "") return null;
             return int.Parse(slicedString);
         }
     }

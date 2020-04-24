@@ -1,8 +1,6 @@
 ﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using PixiEditor.Models.Tools.ToolSettings;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -11,15 +9,19 @@ namespace PixiEditor.Models.Tools.Tools
     public class PenTool : Tool
     {
         public override ToolType ToolType => ToolType.Pen;
+        private int _toolSizeIndex;
 
         public PenTool()
         {
             Cursor = Cursors.Pen;
+            Tooltip = "Standard brush (B)";
+            Toolbar = new BasicToolbar();
+            _toolSizeIndex = Toolbar.Settings.IndexOf(Toolbar.GetSetting("ToolSize"));
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color, int toolSize)
+        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return Draw(coordinates[0], color, toolSize);
+            return Draw(coordinates[0], color, (int)Toolbar.Settings[_toolSizeIndex].Value);
         }
 
         public BitmapPixelChanges Draw(Coordinates startingCoords, Color color, int toolSize)

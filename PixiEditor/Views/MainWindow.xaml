@@ -20,6 +20,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <converters:BoolToIntConverter x:Key="BoolToIntConverter"/>
     </Window.Resources>
 
     <i:Interaction.Triggers>
@@ -29,23 +30,25 @@
     </i:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60*"/>
-            <ColumnDefinition Width="1420*"/>
-            <ColumnDefinition Width="150*"/>
+            <ColumnDefinition Width="37*"/>
+            <ColumnDefinition Width="1416*"/>
+            <ColumnDefinition Width="147*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30*"/>
-            <RowDefinition Height="908*"/>
+            <RowDefinition Height="29*"/>
+            <RowDefinition Height="895*"/>
             <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0" Height="30"/>
-        <WrapPanel Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Panel.ZIndex="100">
+        <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0"/>
+        <WrapPanel Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Panel.ZIndex="100">
             <vws:MenuButton Text="File" Margin="0,0,-140,0">
                 <vws:MenuButton.Item>
                     <StackPanel>
                         <Button Style="{StaticResource MenuInsideButtonStyle}" Content="New" Command="{Binding GenerateDrawAreaCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Save" Command="{Binding SaveFileCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export" Command="{Binding SaveFileCommand}"/>
+                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export As..." Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
                         <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Open" Command="{Binding OpenFileCommand}"/>
                     </StackPanel>
                 </vws:MenuButton.Item>
@@ -67,25 +70,44 @@
                 </vws:MenuButton.Item>
             </vws:MenuButton>
         </WrapPanel>
-        <Grid Grid.Column="1" Grid.Row="1" Background="#303030" Margin="0,5,5,0">
+        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2">
+            <ItemsControl ItemsSource="{Binding BitmapUtility.SelectedTool.Toolbar.Settings}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
+                            <Label Visibility="{Binding HasLabel, Converter={StaticResource BoolToVisibilityConverter}}" Foreground="White" Content="{Binding Label}"/>
+                            <ContentPresenter Content="{Binding SettingControl}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
-                <vws:MainDrawingPanel CenterOnStart="True">
+                <vws:MainDrawingPanel x:Name="DrawingPanel" CenterOnStart="True" Cursor="{Binding ToolCursor}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseMove">
+                            <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseUp">
+                            <i:InvokeCommandAction Command="{Binding MouseUpCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <i:Interaction.Behaviors>
+                        <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}" MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
+                    </i:Interaction.Behaviors>
                     <vws:MainDrawingPanel.Item>
                         <Canvas Width="{Binding BitmapUtility.ActiveLayer.Width}" Height="{Binding BitmapUtility.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseMove">
-                                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"/>
-                                </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseDown">
                                     <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
                                 </i:EventTrigger>
-                                <i:EventTrigger EventName="MouseUp">
-                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}"/>
-                                </i:EventTrigger>
                             </i:Interaction.Triggers>
-                            <i:Interaction.Behaviors>
-                                <behaviors:MouseBehaviour MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
-                            </i:Interaction.Behaviors>
                             <Image Source="/Images/transparentbg.png" Height="{Binding BitmapUtility.ActiveLayer.Height}" Width="{Binding BitmapUtility.ActiveLayer.Width}" Opacity="0.9" Stretch="UniformToFill"/>
                             <Image Source="{Binding BitmapUtility.PreviewLayer.LayerBitmap}" Panel.ZIndex="2" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding BitmapUtility.PreviewLayer.Width}" Height="{Binding BitmapUtility.PreviewLayer.Height}"/>
                             <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}">
@@ -106,55 +128,26 @@
             </Grid>
         </Grid>
 
-        <StackPanel Cursor="Arrow" Grid.Row="1" Grid.Column="0" Margin="0,5,5,0" Background="#404040">
-            <TextBox Style="{StaticResource DarkTextBoxStyle}" Margin="0,10,0,0" Text="{Binding ToolSize, Mode=TwoWay,Converter={StaticResource ToolSizeToIntConverter}}" TextAlignment="Center" MaxLength="4">
-                <i:Interaction.Behaviors>
-                    <behaviors:TextBoxNumericFinisherBehavior/>
-                </i:Interaction.Behaviors>
-            </TextBox>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Pen" ToolTip="Standard brush (B)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/PenImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Bucket" ToolTip="Fills area with color (G)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/BucketImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Line" ToolTip="Draws line on canvas (L)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/LineImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Circle" ToolTip="Draws circle on cavnas (C)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/CircleImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Rectangle" ToolTip="Draws rectanlge on cavnas (R)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/RectangleImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="ColorPicker" ToolTip="Color picker, sets color from pixel as active (O)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/PipetteImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Earser" ToolTip="Earser, Earsers color from pixel (E)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/EarserImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
-            <Button Style="{StaticResource ToolButtonStyle}" Opacity="1" Command="{Binding SelectToolCommand, Mode=OneWay}" CommandParameter="Brightness" ToolTip="Makes pixel brighter or darker pixel (U)">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/LightenImage.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
+        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0" Margin="0,7,5,0" Background="#404040" Grid.RowSpan="2">
+            
+            <ItemsControl ItemsSource="{Binding ToolSet}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button BorderBrush="White" BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
+                                Style="{StaticResource ToolButtonStyle}" 
+                                Command="{Binding Path=DataContext.SelectToolCommand,
+                            RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding ToolType}" ToolTip="{Binding Tooltip}">
+                            <Button.Background>
+                                <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform"/>
+                            </Button.Background>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
 
-        <DockPanel Grid.Column="2" Grid.Row="1" Background="#404040">
+        <DockPanel Grid.Column="2" Background="#404040" Margin="0,30,0,0" Grid.RowSpan="3">
             <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="100"  Margin="0,20,0,0" Height="100">
                 <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
                     <Rectangle.Fill>
