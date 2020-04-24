@@ -3,7 +3,7 @@
 # PixiEditor
 Pixi is lightweighted pixel art creator.
 
-![screenshot](https://raw.githubusercontent.com/flabbet/PixiEditor/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/flabbet/PixiEditor/master/Screenshot.png)
 
 ## Getting started with Pixi
 
