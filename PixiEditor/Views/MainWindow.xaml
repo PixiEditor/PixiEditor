@@ -13,7 +13,7 @@
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight"
-        mc:Ignorable="d"
+        mc:Ignorable="d"   
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
     <Window.Resources>
         <vm:ViewModelMain x:Key="ViewModelMain"/>
@@ -28,7 +28,7 @@
             <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid>
+    <Grid Name="mainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="37*"/>
             <ColumnDefinition Width="1416*"/>
@@ -41,34 +41,19 @@
             <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0"/>
-        <WrapPanel Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Panel.ZIndex="100">
-            <vws:MenuButton Text="File" Margin="0,0,-140,0">
-                <vws:MenuButton.Item>
-                    <StackPanel>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="New" Command="{Binding GenerateDrawAreaCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export" Command="{Binding SaveFileCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export As..." Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Open" Command="{Binding OpenFileCommand}"/>
-                    </StackPanel>
-                </vws:MenuButton.Item>
-            </vws:MenuButton>
-            <vws:MenuButton Text="Edit" Margin="0,0,-140,0">
-                <vws:MenuButton.Item>
-                    <StackPanel>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Undo" Command="{Binding UndoCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Redo" Command="{Binding RedoCommand}"/>
-                    </StackPanel>
-                </vws:MenuButton.Item>
-            </vws:MenuButton>
-
-            <vws:MenuButton Text="View" Margin="0,0,-140,0">
-                <vws:MenuButton.Item>
-                    <StackPanel>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Recenter" Command="{Binding RecenterZoomboxCommand}" CommandParameter="{Binding ElementName=Zoombox}"/>
-                    </StackPanel>
-                </vws:MenuButton.Item>
-            </vws:MenuButton>
+        <WrapPanel  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <Menu Margin="10, 4, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" IsMainMenu="True" >
+            <MenuItem Header="_File" Style="{StaticResource parentMenuItem}">
+                <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding GenerateDrawAreaCommand}"/>
+                <MenuItem Header="_Open" Command="{Binding OpenFileCommand}"/>
+                <MenuItem Header="_Export" Command="{Binding SaveFileCommand}"/>
+                <MenuItem Header="_Export As..." Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
+            </MenuItem>
+            <MenuItem Header="_Edit" Style="{StaticResource parentMenuItem}">
+                <MenuItem Header="_Undo" Command="{Binding UndoCommand}"/>
+                <MenuItem Header="_Redo" Command="{Binding RedoCommand}"/>
+            </MenuItem>
+        </Menu>
         </WrapPanel>
         <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2">
             <ItemsControl ItemsSource="{Binding BitmapUtility.SelectedTool.Toolbar.Settings}">

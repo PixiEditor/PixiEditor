@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -7,7 +6,6 @@ using PixiEditor.Models.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;

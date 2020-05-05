@@ -37,14 +37,14 @@
             <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="70" Height="20" HorizontalAlignment="Left" Margin="5,0,0,0" 
                      Text="{Binding ElementName=saveFilePopup, Converter={StaticResource ToolSizeToIntConverter}, Path=SaveWidth, Mode=TwoWay}">
                 <i:Interaction.Behaviors>
-                        <helpers:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                        <helpers:TextBoxFocusBehavior FillSize="True"/>
                     </i:Interaction.Behaviors>
             </TextBox>
             <TextBlock Foreground="Snow" Width="40" Height="40"  HorizontalAlignment="Left" Margin="5,0,0,0" Text="Height:" TextAlignment="Center" Padding="0,11.5,0,0"/>
             <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="70" Height="20" HorizontalAlignment="Left" 
                      Margin="5,0,0,0" Text="{Binding ElementName=saveFilePopup, Converter={StaticResource ToolSizeToIntConverter}, Path=SaveHeight,Mode=TwoWay}">
                 <i:Interaction.Behaviors>
-                        <helpers:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                        <helpers:TextBoxFocusBehavior FillSize="True"/>
                     </i:Interaction.Behaviors>
             </TextBox>
         </DockPanel>

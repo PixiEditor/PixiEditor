@@ -11,7 +11,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class FloatSetting : Setting
     {
-
         public float Min { get; set; }
         public float Max { get; set; }
 
@@ -32,7 +31,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 Width = 40,
                 Height = 20,
                 Min = Min,
-                Max = Max
+                Max = Max,                
 
             };
             Binding binding = new Binding("Value")

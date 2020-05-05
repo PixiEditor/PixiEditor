@@ -40,7 +40,7 @@
                              HorizontalAlignment="Left" TextAlignment="Center" 
                              Margin="5,0,0,0" Text="{Binding ElementName=newFilePopup, Converter={StaticResource ToolSizeToIntConverter}, Path=FileHeight, Mode=TwoWay}" MaxLength="4">
                         <i:Interaction.Behaviors>
-                            <helpers:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                            <helpers:TextBoxFocusBehavior FillSize="True"/>
                         </i:Interaction.Behaviors>
                     </TextBox>
                 </DockPanel>
@@ -49,7 +49,7 @@
                     <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" HorizontalAlignment="Left" Margin="10,0,0,0" TextAlignment="Center"
                              Text="{Binding ElementName=newFilePopup, Converter={StaticResource ToolSizeToIntConverter}, Path=FileWidth, Mode=TwoWay}" MaxLength="4">
                         <i:Interaction.Behaviors>
-                            <helpers:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                            <helpers:TextBoxFocusBehavior FillSize="True"/>
                         </i:Interaction.Behaviors>
                     </TextBox>
                 </DockPanel>

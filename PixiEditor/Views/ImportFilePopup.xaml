@@ -39,7 +39,7 @@
                     <TextBlock Width="40" HorizontalAlignment="Left" Text="Width:" Foreground="Snow" FontSize="14"/>
                     <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="75" Margin="-10,0,0,0" Text="{Binding ImportWidth, Converter={StaticResource ToolSizeToIntConverter}, Mode=TwoWay}">
                         <i:Interaction.Behaviors>
-                                <behaviors:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                                <behaviors:TextBoxFocusBehavior FillSize="True"/>
                             </i:Interaction.Behaviors>
                     </TextBox>
                 </DockPanel>
@@ -47,7 +47,7 @@
                     <TextBlock Width="45" HorizontalAlignment="Left" Text="Height:" Foreground="Snow" FontSize="14"/>
                     <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="75" Margin="-15,0,0,0" Text="{Binding ImportHeight, Converter={StaticResource ToolSizeToIntConverter}, Mode=TwoWay}">
                         <i:Interaction.Behaviors>
-                                <behaviors:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
+                                <behaviors:TextBoxFocusBehavior FillSize="True"/>
                             </i:Interaction.Behaviors>
                     </TextBox>
                 </DockPanel>
