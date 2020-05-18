@@ -173,6 +173,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.Z, UndoCommand),
                     new Shortcut(Key.S, SaveFileCommand, null, ModifierKeys.Control),
                     new Shortcut(Key.N, GenerateDrawAreaCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveFileCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift)
                 }
             };
             UndoManager.SetMainRoot(this);

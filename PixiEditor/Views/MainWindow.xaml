@@ -12,9 +12,15 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
-        xmlns:cmd="http://www.galasoft.ch/mvvmlight"
-        mc:Ignorable="d"   
-        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+        xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Xceed.Wpf.AvalonDock"
+        mc:Ignorable="d" WindowStyle="None" 
+        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="#FF252424" 
+        WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
         <vm:ViewModelMain x:Key="ViewModelMain"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -23,38 +29,59 @@
         <converters:BoolToIntConverter x:Key="BoolToIntConverter"/>
     </Window.Resources>
 
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Close" />
+        <CommandBinding Command="{x:Static SystemCommands.MaximizeWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Maximize" />
+        <CommandBinding Command="{x:Static SystemCommands.MinimizeWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Minimize" />
+        <CommandBinding Command="{x:Static SystemCommands.RestoreWindowCommand}" CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Restore" />
+    </Window.CommandBindings>
+
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
             <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid Name="mainGrid">
+    <Grid Name="mainGrid" Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="37*"/>
             <ColumnDefinition Width="1416*"/>
             <ColumnDefinition Width="147*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30*"/>
+            <RowDefinition Height="35*"/>
             <RowDefinition Height="29*"/>
             <RowDefinition Height="895*"/>
             <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
 
-        <WrapPanel  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
-            <Menu Margin="10, 4, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" IsMainMenu="True" >
-            <MenuItem Header="_File" Style="{StaticResource parentMenuItem}">
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+            <Image DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Images/PixiEditorLogo.png" Width="20" Height="20" Margin="5,5,0,0"/>
+            <Menu WindowChrome.IsHitTestVisibleInChrome="True" Margin="10, 4, 0, 0" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" IsMainMenu="True">
+                <Menu.Resources>
+                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}"/>
+                </Menu.Resources>
+                <MenuItem Header="_File">
                 <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding GenerateDrawAreaCommand}"/>
-                <MenuItem Header="_Open" Command="{Binding OpenFileCommand}"/>
-                <MenuItem Header="_Export" Command="{Binding SaveFileCommand}"/>
-                <MenuItem Header="_Export As..." Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
+                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"/>
+                <MenuItem Header="_Export" InputGestureText="Ctrl+S" Command="{Binding SaveFileCommand}"/>
+                <MenuItem Header="_Export As..." InputGestureText="Ctrl+Shift+S" Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
             </MenuItem>
-            <MenuItem Header="_Edit" Style="{StaticResource parentMenuItem}">
-                <MenuItem Header="_Undo" Command="{Binding UndoCommand}"/>
-                <MenuItem Header="_Redo" Command="{Binding RedoCommand}"/>
+                <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"/>
+                <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"/>
             </MenuItem>
         </Menu>
-        </WrapPanel>
+            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
+                            Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
+                <Button x:Name="RestoreButton" Visibility="Visible" Style="{StaticResource RestoreButtonStyle}" 
+                            Command="{x:Static SystemCommands.RestoreWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Restore"/>
+                <Button x:Name="MaximizeButton" Visibility="Collapsed" Style="{StaticResource MaximizeButtonStyle}" 
+                            Command="{x:Static SystemCommands.MaximizeWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize" />
+                <Button Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                            Command="{x:Static SystemCommands.CloseWindowCommand}"/>
+            </StackPanel>
+        </DockPanel>
         <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2">
             <ItemsControl ItemsSource="{Binding BitmapUtility.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
