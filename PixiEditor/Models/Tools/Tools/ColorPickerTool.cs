@@ -13,13 +13,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public ColorPickerTool()
         {
-            PerformsOperationOnBitmap = false;
             HideHighlight = true;
-        }
-
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] pixels, Color color)
-        {
-            return new BitmapPixelChanges();
         }
     }
 }

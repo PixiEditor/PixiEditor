@@ -10,7 +10,6 @@ namespace PixiEditor.Models.Controllers
     {
         public static StackEx<Change> UndoStack { get; set; } = new StackEx<Change>();
         public static StackEx<Change> RedoStack { get; set; } = new StackEx<Change>();
-        private static bool _stopRecording = false;
         private static List<Change> _recordedChanges = new List<Change>();
         private static bool _lastChangeWasUndo = false;
         public static bool CanUndo

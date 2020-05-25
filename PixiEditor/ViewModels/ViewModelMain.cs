@@ -69,7 +69,7 @@ namespace PixiEditor.ViewModels
                 if (_primaryColor != value)
                 {
                     _primaryColor = value;
-                    BitmapUtility.PrimaryColor = value;
+                    BitmapManager.PrimaryColor = value;
                     RaisePropertyChanged("PrimaryColor");
                 }
             }
@@ -107,7 +107,7 @@ namespace PixiEditor.ViewModels
             set 
             { 
                 _undoChanges = value;
-                BitmapUtility.Layers[value.LayerIndex].ApplyPixels(value.PixelChanges);
+                BitmapManager.Layers[value.LayerIndex].ApplyPixels(value.PixelChanges);
             }
         }
 
@@ -124,7 +124,7 @@ namespace PixiEditor.ViewModels
 
 
 
-        public BitmapOperationsUtility BitmapUtility { get; set; }
+        public BitmapManager BitmapManager { get; set; }
         public PixelChangesController ChangesController { get; set; }
 
         public ShortcutController ShortcutController { get; set; }
@@ -132,9 +132,9 @@ namespace PixiEditor.ViewModels
         public ViewModelMain()
         {
             PixiFilesManager.InitializeTempDirectories();
-            BitmapUtility = new BitmapOperationsUtility();
-            BitmapUtility.BitmapChanged += BitmapUtility_BitmapChanged;
-            BitmapUtility.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            BitmapManager = new BitmapManager();
+            BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
+            BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             ChangesController = new PixelChangesController();
             SelectToolCommand = new RelayCommand(SetTool);
             GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
@@ -178,7 +178,7 @@ namespace PixiEditor.ViewModels
             };
             UndoManager.SetMainRoot(this);
             SetActiveTool(ToolType.Pen);
-            BitmapUtility.PrimaryColor = PrimaryColor;
+            BitmapManager.PrimaryColor = PrimaryColor;
         }
 
         public void SetTool(object parameter)
@@ -188,7 +188,7 @@ namespace PixiEditor.ViewModels
 
         public void RenameLayer(object parameter)
         {
-            BitmapUtility.Layers[(int)parameter].IsRenaming = true;
+            BitmapManager.Layers[(int)parameter].IsRenaming = true;
         }
 
         public void KeyDown(object parameter)
@@ -198,7 +198,7 @@ namespace PixiEditor.ViewModels
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            if (BitmapUtility.SelectedTool.PerformsOperationOnBitmap)
+            if (BitmapManager.SelectedTool is BitmapOperationTool)
             {
                 Tuple<LayerChanges, LayerChanges> changes = ChangesController.PopChanges();
                 if (changes.Item1.PixelChanges.ChangedPixels.Count > 0)
@@ -222,26 +222,26 @@ namespace PixiEditor.ViewModels
         public void MoveLayerToFront(object parameter)
         {
             int oldIndex = (int)parameter;
-            BitmapUtility.Layers.Move(oldIndex, oldIndex + 1);
-            if(BitmapUtility.ActiveLayerIndex == oldIndex)
+            BitmapManager.Layers.Move(oldIndex, oldIndex + 1);
+            if(BitmapManager.ActiveLayerIndex == oldIndex)
             {
-                BitmapUtility.SetActiveLayer(oldIndex + 1);
+                BitmapManager.SetActiveLayer(oldIndex + 1);
             }
         }
 
         public void MoveLayerToBack(object parameter)
         {
             int oldIndex = (int)parameter;
-            BitmapUtility.Layers.Move(oldIndex, oldIndex - 1);
-            if (BitmapUtility.ActiveLayerIndex == oldIndex)
+            BitmapManager.Layers.Move(oldIndex, oldIndex - 1);
+            if (BitmapManager.ActiveLayerIndex == oldIndex)
             {
-                BitmapUtility.SetActiveLayer(oldIndex - 1);
+                BitmapManager.SetActiveLayer(oldIndex - 1);
             }
         }
 
         public bool CanMoveToFront(object property)
         {
-            return BitmapUtility.Layers.Count - 1 > (int)property;
+            return BitmapManager.Layers.Count - 1 > (int)property;
         }
 
         public bool CanMoveToBack(object property)
@@ -251,17 +251,17 @@ namespace PixiEditor.ViewModels
 
         public void SetActiveLayer(object parameter)
         {
-            BitmapUtility.SetActiveLayer((int)parameter);
+            BitmapManager.SetActiveLayer((int)parameter);
         }
 
         public void DeleteLayer(object parameter)
         {
-            BitmapUtility.RemoveLayer((int)parameter);
+            BitmapManager.RemoveLayer((int)parameter);
         }
 
         public bool CanDeleteLayer(object property)
         {
-            return BitmapUtility.Layers.Count > 1;
+            return BitmapManager.Layers.Count > 1;
         }
 
         #region Undo/Redo
@@ -303,14 +303,15 @@ namespace PixiEditor.ViewModels
 
         private void SetActiveTool(ToolType tool)
         {
-            BitmapUtility.SetActiveTool(ToolSet.First(x=> x.ToolType == tool));
+            Tool foundTool = ToolSet.First(x => x.ToolType == tool);
             Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
             if(activeTool != null)
             {
                 activeTool.IsActive = false;
             }
 
-            BitmapUtility.SelectedTool.IsActive = true;
+            foundTool.IsActive = true;
+            BitmapManager.SetActiveTool(foundTool);
             SetToolCursor(tool);
         }
 
@@ -318,7 +319,7 @@ namespace PixiEditor.ViewModels
         {
             if (tool != ToolType.None && tool != ToolType.ColorPicker)
             {
-                ToolCursor = BitmapUtility.SelectedTool.Cursor;
+                ToolCursor = BitmapManager.SelectedTool.Cursor;
             }
             else
             {
@@ -332,22 +333,22 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void MouseUp(object parameter)
         {
-            BitmapUtility.MouseController.StopRecordingMouseMovementChanges();
+            BitmapManager.MouseController.StopRecordingMouseMovementChanges();
         }
 
         private void MouseDown(object parameter)
         {
-            if (BitmapUtility.Layers.Count == 0) return;
-            if(BitmapUtility.SelectedTool.ToolType == ToolType.ColorPicker)
+            if (BitmapManager.Layers.Count == 0) return;
+            if(BitmapManager.SelectedTool.ToolType == ToolType.ColorPicker)
             {
                 ExecuteColorPicker();
             }
-            else if(Mouse.LeftButton == MouseButtonState.Pressed && BitmapUtility.SelectedTool.PerformsOperationOnBitmap)
+            else if(Mouse.LeftButton == MouseButtonState.Pressed && BitmapManager.SelectedTool is BitmapOperationTool)
             {
-                if (!BitmapUtility.MouseController.IsRecordingChanges)
+                if (!BitmapManager.MouseController.IsRecordingChanges)
                 {
-                    BitmapUtility.MouseController.StartRecordingMouseMovementChanges();
-                    BitmapUtility.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
+                    BitmapManager.MouseController.StartRecordingMouseMovementChanges();
+                    BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }
         }
@@ -361,13 +362,13 @@ namespace PixiEditor.ViewModels
             Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
-            if (BitmapUtility.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
+            if (BitmapManager.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                BitmapUtility.MouseController.RecordMouseMovementChange(cords);
+                BitmapManager.MouseController.RecordMouseMovementChange(cords);
             }
             else
             {
-                BitmapUtility.MouseController.MouseMoved(cords);
+                BitmapManager.MouseController.MouseMoved(cords);
             }
         }
 
@@ -408,7 +409,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void SaveFile(object parameter)
         {
-            WriteableBitmap bitmap = BitmapUtility.GetCombinedLayersBitmap();
+            WriteableBitmap bitmap = BitmapManager.GetCombinedLayersBitmap();
             if (Exporter.SavePath == null || (string)parameter == "AsNew")
             {
                 Exporter.Export(FileType.PNG, bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
@@ -425,7 +426,7 @@ namespace PixiEditor.ViewModels
         /// <returns></returns>
         private bool CanSave(object property)
         {
-            return BitmapUtility.ActiveLayer != null;
+            return BitmapManager.ActiveLayer != null;
         }
         #endregion
 
@@ -439,15 +440,15 @@ namespace PixiEditor.ViewModels
             if (dialog.ShowDialog())
             {
                 NewDocument(dialog.FileWidth, dialog.FileHeight);
-                BitmapUtility.ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
+                BitmapManager.ActiveLayer.LayerBitmap = Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
             }
         }
 
         private void NewDocument(int width, int height)
         {
-            BitmapUtility.Layers.Clear();
-            BitmapUtility.AddNewLayer("Base Layer", width, height, true);
-            BitmapUtility.PreviewLayer = null;
+            BitmapManager.Layers.Clear();
+            BitmapManager.AddNewLayer("Base Layer", width, height, true);
+            BitmapManager.PreviewLayer = null;
         }
 
         /// <summary>
@@ -461,12 +462,12 @@ namespace PixiEditor.ViewModels
 
         public void NewLayer(object parameter)
         {
-            BitmapUtility.AddNewLayer($"New Layer {BitmapUtility.Layers.Count}", BitmapUtility.Layers[0].Width, BitmapUtility.Layers[0].Height);         
+            BitmapManager.AddNewLayer($"New Layer {BitmapManager.Layers.Count}", BitmapManager.Layers[0].Width, BitmapManager.Layers[0].Height);         
         }
 
         public bool CanCreateNewLayer(object parameter)
         {
-                return BitmapUtility.Layers.Count > 0;
+                return BitmapManager.Layers.Count > 0;
         }
     }
 }

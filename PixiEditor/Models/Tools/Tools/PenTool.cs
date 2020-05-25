@@ -6,7 +6,7 @@ using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class PenTool : Tool
+    public class PenTool : BitmapOperationTool
     {
         public override ToolType ToolType => ToolType.Pen;
         private int _toolSizeIndex;

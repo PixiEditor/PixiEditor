@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class FloodFill : Tool
+    public class FloodFill : BitmapOperationTool
     {
         public override ToolType ToolType => ToolType.Bucket;
 

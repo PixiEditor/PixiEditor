@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class EarserTool : Tool
+    public class EarserTool : BitmapOperationTool
     {
         public override ToolType ToolType => ToolType.Earser;
 

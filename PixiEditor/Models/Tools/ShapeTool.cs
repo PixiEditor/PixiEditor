@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools
 {
-    public abstract class ShapeTool : Tool
+    public abstract class ShapeTool : BitmapOperationTool
     {
         public override abstract ToolType ToolType { get; }
 

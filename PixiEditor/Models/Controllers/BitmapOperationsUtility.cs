@@ -13,149 +13,73 @@ using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Controllers
 {
-    public class BitmapOperationsUtility : NotifyableObject
+    public class BitmapOperationsUtility
     {
-        public MouseMovementController MouseController { get; set; }
-        private Tool _selectedTool;
-        public Tool SelectedTool
-        {
-            get => _selectedTool;
-            private set
-            {                
-                _selectedTool = value;
-                RaisePropertyChanged("SelectedTool");
-            }
-        }
-
-        private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
-
-        public ObservableCollection<Layer> Layers
-        {
-            get => _layers;
-            set { if (_layers != value) { _layers = value; } }
-        }
-        private int _activeLayerIndex;
-        public int ActiveLayerIndex
-        {
-            get => _activeLayerIndex;
-            set
-            {
-                _activeLayerIndex = value;
-                RaisePropertyChanged("ActiveLayerIndex");
-                RaisePropertyChanged("ActiveLayer");
-            }
-        }
-
-        private Layer _previewLayer;
-
-        public Layer PreviewLayer
-        {
-            get { return _previewLayer; }
-            set 
-            {
-                _previewLayer = value;
-                RaisePropertyChanged("PreviewLayer");
-            }
-        }
-
-
-        public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
-
-        public Color PrimaryColor { get; set; }
-
-        public int ToolSize => SelectedTool.Toolbar.GetSetting("ToolSize") != null ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value : 1;
-
-        public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
-        public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
         private Coordinates _lastMousePos;
         private BitmapPixelChanges _lastChangedPixels;
 
-        public BitmapOperationsUtility()
+        public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
+
+        public BitmapManager Manager { get; set; }
+
+        public BitmapOperationsUtility(BitmapManager manager)
         {
-            MouseController = new MouseMovementController();
-            MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
-            MouseController.MousePositionChanged += Controller_MousePositionChanged;
-            MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            Manager = manager;
         }
 
-        public void SetActiveTool(Tool tool)
+        public void TriggerAction(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
         {
-            if(PreviewLayer != null)
+            if (tool != null && tool.ToolType != ToolType.None && Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                PreviewLayer.Clear();
-            }
-            if (SelectedTool != null)
-            {
-                SelectedTool.Toolbar.SaveToolbarSettings();
-            }
-            SelectedTool = tool;
-            SelectedTool.Toolbar.LoadSharedSettings();
-        }
-
-        private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
-        {
-            if (PreviewLayer != null)
-            {
-                PreviewLayer.Clear();
-            }
-        }
-
-        private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
-        {
-            if(SelectedTool.RequiresPreviewLayer)
-            {
-                BitmapPixelChanges oldValues = GetOldPixelsValues(_lastChangedPixels.ChangedPixels.Keys.ToArray());
-                Layers[ActiveLayerIndex].ApplyPixels(_lastChangedPixels);
-                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastChangedPixels, oldValues, ActiveLayerIndex));
-                _previewLayer.Clear();
-            }
-        }
-
-        private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
-        {
-            if(SelectedTool != null && SelectedTool.ToolType != ToolType.None && Mouse.LeftButton == MouseButtonState.Pressed)
-            {
-                var mouseMove = MouseController.LastMouseMoveCoordinates.ToList();
-                if (Layers.Count == 0 || mouseMove.Count == 0) return;
+                if (Manager.Layers.Count == 0 || mouseMove.Count == 0) return;
                 mouseMove.Reverse();
-                UseTool(mouseMove);
-                
-                _lastMousePos = e.NewPosition;
+                UseTool(mouseMove, tool, Manager.PrimaryColor);
+
+                _lastMousePos = newPos;
             }
-            else if(Mouse.LeftButton == MouseButtonState.Released)
+            else if (Mouse.LeftButton == MouseButtonState.Released)
             {
-                HighlightPixels(e.NewPosition);
+                HighlightPixels(newPos);
             }
         }
 
+        public void StopAction()
+        {
+            BitmapPixelChanges oldValues = GetOldPixelsValues(_lastChangedPixels.ChangedPixels.Keys.ToArray());
+            Manager.ActiveLayer.ApplyPixels(_lastChangedPixels);
+            BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastChangedPixels, oldValues, Manager.ActiveLayerIndex));
+            Manager.PreviewLayer.Clear();
+        }
+
+       
         private void HighlightPixels(Coordinates newPosition)
         {
-            if (Layers.Count == 0 || SelectedTool.HideHighlight) return;
+            if (Manager.Layers.Count == 0 || Manager.SelectedTool.HideHighlight) return;
             GeneratePreviewLayer();
-            PreviewLayer.Clear();
-            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));    
-            PreviewLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77,0,0,0)));
+            Manager.PreviewLayer.Clear();
+            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(
+                CoordinatesCalculator.CalculateThicknessCenter(newPosition, Manager.ToolSize));    
+            Manager.PreviewLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77,0,0,0)));
         }
 
-        private void UseTool(List<Coordinates> mouseMoveCords)
+        private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
-            if (SelectedTool.PerformsOperationOnBitmap == false) return;
             if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
             {
                 mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
-            }
-            if (!SelectedTool.RequiresPreviewLayer)
-            {
-                BitmapPixelChanges changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMoveCords.ToArray(), PrimaryColor);
-                BitmapPixelChanges oldPixelsValues = GetOldPixelsValues(changedPixels.ChangedPixels.Keys.ToArray());
-                ActiveLayer.ApplyPixels(changedPixels);
-                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, oldPixelsValues, ActiveLayerIndex));
-            }
-            else
-            {
-                UseToolOnPreviewLayer(mouseMoveCords);
-            }
+            };
+                if (!tool.RequiresPreviewLayer)
+                {
+                    BitmapPixelChanges changedPixels = tool.Use(Manager.ActiveLayer, mouseMoveCords.ToArray(), color);
+                    BitmapPixelChanges oldPixelsValues = GetOldPixelsValues(changedPixels.ChangedPixels.Keys.ToArray());
+                    Manager.ActiveLayer.ApplyPixels(changedPixels);
+                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(changedPixels, oldPixelsValues, Manager.ActiveLayerIndex));
+                }
+                else
+                {
+                    UseToolOnPreviewLayer(mouseMoveCords);
+                }           
         }
 
         private bool MouseCordsNotInLine(List<Coordinates> cords)
@@ -187,14 +111,14 @@ namespace PixiEditor.Models.Controllers
         private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)
         {
             Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
-            Layers[ActiveLayerIndex].LayerBitmap.Lock();
+            Manager.ActiveLayer.LayerBitmap.Lock();
             for (int i = 0; i < coordinates.Length; i++)
             {
-                if (coordinates[i].X < 0 || coordinates[i].X > Layers[0].Width - 1 || coordinates[i].Y < 0 || coordinates[i].Y > Layers[0].Height - 1) 
+                if (coordinates[i].X < 0 || coordinates[i].X > Manager.Layers[0].Width - 1 || coordinates[i].Y < 0 || coordinates[i].Y > Manager.Layers[0].Height - 1) 
                     continue;
-                values.Add(coordinates[i], Layers[ActiveLayerIndex].LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
+                values.Add(coordinates[i], Manager.ActiveLayer.LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
             }
-            Layers[ActiveLayerIndex].LayerBitmap.Unlock();
+            Manager.ActiveLayer.LayerBitmap.Unlock();
             return new BitmapPixelChanges(values);
         }
 
@@ -204,79 +128,20 @@ namespace PixiEditor.Models.Controllers
             if (mouseMove.Count > 0 && mouseMove[0] != _lastMousePos)
             {
                 GeneratePreviewLayer();
-                PreviewLayer.Clear();
-                changedPixels = SelectedTool.Use(Layers[ActiveLayerIndex], mouseMove.ToArray(), PrimaryColor);
-                PreviewLayer.ApplyPixels(changedPixels);
+                Manager.PreviewLayer.Clear();
+                changedPixels = ((BitmapOperationTool)Manager.SelectedTool).Use(Manager.ActiveLayer, mouseMove.ToArray(), Manager.PrimaryColor);
+                Manager.PreviewLayer.ApplyPixels(changedPixels);
                 _lastChangedPixels = changedPixels;
             }
         }
 
         private void GeneratePreviewLayer()
         {
-            if (PreviewLayer == null)
+            if (Manager.PreviewLayer == null)
             {
-                PreviewLayer = new Layer("_previewLayer", Layers[0].Width, Layers[0].Height);
+                Manager.PreviewLayer = new Layer("_previewLayer", Manager.Layers[0].Width, Manager.Layers[0].Height);
             }
-        }
-
-        public void RemoveLayer(int layerIndex)
-        {
-            if (Layers.Count <= 1) return;
-
-            bool wasActive = Layers[layerIndex].IsActive;
-            Layers.RemoveAt(layerIndex);
-            if (wasActive)
-            {
-                SetActiveLayer(0);
-            }
-            else if(ActiveLayerIndex > Layers.Count - 1)
-            {
-                SetActiveLayer(Layers.Count - 1);
-            }
-        }
-
-        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
-        {
-            Layers.Add(new Layer(name, width, height));
-            if (setAsActive)
-            {
-                SetActiveLayer(Layers.Count - 1);
-            }
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
-        }
-
-        public void SetActiveLayer(int index)
-        {
-            if (ActiveLayerIndex <= Layers.Count - 1)
-            {
-                Layers[ActiveLayerIndex].IsActive = false;
-            }
-                ActiveLayerIndex = index;
-            Layers[ActiveLayerIndex].IsActive = true;
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
-        }
-
-        public WriteableBitmap GetCombinedLayersBitmap()
-        {
-            WriteableBitmap finalBitmap = Layers[0].LayerBitmap.Clone();
-            finalBitmap.Lock();
-            for (int i = 1; i < Layers.Count; i++)
-            {
-                for (int y = 0; y < finalBitmap.Height; y++)
-                {
-                    for (int x = 0; x < finalBitmap.Width; x++)
-                    {
-                        Color color = Layers[i].LayerBitmap.GetPixel(x, y);
-                        if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0)
-                        {
-                            finalBitmap.SetPixel(x, y, color);
-                        }
-                    }
-                }
-            }
-            finalBitmap.Unlock();
-            return finalBitmap;
-        }
+        }       
     }
 }
 
@@ -291,17 +156,5 @@ public class BitmapChangedEventArgs : EventArgs
         PixelsChanged = pixelsChanged;
         OldPixelsValues = oldPixelsValues;
         ChangedLayerIndex = changedLayerIndex;
-    }
-}
-
-public class LayersChangedEventArgs : EventArgs
-{
-    public int LayerAffected { get; set; }
-    public LayerAction LayerChangeType { get; set; }
-
-    public LayersChangedEventArgs(int layerAffected, LayerAction layerChangeType)
-    {
-        LayerAffected = layerAffected;
-        LayerChangeType = layerChangeType;
     }
 }

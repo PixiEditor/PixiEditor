@@ -10,7 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class BrightnessTool : Tool
+    public class BrightnessTool : BitmapOperationTool
     {
         public override ToolType ToolType => ToolType.Brightness;
         private const float CorrectionFactor = 5f; //Initial correction factor
