@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -68,6 +69,7 @@ namespace PixiEditor.Models.Controllers
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
+        public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
 
         public void SetActiveTool(Tool tool)
         {
@@ -90,6 +92,7 @@ namespace PixiEditor.Models.Controllers
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapOperations = new BitmapOperationsUtility(this);
+            ReadonlyToolUtility = new ReadonlyToolUtility(this);
         }
 
         public void SetActiveLayer(int index)
@@ -131,10 +134,21 @@ namespace PixiEditor.Models.Controllers
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            if (IsOperationTool(SelectedTool))
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                BitmapOperations.TriggerAction(e.NewPosition, 
-                    MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                if (IsOperationTool(SelectedTool))
+                {
+                    BitmapOperations.TriggerAction(e.NewPosition,
+                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                }
+                else
+                {
+                    ReadonlyToolUtility.ExecuteTool((ReadonlyTool)SelectedTool);
+                }
+            }            
+            else if(Mouse.LeftButton == MouseButtonState.Released)
+            {
+                HighlightPixels(e.NewPosition);
             }
         }
 
@@ -152,6 +166,24 @@ namespace PixiEditor.Models.Controllers
             {
                 BitmapOperations.StopAction();
             }
+        }
+
+        public void GeneratePreviewLayer()
+        {
+            if (PreviewLayer == null)
+            {
+                PreviewLayer = new Layer("_previewLayer", Layers[0].Width, Layers[0].Height);
+            }
+        }
+
+        private void HighlightPixels(Coordinates newPosition)
+        {
+            if (Layers.Count == 0 || SelectedTool.HideHighlight) return;
+            GeneratePreviewLayer();
+            PreviewLayer.Clear();
+            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(
+                CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
+            PreviewLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
         }
 
         public WriteableBitmap GetCombinedLayersBitmap()

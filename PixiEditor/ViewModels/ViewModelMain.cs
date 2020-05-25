@@ -20,7 +20,7 @@ namespace PixiEditor.ViewModels
 {
     class ViewModelMain : ViewModelBase
     {
-
+        public static ViewModelMain Current { get; set; } = null;
         public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
         public RelayCommand GenerateDrawAreaCommand { get; set; } //Command that generates draw area
         public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
@@ -179,6 +179,7 @@ namespace PixiEditor.ViewModels
             UndoManager.SetMainRoot(this);
             SetActiveTool(ToolType.Pen);
             BitmapManager.PrimaryColor = PrimaryColor;
+            Current = this;
         }
 
         public void SetTool(object parameter)
@@ -317,7 +318,7 @@ namespace PixiEditor.ViewModels
 
         private void SetToolCursor(ToolType tool)
         {
-            if (tool != ToolType.None && tool != ToolType.ColorPicker)
+            if (tool != ToolType.None)
             {
                 ToolCursor = BitmapManager.SelectedTool.Cursor;
             }
@@ -339,11 +340,7 @@ namespace PixiEditor.ViewModels
         private void MouseDown(object parameter)
         {
             if (BitmapManager.Layers.Count == 0) return;
-            if(BitmapManager.SelectedTool.ToolType == ToolType.ColorPicker)
-            {
-                ExecuteColorPicker();
-            }
-            else if(Mouse.LeftButton == MouseButtonState.Pressed && BitmapManager.SelectedTool is BitmapOperationTool)
+            if(Mouse.LeftButton == MouseButtonState.Pressed)
             {
                 if (!BitmapManager.MouseController.IsRecordingChanges)
                 {
@@ -369,24 +366,6 @@ namespace PixiEditor.ViewModels
             else
             {
                 BitmapManager.MouseController.MouseMoved(cords);
-            }
-        }
-
-
-
-        private void ExecuteColorPicker()
-        {
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
-            {
-                using (var bitmap = new System.Drawing.Bitmap(1, 1))
-                {
-                    using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
-                    {
-                        graphics.CopyFromScreen(MousePositionConverter.GetCursorPosition(), new System.Drawing.Point(0, 0), new System.Drawing.Size(1, 1));
-                    }
-                    var color = bitmap.GetPixel(0, 0);
-                    PrimaryColor = Color.FromArgb(color.A, color.R, color.G, color.B);
-                }
             }
         }
 

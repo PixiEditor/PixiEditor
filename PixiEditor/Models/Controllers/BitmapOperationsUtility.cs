@@ -30,17 +30,13 @@ namespace PixiEditor.Models.Controllers
 
         public void TriggerAction(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
         {
-            if (tool != null && tool.ToolType != ToolType.None && Mouse.LeftButton == MouseButtonState.Pressed)
+            if (tool != null && tool.ToolType != ToolType.None)
             {
                 if (Manager.Layers.Count == 0 || mouseMove.Count == 0) return;
                 mouseMove.Reverse();
                 UseTool(mouseMove, tool, Manager.PrimaryColor);
 
                 _lastMousePos = newPos;
-            }
-            else if (Mouse.LeftButton == MouseButtonState.Released)
-            {
-                HighlightPixels(newPos);
             }
         }
 
@@ -52,16 +48,7 @@ namespace PixiEditor.Models.Controllers
             Manager.PreviewLayer.Clear();
         }
 
-       
-        private void HighlightPixels(Coordinates newPosition)
-        {
-            if (Manager.Layers.Count == 0 || Manager.SelectedTool.HideHighlight) return;
-            GeneratePreviewLayer();
-            Manager.PreviewLayer.Clear();
-            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(
-                CoordinatesCalculator.CalculateThicknessCenter(newPosition, Manager.ToolSize));    
-            Manager.PreviewLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77,0,0,0)));
-        }
+      
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
@@ -127,21 +114,13 @@ namespace PixiEditor.Models.Controllers
             BitmapPixelChanges changedPixels;
             if (mouseMove.Count > 0 && mouseMove[0] != _lastMousePos)
             {
-                GeneratePreviewLayer();
+                Manager.GeneratePreviewLayer();
                 Manager.PreviewLayer.Clear();
                 changedPixels = ((BitmapOperationTool)Manager.SelectedTool).Use(Manager.ActiveLayer, mouseMove.ToArray(), Manager.PrimaryColor);
                 Manager.PreviewLayer.ApplyPixels(changedPixels);
                 _lastChangedPixels = changedPixels;
             }
-        }
-
-        private void GeneratePreviewLayer()
-        {
-            if (Manager.PreviewLayer == null)
-            {
-                Manager.PreviewLayer = new Layer("_previewLayer", Manager.Layers[0].Width, Manager.Layers[0].Height);
-            }
-        }       
+        }      
     }
 }
 
