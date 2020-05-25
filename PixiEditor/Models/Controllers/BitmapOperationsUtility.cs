@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Controllers
             Manager = manager;
         }
 
-        public void TriggerAction(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
+        public void ExecuteTool(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
         {
             if (tool != null && tool.ToolType != ToolType.None)
             {

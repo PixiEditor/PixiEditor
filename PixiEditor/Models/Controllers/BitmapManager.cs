@@ -135,15 +135,15 @@ namespace PixiEditor.Models.Controllers
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
             if (Mouse.LeftButton == MouseButtonState.Pressed)
-            {
+            {               
                 if (IsOperationTool(SelectedTool))
                 {
-                    BitmapOperations.TriggerAction(e.NewPosition,
-                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                    BitmapOperations.ExecuteTool(e.NewPosition,
+                        MouseController.LastMouseMoveCoordinates, (BitmapOperationTool)SelectedTool);
                 }
                 else
                 {
-                    ReadonlyToolUtility.ExecuteTool((ReadonlyTool)SelectedTool);
+                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(), (ReadonlyTool)SelectedTool);
                 }
             }            
             else if(Mouse.LeftButton == MouseButtonState.Released)

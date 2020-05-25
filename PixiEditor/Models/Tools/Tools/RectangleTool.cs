@@ -72,7 +72,7 @@ namespace PixiEditor.Models.Tools.Tools
             return finalCoordinates.ToArray();
         }
 
-        private Coordinates[] CalculateFillForRectangle(Coordinates start, Coordinates end, int thickness)
+        public Coordinates[] CalculateFillForRectangle(Coordinates start, Coordinates end, int thickness)
         {
             int offset = (int)Math.Ceiling(thickness / 2f);
             DoubleCords fixedCords = CalculateCoordinatesForShapeRotation(start, end);

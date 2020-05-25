@@ -1,7 +1,7 @@
-﻿using PixiEditor.Models.Tools;
-using System;
+﻿using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
 using System.Collections.Generic;
-using System.Text;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -14,9 +14,9 @@ namespace PixiEditor.Models.Controllers
             Manager = manager;
         }
 
-        public void ExecuteTool(ReadonlyTool tool)
+        public void ExecuteTool(Coordinates[] mouseMove, ReadonlyTool tool)
         {            
-            tool.Use();
+            tool.Use(mouseMove);
         }
 
     }

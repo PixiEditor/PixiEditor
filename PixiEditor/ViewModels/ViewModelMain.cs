@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiTools = PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
@@ -15,6 +14,7 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.DataHolders;
 using System.Linq;
 using System.Collections.ObjectModel;
+using PixiEditor.Models.Tools.Tools;
 
 namespace PixiEditor.ViewModels
 {
@@ -122,12 +122,22 @@ namespace PixiEditor.ViewModels
             }
         }
 
-
-
         public BitmapManager BitmapManager { get; set; }
         public PixelChangesController ChangesController { get; set; }
 
         public ShortcutController ShortcutController { get; set; }
+        private Selection _selection = new Selection();
+
+        public Selection ActiveSelection
+        {
+            get => _selection;
+            set
+            {
+                _selection = value;
+                RaisePropertyChanged("ActiveSelection");
+            }
+        }
+
 
         public ViewModelMain()
         {
@@ -154,8 +164,8 @@ namespace PixiEditor.ViewModels
             SwapColorsCommand = new RelayCommand(SwapColors);
             KeyDownCommand = new RelayCommand(KeyDown);
             RenameLayerCommand = new RelayCommand(RenameLayer);
-            ToolSet = new ObservableCollection<Tool> { new PixiTools.PenTool(), new PixiTools.FloodFill(), new PixiTools.LineTool(),
-            new PixiTools.CircleTool(), new PixiTools.RectangleTool(), new PixiTools.EarserTool(), new PixiTools.ColorPickerTool(), new PixiTools.BrightnessTool() };
+            ToolSet = new ObservableCollection<Tool> { new SelectTool(), new PenTool(), new FloodFill(), new LineTool(),
+            new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
             ShortcutController = new ShortcutController
             {
                 Shortcuts = new List<Shortcut> { 

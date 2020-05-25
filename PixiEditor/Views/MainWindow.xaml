@@ -134,6 +134,9 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <Rectangle Stroke="#7F67B8FF" Height="{Binding ActiveSelection.VisualHeight}" Width="{Binding ActiveSelection.VisualWidth}" 
+                                       Canvas.Left="{Binding ActiveSelection.VisualCanvasLeft}" Canvas.Top="{Binding ActiveSelection.VisualCanvasTop}" Visibility="{Binding ActiveSelection.Visibility}" 
+                                       Fill="Transparent" StrokeThickness="1" SnapsToDevicePixels="True"/>
                         </Canvas>
                     </vws:MainDrawingPanel.Item>
                 </vws:MainDrawingPanel>

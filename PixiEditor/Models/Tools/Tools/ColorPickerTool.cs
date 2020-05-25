@@ -15,9 +15,10 @@ namespace PixiEditor.Models.Tools.Tools
         public ColorPickerTool()
         {
             HideHighlight = true;
+            Tooltip = "Swaps primary color with selected on canvas.";
         }
 
-        public override void Use()
+        public override void Use(Coordinates[] coordinates)
         {
             using (var bitmap = new System.Drawing.Bitmap(1, 1))
             {

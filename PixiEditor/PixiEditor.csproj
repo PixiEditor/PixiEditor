@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <None Remove="Images\PixiEditorLogo.png" />
+    <None Remove="Images\SelectImage.png" />
     <None Remove="Images\SwapArrows.png" />
     <None Include="..\icon.ico">
       <Pack>True</Pack>
@@ -54,6 +55,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\RectangleImage.png" />
+    <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\SwapArrows.png" />
     <Resource Include="Images\transparentbg.png" />
   </ItemGroup>
