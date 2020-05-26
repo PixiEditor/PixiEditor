@@ -15,7 +15,9 @@ namespace PixiEditor.Models.Tools.Tools
         public override ToolType ToolType => ToolType.Move;
         private Coordinates[] _startSelection;
         private Coordinates _lastStartMousePos;
+        private Coordinates _lastMouseMove;
         private Color[] _startPixelColors;
+        private bool _clearedPixels = false;
 
         public MoveTool()
         {
@@ -35,17 +37,23 @@ namespace PixiEditor.Models.Tools.Tools
                 _lastStartMousePos = start;
                 _startSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints;
                 _startPixelColors = GetPixelsForSelection(layer, _startSelection);
+                _lastMouseMove = start;
+                _clearedPixels = false;
             }
 
-            Coordinates translation = ImageManipulation.Transform.GetTranslation(start, end);
+            Coordinates translation = ImageManipulation.Transform.GetTranslation(_lastMouseMove, end);
 
                 Coordinates[] previousSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
                 ViewModelMain.Current.ActiveSelection = 
                     new Selection(ImageManipulation.Transform.Translate(previousSelection, translation));
-                //BitmapPixelChanges changes = 
-                  //  BitmapPixelChanges.FromSingleColoredArray(previousSelection, System.Windows.Media.Colors.Transparent);
+            if (_clearedPixels == false)
+            {
+                layer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(previousSelection, System.Windows.Media.Colors.Transparent));
+                _clearedPixels = true;
+            }
                 BitmapPixelChanges changes = BitmapPixelChanges.FromArrays(
                         ViewModelMain.Current.ActiveSelection.SelectedPoints, _startPixelColors);
+            _lastMouseMove = end;
             return changes;
         }
 
