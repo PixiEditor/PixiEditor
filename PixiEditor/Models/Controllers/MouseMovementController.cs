@@ -27,7 +27,7 @@ namespace PixiEditor.Models.Controllers
         {
             if (IsRecordingChanges == true)
             {
-                if (LastMouseMoveCoordinates.Count == 0 || mouseCoordinates != LastMouseMoveCoordinates[LastMouseMoveCoordinates.Count - 1])
+                if (LastMouseMoveCoordinates.Count == 0 || mouseCoordinates != LastMouseMoveCoordinates[^1])
                 {
                     LastMouseMoveCoordinates.Add(mouseCoordinates);
                     MousePositionChanged?.Invoke(this, new MouseMovementEventArgs(mouseCoordinates));

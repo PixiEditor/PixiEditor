@@ -139,7 +139,7 @@ namespace PixiEditor.Models.Controllers
                 if (IsOperationTool(SelectedTool))
                 {
                     BitmapOperations.ExecuteTool(e.NewPosition,
-                        MouseController.LastMouseMoveCoordinates, (BitmapOperationTool)SelectedTool);
+                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
                 }
                 else
                 {
@@ -209,7 +209,7 @@ namespace PixiEditor.Models.Controllers
         }
 
 
-        private bool IsOperationTool(Tool tool)
+        public static bool IsOperationTool(Tool tool)
         {
             return typeof(BitmapOperationTool).IsAssignableFrom(tool.GetType());
         }

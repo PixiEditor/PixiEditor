@@ -164,7 +164,7 @@ namespace PixiEditor.ViewModels
             SwapColorsCommand = new RelayCommand(SwapColors);
             KeyDownCommand = new RelayCommand(KeyDown);
             RenameLayerCommand = new RelayCommand(RenameLayer);
-            ToolSet = new ObservableCollection<Tool> { new SelectTool(), new PenTool(), new FloodFill(), new LineTool(),
+            ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
             ShortcutController = new ShortcutController
             {
@@ -187,7 +187,7 @@ namespace PixiEditor.ViewModels
                 }
             };
             UndoManager.SetMainRoot(this);
-            SetActiveTool(ToolType.Pen);
+            SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
         }
@@ -209,7 +209,7 @@ namespace PixiEditor.ViewModels
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            if (BitmapManager.SelectedTool is BitmapOperationTool)
+            if (BitmapManager.IsOperationTool(BitmapManager.SelectedTool))
             {
                 Tuple<LayerChanges, LayerChanges> changes = ChangesController.PopChanges();
                 if (changes.Item1.PixelChanges.ChangedPixels.Count > 0)
