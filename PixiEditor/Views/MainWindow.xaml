@@ -70,6 +70,10 @@
                 <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"/>
                 <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"/>
             </MenuItem>
+                <MenuItem Header="_Select">
+                    <MenuItem Header="_Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A"/>
+                    <MenuItem Header="_Deselect" Command="{Binding DeselectCommand}" InputGestureText="Ctrl+D"/>
+                </MenuItem>
         </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
@@ -136,7 +140,7 @@
                             </ItemsControl>
                             <Rectangle Stroke="#7F8ECAFF" Height="{Binding ActiveSelection.VisualHeight}" Width="{Binding ActiveSelection.VisualWidth}" 
                                        Canvas.Left="{Binding ActiveSelection.VisualCanvasLeft}" Canvas.Top="{Binding ActiveSelection.VisualCanvasTop}" Visibility="{Binding ActiveSelection.Visibility}" 
-                                       Fill="#7F8ECAFF" StrokeThickness="0.1" SnapsToDevicePixels="True"/>
+                                       Fill="#7F8ECAFF" StrokeThickness="0" SnapsToDevicePixels="True"/>
                         </Canvas>
                     </vws:MainDrawingPanel.Item>
                 </vws:MainDrawingPanel>

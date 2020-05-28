@@ -40,6 +40,8 @@ namespace PixiEditor.ViewModels
         public RelayCommand MoveToBackCommand { get; set; }
         public RelayCommand MoveToFrontCommand { get; set; }
         public RelayCommand SwapColorsCommand { get; set; }
+        public RelayCommand DeselectCommand { get; set; }
+        public RelayCommand SelectAllCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -164,6 +166,8 @@ namespace PixiEditor.ViewModels
             SwapColorsCommand = new RelayCommand(SwapColors);
             KeyDownCommand = new RelayCommand(KeyDown);
             RenameLayerCommand = new RelayCommand(RenameLayer);
+            DeselectCommand = new RelayCommand(Deselect, CanDeselect);
+            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
             ShortcutController = new ShortcutController
@@ -171,7 +175,7 @@ namespace PixiEditor.ViewModels
                 Shortcuts = new List<Shortcut> { 
                     new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
                     new Shortcut(Key.X, SwapColorsCommand),
-                    new Shortcut(Key.O, OpenFileCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
                     new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
                     new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
@@ -179,17 +183,41 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
                     new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
                     new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
-                    new Shortcut(Key.Y, RedoCommand, null, ModifierKeys.Control),
+                    new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand),
-                    new Shortcut(Key.S, SaveFileCommand, null, ModifierKeys.Control),
-                    new Shortcut(Key.N, GenerateDrawAreaCommand, null, ModifierKeys.Control),
-                    new Shortcut(Key.S, SaveFileCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift)
+                    new Shortcut(Key.S, SaveFileCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.N, GenerateDrawAreaCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveFileCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control)
                 }
             };
             UndoManager.SetMainRoot(this);
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
+        }
+
+        public void SelectAll(object parameter)
+        {
+            SelectTool select = new SelectTool();
+            select.Use(new Coordinates[] {new Coordinates(0,0),
+                new Coordinates(BitmapManager.Layers[0].Width - 1, BitmapManager.Layers[0].Height - 1)});
+        }
+
+        private bool CanSelectAll(object property)
+        {
+            return BitmapManager.Layers.Count > 0;
+        }
+
+        public void Deselect(object parameter)
+        {
+            ActiveSelection = new Selection();
+        }
+
+        private bool CanDeselect(object property)
+        {
+            return ActiveSelection.SelectedPoints != null;
         }
 
         public void SetTool(object parameter)
