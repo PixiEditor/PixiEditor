@@ -49,8 +49,8 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="35*"/>
-            <RowDefinition Height="29*"/>
-            <RowDefinition Height="895*"/>
+            <RowDefinition Height="17*"/>
+            <RowDefinition Height="908*"/>
             <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
 
@@ -61,20 +61,23 @@
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}"/>
                 </Menu.Resources>
                 <MenuItem Header="_File">
-                <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding GenerateDrawAreaCommand}"/>
-                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"/>
-                <MenuItem Header="_Export" InputGestureText="Ctrl+S" Command="{Binding SaveFileCommand}"/>
-                <MenuItem Header="_Export As..." InputGestureText="Ctrl+Shift+S" Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
-            </MenuItem>
+                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding GenerateDrawAreaCommand}"/>
+                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"/>
+                    <MenuItem Header="_Export" InputGestureText="Ctrl+S" Command="{Binding SaveFileCommand}"/>
+                    <MenuItem Header="_Export As..." InputGestureText="Ctrl+Shift+S" Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
+                </MenuItem>
                 <MenuItem Header="_Edit">
-                <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"/>
-                <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"/>
-            </MenuItem>
+                    <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"/>
+                    <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="_Copy" Command="{Binding CopyCommand}"/>
+                    <MenuItem Header="_Paste"/>
+                </MenuItem>
                 <MenuItem Header="_Select">
                     <MenuItem Header="_Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A"/>
                     <MenuItem Header="_Deselect" Command="{Binding DeselectCommand}" InputGestureText="Ctrl+D"/>
                 </MenuItem>
-        </Menu>
+            </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
                             Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
@@ -86,7 +89,7 @@
                             Command="{x:Static SystemCommands.CloseWindowCommand}"/>
             </StackPanel>
         </DockPanel>
-        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2">
+        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="3" Margin="0,30,146,0" Grid.RowSpan="2">
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -148,7 +151,7 @@
         </Grid>
 
         <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0" Margin="0,7,5,0" Background="#404040" Grid.RowSpan="2">
-            
+
             <ItemsControl ItemsSource="{Binding ToolSet}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

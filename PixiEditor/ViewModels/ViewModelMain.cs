@@ -42,6 +42,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand SwapColorsCommand { get; set; }
         public RelayCommand DeselectCommand { get; set; }
         public RelayCommand SelectAllCommand { get; set; }
+        public RelayCommand CopyCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -140,6 +141,7 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        public ClipboardController ClipboardController { get; set; }
 
         public ViewModelMain()
         {
@@ -166,8 +168,9 @@ namespace PixiEditor.ViewModels
             SwapColorsCommand = new RelayCommand(SwapColors);
             KeyDownCommand = new RelayCommand(KeyDown);
             RenameLayerCommand = new RelayCommand(RenameLayer);
-            DeselectCommand = new RelayCommand(Deselect, CanDeselect);
+            DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
             SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
+            CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
             ShortcutController = new ShortcutController
@@ -193,9 +196,15 @@ namespace PixiEditor.ViewModels
                 }
             };
             UndoManager.SetMainRoot(this);
+            ClipboardController = new ClipboardController();
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
+        }
+
+        private void Copy(object parameter)
+        {
+            ClipboardController.CopyToClipboard(BitmapManager.ActiveLayer.LayerBitmap, ActiveSelection.SelectedPoints);
         }
 
         public void SelectAll(object parameter)
@@ -215,7 +224,7 @@ namespace PixiEditor.ViewModels
             ActiveSelection = new Selection();
         }
 
-        private bool CanDeselect(object property)
+        private bool SelectionIsNotEmpty(object property)
         {
             return ActiveSelection.SelectedPoints != null;
         }
