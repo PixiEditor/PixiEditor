@@ -59,7 +59,7 @@ namespace PixiEditor.ViewModels
         }
 
 
-        private Color _primaryColor = Colors.White;
+        private Color _primaryColor = Colors.Black;
 
         public Color PrimaryColor //Primary color, hooked with left mouse button
         {
@@ -75,9 +75,9 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private Color _secondaryColor = Colors.Black;
+        private Color _secondaryColor = Colors.White;
 
-        public Color SecondaryColor //Secondary color, hooked with right mouse button
+        public Color SecondaryColor
         {
             get => _secondaryColor;
             set { if (_secondaryColor != value) { _secondaryColor = value; RaisePropertyChanged("SecondaryColor"); } }

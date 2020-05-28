@@ -42,13 +42,14 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             Coordinates translation = ImageManipulation.Transform.GetTranslation(_lastMouseMove, end);
-
-                Coordinates[] previousSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
+            Coordinates[] previousSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
                 ViewModelMain.Current.ActiveSelection = 
                     new Selection(ImageManipulation.Transform.Translate(previousSelection, translation));
+
             if (_clearedPixels == false)
             {
                 layer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(previousSelection, System.Windows.Media.Colors.Transparent));
+
                 _clearedPixels = true;
             }
                 BitmapPixelChanges changes = BitmapPixelChanges.FromArrays(

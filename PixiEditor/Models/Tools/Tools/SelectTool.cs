@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             RectangleTool rectangleTool = new RectangleTool();
             List<Coordinates> selection = rectangleTool.CreateRectangle(pixels, 1).ToList();
-            selection.AddRange(rectangleTool.CalculateFillForRectangle(selection[0], selection[^1], 1));
+            selection.AddRange(rectangleTool.CalculateFillForRectangle(pixels[^1], pixels[0], 1));
             ViewModelMain.Current.ActiveSelection = new DataHolders.Selection(selection.ToArray());
         }
     }
