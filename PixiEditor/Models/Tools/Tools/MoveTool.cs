@@ -29,33 +29,55 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
+            if (ViewModelMain.Current.ActiveSelection.SelectedPoints == null) return BitmapPixelChanges.Empty;
+            return MoveSelection(layer, mouseMove);
+        }
+
+        public BitmapPixelChanges MoveSelection(Layer layer, Coordinates[] mouseMove)
+        {
             Coordinates start = mouseMove[^1];
             Coordinates end = mouseMove[0];
 
             if (_lastStartMousePos != start)
             {
-                _lastStartMousePos = start;
-                _startSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints;
-                _startPixelColors = GetPixelsForSelection(layer, _startSelection);
-                _lastMouseMove = start;
-                _clearedPixels = false;
+                ResetSelectionValues(layer, start);
             }
 
+            Coordinates[] previousSelection = TranslateSelection(end);
+            ClearSelectedPixels(layer, previousSelection);
+
+
+            _lastMouseMove = end;
+            return BitmapPixelChanges.FromArrays(
+                        ViewModelMain.Current.ActiveSelection.SelectedPoints, _startPixelColors);
+        }
+
+        private void ResetSelectionValues(Layer layer, Coordinates start)
+        {
+            _lastStartMousePos = start;
+            _startSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints;
+            _startPixelColors = GetPixelsForSelection(layer, _startSelection);
+            _lastMouseMove = start;
+            _clearedPixels = false;
+        }
+
+        private Coordinates[] TranslateSelection(Coordinates end)
+        {
             Coordinates translation = ImageManipulation.Transform.GetTranslation(_lastMouseMove, end);
             Coordinates[] previousSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
-                ViewModelMain.Current.ActiveSelection = 
-                    new Selection(ImageManipulation.Transform.Translate(previousSelection, translation));
+            ViewModelMain.Current.ActiveSelection =
+                new Selection(ImageManipulation.Transform.Translate(previousSelection, translation));
+            return previousSelection;
+        }
 
+        private void ClearSelectedPixels(Layer layer, Coordinates[] selection)
+        {
             if (_clearedPixels == false)
             {
-                layer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(previousSelection, System.Windows.Media.Colors.Transparent));
+                layer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
 
                 _clearedPixels = true;
             }
-                BitmapPixelChanges changes = BitmapPixelChanges.FromArrays(
-                        ViewModelMain.Current.ActiveSelection.SelectedPoints, _startPixelColors);
-            _lastMouseMove = end;
-            return changes;
         }
 
         private Color[] GetPixelsForSelection(Layer layer, Coordinates[] selection)

@@ -81,8 +81,13 @@ namespace PixiEditor.Models.Layers
             Height = (int)layerBitmap.Height;
         }
 
+        /// <summary>
+        /// Applies pixels to layer
+        /// </summary>
+        /// <param name="pixels"></param>
         public void ApplyPixels(BitmapPixelChanges pixels)
         {
+            if (pixels.ChangedPixels == null) return;
             LayerBitmap.Lock();
 
             foreach (var coords in pixels.ChangedPixels)
