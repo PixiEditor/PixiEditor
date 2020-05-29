@@ -40,29 +40,10 @@ namespace PixiEditor.Models.Controllers
             int height = selection.Max(x => x.Y) - offsetY + 1;
             return bitmap.Crop(offsetX, offsetY, width, height);
         }
-
-        private Bitmap BitmapFromBitmapSource(BitmapSource bitmap)
+        
+        public WriteableBitmap GetFromClipboard()
         {
-            Bitmap bmp;
-            using (MemoryStream outStream = new MemoryStream())
-            {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(bitmap));
-                enc.Save(outStream);
-                bmp = new Bitmap(outStream);
-            }
-            return bmp;
-        }
-
-        private Stream StreamFromBitmapSource(BitmapSource writeBmp)
-        {
-            Stream bmp = new MemoryStream();
-
-            BitmapEncoder enc = new BmpBitmapEncoder();
-            enc.Frames.Add(BitmapFrame.Create(writeBmp));
-            enc.Save(bmp);
-
-            return bmp;
+            throw new NotImplementedException();
         }
     }
 }

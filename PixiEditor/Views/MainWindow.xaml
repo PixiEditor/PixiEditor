@@ -70,7 +70,7 @@
                     <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"/>
                     <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"/>
                     <Separator/>
-                    <MenuItem Header="_Copy" Command="{Binding CopyCommand}"/>
+                    <MenuItem Header="_Copy" Command="{Binding CopyCommand}" InputGestureText="Ctrl+C"/>
                     <MenuItem Header="_Paste"/>
                 </MenuItem>
                 <MenuItem Header="_Select">

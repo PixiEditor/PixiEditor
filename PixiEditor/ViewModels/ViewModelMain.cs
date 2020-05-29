@@ -192,7 +192,8 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.N, GenerateDrawAreaCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.S, SaveFileCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control)
+                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control)
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -210,8 +211,7 @@ namespace PixiEditor.ViewModels
         public void SelectAll(object parameter)
         {
             SelectTool select = new SelectTool();
-            select.Use(new Coordinates[] {new Coordinates(0,0),
-                new Coordinates(BitmapManager.Layers[0].Width - 1, BitmapManager.Layers[0].Height - 1)});
+            select.Use(select.GetAllSelection());
         }
 
         private bool CanSelectAll(object property)
