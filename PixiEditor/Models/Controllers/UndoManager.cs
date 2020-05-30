@@ -72,8 +72,16 @@ namespace PixiEditor.Models.Controllers
         public static void Undo()
         {
             _lastChangeWasUndo = true;
-            SetPropertyValue(MainRoot, UndoStack.Peek().Property, UndoStack.Peek().OldValue);
-            RedoStack.Push(UndoStack.Pop());
+            Change change = UndoStack.Pop();
+            if (change.ReverseProcess == null)
+            {
+                SetPropertyValue(MainRoot, change.Property, change.OldValue);
+            }
+            else
+            {
+                change.ReverseProcess(change.ReverseProcessArguments);
+            }
+            RedoStack.Push(change);
         }
 
         /// <summary>
@@ -82,8 +90,9 @@ namespace PixiEditor.Models.Controllers
         public static void Redo()
         {
             _lastChangeWasUndo = true;
-            SetPropertyValue(MainRoot, RedoStack.Peek().Property, RedoStack.Peek().NewValue);
-            UndoStack.Push(RedoStack.Pop());
+            Change change = RedoStack.Pop();
+            SetPropertyValue(MainRoot, change.Property, change.NewValue);
+            UndoStack.Push(change);
 
         }
        

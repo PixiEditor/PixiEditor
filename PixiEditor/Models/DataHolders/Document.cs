@@ -78,7 +78,14 @@ namespace PixiEditor.Models.DataHolders
 
         public void Crop(int x, int y, int width, int height)
         {
-            Document copy = DeepClone();
+            object[] reverseArgs = new object[] { x, y, Width, Height, width, height};
+            CropDocument(x, y, width, height);
+            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ReverseCrop, 
+                reverseArgs, this, "Crop document"));
+        }
+
+        private void CropDocument(int x, int y, int width, int height)
+        {
             for (int i = 0; i < Layers.Count; i++)
             {
                 Layers[i].LayerBitmap = Layers[i].LayerBitmap.Crop(x, y, width, height);
@@ -87,7 +94,43 @@ namespace PixiEditor.Models.DataHolders
             }
             Height = height;
             Width = width;
-            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", copy, this, "Crop document"));
+        }
+
+        private void ReverseCrop(object[] arguments) //Reverses process of cropping
+        {
+            int offsetX = (int)arguments[0];
+            int offsetY = (int)arguments[1];
+            int oldWidth = (int)arguments[2]; //oldWidth is the width before first crop
+            int oldHeight = (int)arguments[3];
+            int newWidth = (int)arguments[4]; //newWidth is the width after first crop
+            int newHeight = (int)arguments[5];
+            int sizeOfArgb = 4;
+            if (offsetX < 0) offsetX = 0;
+            if (offsetX + newWidth > oldWidth) newWidth = oldWidth - offsetX;
+            if (offsetY < 0) offsetY = 0;
+            if (offsetY + newHeight > oldHeight) newHeight = oldHeight - offsetY;
+
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                using (var srcContext = Layers[i].LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
+                {
+                    var result = BitmapFactory.New(oldWidth, oldHeight);
+                    using (var destContext = result.GetBitmapContext())
+                    {
+                        for (int line = 0; line < newHeight; line++)
+                        {
+                            var srcOff = line * newWidth * sizeOfArgb;
+                            var dstOff = ((offsetY + line) * oldWidth + offsetX) * sizeOfArgb;
+                            BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, newWidth * sizeOfArgb);
+                        }
+                        Layers[i].LayerBitmap = result;
+                        Layers[i].Width = oldWidth;
+                        Layers[i].Height = oldHeight;
+                    }
+                }
+            }
+            Width = oldWidth;
+            Height = oldHeight;
         }
 
         public void ClipCanvas()

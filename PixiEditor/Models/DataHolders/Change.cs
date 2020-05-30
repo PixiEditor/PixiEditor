@@ -13,12 +13,25 @@ namespace PixiEditor.Models.DataHolders
 
         public string Property { get; set; }
 
+        public Action<object[]> ReverseProcess { get; set; } = null;
+        public object[] ReverseProcessArguments;
+
         public Change(string property, object oldValue, object newValue, string description = "")
         {
             Property = property;
             OldValue = oldValue;
             Description = description;
             NewValue = newValue;
+        }
+
+        public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments, 
+            object newValue, string description = "")
+        {
+            Property = property;
+            ReverseProcess = reverseProcess;
+            ReverseProcessArguments = reverseArguments;
+            NewValue = newValue;
+            Description = description;
         }
 
         public Change()
