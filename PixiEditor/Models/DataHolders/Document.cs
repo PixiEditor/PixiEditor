@@ -143,7 +143,10 @@ namespace PixiEditor.Models.DataHolders
             int biggestX = biggestPixels.Max(x => x.X);
             int biggestY = biggestPixels.Max(x => x.Y);
 
-            int width = biggestX - smallestX + 1;
+            if (smallestX == 0 && smallestY == 0 && biggestX == 0 && biggestY == 0)
+                return;
+
+                int width = biggestX - smallestX + 1;
             int height = biggestY - smallestY + 1;
             Crop(smallestX, smallestY, width, height);
         }
