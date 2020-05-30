@@ -19,10 +19,11 @@ namespace PixiEditor.Models.IO
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = uri;
-            bitmap.DecodePixelWidth = width;
-            bitmap.DecodePixelHeight = height;
             bitmap.EndInit();
-            return new WriteableBitmap(bitmap);
+
+            var wbmp = new WriteableBitmap(bitmap);
+            wbmp = wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            return wbmp;
         }
     }
 }
