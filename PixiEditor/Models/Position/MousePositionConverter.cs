@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Position
 
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out System.Drawing.Point point);
-        
+
         public static System.Drawing.Point GetCursorPosition()
         {
             System.Drawing.Point point;

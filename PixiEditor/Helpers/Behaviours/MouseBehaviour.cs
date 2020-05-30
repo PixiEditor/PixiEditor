@@ -1,11 +1,8 @@
-﻿using PixiEditor.Views;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows;
 using System.Windows.Input;
-using Xceed.Wpf.Toolkit.Zoombox;
 
-namespace PixiEditor.Helpers.Behaviours {
+namespace PixiEditor.Helpers.Behaviours
+{
 
     public class MouseBehaviour : System.Windows.Interactivity.Behavior<FrameworkElement>
     {
@@ -48,7 +45,7 @@ namespace PixiEditor.Helpers.Behaviours {
 
         private void AssociatedObjectOnMouseMove(object sender, MouseEventArgs mouseEventArgs)
         {
-            if(RelativeTo == null)
+            if (RelativeTo == null)
             {
                 RelativeTo = AssociatedObject;
             }

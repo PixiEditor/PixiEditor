@@ -8,7 +8,7 @@ namespace PixiEditor.Helpers.Converters
     {
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value.ToString() == "Transparent")
+            if (value.ToString() == "Transparent")
             {
                 return false;
             }
@@ -17,9 +17,9 @@ namespace PixiEditor.Helpers.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value is bool)
+            if (value is bool)
             {
-                if((bool)value == false)
+                if ((bool)value == false)
                 {
                     return "Transparent";
                 }

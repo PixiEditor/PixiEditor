@@ -1,19 +1,10 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
-using PixiEditor.Views;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.ViewModels
 {
-     class SaveFilePopupViewModel : ViewModelBase
+    class SaveFilePopupViewModel : ViewModelBase
     {
         public RelayCommand CloseButtonCommand { get; set; }
         public RelayCommand DragMoveCommand { get; set; }
@@ -68,7 +59,7 @@ namespace PixiEditor.ViewModels
                 DefaultExt = "PNG Image (.png)|*.png",
                 Filter = "PNG Image (.png)|*.png"
             };
-            if(path.ShowDialog() == true)
+            if (path.ShowDialog() == true)
             {
                 if (string.IsNullOrEmpty(path.FileName) == false)
                 {

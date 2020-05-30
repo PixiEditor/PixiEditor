@@ -1,13 +1,11 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -28,25 +26,6 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
-
-        public ObservableCollection<Layer> Layers
-        {
-            get => _layers;
-            set { if (_layers != value) { _layers = value; } }
-        }
-        private int _activeLayerIndex;
-        public int ActiveLayerIndex
-        {
-            get => _activeLayerIndex;
-            set
-            {
-                _activeLayerIndex = value;
-                RaisePropertyChanged("ActiveLayerIndex");
-                RaisePropertyChanged("ActiveLayer");
-            }
-        }
-
         private Layer _previewLayer;
 
         public Layer PreviewLayer
@@ -59,8 +38,9 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public Layer ActiveLayer => ActiveDocument.ActiveLayer;
 
-        public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
+        public int ActiveLayerIndex => ActiveDocument.ActiveLayerIndex;
 
         public Color PrimaryColor { get; set; }
 
@@ -70,6 +50,17 @@ namespace PixiEditor.Models.Controllers
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
+
+        private Document _activeDocument = null;
+        public Document ActiveDocument
+        {
+            get => _activeDocument;
+            set
+            {
+                _activeDocument = value;
+                RaisePropertyChanged("ActiveDocument");
+            }
+        }
 
         public void SetActiveTool(Tool tool)
         {
@@ -97,45 +88,45 @@ namespace PixiEditor.Models.Controllers
 
         public void SetActiveLayer(int index)
         {
-            if (ActiveLayerIndex <= Layers.Count - 1)
+            if (ActiveDocument.ActiveLayerIndex <= ActiveDocument.Layers.Count - 1)
             {
-                ActiveLayer.IsActive = false;
+                ActiveDocument.ActiveLayer.IsActive = false;
             }
-            ActiveLayerIndex = index;
-            ActiveLayer.IsActive = true;
+            ActiveDocument.ActiveLayerIndex = index;
+            ActiveDocument.ActiveLayer.IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
         }
 
         public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
         {
-            Layers.Add(new Layer(name, width, height));
+            ActiveDocument.Layers.Add(new Layer(name, width, height));
             if (setAsActive)
             {
-                SetActiveLayer(Layers.Count - 1);
+                SetActiveLayer(ActiveDocument.Layers.Count - 1);
             }
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
 
         public void RemoveLayer(int layerIndex)
         {
-            if (Layers.Count <= 1) return;
+            if (ActiveDocument.Layers.Count <= 1) return;
 
-            bool wasActive = Layers[layerIndex].IsActive;
-            Layers.RemoveAt(layerIndex);
+            bool wasActive = ActiveDocument.Layers[layerIndex].IsActive;
+            ActiveDocument.Layers.RemoveAt(layerIndex);
             if (wasActive)
             {
                 SetActiveLayer(0);
             }
-            else if (ActiveLayerIndex > Layers.Count - 1)
+            else if (ActiveDocument.ActiveLayerIndex > ActiveDocument.Layers.Count - 1)
             {
-                SetActiveLayer(Layers.Count - 1);
+                SetActiveLayer(ActiveDocument.Layers.Count - 1);
             }
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
-            {               
+            if (Mouse.LeftButton == MouseButtonState.Pressed && ActiveDocument != null)
+            {
                 if (IsOperationTool(SelectedTool))
                 {
                     BitmapOperations.ExecuteTool(e.NewPosition,
@@ -145,8 +136,8 @@ namespace PixiEditor.Models.Controllers
                 {
                     ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(), (ReadonlyTool)SelectedTool);
                 }
-            }            
-            else if(Mouse.LeftButton == MouseButtonState.Released)
+            }
+            else if (Mouse.LeftButton == MouseButtonState.Released)
             {
                 HighlightPixels(e.NewPosition);
             }
@@ -170,15 +161,20 @@ namespace PixiEditor.Models.Controllers
 
         public void GeneratePreviewLayer()
         {
-            if (PreviewLayer == null)
+            if ((PreviewLayer == null && ActiveDocument != null) || PreviewLayerSizeMismatch())
             {
-                PreviewLayer = new Layer("_previewLayer", Layers[0].Width, Layers[0].Height);
+                PreviewLayer = new Layer("_previewLayer", ActiveDocument.Width, ActiveDocument.Height);
             }
+        }
+
+        private bool PreviewLayerSizeMismatch()
+        {
+            return PreviewLayer.Width != ActiveDocument.Width || PreviewLayer.Height != ActiveDocument.Height;
         }
 
         private void HighlightPixels(Coordinates newPosition)
         {
-            if (Layers.Count == 0 || SelectedTool.HideHighlight) return;
+            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || SelectedTool.HideHighlight) return;
             GeneratePreviewLayer();
             PreviewLayer.Clear();
             Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(
@@ -188,15 +184,15 @@ namespace PixiEditor.Models.Controllers
 
         public WriteableBitmap GetCombinedLayersBitmap()
         {
-            WriteableBitmap finalBitmap = Layers[0].LayerBitmap.Clone();
+            WriteableBitmap finalBitmap = ActiveDocument.Layers[0].LayerBitmap.Clone();
             finalBitmap.Lock();
-            for (int i = 1; i < Layers.Count; i++)
+            for (int i = 1; i < ActiveDocument.Layers.Count; i++)
             {
                 for (int y = 0; y < finalBitmap.Height; y++)
                 {
                     for (int x = 0; x < finalBitmap.Width; x++)
                     {
-                        Color color = Layers[i].LayerBitmap.GetPixel(x, y);
+                        Color color = ActiveDocument.Layers[i].LayerBitmap.GetPixel(x, y);
                         if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0)
                         {
                             finalBitmap.SetPixel(x, y, color);

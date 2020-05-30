@@ -19,7 +19,7 @@ namespace PixiEditor.Views
         public double MouseX
         {
             get { return (double)GetValue(MouseXProperty); }
-            set { SetValue(MouseXProperty, value);}
+            set { SetValue(MouseXProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for MouseX.  This enables animation, styling, binding, etc...
@@ -76,7 +76,7 @@ namespace PixiEditor.Views
 
         private void Zoombox_Loaded(object sender, RoutedEventArgs e)
         {
-            if(CenterOnStart == true)
+            if (CenterOnStart == true)
             {
                 ((Zoombox)sender).CenterContent();
             }

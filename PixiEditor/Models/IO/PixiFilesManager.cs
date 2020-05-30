@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace PixiEditor.Models.IO
 {

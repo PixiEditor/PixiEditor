@@ -1,8 +1,5 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Drawing;
+using System.Security.Cryptography.X509Certificates;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Position
 {
@@ -57,6 +59,102 @@ namespace PixiEditor.Models.Position
         public static Coordinates[] RectangleToCoordinates(DoubleCords coordinates)
         {
             return RectangleToCoordinates(coordinates.Coords1.X, coordinates.Coords1.Y, coordinates.Coords2.X, coordinates.Coords2.Y);
+        }
+
+        /// <summary>
+        /// Returns first pixel coordinates in bitmap that is most top left on canvas
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <returns></returns>
+        public static Coordinates FindMinEdgeNonTransparentPixel(WriteableBitmap bitmap)
+        {
+            return new Coordinates(FindMinXNonTransparent(bitmap), FindMinYNonTransparent(bitmap));
+        }
+
+        /// <summary>
+        /// Returns last pixel coordinates that is most bottom right
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <returns></returns>
+        public static Coordinates FindMostEdgeNonTransparentPixel(WriteableBitmap bitmap)
+        {
+            return new Coordinates(FindMaxXNonTransparent(bitmap), FindMaxYNonTransparent(bitmap));
+        }
+
+        public static int FindMinYNonTransparent(WriteableBitmap bitmap)
+        {
+            System.Windows.Media.Color transparent = System.Windows.Media.Color.FromArgb(0, 0, 0, 0);
+            bitmap.Lock();
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    if (bitmap.GetPixel(x, y) != transparent)
+                    {
+                        bitmap.Unlock();
+                        return y;
+                    }
+                }
+            }
+            bitmap.Unlock();
+            return -1;
+        }
+
+        public static int FindMinXNonTransparent(WriteableBitmap bitmap)
+        {
+            System.Windows.Media.Color transparent = System.Windows.Media.Color.FromArgb(0, 0, 0, 0);
+            bitmap.Lock();
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    if (bitmap.GetPixel(x, y) != transparent)
+                    {
+                        bitmap.Unlock();
+                        return x;
+                    }
+                }
+            }
+            bitmap.Unlock();
+            return -1;
+        }
+
+        public static int FindMaxYNonTransparent(WriteableBitmap bitmap)
+        {
+            System.Windows.Media.Color transparent = System.Windows.Media.Color.FromArgb(0, 0, 0, 0);
+            bitmap.Lock();
+            for (int y = (int)bitmap.Height - 1; y >= 0; y--)
+            {
+                for (int x = (int)bitmap.Width - 1; x >= 0; x--)
+                {
+                    if (bitmap.GetPixel(x, y) != transparent)
+                    {
+                        bitmap.Unlock();
+                        return y;
+                    }
+                }
+            }
+            bitmap.Unlock();
+            return -1;
+        }
+
+        public static int FindMaxXNonTransparent(WriteableBitmap bitmap)
+        {
+            System.Windows.Media.Color transparent = System.Windows.Media.Color.FromArgb(0, 0, 0, 0);
+            bitmap.Lock();
+            for (int x = (int)bitmap.Width - 1; x >= 0; x--)
+            {
+                for (int y = (int)bitmap.Height - 1; y >= 0; y--)
+                {
+                    if (bitmap.GetPixel(x, y) != transparent)
+                    {
+                        bitmap.Unlock();
+                        return x;
+                    }
+                }
+            }
+            bitmap.Unlock();
+            return -1;
         }
     }
 }

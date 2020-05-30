@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Windows;
 using System.Windows.Data;
 
@@ -11,7 +9,7 @@ namespace PixiEditor.Helpers.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value.ToString().ToLower() == "visible")
+            if (value.ToString().ToLower() == "visible")
             {
                 return Visibility.Hidden;
             }
@@ -20,9 +18,9 @@ namespace PixiEditor.Helpers.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value is Visibility)
+            if (value is Visibility)
             {
-                if((Visibility)value == Visibility.Visible)
+                if ((Visibility)value == Visibility.Visible)
                 {
                     return "Hidden";
                 }

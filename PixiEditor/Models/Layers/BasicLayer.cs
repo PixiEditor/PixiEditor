@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
+using System;
 
 namespace PixiEditor.Models.Layers
 {

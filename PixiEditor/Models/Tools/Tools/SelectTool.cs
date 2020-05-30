@@ -1,11 +1,8 @@
 ﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -39,7 +36,7 @@ namespace PixiEditor.Models.Tools.Tools
         public Coordinates[] GetAllSelection()
         {
 
-            return GetAllSelection(ViewModelMain.Current.BitmapManager.Layers[0]);
+            return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument.Layers[0]);
         }
 
         /// <summary>
@@ -49,7 +46,7 @@ namespace PixiEditor.Models.Tools.Tools
         /// <returns>Coordinates array of pixels</returns>
         public Coordinates[] GetAllSelection(Layer layer)
         {
-            return GetRectangleSelectionForPoints(new Coordinates(0,0), new Coordinates(layer.Width - 1, layer.Height - 1));
+            return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(layer.Width, layer.Height));
         }
     }
 }

@@ -1,14 +1,11 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
-    {        
+    {
         public abstract ToolType ToolType { get; }
         public string ImagePath => $"/Images/{ToolType}Image.png";
         public bool HideHighlight { get; set; } = false;
@@ -18,8 +15,8 @@ namespace PixiEditor.Models.Tools
         public bool IsActive
         {
             get { return _isActive; }
-            set 
-            { 
+            set
+            {
                 _isActive = value;
                 RaisePropertyChanged("IsActive");
             }

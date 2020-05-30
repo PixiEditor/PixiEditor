@@ -1,8 +1,4 @@
-﻿using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Tools
 {

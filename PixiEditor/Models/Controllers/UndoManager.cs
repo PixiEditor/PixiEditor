@@ -1,7 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 
 namespace PixiEditor.Models.Controllers
@@ -37,7 +35,7 @@ namespace PixiEditor.Models.Controllers
         {
             MainRoot = root;
         }
-      
+
 
         public static void AddUndoChange(Change change)
         {

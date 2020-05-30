@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Controllers
 
         public void AddChanges(LayerChanges changes, LayerChanges oldValues)
         {
-            if(LastChanges == null)
+            if (LastChanges == null)
             {
                 LastChanges = changes;
                 LastOldValues = oldValues;
@@ -51,10 +51,10 @@ namespace PixiEditor.Models.Controllers
         {
             Dictionary<Coordinates, Color> pixelChanges = LastChanges.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
             Dictionary<Coordinates, Color> oldValues = LastOldValues.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
-            
+
             var tmp = new LayerChanges(new BitmapPixelChanges(pixelChanges), LastChanges.LayerIndex);
             var oldValuesTmp = new LayerChanges(new BitmapPixelChanges(oldValues), LastOldValues.LayerIndex);
-            
+
             Tuple<LayerChanges, LayerChanges> outputChanges = new Tuple<LayerChanges, LayerChanges>(tmp, oldValuesTmp);
             LastChanges = null;
             LastOldValues = null;

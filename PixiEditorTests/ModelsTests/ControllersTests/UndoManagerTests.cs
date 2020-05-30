@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
 {

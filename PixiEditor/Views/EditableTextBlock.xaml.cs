@@ -1,18 +1,7 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PixiEditor.Models.Controllers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixiEditor.Views
 {
@@ -37,11 +26,11 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty TextBlockVisibilityProperty =
             DependencyProperty.Register("TextBlockVisibility", typeof(Visibility), typeof(EditableTextBlock), new PropertyMetadata(Visibility.Visible));
 
-      
+
 
         // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock), new PropertyMetadata(default(string)));       
+            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock), new PropertyMetadata(default(string)));
 
 
 
@@ -49,7 +38,7 @@ namespace PixiEditor.Views
         public bool IsEditing
         {
             get { return (bool)GetValue(EnableEditingProperty); }
-            set { SetValue(EnableEditingProperty, value);}
+            set { SetValue(EnableEditingProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for EnableEditing.  This enables animation, styling, binding, etc...
@@ -58,11 +47,11 @@ namespace PixiEditor.Views
 
         private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if((bool)e.NewValue == true)
+            if ((bool)e.NewValue == true)
             {
                 EditableTextBlock tb = (EditableTextBlock)d;
                 tb.EnableEditing();
-                
+
             }
         }
 
@@ -98,7 +87,7 @@ namespace PixiEditor.Views
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Enter)
+            if (e.Key == Key.Enter)
             {
                 DisableEditing();
             }

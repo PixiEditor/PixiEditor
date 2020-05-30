@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Microsoft.Win32;
-using PixiEditor.Models.Dialogs;
+﻿using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using System;
+using System.IO;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.IO
 {
@@ -71,7 +63,7 @@ namespace PixiEditor.Models.IO
             try
             {
                 bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                using(FileStream stream = new FileStream(savePath, FileMode.Create))
+                using (FileStream stream = new FileStream(savePath, FileMode.Create))
                 {
                     PngBitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));

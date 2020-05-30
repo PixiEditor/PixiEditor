@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interactivity;
 using System.Windows.Media;
@@ -38,7 +33,7 @@ namespace PixiEditor.Helpers.Behaviours
 
         private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)
         {
-            if(string.IsNullOrEmpty(AssociatedObject.Text) == true)
+            if (string.IsNullOrEmpty(AssociatedObject.Text) == true)
             {
                 SetHint(true);
             }
@@ -46,7 +41,7 @@ namespace PixiEditor.Helpers.Behaviours
 
         private void AssociatedObject_GotFocus(object sender, RoutedEventArgs e)
         {
-            if(AssociatedObject.Text == Hint)
+            if (AssociatedObject.Text == Hint)
             {
                 SetHint(false);
             }
@@ -69,7 +64,7 @@ namespace PixiEditor.Helpers.Behaviours
         protected override void OnDetaching()
         {
             base.OnDetaching();
-            AssociatedObject.LostFocus -= AssociatedObject_LostFocus;          
+            AssociatedObject.LostFocus -= AssociatedObject_LostFocus;
             AssociatedObject.GotFocus -= AssociatedObject_GotFocus;
         }
     }

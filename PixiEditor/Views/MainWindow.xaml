@@ -77,6 +77,9 @@
                     <MenuItem Header="_Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A"/>
                     <MenuItem Header="_Deselect" Command="{Binding DeselectCommand}" InputGestureText="Ctrl+D"/>
                 </MenuItem>
+                <MenuItem Header="_Document">
+                    <MenuItem Header="Clip canvas" Command="{Binding ClipCanvasCommand}"/>
+                </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
@@ -121,15 +124,15 @@
                         <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}" MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
                     </i:Interaction.Behaviors>
                     <vws:MainDrawingPanel.Item>
-                        <Canvas Width="{Binding BitmapManager.ActiveLayer.Width}" Height="{Binding BitmapManager.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Canvas Width="{Binding BitmapManager.ActiveDocument.Width}" Height="{Binding BitmapManager.ActiveDocument.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDown">
                                     <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                            <Image Source="/Images/transparentbg.png" Height="{Binding BitmapManager.ActiveLayer.Height}" Width="{Binding BitmapManager.ActiveLayer.Width}" Opacity="0.9" Stretch="UniformToFill"/>
+                            <Image Source="/Images/transparentbg.png" Height="{Binding BitmapManager.ActiveDocument.Height}" Width="{Binding BitmapManager.ActiveDocument.Width}" Opacity="0.9" Stretch="UniformToFill"/>
                             <Image Source="{Binding BitmapManager.PreviewLayer.LayerBitmap}" Panel.ZIndex="2" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding BitmapManager.PreviewLayer.Width}" Height="{Binding BitmapManager.PreviewLayer.Height}"/>
-                            <ItemsControl ItemsSource="{Binding BitmapManager.Layers}">
+                            <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <Grid/>
@@ -202,7 +205,7 @@
                             <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
                                 <StackPanel  Orientation="Vertical">
                                     <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
-                                    <ItemsControl ItemsSource="{Binding BitmapManager.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
+                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <ui:ReversedOrderStackPanel Orientation="Vertical"/>

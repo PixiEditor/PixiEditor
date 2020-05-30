@@ -1,12 +1,7 @@
-﻿using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Position;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -40,7 +35,7 @@ namespace PixiEditor.Models.Controllers
             int height = selection.Max(x => x.Y) - offsetY + 1;
             return bitmap.Crop(offsetX, offsetY, width, height);
         }
-        
+
         public WriteableBitmap GetFromClipboard()
         {
             throw new NotImplementedException();

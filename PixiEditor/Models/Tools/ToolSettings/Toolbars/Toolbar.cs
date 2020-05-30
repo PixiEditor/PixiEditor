@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Controls;
 
 namespace PixiEditor.Models.Tools.ToolSettings
 {
@@ -22,7 +21,7 @@ namespace PixiEditor.Models.Tools.ToolSettings
         {
             for (int i = 0; i < Settings.Count; i++)
             {
-                if(_sharedSettings.Any(x=> x.Name == Settings[i].Name))
+                if (_sharedSettings.Any(x => x.Name == Settings[i].Name))
                 {
                     _sharedSettings.First(x => x.Name == Settings[i].Name).Value = Settings[i].Value;
                 }
@@ -39,7 +38,7 @@ namespace PixiEditor.Models.Tools.ToolSettings
         {
             for (int i = 0; i < _sharedSettings.Count; i++)
             {
-                if(Settings.Any(x=> x.Name == _sharedSettings[i].Name))
+                if (Settings.Any(x => x.Name == _sharedSettings[i].Name))
                 {
                     Settings.First(x => x.Name == _sharedSettings[i].Name).Value = _sharedSettings[i].Value;
                 }

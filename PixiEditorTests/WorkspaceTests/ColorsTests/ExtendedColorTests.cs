@@ -1,8 +1,6 @@
 ﻿using NUnit.Framework;
 using PixiEditor.Models.Colors;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Media;
 
 namespace PixiEditorTests.WorkspaceTests.ColorsTests
@@ -28,11 +26,11 @@ namespace PixiEditorTests.WorkspaceTests.ColorsTests
 
 
         //Acceptable margin of error is 1
-        [TestCase(0,0,0,0,0,0)]
-        [TestCase(255,255,255,0,0,100)]
-        [TestCase(182,55,55,0,53.6f,46.5f)]
-        [TestCase(20,47,255,233,100,53.9f)]
-        [TestCase(137, 43,226, 271,75.9f,52.7f)]
+        [TestCase(0, 0, 0, 0, 0, 0)]
+        [TestCase(255, 255, 255, 0, 0, 100)]
+        [TestCase(182, 55, 55, 0, 53.6f, 46.5f)]
+        [TestCase(20, 47, 255, 233, 100, 53.9f)]
+        [TestCase(137, 43, 226, 271, 75.9f, 52.7f)]
         public void RgbToHslTest(int r, int g, int b, int h, float s, float l)
         {
             Tuple<int, float, float> hsl = ExColor.RgbToHsl(r, g, b);

@@ -14,7 +14,7 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Brightness;
         private const float CorrectionFactor = 5f; //Initial correction factor
-        
+
         public BrightnessTool()
         {
             Tooltip = "Makes pixel brighter or darker pixel (U)";
@@ -25,12 +25,12 @@ namespace PixiEditor.Models.Tools.Tools
         {
             int toolSize = (int)Toolbar.GetSetting("ToolSize").Value;
             float correctionFactor = (float)Toolbar.GetSetting("CorrectionFactor").Value;
-            if(Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 return ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor);
             }
-                return ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor);
-        }       
+            return ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor);
+        }
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
         {

@@ -1,9 +1,5 @@
 ﻿using NUnit.Framework;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.Tools;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PixiEditorTests.WorkspaceTests.ToolsTests
 {

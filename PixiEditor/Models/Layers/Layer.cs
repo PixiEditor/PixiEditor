@@ -12,8 +12,8 @@ namespace PixiEditor.Models.Layers
         public string Name
         {
             get { return _name; }
-            set 
-            { 
+            set
+            {
                 _name = value;
                 RaisePropertyChanged("Name");
             }
@@ -108,7 +108,7 @@ namespace PixiEditor.Models.Layers
         }
 
         public byte[] ConvertBitmapToBytes()
-        {            
+        {
             LayerBitmap.Lock();
             byte[] byteArray = LayerBitmap.ToByteArray();
             LayerBitmap.Unlock();

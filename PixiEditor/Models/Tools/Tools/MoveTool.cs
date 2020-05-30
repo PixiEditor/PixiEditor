@@ -1,9 +1,7 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
-using System;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -81,7 +79,7 @@ namespace PixiEditor.Models.Tools.Tools
         private Coordinates[] TranslateSelection(Coordinates end, out Coordinates[] previousSelection)
         {
             Coordinates translation = ImageManipulation.Transform.GetTranslation(_lastMouseMove, end);
-            previousSelection = _currentSelection.ToArray();            
+            previousSelection = _currentSelection.ToArray();
             return ImageManipulation.Transform.Translate(previousSelection, translation);
         }
 

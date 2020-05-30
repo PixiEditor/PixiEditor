@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace PixiEditor.Models.ImageManipulation
@@ -60,7 +59,7 @@ namespace PixiEditor.Models.ImageManipulation
             {
                 for (int x = 0; x < width; x++)
                 {
-                    if(byteArray[x,y] == 1)
+                    if (byteArray[x, y] == 1)
                     {
                         output.Add(new Coordinates(x + offset.X, y + offset.Y));
                     }
@@ -83,7 +82,7 @@ namespace PixiEditor.Models.ImageManipulation
                 for (int x = 0; x < dimensions.Item1 + margin; x++)
                 {
                     Coordinates cords = new Coordinates(x + minX, y + minY);
-                    array[x + margin,y + margin] = points.Contains(cords) ? (byte)1 : (byte)0;
+                    array[x + margin, y + margin] = points.Contains(cords) ? (byte)1 : (byte)0;
                 }
             }
 
@@ -101,8 +100,8 @@ namespace PixiEditor.Models.ImageManipulation
 
         private static Tuple<int, int> GetDimensionsForPoints(Coordinates[] points)
         {
-            int width = points.Max(x=> x.X) - points.Min(x => x.X);
-            int height = points.Max(x=> x.Y) - points.Min(x => x.Y);
+            int width = points.Max(x => x.X) - points.Min(x => x.X);
+            int height = points.Max(x => x.Y) - points.Min(x => x.Y);
             return new Tuple<int, int>(width + 1, height + 1);
         }
     }

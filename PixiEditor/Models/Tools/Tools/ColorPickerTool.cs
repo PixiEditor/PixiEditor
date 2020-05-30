@@ -1,9 +1,5 @@
-﻿using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools

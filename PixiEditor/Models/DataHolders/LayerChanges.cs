@@ -1,7 +1,4 @@
 ﻿using PixiEditor.Models.Tools;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PixiEditor.Models.DataHolders
 {

@@ -35,7 +35,7 @@ namespace PixiEditor.Models.Colors
         /// <param name="b">Blue value</param>
         /// <param name="g">Green value</param>
         /// <returns>Tuple with 3 values in order: h, s, l0</returns>
-        public static Tuple<int,float,float> RgbToHsl(int r, int g, int b)
+        public static Tuple<int, float, float> RgbToHsl(int r, int g, int b)
         {
             int h;
             float s, l;

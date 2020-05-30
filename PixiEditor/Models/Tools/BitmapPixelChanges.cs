@@ -1,9 +1,7 @@
 ﻿using PixiEditor.Exceptions;
 using PixiEditor.Models.Position;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools
@@ -11,7 +9,7 @@ namespace PixiEditor.Models.Tools
     public struct BitmapPixelChanges
     {
         public static BitmapPixelChanges Empty = new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
-        public Dictionary<Coordinates, Color> ChangedPixels { get; set; } 
+        public Dictionary<Coordinates, Color> ChangedPixels { get; set; }
 
         public BitmapPixelChanges(Dictionary<Coordinates, Color> changedPixels)
         {
@@ -43,7 +41,7 @@ namespace PixiEditor.Models.Tools
         {
             var coordinateArray = coordinates.ToArray();
             var colorArray = color.ToArray();
-            if(coordinateArray.Length != colorArray.Length)
+            if (coordinateArray.Length != colorArray.Length)
             {
                 throw new ArrayLengthMismatchException();
             }

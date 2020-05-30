@@ -36,7 +36,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
             List<Coordinates> output = new List<Coordinates>();
-            Coordinates[] rectangle =  CalculateRectanglePoints(fixedCoordinates);
+            Coordinates[] rectangle = CalculateRectanglePoints(fixedCoordinates);
             output.AddRange(rectangle);
 
             for (int i = 1; i < (int)Math.Floor(thickness / 2f) + 1; i++)
@@ -73,7 +73,7 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 finalCoordinates.Add(new Coordinates(coordinates.Coords1.X, i));
                 finalCoordinates.Add(new Coordinates(coordinates.Coords2.X, i));
-            }            
+            }
             return finalCoordinates.ToArray();
         }
 

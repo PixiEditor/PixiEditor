@@ -1,7 +1,4 @@
 ﻿using PixiEditor.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Controls;
 
 namespace PixiEditor.Models.Tools.ToolSettings
@@ -12,7 +9,9 @@ namespace PixiEditor.Models.Tools.ToolSettings
         public string Label { get; set; }
         public bool HasLabel => !string.IsNullOrEmpty(Label);
         private object value;
-        public object Value { get => value;
+        public object Value
+        {
+            get => value;
             set
             {
                 this.value = value;
@@ -25,5 +24,5 @@ namespace PixiEditor.Models.Tools.ToolSettings
         {
             Name = name;
         }
-	}
+    }
 }

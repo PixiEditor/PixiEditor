@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Controllers
 
         public void Execute()
         {
-            if(Command.CanExecute(CommandParameter))
+            if (Command.CanExecute(CommandParameter))
             {
                 Command.Execute(CommandParameter);
             }

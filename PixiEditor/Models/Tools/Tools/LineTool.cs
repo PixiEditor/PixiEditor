@@ -1,15 +1,12 @@
-﻿using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-	public class LineTool : ShapeTool
+    public class LineTool : ShapeTool
     {
 
         public override ToolType ToolType => ToolType.Line;
@@ -29,7 +26,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Coordinates startingCoordinates = coordinates[^1];
             Coordinates latestCoordinates = coordinates[0];
-            if(thickness == 1)
+            if (thickness == 1)
             {
                 return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
             }
@@ -123,7 +120,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         private int[,] GetMaskForThickness(int thickness)
         {
-            if(thickness == 2)
+            if (thickness == 2)
             {
                 return new int[,] {
                 {0,0,0 },
@@ -131,7 +128,7 @@ namespace PixiEditor.Models.Tools.Tools
                 {0,1,1 }
                 };
             }
-            int[,] mask = new int[thickness,thickness];
+            int[,] mask = new int[thickness, thickness];
 
             for (int i = 0; i < thickness; i++)
             {
@@ -141,6 +138,6 @@ namespace PixiEditor.Models.Tools.Tools
                 }
             }
             return mask;
-        }    
-	}
+        }
+    }
 }
