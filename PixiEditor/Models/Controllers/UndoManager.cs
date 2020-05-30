@@ -1,5 +1,7 @@
 ﻿using PixiEditor.Models.DataHolders;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace PixiEditor.Models.Controllers
@@ -70,8 +72,7 @@ namespace PixiEditor.Models.Controllers
         public static void Undo()
         {
             _lastChangeWasUndo = true;
-            PropertyInfo propInfo = MainRoot.GetType().GetProperty(UndoStack.Peek().Property);
-            propInfo.SetValue(MainRoot, UndoStack.Peek().OldValue);
+            SetPropertyValue(MainRoot, UndoStack.Peek().Property, UndoStack.Peek().OldValue);
             RedoStack.Push(UndoStack.Pop());
         }
 
@@ -81,10 +82,22 @@ namespace PixiEditor.Models.Controllers
         public static void Redo()
         {
             _lastChangeWasUndo = true;
-            PropertyInfo propinfo = MainRoot.GetType().GetProperty(RedoStack.Peek().Property);
-            propinfo.SetValue(MainRoot, RedoStack.Peek().NewValue);
+            SetPropertyValue(MainRoot, RedoStack.Peek().Property, RedoStack.Peek().NewValue);
             UndoStack.Push(RedoStack.Pop());
 
+        }
+       
+
+        private static void SetPropertyValue(object target, string propName, object value)
+        {
+            string[] bits = propName.Split('.');
+            for (int i = 0; i < bits.Length - 1; i++)
+            {
+                PropertyInfo propertyToGet = target.GetType().GetProperty(bits[i]);
+                target = propertyToGet.GetValue(target, null);
+            }
+            PropertyInfo propertyToSet = target.GetType().GetProperty(bits.Last());
+            propertyToSet.SetValue(target, value, null);
         }
     }
 }

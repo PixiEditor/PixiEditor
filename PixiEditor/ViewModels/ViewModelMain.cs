@@ -491,6 +491,8 @@ namespace PixiEditor.ViewModels
             BitmapManager.ActiveDocument = new Document(width, height);
             BitmapManager.AddNewLayer("Base Layer", width, height, true);
             BitmapManager.PreviewLayer = null;
+            UndoManager.UndoStack.Clear();
+            UndoManager.RedoStack.Clear();
         }
 
         /// <summary>

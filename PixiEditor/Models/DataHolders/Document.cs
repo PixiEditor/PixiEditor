@@ -1,12 +1,15 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
+    [Serializable]
     public class Document : NotifyableObject
     {
         private int _width;
@@ -57,8 +60,25 @@ namespace PixiEditor.Models.DataHolders
             Height = height;
         }
 
+        public Document DeepClone()
+        {
+            Document doc = new Document(Width, Height)
+            {
+                Layers = new ObservableCollection<Layer>(Layers.Select(x => new Layer(x.LayerBitmap.Clone()) 
+                {
+                    Name = x.Name,
+                    Width = x.Width,
+                    Height = x.Height,
+                    IsActive = x.IsActive,
+                    IsVisible = x.IsVisible
+                })),
+            };
+            return doc;
+        }
+
         public void Crop(int x, int y, int width, int height)
         {
+            Document copy = DeepClone();
             for (int i = 0; i < Layers.Count; i++)
             {
                 Layers[i].LayerBitmap = Layers[i].LayerBitmap.Crop(x, y, width, height);
@@ -67,6 +87,7 @@ namespace PixiEditor.Models.DataHolders
             }
             Height = height;
             Width = width;
+            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", copy, this, "Crop document"));
         }
 
         public void ClipCanvas()
