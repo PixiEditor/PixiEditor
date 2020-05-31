@@ -8,6 +8,7 @@ namespace PixiEditor.Models.Tools
     {
         public abstract BitmapPixelChanges Use(Layer layer, Coordinates[] mouseMove, Color color);
         public bool RequiresPreviewLayer { get; set; }
+        public bool UseDefaultUndoMethod { get; set; } = true;
 
     }
 }

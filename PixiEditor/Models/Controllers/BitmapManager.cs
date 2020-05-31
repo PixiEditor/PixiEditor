@@ -146,6 +146,7 @@ namespace PixiEditor.Models.Controllers
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
+            SelectedTool.OnMouseDown();
             if (PreviewLayer != null)
             {
                 PreviewLayer.Clear();
@@ -154,6 +155,7 @@ namespace PixiEditor.Models.Controllers
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
+            SelectedTool.OnMouseUp();
             if (IsOperationTool(SelectedTool) && (SelectedTool as BitmapOperationTool).RequiresPreviewLayer)
             {
                 BitmapOperations.StopAction();

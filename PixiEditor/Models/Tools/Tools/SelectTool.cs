@@ -1,4 +1,6 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 using System.Collections.Generic;
@@ -10,8 +12,26 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public override ToolType ToolType => ToolType.Select;
 
-        public override void Use(Coordinates[] pixels)
+        Selection _oldSelection = null;
+
+        public override void OnMouseDown()
         {
+            _oldSelection = null;
+            if (ViewModelMain.Current.ActiveSelection != null && ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
+            {
+                _oldSelection = ViewModelMain.Current.ActiveSelection;
+                _oldSelection.SelectedPoints = _oldSelection.SelectedPoints.ToArray();
+            }
+        }
+
+        public override void OnMouseUp()
+        {
+            UndoManager.AddUndoChange(new Change("ActiveSelection", _oldSelection,
+                ViewModelMain.Current.ActiveSelection, "Select pixels"));
+        }
+
+        public override void Use(Coordinates[] pixels)
+        {            
             Select(pixels);
         }
 

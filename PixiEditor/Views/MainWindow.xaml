@@ -70,8 +70,10 @@
                     <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"/>
                     <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"/>
                     <Separator/>
+                    <MenuItem Header="_Cut" Command="{Binding CutCommand}" InputGestureText="Ctrl+X"/>
                     <MenuItem Header="_Copy" Command="{Binding CopyCommand}" InputGestureText="Ctrl+C"/>
                     <MenuItem Header="_Paste" Command="{Binding PasteCommand}" InputGestureText="Ctrl+V"/>
+                    <MenuItem Header="_Duplicate" Command="{Binding DuplicateCommand}" InputGestureText="Ctrl+D"/>
                 </MenuItem>
                 <MenuItem Header="_Select">
                     <MenuItem Header="_Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A"/>

@@ -35,16 +35,19 @@ namespace PixiEditor.Models.Images
         {
             WriteableBitmap finalBitmap = bitmaps[0].Clone();
             finalBitmap.Lock();
-            for (int i = 1; i < bitmaps.Length; i++)
+            using (finalBitmap.GetBitmapContext())
             {
-                for (int y = 0; y < finalBitmap.Height; y++)
+                for (int i = 1; i < bitmaps.Length; i++)
                 {
-                    for (int x = 0; x < finalBitmap.Width; x++)
+                    for (int y = 0; y < finalBitmap.Height; y++)
                     {
-                        System.Windows.Media.Color color = bitmaps[i].GetPixel(x, y);
-                        if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0)
+                        for (int x = 0; x < finalBitmap.Width; x++)
                         {
-                            finalBitmap.SetPixel(x, y, color);
+                            System.Windows.Media.Color color = bitmaps[i].GetPixel(x, y);
+                            if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0)
+                            {
+                                finalBitmap.SetPixel(x, y, color);
+                            }
                         }
                     }
                 }

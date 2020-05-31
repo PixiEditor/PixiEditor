@@ -1,4 +1,6 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
@@ -19,6 +21,7 @@ namespace PixiEditor.Models.Tools.Tools
         private bool _clearedPixels = false;
         private Coordinates[] _currentSelection;
         private bool _updateViewModelSelection = true;
+        private BitmapPixelChanges _clearedPixelsChange;
 
         public MoveTool()
         {
@@ -26,12 +29,24 @@ namespace PixiEditor.Models.Tools.Tools
             Cursor = Cursors.Arrow;
             HideHighlight = true;
             RequiresPreviewLayer = true;
+            UseDefaultUndoMethod = true;
+        }
+
+        public override void AfterAddedUndo()
+        {
+            //Injecting to default undo system change custom changes made by this tool
+            BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(_startSelection, _startPixelColors);
+            Change changes = UndoManager.UndoStack.Peek();
+            (changes.OldValue as LayerChanges).PixelChanges.ChangedPixels.
+                AddRangeNewOnly(beforeMovePixels.ChangedPixels);
+            (changes.NewValue as LayerChanges).PixelChanges.ChangedPixels.AddRangeNewOnly(_clearedPixelsChange.ChangedPixels);
+
         }
 
         public override BitmapPixelChanges Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
             Coordinates start = mouseMove[^1];
-            if (_lastStartMousePos != start)
+            if (_lastStartMousePos != start) //I am aware that this could be moved to OnMouseDown, but it is executed before Use, so I didn't want to complicate for now
             {
                 ResetSelectionValues(start);
                 if (ViewModelMain.Current.ActiveSelection.SelectedPoints == null) //Move every pixel if none is selected
@@ -87,7 +102,8 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (_clearedPixels == false)
             {
-                layer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
+                _clearedPixelsChange = BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent);
+                layer.ApplyPixels(_clearedPixelsChange);
 
                 _clearedPixels = true;
             }

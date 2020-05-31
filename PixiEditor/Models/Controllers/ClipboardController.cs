@@ -69,6 +69,12 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public bool IsImageInClipboard()
+        {
+            DataObject dao = (DataObject)Clipboard.GetDataObject();
+            return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) || dao.GetDataPresent(DataFormats.Bitmap);
+        }
+
         private void AddImageToLayers(WriteableBitmap image)
         {
             Document doc = ViewModelMain.Current.BitmapManager.ActiveDocument;

@@ -43,6 +43,8 @@ namespace PixiEditor.ViewModels
         public RelayCommand DeselectCommand { get; set; }
         public RelayCommand SelectAllCommand { get; set; }
         public RelayCommand CopyCommand { get; set; }
+        public RelayCommand DuplicateCommand { get; set; }
+        public RelayCommand CutCommand { get; set; }
         public RelayCommand PasteCommand { get; set; }
         public RelayCommand ClipCanvasCommand { get; set; }
 
@@ -176,7 +178,9 @@ namespace PixiEditor.ViewModels
             DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
             SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
             CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
-            PasteCommand = new RelayCommand(Paste);
+            DuplicateCommand = new RelayCommand(Duplicate, SelectionIsNotEmpty);
+            CutCommand = new RelayCommand(Cut, SelectionIsNotEmpty);
+            PasteCommand = new RelayCommand(Paste, CanPaste);
             ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
@@ -201,7 +205,9 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control)
+                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -217,9 +223,27 @@ namespace PixiEditor.ViewModels
                 BitmapManager.ActiveDocument.ClipCanvas();
         }
 
+        public void Duplicate(object parameter)
+        {
+            Copy(null);
+            Paste(null);
+        }
+
+        public void Cut(object parameter)
+        {
+            Copy(null);
+            BitmapManager.ActiveLayer.
+                ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(ActiveSelection.SelectedPoints, Colors.Transparent));
+        }
+
         public void Paste(object parameter)
         {
             ClipboardController.PasteFromClipboard();
+        }
+
+        private bool CanPaste(object property)
+        {
+            return DocumentIsNotNull(null) && ClipboardController.IsImageInClipboard();
         }
 
         private void Copy(object parameter)
@@ -250,7 +274,7 @@ namespace PixiEditor.ViewModels
 
         private bool SelectionIsNotEmpty(object property)
         {
-            return ActiveSelection.SelectedPoints != null;
+            return ActiveSelection != null && ActiveSelection.SelectedPoints != null;
         }
 
         public void SetTool(object parameter)
@@ -270,11 +294,15 @@ namespace PixiEditor.ViewModels
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            if (BitmapManager.IsOperationTool(BitmapManager.SelectedTool))
+            if (BitmapManager.IsOperationTool(BitmapManager.SelectedTool) 
+                && (BitmapManager.SelectedTool as BitmapOperationTool).UseDefaultUndoMethod)
             {
                 Tuple<LayerChanges, LayerChanges> changes = ChangesController.PopChanges();
                 if (changes.Item1.PixelChanges.ChangedPixels.Count > 0)
+                {
                     UndoManager.AddUndoChange(new Change("UndoChanges", changes.Item2, changes.Item1)); //Item2 is old value
+                    BitmapManager.SelectedTool.AfterAddedUndo();
+                }
             }
         }
 
@@ -496,7 +524,7 @@ namespace PixiEditor.ViewModels
 
         private void NewDocument(int width, int height)
         {
-            BitmapManager.ActiveDocument = new Document(width, height);
+            BitmapManager.ActiveDocument = new Models.DataHolders.Document(width, height);
             BitmapManager.AddNewLayer("Base Layer", width, height, true);
             BitmapManager.PreviewLayer = null;
             UndoManager.UndoStack.Clear();

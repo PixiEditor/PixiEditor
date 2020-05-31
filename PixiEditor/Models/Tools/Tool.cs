@@ -8,6 +8,9 @@ namespace PixiEditor.Models.Tools
     {
         public abstract ToolType ToolType { get; }
         public string ImagePath => $"/Images/{ToolType}Image.png";
+        public virtual void OnMouseDown() { }
+        public virtual void OnMouseUp() { }
+        public virtual void AfterAddedUndo() { }
         public bool HideHighlight { get; set; } = false;
         public string Tooltip { get; set; }
 
