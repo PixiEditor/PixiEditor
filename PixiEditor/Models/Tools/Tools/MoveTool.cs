@@ -38,8 +38,8 @@ namespace PixiEditor.Models.Tools.Tools
             BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(_startSelection, _startPixelColors);
             Change changes = UndoManager.UndoStack.Peek();
             (changes.OldValue as LayerChanges).PixelChanges.ChangedPixels.
-                AddRangeNewOnly(beforeMovePixels.ChangedPixels);
-            (changes.NewValue as LayerChanges).PixelChanges.ChangedPixels.AddRangeNewOnly(_clearedPixelsChange.ChangedPixels);
+                AddRangeOverride(beforeMovePixels.ChangedPixels);
+            (changes.NewValue as LayerChanges).PixelChanges.ChangedPixels.AddRangeOverride(_clearedPixelsChange.ChangedPixels);
 
         }
 
@@ -63,7 +63,12 @@ namespace PixiEditor.Models.Tools.Tools
                 _startPixelColors = GetPixelsForSelection(layer, _startSelection);
             }
 
-            return MoveSelection(layer, mouseMove);
+            var selection = MoveSelection(layer, mouseMove);
+            foreach (var item in selection.ChangedPixels.Where(x=> x.Value.A == 0).ToList())
+            {
+                selection.ChangedPixels.Remove(item.Key);
+            }
+            return selection;
         }
 
         public BitmapPixelChanges MoveSelection(Layer layer, Coordinates[] mouseMove)

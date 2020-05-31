@@ -371,6 +371,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         public void Undo(object parameter)
         {
+            Deselect(null);
             UndoManager.Undo();
         }
         /// <summary>
