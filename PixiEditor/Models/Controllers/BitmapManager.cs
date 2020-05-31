@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Images;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
@@ -184,24 +185,7 @@ namespace PixiEditor.Models.Controllers
 
         public WriteableBitmap GetCombinedLayersBitmap()
         {
-            WriteableBitmap finalBitmap = ActiveDocument.Layers[0].LayerBitmap.Clone();
-            finalBitmap.Lock();
-            for (int i = 1; i < ActiveDocument.Layers.Count; i++)
-            {
-                for (int y = 0; y < finalBitmap.Height; y++)
-                {
-                    for (int x = 0; x < finalBitmap.Width; x++)
-                    {
-                        Color color = ActiveDocument.Layers[i].LayerBitmap.GetPixel(x, y);
-                        if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0)
-                        {
-                            finalBitmap.SetPixel(x, y, color);
-                        }
-                    }
-                }
-            }
-            finalBitmap.Unlock();
-            return finalBitmap;
+            return BitmapUtils.CombineBitmaps(ActiveDocument.Layers.ToArray());
         }
 
 

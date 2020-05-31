@@ -43,6 +43,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand DeselectCommand { get; set; }
         public RelayCommand SelectAllCommand { get; set; }
         public RelayCommand CopyCommand { get; set; }
+        public RelayCommand PasteCommand { get; set; }
         public RelayCommand ClipCanvasCommand { get; set; }
 
 
@@ -175,6 +176,7 @@ namespace PixiEditor.ViewModels
             DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
             SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
             CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
+            PasteCommand = new RelayCommand(Paste);
             ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
@@ -198,7 +200,8 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.S, SaveFileCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control)
+                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control)
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -214,9 +217,14 @@ namespace PixiEditor.ViewModels
                 BitmapManager.ActiveDocument.ClipCanvas();
         }
 
+        public void Paste(object parameter)
+        {
+            ClipboardController.PasteFromClipboard();
+        }
+
         private void Copy(object parameter)
         {
-            ClipboardController.CopyToClipboard(BitmapManager.ActiveLayer.LayerBitmap, ActiveSelection.SelectedPoints);
+            ClipboardController.CopyToClipboard(BitmapManager.ActiveDocument.Layers.ToArray(), ActiveSelection.SelectedPoints);
         }
 
         public void SelectAll(object parameter)

@@ -33,7 +33,7 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates start = mouseMove[^1];
             if (_lastStartMousePos != start)
             {
-                ResetSelectionValues(layer, start);
+                ResetSelectionValues(start);
                 if (ViewModelMain.Current.ActiveSelection.SelectedPoints == null) //Move every pixel if none is selected
                 {
                     SelectTool select = new SelectTool();
@@ -68,7 +68,7 @@ namespace PixiEditor.Models.Tools.Tools
                         _currentSelection, _startPixelColors);
         }
 
-        private void ResetSelectionValues(Layer layer, Coordinates start)
+        private void ResetSelectionValues(Coordinates start)
         {
             _lastStartMousePos = start;
             _lastMouseMove = start;
