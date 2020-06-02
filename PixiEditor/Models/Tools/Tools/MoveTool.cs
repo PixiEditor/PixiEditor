@@ -4,6 +4,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -17,11 +18,12 @@ namespace PixiEditor.Models.Tools.Tools
         private Coordinates[] _startSelection;
         private Coordinates _lastStartMousePos;
         private Coordinates _lastMouseMove;
-        private Color[] _startPixelColors;
-        private bool _clearedPixels = false;
+        private Dictionary<Layer, Color[]> _startPixelColors;
+        private Dictionary<Layer, bool> _clearedPixels = new Dictionary<Layer, bool>();
         private Coordinates[] _currentSelection;
         private bool _updateViewModelSelection = true;
         private BitmapPixelChanges _clearedPixelsChange;
+        private Layer[] _affectedLayers;
 
         public MoveTool()
         {
@@ -35,12 +37,19 @@ namespace PixiEditor.Models.Tools.Tools
         public override void AfterAddedUndo()
         {
             //Inject to default undo system change custom changes made by this tool
-            BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(_startSelection, _startPixelColors);
-            Change changes = UndoManager.UndoStack.Peek();
-            (changes.OldValue as LayerChange[])[0].PixelChanges.ChangedPixels.
-                AddRangeOverride(beforeMovePixels.ChangedPixels);
-            (changes.NewValue as LayerChange[])[0].PixelChanges.ChangedPixels.AddRangeOverride(_clearedPixelsChange.ChangedPixels);
+            foreach(var item in _startPixelColors)
+            {
+                BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.
+                    FromArrays(_startSelection, item.Value);
+                Change changes = UndoManager.UndoStack.Peek();
+                int layerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(item.Key);
 
+                (changes.OldValue as LayerChange[])[layerIndex].PixelChanges.ChangedPixels.
+                    AddRangeOverride(beforeMovePixels.ChangedPixels);
+
+                (changes.NewValue as LayerChange[])[layerIndex].PixelChanges.ChangedPixels.
+                    AddRangeOverride(_clearedPixelsChange.ChangedPixels);
+            }     
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
@@ -59,23 +68,44 @@ namespace PixiEditor.Models.Tools.Tools
                 {
                     _currentSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints;
                 }
+
+                if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                {
+                    _affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Where(x=> x.IsVisible).ToArray();
+                }
+                else
+                {
+                    _affectedLayers = new Layer[] { layer };
+                }
+
                 _startSelection = _currentSelection;
-                _startPixelColors = GetPixelsForSelection(layer, _startSelection);
+                _startPixelColors = GetPixelsForSelection(_affectedLayers, _startSelection);
             }
 
-            var selection = MoveSelection(layer, mouseMove);
-            foreach (var item in selection.ChangedPixels.Where(x=> x.Value.A == 0).ToList())
+            LayerChange[] result = new LayerChange[_affectedLayers.Length];
+
+            for (int i = 0; i < _affectedLayers.Length; i++)
             {
-                selection.ChangedPixels.Remove(item.Key);
+                var changes = MoveSelection(_affectedLayers[i], mouseMove);
+                changes = RemoveTransparentPixels(changes);
+                
+                result[i] = new LayerChange(changes, _affectedLayers[i]);
             }
-            return new LayerChange[] { new LayerChange(selection, layer) };
+            return result;
+        }
+
+        private BitmapPixelChanges RemoveTransparentPixels(BitmapPixelChanges pixels)
+        {
+            foreach (var item in pixels.ChangedPixels.Where(x => x.Value.A == 0).ToList())
+            {
+                pixels.ChangedPixels.Remove(item.Key);
+            }
+            return pixels;
         }
 
         public BitmapPixelChanges MoveSelection(Layer layer, Coordinates[] mouseMove)
         {
             Coordinates end = mouseMove[0];
-
-            Layer[] affectedLayers = new Layer[] { layer };
 
             _currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
             if (_updateViewModelSelection)
@@ -86,14 +116,14 @@ namespace PixiEditor.Models.Tools.Tools
 
 
             _lastMouseMove = end;
-            return BitmapPixelChanges.FromArrays(_currentSelection, _startPixelColors);
+            return BitmapPixelChanges.FromArrays(_currentSelection, _startPixelColors[layer]);
         }
 
         private void ResetSelectionValues(Coordinates start)
         {
             _lastStartMousePos = start;
             _lastMouseMove = start;
-            _clearedPixels = false;
+            _clearedPixels = new Dictionary<Layer, bool>();
             _updateViewModelSelection = true;
         }
 
@@ -106,29 +136,37 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void ClearSelectedPixels(Layer layer, Coordinates[] selection)
         {
-            if (_clearedPixels == false)
+            if (!_clearedPixels.ContainsKey(layer) || _clearedPixels[layer] == false)
             {
                 _clearedPixelsChange = BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent);
-                layer.ApplyPixels(_clearedPixelsChange);
+                ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.First(x=> x == layer).ApplyPixels(_clearedPixelsChange);
 
-                _clearedPixels = true;
+                _clearedPixels[layer] = true;
             }
         }
 
-        private Color[] GetPixelsForSelection(Layer layer, Coordinates[] selection)
+        private Dictionary<Layer, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
         {
-            Color[] pixels = new Color[_startSelection.Length];
-            layer.LayerBitmap.Lock();
+            Dictionary<Layer, Color[]> result = new Dictionary<Layer, Color[]>();
 
-            for (int i = 0; i < pixels.Length; i++)
+            for (int i = 0; i < layers.Length; i++)
             {
-                Coordinates position = selection[i];
-                if (position.X < 0 || position.X > layer.Width - 1 || position.Y < 0 || position.Y > layer.Height - 1)
-                    continue;
-                pixels[i] = layer.LayerBitmap.GetPixel(position.X, position.Y);
+                Color[] pixels = new Color[_startSelection.Length];
+                layers[i].LayerBitmap.Lock();
+
+                for (int j = 0; j < pixels.Length; j++)
+                {
+                    Coordinates position = selection[j];
+                    if (position.X < 0 || position.X > layers[i].Width - 1 || position.Y < 0 || position.Y > layers[i].Height - 1)
+                        continue;
+                    pixels[j] = layers[i].LayerBitmap.GetPixel(position.X, position.Y);
+                }
+                layers[i].LayerBitmap.Unlock();
+
+                result[layers[i]] = pixels;
             }
-            layer.LayerBitmap.Unlock();
-            return pixels;
+
+            return result;
         }
     }
 }

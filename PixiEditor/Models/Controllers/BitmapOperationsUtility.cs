@@ -118,13 +118,14 @@ namespace PixiEditor.Models.Controllers
 
         private void UseToolOnPreviewLayer(List<Coordinates> mouseMove)
         {
-            LayerChange[] modifiedLayers;
+            LayerChange[] modifiedLayers = null;
             if (mouseMove.Count > 0 && mouseMove[0] != _lastMousePos)
             {
                 Manager.GeneratePreviewLayer();
                 Manager.PreviewLayer.Clear();
                 modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(Manager.ActiveDocument.ActiveLayer, mouseMove.ToArray(), Manager.PrimaryColor);
-                Manager.PreviewLayer.ApplyPixels(modifiedLayers[0].PixelChanges);
+                BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
+                Manager.PreviewLayer.ApplyPixels(BitmapPixelChanges.CombineOverride(changes));
                 _lastModifiedLayers = modifiedLayers;
             }
         }
