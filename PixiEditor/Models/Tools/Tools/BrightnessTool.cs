@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.Colors;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
@@ -21,15 +22,20 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             int toolSize = (int)Toolbar.GetSetting("ToolSize").Value;
             float correctionFactor = (float)Toolbar.GetSetting("CorrectionFactor").Value;
+            LayerChange[] layersChanges = new LayerChange[1];
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                return ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor);
+                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor), layer);
             }
-            return ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor);
+            else
+            {
+                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor), layer);
+            }
+            return layersChanges;
         }
 
         private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)

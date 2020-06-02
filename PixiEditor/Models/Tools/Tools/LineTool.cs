@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using System.Collections.Generic;
@@ -17,9 +18,10 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return BitmapPixelChanges.FromSingleColoredArray(CreateLine(coordinates, (int)Toolbar.GetSetting("ToolSize").Value), color);
+            var pixels = BitmapPixelChanges.FromSingleColoredArray(CreateLine(coordinates, (int)Toolbar.GetSetting("ToolSize").Value), color);
+            return new LayerChange[] { new LayerChange(pixels, layer) };
         }
 
         public Coordinates[] CreateLine(Coordinates[] coordinates, int thickness)

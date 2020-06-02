@@ -14,6 +14,11 @@ namespace PixiEditor.Models.Tools.Tools
 
         Selection _oldSelection = null;
 
+        public SelectTool()
+        {
+            Tooltip = "Selects area. (M)";
+        }
+
         public override void OnMouseDown()
         {
             _oldSelection = null;

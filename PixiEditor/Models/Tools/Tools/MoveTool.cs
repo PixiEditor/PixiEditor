@@ -25,7 +25,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public MoveTool()
         {
-            Tooltip = "Moves selected pixels. (M)";
+            Tooltip = "Moves selected pixels. (V)";
             Cursor = Cursors.Arrow;
             HideHighlight = true;
             RequiresPreviewLayer = true;
@@ -34,16 +34,16 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void AfterAddedUndo()
         {
-            //Injecting to default undo system change custom changes made by this tool
+            //Inject to default undo system change custom changes made by this tool
             BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(_startSelection, _startPixelColors);
             Change changes = UndoManager.UndoStack.Peek();
-            (changes.OldValue as LayerChanges).PixelChanges.ChangedPixels.
+            (changes.OldValue as LayerChange[])[0].PixelChanges.ChangedPixels.
                 AddRangeOverride(beforeMovePixels.ChangedPixels);
-            (changes.NewValue as LayerChanges).PixelChanges.ChangedPixels.AddRangeOverride(_clearedPixelsChange.ChangedPixels);
+            (changes.NewValue as LayerChange[])[0].PixelChanges.ChangedPixels.AddRangeOverride(_clearedPixelsChange.ChangedPixels);
 
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] mouseMove, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
             Coordinates start = mouseMove[^1];
             if (_lastStartMousePos != start) //I am aware that this could be moved to OnMouseDown, but it is executed before Use, so I didn't want to complicate for now
@@ -68,12 +68,14 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 selection.ChangedPixels.Remove(item.Key);
             }
-            return selection;
+            return new LayerChange[] { new LayerChange(selection, layer) };
         }
 
         public BitmapPixelChanges MoveSelection(Layer layer, Coordinates[] mouseMove)
         {
             Coordinates end = mouseMove[0];
+
+            Layer[] affectedLayers = new Layer[] { layer };
 
             _currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
             if (_updateViewModelSelection)
@@ -84,8 +86,7 @@ namespace PixiEditor.Models.Tools.Tools
 
 
             _lastMouseMove = end;
-            return BitmapPixelChanges.FromArrays(
-                        _currentSelection, _startPixelColors);
+            return BitmapPixelChanges.FromArrays(_currentSelection, _startPixelColors);
         }
 
         private void ResetSelectionValues(Coordinates start)

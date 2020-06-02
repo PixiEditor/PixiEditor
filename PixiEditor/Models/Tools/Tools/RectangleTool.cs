@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System;
@@ -18,7 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Draws rectanlge on cavnas (R)";
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             int thickness = (int)Toolbar.GetSetting("ToolSize").Value;
             BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(CreateRectangle(coordinates, thickness), color);
@@ -29,7 +30,7 @@ namespace PixiEditor.Models.Tools.Tools
                     BitmapPixelChanges.FromSingleColoredArray
                     (CalculateFillForRectangle(coordinates[^1], coordinates[0], thickness), fillColor).ChangedPixels);
             }
-            return pixels;
+            return new LayerChange[] { new LayerChange(pixels, layer) };
         }
 
         public Coordinates[] CreateRectangle(Coordinates[] coordinates, int thickness)

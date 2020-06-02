@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace PixiEditor.Models.Tools
     {
         public override abstract ToolType ToolType { get; }
 
-        public abstract override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color);
+        public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
 
         public ShapeTool()
         {

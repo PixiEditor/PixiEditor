@@ -5,7 +5,7 @@ using System.IO;
 
 namespace PixiEditor.Models.IO
 {
-    public static class PixiFilesManager
+    public static class FilesManager
     {
 
         public static string TempFolderPath

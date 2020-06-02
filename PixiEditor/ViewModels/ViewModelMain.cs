@@ -108,15 +108,19 @@ namespace PixiEditor.ViewModels
 
         public ObservableCollection<Tool> ToolSet { get; set; }
 
-        private LayerChanges _undoChanges;
+        private LayerChange[] _undoChanges;
 
-        public LayerChanges UndoChanges
+        public LayerChange[] UndoChanges
         {
             get { return _undoChanges; }
             set
             {
                 _undoChanges = value;
-                BitmapManager.ActiveDocument.Layers[value.LayerIndex].ApplyPixels(value.PixelChanges);
+                for (int i = 0; i < value.Length; i++)
+                {
+                    BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].ApplyPixels(value[i].PixelChanges);
+
+                }
             }
         }
 
@@ -152,7 +156,7 @@ namespace PixiEditor.ViewModels
 
         public ViewModelMain()
         {
-            PixiFilesManager.InitializeTempDirectories();
+            FilesManager.InitializeTempDirectories();
             BitmapManager = new BitmapManager();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
@@ -197,6 +201,8 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
                     new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
                     new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
+                    new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
+                    new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
                     new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand),
                     new Shortcut(Key.S, SaveFileCommand, modifier: ModifierKeys.Control),
@@ -297,10 +303,12 @@ namespace PixiEditor.ViewModels
             if (BitmapManager.IsOperationTool(BitmapManager.SelectedTool) 
                 && (BitmapManager.SelectedTool as BitmapOperationTool).UseDefaultUndoMethod)
             {
-                Tuple<LayerChanges, LayerChanges> changes = ChangesController.PopChanges();
-                if (changes.Item1.PixelChanges.ChangedPixels.Count > 0)
+                Tuple<LayerChange, LayerChange>[] changes = ChangesController.PopChanges();
+                if (changes != null && changes.Length > 0)
                 {
-                    UndoManager.AddUndoChange(new Change("UndoChanges", changes.Item2, changes.Item1)); //Item2 is old value
+                    LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
+                    LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
+                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues)); 
                     BitmapManager.SelectedTool.AfterAddedUndo();
                 }
             }
@@ -308,8 +316,8 @@ namespace PixiEditor.ViewModels
 
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
-            ChangesController.AddChanges(new LayerChanges(e.PixelsChanged, e.ChangedLayerIndex),
-                new LayerChanges(e.OldPixelsValues, e.ChangedLayerIndex));
+            ChangesController.AddChanges(new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
+                new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
         }
 
         public void SwapColors(object parameter)

@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using System.Windows.Input;
@@ -19,9 +20,10 @@ namespace PixiEditor.Models.Tools.Tools
             _toolSizeIndex = Toolbar.Settings.IndexOf(Toolbar.GetSetting("ToolSize"));
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return Draw(coordinates[0], color, (int)Toolbar.Settings[_toolSizeIndex].Value);
+            var pixels = Draw(coordinates[0], color, (int)Toolbar.Settings[_toolSizeIndex].Value);
+            return new LayerChange[] { new LayerChange(pixels, layer) };
         }
 
         public BitmapPixelChanges Draw(Coordinates startingCoords, Color color, int toolSize)

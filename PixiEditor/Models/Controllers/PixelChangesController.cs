@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using System;
@@ -10,55 +11,83 @@ namespace PixiEditor.Models.Controllers
 {
     public class PixelChangesController
     {
-        LayerChanges LastChanges { get; set; }
-        LayerChanges LastOldValues { get; set; }
+        Dictionary<int, LayerChange> LastChanges { get; set; }
+        Dictionary<int, LayerChange> LastOldValues { get; set; }
 
-        public void AddChanges(LayerChanges changes, LayerChanges oldValues)
+        public void AddChanges(LayerChange changes, LayerChange oldValues)
         {
-            if (LastChanges == null)
+            if (changes.PixelChanges.ChangedPixels.Count > 0)
             {
-                LastChanges = changes;
-                LastOldValues = oldValues;
-                return;
+                if (LastChanges == null)
+                {
+                    LastChanges = new Dictionary<int, LayerChange> { { changes.LayerIndex, changes } };
+                    LastOldValues = new Dictionary<int, LayerChange> { { oldValues.LayerIndex, oldValues } };
+                }
+                else if (LastChanges.ContainsKey(changes.LayerIndex))
+                {
+                    AddToExistingLayerChange(changes, oldValues);
+                }
+                else
+                {
+                    AddNewLayerChange(changes, oldValues);
+                }
             }
+        }
 
-            foreach (var change in changes.PixelChanges.ChangedPixels)
+        private void AddNewLayerChange(LayerChange changes, LayerChange oldValues)
+        {
+            LastChanges[changes.LayerIndex] = changes;
+            LastOldValues[changes.LayerIndex] = oldValues;
+        }
+
+        private void AddToExistingLayerChange(LayerChange layerChange, LayerChange oldValues)
+        {
+            foreach (var change in layerChange.PixelChanges.ChangedPixels)
             {
-                if (LastChanges.PixelChanges.ChangedPixels.ContainsKey(change.Key))
+                if (LastChanges[layerChange.LayerIndex].PixelChanges.ChangedPixels.ContainsKey(change.Key))
                 {
                     continue;
                 }
                 else
                 {
-                    LastChanges.PixelChanges.ChangedPixels.Add(change.Key, change.Value);
+                    LastChanges[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
                 }
             }
 
             foreach (var change in oldValues.PixelChanges.ChangedPixels)
             {
-                if (LastOldValues.PixelChanges.ChangedPixels.ContainsKey(change.Key))
+                if (LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.ContainsKey(change.Key))
                 {
                     continue;
                 }
                 else
                 {
-                    LastOldValues.PixelChanges.ChangedPixels.Add(change.Key, change.Value);
+                    LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
                 }
             }
         }
 
-        public Tuple<LayerChanges, LayerChanges> PopChanges()
+        public Tuple<LayerChange, LayerChange>[] PopChanges()
         {
-            Dictionary<Coordinates, Color> pixelChanges = LastChanges.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
-            Dictionary<Coordinates, Color> oldValues = LastOldValues.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
+            //Maybe replace Tuple with custom data type
+            if (LastChanges == null) return null;
+            Tuple<LayerChange, LayerChange>[] result = new Tuple<LayerChange, LayerChange>[LastChanges.Count];
+            int i = 0;
+            foreach (var change in LastChanges)
+            {
+                Dictionary<Coordinates, Color> pixelChanges = change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
+                Dictionary<Coordinates, Color> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
 
-            var tmp = new LayerChanges(new BitmapPixelChanges(pixelChanges), LastChanges.LayerIndex);
-            var oldValuesTmp = new LayerChanges(new BitmapPixelChanges(oldValues), LastOldValues.LayerIndex);
+                var tmp = new LayerChange(new BitmapPixelChanges(pixelChanges), change.Key);
+                var oldValuesTmp = new LayerChange(new BitmapPixelChanges(oldValues), change.Key);
 
-            Tuple<LayerChanges, LayerChanges> outputChanges = new Tuple<LayerChanges, LayerChanges>(tmp, oldValuesTmp);
+                result[i] = new Tuple<LayerChange, LayerChange>(tmp, oldValuesTmp);
+                i++;
+            }
+
             LastChanges = null;
             LastOldValues = null;
-            return outputChanges;
+            return result;
         }
     }
 }

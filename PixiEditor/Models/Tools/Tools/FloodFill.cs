@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,9 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Fills area with color (G)";
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return ForestFire(layer, coordinates[0], color);
+            return new LayerChange[] { new LayerChange(ForestFire(layer, coordinates[0], color), layer) };
         }
 
         public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)

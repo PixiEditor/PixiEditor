@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Draws circle on cavnas (C)";
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             int thickness = (int)Toolbar.GetSetting("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
@@ -29,7 +30,7 @@ namespace PixiEditor.Models.Tools.Tools
                     BitmapPixelChanges.FromSingleColoredArray(CalculateFillForEllipse(outline), fillColor).ChangedPixels);
             }
 
-            return pixels;
+            return new LayerChange[] { new LayerChange(pixels, layer) };
         }
 
         public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
