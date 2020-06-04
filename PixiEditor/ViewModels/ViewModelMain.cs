@@ -143,7 +143,7 @@ namespace PixiEditor.ViewModels
         public PixelChangesController ChangesController { get; set; }
 
         public ShortcutController ShortcutController { get; set; }
-        private Selection _selection = new Selection();
+        private Selection _selection = null;
 
         public Selection ActiveSelection
         {
@@ -230,7 +230,8 @@ namespace PixiEditor.ViewModels
 
         private void DeletePixels(object parameter)
         {
-            BitmapManager.BitmapOperations.DeletePixels(new Layer[] { BitmapManager.ActiveLayer }, ActiveSelection.SelectedPoints);
+            BitmapManager.BitmapOperations.DeletePixels(new Layer[] { BitmapManager.ActiveLayer }, 
+                ActiveSelection.SelectedPoints.ToArray());
         }
 
         public void ClipCanvas(object parameter)
@@ -249,7 +250,7 @@ namespace PixiEditor.ViewModels
         {
             Copy(null);
             BitmapManager.ActiveLayer.
-                ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(ActiveSelection.SelectedPoints, Colors.Transparent));
+                ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(ActiveSelection.SelectedPoints.ToArray(), Colors.Transparent));
         }
 
         public void Paste(object parameter)
@@ -264,7 +265,8 @@ namespace PixiEditor.ViewModels
 
         private void Copy(object parameter)
         {
-            ClipboardController.CopyToClipboard(BitmapManager.ActiveDocument.Layers.ToArray(), ActiveSelection.SelectedPoints);
+            ClipboardController.CopyToClipboard(BitmapManager.ActiveDocument.Layers.ToArray(), 
+                ActiveSelection.SelectedPoints.ToArray());
         }
 
         public void SelectAll(object parameter)
@@ -285,7 +287,7 @@ namespace PixiEditor.ViewModels
 
         public void Deselect(object parameter)
         {
-            ActiveSelection = new Selection();
+            ActiveSelection.Clear();
         }
 
         private bool SelectionIsNotEmpty(object property)
@@ -379,7 +381,7 @@ namespace PixiEditor.ViewModels
 
         public bool CanDeleteLayer(object property)
         {
-            return BitmapManager.ActiveDocument.Layers.Count > 1;
+            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 1;
         }
 
         #region Undo/Redo
@@ -548,6 +550,7 @@ namespace PixiEditor.ViewModels
             BitmapManager.PreviewLayer = null;
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();
+            ActiveSelection = new Selection(Array.Empty<Coordinates>());
         }
 
         /// <summary>

@@ -33,7 +33,6 @@ namespace PixiEditor.Models.Tools.Tools
             if (ViewModelMain.Current.ActiveSelection != null && ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
             {
                 _oldSelection = ViewModelMain.Current.ActiveSelection;
-                _oldSelection.SelectedPoints = _oldSelection.SelectedPoints.ToArray();
             }
         }
 
@@ -51,22 +50,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void Select(Coordinates[] pixels)
         {
             Coordinates[] selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            switch (SelectionType)
-            {
-                case SelectionType.New:
-                    ViewModelMain.Current.ActiveSelection = new Selection(selection.ToArray());
-                    break;
-                case SelectionType.Add:
-                    ViewModelMain.Current.ActiveSelection = new Selection(ViewModelMain.Current.ActiveSelection.
-                        SelectedPoints.Concat(selection).Distinct().ToArray());
-                    break;
-                case SelectionType.Substract:
-                    ViewModelMain.Current.ActiveSelection = new Selection(ViewModelMain.Current.ActiveSelection.
-                        SelectedPoints.Except(selection).ToArray());
-                    break;
-                default:
-                    break;
-            }
+            ViewModelMain.Current.ActiveSelection.SetSelection(selection.ToArray(), SelectionType);
         }
 
         public Coordinates[] GetRectangleSelectionForPoints(Coordinates start, Coordinates end)

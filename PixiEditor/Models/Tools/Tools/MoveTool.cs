@@ -59,7 +59,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (_lastStartMousePos != start) //I am aware that this could be moved to OnMouseDown, but it is executed before Use, so I didn't want to complicate for now
             {
                 ResetSelectionValues(start);
-                if (ViewModelMain.Current.ActiveSelection.SelectedPoints == null) //Move every pixel if none is selected
+                if (ViewModelMain.Current.ActiveSelection.SelectedPoints.Count == 0) //Move every pixel if none is selected
                 {
                     SelectTool select = new SelectTool();
                     _currentSelection = select.GetAllSelection();
@@ -67,7 +67,7 @@ namespace PixiEditor.Models.Tools.Tools
                 }
                 else
                 {
-                    _currentSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints;
+                    _currentSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
                 }
 
                 if (Keyboard.IsKeyDown(Key.LeftCtrl))
@@ -111,7 +111,7 @@ namespace PixiEditor.Models.Tools.Tools
             _currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
             if (_updateViewModelSelection)
             {
-                ViewModelMain.Current.ActiveSelection = new Selection(_currentSelection);
+                ViewModelMain.Current.ActiveSelection.SetSelection(_currentSelection, Enums.SelectionType.New);
             }
             ClearSelectedPixels(layer, previousSelection);
 

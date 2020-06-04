@@ -9,7 +9,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
     {
         public SelectToolToolbar()
         {
-            Settings.Add(new DropdownSetting("Mode", new string[] {"New"}, "Selection type"));
+            Settings.Add(new DropdownSetting("Mode", new string[] {"New", "Add", "Substract"}, "Selection type"));
         }
     }
 }

@@ -1,28 +1,69 @@
-﻿using PixiEditor.Models.Position;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
-    public class Selection
+    public class Selection : NotifyableObject
     {
-        public Coordinates[] SelectedPoints { get; set; } = null;
-        public int VisualCanvasTop => SelectedPoints != null ? SelectedPoints.Min(x => x.Y) : -1;
-        public int VisualCanvasLeft => SelectedPoints != null ? SelectedPoints.Min(x => x.X) : -1;
-        public int VisualWidth => SelectedPoints != null ? Math.Abs(VisualCanvasLeft + 1 - (SelectedPoints.Max(x => x.X) + 1)) + 1 : 0;
+        public ObservableCollection<Coordinates> SelectedPoints { get; private set; }       
+        private Layer _selectionLayer;
+        private Color _selectionBlue;
 
-        public int VisualHeight => SelectedPoints != null ? Math.Abs(VisualCanvasTop + 1 - (SelectedPoints.Max(x => x.Y) + 1)) + 1 : 0;
-        public Visibility Visibility => SelectedPoints != null ? Visibility.Visible : Visibility.Collapsed;
-
-        public Selection()
+        public Layer SelectionLayer
         {
+            get => _selectionLayer;
+            set
+            {
+                _selectionLayer = value;
+                RaisePropertyChanged("SelectionLayer");
+            }
+        }
 
+        public void SetSelection(Coordinates[] selection, SelectionType mode)
+        {
+            Color _selectionColor = _selectionBlue;
+            switch (mode)
+            {
+                case SelectionType.New:
+                    SelectedPoints = new ObservableCollection<Coordinates>(selection);
+                    SelectionLayer.Clear();
+                    break;
+                case SelectionType.Add:
+                    SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Concat(selection).Distinct());
+                    break;
+                case SelectionType.Substract:
+                    SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
+                    _selectionColor = System.Windows.Media.Colors.Transparent;
+                    break;
+                default:
+                    break;
+            }
+            
+            SelectionLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, _selectionColor));
+        }
+
+        public void Clear()
+        {
+            SelectionLayer.Clear();
+            SelectedPoints.Clear();
         }
 
         public Selection(Coordinates[] selectedPoints)
         {
-            SelectedPoints = selectedPoints;
+            SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
+            SelectionLayer = new Layer("_selectionLayer", ViewModelMain.Current.BitmapManager.ActiveDocument.Width,
+                ViewModelMain.Current.BitmapManager.ActiveDocument.Height);
+            _selectionBlue = Color.FromArgb(127,142, 202, 255); 
         }
     }
 }
