@@ -14,6 +14,11 @@ namespace PixiEditor.Models.Tools.ToolSettings
             return Settings.FirstOrDefault(x => x.Name == name);
         }
 
+        public virtual Setting[] GetSettings(string name)
+        {
+            return Settings.Where(x => x.Name == name).ToArray();
+        }
+
         /// <summary>
         /// Saves current toolbar state, so other toolbars with common settings can load them.
         /// </summary>

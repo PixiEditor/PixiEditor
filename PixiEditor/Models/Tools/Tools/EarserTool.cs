@@ -18,8 +18,13 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
+            return Earse(layer, coordinates, (int)Toolbar.GetSetting("ToolSize").Value);
+        }
+
+        public LayerChange[] Earse(Layer layer, Coordinates[] coordinates, int toolSize)
+        {
             PenTool pen = new PenTool();
-            var pixels = pen.Draw(coordinates[0], System.Windows.Media.Colors.Transparent, (int)Toolbar.GetSetting("ToolSize").Value);
+            var pixels = pen.Draw(coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
             return new LayerChange[] { new LayerChange(pixels, layer) };
         }
     }

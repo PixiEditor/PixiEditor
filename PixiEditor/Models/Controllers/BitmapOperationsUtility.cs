@@ -1,6 +1,9 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Images;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +26,22 @@ namespace PixiEditor.Models.Controllers
         public BitmapOperationsUtility(BitmapManager manager)
         {
             Manager = manager;
+        }
+
+        public void DeletePixels(Layer[] layers, Coordinates[] pixels)
+        {
+            var changes = BitmapPixelChanges.FromSingleColoredArray(pixels, Color.FromArgb(0,0,0,0));
+            var oldValues = BitmapUtils.GetPixelsForSelection(layers, pixels);
+            LayerChange[] old = new LayerChange[layers.Length];
+            LayerChange[] newChange = new LayerChange[layers.Length];
+            for (int i = 0; i < layers.Length; i++)
+            {
+                old[i] = new LayerChange(
+                    BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i]]), i);
+                newChange[i] = new LayerChange(changes, i);
+                layers[i].ApplyPixels(changes);
+            }
+            UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
         }
 
         public void ExecuteTool(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)

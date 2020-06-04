@@ -74,6 +74,8 @@
                     <MenuItem Header="_Copy" Command="{Binding CopyCommand}" InputGestureText="Ctrl+C"/>
                     <MenuItem Header="_Paste" Command="{Binding PasteCommand}" InputGestureText="Ctrl+V"/>
                     <MenuItem Header="_Duplicate" Command="{Binding DuplicateCommand}" InputGestureText="Ctrl+D"/>
+                    <Separator/>
+                    <MenuItem Header="_Delete Selected" Command="{Binding DeletePixelsCommand}" InputGestureText="Delete"/>
                 </MenuItem>
                 <MenuItem Header="_Select">
                     <MenuItem Header="_Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A"/>

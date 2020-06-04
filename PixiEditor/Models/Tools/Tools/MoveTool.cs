@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Images;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
@@ -79,7 +80,7 @@ namespace PixiEditor.Models.Tools.Tools
                 }
 
                 _startSelection = _currentSelection;
-                _startPixelColors = GetPixelsForSelection(_affectedLayers, _startSelection);
+                _startPixelColors = BitmapUtils.GetPixelsForSelection(_affectedLayers, _startSelection);
             }
 
             LayerChange[] result = new LayerChange[_affectedLayers.Length];
@@ -143,30 +144,6 @@ namespace PixiEditor.Models.Tools.Tools
 
                 _clearedPixels[layer] = true;
             }
-        }
-
-        private Dictionary<Layer, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
-        {
-            Dictionary<Layer, Color[]> result = new Dictionary<Layer, Color[]>();
-
-            for (int i = 0; i < layers.Length; i++)
-            {
-                Color[] pixels = new Color[_startSelection.Length];
-                layers[i].LayerBitmap.Lock();
-
-                for (int j = 0; j < pixels.Length; j++)
-                {
-                    Coordinates position = selection[j];
-                    if (position.X < 0 || position.X > layers[i].Width - 1 || position.Y < 0 || position.Y > layers[i].Height - 1)
-                        continue;
-                    pixels[j] = layers[i].LayerBitmap.GetPixel(position.X, position.Y);
-                }
-                layers[i].LayerBitmap.Unlock();
-
-                result[layers[i]] = pixels;
-            }
-
-            return result;
-        }
+        }       
     }
 }

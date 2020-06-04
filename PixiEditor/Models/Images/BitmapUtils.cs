@@ -1,5 +1,8 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows;
@@ -54,6 +57,30 @@ namespace PixiEditor.Models.Images
             }
             finalBitmap.Unlock();
             return finalBitmap;
+        }
+
+        public static Dictionary<Layer, System.Windows.Media.Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
+        {
+            Dictionary<Layer, System.Windows.Media.Color[]> result = new Dictionary<Layer, System.Windows.Media.Color[]>();
+
+            for (int i = 0; i < layers.Length; i++)
+            {
+                System.Windows.Media.Color[] pixels = new System.Windows.Media.Color[selection.Length];
+                layers[i].LayerBitmap.Lock();
+
+                for (int j = 0; j < pixels.Length; j++)
+                {
+                    Coordinates position = selection[j];
+                    if (position.X < 0 || position.X > layers[i].Width - 1 || position.Y < 0 || position.Y > layers[i].Height - 1)
+                        continue;
+                    pixels[j] = layers[i].LayerBitmap.GetPixel(position.X, position.Y);
+                }
+                layers[i].LayerBitmap.Unlock();
+
+                result[layers[i]] = pixels;
+            }
+
+            return result;
         }
     }
 }

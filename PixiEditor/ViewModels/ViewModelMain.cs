@@ -3,7 +3,9 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Images;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
@@ -47,6 +49,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand CutCommand { get; set; }
         public RelayCommand PasteCommand { get; set; }
         public RelayCommand ClipCanvasCommand { get; set; }
+        public RelayCommand DeletePixelsCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -186,6 +189,7 @@ namespace PixiEditor.ViewModels
             CutCommand = new RelayCommand(Cut, SelectionIsNotEmpty);
             PasteCommand = new RelayCommand(Paste, CanPaste);
             ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
+            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
             ShortcutController = new ShortcutController
@@ -214,6 +218,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Delete, DeletePixelsCommand),
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -221,6 +226,11 @@ namespace PixiEditor.ViewModels
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
+        }
+
+        private void DeletePixels(object parameter)
+        {
+            BitmapManager.BitmapOperations.DeletePixels(new Layer[] { BitmapManager.ActiveLayer }, ActiveSelection.SelectedPoints);
         }
 
         public void ClipCanvas(object parameter)

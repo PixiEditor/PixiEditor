@@ -1,26 +1,34 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
         public override ToolType ToolType => ToolType.Select;
+        public SelectionType SelectionType = SelectionType.Add;
 
         Selection _oldSelection = null;
 
         public SelectTool()
         {
             Tooltip = "Selects area. (M)";
+            Toolbar = new SelectToolToolbar();
         }
 
         public override void OnMouseDown()
         {
+            Enum.TryParse((Toolbar.GetSetting("Mode").Value as ComboBoxItem).Content as string, out SelectionType);
+
             _oldSelection = null;
             if (ViewModelMain.Current.ActiveSelection != null && ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
             {
@@ -43,7 +51,22 @@ namespace PixiEditor.Models.Tools.Tools
         private void Select(Coordinates[] pixels)
         {
             Coordinates[] selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            ViewModelMain.Current.ActiveSelection = new DataHolders.Selection(selection.ToArray());
+            switch (SelectionType)
+            {
+                case SelectionType.New:
+                    ViewModelMain.Current.ActiveSelection = new Selection(selection.ToArray());
+                    break;
+                case SelectionType.Add:
+                    ViewModelMain.Current.ActiveSelection = new Selection(ViewModelMain.Current.ActiveSelection.
+                        SelectedPoints.Concat(selection).Distinct().ToArray());
+                    break;
+                case SelectionType.Substract:
+                    ViewModelMain.Current.ActiveSelection = new Selection(ViewModelMain.Current.ActiveSelection.
+                        SelectedPoints.Except(selection).ToArray());
+                    break;
+                default:
+                    break;
+            }
         }
 
         public Coordinates[] GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
