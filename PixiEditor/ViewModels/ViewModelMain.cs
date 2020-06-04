@@ -361,7 +361,7 @@ namespace PixiEditor.ViewModels
 
         public bool CanMoveToFront(object property)
         {
-            return BitmapManager.ActiveDocument.Layers.Count - 1 > (int)property;
+            return DocumentIsNotNull(null) && BitmapManager.ActiveDocument.Layers.Count - 1 > (int)property;
         }
 
         public bool CanMoveToBack(object property)

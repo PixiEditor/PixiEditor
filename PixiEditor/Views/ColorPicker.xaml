@@ -5,14 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" 
-             Width="270" Height="325">
+             Width="270" Height="120">
     <Grid Background="#FF252424" >
         <Grid.RowDefinitions>
-            <RowDefinition Height="265"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="8*"/>
             <RowDefinition Height="17*"/>
         </Grid.RowDefinitions>
-        <Image Source="/Views/ColorPalette.png" Stretch="Uniform" VerticalAlignment="Center" Height="255" Margin="8,0,7,0"/>
+        <Image Source="/Images/ColorPalette.png" Stretch="Fill" VerticalAlignment="Center" Height="50"/>
         <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="R" Foreground="White" Padding="5,0,5,0"/>
