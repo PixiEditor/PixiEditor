@@ -14,7 +14,7 @@
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Xceed.Wpf.AvalonDock"
         mc:Ignorable="d" WindowStyle="None" 
-        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="#FF252424" 
+        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}" 
         WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
 
     <WindowChrome.WindowChrome>
@@ -54,7 +54,7 @@
             <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource MainColor}">
             <Image DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Images/PixiEditorLogo.png" Width="20" Height="20" Margin="5,5,0,0"/>
             <Menu WindowChrome.IsHitTestVisibleInChrome="True" Margin="10, 4, 0, 0" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" IsMainMenu="True">
                 <Menu.Resources>
@@ -96,7 +96,7 @@
                             Command="{x:Static SystemCommands.CloseWindowCommand}"/>
             </StackPanel>
         </DockPanel>
-        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="3" Margin="0,30,146,0" Grid.RowSpan="2">
+        <StackPanel Background="{StaticResource AccentColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Margin="0,30,146,0" Grid.RowSpan="2">
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -157,7 +157,7 @@
             </Grid>
         </Grid>
 
-        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0" Margin="0,7,5,0" Background="#404040" Grid.RowSpan="2">
+        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0" Margin="0,7,5,0" Background="{StaticResource AccentColor}" Grid.RowSpan="2">
 
             <ItemsControl ItemsSource="{Binding ToolSet}">
                 <ItemsControl.ItemTemplate>
@@ -176,7 +176,7 @@
             </ItemsControl>
         </StackPanel>
 
-        <DockPanel Grid.Column="2" Background="#404040" Margin="0,30,0,0" Grid.RowSpan="3">
+        <DockPanel Grid.Column="2" Background="{StaticResource AccentColor}" Margin="0,30,0,0" Grid.RowSpan="3">
             <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="70"  Margin="0,20,0,0" Height="70">
                 <Rectangle Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
                     <Rectangle.Fill>
@@ -197,7 +197,7 @@
                 <xctk:ColorPicker Width="40" Height="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
             </Grid>
             <vws:ColorPicker Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top"/>
-            <xcad:DockingManager Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top">
+            <xcad:DockingManager Grid.Column="2" BorderThickness="0" Grid.Row="1" DockPanel.Dock="Top">
                 <xcad:DockingManager.Style>
                     <Style TargetType="xcad:DockingManager">
                         <Setter Property="Foreground" Value="Snow"/>

@@ -3,32 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views"
+             xmlns:local="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
-             Width="270" Height="120">
-    <Grid Background="#FF252424" >
+             Width="270" Height="120" Name="uc">
+    <UserControl.Resources>
+        <converters:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource AccentColor}" MouseMove="Image_MouseMove">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="53"/>
             <RowDefinition Height="8*"/>
             <RowDefinition Height="17*"/>
         </Grid.RowDefinitions>
-        <Image Source="/Images/ColorPalette.png" Stretch="Fill" VerticalAlignment="Center" Height="50"/>
+        <Image Source="/Images/ColorPalette.png" Name="colorPalette" MouseDown="Image_MouseMove" Stretch="Fill" VerticalAlignment="Center" Height="50"/>
         <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="R" Foreground="White" Padding="5,0,5,0"/>
-                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="40" Text="255"/>
+                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="40" Text="{Binding Path=SelectedColor.R, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="G" Foreground="White" Padding="5,0,5,0"/>
-                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="50" Text="255"/>
+                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="50" Text="{Binding Path=SelectedColor.G, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="B" Foreground="White" Padding="5,0,5,0"/>
-                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="50" Text="255"/>
+                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="50" Text="{Binding Path=SelectedColor.B, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="A" Foreground="White" Padding="5,0,5,0"/>
-                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="50" Text="255"/>
+                <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="50" Text="{Binding Path=SelectedColor.A, ElementName=uc}"/>
             </StackPanel>
         </StackPanel>
         <Grid Grid.Row="2">
@@ -39,9 +42,9 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" Margin="10,0,0,0" Height="26">
                 <Label Content="Hex" Foreground="White"/>
-                <TextBox VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="65" Text="#FFFFFFFF"/>
+                <TextBox VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="65" Text="{Binding Path=SelectedColor, ElementName=uc}"/>
             </StackPanel>
-            <Rectangle Fill="White" Stroke="#FF3C3C3C" StrokeThickness="2" Grid.Column="2"/>
+            <Rectangle Fill="{Binding Path=SelectedColor, ElementName=uc, Converter={StaticResource ColorToBrushConverter}}" Stroke="#FF3C3C3C" StrokeThickness="2" Grid.Column="2"/>
         </Grid>
     </Grid>
 </UserControl>

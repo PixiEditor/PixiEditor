@@ -16,15 +16,21 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Coordinates[] coordinates)
         {
+            ViewModelMain.Current.PrimaryColor = GetColorUnderMouse();
+        }
+
+        public Color GetColorUnderMouse()
+        {
+            System.Drawing.Color color;
             using (var bitmap = new System.Drawing.Bitmap(1, 1))
             {
                 using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
                 {
                     graphics.CopyFromScreen(MousePositionConverter.GetCursorPosition(), new System.Drawing.Point(0, 0), new System.Drawing.Size(1, 1));
                 }
-                var color = bitmap.GetPixel(0, 0);
-                ViewModelMain.Current.PrimaryColor = Color.FromArgb(color.A, color.R, color.G, color.B);
+                color = bitmap.GetPixel(0, 0);
             }
+            return Color.FromArgb(color.A, color.R, color.G, color.B);
         }
     }
 }

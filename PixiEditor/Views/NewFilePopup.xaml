@@ -15,12 +15,12 @@
         <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
-        <Grid Background="#404040">
+        <Grid Background="{StaticResource AccentColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="25*"/>
                 <RowDefinition Height="577*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Background="#303030">
+            <Grid Grid.Row="0" Background="{StaticResource MainColor}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">
                         <i:InvokeCommandAction Command="{Binding DragMoveCommand}"/>
@@ -33,7 +33,7 @@
                     </Button.Background>
                 </Button>
             </Grid>
-            <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" Background="#303030" VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
+            <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" Background="{StaticResource MainColor}" VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
                 <DockPanel Margin="50,35,0,0">
                     <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16"

@@ -1,0 +1,7 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:PixiEditor.Styles">
+
+    <SolidColorBrush x:Key="MainColor" Color="#2D2D30"/>
+    <SolidColorBrush x:Key="AccentColor" Color="#252525"/>
+</ResourceDictionary>

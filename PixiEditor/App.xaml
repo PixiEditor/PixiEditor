@@ -5,6 +5,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/ThemeColors.xaml"/>
                 <ResourceDictionary Source="Styles/MenuButtonStyle.xaml"/>
                 <ResourceDictionary Source="Styles/ThemeStyle.xaml"/>
                 <ResourceDictionary Source="Styles/Titlebar.xaml"/>
