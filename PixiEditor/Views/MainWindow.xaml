@@ -27,7 +27,6 @@
         <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
         <converters:BoolToIntConverter x:Key="BoolToIntConverter"/>
-        <converters:ColorToNotifyableColorConverter x:Key="ColorToNotifyableColorConverter"/>
     </Window.Resources>
 
     <Window.CommandBindings>
@@ -178,7 +177,7 @@
         </StackPanel>
 
         <DockPanel Grid.Column="2" Background="{StaticResource AccentColor}" Margin="0,30,0,0" Grid.RowSpan="3">
-            <vws:ColorPicker Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top" SelectedColor="{Binding PrimaryColor, Converter={StaticResource ColorToNotifyableColorConverter}, Mode=TwoWay}" 
+            <vws:ColorPicker Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}" 
                              SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}"/>
             <xcad:DockingManager Grid.Column="2" BorderThickness="0" Grid.Row="1" DockPanel.Dock="Top">
                 <xcad:DockingManager.Style>

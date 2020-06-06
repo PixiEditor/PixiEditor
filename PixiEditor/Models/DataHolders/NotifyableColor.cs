@@ -9,62 +9,73 @@ namespace PixiEditor.Models.DataHolders
     public class NotifyableColor : NotifyableObject
     {
         public event EventHandler ColorChanged;
+
+        private byte _a;
         public byte A
         {
-            get => Color.A;
+            get => _a;
             set
             {
-                Color = System.Windows.Media.Color.FromArgb(value, Color.R, Color.G, Color.B);
+                _a = value;
+                ColorChanged?.Invoke(this, EventArgs.Empty);
+                RaisePropertyChanged("A");
+
             }
         }
+
+        private byte _r;
         public byte R
         {
-            get => _color.R;
+            get => _r;
             set
             {
-                Color = System.Windows.Media.Color.FromArgb(Color.A, value, Color.G, Color.B);
+                _r = value;
+                ColorChanged?.Invoke(this, EventArgs.Empty);
+                RaisePropertyChanged("R");
+
             }
         }
 
 
+        private byte _g;
         public byte G
         {
-            get => Color.G;
+            get => _g;
             set
             {
-                Color = System.Windows.Media.Color.FromArgb(Color.A, Color.R, value, Color.B);
+                _g = value;
+                ColorChanged?.Invoke(this, EventArgs.Empty);
+                RaisePropertyChanged("G");
+
             }
         }
 
+        private byte _b;
         public byte B
         {
-            get => Color.B;
+            get => _b;
             set
             {
-                Color = System.Windows.Media.Color.FromArgb(Color.A, Color.R, Color.G, value);
+                _b = value;
+                ColorChanged?.Invoke(this, EventArgs.Empty);
+                RaisePropertyChanged("B");
             }
         }
 
-        private System.Windows.Media.Color _color;
-
-        public System.Windows.Media.Color Color
+        public void SetArgb(byte a, byte r, byte g, byte b)
         {
-            get => _color;
-            set
-            {
-                _color = value;
-                RaisePropertyChanged("Color");
-                RaisePropertyChanged("A");
-                RaisePropertyChanged("R");
-                RaisePropertyChanged("G");
-                RaisePropertyChanged("B");
-                ColorChanged?.Invoke(this, EventArgs.Empty);
-            }
+            A = a;
+            R = r;
+            G = g;
+            B = b;
         }
 
         public NotifyableColor(System.Windows.Media.Color color)
         {
-            Color = color;
+            A = color.A;
+            R = color.R;
+            G = color.G;
+            B = color.B;
         }
 
     }

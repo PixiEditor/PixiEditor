@@ -9,7 +9,6 @@
              Width="270" Height="320" Name="uc">
     <UserControl.Resources>
         <converters:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
-        <converters:NotifyableColorToHexConverter x:Key="NotifyableColorToHexConverter"/>
     </UserControl.Resources>
     <Grid Background="{StaticResource AccentColor}">
         <Grid.RowDefinitions>
@@ -35,7 +34,7 @@
             <Grid Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <Rectangle Stroke="Black" StrokeThickness="1" Panel.ZIndex="3">
                     <Rectangle.Fill>
-                        <SolidColorBrush Color="{Binding Path=SelectedColor.Color, ElementName=uc}"/>
+                        <SolidColorBrush Color="{Binding Path=SelectedColor, ElementName=uc}"/>
                     </Rectangle.Fill>
                 </Rectangle>
                 <Image Source="/Images/transparentbg.png" Panel.ZIndex="2" Stretch="None"/>
@@ -45,23 +44,23 @@
         <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,10,0,10" HorizontalAlignment="Center" Width="232">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="R" Foreground="White" Padding="5,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=SelectedColor.R, Mode=TwoWay, ElementName=uc}"/>
-                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=SelectedColor.R, Mode=TwoWay, ElementName=uc}"/>
+                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.R, Mode=TwoWay, ElementName=uc}"/>
+                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.R, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="G" Foreground="White" Padding="4,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=SelectedColor.G, Mode=TwoWay, ElementName=uc}"/>
-                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=SelectedColor.G, Mode=TwoWay, ElementName=uc}"/>
+                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.G, Mode=TwoWay, ElementName=uc}"/>
+                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.G, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="B" Foreground="White" Padding="5,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=SelectedColor.B, Mode=TwoWay, ElementName=uc}"/>
-                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=SelectedColor.B, Mode=TwoWay, ElementName=uc}"/>
+                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.B, Mode=TwoWay, ElementName=uc}"/>
+                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.B, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="A" Foreground="White" Padding="4,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=SelectedColor.A, Mode=TwoWay, ElementName=uc}"/>
-                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=SelectedColor.A, Mode=TwoWay, ElementName=uc}"/>
+                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
+                <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
         </StackPanel>
         <Grid Grid.Row="3">
@@ -72,7 +71,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" Margin="10,0,0,0" Height="26">
                 <Label Content="Hex" Foreground="White"/>
-                <TextBox VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="65" Text="{Binding Path=SelectedColor,Converter={StaticResource NotifyableColorToHexConverter}, ElementName=uc}">
+                <TextBox VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="65" Text="{Binding Path=SelectedColor, ElementName=uc}">
                     <i:Interaction.Behaviors>
                         <behaviours:TextBoxFocusBehavior/>
                     </i:Interaction.Behaviors>

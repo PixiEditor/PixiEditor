@@ -25,7 +25,7 @@ namespace PixiEditor.Views
     /// <summary>
     /// Interaction logic for ColorPicker.xaml
     /// </summary>
-    public partial class ColorPicker : UserControl
+    public partial class ColorPicker : UserControl, INotifyPropertyChanged
     {
         private Image _colorPalette;
 
@@ -34,33 +34,51 @@ namespace PixiEditor.Views
             InitializeComponent();
             _colorPalette = (FindName("colorPalette") as Image);
             _dispatcher = Application.Current.Dispatcher;
-            SelectedColor.ColorChanged += SelectedColor_ColorChanged;
+            NotifyableColor = new NotifyableColor(SelectedColor);
+            NotifyableColor.ColorChanged += SelectedColor_ColorChanged;
         }
 
         private void SelectedColor_ColorChanged(object sender, EventArgs e)
         {
-            SelectedColor.ColorChanged -= SelectedColor_ColorChanged;
-            SelectedColor = new NotifyableColor(SelectedColor.Color);
-            
+            SelectedColor = Color.FromArgb(NotifyableColor.A, NotifyableColor.R, NotifyableColor.G, NotifyableColor.B);            
         }
 
         private void SwapColors()
         {
             Color tmp = SecondaryColor;
-            SecondaryColor = SelectedColor.Color;
-            SelectedColor.Color = tmp;
+            SecondaryColor = SelectedColor;
+            SelectedColor = tmp;
         }
 
-        public NotifyableColor SelectedColor
+        private NotifyableColor _notifyableColor;
+
+        public NotifyableColor NotifyableColor
         {
-            get { return (NotifyableColor)GetValue(SelectedColorProperty); }
+            get { return _notifyableColor; }
+            set 
+            { 
+                _notifyableColor = value;
+                RaisePropertyChanged("NotifyableColor");
+            }
+        }
+
+
+        public Color SelectedColor
+        {
+            get { return (Color)GetValue(SelectedColorProperty); }
             set { SetValue(SelectedColorProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for SelectedColor.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedColorProperty =
-            DependencyProperty.Register("SelectedColor", typeof(NotifyableColor), typeof(ColorPicker), 
-                new PropertyMetadata(new NotifyableColor(Colors.Black)));
+            DependencyProperty.Register("SelectedColor", typeof(Color), typeof(ColorPicker), 
+                new PropertyMetadata(Colors.Black, OnSelectedColorChanged));
+
+        private static void OnSelectedColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            Color color = (Color)e.NewValue;
+            ((ColorPicker)d).NotifyableColor.SetArgb(color.A, color.R, color.G, color.B);
+        }
 
         public Color SecondaryColor
         {
@@ -72,8 +90,11 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty SecondaryColorProperty =
             DependencyProperty.Register("SecondaryColor", typeof(Color), typeof(ColorPicker), new PropertyMetadata(Colors.White));
 
+        
         private Dispatcher _dispatcher;
         private System.Timers.Timer _timer = new System.Timers.Timer(5);
+
+        public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
         private void CalculateColor(Point pos)
         {
@@ -82,9 +103,15 @@ namespace PixiEditor.Views
             int h = (int)(pos.X * 360f / _colorPalette.ActualWidth);
             float l = (float)(pos.Y * 100f / _colorPalette.ActualHeight);
 
-            SelectedColor.ColorChanged -= SelectedColor_ColorChanged;
-            SelectedColor = new NotifyableColor(Models.Colors.ExColor.HslToRGB(h, 100, l));
-            SelectedColor.ColorChanged += SelectedColor_ColorChanged;
+            SelectedColor = Models.Colors.ExColor.HslToRGB(h, 100, l);
+        }
+
+        private void RaisePropertyChanged(string property)
+        {
+            if (property != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
