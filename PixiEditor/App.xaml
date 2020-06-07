@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="Styles/Titlebar.xaml"/>
                 <ResourceDictionary Source="Styles/ComboBoxDarkStyle.xaml"/>
                 <ResourceDictionary Source="Styles/ColorSliderStyle.xaml"/>
+                <ResourceDictionary Source="Styles/ColorToggleButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

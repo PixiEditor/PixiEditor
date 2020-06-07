@@ -20,7 +20,7 @@
         <Grid HorizontalAlignment="Left" Margin="20,0,0,0" Width="70" Height="70">
             <Button Opacity="0.3" ToolTip="Swap colors (X)" Click="Button_Click" Width="25" Height="25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 0 0 3" Style="{StaticResource ImageButtonStyle}">
                 <Button.Background>
-                    <ImageBrush ImageSource="/Images/SwapArrows.png" Stretch="Fill"/>
+                    <ImageBrush ImageSource="../Images/SwapArrows.png" Stretch="Fill"/>
                 </Button.Background>
             </Button>
             <Grid Height="40" Width="40" HorizontalAlignment="Right" VerticalAlignment="Bottom">

@@ -1,6 +1,6 @@
-﻿using System.Windows.Data;
+﻿using PixiEditor.Views;
+using System.Windows.Data;
 using System.Windows.Media;
-using Xceed.Wpf.Toolkit;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -13,19 +13,14 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Value = Color.FromArgb(0, 0, 0, 0);
         }
 
-        private ColorPicker GenerateColorPicker()
+        private PortableColorPicker GenerateColorPicker()
         {
-            ColorPicker picker = new ColorPicker()
-            {
-                UsingAlphaChannel = true,
-                AvailableColorsSortingMode = ColorSortingMode.Alphabetical,
-                Width = 70
-            };
+            PortableColorPicker picker = new PortableColorPicker();
             Binding binding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay,
             };
-            picker.SetBinding(ColorPicker.SelectedColorProperty, binding);
+            picker.SetBinding(PortableColorPicker.SelectedColorProperty, binding);
             return picker;
         }
     }
