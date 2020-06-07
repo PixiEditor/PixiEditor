@@ -24,7 +24,7 @@ namespace PixiEditor.ViewModels
     {
         public static ViewModelMain Current { get; set; } = null;
         public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
-        public RelayCommand GenerateDrawAreaCommand { get; set; } //Command that generates draw area
+        public RelayCommand OpenNewFilePopupCommand { get; set; } //Command that generates draw area
         public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
         public RelayCommand MouseDownCommand { get; set; }
         public RelayCommand KeyDownCommand { get; set; }
@@ -166,7 +166,7 @@ namespace PixiEditor.ViewModels
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             ChangesController = new PixelChangesController();
             SelectToolCommand = new RelayCommand(SetTool, DocumentIsNotNull);
-            GenerateDrawAreaCommand = new RelayCommand(GenerateDrawArea);
+            OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
             MouseMoveCommand = new RelayCommand(MouseMove);
             MouseDownCommand = new RelayCommand(MouseDown);
             SaveFileCommand = new RelayCommand(SaveFile, CanSave);
@@ -212,7 +212,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand),
                     new Shortcut(Key.S, SaveFileCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.N, GenerateDrawAreaCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.S, SaveFileCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
@@ -505,7 +505,7 @@ namespace PixiEditor.ViewModels
         /// Generates new Layer and sets it as active one
         /// </summary>
         /// <param name="parameter"></param>
-        public void GenerateDrawArea(object parameter)
+        public void OpenNewFilePopup(object parameter)
         {
             NewFileDialog newFile = new NewFileDialog();
             if (newFile.ShowDialog())

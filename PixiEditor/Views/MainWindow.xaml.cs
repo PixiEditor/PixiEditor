@@ -12,7 +12,8 @@ namespace PixiEditor
         public MainWindow()
         {
             InitializeComponent();
-            this.StateChanged += MainWindowStateChangeRaised;
+            StateChanged += MainWindowStateChangeRaised;
+            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
