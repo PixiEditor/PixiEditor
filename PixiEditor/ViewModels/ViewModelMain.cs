@@ -236,8 +236,11 @@ namespace PixiEditor.ViewModels
 
         public void ClipCanvas(object parameter)
         {
-            if(BitmapManager.ActiveDocument != null)
+            if (BitmapManager.ActiveDocument != null)
+            {
                 BitmapManager.ActiveDocument.ClipCanvas();
+                ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            }
         }
 
         public void Duplicate(object parameter)
@@ -292,7 +295,7 @@ namespace PixiEditor.ViewModels
 
         private bool SelectionIsNotEmpty(object property)
         {
-            return ActiveSelection != null && ActiveSelection.SelectedPoints != null;
+            return ActiveSelection != null && ActiveSelection.SelectedPoints != null && ActiveSelection.SelectedPoints.Count > 0;
         }
 
         public void SetTool(object parameter)
