@@ -59,7 +59,14 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="A" Foreground="White" Padding="4,0,5,0"/>
-                <ui:RgbColorSlider Height="12" Width="170" Minimum="0" Maximum="255" CurrentColor="{Binding Path=SelectedColor, ElementName=uc}" SliderArgbType="A" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
+                <Grid Width="170" Height="12">
+                    <ui:RgbColorSlider CurrentColor="{Binding Path=SelectedColor, ElementName=uc}" SliderArgbType="A" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
+                    <Border BorderThickness="0" CornerRadius="5" Panel.ZIndex="-1" >
+                        <Border.Background>
+                            <ImageBrush ImageSource="../Images/transparentbg.png" Stretch="UniformToFill"/>
+                        </Border.Background>
+                    </Border>
+                </Grid>
                 <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
         </StackPanel>
