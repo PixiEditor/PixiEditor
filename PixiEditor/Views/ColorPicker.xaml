@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-             xmlns:local="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:local="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" 
              Width="270" Height="320" Name="uc">
     <UserControl.Resources>
@@ -44,22 +44,22 @@
         <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,10,0,10" HorizontalAlignment="Center" Width="232">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="R" Foreground="White" Padding="5,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.R, Mode=TwoWay, ElementName=uc}"/>
+                <ui:RgbColorSlider Height="12" Width="170" Minimum="0" CurrentColor="{Binding Path=SelectedColor, ElementName=uc}" SliderArgbType="R" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.R, Mode=TwoWay, ElementName=uc}"/>
                 <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.R, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="G" Foreground="White" Padding="4,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.G, Mode=TwoWay, ElementName=uc}"/>
+                <ui:RgbColorSlider Height="12" Width="170" Minimum="0" Maximum="255" CurrentColor="{Binding Path=SelectedColor, ElementName=uc}" SliderArgbType="G" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.G, Mode=TwoWay, ElementName=uc}"/>
                 <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.G, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="B" Foreground="White" Padding="5,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.B, Mode=TwoWay, ElementName=uc}"/>
+                <ui:RgbColorSlider Height="12" Width="170" Minimum="0" Maximum="255" CurrentColor="{Binding Path=SelectedColor, ElementName=uc}" SliderArgbType="B" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.B, Mode=TwoWay, ElementName=uc}"/>
                 <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.B, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                 <TextBlock Text="A" Foreground="White" Padding="4,0,5,0"/>
-                <Slider Width="170" Minimum="0" Maximum="255" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
+                <ui:RgbColorSlider Height="12" Width="170" Minimum="0" Maximum="255" CurrentColor="{Binding Path=SelectedColor, ElementName=uc}" SliderArgbType="A" IsMoveToPointEnabled="True" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="10" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
                 <local:NumberInput Min="0" Max="255" Margin="5,0,0,0" Width="40" Value="{Binding Path=NotifyableColor.A, Mode=TwoWay, ElementName=uc}"/>
             </StackPanel>
         </StackPanel>
@@ -71,7 +71,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Center" Margin="10,0,0,0" Height="26">
                 <Label Content="Hex" Foreground="White"/>
-                <TextBox VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="65" Text="{Binding Path=SelectedColor, ElementName=uc}">
+                <TextBox VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="70" Text="{Binding Path=SelectedColor, ElementName=uc}">
                     <i:Interaction.Behaviors>
                         <behaviours:TextBoxFocusBehavior/>
                     </i:Interaction.Behaviors>

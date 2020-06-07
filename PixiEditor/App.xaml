@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="Styles/ThemeStyle.xaml"/>
                 <ResourceDictionary Source="Styles/Titlebar.xaml"/>
                 <ResourceDictionary Source="Styles/ComboBoxDarkStyle.xaml"/>
+                <ResourceDictionary Source="Styles/ColorSliderStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

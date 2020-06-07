@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\ColorCircle.png" />
     <None Remove="Images\ColorPalette.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\PixiEditorLogo.png" />
@@ -47,6 +48,7 @@
   <ItemGroup>
     <Resource Include="Images\BucketImage.png" />
     <Resource Include="Images\CircleImage.png" />
+    <Resource Include="Images\ColorCircle.png" />
     <Resource Include="Images\ColorPalette.png" />
     <Resource Include="Images\Cross.png" />
     <Resource Include="Images\EarserImage.png" />
