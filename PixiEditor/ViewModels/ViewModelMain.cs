@@ -50,6 +50,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand PasteCommand { get; set; }
         public RelayCommand ClipCanvasCommand { get; set; }
         public RelayCommand DeletePixelsCommand { get; set; }
+        public RelayCommand OpenResizePopupCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -190,6 +191,7 @@ namespace PixiEditor.ViewModels
             PasteCommand = new RelayCommand(Paste, CanPaste);
             ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
             DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
+            OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
             ShortcutController = new ShortcutController
@@ -226,6 +228,13 @@ namespace PixiEditor.ViewModels
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
+        }
+
+        private void OpenResizePopup(object parameter)
+        {
+            ResizeDocumentDialog dialog = new ResizeDocumentDialog();
+            dialog.ShowDialog();
+            Console.WriteLine();
         }
 
         private void DeletePixels(object parameter)

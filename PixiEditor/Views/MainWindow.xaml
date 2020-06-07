@@ -82,6 +82,7 @@
                     <MenuItem Header="_Deselect" Command="{Binding DeselectCommand}" InputGestureText="Ctrl+D"/>
                 </MenuItem>
                 <MenuItem Header="_Document">
+                    <MenuItem Header="Resize document" Command="{Binding OpenResizePopupCommand}"/>
                     <MenuItem Header="Clip canvas" Command="{Binding ClipCanvasCommand}"/>
                 </MenuItem>
             </Menu>

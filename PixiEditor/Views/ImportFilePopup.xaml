@@ -15,7 +15,7 @@
         <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
-    <Grid Background="#404040">
+    <Grid Background="{StaticResource AccentColor}">
         <Grid.RowDefinitions>
             <RowDefinition Height="4*"/>
             <RowDefinition Height="67*"/>
@@ -34,7 +34,7 @@
         </Grid>
         <StackPanel Grid.Row="1" >
             <Label Height="40" Width="120" VerticalAlignment="Top" Content="Import" Foreground="Snow" HorizontalContentAlignment="Center" FontSize="24" Margin="0,10,0,0"/>
-        <StackPanel Background="#2D2D2D" Height="85" Width="200" Margin="0,10,0,0">
+        <StackPanel Background="{StaticResource MainColor}" Height="85" Width="200" Margin="0,10,0,0">
                 <DockPanel Height="20" Margin="0,15,0,0" Width="150">
                     <TextBlock Width="40" HorizontalAlignment="Left" Text="Width:" Foreground="Snow" FontSize="14"/>
                     <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="75" Margin="-10,0,0,0" Text="{Binding ImportWidth, Converter={StaticResource ToolSizeToIntConverter}, Mode=TwoWay}">
