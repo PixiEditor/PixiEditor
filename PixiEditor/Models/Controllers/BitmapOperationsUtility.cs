@@ -58,6 +58,7 @@ namespace PixiEditor.Models.Controllers
 
         public void StopAction()
         {
+            if (_lastModifiedLayers == null) return;
             for (int i = 0; i < _lastModifiedLayers.Length; i++)
             {
                 BitmapPixelChanges oldValues = GetOldPixelsValues(_lastModifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray());

@@ -88,16 +88,16 @@ namespace PixiEditor.Models.Layers
         public void ApplyPixels(BitmapPixelChanges pixels)
         {
             if (pixels.ChangedPixels == null) return;
-            LayerBitmap.Lock();
-
-            foreach (var coords in pixels.ChangedPixels)
+            using (LayerBitmap.GetBitmapContext())
             {
-                if (coords.Key.X > Width - 1 || coords.Key.X < 0 || coords.Key.Y < 0 || coords.Key.Y > Height - 1) continue;
-                LayerBitmap.SetPixel(Math.Clamp(coords.Key.X, 0, Width - 1), Math.Clamp(coords.Key.Y, 0, Height - 1),
-                    coords.Value);
-            }
 
-            LayerBitmap.Unlock();
+                foreach (var coords in pixels.ChangedPixels)
+                {
+                    if (coords.Key.X > Width - 1 || coords.Key.X < 0 || coords.Key.Y < 0 || coords.Key.Y > Height - 1) continue;
+                    LayerBitmap.SetPixel(Math.Clamp(coords.Key.X, 0, Width - 1), Math.Clamp(coords.Key.Y, 0, Height - 1),
+                        coords.Value);
+                }
+            }
         }
 
         public void Clear()
