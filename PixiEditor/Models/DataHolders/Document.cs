@@ -12,6 +12,8 @@ namespace PixiEditor.Models.DataHolders
     [Serializable]
     public class Document : NotifyableObject
     {
+        public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
+
         private int _width;
         public int Width
         {
@@ -60,28 +62,28 @@ namespace PixiEditor.Models.DataHolders
             Height = height;
         }
 
-        public Document DeepClone()
-        {
-            Document doc = new Document(Width, Height)
-            {
-                Layers = new ObservableCollection<Layer>(Layers.Select(x => new Layer(x.LayerBitmap.Clone()) 
-                {
-                    Name = x.Name,
-                    Width = x.Width,
-                    Height = x.Height,
-                    IsActive = x.IsActive,
-                    IsVisible = x.IsVisible
-                })),
-            };
-            return doc;
-        }
-
         public void Crop(int x, int y, int width, int height)
         {
             object[] reverseArgs = new object[] { x, y, Width, Height, width, height};
             CropDocument(x, y, width, height);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ReverseCrop, 
                 reverseArgs, this, "Crop document"));
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(Width, Height, width, height));
+        }
+
+        public void Resize(int newWidth, int newHeight)
+        {
+            int oldWidth = Width;
+            int oldHeight = Height;
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                Layers[i].LayerBitmap = Layers[i].LayerBitmap.Resize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+                Layers[i].Width = newWidth;
+                Layers[i].Height = newHeight;
+            }
+            Height = newHeight;
+            Width = newWidth;
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, newWidth, newHeight));
         }
 
         private void CropDocument(int x, int y, int width, int height)
@@ -173,6 +175,22 @@ namespace PixiEditor.Models.DataHolders
                     biggestPixels[i] = point;
             }
             return biggestPixels;
+        }
+    }
+
+    public class DocumentSizeChangedEventArgs
+    {
+        public int OldWidth { get; set; }
+        public int OldHeight{ get; set; }
+        public int NewWidth { get; set; }
+        public int NewHeight { get; set; }
+
+        public DocumentSizeChangedEventArgs(int oldWidth, int oldHeight, int newWidth, int newHeight)
+        {
+            OldWidth = oldWidth;
+            OldHeight = oldHeight;
+            NewWidth = newWidth;
+            NewHeight = newHeight;
         }
     }
 }

@@ -221,6 +221,8 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Delete, DeletePixelsCommand),
+                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas" ,ModifierKeys.Control | ModifierKeys.Shift),
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -230,11 +232,25 @@ namespace PixiEditor.ViewModels
             Current = this;
         }
 
+        private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
+        {
+            ActiveSelection = new Selection(Array.Empty<Coordinates>());
+        }
+
         private void OpenResizePopup(object parameter)
         {
-            ResizeDocumentDialog dialog = new ResizeDocumentDialog();
-            dialog.ShowDialog();
-            Console.WriteLine();
+            ResizeDocumentDialog dialog = new ResizeDocumentDialog(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height);
+            if (dialog.ShowDialog())
+            {
+                if ((string)parameter == "canvas")
+                {
+                    //Todo resize canvas
+                }
+                else
+                {
+                    BitmapManager.ActiveDocument.Resize(dialog.Width, dialog.Height);
+                }
+            }           
         }
 
         private void DeletePixels(object parameter)
@@ -248,7 +264,6 @@ namespace PixiEditor.ViewModels
             if (BitmapManager.ActiveDocument != null)
             {
                 BitmapManager.ActiveDocument.ClipCanvas();
-                ActiveSelection = new Selection(Array.Empty<Coordinates>());
             }
         }
 
@@ -563,6 +578,7 @@ namespace PixiEditor.ViewModels
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            BitmapManager.ActiveDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
         }
 
         /// <summary>

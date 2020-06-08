@@ -9,7 +9,7 @@
              xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours" 
              xmlns:converters="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="450" DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Height="600" Width="450" Name="newFilePopup">
+             d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450" DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Height="600" Width="450" Name="newFilePopup">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel"/>
         <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
@@ -33,7 +33,8 @@
                     </Button.Background>
                 </Button>
             </Grid>
-            <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" Background="{StaticResource MainColor}" VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
+            <Label Content="New File" Grid.Row="1" Margin="0,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="White" FontSize="24"/>
+            <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Background="{StaticResource MainColor}" VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
                 <DockPanel Margin="50,35,0,0">
                     <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16"

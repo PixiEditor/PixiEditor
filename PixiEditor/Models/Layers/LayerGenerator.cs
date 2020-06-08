@@ -15,15 +15,6 @@ namespace PixiEditor.Models.Layers
             return new Layer(GenerateBitmap(imageWidth, imageHeight));
         }
 
-        public static LightLayer GenerateWithByteArray(int width, int height)
-        {
-            WriteableBitmap bitmap = GenerateBitmap(width, height);
-            bitmap.Lock();
-            byte[] byteArray = bitmap.ToByteArray();
-            bitmap.Unlock();
-            return new LightLayer(byteArray, height, width);
-        }
-
         /// <summary>
         /// Generates bitmap ready to work with
         /// </summary>

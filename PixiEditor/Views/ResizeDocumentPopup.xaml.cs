@@ -12,6 +12,7 @@ namespace PixiEditor.Views
         public ResizeDocumentPopup()
         {
             InitializeComponent();
+            DataContext = this;
         }
 
 
@@ -36,9 +37,7 @@ namespace PixiEditor.Views
 
         // Using a DependencyProperty as the backing store for NewWidth.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty NewWidthProperty =
-            DependencyProperty.Register("NewWidth", typeof(int), typeof(ResizeDocumentPopup), new PropertyMetadata(0));
-
-
+            DependencyProperty.Register("NewWidth", typeof(int), typeof(ResizeDocumentPopup), new PropertyMetadata(0));   
 
 
 
@@ -50,6 +49,12 @@ namespace PixiEditor.Views
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+            Close();
         }
     }
 }

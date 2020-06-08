@@ -63,7 +63,7 @@
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}"/>
                 </Menu.Resources>
                 <MenuItem Header="_File">
-                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding GenerateDrawAreaCommand}"/>
+                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding OpenNewFilePopupCommand}"/>
                     <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"/>
                     <MenuItem Header="_Export" InputGestureText="Ctrl+S" Command="{Binding SaveFileCommand}"/>
                     <MenuItem Header="_Export As..." InputGestureText="Ctrl+Shift+S" Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
@@ -84,8 +84,9 @@
                     <MenuItem Header="_Deselect" Command="{Binding DeselectCommand}" InputGestureText="Ctrl+D"/>
                 </MenuItem>
                 <MenuItem Header="_Document">
-                    <MenuItem Header="Resize document" Command="{Binding OpenResizePopupCommand}"/>
-                    <MenuItem Header="Clip canvas" Command="{Binding ClipCanvasCommand}"/>
+                    <MenuItem Header="Resize Document..." Command="{Binding OpenResizePopupCommand}" InputGestureText="Ctrl+Shift+I"/>
+                    <MenuItem Header="Resize Canvas..." Command="{Binding OpenResizePopupCommand}" CommandParameter="canvas" InputGestureText="Ctrl+Shift+C"/>
+                    <MenuItem Header="Clip Canvas" Command="{Binding ClipCanvasCommand}"/>
                 </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
