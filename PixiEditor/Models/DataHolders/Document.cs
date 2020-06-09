@@ -78,18 +78,30 @@ namespace PixiEditor.Models.DataHolders
         {
             int offsetX = GetOffsetXForAnchor(Width, width, anchor);
             int offsetY = GetOffsetYForAnchor(Height, height, anchor);
-            ResizeCanvas(offsetX, offsetY, Width, width, height);
+            int offsetXSrc = 0;
+            int offsetYSrc = 0;
+            if(Width > width)
+            {
+                offsetXSrc = offsetX;
+                offsetX = 0;
+            }
+            if(Height > height)
+            {
+                offsetYSrc = offsetY;
+                offsetY = 0;
+            }
+            ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, Width, width, height);
         }
 
         private int GetOffsetXForAnchor(int srcWidth, int destWidth, AnchorPoint anchor)
         {
             if (anchor.HasFlag(AnchorPoint.Center))
             {
-                return destWidth / 2 - srcWidth / 2;
+                return Math.Abs(destWidth / 2 - srcWidth / 2);
             }
             else if (anchor.HasFlag(AnchorPoint.Right))
             {
-                return destWidth - srcWidth;
+                return Math.Abs(destWidth - srcWidth);
             }
             return 0;
         }
@@ -98,11 +110,11 @@ namespace PixiEditor.Models.DataHolders
         {
             if (anchor.HasFlag(AnchorPoint.Middle))
             {
-                return destHeight / 2 - srcHeight / 2;
+                return Math.Abs(destHeight / 2 - srcHeight / 2);
             }
             else if (anchor.HasFlag(AnchorPoint.Bottom))
             {
-                return destHeight - srcHeight;
+                return Math.Abs(destHeight - srcHeight);
             }
             return 0;
         }
@@ -134,7 +146,7 @@ namespace PixiEditor.Models.DataHolders
             Width = width;
         }
 
-        private void ResizeCanvas(int offsetX, int offsetY, int oldWidth, int newWidth, int newHeight)
+        private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int oldWidth, int newWidth, int newHeight)
         {
             int sizeOfArgb = 4;
             for (int i = 0; i < Layers.Count; i++)
@@ -146,7 +158,7 @@ namespace PixiEditor.Models.DataHolders
                     {
                         for (int line = 0; line < oldWidth; line++)
                         {
-                            var srcOff = line * Width * sizeOfArgb;
+                            var srcOff = ((offsetYSrc + line) * oldWidth + offsetXSrc) * sizeOfArgb;
                             var dstOff = ((offsetY + line) * newWidth + offsetX) * sizeOfArgb;
                             BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, oldWidth * sizeOfArgb);
                         }
@@ -171,9 +183,8 @@ namespace PixiEditor.Models.DataHolders
             if (offsetX < 0) offsetX = 0;
             if (offsetX + newWidth > oldWidth) newWidth = oldWidth - offsetX;
             if (offsetY < 0) offsetY = 0;
-            if (offsetY + newHeight > oldHeight) newHeight = oldHeight - offsetY;
 
-            ResizeCanvas(offsetX, offsetY, newWidth, oldWidth, oldHeight);
+            ResizeCanvas(offsetX, offsetY, 0, 0, newWidth, oldWidth, oldHeight);
         }
 
         public void ClipCanvas()
