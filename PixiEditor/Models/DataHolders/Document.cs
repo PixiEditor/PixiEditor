@@ -5,6 +5,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.DirectoryServices;
 using System.Drawing.Text;
 using System.Linq;
@@ -68,9 +69,10 @@ namespace PixiEditor.Models.DataHolders
         public void Crop(int x, int y, int width, int height)
         {
             object[] reverseArgs = new object[] { x, y, Width, Height, width, height};
-            CropDocument(x, y, width, height);
+            object[] processArgs = new object[] { x, y, width, height };
+            CropDocument(processArgs);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ReverseCrop, 
-                reverseArgs, this, "Crop document"));
+                reverseArgs, CropDocument, processArgs, "Crop document"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(Width, Height, width, height));
         }
 
@@ -90,7 +92,7 @@ namespace PixiEditor.Models.DataHolders
                 offsetYSrc = offsetY;
                 offsetY = 0;
             }
-            ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, Width, width, height);
+            ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height, width, height);
         }
 
         private int GetOffsetXForAnchor(int srcWidth, int destWidth, AnchorPoint anchor)
@@ -134,19 +136,18 @@ namespace PixiEditor.Models.DataHolders
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, newWidth, newHeight));
         }
 
-        private void CropDocument(int x, int y, int width, int height)
+        private void CropDocument(object[] arguments)
         {
-            for (int i = 0; i < Layers.Count; i++)
-            {
-                Layers[i].LayerBitmap = Layers[i].LayerBitmap.Crop(x, y, width, height);
-                Layers[i].Width = width;
-                Layers[i].Height = height;
-            }
+            int x = (int)arguments[0];
+            int y = (int)arguments[1];
+            int width = (int)arguments[2];
+            int height = (int)arguments[3];
+            ResizeCanvas(0, 0, x, y, Width, Height, width, height);
             Height = height;
             Width = width;
         }
 
-        private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int oldWidth, int newWidth, int newHeight)
+        private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int oldWidth, int oldHeight, int newWidth, int newHeight)
         {
             int sizeOfArgb = 4;
             for (int i = 0; i < Layers.Count; i++)
@@ -156,7 +157,7 @@ namespace PixiEditor.Models.DataHolders
                     var result = BitmapFactory.New(newWidth, newHeight);
                     using (var destContext = result.GetBitmapContext())
                     {
-                        for (int line = 0; line < oldWidth; line++)
+                        for (int line = 0; line < oldHeight; line++)
                         {
                             var srcOff = ((offsetYSrc + line) * oldWidth + offsetXSrc) * sizeOfArgb;
                             var dstOff = ((offsetY + line) * newWidth + offsetX) * sizeOfArgb;
@@ -183,8 +184,9 @@ namespace PixiEditor.Models.DataHolders
             if (offsetX < 0) offsetX = 0;
             if (offsetX + newWidth > oldWidth) newWidth = oldWidth - offsetX;
             if (offsetY < 0) offsetY = 0;
+            if (offsetY + newHeight > oldHeight) newHeight = oldHeight - offsetY;
 
-            ResizeCanvas(offsetX, offsetY, 0, 0, newWidth, oldWidth, oldHeight);
+            ResizeCanvas(offsetX, offsetY, 0, 0, newWidth, newHeight, oldWidth, oldHeight);
         }
 
         public void ClipCanvas()

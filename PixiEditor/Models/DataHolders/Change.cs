@@ -15,6 +15,9 @@ namespace PixiEditor.Models.DataHolders
 
         public Action<object[]> ReverseProcess { get; set; } = null;
         public object[] ReverseProcessArguments;
+        public Action<object[]> Process { get; set; } = null;
+        public object[] ProcessArguments;
+
 
         public Change(string property, object oldValue, object newValue, string description = "")
         {
@@ -31,6 +34,17 @@ namespace PixiEditor.Models.DataHolders
             ReverseProcess = reverseProcess;
             ReverseProcessArguments = reverseArguments;
             NewValue = newValue;
+            Description = description;
+        }
+
+        public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments,
+            Action<object[]> process, object[] processArguments, string description = "")
+        {
+            Property = property;
+            ReverseProcess = reverseProcess;
+            ReverseProcessArguments = reverseArguments;
+            Process = process;
+            ProcessArguments = processArguments;
             Description = description;
         }
 
