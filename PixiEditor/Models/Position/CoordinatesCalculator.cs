@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Security.Cryptography.X509Certificates;
@@ -155,6 +156,39 @@ namespace PixiEditor.Models.Position
             }
             bitmap.Unlock();
             return -1;
+        }
+
+        /// <summary>
+        /// Finds most top-left pixel on each layer.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <returns>Most top-left pixel in each layer</returns>
+        public static Coordinates[] GetSmallestPixels(Document document)
+        {
+            Coordinates[] smallestPixels = new Coordinates[document.Layers.Count];
+            for (int i = 0; i < smallestPixels.Length; i++)
+            {
+                Coordinates point = FindMinEdgeNonTransparentPixel(document.Layers[i].LayerBitmap);
+                if (point.X >= 0 && point.Y >= 0)
+                    smallestPixels[i] = point;
+            }
+            return smallestPixels;
+        }
+        /// <summary>
+        /// Finds most bottom-right pixel on each layer.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <returns>Most bottom-right pixel in each layer</returns>
+        public static Coordinates[] GetBiggestPixels(Document document)
+        {
+            Coordinates[] biggestPixels = new Coordinates[document.Layers.Count];
+            for (int i = 0; i < biggestPixels.Length; i++)
+            {
+                Coordinates point = FindMostEdgeNonTransparentPixel(document.Layers[i].LayerBitmap);
+                if (point.X >= 0 && point.Y >= 0)
+                    biggestPixels[i] = point;
+            }
+            return biggestPixels;
         }
     }
 }

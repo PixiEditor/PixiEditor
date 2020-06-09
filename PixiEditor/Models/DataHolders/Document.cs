@@ -68,11 +68,11 @@ namespace PixiEditor.Models.DataHolders
 
         public void Crop(int x, int y, int width, int height)
         {
-            object[] reverseArgs = new object[] { x, y, Width, Height, width, height};
-            object[] processArgs = new object[] { x, y, width, height };
-            CropDocument(processArgs);
+            object[] reverseArgs = new object[] { x, y, 0, 0, Width, Height, width, height};
+            object[] processArgs = new object[] { x, y, 0, 0, width, height };
+            ResizeDocumentCanvas(processArgs);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ReverseCrop, 
-                reverseArgs, CropDocument, processArgs, "Crop document"));
+                reverseArgs, ResizeDocumentCanvas, processArgs, "Crop document"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(Width, Height, width, height));
         }
 
@@ -92,7 +92,12 @@ namespace PixiEditor.Models.DataHolders
                 offsetYSrc = offsetY;
                 offsetY = 0;
             }
+            object[] processArgs = new object[] { offsetXSrc, offsetYSrc, offsetX, offsetY, width, height };
+            object[] reverseProcessArgs = new object[] {offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height };
+
             ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height, width, height);
+            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas,
+                reverseProcessArgs, ResizeDocumentCanvas, processArgs, "Resize canvas"));
         }
 
         private int GetOffsetXForAnchor(int srcWidth, int destWidth, AnchorPoint anchor)
@@ -125,6 +130,19 @@ namespace PixiEditor.Models.DataHolders
         {
             int oldWidth = Width;
             int oldHeight = Height;
+
+            object[] reverseArgs = new object[] { oldWidth, oldHeight};
+            object[] args = new object[] { newWidth, newHeight };
+            ResizeDocument(args);
+            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocument, reverseArgs,
+                ResizeDocument, args, "Resize document"));
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, newWidth, newHeight));
+        }
+
+        private void ResizeDocument(object[] arguments)
+        {
+            int newWidth = (int)arguments[0];
+            int newHeight = (int)arguments[1];
             for (int i = 0; i < Layers.Count; i++)
             {
                 Layers[i].LayerBitmap = Layers[i].LayerBitmap.Resize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
@@ -133,16 +151,17 @@ namespace PixiEditor.Models.DataHolders
             }
             Height = newHeight;
             Width = newWidth;
-            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, newWidth, newHeight));
         }
 
-        private void CropDocument(object[] arguments)
+        private void ResizeDocumentCanvas(object[] arguments)
         {
             int x = (int)arguments[0];
             int y = (int)arguments[1];
-            int width = (int)arguments[2];
-            int height = (int)arguments[3];
-            ResizeCanvas(0, 0, x, y, Width, Height, width, height);
+            int destX = (int)arguments[2];
+            int destY = (int)arguments[3];
+            int width = (int)arguments[4];
+            int height = (int)arguments[5];
+            ResizeCanvas(destX, destY, x, y, Width, Height, width, height);
             Height = height;
             Width = width;
         }
@@ -150,6 +169,7 @@ namespace PixiEditor.Models.DataHolders
         private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int oldWidth, int oldHeight, int newWidth, int newHeight)
         {
             int sizeOfArgb = 4;
+            int iteratorHeight = oldHeight > newHeight ? newHeight : oldHeight;
             for (int i = 0; i < Layers.Count; i++)
             {
                 using (var srcContext = Layers[i].LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
@@ -157,7 +177,7 @@ namespace PixiEditor.Models.DataHolders
                     var result = BitmapFactory.New(newWidth, newHeight);
                     using (var destContext = result.GetBitmapContext())
                     {
-                        for (int line = 0; line < oldHeight; line++)
+                        for (int line = 0; line < iteratorHeight; line++)
                         {
                             var srcOff = ((offsetYSrc + line) * oldWidth + offsetXSrc) * sizeOfArgb;
                             var dstOff = ((offsetY + line) * newWidth + offsetX) * sizeOfArgb;
@@ -191,8 +211,8 @@ namespace PixiEditor.Models.DataHolders
 
         public void ClipCanvas()
         {
-            Coordinates[] smallestPixels = GetSmallestPixels();
-            Coordinates[] biggestPixels = GetBiggestPixels();
+            Coordinates[] smallestPixels = CoordinatesCalculator.GetSmallestPixels(this);
+            Coordinates[] biggestPixels = CoordinatesCalculator.GetBiggestPixels(this);
 
             int smallestX = smallestPixels.Min(x => x.X);
             int smallestY = smallestPixels.Min(x => x.Y);
@@ -205,31 +225,7 @@ namespace PixiEditor.Models.DataHolders
                 int width = biggestX - smallestX + 1;
             int height = biggestY - smallestY + 1;
             Crop(smallestX, smallestY, width, height);
-        }
-
-        private Coordinates[] GetSmallestPixels()
-        {
-            Coordinates[] smallestPixels = new Coordinates[Layers.Count];
-            for (int i = 0; i < smallestPixels.Length; i++)
-            {
-                Coordinates point = CoordinatesCalculator.FindMinEdgeNonTransparentPixel(Layers[i].LayerBitmap);
-                if(point.X >= 0 && point.Y >=0)
-                    smallestPixels[i] = point;
-            }
-            return smallestPixels;
-        }
-
-        private Coordinates[] GetBiggestPixels()
-        {
-            Coordinates[] biggestPixels = new Coordinates[Layers.Count];
-            for (int i = 0; i < biggestPixels.Length; i++)
-            {
-                Coordinates point = CoordinatesCalculator.FindMostEdgeNonTransparentPixel(Layers[i].LayerBitmap);
-                if (point.X >= 0 && point.Y >= 0)
-                    biggestPixels[i] = point;
-            }
-            return biggestPixels;
-        }
+        }     
     }
 
     public class DocumentSizeChangedEventArgs
