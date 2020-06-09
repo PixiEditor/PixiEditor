@@ -239,12 +239,13 @@ namespace PixiEditor.ViewModels
 
         private void OpenResizePopup(object parameter)
         {
-            ResizeDocumentDialog dialog = new ResizeDocumentDialog(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height);
+            bool isCanvasDialog = (string)parameter == "canvas";
+            ResizeDocumentDialog dialog = new ResizeDocumentDialog(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height, isCanvasDialog);
             if (dialog.ShowDialog())
             {
-                if ((string)parameter == "canvas")
+                if (isCanvasDialog)
                 {
-                    //Todo resize canvas
+                    BitmapManager.ActiveDocument.ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
                 }
                 else
                 {

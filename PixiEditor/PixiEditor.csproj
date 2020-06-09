@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\ColorCircle.png" />
     <None Remove="Images\ColorPalette.png" />
     <None Remove="Images\MoveImage.png" />
@@ -46,6 +47,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\AnchorDot.png" />
     <Resource Include="Images\BucketImage.png" />
     <Resource Include="Images\CircleImage.png" />
     <Resource Include="Images\ColorCircle.png" />

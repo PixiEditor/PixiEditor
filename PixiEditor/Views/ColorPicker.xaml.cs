@@ -36,6 +36,12 @@ namespace PixiEditor.Views
             _dispatcher = Application.Current.Dispatcher;
             NotifyableColor = new NotifyableColor(SelectedColor);
             NotifyableColor.ColorChanged += SelectedColor_ColorChanged;
+            _colorPalette.IsVisibleChanged += _colorPalette_IsVisibleChanged;
+        }
+
+        private void _colorPalette_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            _timer.Stop();
         }
 
         private void SelectedColor_ColorChanged(object sender, EventArgs e)

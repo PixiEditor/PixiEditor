@@ -1,9 +1,12 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System;
 using System.Collections.ObjectModel;
+using System.DirectoryServices;
+using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Media.Imaging;
 
@@ -71,6 +74,39 @@ namespace PixiEditor.Models.DataHolders
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(Width, Height, width, height));
         }
 
+        public void ResizeCanvas(int width, int height, AnchorPoint anchor)
+        {
+            int offsetX = GetOffsetXForAnchor(Width, width, anchor);
+            int offsetY = GetOffsetYForAnchor(Height, height, anchor);
+            ResizeCanvas(offsetX, offsetY, Width, width, height);
+        }
+
+        private int GetOffsetXForAnchor(int srcWidth, int destWidth, AnchorPoint anchor)
+        {
+            if (anchor.HasFlag(AnchorPoint.Center))
+            {
+                return destWidth / 2 - srcWidth / 2;
+            }
+            else if (anchor.HasFlag(AnchorPoint.Right))
+            {
+                return destWidth - srcWidth;
+            }
+            return 0;
+        }
+
+        private int GetOffsetYForAnchor(int srcHeight, int destHeight,AnchorPoint anchor)
+        {
+            if (anchor.HasFlag(AnchorPoint.Middle))
+            {
+                return destHeight / 2 - srcHeight / 2;
+            }
+            else if (anchor.HasFlag(AnchorPoint.Bottom))
+            {
+                return destHeight - srcHeight;
+            }
+            return 0;
+        }
+
         public void Resize(int newWidth, int newHeight)
         {
             int oldWidth = Width;
@@ -98,6 +134,32 @@ namespace PixiEditor.Models.DataHolders
             Width = width;
         }
 
+        private void ResizeCanvas(int offsetX, int offsetY, int oldWidth, int newWidth, int newHeight)
+        {
+            int sizeOfArgb = 4;
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                using (var srcContext = Layers[i].LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
+                {
+                    var result = BitmapFactory.New(newWidth, newHeight);
+                    using (var destContext = result.GetBitmapContext())
+                    {
+                        for (int line = 0; line < oldWidth; line++)
+                        {
+                            var srcOff = line * Width * sizeOfArgb;
+                            var dstOff = ((offsetY + line) * newWidth + offsetX) * sizeOfArgb;
+                            BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, oldWidth * sizeOfArgb);
+                        }
+                        Layers[i].LayerBitmap = result;
+                        Layers[i].Width = newWidth;
+                        Layers[i].Height = newHeight;
+                    }
+                }
+            }
+            Width = newWidth;
+            Height = newHeight;
+        }
+
         private void ReverseCrop(object[] arguments) //Reverses process of cropping
         {
             int offsetX = (int)arguments[0];
@@ -106,33 +168,12 @@ namespace PixiEditor.Models.DataHolders
             int oldHeight = (int)arguments[3];
             int newWidth = (int)arguments[4]; //newWidth is the width after first crop
             int newHeight = (int)arguments[5];
-            int sizeOfArgb = 4;
             if (offsetX < 0) offsetX = 0;
             if (offsetX + newWidth > oldWidth) newWidth = oldWidth - offsetX;
             if (offsetY < 0) offsetY = 0;
             if (offsetY + newHeight > oldHeight) newHeight = oldHeight - offsetY;
 
-            for (int i = 0; i < Layers.Count; i++)
-            {
-                using (var srcContext = Layers[i].LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
-                {
-                    var result = BitmapFactory.New(oldWidth, oldHeight);
-                    using (var destContext = result.GetBitmapContext())
-                    {
-                        for (int line = 0; line < newHeight; line++)
-                        {
-                            var srcOff = line * newWidth * sizeOfArgb;
-                            var dstOff = ((offsetY + line) * oldWidth + offsetX) * sizeOfArgb;
-                            BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, newWidth * sizeOfArgb);
-                        }
-                        Layers[i].LayerBitmap = result;
-                        Layers[i].Width = oldWidth;
-                        Layers[i].Height = oldHeight;
-                    }
-                }
-            }
-            Width = oldWidth;
-            Height = oldHeight;
+            ResizeCanvas(offsetX, offsetY, newWidth, oldWidth, oldHeight);
         }
 
         public void ClipCanvas()

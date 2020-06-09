@@ -47,8 +47,5 @@ namespace PixiEditor.Views
         // Using a DependencyProperty as the backing store for SecondaryColor.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SecondaryColorProperty =
             DependencyProperty.Register("SecondaryColor", typeof(Color), typeof(PortableColorPicker), new PropertyMetadata(Colors.White));
-
-
-
     }
 }
