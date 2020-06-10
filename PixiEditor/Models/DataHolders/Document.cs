@@ -70,10 +70,10 @@ namespace PixiEditor.Models.DataHolders
 
         public void Crop(int x, int y, int width, int height)
         {
-            object[] reverseArgs = new object[] { x, y, Width, Height, width, height};
+            object[] reverseArgs = new object[] { 0, 0, x, y, Width, Height, width, height};
             object[] processArgs = new object[] { x, y, 0, 0, width, height };
             ResizeDocumentCanvas(processArgs);
-            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ReverseCrop, 
+            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas, 
                 reverseArgs, ResizeDocumentCanvas, processArgs, "Crop document"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(Width, Height, width, height));
         }
@@ -193,18 +193,6 @@ namespace PixiEditor.Models.DataHolders
             }
             Width = newWidth;
             Height = newHeight;
-        }
-
-        private void ReverseCrop(object[] arguments) //Reverses process of cropping
-        {
-            int offsetX = (int)arguments[0];
-            int offsetY = (int)arguments[1];
-            int oldWidth = (int)arguments[2]; //oldWidth is the width before first crop
-            int oldHeight = (int)arguments[3];
-            int newWidth = (int)arguments[4]; //newWidth is the width after first crop
-            int newHeight = (int)arguments[5];
-
-            ResizeCanvas(offsetX, offsetY, 0, 0, newWidth, newHeight, oldWidth, oldHeight);
         }
 
         public void ClipCanvas()
