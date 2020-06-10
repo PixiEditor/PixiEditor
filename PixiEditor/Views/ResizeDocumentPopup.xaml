@@ -32,25 +32,8 @@
         </DockPanel>
         <Label Grid.Row="1" VerticalAlignment="Top" Foreground="White" FontSize="24" HorizontalAlignment="Center" Content="Resize document"/>
         <StackPanel HorizontalAlignment="Center" Margin="0,50,0,0" Background="{StaticResource MainColor}" VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
-            <DockPanel Margin="50,35,0,0">
-                <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16"
-                             HorizontalAlignment="Left" TextAlignment="Center" 
-                             Margin="5,0,0,0" Text="{Binding ElementName=window, Converter={StaticResource ToolSizeToIntConverter}, Path=NewHeight, Mode=TwoWay}" MaxLength="4">
-                    <i:Interaction.Behaviors>
-                        <behaviors:TextBoxFocusBehavior FillSize="True"/>
-                    </i:Interaction.Behaviors>
-                </TextBox>
-            </DockPanel>
-            <DockPanel Margin="50,10,0,0">
-                <TextBlock Height="30" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Height="30" Width="150" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" HorizontalAlignment="Left" Margin="10,0,0,0" TextAlignment="Center"
-                             Text="{Binding ElementName=window, Converter={StaticResource ToolSizeToIntConverter}, Path=NewWidth, Mode=TwoWay}" MaxLength="4">
-                    <i:Interaction.Behaviors>
-                        <behaviors:TextBoxFocusBehavior FillSize="True"/>
-                    </i:Interaction.Behaviors>
-                </TextBox>
-            </DockPanel>
+            <local:SizePicker Margin="0,20" ChoosenHeight="{Binding Path=NewHeight, Mode=TwoWay, ElementName=window}"
+                              ChoosenWidth="{Binding Path=NewWidth, Mode=TwoWay, ElementName=window}"/>
         </StackPanel>
         <Button Grid.Row="1" Height="30" Width="60" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10" Style="{StaticResource DarkRoundButton}" Content="OK" Click="Button_Click"/>
     </Grid>

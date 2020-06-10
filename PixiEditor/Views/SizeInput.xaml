@@ -10,7 +10,7 @@
     <UserControl.Resources>
         <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
     </UserControl.Resources>
-    <TextBox HorizontalContentAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" MaxLength="4">
+    <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" FontSize="16" MaxLength="4">
         <TextBox.Text>
             <Binding ElementName="uc"
                      Path="Size" Mode="TwoWay" 

@@ -70,7 +70,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void Crop(int x, int y, int width, int height)
         {
-            object[] reverseArgs = new object[] { x, y, 0, 0, Width, Height, width, height};
+            object[] reverseArgs = new object[] { x, y, Width, Height, width, height};
             object[] processArgs = new object[] { x, y, 0, 0, width, height };
             ResizeDocumentCanvas(processArgs);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ReverseCrop, 
@@ -203,10 +203,6 @@ namespace PixiEditor.Models.DataHolders
             int oldHeight = (int)arguments[3];
             int newWidth = (int)arguments[4]; //newWidth is the width after first crop
             int newHeight = (int)arguments[5];
-            if (offsetX < 0) offsetX = 0;
-            if (offsetX + newWidth > oldWidth) newWidth = oldWidth - offsetX;
-            if (offsetY < 0) offsetY = 0;
-            if (offsetY + newHeight > oldHeight) newHeight = oldHeight - offsetY;
 
             ResizeCanvas(offsetX, offsetY, 0, 0, newWidth, newHeight, oldWidth, oldHeight);
         }
