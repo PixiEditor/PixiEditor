@@ -66,6 +66,8 @@ namespace PixiEditor.Models.DataHolders
             Height = height;
         }
 
+        //Resize methods below can be probably reduced in count
+
         public void Crop(int x, int y, int width, int height)
         {
             object[] reverseArgs = new object[] { x, y, 0, 0, Width, Height, width, height};

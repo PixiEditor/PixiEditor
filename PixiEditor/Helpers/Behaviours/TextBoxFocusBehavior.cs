@@ -90,7 +90,8 @@ namespace PixiEditor.Helpers.Behaviours
         private void ConvertValue()
         {
             if (_valueConverted == true || FillSize == false) return;
-            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out _) == true)
+            
+            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out int result) == true && result > 0)
             {
                 AssociatedObject.Text = string.Format("{0} {1}", AssociatedObject.Text, "px");
             }
