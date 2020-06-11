@@ -119,7 +119,7 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
-                <vws:MainDrawingPanel x:Name="DrawingPanel" CenterOnStart="True" Cursor="{Binding ToolCursor}">
+                <vws:MainDrawingPanel Center="{Binding RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel" CenterOnStart="True" Cursor="{Binding ToolCursor}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseMove">
                             <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"/>

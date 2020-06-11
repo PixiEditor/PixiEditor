@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Xceed.Wpf.Toolkit.Zoombox;
@@ -15,6 +16,23 @@ namespace PixiEditor.Views
             InitializeComponent();
         }
 
+
+
+        public bool Center
+        {
+            get { return (bool)GetValue(CenterProperty); }
+            set { SetValue(CenterProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Center.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CenterProperty =
+            DependencyProperty.Register("Center", typeof(bool), typeof(MainDrawingPanel), new PropertyMetadata(true, OnCenterChanged));
+
+        private static void OnCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MainDrawingPanel panel = (MainDrawingPanel)d;
+            panel.Zoombox.CenterContent();
+        }
 
         public double MouseX
         {

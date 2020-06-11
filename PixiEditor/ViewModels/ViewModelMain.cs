@@ -32,7 +32,6 @@ namespace PixiEditor.ViewModels
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RedoCommand { get; set; }
         public RelayCommand MouseUpCommand { get; set; }
-        public RelayCommand RecenterZoomboxCommand { get; set; }
         public RelayCommand OpenFileCommand { get; set; }
         public RelayCommand SetActiveLayerCommand { get; set; }
         public RelayCommand NewLayerCommand { get; set; }
@@ -68,6 +67,14 @@ namespace PixiEditor.ViewModels
             get => _mouseYonCanvas;
             set { _mouseYonCanvas = value; RaisePropertyChanged("MouseYonCanvas"); }
         }
+
+        private bool _recenterZoombox;
+
+        public bool RecenterZoombox
+        {
+            get => _recenterZoombox;
+            set { _recenterZoombox = value; RaisePropertyChanged("RecenterZoombox"); }
+        }        
 
 
         private Color _primaryColor = Colors.Black;
@@ -173,7 +180,6 @@ namespace PixiEditor.ViewModels
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
             MouseUpCommand = new RelayCommand(MouseUp);
-            RecenterZoomboxCommand = new RelayCommand(RecenterZoombox);
             OpenFileCommand = new RelayCommand(OpenFile);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
@@ -235,6 +241,7 @@ namespace PixiEditor.ViewModels
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            RecenterZoombox = true;
         }
 
         private void OpenResizePopup(object parameter)
@@ -580,15 +587,6 @@ namespace PixiEditor.ViewModels
             UndoManager.RedoStack.Clear();
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             BitmapManager.ActiveDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
-        }
-
-        /// <summary>
-        /// For now, shows not implemented info, lol.
-        /// </summary>
-        /// <param name="parameter"></param>
-        public void RecenterZoombox(object parameter)
-        {
-            MessageBox.Show("This feature is not implemented yet.", "Feature not implemented", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public void NewLayer(object parameter)

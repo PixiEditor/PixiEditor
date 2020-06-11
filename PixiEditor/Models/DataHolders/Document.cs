@@ -66,20 +66,37 @@ namespace PixiEditor.Models.DataHolders
             Height = height;
         }
 
-        //Resize methods below can be probably reduced in count
 
+        /// <summary>
+        /// Crops canvas at specified x and y offset.
+        /// </summary>
+        /// <param name="x">X offset</param>
+        /// <param name="y">Y offset</param>
+        /// <param name="width">New width</param>
+        /// <param name="height">New height</param>
         public void Crop(int x, int y, int width, int height)
         {
+            int oldWidth = Width;
+            int oldHeight = Height;
+
             object[] reverseArgs = new object[] { 0, 0, x, y, Width, Height, width, height};
             object[] processArgs = new object[] { x, y, 0, 0, width, height };
             ResizeDocumentCanvas(processArgs);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas, 
                 reverseArgs, ResizeDocumentCanvas, processArgs, "Crop document"));
-            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(Width, Height, width, height));
         }
 
+        /// <summary>
+        /// Resizes canvas to specifid width and height to selected anchor
+        /// </summary>
+        /// <param name="width">New width of canvas</param>
+        /// <param name="height">New height of canvas</param>
+        /// <param name="anchor">Point that will act as "starting position" of resizing. Use pipe to connect horizontal and vertical.</param>
         public void ResizeCanvas(int width, int height, AnchorPoint anchor)
         {
+            int oldWidth = Width;
+            int oldHeight = Height;
+
             int offsetX = GetOffsetXForAnchor(Width, width, anchor);
             int offsetY = GetOffsetYForAnchor(Height, height, anchor);
             int offsetXSrc = 0;
@@ -100,6 +117,7 @@ namespace PixiEditor.Models.DataHolders
             ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height, width, height);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas,
                 reverseProcessArgs, ResizeDocumentCanvas, processArgs, "Resize canvas"));
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 
         private int GetOffsetXForAnchor(int srcWidth, int destWidth, AnchorPoint anchor)
@@ -128,21 +146,25 @@ namespace PixiEditor.Models.DataHolders
             return 0;
         }
 
+        /// <summary>
+        /// Resizes all document layers using NearestNeighbor interpolation.
+        /// </summary>
+        /// <param name="newWidth">New document width</param>
+        /// <param name="newHeight">New document height</param>
         public void Resize(int newWidth, int newHeight)
         {
-            int oldWidth = Width;
-            int oldHeight = Height;
-
-            object[] reverseArgs = new object[] { oldWidth, oldHeight};
+            object[] reverseArgs = new object[] { Width, Height};
             object[] args = new object[] { newWidth, newHeight };
             ResizeDocument(args);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocument, reverseArgs,
                 ResizeDocument, args, "Resize document"));
-            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, newWidth, newHeight));
         }
 
         private void ResizeDocument(object[] arguments)
         {
+            int oldWidth = Width;
+            int oldHeight = Height;
+
             int newWidth = (int)arguments[0];
             int newHeight = (int)arguments[1];
             for (int i = 0; i < Layers.Count; i++)
@@ -153,10 +175,14 @@ namespace PixiEditor.Models.DataHolders
             }
             Height = newHeight;
             Width = newWidth;
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, newWidth, newHeight));
         }
 
         private void ResizeDocumentCanvas(object[] arguments)
         {
+            int oldWidth = Width;
+            int oldHeight = Height;
+
             int x = (int)arguments[0];
             int y = (int)arguments[1];
             int destX = (int)arguments[2];
@@ -166,6 +192,7 @@ namespace PixiEditor.Models.DataHolders
             ResizeCanvas(destX, destY, x, y, Width, Height, width, height);
             Height = height;
             Width = width;
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 
         private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int oldWidth, int oldHeight, int newWidth, int newHeight)
