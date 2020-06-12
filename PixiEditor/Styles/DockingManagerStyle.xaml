@@ -1,9 +1,13 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avalonDock="clr-namespace:Xceed.Wpf.AvalonDock;assembly=Xceed.Wpf.AvalonDock"
+    xmlns:avalonDockControls="clr-namespace:Xceed.Wpf.AvalonDock.Controls;assembly=Xceed.Wpf.AvalonDock"
+    xmlns:avalonDockConverters="clr-namespace:Xceed.Wpf.AvalonDock.Converters;assembly=Xceed.Wpf.AvalonDock">
+
     <Style TargetType="xcad:DockingManager">
         <Setter Property="Foreground" Value="Snow"/>
         <Setter Property="Background" Value="{StaticResource AccentColor}"/>
     </Style>
+
 </ResourceDictionary>

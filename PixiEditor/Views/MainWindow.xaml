@@ -11,7 +11,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
-        xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Xceed.Wpf.AvalonDock"
+        xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Xceed.Wpf.AvalonDock" xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         mc:Ignorable="d" WindowStyle="None" 
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}" 
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
@@ -187,11 +187,11 @@
             </Grid.RowDefinitions>
             <vws:ColorPicker Grid.Row="0" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}" 
                              SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}"/>
-            <xcad:DockingManager BorderThickness="0" Grid.Row="1">
-                <xcad:LayoutRoot x:Name="LayoutRoot">
-                    <xcad:LayoutPanel Orientation="Vertical">
-                        <xcad:LayoutAnchorablePane>
-                            <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
+            <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0" Grid.Row="1">
+                <avalondock:LayoutRoot x:Name="LayoutRoot">
+                    <avalondock:LayoutPanel Orientation="Vertical">
+                        <avalondock:LayoutAnchorablePane>
+                            <avalondock:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
                                 <StackPanel  Orientation="Vertical">
                                     <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
                                     <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
@@ -229,16 +229,19 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
-                            </xcad:LayoutAnchorable>
-                        </xcad:LayoutAnchorablePane>
-                    </xcad:LayoutPanel>
-                </xcad:LayoutRoot>
-            </xcad:DockingManager>
-            <xcad:DockingManager Grid.Row="2">
-                <xcad:LayoutRoot>
-                    <xcad:LayoutPanel>
-                        <xcad:LayoutAnchorablePane>
-                            <xcad:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
+                            </avalondock:LayoutAnchorable>
+                        </avalondock:LayoutAnchorablePane>
+                    </avalondock:LayoutPanel>
+                </avalondock:LayoutRoot>
+                <avalondock:DockingManager.Theme>
+                    <avalondock:Vs2013DarkTheme/>
+                </avalondock:DockingManager.Theme>
+            </avalondock:DockingManager>
+            <avalondock:DockingManager Grid.Row="2" Background="{StaticResource AccentColor}">
+                <avalondock:LayoutRoot>
+                    <avalondock:LayoutPanel>
+                        <avalondock:LayoutAnchorablePane>
+                            <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
                                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                     <ItemsControl ItemsSource="{Binding Swatches}">
                                         <ItemsControl.ItemsPanel>
@@ -280,11 +283,14 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </ScrollViewer>
-                            </xcad:LayoutAnchorable>
-                        </xcad:LayoutAnchorablePane>
-                    </xcad:LayoutPanel>
-                </xcad:LayoutRoot>
-            </xcad:DockingManager>
+                            </avalondock:LayoutAnchorable>
+                        </avalondock:LayoutAnchorablePane>
+                    </avalondock:LayoutPanel>
+                </avalondock:LayoutRoot>
+                <avalondock:DockingManager.Theme>
+                    <avalondock:Vs2013DarkTheme/>
+                </avalondock:DockingManager.Theme>
+            </avalondock:DockingManager>
         </Grid>
 
     </Grid>
