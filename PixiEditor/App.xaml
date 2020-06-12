@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="Styles/ColorSliderStyle.xaml"/>
                 <ResourceDictionary Source="Styles/ColorToggleButton.xaml"/>
                 <ResourceDictionary Source="Styles/AnchorPointToggleButtonStyle.xaml"/>
+                <ResourceDictionary Source="Styles/DockingManagerStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

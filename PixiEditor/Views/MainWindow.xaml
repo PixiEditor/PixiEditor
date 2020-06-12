@@ -9,7 +9,6 @@
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Xceed.Wpf.AvalonDock"
@@ -180,15 +179,15 @@
             </ItemsControl>
         </StackPanel>
 
-        <DockPanel Grid.Column="2" Background="{StaticResource AccentColor}" Margin="0,30,0,0" Grid.RowSpan="3">
-            <vws:ColorPicker Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}" 
+        <Grid Grid.Column="2" Background="{StaticResource AccentColor}" Margin="0,30,0,0" Grid.RowSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="340"/>
+                <RowDefinition Height="250*"/>
+                <RowDefinition Height="209*"/>
+            </Grid.RowDefinitions>
+            <vws:ColorPicker Grid.Row="0" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}" 
                              SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}"/>
-            <xcad:DockingManager Grid.Column="2" BorderThickness="0" Grid.Row="1" DockPanel.Dock="Top">
-                <xcad:DockingManager.Style>
-                    <Style TargetType="xcad:DockingManager">
-                        <Setter Property="Foreground" Value="Snow"/>
-                    </Style>
-                </xcad:DockingManager.Style>
+            <xcad:DockingManager BorderThickness="0" Grid.Row="1">
                 <xcad:LayoutRoot x:Name="LayoutRoot">
                     <xcad:LayoutPanel Orientation="Vertical">
                         <xcad:LayoutAnchorablePane>
@@ -235,7 +234,53 @@
                     </xcad:LayoutPanel>
                 </xcad:LayoutRoot>
             </xcad:DockingManager>
-        </DockPanel>
+            <xcad:DockingManager Grid.Row="2">
+                <xcad:LayoutRoot>
+                    <xcad:LayoutPanel>
+                        <xcad:LayoutAnchorablePane>
+                            <xcad:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
+                                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding Swatches}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Margin="10,0,0,0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Width="50" Height="50" Margin="2">
+                                                    <Border Width="48" Height="48">
+                                                        <Border.Background>
+                                                            <ImageBrush ImageSource="../Images/transparentbg.png" Stretch="UniformToFill">
+                                                                <ImageBrush.RelativeTransform>
+                                                                    <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5" CenterY="0.5"/>
+                                                                </ImageBrush.RelativeTransform>
+                                                            </ImageBrush>
+                                                        </Border.Background>
+                                                    </Border>
+                                                    <Border BorderThickness="0.25" Cursor="Hand" BorderBrush="White">
+                                                        <Border.Background>
+                                                            <SolidColorBrush Color="{Binding}"/>
+                                                        </Border.Background>
+                                                    </Border>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="MouseDown">
+                                                            <i:InvokeCommandAction Command="{Binding
+                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectColorCommand}"
+                                                                                       CommandParameter="{Binding}"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
+                    </xcad:LayoutPanel>
+                </xcad:LayoutRoot>
+            </xcad:DockingManager>
+        </Grid>
 
     </Grid>
 </Window>

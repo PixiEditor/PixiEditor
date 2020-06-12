@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Style TargetType="xcad:DockingManager">
+        <Setter Property="Foreground" Value="Snow"/>
+        <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+    </Style>
+</ResourceDictionary>

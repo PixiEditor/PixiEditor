@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -50,6 +51,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand ClipCanvasCommand { get; set; }
         public RelayCommand DeletePixelsCommand { get; set; }
         public RelayCommand OpenResizePopupCommand { get; set; }
+        public RelayCommand SelectColorCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -118,6 +120,7 @@ namespace PixiEditor.ViewModels
         }
 
         public ObservableCollection<Tool> ToolSet { get; set; }
+        public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
 
         private LayerChange[] _undoChanges;
 
@@ -198,8 +201,9 @@ namespace PixiEditor.ViewModels
             ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
             DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
+            SelectColorCommand = new RelayCommand(SelectColor);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-            new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};
+            new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};            
             ShortcutController = new ShortcutController
             {
                 Shortcuts = new List<Shortcut> {
@@ -238,10 +242,27 @@ namespace PixiEditor.ViewModels
             Current = this;
         }
 
+        private void SelectColor(object parameter)
+        {
+            if(!(parameter is Color))
+            {
+                throw new ArgumentException();
+            }
+            PrimaryColor = (Color)parameter;
+        }
+
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             RecenterZoombox = true;
+        }
+
+        public void AddSwatch(Color color)
+        {
+            if (!Swatches.Contains(color))
+            {
+                Swatches.Add(color);
+            }
         }
 
         private void OpenResizePopup(object parameter)
@@ -501,6 +522,7 @@ namespace PixiEditor.ViewModels
                 {
                     BitmapManager.MouseController.StartRecordingMouseMovementChanges();
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
+                    AddSwatch(PrimaryColor);
                 }
             }
         }
