@@ -52,6 +52,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand DeletePixelsCommand { get; set; }
         public RelayCommand OpenResizePopupCommand { get; set; }
         public RelayCommand SelectColorCommand { get; set; }
+        public RelayCommand RemoveSwatchCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -202,6 +203,7 @@ namespace PixiEditor.ViewModels
             DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
             SelectColorCommand = new RelayCommand(SelectColor);
+            RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};            
             ShortcutController = new ShortcutController
@@ -240,6 +242,19 @@ namespace PixiEditor.ViewModels
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
+        }
+
+        private void RemoveSwatch(object parameter)
+        {
+            if (!(parameter is Color))
+            {
+                throw new ArgumentException();
+            }
+            Color color = (Color)parameter;
+            if (Swatches.Contains(color)) 
+            {
+                Swatches.Remove(color);
+            }
         }
 
         private void SelectColor(object parameter)

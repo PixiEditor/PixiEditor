@@ -270,6 +270,11 @@
                                                                                        CommandParameter="{Binding}"/>
                                                         </i:EventTrigger>
                                                     </i:Interaction.Triggers>
+                                                    <Grid.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Remove" Command="{Binding RemoveSwatchCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding}"/>
+                                                        </ContextMenu>
+                                                    </Grid.ContextMenu>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
