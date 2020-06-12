@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Tools;
+﻿using PixiEditor.Models.Images;
+using PixiEditor.Models.Tools;
 using System;
 using System.Windows.Media.Imaging;
 
@@ -7,6 +8,7 @@ namespace PixiEditor.Models.Layers
     public class Layer : BasicLayer
     {
         private WriteableBitmap _layerBitmap;
+
         private string _name;
 
         public string Name

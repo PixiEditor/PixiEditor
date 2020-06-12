@@ -56,8 +56,8 @@ namespace PixiEditor.ViewModels
             {
                 Title = "Export path",
                 CheckPathExists = true,
-                DefaultExt = "PNG Image (.png)|*.png",
-                Filter = "PNG Image (.png)|*.png"
+                DefaultExt = "PNG Image (.png) | *.png",
+                Filter = "PNG Image (.png) | *.png"
             };
             if (path.ShowDialog() == true)
             {

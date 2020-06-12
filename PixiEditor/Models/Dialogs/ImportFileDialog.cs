@@ -33,6 +33,7 @@ namespace PixiEditor.Models.Dialogs
         public override bool ShowDialog()
         {
             ImportFilePopup popup = new ImportFilePopup();
+            popup.FilePath = FilePath;
             popup.ShowDialog();
             if (popup.DialogResult == true)
             {

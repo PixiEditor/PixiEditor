@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -38,7 +39,13 @@ namespace PixiEditor.ViewModels
         public string FilePath
         {
             get { return _filePath; }
-            set { if (_filePath != value) { _filePath = value; RaisePropertyChanged("FilePath"); } }
+            set { if (_filePath != value) 
+                {
+                    _filePath = value;
+                    CheckForPath(value);
+                    RaisePropertyChanged("FilePath"); 
+                } 
+            }
         }
 
 
@@ -83,18 +90,26 @@ namespace PixiEditor.ViewModels
             {
                 if (string.IsNullOrEmpty(path.FileName) == false)
                 {
-                    PathButtonBorder = "#b8f080";
-                    PathIsCorrect = true;
-                    FilePath = path.FileName;
-                    BitmapImage bitmap = new BitmapImage(new Uri(path.FileName));
-                    ImportHeight = (int)bitmap.Height;
-                    ImportWidth = (int)bitmap.Width;
+                    CheckForPath(path.FileName);
                 }
                 else
                 {
                     PathButtonBorder = "#f08080";
                     PathIsCorrect = false;
                 }
+            }
+        }
+
+        private void CheckForPath(string path)
+        {
+            if(File.Exists(path) && (path.EndsWith(".png") || path.EndsWith(".jpeg") || path.EndsWith(".jpg")))
+            {
+                PathButtonBorder = "#b8f080";
+                PathIsCorrect = true;
+                _filePath = path;
+                BitmapImage bitmap = new BitmapImage(new Uri(path));
+                ImportHeight = (int)bitmap.Height;
+                ImportWidth = (int)bitmap.Width;
             }
         }
 

@@ -64,8 +64,9 @@
                 <MenuItem Header="_File">
                     <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding OpenNewFilePopupCommand}"/>
                     <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"/>
-                    <MenuItem Header="_Export" InputGestureText="Ctrl+S" Command="{Binding SaveFileCommand}"/>
-                    <MenuItem Header="_Export As..." InputGestureText="Ctrl+Shift+S" Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
+                    <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding SaveDocumentCommand}"/>
+                    <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S" Command="{Binding SaveDocumentCommand}"/>
+                    <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding SaveFileCommand}"/>
                 </MenuItem>
                 <MenuItem Header="_Edit">
                     <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"/>
@@ -243,7 +244,7 @@
                         <avalondock:LayoutAnchorablePane>
                             <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
                                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding Swatches}">
+                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <WrapPanel Margin="10,0,0,0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left"/>

@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 using System;
 using System.Windows.Media.Imaging;
 
@@ -24,6 +25,11 @@ namespace PixiEditor.Models.IO
             var wbmp = new WriteableBitmap(bitmap);
             wbmp = wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
             return wbmp;
+        }
+
+        public static Document ImportDocument(string path)
+        {
+            return BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.Images;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -48,6 +49,7 @@ namespace PixiEditor.Models.Controllers
         public int ToolSize => SelectedTool.Toolbar.GetSetting("ToolSize") != null ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value : 1;
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
+        public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
@@ -60,6 +62,7 @@ namespace PixiEditor.Models.Controllers
             {
                 _activeDocument = value;
                 RaisePropertyChanged("ActiveDocument");
+                DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
             }
         }
 

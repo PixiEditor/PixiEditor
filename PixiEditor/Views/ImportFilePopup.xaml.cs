@@ -36,7 +36,6 @@ namespace PixiEditor.Views
         }
 
 
-
         public string FilePath
         {
             get { return dc.FilePath; }

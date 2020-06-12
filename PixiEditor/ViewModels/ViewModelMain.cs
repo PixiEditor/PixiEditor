@@ -1,4 +1,5 @@
-﻿using PixiEditor.Helpers;
+﻿using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -12,6 +13,7 @@ using PixiEditor.Models.Tools.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
@@ -53,6 +55,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand OpenResizePopupCommand { get; set; }
         public RelayCommand SelectColorCommand { get; set; }
         public RelayCommand RemoveSwatchCommand { get; set; }
+        public RelayCommand SaveDocumentCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -121,7 +124,6 @@ namespace PixiEditor.ViewModels
         }
 
         public ObservableCollection<Tool> ToolSet { get; set; }
-        public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
 
         private LayerChange[] _undoChanges;
 
@@ -175,6 +177,7 @@ namespace PixiEditor.ViewModels
             BitmapManager = new BitmapManager();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
             ChangesController = new PixelChangesController();
             SelectToolCommand = new RelayCommand(SetTool, DocumentIsNotNull);
             OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
@@ -184,7 +187,7 @@ namespace PixiEditor.ViewModels
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
             MouseUpCommand = new RelayCommand(MouseUp);
-            OpenFileCommand = new RelayCommand(OpenFile);
+            OpenFileCommand = new RelayCommand(Open);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
             DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
@@ -204,6 +207,7 @@ namespace PixiEditor.ViewModels
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
             SelectColorCommand = new RelayCommand(SelectColor);
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
+            SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};            
             ShortcutController = new ShortcutController
@@ -223,9 +227,10 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
                     new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand),
-                    new Shortcut(Key.S, SaveFileCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveFileCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
+                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", modifier: ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, SaveFileCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
@@ -244,6 +249,51 @@ namespace PixiEditor.ViewModels
             Current = this;
         }
 
+        private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+        {
+            e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
+        }
+
+        private void Open(object property)
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "All Files|*.*|PixiEditor Files | *.pixi|PNG Files|*.png",
+                DefaultExt = "pixi"
+            };
+            if ((bool)dialog.ShowDialog())
+            {
+                if (dialog.FileName.EndsWith(".png") || dialog.FileName.EndsWith(".jpeg") || dialog.FileName.EndsWith(".jpg"))
+                {
+                    OpenFile(dialog.FileName);
+                }
+                else if (dialog.FileName.EndsWith(".pixi"))
+                {
+                    OpenDocument(dialog.FileName);
+                }
+                RecenterZoombox = !RecenterZoombox;
+            }
+        }
+
+        private void OpenDocument(string path)
+        {
+            BitmapManager.ActiveDocument = Importer.ImportDocument(path);
+            Exporter.SaveDocumentPath = path;
+        }
+
+        private void SaveDocument(object parameter)
+        {
+            bool paramIsAsNew = parameter != null && parameter.ToString().ToLower() == "asnew";
+            if (paramIsAsNew || Exporter.SaveDocumentPath == null)
+            {
+                Exporter.SaveAsNewEditableFile(BitmapManager.ActiveDocument, !paramIsAsNew);
+            }
+            else
+            {
+                Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
+            }
+        }
+
         private void RemoveSwatch(object parameter)
         {
             if (!(parameter is Color))
@@ -251,9 +301,9 @@ namespace PixiEditor.ViewModels
                 throw new ArgumentException();
             }
             Color color = (Color)parameter;
-            if (Swatches.Contains(color)) 
+            if (BitmapManager.ActiveDocument.Swatches.Contains(color)) 
             {
-                Swatches.Remove(color);
+                BitmapManager.ActiveDocument.Swatches.Remove(color);
             }
         }
 
@@ -274,9 +324,9 @@ namespace PixiEditor.ViewModels
 
         public void AddSwatch(Color color)
         {
-            if (!Swatches.Contains(color))
+            if (!BitmapManager.ActiveDocument.Swatches.Contains(color))
             {
-                Swatches.Add(color);
+                BitmapManager.ActiveDocument.Swatches.Add(color);
             }
         }
 
@@ -581,14 +631,7 @@ namespace PixiEditor.ViewModels
         private void SaveFile(object parameter)
         {
             WriteableBitmap bitmap = BitmapManager.GetCombinedLayersBitmap();
-            if (Exporter.SavePath == null || (string)parameter == "AsNew")
-            {
-                Exporter.Export(FileType.PNG, bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
-            }
-            else
-            {
-                Exporter.ExportWithoutDialog(FileType.PNG, bitmap);
-            }
+            Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
         }
         /// <summary>
         /// Returns true if file save is possible.
@@ -604,10 +647,14 @@ namespace PixiEditor.ViewModels
         /// <summary>
         /// Opens file from path.
         /// </summary>
-        /// <param name="parameter"></param>
-        public void OpenFile(object parameter)
+        /// <param name="path"></param>
+        public void OpenFile(string path)
         {
             ImportFileDialog dialog = new ImportFileDialog();
+
+            if (path != null && File.Exists(path.ToString()))
+                dialog.FilePath = path.ToString();
+
             if (dialog.ShowDialog())
             {
                 NewDocument(dialog.FileWidth, dialog.FileHeight);
@@ -617,13 +664,13 @@ namespace PixiEditor.ViewModels
 
         private void NewDocument(int width, int height)
         {
-            BitmapManager.ActiveDocument = new Models.DataHolders.Document(width, height);
+            BitmapManager.ActiveDocument = new Document(width, height);
             BitmapManager.AddNewLayer("Base Layer", width, height, true);
             BitmapManager.PreviewLayer = null;
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            BitmapManager.ActiveDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
+            RecenterZoombox = !RecenterZoombox;
         }
 
         public void NewLayer(object parameter)

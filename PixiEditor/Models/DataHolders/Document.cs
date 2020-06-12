@@ -9,11 +9,11 @@ using System.Diagnostics;
 using System.DirectoryServices;
 using System.Drawing.Text;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
-    [Serializable]
     public class Document : NotifyableObject
     {
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
@@ -59,6 +59,7 @@ namespace PixiEditor.Models.DataHolders
                 RaisePropertyChanged("ActiveLayer");
             }
         }
+        public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
 
         public Document(int width, int height)
         {
