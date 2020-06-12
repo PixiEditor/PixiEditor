@@ -135,6 +135,11 @@ namespace PixiEditor.Views
         {
             _dispatcher.Invoke(() =>
             {
+                if (Mouse.LeftButton == MouseButtonState.Released)
+                {
+                    _timer.Stop();
+                    return;
+                }
                 System.Drawing.Point point = MousePositionConverter.GetCursorPosition();
                 Point relativePoint = _colorPalette.PointFromScreen(new Point(point.X, point.Y));
                 CalculateColor(relativePoint);
