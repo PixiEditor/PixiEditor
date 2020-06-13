@@ -56,6 +56,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand SelectColorCommand { get; set; }
         public RelayCommand RemoveSwatchCommand { get; set; }
         public RelayCommand SaveDocumentCommand { get; set; }
+        public RelayCommand OnStartupCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -208,6 +209,7 @@ namespace PixiEditor.ViewModels
             SelectColorCommand = new RelayCommand(SelectColor);
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
+            OnStartupCommand = new RelayCommand(OnStartup);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};            
             ShortcutController = new ShortcutController
@@ -249,6 +251,19 @@ namespace PixiEditor.ViewModels
             Current = this;
         }
 
+        private void OnStartup(object parameter)
+        {
+            var lastArg = Environment.GetCommandLineArgs().Last();
+            if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
+            {
+                Open(lastArg);
+            }
+            else
+            {
+                OpenNewFilePopup(null);
+            }
+        }
+
         private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
         {
             e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
@@ -273,6 +288,19 @@ namespace PixiEditor.ViewModels
                 }
                 RecenterZoombox = !RecenterZoombox;
             }
+        }
+
+        private void Open(string path)
+        {
+            if (path.EndsWith(".pixi"))
+            {
+                OpenDocument(path);
+            }
+            else
+            {
+                OpenFile(path);
+            }
+            RecenterZoombox = !RecenterZoombox;
         }
 
         private void OpenDocument(string path)
@@ -408,7 +436,10 @@ namespace PixiEditor.ViewModels
 
         public void Deselect(object parameter)
         {
-            ActiveSelection.Clear();
+            if (ActiveSelection != null)
+            {
+                ActiveSelection.Clear();
+            }
         }
 
         private bool SelectionIsNotEmpty(object property)

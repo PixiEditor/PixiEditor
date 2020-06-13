@@ -39,7 +39,7 @@
             <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="ContentRendered">
-            <i:InvokeCommandAction Command="{Binding OpenNewFilePopupCommand}"/>
+            <i:InvokeCommandAction Command="{Binding OnStartupCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid Name="mainGrid" Margin="5">

@@ -31,5 +31,10 @@ namespace PixiEditor.Models.IO
         {
             return BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
         }
+
+        public static bool IsSupportedFile(string path)
+        {
+            return path.EndsWith(".pixi") || path.EndsWith(".png") || path.EndsWith(".jpg") || path.EndsWith(".jpeg");
+        }
     }
 }
