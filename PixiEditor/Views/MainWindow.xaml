@@ -276,7 +276,7 @@
                                                     </i:Interaction.Triggers>
                                                     <Grid.ContextMenu>
                                                         <ContextMenu>
-                                                            <MenuItem Header="Remove" Command="{Binding RemoveSwatchCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding}"/>
+                                                            <MenuItem Header="Remove" Foreground="White" Command="{Binding RemoveSwatchCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding}"/>
                                                         </ContextMenu>
                                                     </Grid.ContextMenu>
                                                 </Grid>
