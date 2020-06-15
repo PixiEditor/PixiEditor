@@ -4,7 +4,6 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.Images;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -13,9 +12,9 @@ using PixiEditor.Models.Tools.Tools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -25,6 +24,8 @@ namespace PixiEditor.ViewModels
 {
     class ViewModelMain : ViewModelBase
     {
+        public Action CloseAction { get; set; }
+
         public static ViewModelMain Current { get; set; } = null;
         public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
         public RelayCommand OpenNewFilePopupCommand { get; set; } //Command that generates draw area
@@ -57,6 +58,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand RemoveSwatchCommand { get; set; }
         public RelayCommand SaveDocumentCommand { get; set; }
         public RelayCommand OnStartupCommand { get; set; }
+        public RelayCommand CloseWindowCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -170,6 +172,8 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private bool _unsavedDocumentModified = false;
+
         public ClipboardController ClipboardController { get; set; }
 
         public ViewModelMain()
@@ -210,6 +214,7 @@ namespace PixiEditor.ViewModels
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
             OnStartupCommand = new RelayCommand(OnStartup);
+            CloseWindowCommand = new RelayCommand(CloseWindow);
             ToolSet = new ObservableCollection<Tool> {new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
             new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()};            
             ShortcutController = new ShortcutController
@@ -249,6 +254,28 @@ namespace PixiEditor.ViewModels
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
+        }
+
+        private void CloseWindow(object property)
+        {
+            if (!(property is CancelEventArgs)) throw new ArgumentException();
+
+            (property as CancelEventArgs).Cancel = true;
+
+            ConfirmationType result = ConfirmationType.No;
+            if (_unsavedDocumentModified)
+            {
+                result = ConfirmationDialog.Show("Document was modified. Do you want to save changes?");
+                if(result == ConfirmationType.Yes)
+                {
+                    SaveDocument(null);
+                }
+            }
+            if (result != ConfirmationType.Canceled)
+            {
+                (property as CancelEventArgs).Cancel = false;
+            }
+
         }
 
         private void OnStartup(object parameter)
@@ -307,6 +334,7 @@ namespace PixiEditor.ViewModels
         {
             BitmapManager.ActiveDocument = Importer.ImportDocument(path);
             Exporter.SaveDocumentPath = path;
+            _unsavedDocumentModified = false;
         }
 
         private void SaveDocument(object parameter)
@@ -320,6 +348,7 @@ namespace PixiEditor.ViewModels
             {
                 Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
             }
+            _unsavedDocumentModified = false;
         }
 
         private void RemoveSwatch(object parameter)
@@ -348,6 +377,7 @@ namespace PixiEditor.ViewModels
         {
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             RecenterZoombox = true;
+            _unsavedDocumentModified = true;
         }
 
         public void AddSwatch(Color color)
@@ -482,6 +512,7 @@ namespace PixiEditor.ViewModels
         {
             ChangesController.AddChanges(new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
+            _unsavedDocumentModified = true;
         }
 
         public void SwapColors(object parameter)
@@ -702,6 +733,8 @@ namespace PixiEditor.ViewModels
             UndoManager.RedoStack.Clear();
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             RecenterZoombox = !RecenterZoombox;
+            Exporter.SaveDocumentPath = null;
+            _unsavedDocumentModified = false;
         }
 
         public void NewLayer(object parameter)

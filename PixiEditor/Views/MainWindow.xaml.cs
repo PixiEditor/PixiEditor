@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.ViewModels;
+using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -14,6 +15,9 @@ namespace PixiEditor
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+            ViewModelMain vm = new ViewModelMain();
+            vm.CloseAction = new Action(Close);
+            DataContext = vm;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -38,7 +42,6 @@ namespace PixiEditor
         {
             SystemCommands.RestoreWindow(this);
         }
-
 
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
