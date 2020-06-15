@@ -15,9 +15,7 @@ namespace PixiEditor
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            ViewModelMain vm = new ViewModelMain();
-            vm.CloseAction = new Action(Close);
-            DataContext = vm;
+            ((ViewModelMain)DataContext).CloseAction = Close;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

@@ -42,8 +42,6 @@ namespace PixiEditor.Models.Controllers
 
         public Layer ActiveLayer => ActiveDocument.ActiveLayer;
 
-        public int ActiveLayerIndex => ActiveDocument.ActiveLayerIndex;
-
         public Color PrimaryColor { get; set; }
 
         public int ToolSize => SelectedTool.Toolbar.GetSetting("ToolSize") != null ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value : 1;
@@ -54,7 +52,7 @@ namespace PixiEditor.Models.Controllers
         public BitmapOperationsUtility BitmapOperations { get; set; }
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
 
-        private Document _activeDocument = null;
+        private Document _activeDocument;
         public Document ActiveDocument
         {
             get => _activeDocument;
@@ -68,14 +66,8 @@ namespace PixiEditor.Models.Controllers
 
         public void SetActiveTool(Tool tool)
         {
-            if (PreviewLayer != null)
-            {
-                PreviewLayer.Clear();
-            }
-            if (SelectedTool != null)
-            {
-                SelectedTool.Toolbar.SaveToolbarSettings();
-            }
+            PreviewLayer?.Clear();
+            SelectedTool?.Toolbar.SaveToolbarSettings();
             SelectedTool = tool;
             SelectedTool.Toolbar.LoadSharedSettings();
         }
@@ -150,16 +142,13 @@ namespace PixiEditor.Models.Controllers
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
             SelectedTool.OnMouseDown();
-            if (PreviewLayer != null)
-            {
-                PreviewLayer.Clear();
-            }
+            PreviewLayer?.Clear();
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
             SelectedTool.OnMouseUp();
-            if (IsOperationTool(SelectedTool) && (SelectedTool as BitmapOperationTool).RequiresPreviewLayer)
+            if (IsOperationTool(SelectedTool) && ((BitmapOperationTool) SelectedTool).RequiresPreviewLayer)
             {
                 BitmapOperations.StopAction();
             }
@@ -196,7 +185,7 @@ namespace PixiEditor.Models.Controllers
 
         public static bool IsOperationTool(Tool tool)
         {
-            return typeof(BitmapOperationTool).IsAssignableFrom(tool.GetType());
+            return tool is BitmapOperationTool;
         }
 
     }
