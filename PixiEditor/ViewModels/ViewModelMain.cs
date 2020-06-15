@@ -376,7 +376,7 @@ namespace PixiEditor.ViewModels
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            RecenterZoombox = true;
+            RecenterZoombox = !RecenterZoombox;
             _unsavedDocumentModified = true;
         }
 

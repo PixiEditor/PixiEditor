@@ -5,9 +5,6 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.DirectoryServices;
-using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -77,18 +74,15 @@ namespace PixiEditor.Models.DataHolders
         /// <param name="height">New height</param>
         public void Crop(int x, int y, int width, int height)
         {
-            int oldWidth = Width;
-            int oldHeight = Height;
-
-            object[] reverseArgs = new object[] { 0, 0, x, y, Width, Height, width, height};
-            object[] processArgs = new object[] { x, y, 0, 0, width, height };
+            object[] reverseArgs = { 0, 0, x, y, Width, Height, width, height};
+            object[] processArgs = { x, y, 0, 0, width, height };
             ResizeDocumentCanvas(processArgs);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas, 
                 reverseArgs, ResizeDocumentCanvas, processArgs, "Crop document"));
         }
 
         /// <summary>
-        /// Resizes canvas to specifid width and height to selected anchor
+        /// Resizes canvas to specified width and height to selected anchor
         /// </summary>
         /// <param name="width">New width of canvas</param>
         /// <param name="height">New height of canvas</param>
@@ -112,8 +106,8 @@ namespace PixiEditor.Models.DataHolders
                 offsetYSrc = offsetY;
                 offsetY = 0;
             }
-            object[] processArgs = new object[] { offsetXSrc, offsetYSrc, offsetX, offsetY, width, height };
-            object[] reverseProcessArgs = new object[] {offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height };
+            object[] processArgs = { offsetXSrc, offsetYSrc, offsetX, offsetY, width, height };
+            object[] reverseProcessArgs = {offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height };
 
             ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height, width, height);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas,

@@ -12,7 +12,7 @@ namespace PixiEditor.Views
         public ImportFilePopup()
         {
             InitializeComponent();
-            this.DataContext = dc;
+            DataContext = dc;
         }
 
 
