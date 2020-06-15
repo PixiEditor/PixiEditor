@@ -114,7 +114,7 @@ namespace PixiEditor.ViewModels
 
         public ToolType SelectedTool
         {
-            get { return _selectedTool; }
+            get => _selectedTool;
             set
             {
                 if (_selectedTool != value)
@@ -132,7 +132,7 @@ namespace PixiEditor.ViewModels
 
         public LayerChange[] UndoChanges
         {
-            get { return _undoChanges; }
+            get => _undoChanges;
             set
             {
                 _undoChanges = value;
@@ -148,7 +148,7 @@ namespace PixiEditor.ViewModels
 
         public Cursor ToolCursor
         {
-            get { return _toolCursor; }
+            get => _toolCursor;
             set
             {
                 _toolCursor = value;
@@ -260,7 +260,7 @@ namespace PixiEditor.ViewModels
         {
             if (!(property is CancelEventArgs)) throw new ArgumentException();
 
-            (property as CancelEventArgs).Cancel = true;
+            ((CancelEventArgs) property).Cancel = true;
 
             ConfirmationType result = ConfirmationType.No;
             if (_unsavedDocumentModified)
@@ -273,7 +273,7 @@ namespace PixiEditor.ViewModels
             }
             if (result != ConfirmationType.Canceled)
             {
-                (property as CancelEventArgs).Cancel = false;
+                ((CancelEventArgs) property).Cancel = false;
             }
 
         }
@@ -714,8 +714,8 @@ namespace PixiEditor.ViewModels
         {
             ImportFileDialog dialog = new ImportFileDialog();
 
-            if (path != null && File.Exists(path.ToString()))
-                dialog.FilePath = path.ToString();
+            if (path != null && File.Exists(path))
+                dialog.FilePath = path;
 
             if (dialog.ShowDialog())
             {

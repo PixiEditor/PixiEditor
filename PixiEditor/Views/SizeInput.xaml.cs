@@ -31,8 +31,8 @@ namespace PixiEditor.Views
 
         public int Size
         {
-            get { return (int)GetValue(SizeProperty); }
-            set { SetValue(SizeProperty, value); }
+            get => (int)GetValue(SizeProperty);
+            set => SetValue(SizeProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for Size.  This enables animation, styling, binding, etc...
@@ -41,8 +41,8 @@ namespace PixiEditor.Views
 
         public bool PreserveAspectRatio
         {
-            get { return (bool)GetValue(PreserveAspectRatioProperty); }
-            set { SetValue(PreserveAspectRatioProperty, value); }
+            get => (bool)GetValue(PreserveAspectRatioProperty);
+            set => SetValue(PreserveAspectRatioProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for PreserveAspectRatio.  This enables animation, styling, binding, etc...
@@ -52,8 +52,8 @@ namespace PixiEditor.Views
 
         public int AspectRatioValue
         {
-            get { return (int)GetValue(AspectRatioValueProperty); }
-            set { SetValue(AspectRatioValueProperty, value); }
+            get => (int)GetValue(AspectRatioValueProperty);
+            set => SetValue(AspectRatioValueProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for AspectRatioValue.  This enables animation, styling, binding, etc...

@@ -26,8 +26,8 @@ namespace PixiEditor.Views
 
         public bool EditingEnabled
         {
-            get { return (bool)GetValue(EditingEnabledProperty); }
-            set { SetValue(EditingEnabledProperty, value); }
+            get => (bool)GetValue(EditingEnabledProperty);
+            set => SetValue(EditingEnabledProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for EditingEnabled.  This enables animation, styling, binding, etc...
@@ -36,22 +36,22 @@ namespace PixiEditor.Views
 
 
 
-        public int ChoosenWidth
+        public int ChosenWidth
         {
-            get { return (int)GetValue(ChoosenWidthProperty); }
-            set { SetValue(ChoosenWidthProperty, value); }
+            get => (int)GetValue(ChosenWidthProperty);
+            set => SetValue(ChosenWidthProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for ChoosenWidth.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ChoosenWidthProperty =
-            DependencyProperty.Register("ChoosenWidth", typeof(int), typeof(SizePicker), new PropertyMetadata(1));
+        // Using a DependencyProperty as the backing store for ChosenWidth.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ChosenWidthProperty =
+            DependencyProperty.Register("ChosenWidth", typeof(int), typeof(SizePicker), new PropertyMetadata(1));
 
 
 
         public int ChoosenHeight
         {
-            get { return (int)GetValue(ChoosenHeightProperty); }
-            set { SetValue(ChoosenHeightProperty, value); }
+            get => (int)GetValue(ChoosenHeightProperty);
+            set => SetValue(ChoosenHeightProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for ChoosenHeight.  This enables animation, styling, binding, etc...

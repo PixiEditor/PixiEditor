@@ -108,8 +108,8 @@ namespace PixiEditor.ViewModels
                 PathIsCorrect = true;
                 _filePath = path;
                 BitmapImage bitmap = new BitmapImage(new Uri(path));
-                ImportHeight = (int)bitmap.Height;
-                ImportWidth = (int)bitmap.Width;
+                ImportHeight = bitmap.PixelHeight;
+                ImportWidth = bitmap.PixelWidth;
             }
         }
 
