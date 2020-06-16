@@ -194,6 +194,7 @@ namespace PixiEditor.Models.DataHolders
         {
             int sizeOfArgb = 4;
             int iteratorHeight = oldHeight > newHeight ? newHeight : oldHeight;
+            int count = oldWidth > newWidth ? newWidth : oldWidth;
             for (int i = 0; i < Layers.Count; i++)
             {
                 using (var srcContext = Layers[i].LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
@@ -205,7 +206,7 @@ namespace PixiEditor.Models.DataHolders
                         {
                             var srcOff = ((offsetYSrc + line) * oldWidth + offsetXSrc) * sizeOfArgb;
                             var dstOff = ((offsetY + line) * newWidth + offsetX) * sizeOfArgb;
-                            BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, oldWidth * sizeOfArgb);
+                            BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * sizeOfArgb);
                         }
                         Layers[i].LayerBitmap = result;
                         Layers[i].Width = newWidth;
