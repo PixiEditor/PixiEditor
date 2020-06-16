@@ -7,54 +7,54 @@ using System.Windows.Input;
 namespace PixiEditor.Views
 {
     /// <summary>
-    /// Interaction logic for NumerInput.xaml
+    ///     Interaction logic for NumerInput.xaml
     /// </summary>
     public partial class NumberInput : UserControl
     {
-
-        public float Value
-        {
-            get { return (float)GetValue(ValueProperty); }
-            set { SetValue(ValueProperty, value); }
-        }
-
         // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(float), typeof(NumberInput),
-                new PropertyMetadata(0f, new PropertyChangedCallback(OnValueChanged)));
-
-        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            NumberInput input = (NumberInput)d;
-            input.Value = Math.Clamp((float)e.NewValue, input.Min, input.Max);
-        }
-
-        public float Min
-        {
-            get { return (float)GetValue(MinProperty); }
-            set { SetValue(MinProperty, value); }
-        }
+                new PropertyMetadata(0f, OnValueChanged));
 
         // Using a DependencyProperty as the backing store for Min.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MinProperty =
-            DependencyProperty.Register("Min", typeof(float), typeof(NumberInput), new PropertyMetadata(float.NegativeInfinity));
-
-
-
-        public float Max
-        {
-            get { return (float)GetValue(MaxProperty); }
-            set { SetValue(MaxProperty, value); }
-        }
+            DependencyProperty.Register("Min", typeof(float), typeof(NumberInput),
+                new PropertyMetadata(float.NegativeInfinity));
 
         // Using a DependencyProperty as the backing store for Max.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MaxProperty =
-            DependencyProperty.Register("Max", typeof(float), typeof(NumberInput), new PropertyMetadata(float.PositiveInfinity));
+            DependencyProperty.Register("Max", typeof(float), typeof(NumberInput),
+                new PropertyMetadata(float.PositiveInfinity));
 
 
         public NumberInput()
         {
             InitializeComponent();
+        }
+
+        public float Value
+        {
+            get => (float) GetValue(ValueProperty);
+            set => SetValue(ValueProperty, value);
+        }
+
+        public float Min
+        {
+            get => (float) GetValue(MinProperty);
+            set => SetValue(MinProperty, value);
+        }
+
+
+        public float Max
+        {
+            get => (float) GetValue(MaxProperty);
+            set => SetValue(MaxProperty, value);
+        }
+
+        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            NumberInput input = (NumberInput) d;
+            input.Value = Math.Clamp((float) e.NewValue, input.Min, input.Max);
         }
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)

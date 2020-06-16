@@ -1,23 +1,29 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Media;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.ViewModels;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
     public class Selection : NotifyableObject
     {
-        public ObservableCollection<Coordinates> SelectedPoints { get; private set; }       
+        private readonly Color _selectionBlue;
         private Layer _selectionLayer;
-        private Color _selectionBlue;
+
+        public Selection(Coordinates[] selectedPoints)
+        {
+            SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
+            SelectionLayer = new Layer("_selectionLayer", ViewModelMain.Current.BitmapManager.ActiveDocument.Width,
+                ViewModelMain.Current.BitmapManager.ActiveDocument.Height);
+            _selectionBlue = Color.FromArgb(127, 142, 202, 255);
+        }
+
+        public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
 
         public Layer SelectionLayer
         {
@@ -45,10 +51,8 @@ namespace PixiEditor.Models.DataHolders
                     SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
                     _selectionColor = System.Windows.Media.Colors.Transparent;
                     break;
-                default:
-                    break;
             }
-            
+
             SelectionLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, _selectionColor));
         }
 
@@ -56,14 +60,6 @@ namespace PixiEditor.Models.DataHolders
         {
             SelectionLayer.Clear();
             SelectedPoints.Clear();
-        }
-
-        public Selection(Coordinates[] selectedPoints)
-        {
-            SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
-            SelectionLayer = new Layer("_selectionLayer", ViewModelMain.Current.BitmapManager.ActiveDocument.Width,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.Height);
-            _selectionBlue = Color.FromArgb(127,142, 202, 255); 
         }
     }
 }

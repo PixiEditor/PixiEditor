@@ -1,14 +1,14 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using System;
+﻿using System;
 using System.Windows.Media.Imaging;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.IO
 {
     public class Importer : NotifyableObject
     {
         /// <summary>
-        /// Imports image from path and resizes it to given dimensions
+        ///     Imports image from path and resizes it to given dimensions
         /// </summary>
         /// <param name="path">Path of image.</param>
         /// <param name="width">New width of image.</param>

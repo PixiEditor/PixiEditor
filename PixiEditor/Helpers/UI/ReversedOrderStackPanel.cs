@@ -7,9 +7,9 @@ namespace PixiEditor.Helpers.UI
 {
     public class ReversedOrderStackPanel : StackPanel
     {
-        protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeSize)
+        protected override Size ArrangeOverride(Size arrangeSize)
         {
-            bool fHorizontal = (Orientation == Orientation.Horizontal);
+            bool fHorizontal = Orientation == Orientation.Horizontal;
             var rcChild = new Rect(arrangeSize);
             double previousChildSize = 0.0;
 

@@ -1,6 +1,6 @@
-﻿using PixiEditor.Views;
-using System.Windows.Data;
+﻿using System.Windows.Data;
 using System.Windows.Media;
+using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -18,7 +18,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             PortableColorPicker picker = new PortableColorPicker();
             Binding binding = new Binding("Value")
             {
-                Mode = BindingMode.TwoWay,
+                Mode = BindingMode.TwoWay
             };
             picker.SetBinding(PortableColorPicker.SelectedColorProperty, binding);
             return picker;

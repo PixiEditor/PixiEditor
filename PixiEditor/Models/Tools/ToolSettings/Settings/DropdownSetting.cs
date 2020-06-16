@@ -1,28 +1,26 @@
-﻿using PixiEditor.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class DropdownSetting : Setting
     {
-        public string[] Values { get; set; }
         public DropdownSetting(string name, string[] values, string label) : base(name)
         {
             Values = values;
             SettingControl = GenerateDropdown();
-            Value = ((ComboBox)SettingControl).Items[0];
+            Value = ((ComboBox) SettingControl).Items[0];
             Label = label;
         }
+
+        public string[] Values { get; set; }
 
 
         private ComboBox GenerateDropdown()
         {
-            ComboBox combobox = new ComboBox()
+            ComboBox combobox = new ComboBox
             {
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -32,7 +30,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             {
                 Mode = BindingMode.TwoWay
             };
-            combobox.SetBinding(ComboBox.SelectedValueProperty, binding);
+            combobox.SetBinding(Selector.SelectedValueProperty, binding);
             return combobox;
         }
 
@@ -47,6 +45,5 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 comboBox.Items.Add(item);
             }
         }
-
     }
 }

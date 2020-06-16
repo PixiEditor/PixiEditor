@@ -1,30 +1,21 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace PixiEditor.Models.IO
 {
     public static class FilesManager
     {
+        public static string TempFolderPath =>
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"PixiEditor\Temp");
 
-        public static string TempFolderPath
-        {
-            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"PixiEditor\Temp"); }
-        }
+        public static string RedoStackPath => Path.Combine(TempFolderPath, @"RedoStack");
 
-        public static string RedoStackPath
-        {
-            get { return Path.Combine(TempFolderPath, @"RedoStack"); }
-        }
-
-        public static string UndoStackPath
-        {
-            get { return Path.Combine(TempFolderPath, @"UndoStack"); }
-        }
+        public static string UndoStackPath => Path.Combine(TempFolderPath, @"UndoStack");
 
         /// <summary>
-        /// Saves object to file on disk using binary formatter
+        ///     Saves object to file on disk using binary formatter
         /// </summary>
         /// <param name="obj">Object to be saved</param>
         public static void SaveObjectToJsonFile<T>(T obj, string fileName) where T : new()
@@ -46,16 +37,13 @@ namespace PixiEditor.Models.IO
         }
 
         /// <summary>
-        /// Removes all files from directory
+        ///     Removes all files from directory
         /// </summary>
         /// <param name="path"></param>
         public static void ClearDirectory(string path)
         {
             string[] filesInDirectory = Directory.GetFiles(path);
-            for (int i = 0; i < filesInDirectory.Length; i++)
-            {
-                File.Delete(filesInDirectory[i]);
-            }
+            for (int i = 0; i < filesInDirectory.Length; i++) File.Delete(filesInDirectory[i]);
         }
 
         private static void SaveSerializedObjectToFile(object obj, string filename)
@@ -77,7 +65,7 @@ namespace PixiEditor.Models.IO
         }
 
         /// <summary>
-        /// Creates and cleares temp directories
+        ///     Creates and cleares temp directories
         /// </summary>
         public static void InitializeTempDirectories()
         {

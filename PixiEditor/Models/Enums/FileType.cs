@@ -2,6 +2,6 @@
 {
     public enum FileType
     {
-        PNG = 0,
+        PNG = 0
     }
 }

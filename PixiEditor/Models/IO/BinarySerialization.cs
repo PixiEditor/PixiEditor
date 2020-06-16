@@ -19,7 +19,7 @@ namespace PixiEditor.Models.IO
             using (Stream stream = File.Open(path, FileMode.Open))
             {
                 BinaryFormatter formatter = new BinaryFormatter();
-                return (T)formatter.Deserialize(stream);
+                return (T) formatter.Deserialize(stream);
             }
         }
     }

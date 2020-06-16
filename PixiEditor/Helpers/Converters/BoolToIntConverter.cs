@@ -14,12 +14,8 @@ namespace PixiEditor.Helpers.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool boolean)
-            {
                 if (boolean == false)
-                {
                     return 0;
-                }
-            }
             return 1;
         }
     }

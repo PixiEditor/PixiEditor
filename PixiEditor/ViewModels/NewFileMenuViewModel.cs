@@ -1,14 +1,10 @@
-﻿using PixiEditor.Helpers;
-using System.Windows;
+﻿using System.Windows;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels
 {
-    class NewFileMenuViewModel : ViewModelBase
+    internal class NewFileMenuViewModel : ViewModelBase
     {
-        public RelayCommand OkCommand { get; set; }
-        public RelayCommand CloseCommand { get; set; }
-        public RelayCommand DragMoveCommand { get; set; }
-
         public NewFileMenuViewModel()
         {
             OkCommand = new RelayCommand(OkButton);
@@ -16,21 +12,25 @@ namespace PixiEditor.ViewModels
             DragMoveCommand = new RelayCommand(MoveWindow);
         }
 
+        public RelayCommand OkCommand { get; set; }
+        public RelayCommand CloseCommand { get; set; }
+        public RelayCommand DragMoveCommand { get; set; }
+
         private void OkButton(object parameter)
         {
-            ((Window)parameter).DialogResult = true;
-            ((Window)parameter).Close();
+            ((Window) parameter).DialogResult = true;
+            ((Window) parameter).Close();
         }
 
         private void CloseWindow(object parameter)
         {
-            ((Window)parameter).DialogResult = false;
-            base.CloseButton(parameter);
+            ((Window) parameter).DialogResult = false;
+            CloseButton(parameter);
         }
 
         private void MoveWindow(object parameter)
         {
-            base.DragMove(parameter);
+            DragMove(parameter);
         }
     }
 }

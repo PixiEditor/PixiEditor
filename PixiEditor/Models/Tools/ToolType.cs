@@ -2,6 +2,16 @@
 {
     public enum ToolType
     {
-        None, Move, Pen, Select, Bucket, Line, Circle, Rectangle, Earser, Brightness, ColorPicker
+        None,
+        Move,
+        Pen,
+        Select,
+        Bucket,
+        Line,
+        Circle,
+        Rectangle,
+        Earser,
+        Brightness,
+        ColorPicker
     }
 }

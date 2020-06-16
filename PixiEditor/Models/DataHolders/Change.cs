@@ -5,18 +5,8 @@ namespace PixiEditor.Models.DataHolders
     [Serializable]
     public class Change
     {
-        public object OldValue { get; set; }
-
-        public object NewValue { get; set; }
-
-        public string Description { get; set; }
-
-        public string Property { get; set; }
-
-        public Action<object[]> ReverseProcess { get; set; } = null;
-        public object[] ReverseProcessArguments;
-        public Action<object[]> Process { get; set; } = null;
         public object[] ProcessArguments;
+        public object[] ReverseProcessArguments;
 
 
         public Change(string property, object oldValue, object newValue, string description = "")
@@ -27,7 +17,7 @@ namespace PixiEditor.Models.DataHolders
             NewValue = newValue;
         }
 
-        public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments, 
+        public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments,
             object newValue, string description = "")
         {
             Property = property;
@@ -50,8 +40,17 @@ namespace PixiEditor.Models.DataHolders
 
         public Change()
         {
-
         }
 
+        public object OldValue { get; set; }
+
+        public object NewValue { get; set; }
+
+        public string Description { get; set; }
+
+        public string Property { get; set; }
+
+        public Action<object[]> ReverseProcess { get; set; }
+        public Action<object[]> Process { get; set; }
     }
 }

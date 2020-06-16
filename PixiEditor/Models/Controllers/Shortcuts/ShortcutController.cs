@@ -6,15 +6,14 @@ namespace PixiEditor.Models.Controllers
 {
     public class ShortcutController
     {
-        public static bool BlockShortcutExecution { get; set; }
-
-        public List<Shortcut> Shortcuts { get; set; }
-
         public ShortcutController()
         {
             Shortcuts = new List<Shortcut>();
-
         }
+
+        public static bool BlockShortcutExecution { get; set; }
+
+        public List<Shortcut> Shortcuts { get; set; }
 
         public void KeyPressed(Key key)
         {
@@ -24,13 +23,11 @@ namespace PixiEditor.Models.Controllers
                 if (shortcuts.Length < 1) return;
                 shortcuts = shortcuts.OrderByDescending(x => x.Modifier).ToArray();
                 for (int i = 0; i < shortcuts.Length; i++)
-                {
                     if (Keyboard.Modifiers.HasFlag(shortcuts[i].Modifier))
                     {
                         shortcuts[i].Execute();
                         break;
                     }
-                }
             }
         }
     }

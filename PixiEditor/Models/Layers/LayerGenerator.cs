@@ -5,7 +5,7 @@ namespace PixiEditor.Models.Layers
     public static class LayerGenerator
     {
         /// <summary>
-        /// Generating useable layer with image and bitmap
+        ///     Generating useable layer with image and bitmap
         /// </summary>
         /// <param name="imageWidth">Width of layer.</param>
         /// <param name="imageHeight">Height of layer.</param>
@@ -16,7 +16,7 @@ namespace PixiEditor.Models.Layers
         }
 
         /// <summary>
-        /// Generates bitmap ready to work with
+        ///     Generates bitmap ready to work with
         /// </summary>
         /// <param name="bitmapWidth">Width of bitmap.</param>
         /// <param name="imageHeight">Height of bitmap.</param>
@@ -27,6 +27,5 @@ namespace PixiEditor.Models.Layers
             bitmap.Clear(System.Windows.Media.Colors.Transparent);
             return bitmap;
         }
-
     }
 }

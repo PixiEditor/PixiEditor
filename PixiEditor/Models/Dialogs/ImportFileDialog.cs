@@ -2,32 +2,51 @@
 
 namespace PixiEditor.Models.Dialogs
 {
-    class ImportFileDialog : CustomDialog
+    internal class ImportFileDialog : CustomDialog
     {
+        private int _fileHeight;
+
+
+        private string _filePath;
         private int _fileWidth;
 
         public int FileWidth
         {
-            get { return _fileWidth; }
-            set { if (_fileWidth != value) { _fileWidth = value; RaisePropertyChanged("Width"); } }
+            get => _fileWidth;
+            set
+            {
+                if (_fileWidth != value)
+                {
+                    _fileWidth = value;
+                    RaisePropertyChanged("Width");
+                }
+            }
         }
-
-
-        private int _fileHeight;
 
         public int FileHeight
         {
-            get { return _fileHeight; }
-            set { if (_fileHeight != value) { _fileHeight = value; RaisePropertyChanged("FileHeight"); } }
+            get => _fileHeight;
+            set
+            {
+                if (_fileHeight != value)
+                {
+                    _fileHeight = value;
+                    RaisePropertyChanged("FileHeight");
+                }
+            }
         }
-
-
-        private string _filePath;
 
         public string FilePath
         {
-            get { return _filePath; }
-            set { if (_filePath != value) { _filePath = value; RaisePropertyChanged("FilePath"); } }
+            get => _filePath;
+            set
+            {
+                if (_filePath != value)
+                {
+                    _filePath = value;
+                    RaisePropertyChanged("FilePath");
+                }
+            }
         }
 
         public override bool ShowDialog()
@@ -41,7 +60,8 @@ namespace PixiEditor.Models.Dialogs
                 FileWidth = popup.ImportWidth;
                 FilePath = popup.FilePath;
             }
-            return (bool)popup.DialogResult;
+
+            return (bool) popup.DialogResult;
         }
     }
 }

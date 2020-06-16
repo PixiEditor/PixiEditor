@@ -1,6 +1,6 @@
-﻿using PixiEditor.Models.Layers;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Windows;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.Position
 {
@@ -10,8 +10,8 @@ namespace PixiEditor.Models.Position
 
         public static Coordinates MousePositionToCoordinates(Layer baseLayer, Point mousePosition)
         {
-            int xCoord = (int)(mousePosition.X / baseLayer.Width);
-            int yCoord = (int)(mousePosition.Y / baseLayer.Height);
+            int xCoord = (int) (mousePosition.X / baseLayer.Width);
+            int yCoord = (int) (mousePosition.Y / baseLayer.Height);
             return new Coordinates(xCoord, yCoord);
         }
 

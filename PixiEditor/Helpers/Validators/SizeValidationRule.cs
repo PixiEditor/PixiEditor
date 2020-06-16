@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using System.Globalization;
 using System.Windows.Controls;
 
 namespace PixiEditor.Helpers.Validators
@@ -10,7 +7,7 @@ namespace PixiEditor.Helpers.Validators
     {
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-            return new ValidationResult(int.Parse(((string)value).Split(' ')[0]) > 0, null); //Size is greater than 0
+            return new ValidationResult(int.Parse(((string) value).Split(' ')[0]) > 0, null); //Size is greater than 0
         }
     }
 }

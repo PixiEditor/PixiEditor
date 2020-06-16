@@ -1,36 +1,35 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Images;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Images;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Controllers
 {
     public class BitmapOperationsUtility
     {
-
-        private Coordinates _lastMousePos;
         private LayerChange[] _lastModifiedLayers;
 
-        public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
-
-        public BitmapManager Manager { get; set; }
+        private Coordinates _lastMousePos;
 
         public BitmapOperationsUtility(BitmapManager manager)
         {
             Manager = manager;
         }
 
+        public BitmapManager Manager { get; set; }
+
+        public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
+
         public void DeletePixels(Layer[] layers, Coordinates[] pixels)
         {
-            var changes = BitmapPixelChanges.FromSingleColoredArray(pixels, Color.FromArgb(0,0,0,0));
+            var changes = BitmapPixelChanges.FromSingleColoredArray(pixels, Color.FromArgb(0, 0, 0, 0));
             var oldValues = BitmapUtils.GetPixelsForSelection(layers, pixels);
             LayerChange[] old = new LayerChange[layers.Length];
             LayerChange[] newChange = new LayerChange[layers.Length];
@@ -41,6 +40,7 @@ namespace PixiEditor.Models.Controllers
                 newChange[i] = new LayerChange(changes, i);
                 layers[i].ApplyPixels(changes);
             }
+
             UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
         }
 
@@ -61,34 +61,36 @@ namespace PixiEditor.Models.Controllers
             if (_lastModifiedLayers == null) return;
             for (int i = 0; i < _lastModifiedLayers.Length; i++)
             {
-                BitmapPixelChanges oldValues = GetOldPixelsValues(_lastModifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray());
-                Manager.ActiveDocument.Layers[_lastModifiedLayers[i].LayerIndex].ApplyPixels(_lastModifiedLayers[i].PixelChanges);
-                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastModifiedLayers[i].PixelChanges, 
+                BitmapPixelChanges oldValues =
+                    GetOldPixelsValues(_lastModifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray());
+                Manager.ActiveDocument.Layers[_lastModifiedLayers[i].LayerIndex]
+                    .ApplyPixels(_lastModifiedLayers[i].PixelChanges);
+                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastModifiedLayers[i].PixelChanges,
                     oldValues, _lastModifiedLayers[i].LayerIndex));
                 Manager.PreviewLayer.Clear();
             }
         }
 
 
-
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
             if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
-            {
                 mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
-            };
+            ;
             if (!tool.RequiresPreviewLayer)
             {
                 LayerChange[] modifiedLayers = tool.Use(Manager.ActiveLayer, mouseMoveCords.ToArray(), color);
                 LayerChange[] oldPixelsValues = new LayerChange[modifiedLayers.Length];
                 for (int i = 0; i < modifiedLayers.Length; i++)
                 {
-                    oldPixelsValues[i] = new LayerChange(GetOldPixelsValues(modifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray()), 
+                    oldPixelsValues[i] = new LayerChange(
+                        GetOldPixelsValues(modifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray()),
                         modifiedLayers[i].LayerIndex);
-                    Manager.ActiveDocument.Layers[modifiedLayers[i].LayerIndex].ApplyPixels(modifiedLayers[i].PixelChanges);
-                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(modifiedLayers[i].PixelChanges, 
+                    Manager.ActiveDocument.Layers[modifiedLayers[i].LayerIndex]
+                        .ApplyPixels(modifiedLayers[i].PixelChanges);
+                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(modifiedLayers[i].PixelChanges,
                         oldPixelsValues[i].PixelChanges, modifiedLayers[i].LayerIndex));
-                }              
+                }
             }
             else
             {
@@ -102,7 +104,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        /// Extracts square from rectangle mouse drag, used to draw symmetric shapes.
+        ///     Extracts square from rectangle mouse drag, used to draw symmetric shapes.
         /// </summary>
         /// <param name="mouseMoveCords"></param>
         /// <returns></returns>
@@ -110,14 +112,8 @@ namespace PixiEditor.Models.Controllers
         {
             int xLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
             int yLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
-            if (mouseMoveCords[^1].Y > mouseMoveCords[0].Y)
-            {
-                xLength *= -1;
-            }
-            if (mouseMoveCords[^1].X > mouseMoveCords[0].X)
-            {
-                xLength *= -1;
-            }
+            if (mouseMoveCords[^1].Y > mouseMoveCords[0].Y) xLength *= -1;
+            if (mouseMoveCords[^1].X > mouseMoveCords[0].X) xLength *= -1;
             mouseMoveCords[0] = new Coordinates(mouseMoveCords[^1].X + xLength, mouseMoveCords[^1].Y + yLength);
             return mouseMoveCords;
         }
@@ -128,10 +124,13 @@ namespace PixiEditor.Models.Controllers
             Manager.ActiveLayer.LayerBitmap.Lock();
             for (int i = 0; i < coordinates.Length; i++)
             {
-                if (coordinates[i].X < 0 || coordinates[i].X > Manager.ActiveDocument.Width - 1 || coordinates[i].Y < 0 || coordinates[i].Y > Manager.ActiveDocument.Height - 1)
+                if (coordinates[i].X < 0 || coordinates[i].X > Manager.ActiveDocument.Width - 1 ||
+                    coordinates[i].Y < 0 || coordinates[i].Y > Manager.ActiveDocument.Height - 1)
                     continue;
-                values.Add(coordinates[i], Manager.ActiveLayer.LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
+                values.Add(coordinates[i],
+                    Manager.ActiveLayer.LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
             }
+
             Manager.ActiveLayer.LayerBitmap.Unlock();
             return new BitmapPixelChanges(values);
         }
@@ -143,7 +142,8 @@ namespace PixiEditor.Models.Controllers
             {
                 Manager.GeneratePreviewLayer();
                 Manager.PreviewLayer.Clear();
-                modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(Manager.ActiveDocument.ActiveLayer, mouseMove.ToArray(), Manager.PrimaryColor);
+                modifiedLayers = ((BitmapOperationTool) Manager.SelectedTool).Use(Manager.ActiveDocument.ActiveLayer,
+                    mouseMove.ToArray(), Manager.PrimaryColor);
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
                 Manager.PreviewLayer.ApplyPixels(BitmapPixelChanges.CombineOverride(changes));
                 _lastModifiedLayers = modifiedLayers;
@@ -154,14 +154,15 @@ namespace PixiEditor.Models.Controllers
 
 public class BitmapChangedEventArgs : EventArgs
 {
-    public BitmapPixelChanges PixelsChanged { get; set; }
-    public BitmapPixelChanges OldPixelsValues { get; set; }
-    public int ChangedLayerIndex { get; set; }
-
-    public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, BitmapPixelChanges oldPixelsValues, int changedLayerIndex)
+    public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, BitmapPixelChanges oldPixelsValues,
+        int changedLayerIndex)
     {
         PixelsChanged = pixelsChanged;
         OldPixelsValues = oldPixelsValues;
         ChangedLayerIndex = changedLayerIndex;
     }
+
+    public BitmapPixelChanges PixelsChanged { get; set; }
+    public BitmapPixelChanges OldPixelsValues { get; set; }
+    public int ChangedLayerIndex { get; set; }
 }

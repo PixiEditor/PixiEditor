@@ -2,39 +2,48 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        Title="ConfirmationPopup" Name="popup" WindowStartupLocation="CenterScreen" Height="200" Width="500" WindowStyle="None">
+        Title="ConfirmationPopup" Name="popup" WindowStartupLocation="CenterScreen" Height="200" Width="500"
+        WindowStyle="None">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 
     <Grid Background="{StaticResource AccentColor}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="34*"/>
-            <RowDefinition Height="21*"/>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="34*" />
+            <RowDefinition Height="21*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18" Foreground="White"/>
+        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center"
+                   VerticalAlignment="Center" FontSize="18" Foreground="White" />
         <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                            Command="{Binding DataContext.CancelCommand, ElementName=popup}"/>
+            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                    Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </DockPanel>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"  Margin="0,0,10,10">
-            <Button Margin="10,0,10,0" Height="30" Width="60" Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}" 
-                Style="{StaticResource DarkRoundButton}" Content="Yes">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Margin="0,0,10,10">
+            <Button Margin="10,0,10,0" Height="30" Width="60"
+                    Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
+                    Style="{StaticResource DarkRoundButton}" Content="Yes">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Height="30" Width="60" Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}" Style="{StaticResource DarkRoundButton}" Content="No">
+            <Button Height="30" Width="60"
+                    Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
+                    Style="{StaticResource DarkRoundButton}" Content="No">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
             <Button Margin="10,0,10,0" Height="30" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
-                    Command="{Binding DataContext.CancelCommand, ElementName=popup}"/>
+                    Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
     </Grid>
 </Window>

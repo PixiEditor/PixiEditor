@@ -7,7 +7,7 @@ using System.Windows.Data;
 namespace PixiEditor.Helpers
 {
     [ValueConversion(typeof(string), typeof(int))]
-    class ToolSizeToIntConverter : IValueConverter
+    internal class ToolSizeToIntConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

@@ -10,33 +10,23 @@ namespace PixiEditor.Helpers.Behaviours
     public class AllowableCharactersTextBoxBehavior : Behavior<TextBox>
     {
         public static readonly DependencyProperty RegularExpressionProperty =
-             DependencyProperty.Register("RegularExpression", typeof(string), typeof(AllowableCharactersTextBoxBehavior),
-             new FrameworkPropertyMetadata(".*"));
-        public string RegularExpression
-        {
-            get
-            {
-                return (string)base.GetValue(RegularExpressionProperty);
-            }
-            set
-            {
-                base.SetValue(RegularExpressionProperty, value);
-            }
-        }
+            DependencyProperty.Register("RegularExpression", typeof(string), typeof(AllowableCharactersTextBoxBehavior),
+                new FrameworkPropertyMetadata(".*"));
 
         public static readonly DependencyProperty MaxLengthProperty =
             DependencyProperty.Register("MaxLength", typeof(int), typeof(AllowableCharactersTextBoxBehavior),
-            new FrameworkPropertyMetadata(int.MinValue));
+                new FrameworkPropertyMetadata(int.MinValue));
+
+        public string RegularExpression
+        {
+            get => (string) GetValue(RegularExpressionProperty);
+            set => SetValue(RegularExpressionProperty, value);
+        }
+
         public int MaxLength
         {
-            get
-            {
-                return (int)base.GetValue(MaxLengthProperty);
-            }
-            set
-            {
-                base.SetValue(MaxLengthProperty, value);
-            }
+            get => (int) GetValue(MaxLengthProperty);
+            set => SetValue(MaxLengthProperty, value);
         }
 
         protected override void OnAttached()
@@ -52,10 +42,7 @@ namespace PixiEditor.Helpers.Behaviours
             {
                 string text = Convert.ToString(e.DataObject.GetData(DataFormats.Text));
 
-                if (!IsValid(text, true))
-                {
-                    e.CancelCommand();
-                }
+                if (!IsValid(text, true)) e.CancelCommand();
             }
             else
             {
@@ -63,7 +50,7 @@ namespace PixiEditor.Helpers.Behaviours
             }
         }
 
-        void OnPreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        private void OnPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !IsValid(e.Text, false);
         }
@@ -89,21 +76,19 @@ namespace PixiEditor.Helpers.Behaviours
 
         private int LengthOfModifiedText(string newText, bool paste)
         {
-            var countOfSelectedChars = this.AssociatedObject.SelectedText.Length;
-            var caretIndex = this.AssociatedObject.CaretIndex;
-            string text = this.AssociatedObject.Text;
+            var countOfSelectedChars = AssociatedObject.SelectedText.Length;
+            var caretIndex = AssociatedObject.CaretIndex;
+            string text = AssociatedObject.Text;
 
             if (countOfSelectedChars > 0 || paste)
             {
                 text = text.Remove(caretIndex, countOfSelectedChars);
                 return text.Length + newText.Length;
             }
-            else
-            {
-                var insert = Keyboard.IsKeyToggled(Key.Insert);
 
-                return insert && caretIndex < text.Length ? text.Length : text.Length + newText.Length;
-            }
+            var insert = Keyboard.IsKeyToggled(Key.Insert);
+
+            return insert && caretIndex < text.Length ? text.Length : text.Length + newText.Length;
         }
     }
 }

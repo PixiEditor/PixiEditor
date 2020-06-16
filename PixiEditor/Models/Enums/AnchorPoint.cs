@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PixiEditor.Models.Enums
 {
     [Flags]
     public enum AnchorPoint
     {
-        Left = 1, 
-        Center = 2, 
-        Right = 4, 
-        Top = 8, 
-        Middle = 16, 
+        Left = 1,
+        Center = 2,
+        Right = 4,
+        Top = 8,
+        Middle = 16,
         Bottom = 32
     }
 }

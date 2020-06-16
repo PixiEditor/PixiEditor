@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-
-namespace PixiEditor.Models.Position
+﻿namespace PixiEditor.Models.Position
 {
     public struct Coordinates
     {
@@ -15,7 +12,10 @@ namespace PixiEditor.Models.Position
             Y = y;
         }
 
-        public override string ToString() => $"x: {X}, y: {Y}";
+        public override string ToString()
+        {
+            return $"x: {X}, y: {Y}";
+        }
 
         public static bool operator ==(Coordinates c1, Coordinates c2)
         {
@@ -31,14 +31,14 @@ namespace PixiEditor.Models.Position
         public override bool Equals(object obj)
         {
             if (obj.GetType() != typeof(Coordinates)) return false;
-            return this == (Coordinates)obj;
+            return this == (Coordinates) obj;
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                const int HashingBase = (int)2166136261;
+                const int HashingBase = (int) 2166136261;
                 const int HashingMultiplier = 16777619;
 
                 int hash = HashingBase;

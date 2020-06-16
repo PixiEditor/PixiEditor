@@ -1,25 +1,25 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class FloodFill : BitmapOperationTool
     {
-        public override ToolType ToolType => ToolType.Bucket;
-
         public FloodFill()
         {
             Tooltip = "Fills area with color (G)";
         }
 
+        public override ToolType ToolType => ToolType.Bucket;
+
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return new LayerChange[] { new LayerChange(ForestFire(layer, coordinates[0], color), layer) };
+            return new[] {new LayerChange(ForestFire(layer, coordinates[0], color), layer)};
         }
 
         public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)
@@ -50,6 +50,7 @@ namespace PixiEditor.Models.Tools.Tools
                     stack.Push(Tuple.Create(point.Item1 - 1, point.Item2));
                 }
             }
+
             bitmap.Unlock();
             return BitmapPixelChanges.FromSingleColoredArray(changedCoords.ToArray(), newColor);
         }

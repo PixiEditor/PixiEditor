@@ -5,15 +5,15 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Styles/ThemeColors.xaml"/>
-                <ResourceDictionary Source="Styles/MenuButtonStyle.xaml"/>
-                <ResourceDictionary Source="Styles/ThemeStyle.xaml"/>
-                <ResourceDictionary Source="Styles/Titlebar.xaml"/>
-                <ResourceDictionary Source="Styles/ComboBoxDarkStyle.xaml"/>
-                <ResourceDictionary Source="Styles/ColorSliderStyle.xaml"/>
-                <ResourceDictionary Source="Styles/ColorToggleButton.xaml"/>
-                <ResourceDictionary Source="Styles/AnchorPointToggleButtonStyle.xaml"/>
-                <ResourceDictionary Source="Styles/DockingManagerStyle.xaml"/>
+                <ResourceDictionary Source="Styles/ThemeColors.xaml" />
+                <ResourceDictionary Source="Styles/MenuButtonStyle.xaml" />
+                <ResourceDictionary Source="Styles/ThemeStyle.xaml" />
+                <ResourceDictionary Source="Styles/Titlebar.xaml" />
+                <ResourceDictionary Source="Styles/ComboBoxDarkStyle.xaml" />
+                <ResourceDictionary Source="Styles/ColorSliderStyle.xaml" />
+                <ResourceDictionary Source="Styles/ColorToggleButton.xaml" />
+                <ResourceDictionary Source="Styles/AnchorPointToggleButtonStyle.xaml" />
+                <ResourceDictionary Source="Styles/DockingManagerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

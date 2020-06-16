@@ -1,23 +1,20 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Windows.Input;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Tools.ToolSettings;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
+        private bool _isActive;
         public abstract ToolType ToolType { get; }
         public string ImagePath => $"/Images/{ToolType}Image.png";
-        public virtual void OnMouseDown() { }
-        public virtual void OnMouseUp() { }
-        public virtual void AfterAddedUndo() { }
         public bool HideHighlight { get; set; } = false;
         public string Tooltip { get; set; }
 
-        private bool _isActive = false;
         public bool IsActive
         {
-            get { return _isActive; }
+            get => _isActive;
             set
             {
                 _isActive = value;
@@ -27,5 +24,17 @@ namespace PixiEditor.Models.Tools
 
         public Cursor Cursor { get; set; } = Cursors.Arrow;
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
+
+        public virtual void OnMouseDown()
+        {
+        }
+
+        public virtual void OnMouseUp()
+        {
+        }
+
+        public virtual void AfterAddedUndo()
+        {
+        }
     }
 }

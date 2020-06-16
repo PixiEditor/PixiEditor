@@ -1,23 +1,21 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Controls;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Controls;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
-        public override ToolType ToolType => ToolType.Select;
+        private Selection _oldSelection;
         public SelectionType SelectionType = SelectionType.Add;
-
-        Selection _oldSelection = null;
 
         public SelectTool()
         {
@@ -25,15 +23,16 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new SelectToolToolbar();
         }
 
+        public override ToolType ToolType => ToolType.Select;
+
         public override void OnMouseDown()
         {
             Enum.TryParse((Toolbar.GetSetting("Mode").Value as ComboBoxItem).Content as string, out SelectionType);
 
             _oldSelection = null;
-            if (ViewModelMain.Current.ActiveSelection != null && ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
-            {
+            if (ViewModelMain.Current.ActiveSelection != null &&
+                ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
                 _oldSelection = ViewModelMain.Current.ActiveSelection;
-            }
         }
 
         public override void OnMouseUp()
@@ -43,7 +42,7 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public override void Use(Coordinates[] pixels)
-        {            
+        {
             Select(pixels);
         }
 
@@ -62,17 +61,16 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         /// <summary>
-        /// Gets coordinates of every pixel in root layer
+        ///     Gets coordinates of every pixel in root layer
         /// </summary>
         /// <returns>Coordinates array of pixels</returns>
         public Coordinates[] GetAllSelection()
         {
-
             return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument.Layers[0]);
         }
 
         /// <summary>
-        /// Gets coordinates of every pixel in choosen layer
+        ///     Gets coordinates of every pixel in choosen layer
         /// </summary>
         /// <param name="layer"></param>
         /// <returns>Coordinates array of pixels</returns>

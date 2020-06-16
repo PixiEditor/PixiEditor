@@ -1,14 +1,15 @@
-﻿using PixiEditor.ViewModels;
-using System.Windows;
+﻿using System.Windows;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views
 {
     /// <summary>
-    /// Interaction logic for ImportFilePopup.xaml
+    ///     Interaction logic for ImportFilePopup.xaml
     /// </summary>
     public partial class ImportFilePopup : Window
     {
-        ImportFilePopupViewModel dc = new ImportFilePopupViewModel();
+        private readonly ImportFilePopupViewModel dc = new ImportFilePopupViewModel();
+
         public ImportFilePopup()
         {
             InitializeComponent();
@@ -16,30 +17,24 @@ namespace PixiEditor.Views
         }
 
 
-
-
         public int ImportHeight
         {
-            get
-            {
-                return dc.ImportHeight;
-            }
-            set { dc.ImportWidth = value; }
+            get => dc.ImportHeight;
+            set => dc.ImportWidth = value;
         }
-
 
 
         public int ImportWidth
         {
-            get { return dc.ImportWidth; }
-            set { dc.ImportWidth = value; }
+            get => dc.ImportWidth;
+            set => dc.ImportWidth = value;
         }
 
 
         public string FilePath
         {
-            get { return dc.FilePath; }
-            set { dc.FilePath = value; }
+            get => dc.FilePath;
+            set => dc.FilePath = value;
         }
     }
 }

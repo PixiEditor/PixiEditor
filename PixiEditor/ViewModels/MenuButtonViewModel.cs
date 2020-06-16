@@ -1,19 +1,11 @@
-﻿using PixiEditor.Helpers;
-using System.Windows;
+﻿using System.Windows;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels
 {
-    class MenuButtonViewModel : ViewModelBase
+    internal class MenuButtonViewModel : ViewModelBase
     {
-        public RelayCommand OpenListViewCommand { get; set; }
-        public RelayCommand CloseListViewCommand { get; set; }
         private Visibility _listViewVisibility;
-
-        public Visibility ListViewVisibility
-        {
-            get { return _listViewVisibility; }
-            set { _listViewVisibility = value; RaisePropertyChanged("ListViewVisibility"); }
-        }
 
 
         public MenuButtonViewModel()
@@ -21,12 +13,24 @@ namespace PixiEditor.ViewModels
             OpenListViewCommand = new RelayCommand(OpenListView);
             CloseListViewCommand = new RelayCommand(CloseListView);
             ListViewVisibility = Visibility.Hidden;
+        }
 
+        public RelayCommand OpenListViewCommand { get; set; }
+        public RelayCommand CloseListViewCommand { get; set; }
+
+        public Visibility ListViewVisibility
+        {
+            get => _listViewVisibility;
+            set
+            {
+                _listViewVisibility = value;
+                RaisePropertyChanged("ListViewVisibility");
+            }
         }
 
         private void OpenListView(object parameter)
         {
-            ListViewVisibility = (ListViewVisibility == Visibility.Hidden) ? Visibility.Visible : Visibility.Hidden;
+            ListViewVisibility = ListViewVisibility == Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void CloseListView(object parameter)

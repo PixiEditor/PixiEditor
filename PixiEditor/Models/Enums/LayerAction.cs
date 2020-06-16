@@ -2,6 +2,9 @@
 {
     public enum LayerAction
     {
-        Add, Remove, Move, SetActive
+        Add,
+        Remove,
+        Move,
+        SetActive
     }
 }

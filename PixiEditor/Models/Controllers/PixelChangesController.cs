@@ -1,18 +1,17 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Controllers
 {
     public class PixelChangesController
     {
-        Dictionary<int, LayerChange> LastChanges { get; set; }
-        Dictionary<int, LayerChange> LastOldValues { get; set; }
+        private Dictionary<int, LayerChange> LastChanges { get; set; }
+        private Dictionary<int, LayerChange> LastOldValues { get; set; }
 
         public void AddChanges(LayerChange changes, LayerChange oldValues)
         {
@@ -20,8 +19,8 @@ namespace PixiEditor.Models.Controllers
             {
                 if (LastChanges == null)
                 {
-                    LastChanges = new Dictionary<int, LayerChange> { { changes.LayerIndex, changes } };
-                    LastOldValues = new Dictionary<int, LayerChange> { { oldValues.LayerIndex, oldValues } };
+                    LastChanges = new Dictionary<int, LayerChange> {{changes.LayerIndex, changes}};
+                    LastOldValues = new Dictionary<int, LayerChange> {{oldValues.LayerIndex, oldValues}};
                 }
                 else if (LastChanges.ContainsKey(changes.LayerIndex))
                 {
@@ -43,28 +42,16 @@ namespace PixiEditor.Models.Controllers
         private void AddToExistingLayerChange(LayerChange layerChange, LayerChange oldValues)
         {
             foreach (var change in layerChange.PixelChanges.ChangedPixels)
-            {
                 if (LastChanges[layerChange.LayerIndex].PixelChanges.ChangedPixels.ContainsKey(change.Key))
-                {
                     continue;
-                }
                 else
-                {
                     LastChanges[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
-                }
-            }
 
             foreach (var change in oldValues.PixelChanges.ChangedPixels)
-            {
                 if (LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.ContainsKey(change.Key))
-                {
                     continue;
-                }
                 else
-                {
                     LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
-                }
-            }
         }
 
         public Tuple<LayerChange, LayerChange>[] PopChanges()
@@ -75,8 +62,10 @@ namespace PixiEditor.Models.Controllers
             int i = 0;
             foreach (var change in LastChanges)
             {
-                Dictionary<Coordinates, Color> pixelChanges = change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
-                Dictionary<Coordinates, Color> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
+                Dictionary<Coordinates, Color> pixelChanges =
+                    change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
+                Dictionary<Coordinates, Color> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels
+                    .ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 var tmp = new LayerChange(new BitmapPixelChanges(pixelChanges), change.Key);
                 var oldValuesTmp = new LayerChange(new BitmapPixelChanges(oldValues), change.Key);

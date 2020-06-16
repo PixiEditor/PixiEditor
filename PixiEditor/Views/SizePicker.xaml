@@ -1,23 +1,31 @@
 ﻿<UserControl x:Class="PixiEditor.Views.SizePicker"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PixiEditor.Views"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="110" d:DesignWidth="215" Name="uc">
     <StackPanel Background="{StaticResource MainColor}">
         <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <local:SizeInput IsEnabled="{Binding EditingEnabled, ElementName=uc}" Margin="5,0,0,0" PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}" AspectRatioValue="{Binding Path=ChosenWidth, ElementName=uc}" 
-                             HorizontalAlignment="Left" Width="150" Height="30" 
-                             Size="{Binding ChoosenHeight, ElementName=uc, Mode=TwoWay}"/>
+            <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <local:SizeInput IsEnabled="{Binding EditingEnabled, ElementName=uc}" Margin="5,0,0,0"
+                             PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}"
+                             AspectRatioValue="{Binding Path=ChosenWidth, ElementName=uc}"
+                             HorizontalAlignment="Left" Width="150" Height="30"
+                             Size="{Binding ChoosenHeight, ElementName=uc, Mode=TwoWay}" />
         </DockPanel>
         <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Height="30" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <local:SizeInput IsEnabled="{Binding EditingEnabled, ElementName=uc}" Width="150" Height="30" PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}" AspectRatioValue="{Binding Path=ChoosenHeight, ElementName=uc}"
-                                 HorizontalAlignment="Left" Margin="10,0,0,0" Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}"/>
+            <TextBlock Height="30" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <local:SizeInput IsEnabled="{Binding EditingEnabled, ElementName=uc}" Width="150" Height="30"
+                             PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}"
+                             AspectRatioValue="{Binding Path=ChoosenHeight, ElementName=uc}"
+                             HorizontalAlignment="Left" Margin="10,0,0,0"
+                             Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}" />
         </DockPanel>
-        <CheckBox Name="aspectRatio" Content="Preserve aspect ratio" Foreground="White" HorizontalAlignment="Left" IsChecked="True" Margin="50,10,0,0"/>
+        <CheckBox Name="aspectRatio" Content="Preserve aspect ratio" Foreground="White" HorizontalAlignment="Left"
+                  IsChecked="True" Margin="50,10,0,0" />
     </StackPanel>
 </UserControl>

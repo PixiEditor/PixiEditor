@@ -7,8 +7,8 @@ namespace PixiEditor.Helpers
     {
         #region Fields
 
-        readonly Action<object> _execute;
-        readonly Predicate<object> _canExecute;
+        private readonly Action<object> _execute;
+        private readonly Predicate<object> _canExecute;
 
         #endregion // Fields
 
@@ -27,6 +27,7 @@ namespace PixiEditor.Helpers
             _execute = execute;
             _canExecute = canExecute;
         }
+
         #endregion // Constructors
 
         #region ICommand Members
@@ -38,8 +39,8 @@ namespace PixiEditor.Helpers
 
         public event EventHandler CanExecuteChanged
         {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
         }
 
         public void Execute(object parameter)

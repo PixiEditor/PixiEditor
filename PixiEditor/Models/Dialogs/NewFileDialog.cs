@@ -1,26 +1,38 @@
-﻿using PixiEditor.Views;
-using System.Windows;
+﻿using System.Windows;
+using PixiEditor.Views;
 
 namespace PixiEditor.Models.Dialogs
 {
     public class NewFileDialog : CustomDialog
     {
+        private int _height;
 
         private int _width;
 
         public int Width
         {
-            get { return _width; }
-            set { if (_width != value) { _width = value; RaisePropertyChanged("Width"); } }
+            get => _width;
+            set
+            {
+                if (_width != value)
+                {
+                    _width = value;
+                    RaisePropertyChanged("Width");
+                }
+            }
         }
-
-
-        private int _height;
 
         public int Height
         {
-            get { return _height; }
-            set { if (_height != value) { _height = value; RaisePropertyChanged("Height"); } }
+            get => _height;
+            set
+            {
+                if (_height != value)
+                {
+                    _height = value;
+                    RaisePropertyChanged("Height");
+                }
+            }
         }
 
         public override bool ShowDialog()
@@ -29,7 +41,7 @@ namespace PixiEditor.Models.Dialogs
             popup.ShowDialog();
             Height = (popup as NewFilePopup).FileHeight;
             Width = (popup as NewFilePopup).FileWidth;
-            return (bool)popup.DialogResult;
+            return (bool) popup.DialogResult;
         }
     }
 }

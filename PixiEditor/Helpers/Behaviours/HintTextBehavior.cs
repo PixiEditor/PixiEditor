@@ -5,21 +5,20 @@ using System.Windows.Media;
 
 namespace PixiEditor.Helpers.Behaviours
 {
-    class HintTextBehavior : Behavior<TextBox>
+    internal class HintTextBehavior : Behavior<TextBox>
     {
+        // Using a DependencyProperty as the backing store for Hint.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HintProperty =
+            DependencyProperty.Register("Hint", typeof(string), typeof(HintTextBehavior),
+                new PropertyMetadata(string.Empty));
 
         private Brush _textColor;
 
         public string Hint
         {
-            get { return (string)GetValue(HintProperty); }
-            set { SetValue(HintProperty, value); }
+            get => (string) GetValue(HintProperty);
+            set => SetValue(HintProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for Hint.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty HintProperty =
-            DependencyProperty.Register("Hint", typeof(string), typeof(HintTextBehavior), new PropertyMetadata(string.Empty));
-
 
 
         protected override void OnAttached()
@@ -33,25 +32,19 @@ namespace PixiEditor.Helpers.Behaviours
 
         private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(AssociatedObject.Text) == true)
-            {
-                SetHint(true);
-            }
+            if (string.IsNullOrEmpty(AssociatedObject.Text)) SetHint(true);
         }
 
         private void AssociatedObject_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (AssociatedObject.Text == Hint)
-            {
-                SetHint(false);
-            }
+            if (AssociatedObject.Text == Hint) SetHint(false);
         }
 
         private void SetHint(bool active)
         {
-            if (active == true)
+            if (active)
             {
-                AssociatedObject.Foreground = (SolidColorBrush)new BrushConverter().ConvertFromString("#7B7B7B");
+                AssociatedObject.Foreground = (SolidColorBrush) new BrushConverter().ConvertFromString("#7B7B7B");
                 AssociatedObject.Text = Hint;
             }
             else

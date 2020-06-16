@@ -1,41 +1,40 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interactivity;
 
 namespace PixiEditor.Helpers.Behaviours
 {
-
-    public class MouseBehaviour : System.Windows.Interactivity.Behavior<FrameworkElement>
+    public class MouseBehaviour : Behavior<FrameworkElement>
     {
         public static readonly DependencyProperty MouseYProperty = DependencyProperty.Register(
             "MouseY", typeof(double), typeof(MouseBehaviour), new PropertyMetadata(default(double)));
 
-        public double MouseY
-        {
-            get { return (double)GetValue(MouseYProperty); }
-            set { SetValue(MouseYProperty, value); }
-        }
-
         public static readonly DependencyProperty MouseXProperty = DependencyProperty.Register(
             "MouseX", typeof(double), typeof(MouseBehaviour), new PropertyMetadata(default(double)));
 
-        public double MouseX
+        // Using a DependencyProperty as the backing store for RelativeTo.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty RelativeToProperty =
+            DependencyProperty.Register("RelativeTo", typeof(FrameworkElement), typeof(MouseBehaviour),
+                new PropertyMetadata(default(FrameworkElement)));
+
+        public double MouseY
         {
-            get { return (double)GetValue(MouseXProperty); }
-            set { SetValue(MouseXProperty, value); }
+            get => (double) GetValue(MouseYProperty);
+            set => SetValue(MouseYProperty, value);
         }
 
+        public double MouseX
+        {
+            get => (double) GetValue(MouseXProperty);
+            set => SetValue(MouseXProperty, value);
+        }
 
 
         public FrameworkElement RelativeTo
         {
-            get { return (FrameworkElement)GetValue(RelativeToProperty); }
-            set { SetValue(RelativeToProperty, value); }
+            get => (FrameworkElement) GetValue(RelativeToProperty);
+            set => SetValue(RelativeToProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for RelativeTo.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RelativeToProperty =
-            DependencyProperty.Register("RelativeTo", typeof(FrameworkElement), typeof(MouseBehaviour), new PropertyMetadata(default(FrameworkElement)));
-
 
 
         protected override void OnAttached()
@@ -45,10 +44,7 @@ namespace PixiEditor.Helpers.Behaviours
 
         private void AssociatedObjectOnMouseMove(object sender, MouseEventArgs mouseEventArgs)
         {
-            if (RelativeTo == null)
-            {
-                RelativeTo = AssociatedObject;
-            }
+            if (RelativeTo == null) RelativeTo = AssociatedObject;
             var pos = mouseEventArgs.GetPosition(RelativeTo);
             MouseX = pos.X;
             MouseY = pos.Y;

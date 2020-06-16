@@ -1,70 +1,27 @@
-﻿using Microsoft.Win32;
-using PixiEditor.Helpers;
-using System;
+﻿using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using Microsoft.Win32;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels
 {
-    class ImportFilePopupViewModel : ViewModelBase
+    internal class ImportFilePopupViewModel : ViewModelBase
     {
-
-        public RelayCommand CloseButtonCommand { get; set; }
-        public RelayCommand DragMoveCommand { get; set; }
-        public RelayCommand ChoosePathCommand { get; set; }
-        public RelayCommand OkCommand { get; set; }
-
-
-        private string _pathButtonBorder = "#f08080";
-
-        public string PathButtonBorder
-        {
-            get { return _pathButtonBorder; }
-            set { if (_pathButtonBorder != value) { _pathButtonBorder = value; RaisePropertyChanged("PathButtonBorder"); } }
-        }
-
-
-        private bool _pathIsCorrect;
-
-        public bool PathIsCorrect
-        {
-            get { return _pathIsCorrect; }
-            set { if (_pathIsCorrect != value) { _pathIsCorrect = value; RaisePropertyChanged("PathIsCorrect"); } }
-        }
-
-
         private string _filePath;
-
-        public string FilePath
-        {
-            get { return _filePath; }
-            set { if (_filePath != value) 
-                {
-                    _filePath = value;
-                    CheckForPath(value);
-                    RaisePropertyChanged("FilePath"); 
-                } 
-            }
-        }
-
-
-        private int _importWidth = 16;
-
-        public int ImportWidth
-        {
-            get { return _importWidth; }
-            set { if (_importWidth != value) { _importWidth = value; RaisePropertyChanged("ImportWidth"); } }
-        }
 
 
         private int _importHeight = 16;
 
-        public int ImportHeight
-        {
-            get { return _importHeight; }
-            set { if (_importHeight != value) { _importHeight = value; RaisePropertyChanged("ImportHeight"); } }
-        }
+
+        private int _importWidth = 16;
+
+
+        private string _pathButtonBorder = "#f08080";
+
+
+        private bool _pathIsCorrect;
 
         public ImportFilePopupViewModel()
         {
@@ -74,13 +31,84 @@ namespace PixiEditor.ViewModels
             OkCommand = new RelayCommand(OkButton, CanClickOk);
         }
 
+        public RelayCommand CloseButtonCommand { get; set; }
+        public RelayCommand DragMoveCommand { get; set; }
+        public RelayCommand ChoosePathCommand { get; set; }
+        public RelayCommand OkCommand { get; set; }
+
+        public string PathButtonBorder
+        {
+            get => _pathButtonBorder;
+            set
+            {
+                if (_pathButtonBorder != value)
+                {
+                    _pathButtonBorder = value;
+                    RaisePropertyChanged("PathButtonBorder");
+                }
+            }
+        }
+
+        public bool PathIsCorrect
+        {
+            get => _pathIsCorrect;
+            set
+            {
+                if (_pathIsCorrect != value)
+                {
+                    _pathIsCorrect = value;
+                    RaisePropertyChanged("PathIsCorrect");
+                }
+            }
+        }
+
+        public string FilePath
+        {
+            get => _filePath;
+            set
+            {
+                if (_filePath != value)
+                {
+                    _filePath = value;
+                    CheckForPath(value);
+                    RaisePropertyChanged("FilePath");
+                }
+            }
+        }
+
+        public int ImportWidth
+        {
+            get => _importWidth;
+            set
+            {
+                if (_importWidth != value)
+                {
+                    _importWidth = value;
+                    RaisePropertyChanged("ImportWidth");
+                }
+            }
+        }
+
+        public int ImportHeight
+        {
+            get => _importHeight;
+            set
+            {
+                if (_importHeight != value)
+                {
+                    _importHeight = value;
+                    RaisePropertyChanged("ImportHeight");
+                }
+            }
+        }
+
         /// <summary>
-        /// Command that handles Path choosing to save file
+        ///     Command that handles Path choosing to save file
         /// </summary>
         /// <param name="parameter"></param>
         private void ChoosePath(object parameter)
         {
-            OpenFileDialog path = new OpenFileDialog()
+            OpenFileDialog path = new OpenFileDialog
             {
                 Title = "Import path",
                 CheckPathExists = true,
@@ -102,7 +130,7 @@ namespace PixiEditor.ViewModels
 
         private void CheckForPath(string path)
         {
-            if(File.Exists(path) && (path.EndsWith(".png") || path.EndsWith(".jpeg") || path.EndsWith(".jpg")))
+            if (File.Exists(path) && (path.EndsWith(".png") || path.EndsWith(".jpeg") || path.EndsWith(".jpg")))
             {
                 PathButtonBorder = "#b8f080";
                 PathIsCorrect = true;
@@ -115,24 +143,24 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window)parameter).DialogResult = false;
-            base.CloseButton(parameter);
+            ((Window) parameter).DialogResult = false;
+            CloseButton(parameter);
         }
 
         private void MoveWindow(object parameter)
         {
-            base.DragMove(parameter);
+            DragMove(parameter);
         }
 
         private void OkButton(object parameter)
         {
-            ((Window)parameter).DialogResult = true;
-            base.CloseButton(parameter);
+            ((Window) parameter).DialogResult = true;
+            CloseButton(parameter);
         }
 
         private bool CanClickOk(object property)
         {
-            return PathIsCorrect == true;
+            return PathIsCorrect;
         }
     }
 }

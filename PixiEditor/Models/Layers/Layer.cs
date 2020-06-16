@@ -1,19 +1,39 @@
-﻿using PixiEditor.Models.Images;
-using PixiEditor.Models.Tools;
-using System;
+﻿using System;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Layers
 {
     public class Layer : BasicLayer
     {
+        private bool _isActive;
+
+        private bool _isRenaming;
+        private bool _isVisible = true;
         private WriteableBitmap _layerBitmap;
 
         private string _name;
 
+        public Layer(string name, int width, int height)
+        {
+            Name = name;
+            Layer layer = LayerGenerator.Generate(width, height);
+            LayerBitmap = layer.LayerBitmap;
+            Width = width;
+            Height = height;
+        }
+
+
+        public Layer(WriteableBitmap layerBitmap)
+        {
+            LayerBitmap = layerBitmap;
+            Width = (int) layerBitmap.Width;
+            Height = (int) layerBitmap.Height;
+        }
+
         public string Name
         {
-            get { return _name; }
+            get => _name;
             set
             {
                 _name = value;
@@ -21,8 +41,6 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-
-        private bool _isActive = false;
         public bool IsActive
         {
             get => _isActive;
@@ -32,7 +50,7 @@ namespace PixiEditor.Models.Layers
                 RaisePropertyChanged("IsActive");
             }
         }
-        private bool _isVisible = true;
+
         public bool IsVisible
         {
             get => _isVisible;
@@ -43,11 +61,9 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private bool _isRenaming = false;
-
         public bool IsRenaming
         {
-            get { return _isRenaming; }
+            get => _isRenaming;
             set
             {
                 _isRenaming = value;
@@ -66,25 +82,8 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public Layer(string name, int width, int height)
-        {
-            Name = name;
-            Layer layer = LayerGenerator.Generate(width, height);
-            LayerBitmap = layer.LayerBitmap;
-            Width = width;
-            Height = height;
-        }
-
-
-        public Layer(WriteableBitmap layerBitmap)
-        {
-            LayerBitmap = layerBitmap;
-            Width = (int)layerBitmap.Width;
-            Height = (int)layerBitmap.Height;
-        }
-
         /// <summary>
-        /// Applies pixels to layer
+        ///     Applies pixels to layer
         /// </summary>
         /// <param name="pixels"></param>
         public void ApplyPixels(BitmapPixelChanges pixels)
@@ -92,11 +91,12 @@ namespace PixiEditor.Models.Layers
             if (pixels.ChangedPixels == null) return;
             using (LayerBitmap.GetBitmapContext())
             {
-
                 foreach (var coords in pixels.ChangedPixels)
                 {
-                    if (coords.Key.X > Width - 1 || coords.Key.X < 0 || coords.Key.Y < 0 || coords.Key.Y > Height - 1) continue;
-                    LayerBitmap.SetPixel(Math.Clamp(coords.Key.X, 0, Width - 1), Math.Clamp(coords.Key.Y, 0, Height - 1),
+                    if (coords.Key.X > Width - 1 || coords.Key.X < 0 || coords.Key.Y < 0 ||
+                        coords.Key.Y > Height - 1) continue;
+                    LayerBitmap.SetPixel(Math.Clamp(coords.Key.X, 0, Width - 1),
+                        Math.Clamp(coords.Key.Y, 0, Height - 1),
                         coords.Value);
                 }
             }
@@ -131,6 +131,5 @@ namespace PixiEditor.Models.Layers
             Height = newHeight;
             Width = newWidth;
         }
-
     }
 }
