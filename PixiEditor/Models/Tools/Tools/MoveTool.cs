@@ -21,7 +21,6 @@ namespace PixiEditor.Models.Tools.Tools
         public override ToolType ToolType => ToolType.Move;
         private Layer[] _affectedLayers;
         private Dictionary<Layer, bool> _clearedPixels = new Dictionary<Layer, bool>();
-        private BitmapPixelChanges _clearedPixelsChange;
         private Coordinates[] _currentSelection;
         private Coordinates _lastMouseMove;
         private Coordinates _lastStartMousePos;
@@ -51,7 +50,7 @@ namespace PixiEditor.Models.Tools.Tools
                     .AddRangeOverride(beforeMovePixels.ChangedPixels);
 
                 ((LayerChange[]) changes.NewValue)[layerIndex].PixelChanges.ChangedPixels
-                    .AddRangeOverride(_clearedPixelsChange.ChangedPixels);
+                    .AddRangeNewOnly(BitmapPixelChanges.FromSingleColoredArray(_startSelection, System.Windows.Media.Colors.Transparent).ChangedPixels);
             }
         }
 
@@ -93,6 +92,8 @@ namespace PixiEditor.Models.Tools.Tools
 
                 result[i] = new LayerChange(changes, _affectedLayers[i]);
             }
+
+
 
             return result;
         }
@@ -137,10 +138,8 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (!_clearedPixels.ContainsKey(layer) || _clearedPixels[layer] == false)
             {
-                _clearedPixelsChange =
-                    BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent);
                 ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.First(x => x == layer)
-                    .ApplyPixels(_clearedPixelsChange);
+                    .ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
 
                 _clearedPixels[layer] = true;
             }
