@@ -5,6 +5,9 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class FloatSetting : Setting
     {
+        public float Min { get; set; }
+        public float Max { get; set; }
+
         public FloatSetting(string name, float initialValue, string label = "",
             float min = float.NegativeInfinity, float max = float.PositiveInfinity) : base(name)
         {
@@ -14,9 +17,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Max = max;
             SettingControl = GenerateNumberInput();
         }
-
-        public float Min { get; set; }
-        public float Max { get; set; }
 
         private NumberInput GenerateNumberInput()
         {

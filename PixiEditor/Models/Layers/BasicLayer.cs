@@ -6,10 +6,6 @@ namespace PixiEditor.Models.Layers
     [Serializable]
     public class BasicLayer : NotifyableObject
     {
-        private int _height;
-
-        private int _width;
-
         public int Width
         {
             get => _width;
@@ -29,5 +25,9 @@ namespace PixiEditor.Models.Layers
                 RaisePropertyChanged("Height");
             }
         }
+
+        private int _height;
+
+        private int _width;
     }
 }

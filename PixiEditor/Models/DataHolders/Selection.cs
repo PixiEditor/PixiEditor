@@ -12,17 +12,6 @@ namespace PixiEditor.Models.DataHolders
 {
     public class Selection : NotifyableObject
     {
-        private readonly Color _selectionBlue;
-        private Layer _selectionLayer;
-
-        public Selection(Coordinates[] selectedPoints)
-        {
-            SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
-            SelectionLayer = new Layer("_selectionLayer", ViewModelMain.Current.BitmapManager.ActiveDocument.Width,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.Height);
-            _selectionBlue = Color.FromArgb(127, 142, 202, 255);
-        }
-
         public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
 
         public Layer SelectionLayer
@@ -33,6 +22,17 @@ namespace PixiEditor.Models.DataHolders
                 _selectionLayer = value;
                 RaisePropertyChanged("SelectionLayer");
             }
+        }
+
+        private readonly Color _selectionBlue;
+        private Layer _selectionLayer;
+
+        public Selection(Coordinates[] selectedPoints)
+        {
+            SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
+            SelectionLayer = new Layer("_selectionLayer", ViewModelMain.Current.BitmapManager.ActiveDocument.Width,
+                ViewModelMain.Current.BitmapManager.ActiveDocument.Height);
+            _selectionBlue = Color.FromArgb(127, 142, 202, 255);
         }
 
         public void SetSelection(Coordinates[] selection, SelectionType mode)

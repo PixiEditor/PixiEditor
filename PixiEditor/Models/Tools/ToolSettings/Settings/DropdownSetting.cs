@@ -7,6 +7,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class DropdownSetting : Setting
     {
+        public string[] Values { get; set; }
+
         public DropdownSetting(string name, string[] values, string label) : base(name)
         {
             Values = values;
@@ -14,8 +16,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Value = ((ComboBox) SettingControl).Items[0];
             Label = label;
         }
-
-        public string[] Values { get; set; }
 
 
         private ComboBox GenerateDropdown()

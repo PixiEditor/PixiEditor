@@ -6,23 +6,6 @@ namespace PixiEditor.Models.DataHolders
 {
     public class NotifyableColor : NotifyableObject
     {
-        private byte _a;
-
-        private byte _b;
-
-
-        private byte _g;
-
-        private byte _r;
-
-        public NotifyableColor(Color color)
-        {
-            A = color.A;
-            R = color.R;
-            G = color.G;
-            B = color.B;
-        }
-
         public byte A
         {
             get => _a;
@@ -65,6 +48,23 @@ namespace PixiEditor.Models.DataHolders
                 ColorChanged?.Invoke(this, EventArgs.Empty);
                 RaisePropertyChanged("B");
             }
+        }
+
+        private byte _a;
+
+        private byte _b;
+
+
+        private byte _g;
+
+        private byte _r;
+
+        public NotifyableColor(Color color)
+        {
+            A = color.A;
+            R = color.R;
+            G = color.G;
+            B = color.B;
         }
 
         public event EventHandler ColorChanged;

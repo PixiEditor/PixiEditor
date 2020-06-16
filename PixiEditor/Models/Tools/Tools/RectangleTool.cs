@@ -11,13 +11,13 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class RectangleTool : ShapeTool
     {
+        public override ToolType ToolType => ToolType.Rectangle;
+        public bool Filled { get; set; } = false;
+
         public RectangleTool()
         {
             Tooltip = "Draws rectanlge on cavnas (R)";
         }
-
-        public override ToolType ToolType => ToolType.Rectangle;
-        public bool Filled { get; set; } = false;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

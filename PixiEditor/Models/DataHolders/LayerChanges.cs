@@ -6,6 +6,9 @@ namespace PixiEditor.Models.DataHolders
 {
     public class LayerChange
     {
+        public BitmapPixelChanges PixelChanges { get; set; }
+        public int LayerIndex { get; set; }
+
         public LayerChange(BitmapPixelChanges pixelChanges, int layerIndex)
         {
             PixelChanges = pixelChanges;
@@ -17,8 +20,5 @@ namespace PixiEditor.Models.DataHolders
             PixelChanges = pixelChanges;
             LayerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
         }
-
-        public BitmapPixelChanges PixelChanges { get; set; }
-        public int LayerIndex { get; set; }
     }
 }

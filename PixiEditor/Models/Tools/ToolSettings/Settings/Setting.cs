@@ -5,13 +5,6 @@ namespace PixiEditor.Models.Tools.ToolSettings
 {
     public abstract class Setting : NotifyableObject
     {
-        private object value;
-
-        public Setting(string name)
-        {
-            Name = name;
-        }
-
         public string Name { get; protected set; }
         public string Label { get; set; }
         public bool HasLabel => !string.IsNullOrEmpty(Label);
@@ -27,5 +20,11 @@ namespace PixiEditor.Models.Tools.ToolSettings
         }
 
         public Control SettingControl { get; set; }
+        private object value;
+
+        public Setting(string name)
+        {
+            Name = name;
+        }
     }
 }

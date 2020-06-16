@@ -5,10 +5,6 @@ namespace PixiEditor.Models.Dialogs
 {
     public class NewFileDialog : CustomDialog
     {
-        private int _height;
-
-        private int _width;
-
         public int Width
         {
             get => _width;
@@ -34,6 +30,10 @@ namespace PixiEditor.Models.Dialogs
                 }
             }
         }
+
+        private int _height;
+
+        private int _width;
 
         public override bool ShowDialog()
         {

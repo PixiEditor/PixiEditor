@@ -9,13 +9,13 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class LineTool : ShapeTool
     {
+        public override ToolType ToolType => ToolType.Line;
+
         public LineTool()
         {
             Tooltip = "Draws line on canvas (L)";
             Toolbar = new BasicToolbar();
         }
-
-        public override ToolType ToolType => ToolType.Line;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

@@ -14,6 +14,7 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
+        public override ToolType ToolType => ToolType.Select;
         private Selection _oldSelection;
         public SelectionType SelectionType = SelectionType.Add;
 
@@ -22,8 +23,6 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Selects area. (M)";
             Toolbar = new SelectToolToolbar();
         }
-
-        public override ToolType ToolType => ToolType.Select;
 
         public override void OnMouseDown()
         {

@@ -6,14 +6,14 @@ namespace PixiEditor.Models.Controllers
 {
     public class ShortcutController
     {
+        public static bool BlockShortcutExecution { get; set; }
+
+        public List<Shortcut> Shortcuts { get; set; }
+
         public ShortcutController()
         {
             Shortcuts = new List<Shortcut>();
         }
-
-        public static bool BlockShortcutExecution { get; set; }
-
-        public List<Shortcut> Shortcuts { get; set; }
 
         public void KeyPressed(Key key)
         {

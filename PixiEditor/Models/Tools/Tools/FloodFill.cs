@@ -10,12 +10,12 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class FloodFill : BitmapOperationTool
     {
+        public override ToolType ToolType => ToolType.Bucket;
+
         public FloodFill()
         {
             Tooltip = "Fills area with color (G)";
         }
-
-        public override ToolType ToolType => ToolType.Bucket;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

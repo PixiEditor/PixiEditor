@@ -8,13 +8,13 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class EarserTool : BitmapOperationTool
     {
+        public override ToolType ToolType => ToolType.Earser;
+
         public EarserTool()
         {
             Tooltip = "Earsers color from pixel (E)";
             Toolbar = new BasicToolbar();
         }
-
-        public override ToolType ToolType => ToolType.Earser;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

@@ -54,10 +54,10 @@ namespace PixiEditor.Models.Controllers
 
 public class MouseMovementEventArgs : EventArgs
 {
+    public Coordinates NewPosition { get; set; }
+
     public MouseMovementEventArgs(Coordinates mousePosition)
     {
         NewPosition = mousePosition;
     }
-
-    public Coordinates NewPosition { get; set; }
 }

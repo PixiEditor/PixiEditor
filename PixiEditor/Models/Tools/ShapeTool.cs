@@ -11,14 +11,14 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class ShapeTool : BitmapOperationTool
     {
+        public abstract override ToolType ToolType { get; }
+
         public ShapeTool()
         {
             RequiresPreviewLayer = true;
             Cursor = Cursors.Cross;
             Toolbar = new BasicShapeToolbar();
         }
-
-        public abstract override ToolType ToolType { get; }
 
         public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
 

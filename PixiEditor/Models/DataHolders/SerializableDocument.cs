@@ -10,6 +10,11 @@ namespace PixiEditor.Models.DataHolders
     [Serializable]
     public class SerializableDocument
     {
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public SerializableLayer[] Layers { get; set; }
+        public Tuple<byte, byte, byte, byte>[] Swatches { get; set; }
+
         public SerializableDocument(Document document)
         {
             Width = document.Width;
@@ -17,11 +22,6 @@ namespace PixiEditor.Models.DataHolders
             Layers = document.Layers.Select(x => new SerializableLayer(x)).ToArray();
             Swatches = document.Swatches.Select(x => new Tuple<byte, byte, byte, byte>(x.A, x.R, x.G, x.B)).ToArray();
         }
-
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public SerializableLayer[] Layers { get; set; }
-        public Tuple<byte, byte, byte, byte>[] Swatches { get; set; }
 
         public Document ToDocument()
         {

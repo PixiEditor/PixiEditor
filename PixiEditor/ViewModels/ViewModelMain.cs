@@ -83,6 +83,7 @@ namespace PixiEditor.ViewModels
             SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
+            CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
@@ -164,6 +165,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand SaveDocumentCommand { get; set; }
         public RelayCommand OnStartupCommand { get; set; }
         public RelayCommand CloseWindowCommand { get; set; }
+        public RelayCommand CenterContentCommand { get; set; }
 
         public double MouseXOnCanvas //Mouse X coordinate relative to canvas
         {
@@ -275,6 +277,13 @@ namespace PixiEditor.ViewModels
         }
 
         public ClipboardController ClipboardController { get; set; }
+
+
+
+        private void CenterContent(object property)
+        {
+            BitmapManager.ActiveDocument.CenterContent();
+        }
 
         private void CloseWindow(object property)
         {
@@ -449,7 +458,7 @@ namespace PixiEditor.ViewModels
 
         public void Deselect(object parameter)
         {
-            if (ActiveSelection != null) ActiveSelection.Clear();
+            ActiveSelection?.Clear();
         }
 
         private bool SelectionIsNotEmpty(object property)
@@ -475,8 +484,13 @@ namespace PixiEditor.ViewModels
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            if (BitmapManager.IsOperationTool(BitmapManager.SelectedTool)
-                && (BitmapManager.SelectedTool as BitmapOperationTool).UseDefaultUndoMethod)
+           TriggerNewUndoChange(BitmapManager.SelectedTool);
+        }
+
+        public void TriggerNewUndoChange(Tool toolUsed)
+        {
+            if (BitmapManager.IsOperationTool(toolUsed)
+                && ((BitmapOperationTool) toolUsed).UseDefaultUndoMethod)
             {
                 Tuple<LayerChange, LayerChange>[] changes = ChangesController.PopChanges();
                 if (changes != null && changes.Length > 0)
@@ -484,7 +498,7 @@ namespace PixiEditor.ViewModels
                     LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
                     LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
                     UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues));
-                    BitmapManager.SelectedTool.AfterAddedUndo();
+                    toolUsed.AfterAddedUndo();
                 }
             }
         }

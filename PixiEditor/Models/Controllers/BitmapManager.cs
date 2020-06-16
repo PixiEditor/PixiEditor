@@ -16,21 +16,6 @@ namespace PixiEditor.Models.Controllers
 {
     public class BitmapManager : NotifyableObject
     {
-        private Document _activeDocument;
-
-        private Layer _previewLayer;
-        private Tool _selectedTool;
-
-        public BitmapManager()
-        {
-            MouseController = new MouseMovementController();
-            MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
-            MouseController.MousePositionChanged += Controller_MousePositionChanged;
-            MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
-            BitmapOperations = new BitmapOperationsUtility(this);
-            ReadonlyToolUtility = new ReadonlyToolUtility(this);
-        }
-
         public MouseMovementController MouseController { get; set; }
 
         public Tool SelectedTool
@@ -73,6 +58,21 @@ namespace PixiEditor.Models.Controllers
                 RaisePropertyChanged("ActiveDocument");
                 DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
             }
+        }
+
+        private Document _activeDocument;
+
+        private Layer _previewLayer;
+        private Tool _selectedTool;
+
+        public BitmapManager()
+        {
+            MouseController = new MouseMovementController();
+            MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
+            MouseController.MousePositionChanged += Controller_MousePositionChanged;
+            MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            BitmapOperations = new BitmapOperationsUtility(this);
+            ReadonlyToolUtility = new ReadonlyToolUtility(this);
         }
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
@@ -180,13 +180,13 @@ namespace PixiEditor.Models.Controllers
 
     public class LayersChangedEventArgs : EventArgs
     {
+        public int LayerAffected { get; set; }
+        public LayerAction LayerChangeType { get; set; }
+
         public LayersChangedEventArgs(int layerAffected, LayerAction layerChangeType)
         {
             LayerAffected = layerAffected;
             LayerChangeType = layerChangeType;
         }
-
-        public int LayerAffected { get; set; }
-        public LayerAction LayerChangeType { get; set; }
     }
 }

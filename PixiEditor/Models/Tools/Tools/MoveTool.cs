@@ -16,6 +16,9 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class MoveTool : BitmapOperationTool
     {
+        public bool MoveAll { get; set; } = false;
+
+        public override ToolType ToolType => ToolType.Move;
         private Layer[] _affectedLayers;
         private Dictionary<Layer, bool> _clearedPixels = new Dictionary<Layer, bool>();
         private BitmapPixelChanges _clearedPixelsChange;
@@ -35,8 +38,6 @@ namespace PixiEditor.Models.Tools.Tools
             UseDefaultUndoMethod = true;
         }
 
-        public override ToolType ToolType => ToolType.Move;
-
         public override void AfterAddedUndo()
         {
             //Inject to default undo system change custom changes made by this tool
@@ -46,10 +47,10 @@ namespace PixiEditor.Models.Tools.Tools
                 Change changes = UndoManager.UndoStack.Peek();
                 int layerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(item.Key);
 
-                (changes.OldValue as LayerChange[])[layerIndex].PixelChanges.ChangedPixels
+                ((LayerChange[]) changes.OldValue)[layerIndex].PixelChanges.ChangedPixels
                     .AddRangeOverride(beforeMovePixels.ChangedPixels);
 
-                (changes.NewValue as LayerChange[])[layerIndex].PixelChanges.ChangedPixels
+                ((LayerChange[]) changes.NewValue)[layerIndex].PixelChanges.ChangedPixels
                     .AddRangeOverride(_clearedPixelsChange.ChangedPixels);
             }
         }
@@ -73,7 +74,7 @@ namespace PixiEditor.Models.Tools.Tools
                     _currentSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
                 }
 
-                if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
                     _affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Where(x => x.IsVisible)
                         .ToArray();
                 else

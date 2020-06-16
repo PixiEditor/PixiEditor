@@ -4,11 +4,10 @@ namespace PixiEditor.Models.DataHolders
 {
     public class StackEx<T>
     {
-        private readonly List<T> items = new List<T>();
-
         public int Count => items.Count;
 
         public T First => items[0];
+        private readonly List<T> items = new List<T>();
 
         public void Clear()
         {

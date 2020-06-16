@@ -79,35 +79,28 @@ namespace PixiEditor.Models.Position
             return new Coordinates(FindMaxXNonTransparent(bitmap), FindMaxYNonTransparent(bitmap));
         }
 
+
         public static int FindMinYNonTransparent(WriteableBitmap bitmap)
         {
             Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int y = 0; y < bitmap.Height; y++)
-            for (int x = 0; x < bitmap.Width; x++)
-                if (bitmap.GetPixel(x, y) != transparent)
-                {
-                    bitmap.Unlock();
+            using var ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
+            for (int y = 0; y < ctx.Height; y++)
+            for (int x = 0; x < ctx.Width; x++)
+                if (ctx.WriteableBitmap.GetPixel(x, y) != transparent)
                     return y;
-                }
 
-            bitmap.Unlock();
             return -1;
         }
 
         public static int FindMinXNonTransparent(WriteableBitmap bitmap)
         {
             Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int x = 0; x < bitmap.Width; x++)
-            for (int y = 0; y < bitmap.Height; y++)
+            using var ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
+            for (int x = 0; x < ctx.Width; x++)
+            for (int y = 0; y < ctx.Height; y++)
                 if (bitmap.GetPixel(x, y) != transparent)
-                {
-                    bitmap.Unlock();
                     return x;
-                }
 
-            bitmap.Unlock();
             return -1;
         }
 

@@ -5,16 +5,6 @@ namespace PixiEditor.Models.Dialogs
 {
     public class ResizeDocumentDialog : CustomDialog
     {
-        private int _height;
-        private int _width;
-
-        public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
-        {
-            Width = currentWidth;
-            Height = currentHeight;
-            OpenResizeCanvas = openResizeCanvas;
-        }
-
         public bool OpenResizeCanvas { get; set; }
         public AnchorPoint ResizeAnchor { get; set; }
 
@@ -42,6 +32,16 @@ namespace PixiEditor.Models.Dialogs
                     RaisePropertyChanged("Height");
                 }
             }
+        }
+
+        private int _height;
+        private int _width;
+
+        public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
+        {
+            Width = currentWidth;
+            Height = currentHeight;
+            OpenResizeCanvas = openResizeCanvas;
         }
 
         public override bool ShowDialog()

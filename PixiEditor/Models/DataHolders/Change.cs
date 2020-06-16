@@ -5,6 +5,16 @@ namespace PixiEditor.Models.DataHolders
     [Serializable]
     public class Change
     {
+        public object OldValue { get; set; }
+
+        public object NewValue { get; set; }
+
+        public string Description { get; set; }
+
+        public string Property { get; set; }
+
+        public Action<object[]> ReverseProcess { get; set; }
+        public Action<object[]> Process { get; set; }
         public object[] ProcessArguments;
         public object[] ReverseProcessArguments;
 
@@ -41,16 +51,5 @@ namespace PixiEditor.Models.DataHolders
         public Change()
         {
         }
-
-        public object OldValue { get; set; }
-
-        public object NewValue { get; set; }
-
-        public string Description { get; set; }
-
-        public string Property { get; set; }
-
-        public Action<object[]> ReverseProcess { get; set; }
-        public Action<object[]> Process { get; set; }
     }
 }

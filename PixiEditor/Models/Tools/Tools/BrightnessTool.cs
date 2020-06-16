@@ -14,13 +14,13 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private const float CorrectionFactor = 5f; //Initial correction factor
 
+        public override ToolType ToolType => ToolType.Brightness;
+
         public BrightnessTool()
         {
             Tooltip = "Makes pixel brighter or darker pixel (U)";
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
-
-        public override ToolType ToolType => ToolType.Brightness;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

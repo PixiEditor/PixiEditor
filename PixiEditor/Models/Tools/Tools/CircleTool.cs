@@ -10,12 +10,12 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class CircleTool : ShapeTool
     {
+        public override ToolType ToolType => ToolType.Circle;
+
         public CircleTool()
         {
             Tooltip = "Draws circle on cavnas (C)";
         }
-
-        public override ToolType ToolType => ToolType.Circle;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

@@ -5,19 +5,6 @@ namespace PixiEditor.Models.Dialogs
 {
     public class ExportFileDialog : CustomDialog
     {
-        private int _fileHeight;
-
-
-        private string _filePath;
-
-        private int _fileWidth;
-
-        public ExportFileDialog(Size fileDimensions)
-        {
-            FileHeight = (int) fileDimensions.Height;
-            FileWidth = (int) fileDimensions.Width;
-        }
-
         public int FileWidth
         {
             get => _fileWidth;
@@ -55,6 +42,19 @@ namespace PixiEditor.Models.Dialogs
                     RaisePropertyChanged("FilePath");
                 }
             }
+        }
+
+        private int _fileHeight;
+
+
+        private string _filePath;
+
+        private int _fileWidth;
+
+        public ExportFileDialog(Size fileDimensions)
+        {
+            FileHeight = (int) fileDimensions.Height;
+            FileWidth = (int) fileDimensions.Width;
         }
 
         public override bool ShowDialog()

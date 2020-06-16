@@ -4,12 +4,6 @@ namespace PixiEditor.Models.Dialogs
 {
     internal class ImportFileDialog : CustomDialog
     {
-        private int _fileHeight;
-
-
-        private string _filePath;
-        private int _fileWidth;
-
         public int FileWidth
         {
             get => _fileWidth;
@@ -48,6 +42,12 @@ namespace PixiEditor.Models.Dialogs
                 }
             }
         }
+
+        private int _fileHeight;
+
+
+        private string _filePath;
+        private int _fileWidth;
 
         public override bool ShowDialog()
         {

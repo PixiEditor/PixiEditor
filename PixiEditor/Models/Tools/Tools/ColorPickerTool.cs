@@ -7,13 +7,13 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class ColorPickerTool : ReadonlyTool
     {
+        public override ToolType ToolType => ToolType.ColorPicker;
+
         public ColorPickerTool()
         {
             HideHighlight = true;
             Tooltip = "Swaps primary color with selected on canvas. (O)";
         }
-
-        public override ToolType ToolType => ToolType.ColorPicker;
 
         public override void Use(Coordinates[] coordinates)
         {

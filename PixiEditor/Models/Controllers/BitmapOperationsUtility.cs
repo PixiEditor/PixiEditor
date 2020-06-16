@@ -14,6 +14,7 @@ namespace PixiEditor.Models.Controllers
 {
     public class BitmapOperationsUtility
     {
+        public BitmapManager Manager { get; set; }
         private LayerChange[] _lastModifiedLayers;
 
         private Coordinates _lastMousePos;
@@ -22,8 +23,6 @@ namespace PixiEditor.Models.Controllers
         {
             Manager = manager;
         }
-
-        public BitmapManager Manager { get; set; }
 
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
 
@@ -154,6 +153,10 @@ namespace PixiEditor.Models.Controllers
 
 public class BitmapChangedEventArgs : EventArgs
 {
+    public BitmapPixelChanges PixelsChanged { get; set; }
+    public BitmapPixelChanges OldPixelsValues { get; set; }
+    public int ChangedLayerIndex { get; set; }
+
     public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, BitmapPixelChanges oldPixelsValues,
         int changedLayerIndex)
     {
@@ -161,8 +164,4 @@ public class BitmapChangedEventArgs : EventArgs
         OldPixelsValues = oldPixelsValues;
         ChangedLayerIndex = changedLayerIndex;
     }
-
-    public BitmapPixelChanges PixelsChanged { get; set; }
-    public BitmapPixelChanges OldPixelsValues { get; set; }
-    public int ChangedLayerIndex { get; set; }
 }

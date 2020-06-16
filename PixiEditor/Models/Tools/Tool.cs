@@ -6,7 +6,6 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
-        private bool _isActive;
         public abstract ToolType ToolType { get; }
         public string ImagePath => $"/Images/{ToolType}Image.png";
         public bool HideHighlight { get; set; } = false;
@@ -24,6 +23,7 @@ namespace PixiEditor.Models.Tools
 
         public Cursor Cursor { get; set; } = Cursors.Arrow;
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
+        private bool _isActive;
 
         public virtual void OnMouseDown()
         {

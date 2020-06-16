@@ -6,31 +6,6 @@ namespace PixiEditor.Models.Layers
 {
     public class Layer : BasicLayer
     {
-        private bool _isActive;
-
-        private bool _isRenaming;
-        private bool _isVisible = true;
-        private WriteableBitmap _layerBitmap;
-
-        private string _name;
-
-        public Layer(string name, int width, int height)
-        {
-            Name = name;
-            Layer layer = LayerGenerator.Generate(width, height);
-            LayerBitmap = layer.LayerBitmap;
-            Width = width;
-            Height = height;
-        }
-
-
-        public Layer(WriteableBitmap layerBitmap)
-        {
-            LayerBitmap = layerBitmap;
-            Width = (int) layerBitmap.Width;
-            Height = (int) layerBitmap.Height;
-        }
-
         public string Name
         {
             get => _name;
@@ -82,6 +57,31 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private bool _isActive;
+
+        private bool _isRenaming;
+        private bool _isVisible = true;
+        private WriteableBitmap _layerBitmap;
+
+        private string _name;
+
+        public Layer(string name, int width, int height)
+        {
+            Name = name;
+            Layer layer = LayerGenerator.Generate(width, height);
+            LayerBitmap = layer.LayerBitmap;
+            Width = width;
+            Height = height;
+        }
+
+
+        public Layer(WriteableBitmap layerBitmap)
+        {
+            LayerBitmap = layerBitmap;
+            Width = (int) layerBitmap.Width;
+            Height = (int) layerBitmap.Height;
+        }
+
         /// <summary>
         ///     Applies pixels to layer
         /// </summary>
@@ -89,13 +89,13 @@ namespace PixiEditor.Models.Layers
         public void ApplyPixels(BitmapPixelChanges pixels)
         {
             if (pixels.ChangedPixels == null) return;
-            using (LayerBitmap.GetBitmapContext())
+            using (var ctx = LayerBitmap.GetBitmapContext())
             {
                 foreach (var coords in pixels.ChangedPixels)
                 {
                     if (coords.Key.X > Width - 1 || coords.Key.X < 0 || coords.Key.Y < 0 ||
                         coords.Key.Y > Height - 1) continue;
-                    LayerBitmap.SetPixel(Math.Clamp(coords.Key.X, 0, Width - 1),
+                    ctx.WriteableBitmap.SetPixel(Math.Clamp(coords.Key.X, 0, Width - 1),
                         Math.Clamp(coords.Key.Y, 0, Height - 1),
                         coords.Value);
                 }
@@ -104,9 +104,7 @@ namespace PixiEditor.Models.Layers
 
         public void Clear()
         {
-            LayerBitmap.Lock();
             LayerBitmap.Clear();
-            LayerBitmap.Unlock();
         }
 
         public byte[] ConvertBitmapToBytes()

@@ -100,6 +100,8 @@
                     <MenuItem Header="Resize Canvas..." Command="{Binding OpenResizePopupCommand}"
                               CommandParameter="canvas" InputGestureText="Ctrl+Shift+C" />
                     <MenuItem Header="Clip Canvas" Command="{Binding ClipCanvasCommand}" />
+                    <Separator/>
+                    <MenuItem Header="Center Content" Command="{Binding CenterContentCommand}" />
                 </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"

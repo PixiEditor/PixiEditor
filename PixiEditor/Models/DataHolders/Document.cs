@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
@@ -8,24 +9,13 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.Tools;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
     public class Document : NotifyableObject
     {
-        private int _activeLayerIndex;
-        private int _height;
-
-        private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
-
-        private int _width;
-
-        public Document(int width, int height)
-        {
-            Width = width;
-            Height = height;
-        }
-
         public int Width
         {
             get => _width;
@@ -69,6 +59,19 @@ namespace PixiEditor.Models.DataHolders
         }
 
         public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
+        private int _activeLayerIndex;
+        private int _height;
+
+        private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
+
+        private int _width;
+
+        public Document(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
+
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
 
 
@@ -235,10 +238,7 @@ namespace PixiEditor.Models.DataHolders
             Height = newHeight;
         }
 
-        /// <summary>
-        ///     Resizes canvas, so it fits exactly the size of drawn content, without any transparent pixels outside.
-        /// </summary>
-        public void ClipCanvas()
+        private DoubleCords GetEdgePoints()
         {
             Coordinates[] smallestPixels = CoordinatesCalculator.GetSmallestPixels(this);
             Coordinates[] biggestPixels = CoordinatesCalculator.GetBiggestPixels(this);
@@ -247,6 +247,19 @@ namespace PixiEditor.Models.DataHolders
             int smallestY = smallestPixels.Min(x => x.Y);
             int biggestX = biggestPixels.Max(x => x.X);
             int biggestY = biggestPixels.Max(x => x.Y);
+            return new DoubleCords(new Coordinates(smallestX, smallestY), new Coordinates(biggestX, biggestY));
+        }
+
+        /// <summary>
+        ///     Resizes canvas, so it fits exactly the size of drawn content, without any transparent pixels outside.
+        /// </summary>
+        public void ClipCanvas()
+        {
+            var points = GetEdgePoints();
+            int smallestX = points.Coords1.X;
+            int smallestY = points.Coords1.Y;
+            int biggestX = points.Coords2.X;
+            int biggestY = points.Coords2.Y;
 
             if (smallestX == 0 && smallestY == 0 && biggestX == 0 && biggestY == 0)
                 return;
@@ -255,10 +268,40 @@ namespace PixiEditor.Models.DataHolders
             int height = biggestY - smallestY + 1;
             Crop(smallestX, smallestY, width, height);
         }
+
+        public void CenterContent()
+        {
+            var points = GetEdgePoints();
+
+            int smallestX = points.Coords1.X;
+            int smallestY = points.Coords1.Y;
+            int biggestX = points.Coords2.X;
+            int biggestY = points.Coords2.Y;
+
+            if (smallestX == 0 && smallestY == 0 && biggestX == 0 && biggestY == 0)
+                return;
+
+            var contentCenter = CoordinatesCalculator.GetCenterPoint(points.Coords1, points.Coords2);
+            var documentCenter = CoordinatesCalculator.GetCenterPoint(new Coordinates(0, 0),
+                new Coordinates(Width - 1, Height - 1));
+            MoveTool move = new MoveTool
+            {
+                MoveAll = true,
+                RequiresPreviewLayer = false
+            };
+            ViewModelMain.Current.BitmapManager.BitmapOperations.ExecuteTool(documentCenter,
+                new List<Coordinates>(new[] {contentCenter, documentCenter}), move);
+            ViewModelMain.Current.TriggerNewUndoChange(move);
+        }
     }
 
     public class DocumentSizeChangedEventArgs
     {
+        public int OldWidth { get; set; }
+        public int OldHeight { get; set; }
+        public int NewWidth { get; set; }
+        public int NewHeight { get; set; }
+
         public DocumentSizeChangedEventArgs(int oldWidth, int oldHeight, int newWidth, int newHeight)
         {
             OldWidth = oldWidth;
@@ -266,10 +309,5 @@ namespace PixiEditor.Models.DataHolders
             NewWidth = newWidth;
             NewHeight = newHeight;
         }
-
-        public int OldWidth { get; set; }
-        public int OldHeight { get; set; }
-        public int NewWidth { get; set; }
-        public int NewHeight { get; set; }
     }
 }
