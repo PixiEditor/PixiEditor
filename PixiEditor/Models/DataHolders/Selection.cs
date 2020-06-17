@@ -47,7 +47,7 @@ namespace PixiEditor.Models.DataHolders
                 case SelectionType.Add:
                     SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Concat(selection).Distinct());
                     break;
-                case SelectionType.Substract:
+                case SelectionType.Subtract:
                     SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
                     _selectionColor = System.Windows.Media.Colors.Transparent;
                     break;

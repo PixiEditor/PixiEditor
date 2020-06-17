@@ -4,6 +4,6 @@
     {
         New,
         Add,
-        Substract
+        Subtract
     }
 }
