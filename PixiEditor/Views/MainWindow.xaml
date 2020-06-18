@@ -182,10 +182,10 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Image Source="{Binding LayerBitmap}"
+                                        <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
                                                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                               Width="{Binding Width}" Height="{Binding Height}" />
+                                               Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -226,6 +226,8 @@
                 <RowDefinition Height="250*" />
                 <RowDefinition Height="209*" />
             </Grid.RowDefinitions>
+            <StackPanel Grid.Row="2" Orientation="Vertical" ZIndex="15">
+            </StackPanel>
             <vws:ColorPicker Grid.Row="0" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"
                              SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}" />
             <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0"

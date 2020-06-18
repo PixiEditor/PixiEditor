@@ -70,7 +70,7 @@ namespace PixiEditor.Models.Controllers
         {
             Document doc = ViewModelMain.Current.BitmapManager.ActiveDocument;
             Rect imgRect = new Rect(0, 0, image.PixelWidth, image.PixelHeight);
-            ViewModelMain.Current.BitmapManager.AddNewLayer("Image", doc.Width, doc.Height);
+            ViewModelMain.Current.BitmapManager.AddNewLayer("Image");
             ViewModelMain.Current.BitmapManager.ActiveLayer.LayerBitmap.Blit(imgRect, image, imgRect);
         }
 

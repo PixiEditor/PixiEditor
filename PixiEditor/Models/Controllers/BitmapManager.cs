@@ -95,9 +95,18 @@ namespace PixiEditor.Models.Controllers
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
         }
 
+        public void AddNewLayer(string name, bool setAsActive = true)
+        {
+            AddNewLayer(name, 0, 0, setAsActive);
+        }
+
         public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
         {
-            ActiveDocument.Layers.Add(new Layer(name, width, height));
+            ActiveDocument.Layers.Add(new Layer(name, width, height)
+            {
+                MaxHeight = ActiveDocument.Height,
+                MaxWidth = ActiveDocument.Width
+            });
             if (setAsActive) SetActiveLayer(ActiveDocument.Layers.Count - 1);
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
@@ -147,7 +156,11 @@ namespace PixiEditor.Models.Controllers
         public void GeneratePreviewLayer()
         {
             if (PreviewLayer == null && ActiveDocument != null || PreviewLayerSizeMismatch())
-                PreviewLayer = new Layer("_previewLayer", ActiveDocument.Width, ActiveDocument.Height);
+                PreviewLayer = new Layer("_previewLayer", ActiveDocument.Width, ActiveDocument.Height)
+                {
+                    MaxWidth = ActiveDocument.Width,
+                    MaxHeight = ActiveDocument.Height
+                };
         }
 
         private bool PreviewLayerSizeMismatch()

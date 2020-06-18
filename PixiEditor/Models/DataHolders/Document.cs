@@ -36,14 +36,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public ObservableCollection<Layer> Layers
-        {
-            get => _layers;
-            set
-            {
-                if (_layers != value) _layers = value;
-            }
-        }
+        public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
 
@@ -61,9 +54,6 @@ namespace PixiEditor.Models.DataHolders
         public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
         private int _activeLayerIndex;
         private int _height;
-
-        private ObservableCollection<Layer> _layers = new ObservableCollection<Layer>();
-
         private int _width;
 
         public Document(int width, int height)
@@ -212,27 +202,11 @@ namespace PixiEditor.Models.DataHolders
         private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int oldWidth, int oldHeight,
             int newWidth, int newHeight)
         {
-            int sizeOfArgb = 4;
-            int iteratorHeight = oldHeight > newHeight ? newHeight : oldHeight;
-            int count = oldWidth > newWidth ? newWidth : oldWidth;
             for (int i = 0; i < Layers.Count; i++)
-                using (var srcContext = Layers[i].LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
-                {
-                    var result = BitmapFactory.New(newWidth, newHeight);
-                    using (var destContext = result.GetBitmapContext())
-                    {
-                        for (int line = 0; line < iteratorHeight; line++)
-                        {
-                            var srcOff = ((offsetYSrc + line) * oldWidth + offsetXSrc) * sizeOfArgb;
-                            var dstOff = ((offsetY + line) * newWidth + offsetX) * sizeOfArgb;
-                            BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * sizeOfArgb);
-                        }
-
-                        Layers[i].LayerBitmap = result;
-                        Layers[i].Width = newWidth;
-                        Layers[i].Height = newHeight;
-                    }
-                }
+            {
+                Layers[i].ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, oldWidth, oldHeight, newWidth,
+                    newHeight);
+            }
 
             Width = newWidth;
             Height = newHeight;

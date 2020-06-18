@@ -278,8 +278,6 @@ namespace PixiEditor.ViewModels
 
         public ClipboardController ClipboardController { get; set; }
 
-
-
         private void CenterContent(object property)
         {
             BitmapManager.ActiveDocument.CenterContent();
@@ -655,8 +653,7 @@ namespace PixiEditor.ViewModels
 
         public void NewLayer(object parameter)
         {
-            BitmapManager.AddNewLayer($"New Layer {BitmapManager.ActiveDocument.Layers.Count}",
-                BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height);
+            BitmapManager.AddNewLayer($"New Layer {BitmapManager.ActiveDocument.Layers.Count}");
         }
 
         public bool CanCreateNewLayer(object parameter)
