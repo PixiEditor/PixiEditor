@@ -641,7 +641,7 @@ namespace PixiEditor.ViewModels
         private void NewDocument(int width, int height)
         {
             BitmapManager.ActiveDocument = new Document(width, height);
-            BitmapManager.AddNewLayer("Base Layer", width, height);
+            BitmapManager.AddNewLayer("Base Layer");
             BitmapManager.PreviewLayer = null;
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();

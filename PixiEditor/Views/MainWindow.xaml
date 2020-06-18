@@ -182,10 +182,12 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
+                                        <Border Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}"  BorderThickness="0.1" BorderBrush="DodgerBlue">
                                         <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
                                                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                               Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}" />
+                                               Width="{Binding Width}" Height="{Binding Height}" />
+                                        </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>

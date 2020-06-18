@@ -82,11 +82,13 @@ namespace PixiEditor.Models.Controllers
                 LayerChange[] oldPixelsValues = new LayerChange[modifiedLayers.Length];
                 for (int i = 0; i < modifiedLayers.Length; i++)
                 {
+                    var layer = Manager.ActiveDocument.Layers[modifiedLayers[i].LayerIndex];
+                    layer.DynamicResize(modifiedLayers[i].PixelChanges);
                     oldPixelsValues[i] = new LayerChange(
                         GetOldPixelsValues(modifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray()),
                         modifiedLayers[i].LayerIndex);
-                    Manager.ActiveDocument.Layers[modifiedLayers[i].LayerIndex]
-                        .ApplyPixels(modifiedLayers[i].PixelChanges);
+                    
+                        layer.ApplyPixels(modifiedLayers[i].PixelChanges);
                     BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(modifiedLayers[i].PixelChanges,
                         oldPixelsValues[i].PixelChanges, modifiedLayers[i].LayerIndex));
                 }
@@ -120,23 +122,25 @@ namespace PixiEditor.Models.Controllers
         private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)
         {
             Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
-            Manager.ActiveLayer.LayerBitmap.Lock();
-            for (int i = 0; i < coordinates.Length; i++)
+            using (Manager.ActiveLayer.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
-                if (coordinates[i].X < 0 || coordinates[i].X > Manager.ActiveDocument.Width - 1 ||
-                    coordinates[i].Y < 0 || coordinates[i].Y > Manager.ActiveDocument.Height - 1)
-                    continue;
-                values.Add(coordinates[i],
-                    Manager.ActiveLayer.LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
-            }
+                for (int i = 0; i < coordinates.Length; i++)
+                {
+                    coordinates = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
+                    if (coordinates[i].X < 0 || coordinates[i].X > Manager.ActiveLayer.Width - 1 ||
+                        coordinates[i].Y < 0 || coordinates[i].Y > Manager.ActiveLayer.Height - 1)
+                        continue;
+                    values.Add(coordinates[i],
+                        Manager.ActiveLayer.LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
+                }
 
-            Manager.ActiveLayer.LayerBitmap.Unlock();
+            }
             return new BitmapPixelChanges(values);
         }
 
         private void UseToolOnPreviewLayer(List<Coordinates> mouseMove)
         {
-            LayerChange[] modifiedLayers = null;
+            LayerChange[] modifiedLayers;
             if (mouseMove.Count > 0 && mouseMove[0] != _lastMousePos)
             {
                 Manager.GeneratePreviewLayer();

@@ -204,7 +204,7 @@ namespace PixiEditor.Models.DataHolders
         {
             for (int i = 0; i < Layers.Count; i++)
             {
-                Layers[i].ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, oldWidth, oldHeight, newWidth,
+                Layers[i].ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, newWidth,
                     newHeight);
             }
 

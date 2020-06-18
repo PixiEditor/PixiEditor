@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.Position
 {
