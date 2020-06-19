@@ -10,12 +10,16 @@ namespace PixiEditor.Models.Tools
 {
     public struct BitmapPixelChanges
     {
+
+        public bool WasBuiltAsSingleColored { get; private set; }
+
         public static BitmapPixelChanges Empty => new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
         public Dictionary<Coordinates, Color> ChangedPixels { get; set; }
 
         public BitmapPixelChanges(Dictionary<Coordinates, Color> changedPixels)
         {
             ChangedPixels = changedPixels;
+            WasBuiltAsSingleColored = false;
         }
 
         /// <summary>
@@ -28,7 +32,7 @@ namespace PixiEditor.Models.Tools
         {
             Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
             for (int i = 0; i < coordinates.Length; i++) dict.Add(coordinates[i], color);
-            return new BitmapPixelChanges(dict);
+            return new BitmapPixelChanges(dict) {WasBuiltAsSingleColored = true};
         }
 
         /// <summary>

@@ -83,12 +83,10 @@ namespace PixiEditor.Models.Controllers
                 for (int i = 0; i < modifiedLayers.Length; i++)
                 {
                     var layer = Manager.ActiveDocument.Layers[modifiedLayers[i].LayerIndex];
-                    layer.DynamicResize(modifiedLayers[i].PixelChanges);
                     oldPixelsValues[i] = new LayerChange(
                         GetOldPixelsValues(modifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray()),
                         modifiedLayers[i].LayerIndex);
-                    
-                        layer.ApplyPixels(modifiedLayers[i].PixelChanges);
+                    layer.ApplyPixels(modifiedLayers[i].PixelChanges);
                     BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(modifiedLayers[i].PixelChanges,
                         oldPixelsValues[i].PixelChanges, modifiedLayers[i].LayerIndex));
                 }
@@ -124,9 +122,9 @@ namespace PixiEditor.Models.Controllers
             Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
             using (Manager.ActiveLayer.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
+                coordinates = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
                 for (int i = 0; i < coordinates.Length; i++)
                 {
-                    coordinates = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
                     if (coordinates[i].X < 0 || coordinates[i].X > Manager.ActiveLayer.Width - 1 ||
                         coordinates[i].Y < 0 || coordinates[i].Y > Manager.ActiveLayer.Height - 1)
                         continue;

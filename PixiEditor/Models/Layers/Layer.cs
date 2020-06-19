@@ -146,13 +146,12 @@ namespace PixiEditor.Models.Layers
 
         public Coordinates[] ConvertToRelativeCoordinates(Coordinates[] nonRelativeCords)
         {
-            Coordinates[] result = new Coordinates[nonRelativeCords.Length];
-            for (int i = 0; i < result.Length; i++)
+            for (int i = 0; i < nonRelativeCords.Length; i++)
             {
-                result[i] = new Coordinates(nonRelativeCords[i].X - OffsetX, nonRelativeCords[i].Y - OffsetY);
+                nonRelativeCords[i] = new Coordinates(nonRelativeCords[i].X - OffsetX, nonRelativeCords[i].Y - OffsetY);
             }
 
-            return result;
+            return nonRelativeCords;
         }
 
         /// <summary>
@@ -162,12 +161,14 @@ namespace PixiEditor.Models.Layers
         public void DynamicResize(BitmapPixelChanges pixels)
         {
             ResetOffset(pixels);
-            int newMaxX = pixels.ChangedPixels.Max(x => x.Key.X) - OffsetX;
-            int newMaxY = pixels.ChangedPixels.Max(x => x.Key.Y) - OffsetY;
-            int newMinX = pixels.ChangedPixels.Min(x => x.Key.X) - OffsetX;
-            int newMinY = pixels.ChangedPixels.Min(x => x.Key.Y) - OffsetY;
+            var borderData = ExtractBorderData(pixels);
+            DoubleCords minMaxCords = borderData.Item1;
+            int newMaxX = minMaxCords.Coords2.X - OffsetX;
+            int newMaxY = minMaxCords.Coords2.Y - OffsetY;
+            int newMinX = minMaxCords.Coords1.X - OffsetX;
+            int newMinY = minMaxCords.Coords1.Y - OffsetY;
 
-            if (pixels.ChangedPixels.Any(x => x.Value.A != 0))
+            if (pixels.ChangedPixels.First().Value.A != 0 && pixels.WasBuiltAsSingleColored)
             {
                 if (newMaxX + 1 > Width || newMaxY + 1 > Height)
                 {
@@ -177,12 +178,37 @@ namespace PixiEditor.Models.Layers
                 {
                     IncreaseSizeToTop(newMinX, newMinY);
                 }
-            } 
-            
-            if(pixels.ChangedPixels.Any(x=> IsBorderPixel(x.Key) && x.Value.A == 0))
+            }
+
+            if(borderData.Item2) //if clip is requested
             {
                 _clipRequested = true;
             }
+        }
+
+        private Tuple<DoubleCords, bool> ExtractBorderData(BitmapPixelChanges pixels)
+        {
+            Coordinates firstCords = pixels.ChangedPixels.First().Key;
+            int minX = firstCords.X;
+            int minY = firstCords.Y;
+            int maxX = minX;
+            int maxY = minY;
+            bool clipRequested = false;
+
+            foreach (var pixel in pixels.ChangedPixels)
+            {
+                if (pixel.Key.X < minX) minX = pixel.Key.X;
+                else if (pixel.Key.X > maxX) maxX = pixel.Key.X;
+
+                if (pixel.Key.Y < minY) minY = pixel.Key.Y;
+                else if (pixel.Key.Y > maxY) maxY = pixel.Key.Y;
+
+                if (clipRequested == false && IsBorderPixel(pixel.Key) && pixel.Value.A == 0)
+                    clipRequested = true;
+
+            }
+            return new Tuple<DoubleCords, bool>(
+                new DoubleCords(new Coordinates(minX, minY), new Coordinates(maxX, maxY)), clipRequested);
         }
 
         private bool IsBorderPixel(Coordinates cords)
