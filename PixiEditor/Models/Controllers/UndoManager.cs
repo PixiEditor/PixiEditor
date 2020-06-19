@@ -7,7 +7,6 @@ namespace PixiEditor.Models.Controllers
 {
     public static class UndoManager
     {
-        private static List<Change> _recordedChanges = new List<Change>();
         private static bool _lastChangeWasUndo;
         public static StackEx<Change> UndoStack { get; set; } = new StackEx<Change>();
         public static StackEx<Change> RedoStack { get; set; } = new StackEx<Change>();
@@ -27,30 +26,17 @@ namespace PixiEditor.Models.Controllers
             MainRoot = root;
         }
 
-
-        public static void AddUndoChange(Change change)
-        {
-            if (_lastChangeWasUndo == false && RedoStack.Count > 0
-            ) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
-                RedoStack.Clear();
-            _lastChangeWasUndo = false;
-            UndoStack.Push(change);
-        }
-
         /// <summary>
         ///     Adds property change to UndoStack
         /// </summary>
-        /// <param name="property">Changed property name.</param>
-        /// <param name="oldValue">Old value of property.</param>
-        /// <param name="newValue">New value of property.</param>
-        /// <param name="undoDescription">Description of change.</param>
-        public static void AddUndoChange(string property, object oldValue, object newValue, string undoDescription = "")
+        /// <param name="change"></param>
+        public static void AddUndoChange(Change change)
         {
             if (_lastChangeWasUndo == false && RedoStack.Count > 0
-            ) //Cleares RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
+            ) //Clears RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
                 RedoStack.Clear();
             _lastChangeWasUndo = false;
-            UndoStack.Push(new Change(property, oldValue, newValue, undoDescription));
+            UndoStack.Push(change);
         }
 
         /// <summary>

@@ -90,6 +90,8 @@ namespace PixiEditor.Models.Layers
         public int MaxWidth { get; set; } = int.MaxValue;
         public int MaxHeight { get; set; } = int.MaxValue;
 
+        public Dictionary<Coordinates,Color> LastRelativeCoordinates;
+
         public Layer(string name, int width, int height)
         {
             Name = name;
@@ -115,18 +117,40 @@ namespace PixiEditor.Models.Layers
         /// <returns>Color of a pixel</returns>
         public Color GetPixelWithOffset(int x, int y)
         {
-            return LayerBitmap.GetPixel(x - OffsetX + 1, y - OffsetY + 1);
+            return GetPixel(x - OffsetX + 1, y - OffsetY + 1);
+        }
+
+        /// <summary>
+        ///     Returns pixel color on x and y.
+        /// </summary>
+        /// <param name="x">X coordinate</param>
+        /// <param name="y">Y Coordinate</param>
+        /// <returns>Color of pixel, if out of bounds, returns transparent pixel.</returns>
+        public Color GetPixel(int x, int y)
+        {
+            if (x > Width - 1 || x < 0 || y > Height - 1 || y < 0)
+            {
+                return System.Windows.Media.Colors.Transparent;
+            }
+
+            return LayerBitmap.GetPixel(x, y);
         }
 
         /// <summary>
         ///     Applies pixels to layer
         /// </summary>
-        /// <param name="pixels"></param>
-        public void ApplyPixels(BitmapPixelChanges pixels)
+        /// <param name="pixels">Pixels to apply</param>
+        /// <param name="dynamicResize">Resizes bitmap to fit content</param>
+        /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
+        public void ApplyPixels(BitmapPixelChanges pixels, bool dynamicResize = true, bool applyOffset = true)
         {
             if (pixels.ChangedPixels == null || pixels.ChangedPixels.Count == 0) return;
-            DynamicResize(pixels);
-            pixels.ChangedPixels = ApplyOffset(pixels.ChangedPixels);
+            if(dynamicResize)
+                DynamicResize(pixels);
+            if(applyOffset)
+                pixels.ChangedPixels = ApplyOffset(pixels.ChangedPixels);
+            LastRelativeCoordinates = pixels.ChangedPixels;
+
             using (var ctx = LayerBitmap.GetBitmapContext())
             {
                 foreach (var coords in pixels.ChangedPixels)
@@ -146,12 +170,13 @@ namespace PixiEditor.Models.Layers
 
         public Coordinates[] ConvertToRelativeCoordinates(Coordinates[] nonRelativeCords)
         {
+            Coordinates[] result = new Coordinates[nonRelativeCords.Length];
             for (int i = 0; i < nonRelativeCords.Length; i++)
             {
-                nonRelativeCords[i] = new Coordinates(nonRelativeCords[i].X - OffsetX, nonRelativeCords[i].Y - OffsetY);
+                result[i] = new Coordinates(nonRelativeCords[i].X - OffsetX, nonRelativeCords[i].Y - OffsetY);
             }
 
-            return nonRelativeCords;
+            return result;
         }
 
         /// <summary>
@@ -168,13 +193,13 @@ namespace PixiEditor.Models.Layers
             int newMinX = minMaxCords.Coords1.X - OffsetX;
             int newMinY = minMaxCords.Coords1.Y - OffsetY;
 
-            if (pixels.ChangedPixels.First().Value.A != 0 && pixels.WasBuiltAsSingleColored)
+            if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.A == 0))
             {
                 if (newMaxX + 1 > Width || newMaxY + 1 > Height)
                 {
                     IncreaseSizeToBottom(newMaxX, newMaxY);
                 }
-                else if (newMinX < 0 || newMinY < 0)
+                if (newMinX < 0 || newMinY < 0)
                 {
                     IncreaseSizeToTop(newMinX, newMinY);
                 }

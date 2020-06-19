@@ -22,6 +22,11 @@ namespace PixiEditor.Models.Tools
             WasBuiltAsSingleColored = false;
         }
 
+        public void UpdateChangedPixels(Dictionary<Coordinates, Color> changedPixels)
+        {
+            ChangedPixels = changedPixels;
+        }
+
         /// <summary>
         ///     Builds BitmapPixelChanges with only one color for specified coordinates
         /// </summary>

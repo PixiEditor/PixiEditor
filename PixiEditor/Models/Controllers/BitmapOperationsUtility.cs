@@ -60,11 +60,11 @@ namespace PixiEditor.Models.Controllers
             if (_lastModifiedLayers == null) return;
             for (int i = 0; i < _lastModifiedLayers.Length; i++)
             {
-                BitmapPixelChanges oldValues =
-                    GetOldPixelsValues(_lastModifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray());
-                Manager.ActiveDocument.Layers[_lastModifiedLayers[i].LayerIndex]
-                    .ApplyPixels(_lastModifiedLayers[i].PixelChanges);
-                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastModifiedLayers[i].PixelChanges,
+                var layer = Manager.ActiveDocument.Layers[_lastModifiedLayers[i].LayerIndex];
+
+                BitmapPixelChanges oldValues = ApplyToLayer(layer, _lastModifiedLayers[i]).PixelChanges;
+
+               BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastModifiedLayers[i].PixelChanges,
                     oldValues, _lastModifiedLayers[i].LayerIndex));
                 Manager.PreviewLayer.Clear();
             }
@@ -83,10 +83,8 @@ namespace PixiEditor.Models.Controllers
                 for (int i = 0; i < modifiedLayers.Length; i++)
                 {
                     var layer = Manager.ActiveDocument.Layers[modifiedLayers[i].LayerIndex];
-                    oldPixelsValues[i] = new LayerChange(
-                        GetOldPixelsValues(modifiedLayers[i].PixelChanges.ChangedPixels.Keys.ToArray()),
-                        modifiedLayers[i].LayerIndex);
-                    layer.ApplyPixels(modifiedLayers[i].PixelChanges);
+                    oldPixelsValues[i] = ApplyToLayer(layer, modifiedLayers[i]);
+                    
                     BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(modifiedLayers[i].PixelChanges,
                         oldPixelsValues[i].PixelChanges, modifiedLayers[i].LayerIndex));
                 }
@@ -95,6 +93,18 @@ namespace PixiEditor.Models.Controllers
             {
                 UseToolOnPreviewLayer(mouseMoveCords);
             }
+        }
+
+        private LayerChange ApplyToLayer(Layer layer, LayerChange change)
+        {
+            layer.DynamicResize(change.PixelChanges);
+
+            var oldPixelsValues = new LayerChange(
+                GetOldPixelsValues(change.PixelChanges.ChangedPixels.Keys.ToArray()),
+                change.LayerIndex);
+
+            layer.ApplyPixels(change.PixelChanges, false);
+            return oldPixelsValues;
         }
 
         private bool MouseCordsNotInLine(List<Coordinates> cords)
@@ -122,14 +132,11 @@ namespace PixiEditor.Models.Controllers
             Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
             using (Manager.ActiveLayer.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
-                coordinates = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
+                var relativeCoords = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
                 for (int i = 0; i < coordinates.Length; i++)
                 {
-                    if (coordinates[i].X < 0 || coordinates[i].X > Manager.ActiveLayer.Width - 1 ||
-                        coordinates[i].Y < 0 || coordinates[i].Y > Manager.ActiveLayer.Height - 1)
-                        continue;
                     values.Add(coordinates[i],
-                        Manager.ActiveLayer.LayerBitmap.GetPixel(coordinates[i].X, coordinates[i].Y));
+                        Manager.ActiveLayer.GetPixel(relativeCoords[i].X, relativeCoords[i].Y));
                 }
 
             }
