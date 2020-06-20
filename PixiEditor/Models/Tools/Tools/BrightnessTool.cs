@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Tools.Tools
                     _pixelsVisited.Add(rectangleCoordinates[i]);
                 }
 
-                Color pixel = layer.LayerBitmap.GetPixel(rectangleCoordinates[i].X, rectangleCoordinates[i].Y);
+                Color pixel = layer.GetPixelWithOffset(rectangleCoordinates[i].X, rectangleCoordinates[i].Y);
                 Color newColor = ExColor.ChangeColorBrightness(Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
                     correctionFactor);
                 changes.ChangedPixels.Add(new Coordinates(rectangleCoordinates[i].X, rectangleCoordinates[i].Y),
