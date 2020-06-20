@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -19,39 +20,45 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return new[] {new LayerChange(ForestFire(layer, coordinates[0], color), layer)};
+            return Only(ForestFire(layer, coordinates[0], color), layer);
         }
 
         public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)
         {
             List<Coordinates> changedCoords = new List<Coordinates>();
 
-            WriteableBitmap bitmap = layer.LayerBitmap.Clone();
-            Color colorToReplace = bitmap.GetPixel(startingCoords.X, startingCoords.Y);
+            Layer clone = layer.Clone();
+            int width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
+            int height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
 
-            var stack = new Stack<Tuple<int, int>>();
-            stack.Push(Tuple.Create(startingCoords.X, startingCoords.Y));
+            Color colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
 
-            bitmap.Lock();
-            while (stack.Count > 0)
+            var stack = new Stack<Coordinates>();
+            stack.Push(new Coordinates(startingCoords.X, startingCoords.Y));
+            
+            using(clone.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadWrite))
             {
-                var point = stack.Pop();
-                if (point.Item1 < 0 || point.Item1 > layer.Height - 1) continue;
-                if (point.Item2 < 0 || point.Item2 > layer.Width - 1) continue;
-                if (bitmap.GetPixel(point.Item1, point.Item2) == newColor) continue;
-
-                if (bitmap.GetPixel(point.Item1, point.Item2) == colorToReplace)
+                while (stack.Count > 0)
                 {
-                    changedCoords.Add(new Coordinates(point.Item1, point.Item2));
-                    bitmap.SetPixel(point.Item1, point.Item2, newColor);
-                    stack.Push(Tuple.Create(point.Item1, point.Item2 - 1));
-                    stack.Push(Tuple.Create(point.Item1 + 1, point.Item2));
-                    stack.Push(Tuple.Create(point.Item1, point.Item2 + 1));
-                    stack.Push(Tuple.Create(point.Item1 - 1, point.Item2));
-                }
-            }
+                    var cords = stack.Pop();
+                    var relativeCords = clone.GetRelativePosition(cords);
 
-            bitmap.Unlock();
+                    if (cords.X < 0 || cords.X > width - 1) continue;
+                    if (cords.Y < 0 || cords.Y > height - 1) continue;
+                    if (clone.GetPixel(relativeCords.X, relativeCords.Y) == newColor) continue;
+
+                    if (clone.GetPixel(relativeCords.X, relativeCords.Y) == colorToReplace)
+                    {
+                        changedCoords.Add(new Coordinates(cords.X, cords.Y));
+                        clone.ApplyPixel(new Coordinates(cords.X, cords.Y), newColor);
+                        stack.Push(new Coordinates(cords.X, cords.Y - 1));
+                        stack.Push(new Coordinates(cords.X + 1, cords.Y));
+                        stack.Push(new Coordinates(cords.X, cords.Y + 1));
+                        stack.Push(new Coordinates(cords.X - 1, cords.Y));
+                    }
+                }
+
+            }
             return BitmapPixelChanges.FromSingleColoredArray(changedCoords.ToArray(), newColor);
         }
     }

@@ -10,5 +10,10 @@ namespace PixiEditor.Models.Tools
         public bool RequiresPreviewLayer { get; set; }
         public bool UseDefaultUndoMethod { get; set; } = true;
         public abstract LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color);
+
+        protected LayerChange[] Only(BitmapPixelChanges changes, Layer layer)
+        {
+            return new[] { new LayerChange(changes, layer) };
+        }
     }
 }

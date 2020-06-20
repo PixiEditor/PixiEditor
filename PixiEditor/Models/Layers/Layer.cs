@@ -110,14 +110,41 @@ namespace PixiEditor.Models.Layers
         }
 
         /// <summary>
-        ///     Returns pixel color by x and y coordinates relative to document using (x - OffsetX + 1) formula.
+        /// Returns clone of layer
+        /// </summary>
+        /// <returns></returns>
+        public Layer Clone()
+        {
+            return new Layer(LayerBitmap.Clone())
+            {
+                _isVisible = this._isVisible,
+                Name = this.Name,
+                Offset = this.Offset,
+                MaxHeight = this.MaxHeight,
+                MaxWidth = this.MaxWidth
+            };
+        }
+
+        /// <summary>
+        ///     Converts coordinates relative to viewport to relative to layer
+        /// </summary>
+        /// <param name="cords"></param>
+        /// <returns></returns>
+        public Coordinates GetRelativePosition(Coordinates cords)
+        {
+            return new Coordinates(cords.X - OffsetX, cords.Y - OffsetY);
+        }
+
+        /// <summary>
+        ///     Returns pixel color by x and y coordinates relative to document using (x - OffsetX) formula.
         /// </summary>
         /// <param name="x">Viewport relative X</param>
         /// <param name="y">Viewport relative Y</param>
         /// <returns>Color of a pixel</returns>
         public Color GetPixelWithOffset(int x, int y)
         {
-            return GetPixel(x - OffsetX + 1, y - OffsetY + 1);
+            Coordinates cords = GetRelativePosition(new Coordinates(x, y));
+            return GetPixel(cords.X, cords.Y);
         }
 
         /// <summary>
@@ -130,10 +157,22 @@ namespace PixiEditor.Models.Layers
         {
             if (x > Width - 1 || x < 0 || y > Height - 1 || y < 0)
             {
-                return System.Windows.Media.Colors.Transparent;
+                return Color.FromArgb(0, 0, 0, 0);
             }
 
             return LayerBitmap.GetPixel(x, y);
+        }
+
+        /// <summary>
+        ///     Applies pixel to layer
+        /// </summary>
+        /// <param name="coordinates">Position of pixel</param>
+        /// <param name="color">Color of pixel</param>
+        /// <param name="dynamicResize">Resizes bitmap to fit content</param>
+        /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
+        public void ApplyPixel(Coordinates coordinates, Color color, bool dynamicResize = true, bool applyOffset = true)
+        {
+            ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(new []{ coordinates }, color), dynamicResize, applyOffset);
         }
 
         /// <summary>
@@ -148,7 +187,7 @@ namespace PixiEditor.Models.Layers
             if(dynamicResize)
                 DynamicResize(pixels);
             if(applyOffset)
-                pixels.ChangedPixels = ApplyOffset(pixels.ChangedPixels);
+                pixels.ChangedPixels = GetRelativePosition(pixels.ChangedPixels);
             LastRelativeCoordinates = pixels.ChangedPixels;
 
             using (var ctx = LayerBitmap.GetBitmapContext())
@@ -162,7 +201,7 @@ namespace PixiEditor.Models.Layers
             ClipIfNecessary();
         }
 
-        private Dictionary<Coordinates, Color> ApplyOffset(Dictionary<Coordinates, Color> changedPixels)
+        private Dictionary<Coordinates, Color> GetRelativePosition(Dictionary<Coordinates, Color> changedPixels)
         {
             return changedPixels.ToDictionary(d => new Coordinates(d.Key.X - OffsetX, d.Key.Y - OffsetY),
                 d => d.Value);
@@ -185,6 +224,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="pixels"></param>
         public void DynamicResize(BitmapPixelChanges pixels)
         {
+            if (pixels.ChangedPixels.Count == 0) return;
             ResetOffset(pixels);
             var borderData = ExtractBorderData(pixels);
             DoubleCords minMaxCords = borderData.Item1;
