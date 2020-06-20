@@ -30,14 +30,13 @@ namespace PixiEditor.Models.DataHolders
         public Selection(Coordinates[] selectedPoints)
         {
             SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
-            SelectionLayer = new Layer("_selectionLayer", ViewModelMain.Current.BitmapManager.ActiveDocument.Width,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.Height);
+            SelectionLayer = new Layer("_selectionLayer");
             _selectionBlue = Color.FromArgb(127, 142, 202, 255);
         }
 
         public void SetSelection(Coordinates[] selection, SelectionType mode)
         {
-            Color _selectionColor = _selectionBlue;
+            Color selectionColor = _selectionBlue;
             switch (mode)
             {
                 case SelectionType.New:
@@ -49,11 +48,11 @@ namespace PixiEditor.Models.DataHolders
                     break;
                 case SelectionType.Subtract:
                     SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
-                    _selectionColor = System.Windows.Media.Colors.Transparent;
+                    selectionColor = System.Windows.Media.Colors.Transparent;
                     break;
             }
 
-            SelectionLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, _selectionColor));
+            SelectionLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, selectionColor));
         }
 
         public void Clear()

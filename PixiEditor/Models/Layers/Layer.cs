@@ -92,6 +92,15 @@ namespace PixiEditor.Models.Layers
 
         public Dictionary<Coordinates,Color> LastRelativeCoordinates;
 
+        public Layer(string name)
+        {
+            Name = name;
+            Layer layer = LayerGenerator.Generate(0, 0);
+            LayerBitmap = layer.LayerBitmap;
+            Width = 0;
+            Height = 0;
+        }
+
         public Layer(string name, int width, int height)
         {
             Name = name;

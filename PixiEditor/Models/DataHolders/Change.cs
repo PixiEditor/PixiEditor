@@ -17,24 +17,27 @@ namespace PixiEditor.Models.DataHolders
         public Action<object[]> Process { get; set; }
         public object[] ProcessArguments;
         public object[] ReverseProcessArguments;
+        public object Root { get; set; }
 
 
-        public Change(string property, object oldValue, object newValue, string description = "")
+        public Change(string property, object oldValue, object newValue, string description = "", object root = null)
         {
             Property = property;
             OldValue = oldValue;
             Description = description;
             NewValue = newValue;
+            Root = root;
         }
 
         public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments,
-            object newValue, string description = "")
+            object newValue, string description = "", object root = null)
         {
             Property = property;
             ReverseProcess = reverseProcess;
             ReverseProcessArguments = reverseArguments;
             NewValue = newValue;
             Description = description;
+            Root = root;
         }
 
         public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments,

@@ -61,18 +61,20 @@ namespace PixiEditor.Models.Images
             for (int i = 0; i < layers.Length; i++)
             {
                 Color[] pixels = new Color[selection.Length];
-                layers[i].LayerBitmap.Lock();
 
-                for (int j = 0; j < pixels.Length; j++)
+                using (layers[i].LayerBitmap.GetBitmapContext())
                 {
-                    Coordinates position = selection[j];
-                    if (position.X < 0 || position.X > layers[i].Width - 1 || position.Y < 0 ||
-                        position.Y > layers[i].Height - 1)
-                        continue;
-                    pixels[j] = layers[i].LayerBitmap.GetPixel(position.X, position.Y);
+
+                    for (int j = 0; j < pixels.Length; j++)
+                    {
+                        Coordinates position = layers[i].GetRelativePosition(selection[j]);
+                        if (position.X < 0 || position.X > layers[i].Width - 1 || position.Y < 0 ||
+                            position.Y > layers[i].Height - 1)
+                            continue;
+                        pixels[j] = layers[i].GetPixel(position.X, position.Y);
+                    }
                 }
 
-                layers[i].LayerBitmap.Unlock();
 
                 result[layers[i]] = pixels;
             }

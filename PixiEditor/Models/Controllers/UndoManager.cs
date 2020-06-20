@@ -36,6 +36,7 @@ namespace PixiEditor.Models.Controllers
             ) //Clears RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
                 RedoStack.Clear();
             _lastChangeWasUndo = false;
+            change.Root ??= MainRoot;
             UndoStack.Push(change);
         }
 
@@ -47,7 +48,7 @@ namespace PixiEditor.Models.Controllers
             _lastChangeWasUndo = true;
             Change change = UndoStack.Pop();
             if (change.ReverseProcess == null)
-                SetPropertyValue(MainRoot, change.Property, change.OldValue);
+                SetPropertyValue(change.Root, change.Property, change.OldValue);
             else
                 change.ReverseProcess(change.ReverseProcessArguments);
             RedoStack.Push(change);
@@ -61,7 +62,7 @@ namespace PixiEditor.Models.Controllers
             _lastChangeWasUndo = true;
             Change change = RedoStack.Pop();
             if (change.ReverseProcess == null)
-                SetPropertyValue(MainRoot, change.Property, change.NewValue);
+                SetPropertyValue(change.Root, change.Property, change.NewValue);
             else
                 change.Process(change.ProcessArguments);
             UndoStack.Push(change);

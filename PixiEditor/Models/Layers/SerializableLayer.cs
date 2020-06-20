@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.DataHolders
@@ -11,6 +12,7 @@ namespace PixiEditor.Models.DataHolders
         public int Height { get; set; }
         public byte[] BitmapBytes { get; set; }
         public bool IsVisible { get; set; }
+        public Thickness Offset { get; set; }
 
         public SerializableLayer(Layer layer)
         {
