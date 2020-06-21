@@ -66,7 +66,7 @@ namespace PixiEditor.Models.Tools.Tools
         {   //is because it doesn't fire if no pixel changes were made.
             if (_currentSelection.Length == 0)
             {
-                UndoManager.AddUndoChange(new Change("Offset", ApplyOffsets, new object[]{_startingOffsets}, 
+                UndoManager.AddUndoChange(new Change(ApplyOffsets, new object[]{_startingOffsets}, 
                     ApplyOffsets, new object[] { GetOffsets(_affectedLayers)}, "Move layers"));
             }
         }

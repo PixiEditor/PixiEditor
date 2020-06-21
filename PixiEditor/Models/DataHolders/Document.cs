@@ -65,23 +65,6 @@ namespace PixiEditor.Models.DataHolders
 
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
 
-
-        /// <summary>
-        ///     Crops canvas at specified x and y offset.
-        /// </summary>
-        /// <param name="x">X offset</param>
-        /// <param name="y">Y offset</param>
-        /// <param name="width">New width</param>
-        /// <param name="height">New height</param>
-        public void Crop(int x, int y, int width, int height)
-        {
-            object[] reverseArgs = {0, 0, x, y, Width, Height, width, height};
-            object[] processArgs = {x, y, 0, 0, width, height};
-            ResizeDocumentCanvas(processArgs);
-            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas,
-                reverseArgs, ResizeDocumentCanvas, processArgs, "Crop document"));
-        }
-
         /// <summary>
         ///     Resizes canvas to specified width and height to selected anchor
         /// </summary>
@@ -107,8 +90,8 @@ namespace PixiEditor.Models.DataHolders
             object[] reverseProcessArgs = { oldOffsets, Width, Height};
 
             ResizeCanvas(newOffsets, width, height);
-            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas,
-                reverseProcessArgs, ResizeDocumentCanvas, processArgs, "Resize canvas"));
+            UndoManager.AddUndoChange(new Change(ResizeCanvasProcess,
+                reverseProcessArgs, ResizeCanvasProcess, processArgs, "Resize canvas"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 
@@ -138,7 +121,7 @@ namespace PixiEditor.Models.DataHolders
             object[] reverseArgs = {Width, Height};
             object[] args = {newWidth, newHeight};
             ResizeDocument(args);
-            UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocument, reverseArgs,
+            UndoManager.AddUndoChange(new Change( ResizeDocument, reverseArgs,
                 ResizeDocument, args, "Resize document"));
         }
 
@@ -163,7 +146,7 @@ namespace PixiEditor.Models.DataHolders
                 new DocumentSizeChangedEventArgs(oldWidth, oldHeight, newWidth, newHeight));
         }
 
-        private void ResizeDocumentCanvas(object[] arguments)
+        private void ResizeCanvasProcess(object[] arguments)
         {
             int oldWidth = Width;
             int oldHeight = Height;
@@ -192,24 +175,12 @@ namespace PixiEditor.Models.DataHolders
             Height = newHeight;
         }
 
-        private DoubleCords GetEdgePoints()
-        {
-            Coordinates[] smallestPixels = CoordinatesCalculator.GetSmallestPixels(this);
-            Coordinates[] biggestPixels = CoordinatesCalculator.GetBiggestPixels(this);
-
-            int smallestX = smallestPixels.Min(x => x.X);
-            int smallestY = smallestPixels.Min(x => x.Y);
-            int biggestX = biggestPixels.Max(x => x.X);
-            int biggestY = biggestPixels.Max(x => x.Y);
-            return new DoubleCords(new Coordinates(smallestX, smallestY), new Coordinates(biggestX, biggestY));
-        }
-
         /// <summary>
         ///     Resizes canvas, so it fits exactly the size of drawn content, without any transparent pixels outside.
         /// </summary>
         public void ClipCanvas()
         {
-            var points = GetEdgePoints();
+            DoubleCords points = GetEdgePoints();
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
             int biggestX = points.Coords2.X;
@@ -218,14 +189,72 @@ namespace PixiEditor.Models.DataHolders
             if (smallestX == 0 && smallestY == 0 && biggestX == 0 && biggestY == 0)
                 return;
 
-            int width = biggestX - smallestX + 1;
-            int height = biggestY - smallestY + 1;
-            Crop(smallestX, smallestY, width, height);
+            int width = biggestX - smallestX;
+            int height = biggestY - smallestY;
+            var moveVector = new Coordinates(-smallestX, -smallestY);
+
+            Thickness[] oldOffsets = Layers.Select(x => x.Offset).ToArray();
+            int oldWidth = Width;
+            int oldHeight = Height;
+
+            MoveOffsets(moveVector);
+            Width = width;
+            Height = height;
+
+            object[] reverseArguments = { oldOffsets, oldWidth, oldHeight };
+            object[] processArguments = { Layers.Select(x => x.Offset).ToArray(), width, height};
+
+            UndoManager.AddUndoChange(new Change(ResizeCanvasProcess, reverseArguments, 
+                ResizeCanvasProcess, processArguments, "Clip canvas"));
+        }
+
+        private DoubleCords GetEdgePoints()
+        {
+            var firstLayer = Layers[0];
+            int smallestX = firstLayer.OffsetX;
+            int smallestY = firstLayer.OffsetY;
+            int biggestX = smallestX + firstLayer.Width;
+            int biggestY = smallestY + firstLayer.Height;
+
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                Layers[i].ClipCanvas();
+                if (Layers[i].OffsetX < smallestX)
+                    smallestX = Layers[i].OffsetX;
+                if (Layers[i].OffsetX + Layers[i].Width > biggestX)
+                {
+                    biggestX = Layers[i].OffsetX + Layers[i].Width;
+                }
+
+                if (Layers[i].OffsetY < smallestY)
+                    smallestY = Layers[i].OffsetY;
+                if (Layers[i].OffsetY + Layers[i].Height > biggestY)
+                {
+                    biggestY = Layers[i].OffsetY + Layers[i].Height;
+                }
+            }
+
+            return new DoubleCords(new Coordinates(smallestX, smallestY), 
+                new Coordinates(biggestX, biggestY));
+
+        }
+
+        /// <summary>
+        ///     Moves offsets of layers by specified vector.
+        /// </summary>
+        /// <param name="moveVector"></param>
+        private void MoveOffsets(Coordinates moveVector)
+        {
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                var offset = Layers[i].Offset;
+                Layers[i].Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0,0 );
+            }
         }
 
         public void CenterContent()
         {
-            var points = GetEdgePoints();
+            DoubleCords points = new DoubleCords();
 
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;

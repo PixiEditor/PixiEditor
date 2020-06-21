@@ -40,19 +40,14 @@ namespace PixiEditor.Models.DataHolders
             Root = root;
         }
 
-        public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments,
+        public Change(Action<object[]> reverseProcess, object[] reverseArguments,
             Action<object[]> process, object[] processArguments, string description = "")
         {
-            Property = property;
             ReverseProcess = reverseProcess;
             ReverseProcessArguments = reverseArguments;
             Process = process;
             ProcessArguments = processArguments;
             Description = description;
-        }
-
-        public Change()
-        {
         }
     }
 }
