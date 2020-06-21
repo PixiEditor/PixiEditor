@@ -190,7 +190,20 @@ namespace PixiEditor.Models.Controllers
             return BitmapUtils.CombineLayers(ActiveDocument.Layers.ToArray());
         }
 
+        /// <summary>
+        ///     Returns if selected tool is BitmapOperationTool
+        /// </summary>
+        /// <returns></returns>
+        public bool IsOperationTool()
+        {
+            return SelectedTool is BitmapOperationTool;
+        }
 
+        /// <summary>
+        ///     Returns if tool is BitmapOperationTool
+        /// </summary>
+        /// <param name="tool"></param>
+        /// <returns></returns>
         public static bool IsOperationTool(Tool tool)
         {
             return tool is BitmapOperationTool;

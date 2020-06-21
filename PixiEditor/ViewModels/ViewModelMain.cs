@@ -518,6 +518,8 @@ namespace PixiEditor.ViewModels
             ChangesController.AddChanges(new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
             _unsavedDocumentModified = true;
+            if (BitmapManager.IsOperationTool())
+                AddSwatch(PrimaryColor);
         }
 
         public void SwapColors(object parameter)
@@ -602,7 +604,6 @@ namespace PixiEditor.ViewModels
                 {
                     BitmapManager.MouseController.StartRecordingMouseMovementChanges();
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
-                    AddSwatch(PrimaryColor);
                 }
         }
 
