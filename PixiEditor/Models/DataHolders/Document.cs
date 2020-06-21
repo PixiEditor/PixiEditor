@@ -256,6 +256,12 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private void MoveOffsetsProcess(object[] arguments)
+        {
+            Coordinates vector = (Coordinates) arguments[0];
+            MoveOffsets(vector);
+        }
+
         public void CenterContent()
         {
             DoubleCords points = GetEdgePoints();
@@ -271,14 +277,11 @@ namespace PixiEditor.Models.DataHolders
             var contentCenter = CoordinatesCalculator.GetCenterPoint(points.Coords1, points.Coords2);
             var documentCenter = CoordinatesCalculator.GetCenterPoint(new Coordinates(0, 0),
                 new Coordinates(Width - 1, Height - 1));
-            MoveTool move = new MoveTool
-            {
-                MoveAll = true,
-                RequiresPreviewLayer = false
-            };
-            ViewModelMain.Current.BitmapManager.BitmapOperations.ExecuteTool(documentCenter,
-                new List<Coordinates>(new[] {contentCenter, documentCenter}), move);
-            ViewModelMain.Current.TriggerNewUndoChange(move);
+            Coordinates moveVector = new Coordinates(documentCenter.X - contentCenter.X, documentCenter.Y - contentCenter.Y);
+
+            MoveOffsets(moveVector);
+            UndoManager.AddUndoChange(new Change(MoveOffsetsProcess, new object[]{ new Coordinates(-moveVector.X, -moveVector.Y) }, MoveOffsetsProcess, 
+                new object[]{moveVector}, "Center content"));
         }
     }
 
