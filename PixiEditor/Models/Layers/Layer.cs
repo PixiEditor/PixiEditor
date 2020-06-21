@@ -134,6 +134,15 @@ namespace PixiEditor.Models.Layers
             };
         }
 
+        public void Resize(int width, int height, int newMaxWidth, int newMaxHeight)
+        {
+            LayerBitmap = LayerBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            Width = width;
+            Height = height;
+            MaxWidth = newMaxWidth;
+            MaxHeight = newMaxHeight;
+        }
+
         /// <summary>
         ///     Converts coordinates relative to viewport to relative to layer
         /// </summary>

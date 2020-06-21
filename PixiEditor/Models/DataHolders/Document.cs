@@ -132,12 +132,16 @@ namespace PixiEditor.Models.DataHolders
 
             int newWidth = (int) arguments[0];
             int newHeight = (int) arguments[1];
+
             for (int i = 0; i < Layers.Count; i++)
             {
-                Layers[i].LayerBitmap = Layers[i].LayerBitmap.Resize(newWidth, newHeight,
-                    WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                Layers[i].Width = newWidth;
-                Layers[i].Height = newHeight;
+                float widthRatio = (float)newWidth / Width;
+                float heightRatio = (float)newHeight / Height;
+                int layerWidth = (int)(Layers[i].Width * widthRatio);
+                int layerHeight = (int)(Layers[i].Height * heightRatio);
+
+                Layers[i].Resize(layerWidth, layerHeight, newWidth, newHeight);
+                Layers[i].Offset = new Thickness(Layers[i].OffsetX * widthRatio, Layers[i].OffsetY * heightRatio, 0, 0);
             }
 
             Height = newHeight;
@@ -254,7 +258,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void CenterContent()
         {
-            DoubleCords points = new DoubleCords();
+            DoubleCords points = GetEdgePoints();
 
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
