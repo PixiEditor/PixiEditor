@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
@@ -97,24 +98,15 @@ namespace PixiEditor.Models.DataHolders
 
             int offsetX = GetOffsetXForAnchor(Width, width, anchor);
             int offsetY = GetOffsetYForAnchor(Height, height, anchor);
-            int offsetXSrc = 0;
-            int offsetYSrc = 0;
-            if (Width > width)
-            {
-                offsetXSrc = offsetX;
-                offsetX = 0;
-            }
 
-            if (Height > height)
-            {
-                offsetYSrc = offsetY;
-                offsetY = 0;
-            }
+            Thickness[] oldOffsets = Layers.Select(x => x.Offset).ToArray();
+            Thickness[] newOffsets = Layers.Select(x => new Thickness(offsetX + x.OffsetX, offsetY + x.OffsetY, 0, 0))
+                .ToArray();
 
-            object[] processArgs = {offsetXSrc, offsetYSrc, offsetX, offsetY, width, height};
-            object[] reverseProcessArgs = {offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height};
+                object[] processArgs = {newOffsets, width, height};
+            object[] reverseProcessArgs = { oldOffsets, Width, Height};
 
-            ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, Width, Height, width, height);
+            ResizeCanvas(newOffsets, width, height);
             UndoManager.AddUndoChange(new Change("BitmapManager.ActiveDocument", ResizeDocumentCanvas,
                 reverseProcessArgs, ResizeDocumentCanvas, processArgs, "Resize canvas"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
@@ -176,36 +168,24 @@ namespace PixiEditor.Models.DataHolders
             int oldWidth = Width;
             int oldHeight = Height;
 
-            int x = (int) arguments[0];
-            int y = (int) arguments[1];
-            int destX = (int) arguments[2];
-            int destY = (int) arguments[3];
-            int width = (int) arguments[4];
-            int height = (int) arguments[5];
-            ResizeCanvas(destX, destY, x, y, Width, Height, width, height);
-            Height = height;
-            Width = width;
+            Thickness[] offset = (Thickness[])arguments[0];
+            int width = (int) arguments[1];
+            int height = (int) arguments[2];
+            ResizeCanvas(offset, width, height);
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 
         /// <summary>
         ///     Resizes canvas
         /// </summary>
-        /// <param name="offsetX">Offset X of content in new canvas. It will paste content to this offset X.</param>
-        /// <param name="offsetY">Offset Y of content in new canvas. It will paste content to this offset Y.</param>
-        /// <param name="offsetXSrc">Offset X of content in old canvas. It will copy the content from this offset X.</param>
-        /// <param name="offsetYSrc">Offset Y of content in old canvas. It will copy the content from this offset Y.</param>
-        /// <param name="oldWidth">Width of content to copy from source. Usually bitmap width.</param>
-        /// <param name="oldHeight">Height of content to copy from source. Usually bitmap width.</param>
+        /// <param name="offset">Offset of content in new canvas. It will move layer to that offset</param>
         /// <param name="newWidth">New canvas size.</param>
         /// <param name="newHeight">New canvas height.</param>
-        private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int oldWidth, int oldHeight,
-            int newWidth, int newHeight)
+        private void ResizeCanvas(Thickness[] offset, int newWidth, int newHeight)
         {
             for (int i = 0; i < Layers.Count; i++)
             {
-                Layers[i].ResizeCanvas(offsetX, offsetY, offsetXSrc, offsetYSrc, newWidth,
-                    newHeight);
+                Layers[i].Offset = offset[i];
             }
 
             Width = newWidth;
