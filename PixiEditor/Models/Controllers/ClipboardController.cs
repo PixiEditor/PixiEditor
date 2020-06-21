@@ -20,7 +20,7 @@ namespace PixiEditor.Models.Controllers
         public void CopyToClipboard(Layer[] layers, Coordinates[] selection)
         {
             Clipboard.Clear();
-            WriteableBitmap combinedBitmaps = BitmapUtils.CombineBitmaps(layers);
+            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(layers);
             using (var pngStream = new MemoryStream())
             {
                 DataObject data = new DataObject();

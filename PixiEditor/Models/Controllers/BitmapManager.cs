@@ -95,6 +95,12 @@ namespace PixiEditor.Models.Controllers
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
         }
 
+        public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
+        {
+            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
+            ActiveDocument.Layers.Last().LayerBitmap = bitmap;
+        }
+
         public void AddNewLayer(string name, bool setAsActive = true)
         {
             AddNewLayer(name, 0, 0, setAsActive);
@@ -181,7 +187,7 @@ namespace PixiEditor.Models.Controllers
 
         public WriteableBitmap GetCombinedLayersBitmap()
         {
-            return BitmapUtils.CombineBitmaps(ActiveDocument.Layers.ToArray());
+            return BitmapUtils.CombineLayers(ActiveDocument.Layers.ToArray());
         }
 
 

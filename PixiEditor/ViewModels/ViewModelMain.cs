@@ -24,6 +24,8 @@ namespace PixiEditor.ViewModels
 {
     internal class ViewModelMain : ViewModelBase
     {
+        private const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
+
         private double _mouseXonCanvas;
 
         private double _mouseYonCanvas;
@@ -292,7 +294,7 @@ namespace PixiEditor.ViewModels
             ConfirmationType result = ConfirmationType.No;
             if (_unsavedDocumentModified)
             {
-                result = ConfirmationDialog.Show("Document was modified. Do you want to save changes?");
+                result = ConfirmationDialog.Show(ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes) SaveDocument(null);
             }
 
@@ -322,21 +324,32 @@ namespace PixiEditor.ViewModels
             };
             if ((bool) dialog.ShowDialog())
             {
-                if (dialog.FileName.EndsWith(".png") || dialog.FileName.EndsWith(".jpeg") ||
-                    dialog.FileName.EndsWith(".jpg"))
-                    OpenFile(dialog.FileName);
-                else if (dialog.FileName.EndsWith(".pixi")) OpenDocument(dialog.FileName);
+                if (Importer.IsSupportedFile(dialog.FileName))
+                    Open(dialog.FileName);
                 RecenterZoombox = !RecenterZoombox;
             }
         }
 
         private void Open(string path)
         {
+            if (_unsavedDocumentModified)
+            {
+                var result = ConfirmationDialog.Show(ConfirmationDialogMessage);
+                if (result == ConfirmationType.Yes)
+                {
+                    SaveDocument(null);
+                }
+                else if (result == ConfirmationType.Canceled)
+                {
+                    return;
+                }
+            }
+
+            ResetProgramStateValues();
             if (path.EndsWith(".pixi"))
                 OpenDocument(path);
             else
                 OpenFile(path);
-            RecenterZoombox = !RecenterZoombox;
         }
 
         private void OpenDocument(string path)
@@ -348,7 +361,7 @@ namespace PixiEditor.ViewModels
 
         private void SaveDocument(object parameter)
         {
-            bool paramIsAsNew = parameter != null && parameter.ToString().ToLower() == "asnew";
+            bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
             if (paramIsAsNew || Exporter.SaveDocumentPath == null)
                 Exporter.SaveAsNewEditableFile(BitmapManager.ActiveDocument, !paramIsAsNew);
             else
@@ -366,8 +379,7 @@ namespace PixiEditor.ViewModels
 
         private void SelectColor(object parameter)
         {
-            if (!(parameter is Color)) throw new ArgumentException();
-            PrimaryColor = (Color) parameter;
+            PrimaryColor = parameter as Color? ?? throw new ArgumentException();
         }
 
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
@@ -405,7 +417,7 @@ namespace PixiEditor.ViewModels
 
         public void ClipCanvas(object parameter)
         {
-            if (BitmapManager.ActiveDocument != null) BitmapManager.ActiveDocument.ClipCanvas();
+            BitmapManager.ActiveDocument?.ClipCanvas();
         }
 
         public void Duplicate(object parameter)
@@ -632,16 +644,24 @@ namespace PixiEditor.ViewModels
 
             if (dialog.ShowDialog())
             {
-                NewDocument(dialog.FileWidth, dialog.FileHeight);
-                BitmapManager.ActiveDocument.ActiveLayer.LayerBitmap =
-                    Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight);
+                NewDocument(dialog.FileWidth, dialog.FileHeight, false);
+                BitmapManager.AddNewLayer("Image",Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
             }
         }
 
-        private void NewDocument(int width, int height)
+        private void NewDocument(int width, int height, bool addBaseLayer = true)
         {
             BitmapManager.ActiveDocument = new Document(width, height);
-            BitmapManager.AddNewLayer("Base Layer");
+            if(addBaseLayer)
+                BitmapManager.AddNewLayer("Base Layer");
+            ResetProgramStateValues();
+        }
+
+        /// <summary>
+        ///     Resets most variables and controller, so new documents can be handled.
+        /// </summary>
+        public void ResetProgramStateValues()
+        {
             BitmapManager.PreviewLayer = null;
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();

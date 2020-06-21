@@ -34,8 +34,8 @@ namespace PixiEditor.Models.IO
         /// <summary>
         ///     Creates ExportFileDialog to get width, height and path of file.
         /// </summary>
-        /// <param name="type">Type of file to be saved in.</param>
         /// <param name="bitmap">Bitmap to be saved as file.</param>
+        /// <param name="fileDimensions">Size of file</param>
         public static void Export(WriteableBitmap bitmap, Size fileDimensions)
         {
             ExportFileDialog info = new ExportFileDialog(fileDimensions);
@@ -61,6 +61,7 @@ namespace PixiEditor.Models.IO
         /// <param name="savePath">Save file path</param>
         /// <param name="exportWidth">File width</param>
         /// <param name="exportHeight">File height</param>
+        /// <param name="bitmap">Bitmap to save</param>
         private static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try

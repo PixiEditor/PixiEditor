@@ -7,6 +7,7 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 using Color = System.Windows.Media.Color;
 
 namespace PixiEditor.Models.Images
@@ -30,27 +31,24 @@ namespace PixiEditor.Models.Images
                 BitmapSizeOptions.FromEmptyOptions());
         }
 
-        public static WriteableBitmap CombineBitmaps(Layer[] layers)
+        public static WriteableBitmap CombineLayers(Layer[] layers)
         {
-            return CombineBitmaps(layers.Select(x => x.LayerBitmap).ToArray());
-        }
+            int width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
+            int height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
 
-        public static WriteableBitmap CombineBitmaps(WriteableBitmap[] bitmaps)
-        {
-            WriteableBitmap finalBitmap = bitmaps[0].Clone();
-            finalBitmap.Lock();
+            WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
+
             using (finalBitmap.GetBitmapContext())
             {
-                for (int i = 1; i < bitmaps.Length; i++)
+                for (int i = 0; i < layers.Length; i++)
                 for (int y = 0; y < finalBitmap.Height; y++)
                 for (int x = 0; x < finalBitmap.Width; x++)
                 {
-                    Color color = bitmaps[i].GetPixel(x, y);
+                    Color color = layers[i].GetPixelWithOffset(x, y);
                     if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0) finalBitmap.SetPixel(x, y, color);
                 }
             }
 
-            finalBitmap.Unlock();
             return finalBitmap;
         }
 

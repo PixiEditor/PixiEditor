@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 using PixiEditor.Models.Images;
 using PixiEditor.Models.Layers;
@@ -44,7 +45,8 @@ namespace PixiEditor.Models.DataHolders
                     new Layer(BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
                     {
                         IsVisible = serLayer.IsVisible,
-                        Name = serLayer.Name
+                        Name = serLayer.Name,
+                        Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0)
                     };
                 layers.Add(layer);
             }
