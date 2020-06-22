@@ -131,7 +131,7 @@ namespace PixiEditor.Models.Controllers
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            if (Mouse.LeftButton == MouseButtonState.Pressed && ActiveDocument != null)
+            if (Mouse.LeftButton == MouseButtonState.Pressed && MouseController.ClickedOnCanvas && ActiveDocument != null)
             {
                 if (IsOperationTool(SelectedTool))
                     BitmapOperations.ExecuteTool(e.NewPosition,

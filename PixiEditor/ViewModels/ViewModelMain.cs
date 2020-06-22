@@ -277,8 +277,6 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private bool _mouseMoveStartedOnCanvas = false;
-
         public ClipboardController ClipboardController { get; set; }
 
         private void CenterContent(object property)
@@ -594,11 +592,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void MouseUp(object parameter)
         {
-            if (_mouseMoveStartedOnCanvas)
-            {
-                BitmapManager.MouseController.StopRecordingMouseMovementChanges();
-                _mouseMoveStartedOnCanvas = false;
-            }
+            BitmapManager.MouseController.StopRecordingMouseMovementChanges();
         }
 
         private void MouseDown(object parameter)
@@ -606,10 +600,9 @@ namespace PixiEditor.ViewModels
             if (BitmapManager.ActiveDocument.Layers.Count == 0) return;
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                _mouseMoveStartedOnCanvas = true;
                 if (!BitmapManager.MouseController.IsRecordingChanges)
                 {
-                    BitmapManager.MouseController.StartRecordingMouseMovementChanges();
+                    BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }
@@ -623,8 +616,6 @@ namespace PixiEditor.ViewModels
         {
             Coordinates cords = new Coordinates((int) MouseXOnCanvas, (int) MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
-
-            if (_mouseMoveStartedOnCanvas == false) return;
 
 
             if (BitmapManager.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)

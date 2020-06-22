@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using PixiEditor.Helpers.Extensions;
@@ -34,6 +35,36 @@ namespace PixiEditor.Models.Tools.Tools
             return new[] {new LayerChange(pixels, layer)};
         }
 
+        /// <summary>
+        ///     Calculates ellipse points for specified coordinates and thickness.
+        /// </summary>
+        /// <param name="startCoordinates">Top left coordinate of ellipse</param>
+        /// <param name="endCoordinates">Bottom right coordinate of ellipse</param>
+        /// <param name="thickness">Thickness of ellipse</param>
+        /// <param name="filled">Should ellipse be filled</param>
+        /// <returns>Coordinates for ellipse</returns>
+        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness,
+            bool filled)
+        {
+            List<Coordinates> output = new List<Coordinates>();
+            Coordinates[] outline = CreateEllipse(startCoordinates, endCoordinates, thickness);
+            output.AddRange(outline);
+            if (filled)
+            {
+                output.AddRange(CalculateFillForEllipse(outline));
+                return output.Distinct().ToArray();
+            }
+
+            return output.ToArray();
+        }
+        /// <summary>
+        ///     Calculates ellipse points for specified coordinates and thickness.
+        /// </summary>
+        /// <param name="startCoordinates">Top left coordinate of ellipse</param>
+        /// <param name="endCoordinates">Bottom right coordinate of ellipse</param>
+        /// <param name="thickness">Thickness of ellipse</param>
+        /// <returns>Coordinates for ellipse</returns>
+        
         public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
             Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);

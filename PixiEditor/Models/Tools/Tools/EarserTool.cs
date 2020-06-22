@@ -23,8 +23,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public LayerChange[] Earse(Layer layer, Coordinates[] coordinates, int toolSize)
         {
+            Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
             PenTool pen = new PenTool();
-            var pixels = pen.Draw(coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
+            var pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
             return new[] {new LayerChange(pixels, layer)};
         }
     }
