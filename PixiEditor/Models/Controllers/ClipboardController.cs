@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Copies selection to clipboard in PNG, Bitmap and DIB formats.
         /// </summary>
-        /// <param name="bitmap">Bitmap where selection is</param>
+        /// <param name="layers">Layers where selection is</param>
         /// <param name="selection"></param>
         public void CopyToClipboard(Layer[] layers, Coordinates[] selection)
         {
@@ -52,9 +52,9 @@ namespace PixiEditor.Models.Controllers
                     }
                 }
             else if (dao.GetDataPresent(DataFormats.Dib))
-                finalImage = new WriteableBitmap(Clipboard.GetImage());
+                finalImage = new WriteableBitmap(Clipboard.GetImage()!);
             else if (dao.GetDataPresent(DataFormats.Bitmap))
-                finalImage = new WriteableBitmap(dao.GetData(DataFormats.Bitmap) as BitmapSource);
+                finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource)!);
 
             if (finalImage != null) AddImageToLayers(finalImage);
         }
@@ -68,10 +68,7 @@ namespace PixiEditor.Models.Controllers
 
         private void AddImageToLayers(WriteableBitmap image)
         {
-            Document doc = ViewModelMain.Current.BitmapManager.ActiveDocument;
-            Rect imgRect = new Rect(0, 0, image.PixelWidth, image.PixelHeight);
-            ViewModelMain.Current.BitmapManager.AddNewLayer("Image");
-            ViewModelMain.Current.BitmapManager.ActiveLayer.LayerBitmap.Blit(imgRect, image, imgRect);
+            ViewModelMain.Current.BitmapManager.AddNewLayer("Image", image);
         }
 
         public BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection)
