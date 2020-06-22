@@ -25,6 +25,7 @@
         <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
+        <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
     </Window.Resources>
 
     <Window.CommandBindings>
@@ -185,6 +186,7 @@
                                         <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
                                                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                                               Opacity="{Binding Opacity}"
                                                Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -243,6 +245,14 @@
                                     <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
+                                    <StackPanel Orientation="Horizontal" Margin="10,0">
+                                        <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
+                                        <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
+                                                         Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
+                                            Converter={StaticResource FloatNormalizeConverter}}" />
+                                        <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <Separator Background="{StaticResource BrighterAccentColor}" Margin="0,10,0,10"/>
                                     <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
                                                   x:Name="layersItemsControl" AlternationCount="9999">
                                         <ItemsControl.ItemsPanel>
@@ -252,46 +262,33 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60"
-                                                        Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
-                                                    <DockPanel>
-                                                        <CheckBox VerticalAlignment="Center"
-                                                                  Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                                                  IsThreeState="False"
-                                                                  IsChecked="{Binding Path=IsVisible}" />
-                                                        <Button Background="Transparent"
-                                                                Style="{StaticResource BaseDarkButton}" FontSize="16"
-                                                                DockPanel.Dock="Left"
-                                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
-                            Path=DataContext.SetActiveLayerCommand}"
-                                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}">
-                                                            <Button.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <MenuItem Header="Delete"
+                                                <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.SetActiveLayerCommand, ElementName=mainWindow}"
+                                                               LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
+                                                               IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
+                                                               MoveToBackCommand="{Binding DataContext.MoveToBackCommand, ElementName=mainWindow}"
+                                                               MoveToFrontCommand="{Binding DataContext.MoveToFrontCommand, ElementName=mainWindow}">
+                                                    <vws:LayerItem.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Delete"
                                                                               Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                                    <MenuItem Header="Rename"
+                                                            <MenuItem Header="Rename"
                                                                               Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                                    <MenuItem Header="Move to front"
+                                                            <MenuItem Header="Move to front"
                                                                               Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                                    <MenuItem Header="Move to back"
+                                                            <MenuItem Header="Move to back"
                                                                               Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                                </ContextMenu>
-                                                            </Button.ContextMenu>
-                                                            <vws:EditableTextBlock
-                                                                IsEditing="{Binding IsRenaming, Mode=TwoWay}"
-                                                                Text="{Binding Name, Mode=TwoWay}" />
-                                                        </Button>
-                                                    </DockPanel>
-                                                </Border>
+                                                        </ContextMenu>
+                                                    </vws:LayerItem.ContextMenu>
+                                                </vws:LayerItem>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>

@@ -62,6 +62,18 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private float _opacity = 1;
+
+        public float Opacity
+        {
+            get => _opacity;
+            set
+            {
+                _opacity = value;
+                RaisePropertyChanged("Opacity");
+            }
+        }
+
         public int OffsetX => (int) Offset.Left;
 
         public int OffsetY => (int) Offset.Top;

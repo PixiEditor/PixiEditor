@@ -91,7 +91,7 @@ namespace PixiEditor.Helpers.Behaviours
             if (_valueConverted || FillSize == false) return;
 
             if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out int result) && result > 0)
-                AssociatedObject.Text = string.Format("{0} {1}", AssociatedObject.Text, "px");
+                AssociatedObject.Text = $"{AssociatedObject.Text} px";
             else //If text in textbox isn't number, set it to old value
                 AssociatedObject.Text = _oldText;
             _valueConverted = true;

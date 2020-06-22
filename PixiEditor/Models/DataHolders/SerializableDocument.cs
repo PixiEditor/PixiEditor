@@ -46,7 +46,8 @@ namespace PixiEditor.Models.DataHolders
                     {
                         IsVisible = serLayer.IsVisible,
                         Name = serLayer.Name,
-                        Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0)
+                        Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),
+                        Opacity = serLayer.Opacity
                     };
                 layers.Add(layer);
             }

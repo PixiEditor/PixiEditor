@@ -45,6 +45,7 @@ namespace PixiEditor.Models.Images
                 for (int x = 0; x < finalBitmap.Width; x++)
                 {
                     Color color = layers[i].GetPixelWithOffset(x, y);
+                    color = Color.FromArgb((byte)(color.A * layers[i].Opacity), color.R,color.G, color.B);
                     if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0) finalBitmap.SetPixel(x, y, color);
                 }
             }

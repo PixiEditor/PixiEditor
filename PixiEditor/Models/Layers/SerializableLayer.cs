@@ -12,6 +12,7 @@ namespace PixiEditor.Models.Layers
         public bool IsVisible { get; set; }
         public int OffsetX { get; set; }
         public int OffsetY { get; set; }
+        public float Opacity { get; set; }
 
         public SerializableLayer(Layer layer)
         {
@@ -22,6 +23,7 @@ namespace PixiEditor.Models.Layers
             IsVisible = layer.IsVisible;
             OffsetX = (int)layer.Offset.Left;
             OffsetY = (int)layer.Offset.Top;
+            Opacity = layer.Opacity;
         }
     }
 }

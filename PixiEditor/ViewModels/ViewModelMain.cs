@@ -147,7 +147,6 @@ namespace PixiEditor.ViewModels
         public RelayCommand OpenFileCommand { get; set; }
         public RelayCommand SetActiveLayerCommand { get; set; }
         public RelayCommand NewLayerCommand { get; set; }
-        public RelayCommand ReloadImageCommand { get; set; }
         public RelayCommand DeleteLayerCommand { get; set; }
         public RelayCommand RenameLayerCommand { get; set; }
         public RelayCommand MoveToBackCommand { get; set; }
@@ -277,6 +276,8 @@ namespace PixiEditor.ViewModels
                 RaisePropertyChanged("ActiveSelection");
             }
         }
+
+        private bool _mouseMoveStartedOnCanvas = false;
 
         public ClipboardController ClipboardController { get; set; }
 
@@ -593,18 +594,25 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void MouseUp(object parameter)
         {
-            BitmapManager.MouseController.StopRecordingMouseMovementChanges();
+            if (_mouseMoveStartedOnCanvas)
+            {
+                BitmapManager.MouseController.StopRecordingMouseMovementChanges();
+                _mouseMoveStartedOnCanvas = false;
+            }
         }
 
         private void MouseDown(object parameter)
         {
             if (BitmapManager.ActiveDocument.Layers.Count == 0) return;
             if (Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                _mouseMoveStartedOnCanvas = true;
                 if (!BitmapManager.MouseController.IsRecordingChanges)
                 {
                     BitmapManager.MouseController.StartRecordingMouseMovementChanges();
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
+            }
         }
 
         /// <summary>
@@ -615,6 +623,9 @@ namespace PixiEditor.ViewModels
         {
             Coordinates cords = new Coordinates((int) MouseXOnCanvas, (int) MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
+
+            if (_mouseMoveStartedOnCanvas == false) return;
+
 
             if (BitmapManager.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
                 BitmapManager.MouseController.RecordMouseMovementChange(cords);
