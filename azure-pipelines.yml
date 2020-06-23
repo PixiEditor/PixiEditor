@@ -16,6 +16,12 @@ steps:
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'custom'
+    custom: 'tool'
+    arguments: 'install --global Codecov.Tool'
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
@@ -33,11 +39,10 @@ steps:
 - task: PublishTestResults@2
   condition: succeededOrFailed()
   inputs:
-      testRunner: VSTest
-      testResultsFiles: '**/*.trx'
+    testResultsFormat: 'XUnit'
+    testResultsFiles: '**/*.trx'
 
-- task: PowerShell@2
+- task: CmdLine@2
   inputs:
-    filePath: '.\codecov.ps1'
-    arguments: '-token $(CODECOV_TOKEN)'
+    script: codecov -f .\PixiEditorTests\coverage.opencover.xml -t $(CODECOV_TOKEN)
   displayName: Upload to Codecov.io
