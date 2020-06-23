@@ -1,38 +1,38 @@
-﻿using NUnit.Framework;
-using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Position;
+using Xunit;
 
 namespace PixiEditorTests.WorkspaceTests.ToolsTests
 {
-    [TestFixture]
     public class CoordinatesCalculatorTests
     {
-        [TestCase(0, 0, 2, 2, ExpectedResult = 9)]
-        [TestCase(0, 0, 10, 10, ExpectedResult = 121)]
-        public int RectangleToCoordinatesAmountTest(int x1, int y1, int x2, int y2)
+        [Theory]
+        [InlineData(0, 0, 2, 2, 9)]
+        [InlineData(0, 0, 10, 10, 121)]
+        public void RectangleToCoordinatesAmountTest(int x1, int y1, int x2, int y2, int expectedResult)
         {
-            return CoordinatesCalculator.RectangleToCoordinates(x1, y1, x2, y2).Length;
+            Assert.Equal(CoordinatesCalculator.RectangleToCoordinates(x1, y1, x2, y2).Length, expectedResult);
         }
 
-        [TestCase()]
+        [Fact]
         public void CalculateSquareEvenThicknessCenterTest()
         {
             DoubleCords cords = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(3, 3), 4);
 
-            Assert.AreEqual(1, cords.Coords1.X);
-            Assert.AreEqual(1, cords.Coords1.Y);
-            Assert.AreEqual(4, cords.Coords2.X);
-            Assert.AreEqual(4, cords.Coords2.Y);
+            Assert.Equal(1, cords.Coords1.X);
+            Assert.Equal(1, cords.Coords1.Y);
+            Assert.Equal(4, cords.Coords2.X);
+            Assert.Equal(4, cords.Coords2.Y);
         }
 
-        [TestCase()]
+        [Fact]
         public void CalculateSquareOddThicknessCenterTest()
         {
             DoubleCords cords = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(3, 3), 3);
 
-            Assert.AreEqual(2, cords.Coords1.X);
-            Assert.AreEqual(2, cords.Coords1.Y);
-            Assert.AreEqual(4, cords.Coords2.X);
-            Assert.AreEqual(4, cords.Coords2.Y);
+            Assert.Equal(2, cords.Coords1.X);
+            Assert.Equal(2, cords.Coords1.Y);
+            Assert.Equal(4, cords.Coords2.X);
+            Assert.Equal(4, cords.Coords2.Y);
         }
     }
 }

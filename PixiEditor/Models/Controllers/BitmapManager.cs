@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -80,7 +81,7 @@ namespace PixiEditor.Models.Controllers
 
         public void SetActiveTool(Tool tool)
         {
-            PreviewLayer?.Clear();
+            PreviewLayer = null;
             SelectedTool?.Toolbar.SaveToolbarSettings();
             SelectedTool = tool;
             SelectedTool.Toolbar.LoadSharedSettings();
@@ -131,7 +132,8 @@ namespace PixiEditor.Models.Controllers
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            if (Mouse.LeftButton == MouseButtonState.Pressed && MouseController.ClickedOnCanvas && ActiveDocument != null)
+            if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport()
+                                                             && MouseController.ClickedOnCanvas && ActiveDocument != null)
             {
                 if (IsOperationTool(SelectedTool))
                     BitmapOperations.ExecuteTool(e.NewPosition,
@@ -146,10 +148,15 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        private bool IsDraggingViewport()
+        {
+            return Keyboard.IsKeyDown(Key.LeftShift);
+        }
+
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
             SelectedTool.OnMouseDown();
-            PreviewLayer?.Clear();
+            PreviewLayer = null;
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -161,28 +168,46 @@ namespace PixiEditor.Models.Controllers
 
         public void GeneratePreviewLayer()
         {
-            if (PreviewLayer == null && ActiveDocument != null || PreviewLayerSizeMismatch())
-                PreviewLayer = new Layer("_previewLayer", ActiveDocument.Width, ActiveDocument.Height)
+            if (ActiveDocument != null)
+                PreviewLayer = new Layer("_previewLayer")
                 {
                     MaxWidth = ActiveDocument.Width,
                     MaxHeight = ActiveDocument.Height
                 };
         }
 
-        private bool PreviewLayerSizeMismatch()
-        {
-            return PreviewLayer.Width != ActiveDocument.Width || PreviewLayer.Height != ActiveDocument.Height;
-        }
-
         private void HighlightPixels(Coordinates newPosition)
         {
             if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || SelectedTool.HideHighlight) return;
-            GeneratePreviewLayer();
-            PreviewLayer.Clear();
             Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
-            PreviewLayer.ApplyPixels(
-                BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
+            if (CanChangeHighlightOffset(highlightArea))
+            {
+                PreviewLayer.Offset = new Thickness(highlightArea[0].X, highlightArea[0].Y,0,0);
+            }
+            else if (!IsInsideBounds(highlightArea))
+            {
+                PreviewLayer = null;
+            }
+            else
+            {
+                GeneratePreviewLayer();
+                PreviewLayer.ApplyPixels(
+                    BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
+            }
+        }
+
+        private bool CanChangeHighlightOffset(Coordinates[] highlightArea)
+        {
+            return highlightArea.Length > 0 && PreviewLayer != null && 
+                   IsInsideBounds(highlightArea) && highlightArea.Length == PreviewLayer.Width * PreviewLayer.Height;
+        }
+
+        private bool IsInsideBounds(Coordinates[] highlightArea)
+        {
+            return highlightArea[0].X <= ActiveDocument.Width - 1 &&
+                    highlightArea[0].Y <= ActiveDocument.Height - 1 &&
+                   highlightArea[^1].X >= 0 && highlightArea[^1].Y >= 0;
         }
 
         public WriteableBitmap GetCombinedLayersBitmap()

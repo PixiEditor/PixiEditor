@@ -121,8 +121,8 @@
                         Command="{x:Static SystemCommands.CloseWindowCommand}" />
             </StackPanel>
         </DockPanel>
-        <StackPanel Background="{StaticResource AccentColor}" Orientation="Horizontal" Grid.ColumnSpan="3"
-                    Margin="0,30,146,0" Grid.RowSpan="2">
+        <StackPanel Background="{StaticResource AccentColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
+                    Margin="0,30,146,0" Grid.Row="0" Grid.RowSpan="2">
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -174,7 +174,8 @@
                             <Image Source="{Binding BitmapManager.PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                    Width="{Binding BitmapManager.PreviewLayer.Width}"
-                                   Height="{Binding BitmapManager.PreviewLayer.Height}" />
+                                   Height="{Binding BitmapManager.PreviewLayer.Height}" 
+                                   Margin="{Binding BitmapManager.PreviewLayer.Offset}"/>
                             <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>

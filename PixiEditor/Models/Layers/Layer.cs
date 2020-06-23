@@ -11,6 +11,9 @@ namespace PixiEditor.Models.Layers
 {
     public class Layer : BasicLayer
     {
+
+        private const int SizeOfArgb = 4;
+
         public string Name
         {
             get => _name;
@@ -142,7 +145,8 @@ namespace PixiEditor.Models.Layers
                 Name = this.Name,
                 Offset = this.Offset,
                 MaxHeight = this.MaxHeight,
-                MaxWidth = this.MaxWidth
+                MaxWidth = this.MaxWidth,
+                Opacity = this.Opacity
             };
         }
 
@@ -345,6 +349,7 @@ namespace PixiEditor.Models.Layers
 
         private void IncreaseSizeToBottom(int newMaxX, int newMaxY)
         {
+            if (MaxWidth - OffsetX < 0 || MaxHeight - OffsetY < 0) return;
             newMaxX = Math.Clamp(Math.Max(newMaxX + 1, Width), 0, MaxWidth - OffsetX);
             newMaxY = Math.Clamp(Math.Max(newMaxY + 1, Height), 0, MaxHeight - OffsetY);
 
@@ -401,7 +406,6 @@ namespace PixiEditor.Models.Layers
 
         public void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int newWidth, int newHeight)
         {
-            int sizeOfArgb = 4;
             int iteratorHeight = Height > newHeight ? newHeight : Height;
             int count = Width > newWidth ? newWidth : Width;
 
@@ -412,9 +416,9 @@ namespace PixiEditor.Models.Layers
                 {
                     for (int line = 0; line < iteratorHeight; line++)
                     {
-                        var srcOff = ((offsetYSrc + line) * Width + offsetXSrc) * sizeOfArgb;
-                        var dstOff = ((offsetY + line) * newWidth + offsetX) * sizeOfArgb;
-                        BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * sizeOfArgb);
+                        var srcOff = ((offsetYSrc + line) * Width + offsetXSrc) * SizeOfArgb;
+                        var dstOff = ((offsetY + line) * newWidth + offsetX) * SizeOfArgb;
+                        BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * SizeOfArgb);
                     }
 
                     LayerBitmap = result;

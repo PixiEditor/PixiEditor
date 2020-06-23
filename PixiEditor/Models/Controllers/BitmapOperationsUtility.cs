@@ -149,7 +149,6 @@ namespace PixiEditor.Models.Controllers
             if (mouseMove.Count > 0 && mouseMove[0] != _lastMousePos)
             {
                 Manager.GeneratePreviewLayer();
-                Manager.PreviewLayer.Clear();
                 modifiedLayers = ((BitmapOperationTool) Manager.SelectedTool).Use(Manager.ActiveDocument.ActiveLayer,
                     mouseMove.ToArray(), Manager.PrimaryColor);
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="250" Name="uc" MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
     <UserControl.Resources>
@@ -12,6 +13,13 @@
     </UserControl.Resources>
     <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60"
             Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseDown">
+                <i:InvokeCommandAction Command="{Binding ElementName=uc, 
+                            Path=SetActiveLayerCommand}"
+                                       CommandParameter="{Binding Path=LayerIndex, ElementName=uc}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="35"/>
@@ -21,15 +29,10 @@
             <CheckBox VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center"
                       IsChecked="{Binding Path=IsVisible, Mode=TwoWay}" Grid.Column="0" Height="16" />
-            <Button Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Style="{StaticResource BaseDarkButton}" FontSize="16"
-                    Command="{Binding ElementName=uc, 
-                            Path=SetActiveLayerCommand}"
-                    CommandParameter="{Binding Path=LayerIndex, ElementName=uc}" Grid.Column="1">
-                <local:EditableTextBlock
-                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}"
+            <local:EditableTextBlock
+                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" Grid.Column="1" FontSize="16" HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />
-            </Button>
             <StackPanel Visibility="{Binding Path=ControlButtonsVisible, ElementName=uc}" 
                         Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width="15" 
                         Grid.Column="2">
