@@ -33,7 +33,7 @@ steps:
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: '$env:userprofile\.nuget\packages\opencover\4.7.922\tools\OpenCover.Console.exe -register:user -target:"$env:programfiles/dotnet/dotnet.exe" -targetargs:test -filter:"+[*]*" -output:".\PixiEditor_coverage.xml" -oldstyle'
+    script: '& "$env:userprofile\.nuget\packages\opencover\4.7.922\tools\OpenCover.Console.exe" -register:user -target:"$env:programfiles/dotnet/dotnet.exe" -targetargs:test -filter:"+[*]*" -output:".\PixiEditor_coverage.xml" -oldstyle'
     workingDirectory: 'PixiEditorTests\'
 
 - task: CmdLine@2
