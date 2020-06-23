@@ -1,13 +1,13 @@
 [![Build Status](https://dev.azure.com/flabbet/PixiEditor/_apis/build/status/flabbet.PixiEditor?branchName=master)](https://dev.azure.com/flabbet/PixiEditor/_build/latest?definitionId=3&branchName=master)
 
 # PixiEditor
-Pixi is lightweighted pixel art creator.
+PixiEditor is lightweighted pixel art creator.
 
-![screenshot](https://raw.githubusercontent.com/flabbet/PixiEditor/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/flabbet/PixiEditor/master/Screenshot.png)
 
-## Getting started with Pixi
+## Getting started with PixiEditor
 
-Follow these instructions to get Pixi working on your machine.
+Follow these instructions to get PixiEditor working on your machine.
 
 ### Software Requirements
 
