@@ -35,6 +35,9 @@ steps:
   inputs:
       testRunner: VSTest
       testResultsFiles: '**/*.trx'
-  
-- powershell: .\codecov.ps1 -token $(CODECOV_TOKEN)
+
+- task: PowerShell@2
+  inputs:
+    filePath: '.\codecov.ps1'
+    arguments: '-token $(CODECOV_TOKEN)'
   displayName: Upload to Codecov.io
