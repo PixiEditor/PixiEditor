@@ -30,11 +30,19 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration Release'
 
+- task: DotNetCoreCLI@2
+  displayName: Tests
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\opencover\4.7.922\tools\OpenCover.Console.exe" -register:user -target:"$env:programfiles/dotnet/dotnet.exe" -targetargs:test -filter:"+[*]*" -output:".\PixiEditor_coverage.xml" -oldstyle'
+    script: '& "$env:userprofile\.nuget\packages\opencover\4.7.922\tools\OpenCover.Console.exe" -register -target:"$env:programfiles/dotnet/dotnet.exe" -targetargs:test -filter:"+[*]*" -output:".\PixiEditor_coverage.xml" -oldstyle'
     workingDirectory: 'PixiEditorTests\'
+  displayName: Collect code coverage
 
 - task: CmdLine@2
   inputs:
