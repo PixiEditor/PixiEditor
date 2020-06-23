@@ -30,11 +30,11 @@ steps:
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) --logger trx /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"'
 
-  - task: PublishTestResults@2
-    condition: succeededOrFailed()
-    inputs:
-        testRunner: VSTest
-        testResultsFiles: '**/*.trx'
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+      testRunner: VSTest
+      testResultsFiles: '**/*.trx'
   
-  - powershell: .\codecov.ps1 -token $(CODECOV_TOKEN)
-    displayName: Upload to Codecov.io
+- powershell: .\codecov.ps1 -token $(CODECOV_TOKEN)
+  displayName: Upload to Codecov.io
