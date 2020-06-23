@@ -2,34 +2,35 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Style TargetType="{x:Type Control}">
-        <Setter Property="Foreground" Value="Snow"/>
+        <Setter Property="Foreground" Value="White" />
     </Style>
 
     <Style TargetType="Button" x:Key="BaseDarkButton">
-        <Setter Property="Background" Value="#404040"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="FontSize" Value="22"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Background" Value="#404040" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}">
-                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="Gray"/>
-                            <Setter Property="Cursor" Value="Arrow"/>
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="Gray" />
+                            <Setter Property="Cursor" Value="Arrow" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#FF515151"/>
-                            <Setter Property="Foreground" Value="White"/>
-                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Background" Value="#FF515151" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Cursor" Value="Hand" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#505050"/>
-                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Background" Value="#505050" />
+                            <Setter Property="Foreground" Value="White" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -37,29 +38,30 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Button"  x:Key="DarkRoundButton" BasedOn="{StaticResource BaseDarkButton}">
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="Background" Value="#303030"/>
+    <Style TargetType="Button" x:Key="DarkRoundButton" BasedOn="{StaticResource BaseDarkButton}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Background" Value="#303030" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border CornerRadius="4" Background="{TemplateBinding Background}">
-                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="Gray"/>
-                            <Setter Property="Cursor" Value="Arrow"/>
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="Gray" />
+                            <Setter Property="Cursor" Value="Arrow" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#FF515151"/>
-                            <Setter Property="Foreground" Value="White"/>
-                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Background" Value="#FF515151" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Cursor" Value="Hand" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#505050"/>
-                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Background" Value="#505050" />
+                            <Setter Property="Foreground" Value="White" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -69,16 +71,17 @@
 
 
     <Style TargetType="Button" x:Key="ImageButtonStyle">
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border BorderThickness="0" Opacity="{TemplateBinding Opacity}" Name="brd" Background="{TemplateBinding Background}">
-                        <ContentPresenter/>
+                    <Border BorderThickness="0" Opacity="{TemplateBinding Opacity}" Name="brd"
+                            Background="{TemplateBinding Background}">
+                        <ContentPresenter />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Opacity" TargetName="brd" Value="1"/>
+                            <Setter Property="Opacity" TargetName="brd" Value="1" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -88,45 +91,79 @@
 
 
     <Style TargetType="TextBox" x:Key="DarkTextBoxStyle">
-        <Setter Property="Background" Value="#202020"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="#404040"/>
-        <Setter Property="Foreground" Value="Snow"/>
+        <Setter Property="Background" Value="#202020" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="#404040" />
+        <Setter Property="Foreground" Value="Snow" />
     </Style>
 
-    <Style TargetType="Button" x:Key="ToolButtonStyle">
-        <Setter Property="Height" Value="32"/>
-        <Setter Property="Width" Value="32"/>
-        <Setter Property="VerticalAlignment" Value="Top"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="0,10,0,0"/>
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
+    <Style TargetType="Button" x:Key="OpacityButtonStyle">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border Name="brd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}">
-                        <ContentPresenter/>
+                    <Border Name="brd" BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter />
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter Property="Opacity" Value="0.6" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="ToolButtonStyle">
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,10,0,0" />
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Name="brd" BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
     <Style x:Key="{x:Type ContextMenu}" TargetType="{x:Type ContextMenu}">
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
                     <Border Background="#202020" BorderBrush="Black" BorderThickness="1" Opacity="0.96">
-                        <StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True"/>
+                        <StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
     <Style TargetType="MenuItem">
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
@@ -136,17 +173,15 @@
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsHighlighted"  Value="True">
-                            <Setter Property="Background" TargetName="Bd" Value="Gray"/>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter Property="Background" TargetName="Bd" Value="Gray" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="Gray"/>
+                            <Setter Property="Foreground" Value="Gray" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-
-
 </ResourceDictionary>

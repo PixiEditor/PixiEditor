@@ -1,17 +1,18 @@
-﻿using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-	public class LineTool : ShapeTool
+    public class LineTool : ShapeTool
     {
-
         public override ToolType ToolType => ToolType.Line;
 
         public LineTool()
@@ -20,29 +21,75 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return BitmapPixelChanges.FromSingleColoredArray(CreateLine(coordinates, (int)Toolbar.GetSetting("ToolSize").Value), color);
+            var pixels =
+                BitmapPixelChanges.FromSingleColoredArray(
+                    CreateLine(coordinates, 
+                        (int) Toolbar.GetSetting("ToolSize").Value, CapType.Round, CapType.Round), color);
+            return Only(pixels, layer);
         }
 
-        public Coordinates[] CreateLine(Coordinates[] coordinates, int thickness)
+        public Coordinates[] CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
         {
             Coordinates startingCoordinates = coordinates[^1];
             Coordinates latestCoordinates = coordinates[0];
-            if(thickness == 1)
+            if (thickness == 1)
+                return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X,
+                    latestCoordinates.Y);
+            return GetLinePoints(startingCoordinates, latestCoordinates, thickness, startCap, endCap);
+        }
+
+        private Coordinates[] GetLinePoints(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
+        {
+            var startingCap = GetCapCoordinates(startCap, start, thickness);
+            if (start == end) return startingCap;
+
+            var line = BresenhamLine(start.X, start.Y, end.X, end.Y);
+
+            List<Coordinates> output = new List<Coordinates>(startingCap);
+
+            output.AddRange(GetCapCoordinates(endCap, end, thickness));
+            if (line.Length > 2)
             {
-                return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
+                output.AddRange(GetThickShape(line.Except(new []{start,end}).ToArray(), thickness));
             }
-            return GetThickShape(BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y), thickness);
+
+            return output.Distinct().ToArray();
+
+        }
+
+        private Coordinates[] GetCapCoordinates(CapType cap, Coordinates position, int thickness)
+        {
+            switch (cap)
+            {
+                case CapType.Round:
+                {
+                    return GetRoundCap(position, thickness); // Round cap is not working very well, circle tool must be improved
+                }
+                default: 
+                    return GetThickShape(new[] { position }, thickness);
+            }
+        }
+
+        /// <summary>
+        ///     Gets points for rounded cap on specified position and thickness
+        /// </summary>
+        /// <param name="position">Starting position of cap</param>
+        /// <param name="thickness">Thickness of cap</param>
+        /// <returns></returns>
+        private Coordinates[] GetRoundCap(Coordinates position, int thickness)
+        {
+            CircleTool circle = new CircleTool();
+            var rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
+                CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
+            return circle.CreateEllipse(rectangleCords[0], rectangleCords[^1], 1, true);
         }
 
         private Coordinates[] BresenhamLine(int x1, int y1, int x2, int y2)
         {
             List<Coordinates> coordinates = new List<Coordinates>();
-            if (x1 == x2 && y1 == y2)
-            {
-                return new Coordinates[] { new Coordinates(x1, y1) };
-            }
+            if (x1 == x2 && y1 == y2) return new[] {new Coordinates(x1, y1)};
 
             int d, dx, dy, ai, bi, xi, yi;
             int x = x1, y = y1;
@@ -68,6 +115,7 @@ namespace PixiEditor.Models.Tools.Tools
                 yi = -1;
                 dy = y1 - y2;
             }
+
             coordinates.Add(new Coordinates(x, y));
 
             if (dx > dy)
@@ -78,7 +126,6 @@ namespace PixiEditor.Models.Tools.Tools
 
                 while (x != x2)
                 {
-
                     if (d >= 0)
                     {
                         x += xi;
@@ -90,6 +137,7 @@ namespace PixiEditor.Models.Tools.Tools
                         d += bi;
                         x += xi;
                     }
+
                     coordinates.Add(new Coordinates(x, y));
                 }
             }
@@ -101,7 +149,6 @@ namespace PixiEditor.Models.Tools.Tools
 
                 while (y != y2)
                 {
-
                     if (d >= 0)
                     {
                         x += xi;
@@ -113,34 +160,12 @@ namespace PixiEditor.Models.Tools.Tools
                         d += bi;
                         y += yi;
                     }
+
                     coordinates.Add(new Coordinates(x, y));
                 }
             }
 
             return coordinates.ToArray();
-
         }
-
-        private int[,] GetMaskForThickness(int thickness)
-        {
-            if(thickness == 2)
-            {
-                return new int[,] {
-                {0,0,0 },
-                {0,1,1 },
-                {0,1,1 }
-                };
-            }
-            int[,] mask = new int[thickness,thickness];
-
-            for (int i = 0; i < thickness; i++)
-            {
-                for (int j = 0; j < thickness; j++)
-                {
-                    mask[i, j] = 1;
-                }
-            }
-            return mask;
-        }    
-	}
+    }
 }

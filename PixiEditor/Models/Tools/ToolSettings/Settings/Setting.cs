@@ -1,8 +1,5 @@
-﻿using PixiEditor.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Tools.ToolSettings
 {
@@ -11,19 +8,23 @@ namespace PixiEditor.Models.Tools.ToolSettings
         public string Name { get; protected set; }
         public string Label { get; set; }
         public bool HasLabel => !string.IsNullOrEmpty(Label);
-        private object value;
-        public object Value { get => value;
+
+        public object Value
+        {
+            get => value;
             set
             {
                 this.value = value;
                 RaisePropertyChanged("Value");
             }
         }
+
         public Control SettingControl { get; set; }
+        private object value;
 
         public Setting(string name)
         {
             Name = name;
         }
-	}
+    }
 }

@@ -9,79 +9,133 @@
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
-        xmlns:cmd="http://www.galasoft.ch/mvvmlight"
-        mc:Ignorable="d"
-        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="#FF252424" WindowStartupLocation="CenterScreen"  WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+        xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
+        mc:Ignorable="d" WindowStyle="None"
+        Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
-        <vm:ViewModelMain x:Key="ViewModelMain"/>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
-        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
-        <converters:BoolToIntConverter x:Key="BoolToIntConverter"/>
+        <vm:ViewModelMain x:Key="ViewModelMain" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+        <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
+        <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
     </Window.Resources>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed_Close" />
+        <CommandBinding Command="{x:Static SystemCommands.MaximizeWindowCommand}"
+                        CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Maximize" />
+        <CommandBinding Command="{x:Static SystemCommands.MinimizeWindowCommand}"
+                        CanExecute="CommandBinding_CanExecute" Executed="CommandBinding_Executed_Minimize" />
+        <CommandBinding Command="{x:Static SystemCommands.RestoreWindowCommand}" CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed_Restore" />
+    </Window.CommandBindings>
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
-            <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
+            <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="ContentRendered">
+            <i:InvokeCommandAction Command="{Binding OnStartupCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closing">
+            <cmd:EventToCommand Command="{Binding CloseWindowCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid>
+    <Grid Name="mainGrid" Margin="5">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="37*"/>
-            <ColumnDefinition Width="1416*"/>
-            <ColumnDefinition Width="147*"/>
+            <ColumnDefinition Width="37*" />
+            <ColumnDefinition Width="1263*" />
+            <ColumnDefinition Width="290" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30*"/>
-            <RowDefinition Height="29*"/>
-            <RowDefinition Height="895*"/>
-            <RowDefinition Height="30*"/>
+            <RowDefinition Height="35*" />
+            <RowDefinition Height="17*" />
+            <RowDefinition Height="908*" />
+            <RowDefinition Height="30*" />
         </Grid.RowDefinitions>
 
-        <Border Grid.ColumnSpan="3" Background="#FF363434" Grid.Row="0"/>
-        <WrapPanel Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Panel.ZIndex="100">
-            <vws:MenuButton Text="File" Margin="0,0,-140,0">
-                <vws:MenuButton.Item>
-                    <StackPanel>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="New" Command="{Binding GenerateDrawAreaCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export" Command="{Binding SaveFileCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Export As..." Command="{Binding SaveFileCommand}" CommandParameter="AsNew"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Open" Command="{Binding OpenFileCommand}"/>
-                    </StackPanel>
-                </vws:MenuButton.Item>
-            </vws:MenuButton>
-            <vws:MenuButton Text="Edit" Margin="0,0,-140,0">
-                <vws:MenuButton.Item>
-                    <StackPanel>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Undo" Command="{Binding UndoCommand}"/>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Redo" Command="{Binding RedoCommand}"/>
-                    </StackPanel>
-                </vws:MenuButton.Item>
-            </vws:MenuButton>
-
-            <vws:MenuButton Text="View" Margin="0,0,-140,0">
-                <vws:MenuButton.Item>
-                    <StackPanel>
-                        <Button Style="{StaticResource MenuInsideButtonStyle}" Content="Recenter" Command="{Binding RecenterZoomboxCommand}" CommandParameter="{Binding ElementName=Zoombox}"/>
-                    </StackPanel>
-                </vws:MenuButton.Item>
-            </vws:MenuButton>
-        </WrapPanel>
-        <StackPanel Background="#404040" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="0,30,0,0" Grid.RowSpan="2">
-            <ItemsControl ItemsSource="{Binding BitmapUtility.SelectedTool.Toolbar.Settings}">
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource MainColor}">
+            <Image DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top"
+                   Source="/Images/PixiEditorLogo.png" Width="20" Height="20" Margin="5,5,0,0" />
+            <Menu WindowChrome.IsHitTestVisibleInChrome="True" Margin="10, 4, 0, 0" DockPanel.Dock="Left"
+                  HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" IsMainMenu="True">
+                <Menu.Resources>
+                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}" />
+                </Menu.Resources>
+                <MenuItem Header="_File">
+                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding OpenNewFilePopupCommand}" />
+                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}" />
+                    <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding SaveDocumentCommand}" />
+                    <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S"
+                              Command="{Binding SaveDocumentCommand}" CommandParameter="AsNew" />
+                    <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding SaveFileCommand}" />
+                </MenuItem>
+                <MenuItem Header="_Edit">
+                    <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}" />
+                    <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}" />
+                    <Separator />
+                    <MenuItem Header="_Cut" Command="{Binding CutCommand}" InputGestureText="Ctrl+X" />
+                    <MenuItem Header="_Copy" Command="{Binding CopyCommand}" InputGestureText="Ctrl+C" />
+                    <MenuItem Header="_Paste" Command="{Binding PasteCommand}" InputGestureText="Ctrl+V" />
+                    <MenuItem Header="_Duplicate" Command="{Binding DuplicateCommand}" InputGestureText="Ctrl+D" />
+                    <Separator />
+                    <MenuItem Header="_Delete Selected" Command="{Binding DeletePixelsCommand}"
+                              InputGestureText="Delete" />
+                </MenuItem>
+                <MenuItem Header="_Select">
+                    <MenuItem Header="_Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A" />
+                    <MenuItem Header="_Deselect" Command="{Binding DeselectCommand}" InputGestureText="Ctrl+D" />
+                </MenuItem>
+                <MenuItem Header="_Document">
+                    <MenuItem Header="Resize Document..." Command="{Binding OpenResizePopupCommand}"
+                              InputGestureText="Ctrl+Shift+I" />
+                    <MenuItem Header="Resize Canvas..." Command="{Binding OpenResizePopupCommand}"
+                              CommandParameter="canvas" InputGestureText="Ctrl+Shift+C" />
+                    <MenuItem Header="Clip Canvas" Command="{Binding ClipCanvasCommand}" />
+                    <Separator/>
+                    <MenuItem Header="Center Content" Command="{Binding CenterContentCommand}" />
+                </MenuItem>
+            </Menu>
+            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"
+                        HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True"
+                        ToolTip="Minimize"
+                        Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
+                <Button x:Name="RestoreButton" Visibility="Visible" Style="{StaticResource RestoreButtonStyle}"
+                        Command="{x:Static SystemCommands.RestoreWindowCommand}"
+                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Restore" />
+                <Button x:Name="MaximizeButton" Visibility="Collapsed" Style="{StaticResource MaximizeButtonStyle}"
+                        Command="{x:Static SystemCommands.MaximizeWindowCommand}"
+                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize" />
+                <Button Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True"
+                        ToolTip="Close"
+                        Command="{x:Static SystemCommands.CloseWindowCommand}" />
+            </StackPanel>
+        </DockPanel>
+        <StackPanel Background="{StaticResource AccentColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
+                    Margin="0,30,146,0" Grid.Row="0" Grid.RowSpan="2">
+            <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0"/>
+                        <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
-                            <Label Visibility="{Binding HasLabel, Converter={StaticResource BoolToVisibilityConverter}}" Foreground="White" Content="{Binding Label}"/>
-                            <ContentPresenter Content="{Binding SettingControl}"/>
+                            <Label
+                                Visibility="{Binding HasLabel, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Foreground="White" Content="{Binding Label}" />
+                            <ContentPresenter Content="{Binding SettingControl}" />
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -89,57 +143,80 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
-                <vws:MainDrawingPanel x:Name="DrawingPanel" CenterOnStart="True" Cursor="{Binding ToolCursor}">
+                <vws:MainDrawingPanel Center="{Binding RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
+                                      CenterOnStart="True" Cursor="{Binding ToolCursor}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseMove">
-                            <i:InvokeCommandAction Command="{Binding MouseMoveCommand}"/>
+                            <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" />
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseUp">
-                            <i:InvokeCommandAction Command="{Binding MouseUpCommand}"/>
+                            <i:InvokeCommandAction Command="{Binding MouseUpCommand}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <i:Interaction.Behaviors>
-                        <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}" MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}" MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}"/>
+                        <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
+                                                  MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}"
+                                                  MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}" />
                     </i:Interaction.Behaviors>
                     <vws:MainDrawingPanel.Item>
-                        <Canvas Width="{Binding BitmapUtility.ActiveLayer.Width}" Height="{Binding BitmapUtility.ActiveLayer.Height}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Canvas Width="{Binding BitmapManager.ActiveDocument.Width}"
+                                Height="{Binding BitmapManager.ActiveDocument.Height}" VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
+                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                            <Image Source="/Images/transparentbg.png" Height="{Binding BitmapUtility.ActiveLayer.Height}" Width="{Binding BitmapUtility.ActiveLayer.Width}" Opacity="0.9" Stretch="UniformToFill"/>
-                            <Image Source="{Binding BitmapUtility.PreviewLayer.LayerBitmap}" Panel.ZIndex="2" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding BitmapUtility.PreviewLayer.Width}" Height="{Binding BitmapUtility.PreviewLayer.Height}"/>
-                            <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}">
+                            <Image Source="/Images/transparentbg.png"
+                                   Height="{Binding BitmapManager.ActiveDocument.Height}"
+                                   Width="{Binding BitmapManager.ActiveDocument.Width}" Opacity="0.9"
+                                   Stretch="UniformToFill" />
+                            <Image Source="{Binding BitmapManager.PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
+                                   RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                                   Width="{Binding BitmapManager.PreviewLayer.Width}"
+                                   Height="{Binding BitmapManager.PreviewLayer.Height}" 
+                                   Margin="{Binding BitmapManager.PreviewLayer.Offset}"/>
+                            <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <Grid/>
+                                        <Grid />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Image Source="{Binding LayerBitmap}" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" Width="{Binding Width}" Height="{Binding Height}"/>
+                                        <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
+                                               Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                                               Opacity="{Binding Opacity}"
+                                               Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding ActiveSelection.SelectionLayer.LayerBitmap}"
+                                   RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                                   Width="{Binding ActiveSelection.SelectionLayer.Width}"
+                                   Height="{Binding ActiveSelection.SelectionLayer.Height}" 
+                                   Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
                         </Canvas>
                     </vws:MainDrawingPanel.Item>
                 </vws:MainDrawingPanel>
             </Grid>
         </Grid>
 
-        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0" Margin="0,7,5,0" Background="#404040" Grid.RowSpan="2">
-            
+        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0" Margin="0,7,5,0"
+                    Background="{StaticResource AccentColor}" Grid.RowSpan="2">
+
             <ItemsControl ItemsSource="{Binding ToolSet}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button BorderBrush="White" BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
-                                Style="{StaticResource ToolButtonStyle}" 
+                        <Button BorderBrush="White"
+                                BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
+                                Style="{StaticResource ToolButtonStyle}"
                                 Command="{Binding Path=DataContext.SelectToolCommand,
                             RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding ToolType}" ToolTip="{Binding Tooltip}">
                             <Button.Background>
-                                <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform"/>
+                                <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
                             </Button.Background>
                         </Button>
                     </DataTemplate>
@@ -147,80 +224,148 @@
             </ItemsControl>
         </StackPanel>
 
-        <DockPanel Grid.Column="2" Background="#404040" Margin="0,30,0,0" Grid.RowSpan="3">
-            <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" Width="100"  Margin="0,20,0,0" Height="100">
-                <Rectangle Height="70" Width="70" HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" Panel.ZIndex="1">
-                    <Rectangle.Fill>
-                        <SolidColorBrush Color="{Binding PrimaryColor, Mode=OneWay}"/>
-                    </Rectangle.Fill>
-                </Rectangle>
-                <xctk:ColorPicker Width="70" Panel.ZIndex="2" Height="70" VerticalAlignment="Top" HorizontalAlignment="Left" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"></xctk:ColorPicker>
-                <Button Opacity="0.3" ToolTip="Swap colors (X)" Command="{Binding SwapColorsCommand}" Width="25" Height="25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 0 0 3" Style="{StaticResource ImageButtonStyle}">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/SwapArrows.png" Stretch="Fill"/>
-                    </Button.Background>
-                </Button>
-                <Rectangle Height="70" Width="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Black" StrokeThickness="1" Margin="0,0,4,5">
-                    <Rectangle.Fill>
-                        <SolidColorBrush Color="{Binding SecondaryColor, Mode=OneWay}"/>
-                    </Rectangle.Fill>
-                </Rectangle>
-                <xctk:ColorPicker Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" UsingAlphaChannel="True" AvailableColorsSortingMode="Alphabetical" ShowDropDownButton="False" Background="Transparent" BorderThickness="0" ShowRecentColors="True" Margin="0,0,4,5" SelectedColor="{Binding SecondaryColor, Mode=TwoWay}"/>
-            </Grid>
-
-            <xcad:DockingManager Grid.Column="2" Grid.Row="1" DockPanel.Dock="Top">
-                <xcad:DockingManager.Style>
-                    <Style TargetType="xcad:DockingManager">
-                        <Setter Property="Foreground" Value="Snow"/>
-                    </Style>
-                </xcad:DockingManager.Style>
-                <xcad:LayoutRoot x:Name="LayoutRoot">
-                    <xcad:LayoutPanel Orientation="Vertical">
-                        <xcad:LayoutAnchorablePane>
-                            <xcad:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="False" CanFloat="True">
-                                <StackPanel  Orientation="Vertical">
-                                    <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer" HorizontalAlignment="Stretch" Margin="5" Style="{StaticResource DarkRoundButton}"/>
-                                    <ItemsControl ItemsSource="{Binding BitmapUtility.Layers}" x:Name="layersItemsControl" AlternationCount="9999">
+        <Grid Grid.Column="2" Background="{StaticResource AccentColor}" Margin="0,30,0,0" Grid.RowSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="340" />
+                <RowDefinition Height="250*" />
+                <RowDefinition Height="209*" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="2" Orientation="Vertical" ZIndex="15">
+            </StackPanel>
+            <vws:ColorPicker Grid.Row="0" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"
+                             SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}" />
+            <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0"
+                                       Grid.Row="1">
+                <avalondock:LayoutRoot x:Name="LayoutRoot">
+                    <avalondock:LayoutPanel Orientation="Vertical">
+                        <avalondock:LayoutAnchorablePane>
+                            <avalondock:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
+                                                         CanClose="False" CanAutoHide="False"
+                                                         CanDockAsTabbedDocument="False" CanFloat="True">
+                                <StackPanel Orientation="Vertical">
+                                    <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer"
+                                            HorizontalAlignment="Stretch" Margin="5"
+                                            Style="{StaticResource DarkRoundButton}" />
+                                    <StackPanel Orientation="Horizontal" Margin="10,0">
+                                        <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
+                                        <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
+                                                         Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
+                                            Converter={StaticResource FloatNormalizeConverter}}" />
+                                        <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <Separator Background="{StaticResource BrighterAccentColor}" Margin="0,10,0,10"/>
+                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
+                                                  x:Name="layersItemsControl" AlternationCount="9999">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <ui:ReversedOrderStackPanel Orientation="Vertical"/>
+                                                <ui:ReversedOrderStackPanel Orientation="Vertical" />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60" Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
-                                                    <DockPanel>
-                                                        <CheckBox VerticalAlignment="Center" Command="{Binding Path=DataContext.ReloadImageCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" IsThreeState="False" IsChecked="{Binding Path=IsVisible}"/>
-                                                        <Button Background="Transparent" Style="{StaticResource BaseDarkButton}" FontSize="16" DockPanel.Dock="Left" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, 
-                            Path=DataContext.SetActiveLayerCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}">
-                                                            <Button.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <MenuItem Header="Delete" Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}"/>
-                                                                    <MenuItem Header="Rename" Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}"/>
-                                                                    <MenuItem Header="Move to front" Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}"/>
-                                                                    <MenuItem Header="Move to back" Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}"/>
-                                                                </ContextMenu>
-                                                            </Button.ContextMenu>
-                                                            <vws:EditableTextBlock IsEditing="{Binding IsRenaming, Mode=TwoWay}" Text="{Binding Name, Mode=TwoWay}">
-                                                            </vws:EditableTextBlock>
-                                                        </Button>
-                                                    </DockPanel>
-                                                </Border>
+                                                <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.SetActiveLayerCommand, ElementName=mainWindow}"
+                                                               LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
+                                                               IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
+                                                               MoveToBackCommand="{Binding DataContext.MoveToBackCommand, ElementName=mainWindow}"
+                                                               MoveToFrontCommand="{Binding DataContext.MoveToFrontCommand, ElementName=mainWindow}">
+                                                    <vws:LayerItem.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Delete"
+                                                                              Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}" />
+                                                            <MenuItem Header="Rename"
+                                                                              Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}" />
+                                                            <MenuItem Header="Move to front"
+                                                                              Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}" />
+                                                            <MenuItem Header="Move to back"
+                                                                              Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}" />
+                                                        </ContextMenu>
+                                                    </vws:LayerItem.ContextMenu>
+                                                </vws:LayerItem>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
-                            </xcad:LayoutAnchorable>
-                        </xcad:LayoutAnchorablePane>
-                    </xcad:LayoutPanel>
-                </xcad:LayoutRoot>
-            </xcad:DockingManager>
-        </DockPanel>
+                            </avalondock:LayoutAnchorable>
+                        </avalondock:LayoutAnchorablePane>
+                    </avalondock:LayoutPanel>
+                </avalondock:LayoutRoot>
+                <avalondock:DockingManager.Theme>
+                    <avalondock:Vs2013DarkTheme />
+                </avalondock:DockingManager.Theme>
+            </avalondock:DockingManager>
+            <avalondock:DockingManager Grid.Row="2" Background="{StaticResource AccentColor}">
+                <avalondock:LayoutRoot>
+                    <avalondock:LayoutPanel>
+                        <avalondock:LayoutAnchorablePane>
+                            <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
+                                                         CanClose="False" CanAutoHide="False"
+                                                         CanDockAsTabbedDocument="False" CanFloat="True">
+                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Margin="10,0,0,0" Orientation="Horizontal"
+                                                           VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Width="50" Height="50" Margin="2">
+                                                    <Border Width="48" Height="48">
+                                                        <Border.Background>
+                                                            <ImageBrush ImageSource="../Images/transparentbg.png"
+                                                                        Stretch="UniformToFill">
+                                                                <ImageBrush.RelativeTransform>
+                                                                    <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
+                                                                                    CenterY="0.5" />
+                                                                </ImageBrush.RelativeTransform>
+                                                            </ImageBrush>
+                                                        </Border.Background>
+                                                    </Border>
+                                                    <Border BorderThickness="0.25" Cursor="Hand" BorderBrush="White">
+                                                        <Border.Background>
+                                                            <SolidColorBrush Color="{Binding}" />
+                                                        </Border.Background>
+                                                    </Border>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="MouseDown">
+                                                            <i:InvokeCommandAction
+                                                                Command="{Binding
+                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectColorCommand}"
+                                                                CommandParameter="{Binding}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <Grid.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Remove" Foreground="White"
+                                                                      Command="{Binding RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
+                                                                      CommandParameter="{Binding}" />
+                                                        </ContextMenu>
+                                                    </Grid.ContextMenu>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </avalondock:LayoutAnchorable>
+                        </avalondock:LayoutAnchorablePane>
+                    </avalondock:LayoutPanel>
+                </avalondock:LayoutRoot>
+                <avalondock:DockingManager.Theme>
+                    <avalondock:Vs2013DarkTheme />
+                </avalondock:DockingManager.Theme>
+            </avalondock:DockingManager>
+        </Grid>
 
     </Grid>
 </Window>

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PixiEditor.Models.Enums
+﻿namespace PixiEditor.Models.Enums
 {
     public enum LayerAction
     {
-        Add, Remove, Move, SetActive
+        Add,
+        Remove,
+        Move,
+        SetActive
     }
 }

@@ -1,24 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace PixiEditor.Models.DataHolders
 {
     public class StackEx<T>
     {
-        public int Count
-        {
-            get { return items.Count; }
-        }
+        public int Count => items.Count;
 
-        public T First
-        {
-            get { return items[0]; }
-        }
-
-        private List<T> items = new List<T>();
+        public T First => items[0];
+        private readonly List<T> items = new List<T>();
 
         public void Clear()
         {
@@ -26,7 +15,7 @@ namespace PixiEditor.Models.DataHolders
         }
 
         /// <summary>
-        /// Returns top object without deleting it.
+        ///     Returns top object without deleting it.
         /// </summary>
         /// <returns>Returns n - 1 item from stack.</returns>
         public T Peek()
@@ -47,8 +36,8 @@ namespace PixiEditor.Models.DataHolders
                 items.RemoveAt(items.Count - 1);
                 return temp;
             }
-            else
-                return default;
+
+            return default;
         }
 
         public void PushToBottom(T item)

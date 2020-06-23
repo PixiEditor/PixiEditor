@@ -8,48 +8,41 @@
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:helpers1="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
-        Title="SaveFilePopup" Height="300" Width="400" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Name="saveFilePopup">
+        Title="SaveFilePopup" Height="300" Width="400" WindowStyle="None" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen" Name="saveFilePopup">
     <Window.Resources>
-        <helpers1:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter"/>
+        <helpers1:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
-        <Grid Background="#404040">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20*"/>
-            <RowDefinition Height="229*"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="#FF2C2C2C">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDown">
-                    <i:InvokeCommandAction Command="{Binding DragMoveCommand}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-            <Button Width="20" Height="20" Style="{StaticResource ImageButtonStyle}" Cursor="Hand" VerticalAlignment="Top" HorizontalAlignment="Right" BorderThickness="0" 
-                    Command="{Binding CloseButtonCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/Cross.png" Stretch="Uniform"/>
-                </Button.Background>
-            </Button>
+        <Grid Background="{StaticResource AccentColor}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32" />
+                <RowDefinition Height="229*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Background="{StaticResource MainColor}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding DragMoveCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Button Style="{StaticResource CloseButtonStyle}" VerticalAlignment="Top" HorizontalAlignment="Right"
+                        BorderThickness="0"
+                        Command="{Binding CloseButtonCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
+            </Grid>
+            <TextBlock Grid.Row="1" Foreground="Snow" VerticalAlignment="Top" HorizontalAlignment="Center"
+                       Text="File settings" TextAlignment="Center" Margin="0,10,0,0" FontSize="24" />
+            <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,50,0,0">
+                <local:SizePicker Width="250" Height="120"
+                                  ChoosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
+                                  ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
+                <Button Foreground="Snow" Height="40" Width="160" Margin="0,10,0,0" Content="Path"
+                        Background="{StaticResource MainColor}" BorderBrush="{Binding PathButtonBorder}"
+                        Command="{Binding ChoosePathCommand}" />
+            </StackPanel>
+            <Button Grid.Row="1" Height="30" Width="60" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                    Margin="10" Style="{StaticResource DarkRoundButton}" Content="OK" Command="{Binding OkCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
         </Grid>
-        <TextBlock Grid.Row="1" Height="30" Width="120" Foreground="Snow" VerticalAlignment="Top" HorizontalAlignment="Center" Text="File settings" TextAlignment="Center" FontSize="20"/>
-        <DockPanel Grid.Row="1" Height="70" Width="320" Margin="0,10,0,100" Background="#303030">
-            <TextBlock Foreground="Snow" Width="40" Height="40" HorizontalAlignment="Left" Margin="50,0,0,0" Text="Width:" TextAlignment="Center" Padding="0,11.5,0,0"/>
-            <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="70" Height="20" HorizontalAlignment="Left" Margin="5,0,0,0" 
-                     Text="{Binding ElementName=saveFilePopup, Converter={StaticResource ToolSizeToIntConverter}, Path=SaveWidth, Mode=TwoWay}">
-                <i:Interaction.Behaviors>
-                        <helpers:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
-                    </i:Interaction.Behaviors>
-            </TextBox>
-            <TextBlock Foreground="Snow" Width="40" Height="40"  HorizontalAlignment="Left" Margin="5,0,0,0" Text="Height:" TextAlignment="Center" Padding="0,11.5,0,0"/>
-            <TextBox Style="{StaticResource DarkTextBoxStyle}" Width="70" Height="20" HorizontalAlignment="Left" 
-                     Margin="5,0,0,0" Text="{Binding ElementName=saveFilePopup, Converter={StaticResource ToolSizeToIntConverter}, Path=SaveHeight,Mode=TwoWay}">
-                <i:Interaction.Behaviors>
-                        <helpers:TextBoxFocusBehavior FillSize="True" NextFocusDirection="Next"/>
-                    </i:Interaction.Behaviors>
-            </TextBox>
-        </DockPanel>
-        <Button Grid.Row="1" Foreground="Snow" Height="40" Width="160" Margin="0,50,0,0" Content="Path" Background="#303030" BorderBrush="{Binding PathButtonBorder}" Command="{Binding ChoosePathCommand}"/>
-        <Button Grid.Row="1" Height="30" Width="60" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10" Style="{StaticResource DarkRoundButton}" Content="OK" Command="{Binding OkCommand}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"/>
-    </Grid>
     </Border>
 </Window>

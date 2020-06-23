@@ -1,14 +1,13 @@
-﻿using PixiEditor.Models.Layers;
+﻿using System.Windows.Media;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Media;
+using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class EarserTool : Tool
+    public class EarserTool : BitmapOperationTool
     {
         public override ToolType ToolType => ToolType.Earser;
 
@@ -18,10 +17,17 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
+            return Earse(layer, coordinates, (int) Toolbar.GetSetting("ToolSize").Value);
+        }
+
+        public LayerChange[] Earse(Layer layer, Coordinates[] coordinates, int toolSize)
+        {
+            Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
             PenTool pen = new PenTool();
-            return pen.Draw(coordinates[0], System.Windows.Media.Colors.Transparent, (int)Toolbar.GetSetting("ToolSize").Value);
+            var pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
+            return new[] {new LayerChange(pixels, layer)};
         }
     }
 }

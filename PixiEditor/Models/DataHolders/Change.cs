@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -18,18 +13,41 @@ namespace PixiEditor.Models.DataHolders
 
         public string Property { get; set; }
 
-        public Change(string property, object oldValue, object newValue, string description = "")
+        public Action<object[]> ReverseProcess { get; set; }
+        public Action<object[]> Process { get; set; }
+        public object[] ProcessArguments;
+        public object[] ReverseProcessArguments;
+        public object Root { get; set; }
+
+
+        public Change(string property, object oldValue, object newValue, string description = "", object root = null)
         {
             Property = property;
             OldValue = oldValue;
             Description = description;
             NewValue = newValue;
+            Root = root;
         }
 
-        public Change()
+        public Change(string property, Action<object[]> reverseProcess, object[] reverseArguments,
+            object newValue, string description = "", object root = null)
         {
-
+            Property = property;
+            ReverseProcess = reverseProcess;
+            ReverseProcessArguments = reverseArguments;
+            NewValue = newValue;
+            Description = description;
+            Root = root;
         }
 
+        public Change(Action<object[]> reverseProcess, object[] reverseArguments,
+            Action<object[]> process, object[] processArguments, string description = "")
+        {
+            ReverseProcess = reverseProcess;
+            ReverseProcessArguments = reverseArguments;
+            Process = process;
+            ProcessArguments = processArguments;
+            Description = description;
+        }
     }
 }

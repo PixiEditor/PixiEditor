@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
@@ -21,10 +23,10 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private Control GenerateCheckBox()
         {
-            CheckBox checkBox = new CheckBox()
+            CheckBox checkBox = new CheckBox
             {
-                IsChecked = (bool)Value,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center
+                IsChecked = (bool) Value,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             Binding binding = new Binding("Value")
@@ -32,7 +34,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 Mode = BindingMode.TwoWay
             };
 
-            checkBox.SetBinding(CheckBox.IsCheckedProperty, binding);
+            checkBox.SetBinding(ToggleButton.IsCheckedProperty, binding);
 
             return checkBox;
         }

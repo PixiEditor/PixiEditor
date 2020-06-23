@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace PixiEditor.Models.Controllers
+namespace PixiEditor.Models.Controllers.Shortcuts
 {
     public class Shortcut
     {
@@ -9,7 +9,8 @@ namespace PixiEditor.Models.Controllers
         public ICommand Command { get; set; }
         public object CommandParameter { get; set; }
 
-        public Shortcut(Key shortcutKey, ICommand command, object commandParameter = null, ModifierKeys modifier = ModifierKeys.None)
+        public Shortcut(Key shortcutKey, ICommand command, object commandParameter = null,
+            ModifierKeys modifier = ModifierKeys.None)
         {
             ShortcutKey = shortcutKey;
             Modifier = modifier;
@@ -19,10 +20,7 @@ namespace PixiEditor.Models.Controllers
 
         public void Execute()
         {
-            if(Command.CanExecute(CommandParameter))
-            {
-                Command.Execute(CommandParameter);
-            }
+            if (Command.CanExecute(CommandParameter)) Command.Execute(CommandParameter);
         }
     }
 }

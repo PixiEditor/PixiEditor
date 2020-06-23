@@ -1,25 +1,40 @@
-﻿using PixiEditor.Models.Layers;
+﻿using System.Drawing;
 using PixiEditor.Models.Position;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Media;
+using PixiEditor.ViewModels;
+using Color = System.Windows.Media.Color;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class ColorPickerTool : Tool
+    public class ColorPickerTool : ReadonlyTool
     {
         public override ToolType ToolType => ToolType.ColorPicker;
 
         public ColorPickerTool()
         {
-            PerformsOperationOnBitmap = false;
             HideHighlight = true;
+            Tooltip = "Swaps primary color with selected on canvas. (O)";
         }
 
-        public override BitmapPixelChanges Use(Layer layer, Coordinates[] pixels, Color color)
+        public override void Use(Coordinates[] coordinates)
         {
-            return new BitmapPixelChanges();
+            ViewModelMain.Current.PrimaryColor = GetColorUnderMouse();
+        }
+
+        public Color GetColorUnderMouse()
+        {
+            System.Drawing.Color color;
+            using (var bitmap = new Bitmap(1, 1))
+            {
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.CopyFromScreen(MousePositionConverter.GetCursorPosition(), new Point(0, 0),
+                        new Size(1, 1));
+                }
+
+                color = bitmap.GetPixel(0, 0);
+            }
+
+            return Color.FromArgb(color.A, color.R, color.G, color.B);
         }
     }
 }

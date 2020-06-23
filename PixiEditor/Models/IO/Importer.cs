@@ -1,18 +1,14 @@
-﻿using PixiEditor.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Media.Imaging;
-using System.Windows.Media;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.IO
 {
     public class Importer : NotifyableObject
     {
         /// <summary>
-        /// Imports image from path and resizes it to given dimensions
+        ///     Imports image from path and resizes it to given dimensions
         /// </summary>
         /// <param name="path">Path of image.</param>
         /// <param name="width">New width of image.</param>
@@ -24,10 +20,21 @@ namespace PixiEditor.Models.IO
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = uri;
-            bitmap.DecodePixelWidth = width;
-            bitmap.DecodePixelHeight = height;
             bitmap.EndInit();
-            return new WriteableBitmap(bitmap);
+
+            var wbmp = new WriteableBitmap(bitmap);
+            wbmp = wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            return wbmp;
+        }
+
+        public static Document ImportDocument(string path)
+        {
+            return BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
+        }
+
+        public static bool IsSupportedFile(string path)
+        {
+            return path.EndsWith(".pixi") || path.EndsWith(".png") || path.EndsWith(".jpg") || path.EndsWith(".jpeg");
         }
     }
 }

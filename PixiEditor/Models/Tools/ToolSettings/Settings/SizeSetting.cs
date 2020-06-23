@@ -1,12 +1,9 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Helpers.Behaviours;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interactivity;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Behaviours;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -21,7 +18,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private TextBox GenerateTextBox()
         {
-            TextBox tb = new TextBox()
+            TextBox tb = new TextBox
             {
                 Style = Application.Current.FindResource("DarkTextBoxStyle") as Style,
                 TextAlignment = TextAlignment.Center,
@@ -32,7 +29,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Binding binding = new Binding("Value")
             {
                 Converter = new ToolSizeToIntConverter(),
-                Mode = BindingMode.TwoWay,
+                Mode = BindingMode.TwoWay
             };
             tb.SetBinding(TextBox.TextProperty, binding);
             TextBoxFocusBehavior behavor = new TextBoxFocusBehavior

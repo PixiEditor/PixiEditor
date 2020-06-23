@@ -1,11 +1,6 @@
 ﻿using PixiEditor.Models.Tools.ToolSettings.Settings;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
-using System.Windows.Controls;
 
-namespace PixiEditor.Models.Tools.ToolSettings
+namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
 {
     public class BasicToolbar : Toolbar
     {

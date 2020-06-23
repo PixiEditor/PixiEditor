@@ -1,36 +1,14 @@
-﻿using PixiEditor.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels
 {
-    class FeedbackDialogViewModel : ViewModelBase
+    internal class FeedbackDialogViewModel : ViewModelBase
     {
-        public RelayCommand CloseButtonCommand { get; set; }
-        public RelayCommand SendButtonCommand { get; set; }
+        private string _emailBody;
 
 
         private string _mailFrom;
-
-        public string MailFrom
-        {
-            get { return _mailFrom; }
-            set { if (_mailFrom != value) { _mailFrom = value; RaisePropertyChanged("MailFrom"); } }
-        }
-
-
-        private string _emailBody;
-
-        public string EmailBody
-        {
-            get { return _emailBody; }
-            set { if (_emailBody != value) { _emailBody = value; RaisePropertyChanged("EmailBody"); } }
-        }
 
         public FeedbackDialogViewModel()
         {
@@ -38,15 +16,44 @@ namespace PixiEditor.ViewModels
             SendButtonCommand = new RelayCommand(Send, CanSend);
         }
 
+        public RelayCommand CloseButtonCommand { get; set; }
+        public RelayCommand SendButtonCommand { get; set; }
+
+        public string MailFrom
+        {
+            get => _mailFrom;
+            set
+            {
+                if (_mailFrom != value)
+                {
+                    _mailFrom = value;
+                    RaisePropertyChanged("MailFrom");
+                }
+            }
+        }
+
+        public string EmailBody
+        {
+            get => _emailBody;
+            set
+            {
+                if (_emailBody != value)
+                {
+                    _emailBody = value;
+                    RaisePropertyChanged("EmailBody");
+                }
+            }
+        }
+
         private void CloseWindow(object parameter)
         {
-            ((Window)parameter).DialogResult = false;
-            base.CloseButton(parameter);
+            ((Window) parameter).DialogResult = false;
+            CloseButton(parameter);
         }
 
         private void Send(object parameter)
         {
-            base.CloseButton(parameter);
+            CloseButton(parameter);
         }
 
         private bool CanSend(object property)
