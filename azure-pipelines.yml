@@ -16,6 +16,13 @@ steps:
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'custom'
+    custom: 'tool'
+    arguments: 'install --global Codecov.Tool'
+
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
@@ -23,18 +30,13 @@ steps:
     projects: '**/*.csproj'
     arguments: '--configuration Release'
 
-- task: DotNetCoreCLI@2
-  displayName: Tests
+- task: PowerShell@2
   inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --logger trx /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"'
+    targetType: 'inline'
+    script: '$env:userprofile\.nuget\packages\opencover\4.7.922\tools\OpenCover.Console.exe -register:user -target:"$env:programfiles/dotnet/dotnet.exe" -targetargs:test -filter:"+[*]*" -output:".\PixiEditor_coverage.xml" -oldstyle'
+    workingDirectory: 'PixiEditorTests\'
 
-- task: PublishTestResults@2
-  condition: succeededOrFailed()
+- task: CmdLine@2
   inputs:
-      testRunner: VSTest
-      testResultsFiles: '**/*.trx'
-  
-- powershell: .\codecov.ps1 -token $(CODECOV_TOKEN)
+    script: codecov -f .\PixiEditorTests\PixiEditor_coverage.xml -t $(CODECOV_TOKEN)
   displayName: Upload to Codecov.io
