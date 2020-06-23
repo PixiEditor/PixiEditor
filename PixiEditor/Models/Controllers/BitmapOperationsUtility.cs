@@ -75,7 +75,6 @@ namespace PixiEditor.Models.Controllers
         {
             if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
                 mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
-            ;
             if (!tool.RequiresPreviewLayer)
             {
                 LayerChange[] modifiedLayers = tool.Use(Manager.ActiveLayer, mouseMoveCords.ToArray(), color);

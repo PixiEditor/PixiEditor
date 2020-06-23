@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace PixiEditor.Models.Controllers
+namespace PixiEditor.Models.Controllers.Shortcuts
 {
     public class Shortcut
     {

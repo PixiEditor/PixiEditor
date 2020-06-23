@@ -19,7 +19,6 @@
 
         public static bool operator ==(Coordinates c1, Coordinates c2)
         {
-            if (c1 == null || c2 == null) return false;
             return c2.X == c1.X && c2.Y == c1.Y;
         }
 

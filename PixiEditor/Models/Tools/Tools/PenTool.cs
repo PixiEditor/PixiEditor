@@ -5,6 +5,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -25,7 +26,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
             var pixels = Draw(startingCords, coordinates[0], color, (int) Toolbar.Settings[_toolSizeIndex].Value);
-            return new[] {new LayerChange(pixels, layer)};
+            return Only(pixels, layer);
         }
 
         public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize)

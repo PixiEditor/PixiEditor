@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Views
 {

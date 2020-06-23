@@ -120,7 +120,7 @@ namespace PixiEditor.Models.Controllers
 
         public void RemoveLayer(int layerIndex)
         {
-            if (ActiveDocument.Layers.Count <= 1) return;
+            if (ActiveDocument.Layers.Count == 0) return;
 
             bool wasActive = ActiveDocument.Layers[layerIndex].IsActive;
             ActiveDocument.Layers.RemoveAt(layerIndex);
@@ -221,7 +221,7 @@ namespace PixiEditor.Models.Controllers
         /// <returns></returns>
         public bool IsOperationTool()
         {
-            return SelectedTool is BitmapOperationTool;
+            return IsOperationTool(SelectedTool);
         }
 
         /// <summary>

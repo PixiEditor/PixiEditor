@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Windows.Input;
 
-namespace PixiEditor.Models.Controllers
+namespace PixiEditor.Models.Controllers.Shortcuts
 {
     public class ShortcutController
     {
@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Controllers
             Shortcuts = new List<Shortcut>();
         }
 
-        public void KeyPressed(Key key)
+        public void KeyPressed(Key key, ModifierKeys modifiers)
         {
             if (!BlockShortcutExecution)
             {
@@ -23,7 +23,7 @@ namespace PixiEditor.Models.Controllers
                 if (shortcuts.Length < 1) return;
                 shortcuts = shortcuts.OrderByDescending(x => x.Modifier).ToArray();
                 for (int i = 0; i < shortcuts.Length; i++)
-                    if (Keyboard.Modifiers.HasFlag(shortcuts[i].Modifier))
+                    if (modifiers.HasFlag(shortcuts[i].Modifier))
                     {
                         shortcuts[i].Execute();
                         break;

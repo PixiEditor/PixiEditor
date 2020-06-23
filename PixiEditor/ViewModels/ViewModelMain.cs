@@ -11,6 +11,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
@@ -488,7 +489,7 @@ namespace PixiEditor.ViewModels
 
         public void KeyDown(object parameter)
         {
-            ShortcutController.KeyPressed(((KeyEventArgs) parameter).Key);
+            ShortcutController.KeyPressed(((KeyEventArgs) parameter).Key, Keyboard.Modifiers);
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
