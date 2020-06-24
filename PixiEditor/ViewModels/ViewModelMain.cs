@@ -127,7 +127,6 @@ namespace PixiEditor.ViewModels
                 }
             };
             UndoManager.SetMainRoot(this);
-            ClipboardController = new ClipboardController();
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             Current = this;
@@ -277,8 +276,6 @@ namespace PixiEditor.ViewModels
                 RaisePropertyChanged("ActiveSelection");
             }
         }
-
-        public ClipboardController ClipboardController { get; set; }
 
         private void CenterContent(object property)
         {
@@ -447,7 +444,7 @@ namespace PixiEditor.ViewModels
         private void Copy(object parameter)
         {
             ClipboardController.CopyToClipboard(BitmapManager.ActiveDocument.Layers.ToArray(),
-                ActiveSelection.SelectedPoints.ToArray());
+                ActiveSelection.SelectedPoints.ToArray(), BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height);
         }
 
         public void SelectAll(object parameter)

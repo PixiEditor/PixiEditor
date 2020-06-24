@@ -31,11 +31,8 @@ namespace PixiEditor.Models.Images
                 BitmapSizeOptions.FromEmptyOptions());
         }
 
-        public static WriteableBitmap CombineLayers(Layer[] layers)
+        public static WriteableBitmap CombineLayers(Layer[] layers, int width, int height)
         {
-            int width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
-            int height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
-
             WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
 
             using (finalBitmap.GetBitmapContext())

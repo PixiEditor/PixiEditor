@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ModelsTests\PositionTests\" />
     <Folder Include="ViewModelsTests\" />
   </ItemGroup>
 

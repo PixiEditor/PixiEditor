@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Models.Position;
 using Xunit;
 
-namespace PixiEditorTests.WorkspaceTests.ToolsTests
+namespace PixiEditorTests.ModelsTests.PositionTests
 {
     public class CoordinatesCalculatorTests
     {

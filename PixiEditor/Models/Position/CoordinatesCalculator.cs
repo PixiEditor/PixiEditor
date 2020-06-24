@@ -43,6 +43,14 @@ namespace PixiEditor.Models.Position
             return new Coordinates(x, y);
         }
 
+        /// <summary>
+        ///     Calculates coordinates of rectangle by edge points x1, y1, x2, y2
+        /// </summary>
+        /// <param name="x1">Top left x point</param>
+        /// <param name="y1">Top left y position</param>
+        /// <param name="x2">Bottom right x position</param>
+        /// <param name="y2">Bottom right Y position</param>
+        /// <returns></returns>
         public static Coordinates[] RectangleToCoordinates(int x1, int y1, int x2, int y2)
         {
             x2++;

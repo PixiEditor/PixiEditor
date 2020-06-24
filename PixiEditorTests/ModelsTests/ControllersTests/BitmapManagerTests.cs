@@ -10,6 +10,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.Tools.ToolSettings;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
@@ -21,7 +22,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatBitmapManagerSetsCorrectTool()
         {
              BitmapManager bitmapManager = new BitmapManager();
-             bitmapManager.SetActiveTool(new MockedPen());
+             bitmapManager.SetActiveTool(new MockedSinglePixelPen());
              Assert.Equal(ToolType.Pen, bitmapManager.SelectedTool.ToolType);
         }
 
@@ -71,21 +72,18 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatIsOperationToolWorks()
         {
-            MockedPen pen = new MockedPen();
-            Assert.True(BitmapManager.IsOperationTool(pen));
+            MockedSinglePixelPen singlePixelPen = new MockedSinglePixelPen();
+            Assert.True(BitmapManager.IsOperationTool(singlePixelPen));
         }
 
     }
 
-    public class MockedPen : BitmapOperationTool
+    public class MockedSinglePixelPen : BitmapOperationTool
     {
         public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
-            PenTool pen = new PenTool()
-            {
-                Toolbar = null
-            };
-           return pen.Use(layer, mouseMove, color);
+            return Only(
+                BitmapPixelChanges.FromSingleColoredArray(new[] {new Coordinates(0, 0)}, Colors.Black),0);
         }
 
         public override ToolType ToolType { get; } = ToolType.Pen;

@@ -15,5 +15,10 @@ namespace PixiEditor.Models.Tools
         {
             return new[] { new LayerChange(changes, layer) };
         }
+
+        protected LayerChange[] Only(BitmapPixelChanges changes, int layerIndex)
+        {
+            return new[] { new LayerChange(changes, layerIndex) };
+        }
     }
 }

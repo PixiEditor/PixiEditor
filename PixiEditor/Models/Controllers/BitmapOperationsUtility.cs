@@ -55,6 +55,9 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        /// <summary>
+        ///     Applies pixels from preview layer to selected layer
+        /// </summary>
         public void StopAction()
         {
             if (_lastModifiedLayers == null) return;
@@ -66,7 +69,7 @@ namespace PixiEditor.Models.Controllers
 
                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastModifiedLayers[i].PixelChanges,
                     oldValues, _lastModifiedLayers[i].LayerIndex));
-                Manager.PreviewLayer.Clear();
+               Manager.PreviewLayer = null;
             }
         }
 

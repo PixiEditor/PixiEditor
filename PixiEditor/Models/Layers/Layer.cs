@@ -170,7 +170,7 @@ namespace PixiEditor.Models.Layers
         }
 
         /// <summary>
-        ///     Returns pixel color by x and y coordinates relative to document using (x - OffsetX) formula.
+        ///     Returns pixel color of x and y coordinates relative to document using (x - OffsetX) formula.
         /// </summary>
         /// <param name="x">Viewport relative X</param>
         /// <param name="y">Viewport relative Y</param>
