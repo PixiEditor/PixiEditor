@@ -61,7 +61,7 @@ namespace PixiEditor.Models.Controllers
         {
             _lastChangeWasUndo = true;
             Change change = RedoStack.Pop();
-            if (change.ReverseProcess == null)
+            if (change.Process == null)
                 SetPropertyValue(change.Root, change.Property, change.NewValue);
             else
                 change.Process(change.ProcessArguments);

@@ -73,7 +73,7 @@ namespace PixiEditor.Models.Controllers
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapOperations = new BitmapOperationsUtility(this);
-            ReadonlyToolUtility = new ReadonlyToolUtility(this);
+            ReadonlyToolUtility = new ReadonlyToolUtility();
         }
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
