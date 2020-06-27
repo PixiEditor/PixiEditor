@@ -67,6 +67,8 @@ namespace PixiEditor.Models.DataHolders
             B = color.B;
         }
 
+        public NotifyableColor(){}
+
         public event EventHandler ColorChanged;
 
         public void SetArgb(byte a, byte r, byte g, byte b)

@@ -205,9 +205,9 @@ namespace PixiEditor.Models.Layers
         /// <param name="color">Color of pixel</param>
         /// <param name="dynamicResize">Resizes bitmap to fit content</param>
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
-        public void ApplyPixel(Coordinates coordinates, Color color, bool dynamicResize = true, bool applyOffset = true)
+        public void SetPixel(Coordinates coordinates, Color color, bool dynamicResize = true, bool applyOffset = true)
         {
-            ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(new []{ coordinates }, color), dynamicResize, applyOffset);
+            SetPixels(BitmapPixelChanges.FromSingleColoredArray(new []{ coordinates }, color), dynamicResize, applyOffset);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="pixels">Pixels to apply</param>
         /// <param name="dynamicResize">Resizes bitmap to fit content</param>
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
-        public void ApplyPixels(BitmapPixelChanges pixels, bool dynamicResize = true, bool applyOffset = true)
+        public void SetPixels(BitmapPixelChanges pixels, bool dynamicResize = true, bool applyOffset = true)
         {
             if (pixels.ChangedPixels == null || pixels.ChangedPixels.Count == 0) return;
             if(dynamicResize)

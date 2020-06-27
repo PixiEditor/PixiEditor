@@ -192,7 +192,7 @@ namespace PixiEditor.Models.Controllers
             else
             {
                 GeneratePreviewLayer();
-                PreviewLayer.ApplyPixels(
+                PreviewLayer.SetPixels(
                     BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
             }
         }

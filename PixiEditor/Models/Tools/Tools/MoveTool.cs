@@ -183,7 +183,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (!_clearedPixels.ContainsKey(layer) || _clearedPixels[layer] == false)
             {
                 ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.First(x => x == layer)
-                    .ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
+                    .SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
 
                 _clearedPixels[layer] = true;
             }

@@ -52,12 +52,12 @@ namespace PixiEditor.Models.DataHolders
                     break;
             }
 
-            SelectionLayer.ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, selectionColor));
+            SelectionLayer.SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, selectionColor));
         }
 
         public void Clear()
         {
-            SelectionLayer.Clear();
+            SelectionLayer = new Layer("_selectionLayer");
             SelectedPoints.Clear();
         }
     }

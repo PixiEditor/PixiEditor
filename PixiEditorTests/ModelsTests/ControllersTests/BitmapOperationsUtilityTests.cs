@@ -20,7 +20,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Layer testLayer = new Layer("test layer", 10, 10);
             Coordinates[] cords = {new Coordinates(0, 0), new Coordinates(1, 1)};
             BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black);
-            testLayer.ApplyPixels(pixels);
+            testLayer.SetPixels(pixels);
 
             util.DeletePixels(new []{testLayer}, cords);
 

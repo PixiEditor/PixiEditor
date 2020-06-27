@@ -169,7 +169,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();
             ExampleProperty = 1;
-            TestPropClass = new TestPropertyClass();
+            TestPropClass = new TestPropertyClass {IntProperty = 0};
         }
     }
 

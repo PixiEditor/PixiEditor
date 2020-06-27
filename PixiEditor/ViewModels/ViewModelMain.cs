@@ -248,7 +248,7 @@ namespace PixiEditor.ViewModels
             {
                 _undoChanges = value;
                 for (int i = 0; i < value.Length; i++)
-                    BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].ApplyPixels(value[i].PixelChanges);
+                    BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].SetPixels(value[i].PixelChanges);
             }
         }
 
@@ -426,7 +426,7 @@ namespace PixiEditor.ViewModels
         public void Cut(object parameter)
         {
             Copy(null);
-            BitmapManager.ActiveLayer.ApplyPixels(
+            BitmapManager.ActiveLayer.SetPixels(
                 BitmapPixelChanges.FromSingleColoredArray(ActiveSelection.SelectedPoints.ToArray(),
                     Colors.Transparent));
         }

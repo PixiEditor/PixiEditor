@@ -48,8 +48,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             Layer testLayer = new Layer("test layer", 10, 10);
             Layer testLayer2 = new Layer("test layer", 10, 10);
-            testLayer.ApplyPixel(new Coordinates(4,4), testColor);
-            testLayer2.ApplyPixel(new Coordinates(5,5), testColor);
+            testLayer.SetPixel(new Coordinates(4,4), testColor);
+            testLayer2.SetPixel(new Coordinates(5,5), testColor);
 
             ClipboardController.CopyToClipboard(new []{testLayer, testLayer2}, 
                 new []{new Coordinates(4,4), new Coordinates(5,5)}, 10, 10);
