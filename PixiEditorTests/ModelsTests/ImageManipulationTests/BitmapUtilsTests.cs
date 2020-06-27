@@ -91,7 +91,7 @@ namespace PixiEditorTests.ModelsTests.ImageManipulationTests
             Assert.Single(colors.Where(x=> x == Colors.Green));
             Assert.Single(colors.Where(x=> x == Colors.Red));
             Assert.Equal(6, colors.Count(x => x.A == 0)); //6 because layer is 4 pixels,
-                                                                                    //2 * 4 = 8, 2 other color pixels, so 8 - 2 = 6
+                                                          //2 * 4 = 8, 2 other color pixels, so 8 - 2 = 6
         }
 
     }
