@@ -14,7 +14,7 @@
 
         public override string ToString()
         {
-            return $"x: {X}, y: {Y}";
+            return $"{X}, {Y}";
         }
 
         public static bool operator ==(Coordinates c1, Coordinates c2)
@@ -37,12 +37,12 @@
         {
             unchecked
             {
-                const int HashingBase = (int) 2166136261;
-                const int HashingMultiplier = 16777619;
+                const int hashingBase = (int) 2166136261;
+                const int hashingMultiplier = 16777619;
 
-                int hash = HashingBase;
-                hash = (hash * HashingMultiplier) ^ (!ReferenceEquals(null, X) ? X.GetHashCode() : 0);
-                hash = (hash * HashingMultiplier) ^ (!ReferenceEquals(null, Y) ? Y.GetHashCode() : 0);
+                int hash = hashingBase;
+                hash = (hash * hashingMultiplier) ^ (!ReferenceEquals(null, X) ? X.GetHashCode() : 0);
+                hash = (hash * hashingMultiplier) ^ (!ReferenceEquals(null, Y) ? Y.GetHashCode() : 0);
                 return hash;
             }
         }

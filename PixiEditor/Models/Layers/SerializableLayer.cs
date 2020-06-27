@@ -8,6 +8,8 @@ namespace PixiEditor.Models.Layers
         public string Name { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
+        public int MaxWidth { get; set; }
+        public int MaxHeight { get; set; }
         public byte[] BitmapBytes { get; set; }
         public bool IsVisible { get; set; }
         public int OffsetX { get; set; }
@@ -24,6 +26,8 @@ namespace PixiEditor.Models.Layers
             OffsetX = (int)layer.Offset.Left;
             OffsetY = (int)layer.Offset.Top;
             Opacity = layer.Opacity;
+            MaxWidth = layer.MaxWidth;
+            MaxHeight = layer.MaxHeight;
         }
     }
 }

@@ -8,8 +8,8 @@ namespace PixiEditor.Models.Controllers
     public static class UndoManager
     {
         private static bool _lastChangeWasUndo;
-        public static StackEx<Change> UndoStack { get; set; } = new StackEx<Change>();
-        public static StackEx<Change> RedoStack { get; set; } = new StackEx<Change>();
+        public static Stack<Change> UndoStack { get; set; } = new Stack<Change>();
+        public static Stack<Change> RedoStack { get; set; } = new Stack<Change>();
 
         public static bool CanUndo => UndoStack.Count > 0;
 

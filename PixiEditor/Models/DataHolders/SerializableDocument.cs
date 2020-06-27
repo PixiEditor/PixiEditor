@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using PixiEditor.Models.Images;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.DataHolders
@@ -35,7 +35,7 @@ namespace PixiEditor.Models.DataHolders
             return document;
         }
 
-        private ObservableCollection<Layer> ToLayers()
+        public ObservableCollection<Layer> ToLayers()
         {
             ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
             for (int i = 0; i < Layers.Length; i++)

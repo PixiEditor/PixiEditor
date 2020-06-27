@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
 using Color = System.Windows.Media.Color;
 
-namespace PixiEditor.Models.Images
+namespace PixiEditor.Models.ImageManipulation
 {
     public static class BitmapUtils
     {
+        /// <summary>
+        ///     Converts pixel bytes to WriteableBitmap
+        /// </summary>
+        /// <param name="currentBitmapWidth">Width of bitmap</param>
+        /// <param name="currentBitmapHeight">Height of bitmap</param>
+        /// <param name="byteArray">Bitmap byte array</param>
+        /// <returns>WriteableBitmap</returns>
         public static WriteableBitmap BytesToWriteableBitmap(int currentBitmapWidth, int currentBitmapHeight,
             byte[] byteArray)
         {
@@ -22,15 +27,13 @@ namespace PixiEditor.Models.Images
             return bitmap;
         }
 
-        public static BitmapSource BitmapToBitmapSource(Bitmap bitmap)
-        {
-            return Imaging.CreateBitmapSourceFromHBitmap(
-                bitmap.GetHbitmap(),
-                IntPtr.Zero,
-                Int32Rect.Empty,
-                BitmapSizeOptions.FromEmptyOptions());
-        }
-
+        /// <summary>
+        ///     Converts layers bitmaps into one bitmap.
+        /// </summary>
+        /// <param name="layers">Layers to combine</param>
+        /// <param name="width">Width of final bitmap</param>
+        /// <param name="height">Height of final bitmap</param>
+        /// <returns>WriteableBitmap of layered bitmaps</returns>
         public static WriteableBitmap CombineLayers(Layer[] layers, int width, int height)
         {
             WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
