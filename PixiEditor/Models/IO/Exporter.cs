@@ -13,6 +13,11 @@ namespace PixiEditor.Models.IO
         public static Size FileDimensions;
         public static string SaveDocumentPath { get; set; }
 
+        /// <summary>
+        ///     Saves document as .pixi file that contains all document data
+        /// </summary>
+        /// <param name="document">Document to save</param>
+        /// <param name="updateWorkspacePath">Should editor remember dialog path for further saves</param>
         public static void SaveAsNewEditableFile(Document document, bool updateWorkspacePath = false)
         {
             SaveFileDialog dialog = new SaveFileDialog
@@ -62,7 +67,7 @@ namespace PixiEditor.Models.IO
         /// <param name="exportWidth">File width</param>
         /// <param name="exportHeight">File height</param>
         /// <param name="bitmap">Bitmap to save</param>
-        private static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+        public static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try
             {

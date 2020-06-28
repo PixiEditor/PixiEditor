@@ -49,7 +49,6 @@ namespace PixiEditor.ViewModels
 
         public ViewModelMain()
         {
-            FilesManager.InitializeTempDirectories();
             BitmapManager = new BitmapManager();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;

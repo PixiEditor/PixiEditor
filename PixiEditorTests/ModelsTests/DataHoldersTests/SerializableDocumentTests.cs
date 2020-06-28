@@ -74,7 +74,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             }
         }
 
-        private Document GenerateSampleDocument()
+        private static Document GenerateSampleDocument()
         {
             Document document = new Document(10, 10);
             document.Layers.Add(new Layer("Test", 5, 8));

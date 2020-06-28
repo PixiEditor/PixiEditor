@@ -16,15 +16,23 @@ namespace PixiEditor.Models.IO
         /// <returns></returns>
         public static WriteableBitmap ImportImage(string path, int width, int height)
         {
+            var wbmp = ImportImage(path).Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            return wbmp;
+        }
+
+        /// <summary>
+        ///     Imports image from path and resizes it to given dimensions
+        /// </summary>
+        /// <param name="path">Path of image.</param>
+        public static WriteableBitmap ImportImage(string path)
+        {
             Uri uri = new Uri(path);
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = uri;
             bitmap.EndInit();
 
-            var wbmp = new WriteableBitmap(bitmap);
-            wbmp = wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-            return wbmp;
+            return new WriteableBitmap(bitmap);
         }
 
         public static Document ImportDocument(string path)
@@ -34,6 +42,7 @@ namespace PixiEditor.Models.IO
 
         public static bool IsSupportedFile(string path)
         {
+            path = path.ToLower();
             return path.EndsWith(".pixi") || path.EndsWith(".png") || path.EndsWith(".jpg") || path.EndsWith(".jpeg");
         }
     }

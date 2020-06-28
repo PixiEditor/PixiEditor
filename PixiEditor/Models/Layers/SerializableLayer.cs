@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace PixiEditor.Models.Layers
 {
@@ -28,6 +29,36 @@ namespace PixiEditor.Models.Layers
             Opacity = layer.Opacity;
             MaxWidth = layer.MaxWidth;
             MaxHeight = layer.MaxHeight;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || obj.GetType() != typeof(SerializableLayer)) return false;
+
+            SerializableLayer layer = (SerializableLayer) obj;
+
+            return Equals(layer);
+        }
+
+        protected bool Equals(SerializableLayer other)
+        {
+            return Name == other.Name && Width == other.Width && Height == other.Height && MaxWidth == other.MaxWidth && MaxHeight == other.MaxHeight && BitmapBytes.SequenceEqual(other.BitmapBytes) && IsVisible == other.IsVisible && OffsetX == other.OffsetX && OffsetY == other.OffsetY && Opacity.Equals(other.Opacity);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(Name);
+            hashCode.Add(Width);
+            hashCode.Add(Height);
+            hashCode.Add(MaxWidth);
+            hashCode.Add(MaxHeight);
+            hashCode.Add(BitmapBytes);
+            hashCode.Add(IsVisible);
+            hashCode.Add(OffsetX);
+            hashCode.Add(OffsetY);
+            hashCode.Add(Opacity);
+            return hashCode.ToHashCode();
         }
     }
 }

@@ -50,7 +50,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.Equal(4, changes[0].Item2.PixelChanges.ChangedPixels.Count);
         }
 
-        private PixelChangesController CreateBasicController()
+        private static PixelChangesController CreateBasicController()
         {
             Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };
             PixelChangesController controller = new PixelChangesController();
