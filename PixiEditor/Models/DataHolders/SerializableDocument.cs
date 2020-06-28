@@ -42,10 +42,9 @@ namespace PixiEditor.Models.DataHolders
             {
                 SerializableLayer serLayer = Layers[i];
                 Layer layer =
-                    new Layer(BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
+                    new Layer(serLayer.Name,BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
                     {
                         IsVisible = serLayer.IsVisible,
-                        Name = serLayer.Name,
                         Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),
                         Opacity = serLayer.Opacity
                     };
