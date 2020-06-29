@@ -10,7 +10,7 @@
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
-        xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
+        xmlns:cmd="http://www.galasoft.ch/mvvmlight" xmlns:avalondock="https://github.com/Dirkster99/AvalonDock" xmlns:position="clr-namespace:PixiEditor.Models.Position"
         mc:Ignorable="d" WindowStyle="None"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
@@ -22,10 +22,9 @@
     <Window.Resources>
         <vm:ViewModelMain x:Key="ViewModelMain" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
-        <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
         <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
+        <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
     </Window.Resources>
 
     <Window.CommandBindings>
@@ -366,6 +365,13 @@
                 </avalondock:DockingManager.Theme>
             </avalondock:DockingManager>
         </Grid>
-
+        <DockPanel Grid.Row="3" Grid.Column="1">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock Text="X:" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                <TextBlock Text="Y:" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

@@ -22,7 +22,9 @@ namespace PixiEditor.Models.Tools
         }
 
         public Cursor Cursor { get; set; } = Cursors.Arrow;
+
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
+
         private bool _isActive;
 
         public virtual void OnMouseDown()

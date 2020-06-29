@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.Position
@@ -7,13 +8,6 @@ namespace PixiEditor.Models.Position
     public static class MousePositionConverter
     {
         public static Coordinates CurrentCoordinates { get; set; }
-
-        public static Coordinates MousePositionToCoordinates(Layer baseLayer, Point mousePosition)
-        {
-            int xCoord = (int) (mousePosition.X / baseLayer.Width);
-            int yCoord = (int) (mousePosition.Y / baseLayer.Height);
-            return new Coordinates(xCoord, yCoord);
-        }
 
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out System.Drawing.Point point);

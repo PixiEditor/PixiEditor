@@ -27,18 +27,12 @@ namespace PixiEditor.ViewModels
     {
         private const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
 
-        private double _mouseXonCanvas;
-
-        private double _mouseYonCanvas;
-
-
         private Color _primaryColor = Colors.Black;
 
         private bool _recenterZoombox;
 
         private Color _secondaryColor = Colors.White;
 
-        private ToolType _selectedTool;
         private Selection _selection;
 
         private Cursor _toolCursor;
@@ -167,6 +161,10 @@ namespace PixiEditor.ViewModels
         public RelayCommand CloseWindowCommand { get; set; }
         public RelayCommand CenterContentCommand { get; set; }
 
+        private double _mouseXonCanvas;
+
+        private double _mouseYonCanvas;
+
         public double MouseXOnCanvas //Mouse X coordinate relative to canvas
         {
             get => _mouseXonCanvas;
@@ -220,20 +218,6 @@ namespace PixiEditor.ViewModels
                 {
                     _secondaryColor = value;
                     RaisePropertyChanged("SecondaryColor");
-                }
-            }
-        }
-
-        public ToolType SelectedTool
-        {
-            get => _selectedTool;
-            set
-            {
-                if (_selectedTool != value)
-                {
-                    _selectedTool = value;
-                    SetActiveTool(value);
-                    RaisePropertyChanged("SelectedTool");
                 }
             }
         }
@@ -611,7 +595,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void MouseMove(object parameter)
         {
-            Coordinates cords = new Coordinates((int) MouseXOnCanvas, (int) MouseYOnCanvas);
+            Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
 

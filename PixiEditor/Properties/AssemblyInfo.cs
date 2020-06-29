@@ -6,7 +6,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("PixiEditor")]
-[assembly: AssemblyDescription("Lighweighted Pixel Art editor.")]
+[assembly: AssemblyDescription("A lighweighted Pixel Art editor.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PixiEditor")]
@@ -50,5 +50,5 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.0.4.1")]
-[assembly: AssemblyFileVersion("0.0.4.1")]
+[assembly: AssemblyVersion("0.1.0.0")]
+[assembly: AssemblyFileVersion("0.1.0.0")]

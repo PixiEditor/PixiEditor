@@ -20,12 +20,17 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
             TextBox tb = new TextBox
             {
-                Style = Application.Current.FindResource("DarkTextBoxStyle") as Style,
                 TextAlignment = TextAlignment.Center,
                 MaxLength = 4,
                 Width = 40,
                 Height = 20
             };
+
+            if (Application.Current != null)
+            {
+                tb.Style = (Style)Application.Current.TryFindResource("DarkTextBoxStyle"); ;
+            }
+
             Binding binding = new Binding("Value")
             {
                 Converter = new ToolSizeToIntConverter(),

@@ -13,7 +13,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
     public class ShortcutControllerTests
     {
 
-        private ShortcutController GenerateStandardShortcutController(Key shortcutKey, ModifierKeys modifiers,RelayCommand shortcutCommand)
+        private static ShortcutController GenerateStandardShortcutController(Key shortcutKey, ModifierKeys modifiers,RelayCommand shortcutCommand)
         {
             ShortcutController controller = new ShortcutController();
             controller.Shortcuts.Add(new Shortcut(shortcutKey, shortcutCommand, 0, modifiers));

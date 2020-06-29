@@ -8,7 +8,7 @@ namespace PixiEditorTests.ModelsTests.PositionTests
         [Theory]
         [InlineData(0, 0, 2, 2, 9)]
         [InlineData(0, 0, 10, 10, 121)]
-        public void RectangleToCoordinatesAmountTest(int x1, int y1, int x2, int y2, int expectedResult)
+        public void TestThatRectangleToCoordinatesReturnsSameAmount(int x1, int y1, int x2, int y2, int expectedResult)
         {
             Assert.Equal(CoordinatesCalculator.RectangleToCoordinates(x1, y1, x2, y2).Length, expectedResult);
         }
