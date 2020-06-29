@@ -43,6 +43,12 @@ namespace PixiEditor.Models.Controllers
             UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
         }
 
+        /// <summary>
+        ///     Executes tool Use() method with given parameters. NOTE: mouseMove is reversed inside function!
+        /// </summary>
+        /// <param name="newPos">Most recent coordinates</param>
+        /// <param name="mouseMove">Last mouse movement coordinates</param>
+        /// <param name="tool">Tool to execute</param>
         public void ExecuteTool(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
         {
             if (Manager.ActiveDocument != null && tool != null && tool.ToolType != ToolType.None)

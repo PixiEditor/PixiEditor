@@ -28,10 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModelsTests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PixiEditor\PixiEditor.csproj" />
   </ItemGroup>
 

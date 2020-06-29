@@ -23,7 +23,7 @@ using PixiEditor.Models.Tools.Tools;
 
 namespace PixiEditor.ViewModels
 {
-    internal class ViewModelMain : ViewModelBase
+    public class ViewModelMain : ViewModelBase
     {
         private const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
 
@@ -40,90 +40,6 @@ namespace PixiEditor.ViewModels
         private LayerChange[] _undoChanges;
 
         private bool _unsavedDocumentModified;
-
-        public ViewModelMain()
-        {
-            BitmapManager = new BitmapManager();
-            BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
-            BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
-            BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
-            ChangesController = new PixelChangesController();
-            SelectToolCommand = new RelayCommand(SetTool, DocumentIsNotNull);
-            OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
-            MouseMoveCommand = new RelayCommand(MouseMove);
-            MouseDownCommand = new RelayCommand(MouseDown);
-            SaveFileCommand = new RelayCommand(SaveFile, CanSave);
-            UndoCommand = new RelayCommand(Undo, CanUndo);
-            RedoCommand = new RelayCommand(Redo, CanRedo);
-            MouseUpCommand = new RelayCommand(MouseUp);
-            OpenFileCommand = new RelayCommand(Open);
-            SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
-            NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
-            MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
-            MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
-            SwapColorsCommand = new RelayCommand(SwapColors);
-            KeyDownCommand = new RelayCommand(KeyDown);
-            RenameLayerCommand = new RelayCommand(RenameLayer);
-            DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
-            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
-            CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
-            DuplicateCommand = new RelayCommand(Duplicate, SelectionIsNotEmpty);
-            CutCommand = new RelayCommand(Cut, SelectionIsNotEmpty);
-            PasteCommand = new RelayCommand(Paste, CanPaste);
-            ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
-            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
-            OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
-            SelectColorCommand = new RelayCommand(SelectColor);
-            RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
-            SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
-            OnStartupCommand = new RelayCommand(OnStartup);
-            CloseWindowCommand = new RelayCommand(CloseWindow);
-            CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
-            ToolSet = new ObservableCollection<Tool>
-            {
-                new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()
-            };
-            ShortcutController = new ShortcutController
-            {
-                Shortcuts = new List<Shortcut>
-                {
-                    new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.X, SwapColorsCommand),
-                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
-                    new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
-                    new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
-                    new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
-                    new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
-                    new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
-                    new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
-                    new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
-                    new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
-                    new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.Z, UndoCommand),
-                    new Shortcut(Key.S, SaveFileCommand,
-                        modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
-                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.Delete, DeletePixelsCommand),
-                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift)
-                }
-            };
-            UndoManager.SetMainRoot(this);
-            SetActiveTool(ToolType.Move);
-            BitmapManager.PrimaryColor = PrimaryColor;
-            Current = this;
-        }
 
         public Action CloseAction { get; set; }
 
@@ -224,7 +140,7 @@ namespace PixiEditor.ViewModels
 
         public ObservableCollection<Tool> ToolSet { get; set; }
 
-        public LayerChange[] UndoChanges
+        public LayerChange[] UndoChanges //This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
         {
             get => _undoChanges;
             set
@@ -258,6 +174,90 @@ namespace PixiEditor.ViewModels
                 _selection = value;
                 RaisePropertyChanged("ActiveSelection");
             }
+        }
+
+        public ViewModelMain()
+        {
+            BitmapManager = new BitmapManager();
+            BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
+            BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+            ChangesController = new PixelChangesController();
+            SelectToolCommand = new RelayCommand(SetTool, DocumentIsNotNull);
+            OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
+            MouseMoveCommand = new RelayCommand(MouseMove);
+            MouseDownCommand = new RelayCommand(MouseDown);
+            SaveFileCommand = new RelayCommand(SaveFile, CanSave);
+            UndoCommand = new RelayCommand(Undo, CanUndo);
+            RedoCommand = new RelayCommand(Redo, CanRedo);
+            MouseUpCommand = new RelayCommand(MouseUp);
+            OpenFileCommand = new RelayCommand(Open);
+            SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
+            NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
+            DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
+            MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
+            MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
+            SwapColorsCommand = new RelayCommand(SwapColors);
+            KeyDownCommand = new RelayCommand(KeyDown);
+            RenameLayerCommand = new RelayCommand(RenameLayer);
+            DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
+            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
+            CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
+            DuplicateCommand = new RelayCommand(Duplicate, SelectionIsNotEmpty);
+            CutCommand = new RelayCommand(Cut, SelectionIsNotEmpty);
+            PasteCommand = new RelayCommand(Paste, CanPaste);
+            ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
+            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
+            OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
+            SelectColorCommand = new RelayCommand(SelectColor);
+            RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
+            SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
+            OnStartupCommand = new RelayCommand(OnStartup);
+            CloseWindowCommand = new RelayCommand(CloseWindow);
+            CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
+            ToolSet = new ObservableCollection<Tool>
+            {
+                new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
+                new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()
+            };
+            ShortcutController = new ShortcutController
+            {
+                Shortcuts = new List<Shortcut>
+                {
+                    new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
+                    new Shortcut(Key.X, SwapColorsCommand),
+                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
+                    new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
+                    new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
+                    new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
+                    new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
+                    new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
+                    new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
+                    new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
+                    new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
+                    new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Z, UndoCommand),
+                    new Shortcut(Key.S, SaveFileCommand,
+                        modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
+                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Delete, DeletePixelsCommand),
+                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift)
+                }
+            };
+            UndoManager.SetMainRoot(this);
+            SetActiveTool(ToolType.Move);
+            BitmapManager.PrimaryColor = PrimaryColor;
+            Current = this;
         }
 
         private void CenterContent(object property)
@@ -633,7 +633,7 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private void NewDocument(int width, int height, bool addBaseLayer = true)
+        public void NewDocument(int width, int height, bool addBaseLayer = true)
         {
             BitmapManager.ActiveDocument = new Document(width, height);
             if(addBaseLayer)
