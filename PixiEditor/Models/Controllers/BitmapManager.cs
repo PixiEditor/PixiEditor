@@ -135,17 +135,22 @@ namespace PixiEditor.Models.Controllers
             if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport()
                                                              && MouseController.ClickedOnCanvas && ActiveDocument != null)
             {
-                if (IsOperationTool(SelectedTool))
-                    BitmapOperations.ExecuteTool(e.NewPosition,
-                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool) SelectedTool);
-                else
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
-                        (ReadonlyTool) SelectedTool);
+                ExecuteTool(e.NewPosition);   
             }
             else if (Mouse.LeftButton == MouseButtonState.Released)
             {
                 HighlightPixels(e.NewPosition);
             }
+        }
+
+        public void ExecuteTool(Coordinates newPosition)
+        {
+            if (IsOperationTool(SelectedTool))
+                BitmapOperations.ExecuteTool(newPosition,
+                    MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+            else
+                ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
+                    (ReadonlyTool)SelectedTool);
         }
 
         private bool IsDraggingViewport()

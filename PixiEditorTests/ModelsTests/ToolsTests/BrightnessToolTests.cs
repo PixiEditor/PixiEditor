@@ -11,20 +11,9 @@ using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ToolsTests
 {
+    [Collection("Application collection")]
     public class BrightnessToolTests
     {
-
-        public BrightnessToolTests()
-        {
-            if (Application.Current == null)
-            {
-                var app = new App();
-
-                app.InitializeComponent();
-            }
-
-        }
-
         [StaTheory]
         [InlineData(5, 12, 12, 12)]
         [InlineData(-5, 242, 242, 242)]

@@ -257,6 +257,7 @@ namespace PixiEditor.ViewModels
             UndoManager.SetMainRoot(this);
             SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
+            ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
         }
 
@@ -343,7 +344,7 @@ namespace PixiEditor.ViewModels
         {
             bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
             if (paramIsAsNew || Exporter.SaveDocumentPath == null)
-                Exporter.SaveAsNewEditableFile(BitmapManager.ActiveDocument, !paramIsAsNew);
+                Exporter.SaveAsEditableFileWithDialog(BitmapManager.ActiveDocument, !paramIsAsNew);
             else
                 Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
             _unsavedDocumentModified = false;
@@ -433,7 +434,7 @@ namespace PixiEditor.ViewModels
         public void SelectAll(object parameter)
         {
             SelectTool select = new SelectTool();
-            select.Use(select.GetAllSelection());
+            ActiveSelection.SetSelection(select.GetAllSelection(), SelectionType.New);
         }
 
         private bool CanSelectAll(object property)
@@ -441,7 +442,7 @@ namespace PixiEditor.ViewModels
             return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 0;
         }
 
-        private bool DocumentIsNotNull(object property)
+        public bool DocumentIsNotNull(object property)
         {
             return BitmapManager.ActiveDocument != null;
         }
@@ -453,8 +454,7 @@ namespace PixiEditor.ViewModels
 
         private bool SelectionIsNotEmpty(object property)
         {
-            return ActiveSelection != null && ActiveSelection.SelectedPoints != null &&
-                   ActiveSelection.SelectedPoints.Count > 0;
+            return ActiveSelection?.SelectedPoints != null && ActiveSelection.SelectedPoints.Count > 0;
         }
 
         public void SetTool(object parameter)

@@ -16,9 +16,9 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty ChosenWidthProperty =
             DependencyProperty.Register("ChosenWidth", typeof(int), typeof(SizePicker), new PropertyMetadata(1));
 
-        // Using a DependencyProperty as the backing store for ChoosenHeight.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ChoosenHeightProperty =
-            DependencyProperty.Register("ChoosenHeight", typeof(int), typeof(SizePicker), new PropertyMetadata(1));
+        // Using a DependencyProperty as the backing store for ChosenHeight.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ChosenHeightProperty =
+            DependencyProperty.Register("ChosenHeight", typeof(int), typeof(SizePicker), new PropertyMetadata(1));
 
         public SizePicker()
         {
@@ -40,10 +40,10 @@ namespace PixiEditor.Views
         }
 
 
-        public int ChoosenHeight
+        public int ChosenHeight
         {
-            get => (int) GetValue(ChoosenHeightProperty);
-            set => SetValue(ChoosenHeightProperty, value);
+            get => (int) GetValue(ChosenHeightProperty);
+            set => SetValue(ChosenHeightProperty, value);
         }
     }
 }

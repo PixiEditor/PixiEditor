@@ -57,7 +57,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public Coordinates[] CreateRectangle(Coordinates start, Coordinates end, int thickness)
         {
-            return CreateRectangle(new[] {start, end}, thickness);
+            return CreateRectangle(new[] {end, start}, thickness);
         }
 
         private Coordinates[] CalculateRectanglePoints(DoubleCords coordinates)

@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.IO
@@ -19,6 +23,25 @@ namespace PixiEditorTests.ModelsTests.IO
             Assert.True(File.Exists(FilePath));
 
             File.Delete(FilePath);
+        }
+
+        [Fact]
+        public void TestThatSaveAsEditableFileSavesPixiFile()
+        {
+            Document document = new Document(2,2);
+
+            string filePath = "testFile.pixi";
+
+            document.Layers.Add(new Layer("layer1"));
+            document.Layers[0].SetPixel(new Coordinates(1,1), Colors.White);
+
+            document.Swatches.Add(Colors.White);
+
+            Exporter.SaveAsEditableFile(document, filePath);
+
+            Assert.True(File.Exists(filePath));
+
+            File.Delete(filePath);
         }
     }
 }

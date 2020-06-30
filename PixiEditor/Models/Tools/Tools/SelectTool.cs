@@ -48,7 +48,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void Select(Coordinates[] pixels)
         {
             Coordinates[] selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            ViewModelMain.Current.ActiveSelection.SetSelection(selection.ToArray(), SelectionType);
+            ViewModelMain.Current.ActiveSelection.SetSelection(selection, SelectionType);
         }
 
         public Coordinates[] GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
@@ -65,17 +65,17 @@ namespace PixiEditor.Models.Tools.Tools
         /// <returns>Coordinates array of pixels</returns>
         public Coordinates[] GetAllSelection()
         {
-            return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument.Layers[0]);
+            return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument);
         }
 
         /// <summary>
-        ///     Gets coordinates of every pixel in choosen layer
+        ///     Gets coordinates of every pixel in chosen document
         /// </summary>
-        /// <param name="layer"></param>
+        /// <param name="document"></param>
         /// <returns>Coordinates array of pixels</returns>
-        public Coordinates[] GetAllSelection(Layer layer)
+        public Coordinates[] GetAllSelection(Document document)
         {
-            return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(layer.Width, layer.Height));
+            return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
         }
     }
 }

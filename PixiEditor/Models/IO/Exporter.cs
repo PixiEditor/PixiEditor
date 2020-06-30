@@ -18,7 +18,7 @@ namespace PixiEditor.Models.IO
         /// </summary>
         /// <param name="document">Document to save</param>
         /// <param name="updateWorkspacePath">Should editor remember dialog path for further saves</param>
-        public static void SaveAsNewEditableFile(Document document, bool updateWorkspacePath = false)
+        public static void SaveAsEditableFileWithDialog(Document document, bool updateWorkspacePath = false)
         {
             SaveFileDialog dialog = new SaveFileDialog
             {

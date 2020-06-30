@@ -76,6 +76,27 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.True(BitmapManager.IsOperationTool(singlePixelPen));
         }
 
+        [StaFact]
+        public void TestThatBitmapChangesExecuteToolExecutesPenTool()
+        {
+            BitmapManager bitmapManager = new BitmapManager
+            {
+                ActiveDocument = new Document(5, 5)
+            };
+
+            bitmapManager.AddNewLayer("Layer");
+            bitmapManager.SetActiveTool(new MockedSinglePixelPen());
+            bitmapManager.PrimaryColor = Colors.Green;
+
+            bitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
+            bitmapManager.MouseController.RecordMouseMovementChange(new Coordinates(1, 1));
+            bitmapManager.MouseController.StopRecordingMouseMovementChanges();
+
+            bitmapManager.ExecuteTool(new Coordinates(1, 1));
+
+            Assert.Equal(Colors.Green, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
+        }
+
     }
 
     public class MockedSinglePixelPen : BitmapOperationTool
@@ -83,7 +104,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
             return Only(
-                BitmapPixelChanges.FromSingleColoredArray(new[] {new Coordinates(0, 0)}, Colors.Black),0);
+                BitmapPixelChanges.FromSingleColoredArray(new[] {mouseMove[0]}, color),0);
         }
 
         public override ToolType ToolType { get; } = ToolType.Pen;

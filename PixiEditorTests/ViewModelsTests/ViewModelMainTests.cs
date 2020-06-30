@@ -1,28 +1,23 @@
-﻿using System.Windows;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels;
 using Xunit;
 
 namespace PixiEditorTests.ViewModelsTests
 {
+    [Collection("Application collection")]
     public class ViewModelMainTests
     {
-
-        public ViewModelMainTests()
-        {
-            if (Application.Current == null)
-            {
-                var app = new App();
-                app.InitializeComponent();
-            }
-        }
-
         [StaFact]
         public void TestThatConstructorSetsUpControllersCorrectly()
         {
@@ -116,5 +111,66 @@ namespace PixiEditorTests.ViewModelsTests
             Assert.Single(viewModel.BitmapManager.ActiveDocument.Layers);
         }
 
+        [StaFact]
+        public void TestThatSaveDocumentCommandSavesFile()
+        {
+            ViewModelMain viewModel = new ViewModelMain();
+            string fileName = "testFile.pixi";
+
+            viewModel.BitmapManager.ActiveDocument = new Document(1,1);
+
+            Exporter.SaveDocumentPath = fileName;
+
+            viewModel.SaveDocumentCommand.Execute(null);
+
+            Assert.True(File.Exists(fileName));
+
+            File.Delete(fileName);
+        }
+
+        [StaFact]
+        public void TestThatAddSwatchAddsNonDuplicateSwatch()
+        {
+            ViewModelMain viewModel = new ViewModelMain();
+            viewModel.BitmapManager.ActiveDocument = new Document(1,1);
+
+            viewModel.AddSwatch(Colors.Green);
+            viewModel.AddSwatch(Colors.Green);
+
+            Assert.Single(viewModel.BitmapManager.ActiveDocument.Swatches);
+            Assert.Equal(Colors.Green,viewModel.BitmapManager.ActiveDocument.Swatches[0]);
+        }
+
+        [StaTheory]
+        [InlineData(5,7)]
+        [InlineData(1,1)]
+        [InlineData(1,2)]
+        [InlineData(2,1)]
+        [InlineData(16,16)]
+        [InlineData(50,28)]
+        [InlineData(120,150)]
+        public void TestThatSelectAllCommandSelectsWholeDocument(int docWidth, int docHeight)
+        {
+            ViewModelMain viewModel = new ViewModelMain
+            {
+                BitmapManager = {ActiveDocument = new Document(docWidth, docHeight)}
+            };
+            viewModel.BitmapManager.AddNewLayer("layer");
+            
+            viewModel.SelectAllCommand.Execute(null);
+
+            Assert.Equal(viewModel.BitmapManager.ActiveDocument.Width * viewModel.BitmapManager.ActiveDocument.Height,
+                viewModel.ActiveSelection.SelectedPoints.Count);
+        }
+
+        [StaFact]
+        public void TestThatDocumentIsNotNullReturnsTrue()
+        {
+            ViewModelMain viewModel = new ViewModelMain();
+
+            viewModel.BitmapManager.ActiveDocument = new Document(1,1);
+
+            Assert.True(viewModel.DocumentIsNotNull(null));
+        }
     }
 }
