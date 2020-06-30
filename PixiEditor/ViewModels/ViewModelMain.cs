@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -49,7 +50,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
         public RelayCommand MouseDownCommand { get; set; }
         public RelayCommand KeyDownCommand { get; set; }
-        public RelayCommand SaveFileCommand { get; set; } //Command that is used to save file
+        public RelayCommand ExportFileCommand { get; set; } //Command that is used to save file
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RedoCommand { get; set; }
         public RelayCommand MouseUpCommand { get; set; }
@@ -76,6 +77,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand OnStartupCommand { get; set; }
         public RelayCommand CloseWindowCommand { get; set; }
         public RelayCommand CenterContentCommand { get; set; }
+        public RelayCommand OpenHyperlinkCommand { get; set; }
 
         private double _mouseXonCanvas;
 
@@ -187,7 +189,7 @@ namespace PixiEditor.ViewModels
             OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
             MouseMoveCommand = new RelayCommand(MouseMove);
             MouseDownCommand = new RelayCommand(MouseDown);
-            SaveFileCommand = new RelayCommand(SaveFile, CanSave);
+            ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
             MouseUpCommand = new RelayCommand(MouseUp);
@@ -215,6 +217,7 @@ namespace PixiEditor.ViewModels
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
             CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
+            OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
@@ -224,9 +227,8 @@ namespace PixiEditor.ViewModels
             {
                 Shortcuts = new List<Shortcut>
                 {
+                    //Tools
                     new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.X, SwapColorsCommand),
-                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
                     new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
                     new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
@@ -236,13 +238,10 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
                     new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
                     new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
+                    //Editor
+                    new Shortcut(Key.X, SwapColorsCommand),
                     new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand),
-                    new Shortcut(Key.S, SaveFileCommand,
-                        modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
-                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
@@ -251,7 +250,14 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Delete, DeletePixelsCommand),
                     new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift)
+                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
+                    //File
+                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, ExportFileCommand,
+                        modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
+                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -259,6 +265,18 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = PrimaryColor;
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
+        }
+
+        private void OpenHyperlink(object parameter)
+        {
+            if (parameter == null) return;
+            string url = (string) parameter;
+            var processInfo = new ProcessStartInfo()
+            {
+                FileName = url,
+                UseShellExecute = true
+            };
+            Process.Start(processInfo);
         }
 
         private void CenterContent(object property)
@@ -714,7 +732,7 @@ namespace PixiEditor.ViewModels
         ///     Generates export dialog or saves directly if save data is known.
         /// </summary>
         /// <param name="parameter"></param>
-        private void SaveFile(object parameter)
+        private void ExportFile(object parameter)
         {
             WriteableBitmap bitmap = BitmapManager.GetCombinedLayersBitmap();
             Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));

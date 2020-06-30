@@ -155,7 +155,7 @@ namespace PixiEditor.Models.Controllers
 
         private bool IsDraggingViewport()
         {
-            return Keyboard.IsKeyDown(Key.LeftShift);
+            return Keyboard.IsKeyDown(Key.LeftShift) && !(SelectedTool is ShapeTool);
         }
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
