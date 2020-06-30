@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools
 {

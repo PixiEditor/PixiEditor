@@ -1,15 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
+﻿using System.IO;
 using System.Windows.Media;
-using PixiEditor;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels;
 using Xunit;
 
