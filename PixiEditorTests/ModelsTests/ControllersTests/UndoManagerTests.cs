@@ -7,13 +7,14 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class UndoManagerTests
     {
-
         public int ExampleProperty { get; set; } = 1;
         public TestPropertyClass TestPropClass { get; set; } = new TestPropertyClass();
 
         [Fact]
         public void TestSetRoot()
         {
+            PrepareUnoManagerForTest();
+            UndoManager.SetMainRoot(null);
             UndoManager.SetMainRoot(this);
             Assert.Equal(this, UndoManager.MainRoot);
         }

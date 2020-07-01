@@ -10,20 +10,9 @@ using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ToolsTests
 {
+    [Collection("Application collection")]
     public class RectangleToolTests
     {
-        private bool _createdApp = false;
-
-        [ExcludeFromCodeCoverage]
-        public RectangleToolTests()
-        {
-            if (Application.Current == null && _createdApp == false)
-            {
-                var app = new App();
-                app.InitializeComponent();
-            }
-        }
-
         [StaTheory]
         [InlineData(0,0, 2,2)]
         [InlineData(0,0, 9, 9)]
