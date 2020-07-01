@@ -24,7 +24,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public BrightnessTool()
         {
-            Tooltip = "Makes pixel brighter or darker pixel (U)";
+            Tooltip = "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 

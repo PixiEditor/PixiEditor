@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public LineTool()
         {
-            Tooltip = "Draws line on canvas (L)";
+            Tooltip = "Draws line on canvas (L). Hold Shift to draw even line.";
             Toolbar = new BasicToolbar();
         }
 

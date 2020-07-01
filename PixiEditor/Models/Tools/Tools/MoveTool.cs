@@ -33,7 +33,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public MoveTool()
         {
-            Tooltip = "Moves selected pixels. (V)";
+            Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers";
             Cursor = Cursors.Arrow;
             HideHighlight = true;
             RequiresPreviewLayer = true;

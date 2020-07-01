@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public CircleTool()
         {
-            Tooltip = "Draws circle on cavnas (C)";
+            Tooltip = "Draws circle on canvas (C). Hold Shift to draw even circle.";
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
