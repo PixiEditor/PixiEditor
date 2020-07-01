@@ -16,7 +16,12 @@ namespace PixiEditor.Models.IO
         /// <returns></returns>
         public static WriteableBitmap ImportImage(string path, int width, int height)
         {
-            var wbmp = ImportImage(path).Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            var wbmp = ImportImage(path);
+            if (wbmp.PixelWidth != width || wbmp.PixelHeight != height)
+            {
+                return wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            }
+
             return wbmp;
         }
 
@@ -32,7 +37,7 @@ namespace PixiEditor.Models.IO
             bitmap.UriSource = uri;
             bitmap.EndInit();
 
-            return new WriteableBitmap(bitmap);
+            return BitmapFactory.ConvertToPbgra32Format(bitmap);
         }
 
         public static Document ImportDocument(string path)
