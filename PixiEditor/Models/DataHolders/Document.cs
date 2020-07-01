@@ -173,6 +173,8 @@ namespace PixiEditor.Models.DataHolders
             for (int i = 0; i < Layers.Count; i++)
             {
                 Layers[i].Offset = offset[i];
+                Layers[i].MaxWidth = newWidth;
+                Layers[i].MaxHeight = newHeight;
             }
 
             Width = newWidth;
