@@ -1,8 +1,9 @@
-[![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/3)](https://dev.azure.com/flabbet/PixiEditor/_build/latest?definitionId=3&branchName=master) 
-[![Code coverage](https://img.shields.io/azure-devops/coverage/flabbet/PixiEditor/3)](https://codecov.io/gh/flabbet/PixiEditor)
+[![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/6/master)](https://dev.azure.com/flabbet/PixiEditor/_build?definitionId=6) 
+[![Code coverage](https://img.shields.io/azure-devops/coverage/flabbet/PixiEditor/6/master)](https://codecov.io/gh/flabbet/PixiEditor)
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
 [![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq) 
 [![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
+
 
 # PixiEditor
 
