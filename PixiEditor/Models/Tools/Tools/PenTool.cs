@@ -33,8 +33,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             LineTool line = new LineTool();
             return BitmapPixelChanges.FromSingleColoredArray(
-                line.CreateLine(new[] { startingCoords, latestCords }, toolSize, 
-                    CapType.Square, CapType.Square), color);
+                line.CreateLine(startingCoords, latestCords, toolSize), color);
         }
     }
 }

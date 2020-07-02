@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools
 {
@@ -22,7 +23,9 @@ namespace PixiEditor.Models.Tools
         }
 
         public Cursor Cursor { get; set; } = Cursors.Arrow;
+
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
+
         private bool _isActive;
 
         public virtual void OnMouseDown()

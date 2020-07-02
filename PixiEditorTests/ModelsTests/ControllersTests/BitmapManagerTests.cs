@@ -10,6 +10,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.Tools.ToolSettings;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
@@ -21,7 +22,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatBitmapManagerSetsCorrectTool()
         {
              BitmapManager bitmapManager = new BitmapManager();
-             bitmapManager.SetActiveTool(new MockedPen());
+             bitmapManager.SetActiveTool(new MockedSinglePixelPen());
              Assert.Equal(ToolType.Pen, bitmapManager.SelectedTool.ToolType);
         }
 
@@ -71,21 +72,39 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatIsOperationToolWorks()
         {
-            MockedPen pen = new MockedPen();
-            Assert.True(BitmapManager.IsOperationTool(pen));
+            MockedSinglePixelPen singlePixelPen = new MockedSinglePixelPen();
+            Assert.True(BitmapManager.IsOperationTool(singlePixelPen));
+        }
+
+        [StaFact]
+        public void TestThatBitmapChangesExecuteToolExecutesPenTool()
+        {
+            BitmapManager bitmapManager = new BitmapManager
+            {
+                ActiveDocument = new Document(5, 5)
+            };
+
+            bitmapManager.AddNewLayer("Layer");
+            bitmapManager.SetActiveTool(new MockedSinglePixelPen());
+            bitmapManager.PrimaryColor = Colors.Green;
+
+            bitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
+            bitmapManager.MouseController.RecordMouseMovementChange(new Coordinates(1, 1));
+            bitmapManager.MouseController.StopRecordingMouseMovementChanges();
+
+            bitmapManager.ExecuteTool(new Coordinates(1, 1));
+
+            Assert.Equal(Colors.Green, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
         }
 
     }
 
-    public class MockedPen : BitmapOperationTool
+    public class MockedSinglePixelPen : BitmapOperationTool
     {
         public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
-            PenTool pen = new PenTool()
-            {
-                Toolbar = null
-            };
-           return pen.Use(layer, mouseMove, color);
+            return Only(
+                BitmapPixelChanges.FromSingleColoredArray(new[] {mouseMove[0]}, color),0);
         }
 
         public override ToolType ToolType { get; } = ToolType.Pen;

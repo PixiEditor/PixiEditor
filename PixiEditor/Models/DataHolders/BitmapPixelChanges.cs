@@ -6,7 +6,7 @@ using PixiEditor.Exceptions;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Position;
 
-namespace PixiEditor.Models.Tools
+namespace PixiEditor.Models.DataHolders
 {
     public struct BitmapPixelChanges
     {

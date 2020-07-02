@@ -8,7 +8,7 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.Images;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
@@ -33,7 +33,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public MoveTool()
         {
-            Tooltip = "Moves selected pixels. (V)";
+            Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers";
             Cursor = Cursors.Arrow;
             HideHighlight = true;
             RequiresPreviewLayer = true;
@@ -64,7 +64,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnMouseUp() //This adds undo if there is no selection, reason why this isn't in AfterUndoAdded,
         {   //is because it doesn't fire if no pixel changes were made.
-            if (_currentSelection.Length == 0)
+            if (_currentSelection != null && _currentSelection.Length == 0)
             {
                 UndoManager.AddUndoChange(new Change(ApplyOffsets, new object[]{_startingOffsets}, 
                     ApplyOffsets, new object[] { GetOffsets(_affectedLayers)}, "Move layers"));
@@ -183,7 +183,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (!_clearedPixels.ContainsKey(layer) || _clearedPixels[layer] == false)
             {
                 ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.First(x => x == layer)
-                    .ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
+                    .SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
 
                 _clearedPixels[layer] = true;
             }

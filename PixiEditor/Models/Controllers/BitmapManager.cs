@@ -8,7 +8,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Images;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
@@ -73,7 +73,7 @@ namespace PixiEditor.Models.Controllers
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapOperations = new BitmapOperationsUtility(this);
-            ReadonlyToolUtility = new ReadonlyToolUtility(this);
+            ReadonlyToolUtility = new ReadonlyToolUtility();
         }
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
@@ -135,12 +135,7 @@ namespace PixiEditor.Models.Controllers
             if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport()
                                                              && MouseController.ClickedOnCanvas && ActiveDocument != null)
             {
-                if (IsOperationTool(SelectedTool))
-                    BitmapOperations.ExecuteTool(e.NewPosition,
-                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool) SelectedTool);
-                else
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
-                        (ReadonlyTool) SelectedTool);
+                ExecuteTool(e.NewPosition);   
             }
             else if (Mouse.LeftButton == MouseButtonState.Released)
             {
@@ -148,9 +143,19 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public void ExecuteTool(Coordinates newPosition)
+        {
+            if (IsOperationTool(SelectedTool))
+                BitmapOperations.ExecuteTool(newPosition,
+                    MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+            else
+                ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
+                    (ReadonlyTool)SelectedTool);
+        }
+
         private bool IsDraggingViewport()
         {
-            return Keyboard.IsKeyDown(Key.LeftShift);
+            return Keyboard.IsKeyDown(Key.LeftShift) && !(SelectedTool is ShapeTool);
         }
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
@@ -192,7 +197,7 @@ namespace PixiEditor.Models.Controllers
             else
             {
                 GeneratePreviewLayer();
-                PreviewLayer.ApplyPixels(
+                PreviewLayer.SetPixels(
                     BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
             }
         }
@@ -212,7 +217,7 @@ namespace PixiEditor.Models.Controllers
 
         public WriteableBitmap GetCombinedLayersBitmap()
         {
-            return BitmapUtils.CombineLayers(ActiveDocument.Layers.ToArray());
+            return BitmapUtils.CombineLayers(ActiveDocument.Layers.ToArray(), ActiveDocument.Width, ActiveDocument.Height);
         }
 
         /// <summary>

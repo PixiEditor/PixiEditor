@@ -16,7 +16,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public RectangleTool()
         {
-            Tooltip = "Draws rectanlge on cavnas (R)";
+            Tooltip = "Draws rectangle on canvas (R). Hold Shift to draw square.";
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
@@ -57,7 +57,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public Coordinates[] CreateRectangle(Coordinates start, Coordinates end, int thickness)
         {
-            return CreateRectangle(new[] {start, end}, thickness);
+            return CreateRectangle(new[] {end, start}, thickness);
         }
 
         private Coordinates[] CalculateRectanglePoints(DoubleCords coordinates)

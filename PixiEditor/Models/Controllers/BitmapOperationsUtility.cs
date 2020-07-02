@@ -5,7 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Images;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
@@ -37,12 +37,18 @@ namespace PixiEditor.Models.Controllers
                 old[i] = new LayerChange(
                     BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i]]), i);
                 newChange[i] = new LayerChange(changes, i);
-                layers[i].ApplyPixels(changes);
+                layers[i].SetPixels(changes);
             }
 
             UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
         }
 
+        /// <summary>
+        ///     Executes tool Use() method with given parameters. NOTE: mouseMove is reversed inside function!
+        /// </summary>
+        /// <param name="newPos">Most recent coordinates</param>
+        /// <param name="mouseMove">Last mouse movement coordinates</param>
+        /// <param name="tool">Tool to execute</param>
         public void ExecuteTool(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
         {
             if (Manager.ActiveDocument != null && tool != null && tool.ToolType != ToolType.None)
@@ -55,6 +61,9 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        /// <summary>
+        ///     Applies pixels from preview layer to selected layer
+        /// </summary>
         public void StopAction()
         {
             if (_lastModifiedLayers == null) return;
@@ -66,7 +75,7 @@ namespace PixiEditor.Models.Controllers
 
                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(_lastModifiedLayers[i].PixelChanges,
                     oldValues, _lastModifiedLayers[i].LayerIndex));
-                Manager.PreviewLayer.Clear();
+               Manager.PreviewLayer = null;
             }
         }
 
@@ -102,7 +111,7 @@ namespace PixiEditor.Models.Controllers
                 GetOldPixelsValues(change.PixelChanges.ChangedPixels.Keys.ToArray()),
                 change.LayerIndex);
 
-            layer.ApplyPixels(change.PixelChanges, false);
+            layer.SetPixels(change.PixelChanges, false);
             return oldPixelsValues;
         }
 
@@ -151,7 +160,7 @@ namespace PixiEditor.Models.Controllers
                 modifiedLayers = ((BitmapOperationTool) Manager.SelectedTool).Use(Manager.ActiveDocument.ActiveLayer,
                     mouseMove.ToArray(), Manager.PrimaryColor);
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
-                Manager.PreviewLayer.ApplyPixels(BitmapPixelChanges.CombineOverride(changes));
+                Manager.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
                 _lastModifiedLayers = modifiedLayers;
             }
         }

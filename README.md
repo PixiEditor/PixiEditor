@@ -1,40 +1,75 @@
-[![Build Status](https://dev.azure.com/flabbet/PixiEditor/_apis/build/status/flabbet.PixiEditor?branchName=master)](https://dev.azure.com/flabbet/PixiEditor/_build/latest?definitionId=3&branchName=master)
+[![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/3)](https://dev.azure.com/flabbet/PixiEditor/_build/latest?definitionId=3&branchName=master) 
+[![Code coverage](https://img.shields.io/azure-devops/coverage/flabbet/PixiEditor/3)](https://codecov.io/gh/flabbet/PixiEditor)
+[![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
+[![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq) 
+[![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
 
 # PixiEditor
-PixiEditor is lightweighted pixel art creator.
 
-![screenshot](https://raw.githubusercontent.com/flabbet/PixiEditor/master/Screenshot.png)
+A Pixel art editing software. Create beautiful sprites for your games, animations (coming soon!) and edit images. All packed in eye-friendly dark theme.
 
-## Getting started with PixiEditor
+## About PixiEditor
+
+Want to create beautiful pixel arts for your games? PixiEditor can help you! Our goal is to create fully open-source, fast and feature rich pixel art creator. 
+
+### Familiar interface
+
+Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted experienced users to get familiar with the tool quickly and without a ease new users
+
+![](https://github.com/flabbet/PixiEditor/blob/master/Screenshot.png)
+
+
+
+### Light weighted
+
+I takes only 157 MB to install PixiEditor.
+
+### Active development
+
+PixiEditor started in 2018 and it's been actively developed since. We continuously improve code quality to ensure the best experience and performance.
+
+
+
+## Installation
 
 Follow these instructions to get PixiEditor working on your machine.
 
-### Software Requirements
-
-```
-.NET Core 3.0
-```
-
-### Installing
-
-1. Download .zip file from [here](https://github.com/flabbet/PixiEditor/releases)
-
-2. Open installer 
-
+1. Download .exe file from [here](https://github.com/flabbet/PixiEditor/releases)
+2. Open installer
 3. Follow installer instructions
 
-## Built with
 
-* [Extended WPF Toolkit](https://github.com/xceedsoftware/wpftoolkit) - More controls and themes for WPF
-* [WriteableBitmapEx](https://github.com/teichgraf/WriteableBitmapEx/) - Collection of extension methods for the XAML WriteableBitmap
+
+## Support
+
+Struggling with something? You can find support in a few places:
+
+* Check out [documentation](https://github.com/flabbet/PixiEditor/wiki)
+
+* Ask on [Discord](https://discord.gg/XKbUBhj)
+* Open new [Issue](https://github.com/flabbet/PixiEditor/issues)
+
+
+
+## Building from source
+
+### Software Requirements
+
+* .NET Core 3.1
+
+* Visual Studio
+
+### Instructions
+
+1. Clone Repository
+
+2. Open PixiEditor/PixiEditor/PixiEditor.sln in Visual Studio
+
+3. Build solution
 
 ## Contributing 
 
 Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Authors
-* **Krzysztof Krysiński** *Creator of the project* - [flabbet](https://github.com/flabbet)
-* [Contributors](https://github.com/flabbet/PixiEditor/graphs/contributors)
 
 ## License
 

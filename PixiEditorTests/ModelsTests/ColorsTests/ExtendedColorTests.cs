@@ -1,9 +1,9 @@
-﻿using PixiEditor.Models.Colors;
-using System;
+﻿using System;
 using System.Windows.Media;
+using PixiEditor.Models.Colors;
 using Xunit;
 
-namespace PixiEditorTests.WorkspaceTests.ColorsTests
+namespace PixiEditorTests.ModelsTests.ColorsTests
 {
     public class ExtendedColorTests
     {

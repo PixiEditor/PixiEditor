@@ -3,24 +3,26 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Images;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Controllers
 {
-    public class ClipboardController
+    public static class ClipboardController
     {
         /// <summary>
         ///     Copies selection to clipboard in PNG, Bitmap and DIB formats.
         /// </summary>
         /// <param name="layers">Layers where selection is</param>
         /// <param name="selection"></param>
-        public void CopyToClipboard(Layer[] layers, Coordinates[] selection)
+        /// <param name="originalImageWidth">Output </param>
+        /// <param name="originalImageHeight"></param>
+        public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight)
         {
             Clipboard.Clear();
-            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(layers);
+            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(layers, originalImageWidth, originalImageHeight);
             using (var pngStream = new MemoryStream())
             {
                 DataObject data = new DataObject();
@@ -37,9 +39,22 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        public void PasteFromClipboard()
+        /// <summary>
+        ///     Pastes image from clipboard into new layer.
+        /// </summary>
+        public static void PasteFromClipboard()
         {
-            DataObject dao = (DataObject) Clipboard.GetDataObject();
+            WriteableBitmap image = GetImageFromClipboard();
+            if (image != null) AddImageToLayers(image);
+        }
+
+        /// <summary>
+        ///     Gets image from clipboard, supported PNG, Dib and Bitmap
+        /// </summary>
+        /// <returns>WriteableBitmap</returns>
+        public static WriteableBitmap GetImageFromClipboard()
+        {
+            DataObject dao = (DataObject)Clipboard.GetDataObject();
             WriteableBitmap finalImage = null;
             if (dao.GetDataPresent("PNG"))
                 using (MemoryStream pngStream = dao.GetData("PNG") as MemoryStream)
@@ -56,22 +71,23 @@ namespace PixiEditor.Models.Controllers
             else if (dao.GetDataPresent(DataFormats.Bitmap))
                 finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource)!);
 
-            if (finalImage != null) AddImageToLayers(finalImage);
+            return finalImage;
         }
 
-        public bool IsImageInClipboard()
+        public static bool IsImageInClipboard()
         {
             DataObject dao = (DataObject) Clipboard.GetDataObject();
+            if (dao == null) return false;
             return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) ||
                    dao.GetDataPresent(DataFormats.Bitmap);
         }
 
-        private void AddImageToLayers(WriteableBitmap image)
+        private static void AddImageToLayers(WriteableBitmap image)
         {
             ViewModelMain.Current.BitmapManager.AddNewLayer("Image", image);
         }
 
-        public BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection)
+        public static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection)
         {
             int offsetX = selection.Min(x => x.X);
             int offsetY = selection.Min(x => x.Y);

@@ -173,6 +173,8 @@ namespace PixiEditor.Models.DataHolders
             for (int i = 0; i < Layers.Count; i++)
             {
                 Layers[i].Offset = offset[i];
+                Layers[i].MaxWidth = newWidth;
+                Layers[i].MaxHeight = newHeight;
             }
 
             Width = newWidth;
@@ -276,7 +278,7 @@ namespace PixiEditor.Models.DataHolders
 
             var contentCenter = CoordinatesCalculator.GetCenterPoint(points.Coords1, points.Coords2);
             var documentCenter = CoordinatesCalculator.GetCenterPoint(new Coordinates(0, 0),
-                new Coordinates(Width - 1, Height - 1));
+                new Coordinates(Width, Height));
             Coordinates moveVector = new Coordinates(documentCenter.X - contentCenter.X, documentCenter.Y - contentCenter.Y);
 
             MoveOffsets(moveVector);

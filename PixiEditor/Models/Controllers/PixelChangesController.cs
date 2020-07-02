@@ -13,6 +13,11 @@ namespace PixiEditor.Models.Controllers
         private Dictionary<int, LayerChange> LastChanges { get; set; }
         private Dictionary<int, LayerChange> LastOldValues { get; set; }
 
+        /// <summary>
+        ///     Adds layer changes to controller
+        /// </summary>
+        /// <param name="changes">New changes</param>
+        /// <param name="oldValues">Old values of changes</param>
         public void AddChanges(LayerChange changes, LayerChange oldValues)
         {
             if (changes.PixelChanges.ChangedPixels.Count > 0)
@@ -54,6 +59,10 @@ namespace PixiEditor.Models.Controllers
                     LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
         }
 
+        /// <summary>
+        ///     Returns all changes and deletes them from controller.
+        /// </summary>
+        /// <returns>Tuple array with new changes and old values</returns>
         public Tuple<LayerChange, LayerChange>[] PopChanges()
         {
             //Maybe replace Tuple with custom data type

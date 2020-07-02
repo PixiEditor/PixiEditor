@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 
@@ -110,8 +111,7 @@ namespace PixiEditor.Models.Layers
         public Layer(string name)
         {
             Name = name;
-            Layer layer = LayerGenerator.Generate(0, 0);
-            LayerBitmap = layer.LayerBitmap;
+            LayerBitmap = BitmapFactory.New(0, 0);
             Width = 0;
             Height = 0;
         }
@@ -119,18 +119,18 @@ namespace PixiEditor.Models.Layers
         public Layer(string name, int width, int height)
         {
             Name = name;
-            Layer layer = LayerGenerator.Generate(width, height);
-            LayerBitmap = layer.LayerBitmap;
+            LayerBitmap = BitmapFactory.New(width, height);
             Width = width;
             Height = height;
         }
 
 
-        public Layer(WriteableBitmap layerBitmap)
+        public Layer(string name, WriteableBitmap layerBitmap)
         {
+            Name = name;
             LayerBitmap = layerBitmap;
-            Width = (int) layerBitmap.Width;
-            Height = (int) layerBitmap.Height;
+            Width = layerBitmap.PixelWidth;
+            Height = layerBitmap.PixelHeight;
         }
 
         /// <summary>
@@ -139,17 +139,25 @@ namespace PixiEditor.Models.Layers
         /// <returns></returns>
         public Layer Clone()
         {
-            return new Layer(LayerBitmap.Clone())
+            return new Layer(Name, LayerBitmap.Clone())
             {
-                _isVisible = this._isVisible,
-                Name = this.Name,
+                IsVisible = this.IsVisible,
                 Offset = this.Offset,
                 MaxHeight = this.MaxHeight,
                 MaxWidth = this.MaxWidth,
-                Opacity = this.Opacity
+                Opacity = this.Opacity,
+                IsActive = this.IsActive,
+                IsRenaming = this.IsRenaming
             };
         }
 
+        /// <summary>
+        ///     Resizes bitmap with it's content using NearestNeighbor interpolation
+        /// </summary>
+        /// <param name="width">New width</param>
+        /// <param name="height">New height</param>
+        /// <param name="newMaxWidth">New layer maximum width, this should be document width</param>
+        /// <param name="newMaxHeight">New layer maximum height, this should be document height</param>
         public void Resize(int width, int height, int newMaxWidth, int newMaxHeight)
         {
             LayerBitmap = LayerBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
@@ -170,7 +178,7 @@ namespace PixiEditor.Models.Layers
         }
 
         /// <summary>
-        ///     Returns pixel color by x and y coordinates relative to document using (x - OffsetX) formula.
+        ///     Returns pixel color of x and y coordinates relative to document using (x - OffsetX) formula.
         /// </summary>
         /// <param name="x">Viewport relative X</param>
         /// <param name="y">Viewport relative Y</param>
@@ -204,9 +212,9 @@ namespace PixiEditor.Models.Layers
         /// <param name="color">Color of pixel</param>
         /// <param name="dynamicResize">Resizes bitmap to fit content</param>
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
-        public void ApplyPixel(Coordinates coordinates, Color color, bool dynamicResize = true, bool applyOffset = true)
+        public void SetPixel(Coordinates coordinates, Color color, bool dynamicResize = true, bool applyOffset = true)
         {
-            ApplyPixels(BitmapPixelChanges.FromSingleColoredArray(new []{ coordinates }, color), dynamicResize, applyOffset);
+            SetPixels(BitmapPixelChanges.FromSingleColoredArray(new []{ coordinates }, color), dynamicResize, applyOffset);
         }
 
         /// <summary>
@@ -215,7 +223,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="pixels">Pixels to apply</param>
         /// <param name="dynamicResize">Resizes bitmap to fit content</param>
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
-        public void ApplyPixels(BitmapPixelChanges pixels, bool dynamicResize = true, bool applyOffset = true)
+        public void SetPixels(BitmapPixelChanges pixels, bool dynamicResize = true, bool applyOffset = true)
         {
             if (pixels.ChangedPixels == null || pixels.ChangedPixels.Count == 0) return;
             if(dynamicResize)
@@ -241,6 +249,11 @@ namespace PixiEditor.Models.Layers
                 d => d.Value);
         }
 
+        /// <summary>
+        ///     Converts absolute coordinates array to relative to this layer coordinates array.
+        /// </summary>
+        /// <param name="nonRelativeCords">absolute coordinates array</param>
+        /// <returns></returns>
         public Coordinates[] ConvertToRelativeCoordinates(Coordinates[] nonRelativeCords)
         {
             Coordinates[] result = new Coordinates[nonRelativeCords.Length];
@@ -330,6 +343,9 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        /// <summary>
+        ///     Changes size of bitmap to fit content
+        /// </summary>
         public void ClipCanvas()
         {
             var points = GetEdgePoints();
@@ -391,11 +407,18 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        /// <summary>
+        ///     Clears bitmap
+        /// </summary>
         public void Clear()
         {
             LayerBitmap.Clear();
         }
 
+        /// <summary>
+        ///     Converts layer WriteableBitmap to byte array
+        /// </summary>
+        /// <returns></returns>
         public byte[] ConvertBitmapToBytes()
         {
             LayerBitmap.Lock();
@@ -404,7 +427,16 @@ namespace PixiEditor.Models.Layers
             return byteArray;
         }
 
-        public void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int newWidth, int newHeight)
+        /// <summary>
+        ///     Resizes canvas to new size with specified offset.
+        /// </summary>
+        /// <param name="offsetX"></param>
+        /// <param name="offsetY"></param>
+        /// <param name="offsetXSrc"></param>
+        /// <param name="offsetYSrc"></param>
+        /// <param name="newWidth"></param>
+        /// <param name="newHeight"></param>
+        private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int newWidth, int newHeight)
         {
             int iteratorHeight = Height > newHeight ? newHeight : Height;
             int count = Width > newWidth ? newWidth : Width;

@@ -50,7 +50,7 @@ namespace PixiEditor.Models.Tools.Tools
                     if (clone.GetPixel(relativeCords.X, relativeCords.Y) == colorToReplace)
                     {
                         changedCoords.Add(new Coordinates(cords.X, cords.Y));
-                        clone.ApplyPixel(new Coordinates(cords.X, cords.Y), newColor);
+                        clone.SetPixel(new Coordinates(cords.X, cords.Y), newColor);
                         stack.Push(new Coordinates(cords.X, cords.Y - 1));
                         stack.Push(new Coordinates(cords.X + 1, cords.Y));
                         stack.Push(new Coordinates(cords.X, cords.Y + 1));

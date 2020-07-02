@@ -43,6 +43,14 @@ namespace PixiEditor.Models.Position
             return new Coordinates(x, y);
         }
 
+        /// <summary>
+        ///     Calculates coordinates of rectangle by edge points x1, y1, x2, y2
+        /// </summary>
+        /// <param name="x1">Top left x point</param>
+        /// <param name="y1">Top left y position</param>
+        /// <param name="x2">Bottom right x position</param>
+        /// <param name="y2">Bottom right Y position</param>
+        /// <returns></returns>
         public static Coordinates[] RectangleToCoordinates(int x1, int y1, int x2, int y2)
         {
             x2++;
@@ -135,42 +143,6 @@ namespace PixiEditor.Models.Position
 
             bitmap.Unlock();
             return -1;
-        }
-
-        /// <summary>
-        ///     Finds most top-left pixel on each layer.
-        /// </summary>
-        /// <param name="document"></param>
-        /// <returns>Most top-left pixel in each layer</returns>
-        public static Coordinates[] GetSmallestPixels(Document document)
-        {
-            Coordinates[] smallestPixels = new Coordinates[document.Layers.Count];
-            for (int i = 0; i < smallestPixels.Length; i++)
-            {
-                Coordinates point = FindMinEdgeNonTransparentPixel(document.Layers[i].LayerBitmap);
-                if (point.X >= 0 && point.Y >= 0)
-                    smallestPixels[i] = point;
-            }
-
-            return smallestPixels;
-        }
-
-        /// <summary>
-        ///     Finds most bottom-right pixel on each layer.
-        /// </summary>
-        /// <param name="document"></param>
-        /// <returns>Most bottom-right pixel in each layer</returns>
-        public static Coordinates[] GetBiggestPixels(Document document)
-        {
-            Coordinates[] biggestPixels = new Coordinates[document.Layers.Count];
-            for (int i = 0; i < biggestPixels.Length; i++)
-            {
-                Coordinates point = FindMostEdgeNonTransparentPixel(document.Layers[i].LayerBitmap);
-                if (point.X >= 0 && point.Y >= 0)
-                    biggestPixels[i] = point;
-            }
-
-            return biggestPixels;
         }
     }
 }

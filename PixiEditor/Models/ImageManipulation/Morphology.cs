@@ -58,7 +58,6 @@ namespace PixiEditor.Models.ImageManipulation
             int minX = points.Min(x => x.X);
             int minY = points.Min(x => x.Y);
             byte[,] array = new byte[dimensions.Item1 + margin * 2, dimensions.Item2 + margin * 2];
-            //Debug.Write("----------\n");
 
             for (int y = 0; y < dimensions.Item2 + margin; y++)
             for (int x = 0; x < dimensions.Item1 + margin; x++)
@@ -66,16 +65,6 @@ namespace PixiEditor.Models.ImageManipulation
                 Coordinates cords = new Coordinates(x + minX, y + minY);
                 array[x + margin, y + margin] = points.Contains(cords) ? (byte) 1 : (byte) 0;
             }
-
-            //for (int y = 0; y < array.GetLength(1); y++)
-            //{
-            //    for (int x = 0; x < array.GetLength(0); x++)
-            //    {
-            //        Debug.Write($"{array[x, y]} ");
-            //    }
-            //    Debug.Write("\n");
-            //}
-
             return array;
         }
 

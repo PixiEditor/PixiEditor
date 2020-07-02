@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public LineTool()
         {
-            Tooltip = "Draws line on canvas (L)";
+            Tooltip = "Draws line on canvas (L). Hold Shift to draw even line.";
             Toolbar = new BasicToolbar();
         }
 
@@ -26,11 +26,22 @@ namespace PixiEditor.Models.Tools.Tools
             var pixels =
                 BitmapPixelChanges.FromSingleColoredArray(
                     CreateLine(coordinates, 
-                        (int) Toolbar.GetSetting("ToolSize").Value, CapType.Round, CapType.Round), color);
+                        (int) Toolbar.GetSetting("ToolSize").Value, CapType.Square, CapType.Square), color);
             return Only(pixels, layer);
         }
 
-        public Coordinates[] CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
+        public Coordinates[] CreateLine(Coordinates start, Coordinates end, int thickness)
+        {
+            return CreateLine(new[] { end, start }, thickness, CapType.Square, CapType.Square);
+        }
+
+        public Coordinates[] CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap,
+            CapType endCap)
+        {
+            return CreateLine(new[] {end, start}, thickness, startCap, endCap);
+        }
+
+        private Coordinates[] CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
         {
             Coordinates startingCoordinates = coordinates[^1];
             Coordinates latestCoordinates = coordinates[0];

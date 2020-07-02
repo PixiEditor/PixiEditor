@@ -24,7 +24,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public BrightnessTool()
         {
-            Tooltip = "Makes pixel brighter or darker pixel (U)";
+            Tooltip = "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
@@ -51,7 +51,7 @@ namespace PixiEditor.Models.Tools.Tools
             return layersChanges;
         }
 
-        private BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize,
+        public BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize,
             float correctionFactor)
         {
             DoubleCords centeredCoords = CoordinatesCalculator.CalculateThicknessCenter(coordinates, toolSize);
