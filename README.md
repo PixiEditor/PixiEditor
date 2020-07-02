@@ -46,7 +46,7 @@ Struggling with something? You can find support in a few places:
 
 * Check out [documentation](https://github.com/flabbet/PixiEditor/wiki)
 
-* Ask on [Discord](https://discord.gg/XKbUBhj)
+* Ask on [Discord](https://discord.gg/qSRMYmq)
 * Open new [Issue](https://github.com/flabbet/PixiEditor/issues)
 
 
