@@ -23,7 +23,7 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 ### Light weighted
 
-I takes only 157 MB to install PixiEditor.
+Program weights only 3.3 MB! Already have .NET Core 3.1 installed? Download light version and enjoy saved space.
 
 ### Active development
 
