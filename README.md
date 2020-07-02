@@ -59,11 +59,13 @@ Struggling with something? You can find support in a few places:
 
 * Visual Studio
 
-  ### Instructions
+### Instructions
 
-  1. Clone Repository
-  2. Open PixiEditor/PixiEditor/PixiEditor.sln in Visual Studio
-  3. Build solution
+1. Clone Repository
+
+2. Open PixiEditor/PixiEditor/PixiEditor.sln in Visual Studio
+
+3. Build solution
 
 ## Contributing 
 
