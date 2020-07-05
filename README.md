@@ -15,7 +15,7 @@ Want to create beautiful pixel arts for your games? PixiEditor can help you! Our
 
 ### Familiar interface
 
-Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted users to get familiar with the tool quickly and without a ease. 
+Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted users to get familiar with the tool quickly and with ease. 
 
 ![](https://github.com/flabbet/PixiEditor/blob/master/Screenshot.png)
 
