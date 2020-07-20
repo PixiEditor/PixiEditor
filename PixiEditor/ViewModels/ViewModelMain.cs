@@ -89,7 +89,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _mouseXonCanvas = value;
-                RaisePropertyChanged("MouseXonCanvas");
+                RaisePropertyChanged("MouseXOnCanvas");
             }
         }
 
@@ -99,7 +99,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _mouseYonCanvas = value;
-                RaisePropertyChanged("MouseYonCanvas");
+                RaisePropertyChanged("MouseYOnCanvas");
             }
         }
 

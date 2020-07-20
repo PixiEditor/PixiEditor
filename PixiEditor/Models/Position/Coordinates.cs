@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Models.Position
+﻿using System;
+
+namespace PixiEditor.Models.Position
 {
     public struct Coordinates
     {
@@ -29,22 +31,17 @@
 
         public override bool Equals(object obj)
         {
-            if (obj.GetType() != typeof(Coordinates)) return false;
-            return this == (Coordinates) obj;
+            if (obj is Coordinates coords)
+            {
+                return this == coords;
+            }
+
+            return false;
         }
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                const int hashingBase = (int) 2166136261;
-                const int hashingMultiplier = 16777619;
-
-                int hash = hashingBase;
-                hash = (hash * hashingMultiplier) ^ (!ReferenceEquals(null, X) ? X.GetHashCode() : 0);
-                hash = (hash * hashingMultiplier) ^ (!ReferenceEquals(null, Y) ? Y.GetHashCode() : 0);
-                return hash;
-            }
+            return HashCode.Combine(X, Y);
         }
     }
 }

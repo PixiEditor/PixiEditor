@@ -56,7 +56,7 @@ namespace PixiEditor.Models.IO
                 }
 
                 FileDimensions = new Size(info.FileWidth, info.FileHeight);
-                SaveAsPng(info.FilePath, info.FileHeight, info.FileWidth, bitmap);
+                SaveAsPng(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
             }
         }
 
