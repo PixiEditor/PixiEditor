@@ -50,6 +50,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
         public RelayCommand MouseDownCommand { get; set; }
         public RelayCommand KeyDownCommand { get; set; }
+        public RelayCommand KeyUpCommand { get; set; }
         public RelayCommand ExportFileCommand { get; set; } //Command that is used to save file
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RedoCommand { get; set; }
@@ -178,6 +179,9 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private bool _restoreToolOnKeyUp = false;
+        private Tool _lastActionTool;
+
         public ViewModelMain()
         {
             BitmapManager = new BitmapManager();
@@ -201,6 +205,7 @@ namespace PixiEditor.ViewModels
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             SwapColorsCommand = new RelayCommand(SwapColors);
             KeyDownCommand = new RelayCommand(KeyDown);
+            KeyUpCommand = new RelayCommand(KeyUp);
             RenameLayerCommand = new RelayCommand(RenameLayer);
             DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
             SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
@@ -485,9 +490,26 @@ namespace PixiEditor.ViewModels
             BitmapManager.ActiveDocument.Layers[(int) parameter].IsRenaming = true;
         }
 
+        private void KeyUp(object parameter)
+        {
+            KeyEventArgs args = (KeyEventArgs)parameter;
+            if (_restoreToolOnKeyUp && ShortcutController.LastShortcut.ShortcutKey == args.Key)
+            {
+                _restoreToolOnKeyUp = false;
+                SetActiveTool(_lastActionTool);
+            }
+            ShortcutController.BlockShortcutExecution = false;
+        }
+
         public void KeyDown(object parameter)
         {
-            ShortcutController.KeyPressed(((KeyEventArgs) parameter).Key, Keyboard.Modifiers);
+            KeyEventArgs args = (KeyEventArgs)parameter;
+            if (args.IsRepeat && !_restoreToolOnKeyUp && ShortcutController.LastShortcut.Command == SelectToolCommand)
+            {
+                _restoreToolOnKeyUp = true;
+                ShortcutController.BlockShortcutExecution = true;
+            }
+            ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -566,18 +588,24 @@ namespace PixiEditor.ViewModels
             return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 1;
         }
 
-        private void SetActiveTool(ToolType tool)
+        public void SetActiveTool(ToolType tool)
         {
             Tool foundTool = ToolSet.First(x => x.ToolType == tool);
+            SetActiveTool(foundTool);
+        }
+
+        public void SetActiveTool(Tool tool)
+        {
             Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
             if (activeTool != null) activeTool.IsActive = false;
 
-            foundTool.IsActive = true;
-            BitmapManager.SetActiveTool(foundTool);
-            SetToolCursor(tool);
+            tool.IsActive = true;
+            _lastActionTool = BitmapManager.SelectedTool;
+            BitmapManager.SetActiveTool(tool);
+            SetToolCursor(tool.ToolType);
         }
 
-        private void SetToolCursor(ToolType tool)
+            private void SetToolCursor(ToolType tool)
         {
             if (tool != ToolType.None)
                 ToolCursor = BitmapManager.SelectedTool.Cursor;

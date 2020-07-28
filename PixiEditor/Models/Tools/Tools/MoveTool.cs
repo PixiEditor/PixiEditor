@@ -42,7 +42,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void AfterAddedUndo()
         {
-            if (_currentSelection.Length != 0)
+            if (_currentSelection != null && _currentSelection.Length != 0)
             {
                 //Inject to default undo system change custom changes made by this tool
                 foreach (var item in _startPixelColors)

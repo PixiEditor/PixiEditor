@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Effects;
 using PixiEditor.Helpers;
@@ -87,6 +88,17 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             controller.KeyPressed(Key.A, ModifierKeys.Control);
             Assert.Equal(1, result);
+        }
+
+        [StaFact]
+        public void TestThatKeyPressedSetsLastShortcut()
+        {
+            var controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, 
+                new RelayCommand((object parameter) => { }));
+
+            Assert.Null(controller.LastShortcut);
+            controller.KeyPressed(Key.A, ModifierKeys.None);
+            Assert.Equal(controller.Shortcuts[0], controller.LastShortcut);
         }
     }
 }

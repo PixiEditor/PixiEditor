@@ -42,6 +42,9 @@
         <i:EventTrigger EventName="KeyDown">
             <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
+        <i:EventTrigger EventName="KeyUp">
+            <cmd:EventToCommand Command="{Binding KeyUpCommand}" PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
         <i:EventTrigger EventName="ContentRendered">
             <i:InvokeCommandAction Command="{Binding OnStartupCommand}" />
         </i:EventTrigger>
