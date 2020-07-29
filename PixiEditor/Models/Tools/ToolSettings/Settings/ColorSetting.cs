@@ -1,6 +1,6 @@
 ﻿using System.Windows.Data;
 using System.Windows.Media;
-using PixiEditor.Views;
+using ColorPicker;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
