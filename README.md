@@ -1,8 +1,10 @@
-[![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/3)](https://dev.azure.com/flabbet/PixiEditor/_build/latest?definitionId=3&branchName=master) 
-[![Code coverage](https://img.shields.io/azure-devops/coverage/flabbet/PixiEditor/3)](https://codecov.io/gh/flabbet/PixiEditor)
+[![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/6/master)](https://dev.azure.com/flabbet/PixiEditor/_build?definitionId=6) 
+[![Code coverage](https://img.shields.io/azure-devops/coverage/flabbet/PixiEditor/6/master)](https://codecov.io/gh/PixiEditor/PixiEditor)
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
+[![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
 [![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq) 
 [![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
+
 
 # PixiEditor
 
@@ -14,7 +16,7 @@ Want to create beautiful pixel arts for your games? PixiEditor can help you! Our
 
 ### Familiar interface
 
-Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted experienced users to get familiar with the tool quickly and without a ease new users
+Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted users to get familiar with the tool quickly and with ease. 
 
 ![](https://github.com/flabbet/PixiEditor/blob/master/Screenshot.png)
 
@@ -22,7 +24,7 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 ### Light weighted
 
-I takes only 157 MB to install PixiEditor.
+Program weights only 3.3 MB! Already have .NET Core 3.1 installed? Download light version and enjoy saved space.
 
 ### Active development
 
@@ -46,7 +48,7 @@ Struggling with something? You can find support in a few places:
 
 * Check out [documentation](https://github.com/flabbet/PixiEditor/wiki)
 
-* Ask on [Discord](https://discord.gg/XKbUBhj)
+* Ask on [Discord](https://discord.gg/qSRMYmq)
 * Open new [Issue](https://github.com/flabbet/PixiEditor/issues)
 
 
