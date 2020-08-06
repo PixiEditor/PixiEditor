@@ -221,7 +221,7 @@ namespace PixiEditor.ViewModels
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()
+                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool()
             };
             ShortcutController = new ShortcutController
             {
@@ -229,7 +229,7 @@ namespace PixiEditor.ViewModels
                 {
                     //Tools
                     new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
+                    new Shortcut(Key.E, SelectToolCommand, ToolType.Eraser),
                     new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
                     new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
                     new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
