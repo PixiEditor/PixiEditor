@@ -10,8 +10,6 @@
                 <ResourceDictionary Source="Styles/ThemeStyle.xaml" />
                 <ResourceDictionary Source="Styles/Titlebar.xaml" />
                 <ResourceDictionary Source="Styles/ComboBoxDarkStyle.xaml" />
-                <ResourceDictionary Source="Styles/ColorSliderStyle.xaml" />
-                <ResourceDictionary Source="Styles/ColorToggleButton.xaml" />
                 <ResourceDictionary Source="Styles/AnchorPointToggleButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/DockingManagerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>

@@ -28,12 +28,9 @@
 
   <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
-    <None Remove="Images\ColorCircle.png" />
-    <None Remove="Images\ColorPalette.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\SelectImage.png" />
-    <None Remove="Images\SwapArrows.png" />
     <None Include="..\icon.ico">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -44,15 +41,16 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.20.0" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.30.0" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.2" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="1.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="WriteableBitmapEx">
-      <Version>1.6.5</Version>
+      <Version>1.6.7</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -72,7 +70,6 @@
     </Resource>
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />
-    <Resource Include="Images\SwapArrows.png" />
     <Resource Include="Images\transparentbg.png" />
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,7 @@ namespace PixiEditor.Models.Controllers.Shortcuts
         public static bool BlockShortcutExecution { get; set; }
 
         public List<Shortcut> Shortcuts { get; set; }
+        public Shortcut LastShortcut { get; private set; } 
 
         public ShortcutController()
         {
@@ -26,6 +27,7 @@ namespace PixiEditor.Models.Controllers.Shortcuts
                     if (modifiers.HasFlag(shortcuts[i].Modifier))
                     {
                         shortcuts[i].Execute();
+                        LastShortcut = shortcuts[i];
                         break;
                     }
             }
