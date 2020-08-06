@@ -57,8 +57,6 @@
     <Resource Include="Images\AnchorDot.png" />
     <Resource Include="Images\BucketImage.png" />
     <Resource Include="Images\CircleImage.png" />
-    <Resource Include="Images\ColorCircle.png" />
-    <Resource Include="Images\ColorPalette.png" />
     <Resource Include="Images\EraserImage.png" />
     <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\LineImage.png" />
