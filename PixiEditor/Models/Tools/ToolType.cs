@@ -10,7 +10,7 @@
         Line,
         Circle,
         Rectangle,
-        Earser,
+        Eraser,
         Brightness,
         ColorPicker
     }
