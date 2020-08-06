@@ -56,15 +56,15 @@
     </i:Interaction.Triggers>
     <Grid Name="mainGrid" Margin="5">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="37*" />
-            <ColumnDefinition Width="1263*" />
+            <ColumnDefinition Width="45" />
+            <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="290" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="35*" />
-            <RowDefinition Height="17*" />
-            <RowDefinition Height="908*" />
-            <RowDefinition Height="30*" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="30" />
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource MainColor}">

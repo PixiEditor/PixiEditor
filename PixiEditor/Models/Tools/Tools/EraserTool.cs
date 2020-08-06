@@ -7,22 +7,22 @@ using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class EarserTool : BitmapOperationTool
+    public class EraserTool : BitmapOperationTool
     {
-        public override ToolType ToolType => ToolType.Earser;
+        public override ToolType ToolType => ToolType.Eraser;
 
-        public EarserTool()
+        public EraserTool()
         {
-            Tooltip = "Earsers color from pixel (E)";
+            Tooltip = "Erasers color from pixel (E)";
             Toolbar = new BasicToolbar();
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return Earse(layer, coordinates, (int) Toolbar.GetSetting("ToolSize").Value);
+            return Erase(layer, coordinates, (int) Toolbar.GetSetting("ToolSize").Value);
         }
 
-        public LayerChange[] Earse(Layer layer, Coordinates[] coordinates, int toolSize)
+        public LayerChange[] Erase(Layer layer, Coordinates[] coordinates, int toolSize)
         {
             Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
             PenTool pen = new PenTool();
