@@ -1,17 +1,17 @@
-﻿using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Interactivity;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Xaml.Interactivity;
+using System.Text.RegularExpressions;
 
 namespace PixiEditor.Helpers.Behaviours
 {
     internal class TextBoxFocusBehavior : Behavior<TextBox>
     {
-        // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty FillSizeProperty =
-            DependencyProperty.Register("FillSize", typeof(bool), typeof(TextBoxFocusBehavior),
-                new PropertyMetadata(false));
+        // Using a StyledProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<bool> FillSizeProperty =
+            AvaloniaProperty.Register<TextBoxFocusBehavior, bool>(nameof(FillSize), false);
 
 
         private string _oldText; //Value of textbox before editing
@@ -29,33 +29,31 @@ namespace PixiEditor.Helpers.Behaviours
             if (e.Key != Key.Enter) return;
 
             ConvertValue();
-            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
+            FocusManager.Instance.Focus(null);
         }
 
         protected override void OnAttached()
         {
             base.OnAttached();
-            AssociatedObject.GotKeyboardFocus += AssociatedObjectGotKeyboardFocus;
-            AssociatedObject.GotMouseCapture += AssociatedObjectGotMouseCapture;
-            AssociatedObject.PreviewMouseLeftButtonDown += AssociatedObjectPreviewMouseLeftButtonDown;
-            AssociatedObject.LostKeyboardFocus += AssociatedObject_LostKeyboardFocus;
+            AssociatedObject.GotFocus += AssociatedObjectGotKeyboardFocus;
+            AssociatedObject.PointerPressed += AssociatedObjectGotMouseCapture;
+            AssociatedObject.LostFocus += AssociatedObject_LostKeyboardFocus;
             AssociatedObject.KeyUp += AssociatedObject_KeyUp;
         }
 
         protected override void OnDetaching()
         {
             base.OnDetaching();
-            AssociatedObject.GotKeyboardFocus -= AssociatedObjectGotKeyboardFocus;
-            AssociatedObject.GotMouseCapture -= AssociatedObjectGotMouseCapture;
-            AssociatedObject.PreviewMouseLeftButtonDown -= AssociatedObjectPreviewMouseLeftButtonDown;
-            AssociatedObject.LostKeyboardFocus -= AssociatedObject_LostKeyboardFocus;
+            AssociatedObject.GotFocus -= AssociatedObjectGotKeyboardFocus;
+            AssociatedObject.PointerPressed -= AssociatedObjectGotMouseCapture;
+            AssociatedObject.LostFocus -= AssociatedObject_LostKeyboardFocus;
             AssociatedObject.KeyUp -= AssociatedObject_KeyUp;
         }
 
         private void AssociatedObjectGotKeyboardFocus(object sender,
-            KeyboardFocusChangedEventArgs e)
+            GotFocusEventArgs e)
         {
-            AssociatedObject.SelectAll();
+            SelectAll();
             if (FillSize)
             {
                 _valueConverted = false;
@@ -63,22 +61,23 @@ namespace PixiEditor.Helpers.Behaviours
             }
         }
 
-        private void AssociatedObjectGotMouseCapture(object sender,
-            MouseEventArgs e)
+        private void AssociatedObjectGotMouseCapture(object sender, PointerPressedEventArgs e)
         {
-            AssociatedObject.SelectAll();
-        }
-
-        private void AssociatedObjectPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!AssociatedObject.IsKeyboardFocusWithin)
+            if (!AssociatedObject.IsFocused)
             {
                 AssociatedObject.Focus();
                 e.Handled = true;
             }
+            SelectAll();
         }
 
-        private void AssociatedObject_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        private void SelectAll()
+        {
+            AssociatedObject.SelectionStart = 0;
+            AssociatedObject.SelectionEnd = AssociatedObject.Text.Length;
+        }
+
+        private void AssociatedObject_LostKeyboardFocus(object sender, RoutedEventArgs e)
         {
             ConvertValue();
         }

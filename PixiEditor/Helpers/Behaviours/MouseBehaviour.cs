@@ -1,21 +1,22 @@
-﻿using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interactivity;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Xaml.Interactivity;
+using System;
 
 namespace PixiEditor.Helpers.Behaviours
 {
-    public class MouseBehaviour : Behavior<FrameworkElement>
+    public class MouseBehaviour : Behavior<Control>
     {
-        public static readonly DependencyProperty MouseYProperty = DependencyProperty.Register(
-            "MouseY", typeof(double), typeof(MouseBehaviour), new PropertyMetadata(default(double)));
+        public static readonly StyledProperty<double> MouseYProperty = AvaloniaProperty.Register<MouseBehaviour, double>(
+            nameof(MouseY), default);
 
-        public static readonly DependencyProperty MouseXProperty = DependencyProperty.Register(
-            "MouseX", typeof(double), typeof(MouseBehaviour), new PropertyMetadata(default(double)));
+        public static readonly StyledProperty<double> MouseXProperty = AvaloniaProperty.Register<MouseBehaviour, double>(
+            nameof(MouseX), default);
 
         // Using a DependencyProperty as the backing store for RelativeTo.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RelativeToProperty =
-            DependencyProperty.Register("RelativeTo", typeof(FrameworkElement), typeof(MouseBehaviour),
-                new PropertyMetadata(default(FrameworkElement)));
+        public static readonly StyledProperty<Control> RelativeToProperty =
+            AvaloniaProperty.Register<MouseBehaviour, Control>(nameof(MouseY), default);
 
         public double MouseY
         {
@@ -30,29 +31,29 @@ namespace PixiEditor.Helpers.Behaviours
         }
 
 
-        public FrameworkElement RelativeTo
+        public Control RelativeTo
         {
-            get => (FrameworkElement) GetValue(RelativeToProperty);
+            get => (Control) GetValue(RelativeToProperty);
             set => SetValue(RelativeToProperty, value);
         }
 
 
         protected override void OnAttached()
         {
-            AssociatedObject.MouseMove += AssociatedObjectOnMouseMove;
+            AssociatedObject.PointerMoved += AssociatedObjectOnMouseMove;
         }
 
-        private void AssociatedObjectOnMouseMove(object sender, MouseEventArgs mouseEventArgs)
+        private void AssociatedObjectOnMouseMove(object sender, PointerEventArgs e)
         {
             if (RelativeTo == null) RelativeTo = AssociatedObject;
-            var pos = mouseEventArgs.GetPosition(RelativeTo);
+            var pos = e.GetPosition(RelativeTo);
             MouseX = pos.X;
             MouseY = pos.Y;
         }
 
         protected override void OnDetaching()
         {
-            AssociatedObject.MouseMove -= AssociatedObjectOnMouseMove;
+            AssociatedObject.PointerMoved -= AssociatedObjectOnMouseMove;
         }
     }
 }

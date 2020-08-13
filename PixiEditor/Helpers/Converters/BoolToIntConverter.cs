@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Avalonia.Data.Converters;
+using System;
 using System.Globalization;
-using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {

@@ -12,7 +12,7 @@ namespace PixiEditor.Models.Dialogs
                 if (_fileWidth != value)
                 {
                     _fileWidth = value;
-                    RaisePropertyChanged("Width");
+                    this.RaisePropertyChanged("Width");
                 }
             }
         }
@@ -25,7 +25,7 @@ namespace PixiEditor.Models.Dialogs
                 if (_fileHeight != value)
                 {
                     _fileHeight = value;
-                    RaisePropertyChanged("FileHeight");
+                    this.RaisePropertyChanged("FileHeight");
                 }
             }
         }
@@ -38,7 +38,7 @@ namespace PixiEditor.Models.Dialogs
                 if (_filePath != value)
                 {
                     _filePath = value;
-                    RaisePropertyChanged("FilePath");
+                    this.RaisePropertyChanged("FilePath");
                 }
             }
         }

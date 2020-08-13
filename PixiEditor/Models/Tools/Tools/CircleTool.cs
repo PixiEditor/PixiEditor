@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
-using System.Windows.Media;
+using Avalonia.Media;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
@@ -69,13 +67,11 @@ namespace PixiEditor.Models.Tools.Tools
         
         public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
-            double radiusX = (endCoordinates.X - startCoordinates.X) / 2.0;
-            double radiusY = (endCoordinates.Y - startCoordinates.Y) / 2.0;
-            double centerX = (startCoordinates.X + endCoordinates.X + 1) / 2.0;
-            double centerY = (startCoordinates.Y + endCoordinates.Y + 1) / 2.0;
-
+            Coordinates centerCoordinates = CoordinatesCalculator.GetCenterPoint(startCoordinates, endCoordinates);
+            int radiusX = endCoordinates.X - centerCoordinates.X;
+            int radiusY = endCoordinates.Y - centerCoordinates.Y;
             List<Coordinates> output = new List<Coordinates>();
-            Coordinates[] ellipse = MidpointEllipse(radiusX, radiusY, centerX, centerY);
+            Coordinates[] ellipse = MidpointEllipse(radiusX, radiusY, centerCoordinates.X, centerCoordinates.Y);
             if (thickness == 1)
                 output.AddRange(ellipse);
             else
@@ -83,74 +79,60 @@ namespace PixiEditor.Models.Tools.Tools
             return output.Distinct().ToArray();
         }
 
-        public Coordinates[] MidpointEllipse(double halfWidth, double halfHeight, double centerX, double centerY)
+        public Coordinates[] MidpointEllipse(double rx, double ry, double xc, double yc)
         {
-            if (halfWidth < 1 || halfHeight < 1)
-                return FallbackRectangle(halfWidth, halfHeight, centerX, centerY);
-
-            //ellipse formula: halfHeight^2 * x^2 + halfWidth^2 * y^2 - halfHeight^2 * halfWidth^2 = 0
-
-            //Make sure we are always at the center of a pixel
-            double currentX = Math.Ceiling(centerX - 0.5) + 0.5;
-            double currentY = centerY + halfHeight;
-
             List<Coordinates> outputCoordinates = new List<Coordinates>();
+            double dx, dy, d1, d2, x, y;
+            x = 0;
+            y = ry;
 
-            double currentSlope;
+            d1 = ry * ry - rx * rx * ry + 0.25f * rx * rx;
+            dx = 2 * ry * ry * x;
+            dy = 2 * rx * rx * y;
 
-            //from PI/2 to middle
-            do
+            while (dx < dy)
             {
-                outputCoordinates.AddRange(GetRegionPoints(currentX, centerX, currentY, centerY));
-
-                //calculate next pixel coords
-                currentX++;
-
-                if (Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX, 2) +
-                    Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY - 0.5, 2) -
-                    Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2) >= 0)
+                outputCoordinates.AddRange(GetRegionPoints(x, xc, y, yc));
+                if (d1 < 0)
                 {
-                    currentY--;
+                    x++;
+                    dx += 2 * ry * ry;
+                    d1 = d1 + dx + ry * ry;
                 }
-
-                //calculate how far we've advanced
-                double derivativeX = 2 * Math.Pow(halfHeight, 2) * (currentX - centerX);
-                double derivativeY = 2 * Math.Pow(halfWidth, 2) * (currentY - centerY);
-                currentSlope = -(derivativeX / derivativeY);
-
-            } while (currentSlope > -1 && currentY - centerY > 0.5);
-
-            //from middle to 0
-            while (currentY - centerY >= 0)
-            {
-                outputCoordinates.AddRange(GetRegionPoints(currentX, centerX, currentY, centerY));
-
-                currentY--;
-                if (Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2) +
-                    Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY, 2) -
-                    Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2) < 0)
+                else
                 {
-                    currentX++;
+                    x++;
+                    y--;
+                    dx += 2 * ry * ry;
+                    dy -= 2 * rx * rx;
+                    d1 = d1 + dx - dy + ry * ry;
                 }
             }
 
-            return outputCoordinates.ToArray();
-        }
+            //Decision parameter of region 2
+            d2 = ry * ry * ((x + 0.5f) * (x + 0.5f)) + rx * rx * ((y - 1) * (y - 1)) - rx * rx * ry * ry;
 
-        private Coordinates[] FallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY)
-        {
-            List<Coordinates> coordinates = new List<Coordinates>();
-            for (double x = centerX - halfWidth; x <= centerX + halfWidth; x++)
+            while (y >= 0)
             {
-                coordinates.Add(new Coordinates((int)x, (int)(centerY - halfHeight)));
-                coordinates.Add(new Coordinates((int)x, (int)(centerY + halfHeight)));
+                outputCoordinates.AddRange(GetRegionPoints(x, xc, y, yc));
+
+                if (d2 > 0)
+                {
+                    y--;
+                    dy -= 2 * rx * rx;
+                    d2 = d2 + rx * rx - dy;
+                }
+                else
+                {
+                    y--;
+                    x++;
+                    dx += 2 * ry * ry;
+                    dy -= 2 * rx * rx;
+                    d2 = d2 + dx - dy + rx * rx;
+                }
             }
-            for (double y = centerY - halfHeight + 1; y <= centerY + halfHeight - 1; y++)
-            {
-                coordinates.Add(new Coordinates((int)(centerX - halfWidth), (int)y));
-                coordinates.Add(new Coordinates((int)(centerX + halfWidth), (int)y));
-            }
-            return coordinates.ToArray();
+
+            return outputCoordinates.Distinct().ToArray();
         }
 
         private Coordinates[] CalculateFillForEllipse(Coordinates[] outlineCoordinates)
@@ -168,13 +150,14 @@ namespace PixiEditor.Models.Tools.Tools
 
             return finalCoordinates.ToArray();
         }
+
         private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)
         {
             Coordinates[] outputCoordinates = new Coordinates[4];
-            outputCoordinates[0] = new Coordinates((int)Math.Floor(x),                  (int)Math.Floor(y));
-            outputCoordinates[1] = new Coordinates((int)Math.Floor((-(x - xc) + xc)),   (int)Math.Floor(y));
-            outputCoordinates[2] = new Coordinates((int)Math.Floor(x),                  (int)Math.Floor((-(y - yc) + yc)));
-            outputCoordinates[3] = new Coordinates((int)Math.Floor((-(x - xc) + xc)),   (int)Math.Floor((-(y - yc) + yc)));
+            outputCoordinates[0] = new Coordinates((int) x + (int) xc, (int) y + (int) yc);
+            outputCoordinates[1] = new Coordinates((int) -x + (int) xc, (int) y + (int) yc);
+            outputCoordinates[2] = new Coordinates((int) x + (int) xc, (int) -y + (int) yc);
+            outputCoordinates[3] = new Coordinates((int) -x + (int) xc, (int) -y + (int) yc);
             return outputCoordinates;
         }
     }

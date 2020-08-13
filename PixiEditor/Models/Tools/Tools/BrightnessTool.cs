@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia.Controls;
+using Avalonia.Media;
 using PixiEditor.Models.Colors;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;

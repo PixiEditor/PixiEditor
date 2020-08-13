@@ -1,7 +1,7 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using System.Linq;
+using Avalonia.Layout;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -13,24 +13,19 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
             Values = values;
             SettingControl = GenerateDropdown();
-            Value = ((ComboBox) SettingControl).Items[0];
+            Value = ((ComboBox)SettingControl).Items; //TODO: Fix later
             Label = label;
         }
 
 
         private ComboBox GenerateDropdown()
         {
+
             ComboBox combobox = new ComboBox
             {
-                VerticalAlignment = VerticalAlignment.Center
+                VerticalAlignment = VerticalAlignment.Center,
             };
             GenerateItems(combobox);
-
-            Binding binding = new Binding("Value")
-            {
-                Mode = BindingMode.TwoWay
-            };
-            combobox.SetBinding(Selector.SelectedValueProperty, binding);
             return combobox;
         }
 
@@ -42,7 +37,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 {
                     Content = Values[i]
                 };
-                comboBox.Items.Add(item);
+                comboBox.Items = comboBox.Items.Cast<ComboBoxItem>().Append(item);
             }
         }
     }

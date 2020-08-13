@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using AvaloniaWriteableBitmapEx;
 
 namespace PixiEditor.Models.Position
 {
@@ -91,11 +90,10 @@ namespace PixiEditor.Models.Position
 
         public static int FindMinYNonTransparent(WriteableBitmap bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
             using var ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
             for (int y = 0; y < ctx.Height; y++)
             for (int x = 0; x < ctx.Width; x++)
-                if (ctx.WriteableBitmap.GetPixel(x, y) != transparent)
+                if (ctx.WriteableBitmap.GetPixel(x, y).A > 0)
                     return y;
 
             return -1;
@@ -103,11 +101,10 @@ namespace PixiEditor.Models.Position
 
         public static int FindMinXNonTransparent(WriteableBitmap bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
             using var ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
             for (int x = 0; x < ctx.Width; x++)
             for (int y = 0; y < ctx.Height; y++)
-                if (bitmap.GetPixel(x, y) != transparent)
+                if (bitmap.GetPixel(x, y).A > 0)
                     return x;
 
             return -1;
@@ -115,33 +112,31 @@ namespace PixiEditor.Models.Position
 
         public static int FindMaxYNonTransparent(WriteableBitmap bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int y = (int) bitmap.Height - 1; y >= 0; y--)
-            for (int x = (int) bitmap.Width - 1; x >= 0; x--)
-                if (bitmap.GetPixel(x, y) != transparent)
-                {
-                    bitmap.Unlock();
-                    return y;
-                }
+            using (bitmap.Lock())
+            {
+                for (int y = bitmap.PixelSize.Height - 1; y >= 0; y--)
+                    for (int x = bitmap.PixelSize.Width - 1; x >= 0; x--)
+                        if (bitmap.GetPixel(x, y).A > 0)
+                        {
+                            return y;
+                        }
+            }
 
-            bitmap.Unlock();
             return -1;
         }
 
         public static int FindMaxXNonTransparent(WriteableBitmap bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int x = (int) bitmap.Width - 1; x >= 0; x--)
-            for (int y = (int) bitmap.Height - 1; y >= 0; y--)
-                if (bitmap.GetPixel(x, y) != transparent)
-                {
-                    bitmap.Unlock();
-                    return x;
-                }
+            using (bitmap.Lock())
+            {
+                for (int x = (int)bitmap.PixelSize.Height - 1; x >= 0; x--)
+                    for (int y = (int)bitmap.PixelSize.Width - 1; y >= 0; y--)
+                        if (bitmap.GetPixel(x, y).A > 0)
+                        {
+                            return x;
+                        }
 
-            bitmap.Unlock();
+            }
             return -1;
         }
     }

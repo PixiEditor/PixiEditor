@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media.Imaging;
+﻿using System.Collections.Generic;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using AvaloniaWriteableBitmapEx;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using Color = System.Windows.Media.Color;
 
 namespace PixiEditor.Models.ImageManipulation
 {
@@ -41,8 +38,8 @@ namespace PixiEditor.Models.ImageManipulation
             using (finalBitmap.GetBitmapContext())
             {
                 for (int i = 0; i < layers.Length; i++)
-                for (int y = 0; y < finalBitmap.Height; y++)
-                for (int x = 0; x < finalBitmap.Width; x++)
+                for (int y = 0; y < finalBitmap.PixelSize.Width; y++)
+                for (int x = 0; x < finalBitmap.PixelSize.Height; x++)
                 {
                     Color color = layers[i].GetPixelWithOffset(x, y);
                     color = Color.FromArgb((byte)(color.A * layers[i].Opacity), color.R,color.G, color.B);

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using Microsoft.Win32;
+using Avalonia;
+using Avalonia.Media.Imaging;
+using AvaloniaWriteableBitmapEx;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 
@@ -48,10 +48,8 @@ namespace PixiEditor.Models.IO
             if (info.ShowDialog())
             {
                 //If sizes are incorrect
-                if (info.FileWidth < bitmap.Width || info.FileHeight < bitmap.Height)
+                if (info.FileWidth < bitmap.PixelSize.Width || info.FileHeight < bitmap.PixelSize.Height)
                 {
-                    MessageBox.Show("Incorrect height or width value", "Error", MessageBoxButton.OK,
-                        MessageBoxImage.Error);
                     return;
                 }
 
@@ -71,18 +69,13 @@ namespace PixiEditor.Models.IO
         {
             try
             {
-                bitmap = bitmap.Resize(exportWidth, exportHeight,
-                    WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                using (FileStream stream = new FileStream(savePath, FileMode.Create))
-                {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
-                    encoder.Save(stream);
-                }
+                bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapEx.Interpolation.NearestNeighbor);
+                bitmap.Save(savePath);
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                //TODO implement this
+                //MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

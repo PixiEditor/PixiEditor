@@ -1,5 +1,5 @@
 ﻿using PixiEditor.Models.Enums;
-using PixiEditor.Views;
+using ReactiveUI;
 
 namespace PixiEditor.Models.Dialogs
 {
@@ -16,7 +16,7 @@ namespace PixiEditor.Models.Dialogs
                 if (_width != value)
                 {
                     _width = value;
-                    RaisePropertyChanged("Width");
+                    this.RaisePropertyChanged("Width");
                 }
             }
         }
@@ -29,7 +29,7 @@ namespace PixiEditor.Models.Dialogs
                 if (_height != value)
                 {
                     _height = value;
-                    RaisePropertyChanged("Height");
+                    this.RaisePropertyChanged("Height");
                 }
             }
         }

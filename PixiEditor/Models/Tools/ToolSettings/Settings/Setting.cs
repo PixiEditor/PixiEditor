@@ -1,9 +1,11 @@
-﻿using System.Windows.Controls;
+﻿
+using Avalonia.Controls;
 using PixiEditor.Helpers;
+using ReactiveUI;
 
 namespace PixiEditor.Models.Tools.ToolSettings
 {
-    public abstract class Setting : NotifyableObject
+    public abstract class Setting : ReactiveObject
     {
         public string Name { get; protected set; }
         public string Label { get; set; }
@@ -15,7 +17,7 @@ namespace PixiEditor.Models.Tools.ToolSettings
             set
             {
                 this.value = value;
-                RaisePropertyChanged("Value");
+                this.RaisePropertyChanged("Value");
             }
         }
 

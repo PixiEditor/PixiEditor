@@ -1,22 +1,22 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Interactivity;
-using System.Windows.Media;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Xaml.Interactivity;
 
 namespace PixiEditor.Helpers.Behaviours
 {
     internal class HintTextBehavior : Behavior<TextBox>
     {
-        // Using a DependencyProperty as the backing store for Hint.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty HintProperty =
-            DependencyProperty.Register("Hint", typeof(string), typeof(HintTextBehavior),
-                new PropertyMetadata(string.Empty));
+        // Using a StyledProperty as the backing store for Hint.  This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> HintProperty =
+            AvaloniaProperty.Register<TextBox, string>(nameof(Hint));
 
         private Brush _textColor;
 
         public string Hint
         {
-            get => (string) GetValue(HintProperty);
+            get => GetValue(HintProperty);
             set => SetValue(HintProperty, value);
         }
 
@@ -26,7 +26,7 @@ namespace PixiEditor.Helpers.Behaviours
             base.OnAttached();
             AssociatedObject.GotFocus += AssociatedObject_GotFocus;
             AssociatedObject.LostFocus += AssociatedObject_LostFocus;
-            _textColor = AssociatedObject.Foreground;
+            _textColor = (Brush)AssociatedObject.Foreground;
             SetHint(true);
         }
 

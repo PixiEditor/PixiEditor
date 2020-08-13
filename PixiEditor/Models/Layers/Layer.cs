@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using AvaloniaWriteableBitmapEx;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
+using ReactiveUI;
 
 namespace PixiEditor.Models.Layers
 {
@@ -21,7 +22,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _name = value;
-                RaisePropertyChanged("Name");
+                this.RaisePropertyChanged("Name");
             }
         }
 
@@ -31,7 +32,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _isActive = value;
-                RaisePropertyChanged("IsActive");
+                this.RaisePropertyChanged("IsActive");
             }
         }
 
@@ -41,7 +42,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _isVisible = value;
-                RaisePropertyChanged("IsVisible");
+                this.RaisePropertyChanged("IsVisible");
             }
         }
 
@@ -51,7 +52,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _isRenaming = value;
-                RaisePropertyChanged("IsRenaming");
+                this.RaisePropertyChanged("IsRenaming");
             }
         }
 
@@ -62,7 +63,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _layerBitmap = value;
-                RaisePropertyChanged("LayerBitmap");
+                this.RaisePropertyChanged("LayerBitmap");
             }
         }
 
@@ -74,7 +75,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _opacity = value;
-                RaisePropertyChanged("Opacity");
+                this.RaisePropertyChanged("Opacity");
             }
         }
 
@@ -90,7 +91,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _offset = value;
-                RaisePropertyChanged("Offset");
+                this.RaisePropertyChanged("Offset");
             }
         }
 
@@ -111,7 +112,7 @@ namespace PixiEditor.Models.Layers
         public Layer(string name)
         {
             Name = name;
-            LayerBitmap = BitmapFactory.New(0, 0);
+            LayerBitmap = new WriteableBitmap(new PixelSize(0, 0), new Vector(72, 72));
             Width = 0;
             Height = 0;
         }
@@ -119,7 +120,7 @@ namespace PixiEditor.Models.Layers
         public Layer(string name, int width, int height)
         {
             Name = name;
-            LayerBitmap = BitmapFactory.New(width, height);
+            LayerBitmap = new WriteableBitmap(new PixelSize(width, height), new Vector(72,72));
             Width = width;
             Height = height;
         }
@@ -129,8 +130,8 @@ namespace PixiEditor.Models.Layers
         {
             Name = name;
             LayerBitmap = layerBitmap;
-            Width = layerBitmap.PixelWidth;
-            Height = layerBitmap.PixelHeight;
+            Width = _layerBitmap.PixelSize.Width;
+            Height = _layerBitmap.PixelSize.Height;
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="newMaxHeight">New layer maximum height, this should be document height</param>
         public void Resize(int width, int height, int newMaxWidth, int newMaxHeight)
         {
-            LayerBitmap = LayerBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            LayerBitmap = LayerBitmap.Resize(width, height, WriteableBitmapEx.Interpolation.NearestNeighbor);
             Width = width;
             Height = height;
             MaxWidth = newMaxWidth;
@@ -421,10 +422,11 @@ namespace PixiEditor.Models.Layers
         /// <returns></returns>
         public byte[] ConvertBitmapToBytes()
         {
-            LayerBitmap.Lock();
-            byte[] byteArray = LayerBitmap.ToByteArray();
-            LayerBitmap.Unlock();
-            return byteArray;
+            using (LayerBitmap.GetBitmapContext())
+            {
+                byte[] byteArray = LayerBitmap.ToByteArray(0, LayerBitmap.PixelSize.Height * LayerBitmap.PixelSize.Width * 4);
+                return byteArray;
+            }
         }
 
         /// <summary>

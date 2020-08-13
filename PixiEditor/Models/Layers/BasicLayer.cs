@@ -1,10 +1,10 @@
 ﻿using System;
-using PixiEditor.Helpers;
+using ReactiveUI;
 
 namespace PixiEditor.Models.Layers
 {
     [Serializable]
-    public class BasicLayer : NotifyableObject
+    public class BasicLayer : ReactiveObject
     {
         public int Width
         {
@@ -12,7 +12,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _width = value;
-                RaisePropertyChanged("Width");
+                this.RaisePropertyChanged("Width");
             }
         }
 
@@ -22,7 +22,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 _height = value;
-                RaisePropertyChanged("Height");
+                this.RaisePropertyChanged("Height");
             }
         }
 

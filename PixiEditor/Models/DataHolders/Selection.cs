@@ -1,16 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Media;
-using PixiEditor.Helpers;
+using Avalonia.Media;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using PixiEditor.ViewModels;
+using ReactiveUI;
 
 namespace PixiEditor.Models.DataHolders
 {
-    public class Selection : NotifyableObject
+    public class Selection : ReactiveObject
     {
         public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
 
@@ -20,7 +18,7 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 _selectionLayer = value;
-                RaisePropertyChanged("SelectionLayer");
+                this.RaisePropertyChanged("SelectionLayer");
             }
         }
 
@@ -48,7 +46,7 @@ namespace PixiEditor.Models.DataHolders
                     break;
                 case SelectionType.Subtract:
                     SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
-                    selectionColor = System.Windows.Media.Colors.Transparent;
+                    selectionColor = Color.FromArgb(0,0,0,0);
                     break;
             }
 

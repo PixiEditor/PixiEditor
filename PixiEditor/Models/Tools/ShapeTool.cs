@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Input;
+using Avalonia.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools
@@ -17,7 +16,7 @@ namespace PixiEditor.Models.Tools
         public ShapeTool()
         {
             RequiresPreviewLayer = true;
-            Cursor = Cursors.Cross;
+            Cursor = new Cursor(StandardCursorType.Cross);
             Toolbar = new BasicShapeToolbar();
         }
 

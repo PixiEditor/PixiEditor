@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Avalonia.Data.Converters;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Data;
 
 namespace PixiEditor.Helpers
 {
-    [ValueConversion(typeof(string), typeof(int))]
     internal class ToolSizeToIntConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

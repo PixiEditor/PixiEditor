@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
@@ -12,31 +11,24 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using ReactiveUI;
 
 namespace PixiEditor.Models.Controllers
 {
-    public class BitmapManager : NotifyableObject
+    public class BitmapManager : ReactiveObject
     {
         public MouseMovementController MouseController { get; set; }
 
         public Tool SelectedTool
         {
             get => _selectedTool;
-            private set
-            {
-                _selectedTool = value;
-                RaisePropertyChanged("SelectedTool");
-            }
+            private set => this.RaiseAndSetIfChanged(ref _selectedTool, value);
         }
 
         public Layer PreviewLayer
         {
             get => _previewLayer;
-            set
-            {
-                _previewLayer = value;
-                RaisePropertyChanged("PreviewLayer");
-            }
+            set => this.RaiseAndSetIfChanged(ref _previewLayer, value);
         }
 
         public Layer ActiveLayer => ActiveDocument.ActiveLayer;
@@ -56,7 +48,7 @@ namespace PixiEditor.Models.Controllers
             set
             {
                 _activeDocument = value;
-                RaisePropertyChanged("ActiveDocument");
+                this.RaisePropertyChanged("ActiveDocument");
                 DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
             }
         }
@@ -98,7 +90,7 @@ namespace PixiEditor.Models.Controllers
 
         public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
         {
-            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
+            AddNewLayer(name, bitmap.PixelSize.Width, bitmap.PixelSize.Height, setAsActive);
             ActiveDocument.Layers.Last().LayerBitmap = bitmap;
         }
 
@@ -217,7 +209,7 @@ namespace PixiEditor.Models.Controllers
 
         public WriteableBitmap GetCombinedLayersBitmap()
         {
-            return BitmapUtils.CombineLayers(ActiveDocument.Layers.Where(x => x.IsVisible).ToArray(), ActiveDocument.Width, ActiveDocument.Height);
+            return BitmapUtils.CombineLayers(ActiveDocument.Layers.ToArray(), ActiveDocument.Width, ActiveDocument.Height);
         }
 
         /// <summary>

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia;
+using Avalonia.Media;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
@@ -12,10 +12,11 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels;
+using ReactiveUI;
 
 namespace PixiEditor.Models.DataHolders
 {
-    public class Document : NotifyableObject
+    public class Document : ReactiveObject
     {
         public int Width
         {
@@ -23,7 +24,7 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 _width = value;
-                RaisePropertyChanged("Width");
+                this.RaisePropertyChanged("Width");
             }
         }
 
@@ -33,7 +34,7 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 _height = value;
-                RaisePropertyChanged("Height");
+                this.RaisePropertyChanged("Height");
             }
         }
 
@@ -47,8 +48,8 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 _activeLayerIndex = value;
-                RaisePropertyChanged("ActiveLayerIndex");
-                RaisePropertyChanged("ActiveLayer");
+                this.RaisePropertyChanged("ActiveLayerIndex");
+                this.RaisePropertyChanged("ActiveLayer");
             }
         }
 

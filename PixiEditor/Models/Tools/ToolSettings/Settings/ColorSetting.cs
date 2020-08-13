@@ -1,5 +1,5 @@
-﻿using System.Windows.Data;
-using System.Windows.Media;
+﻿using Avalonia.Data;
+using Avalonia.Media;
 using ColorPicker;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings

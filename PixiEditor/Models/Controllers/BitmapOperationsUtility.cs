@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia.Input;
+using Avalonia.Media;
+using AvaloniaPlayground.Models;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
@@ -82,7 +82,7 @@ namespace PixiEditor.Models.Controllers
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
-            if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
+            if (Keyboard.IsKeyPressed(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
                 mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
             if (!tool.RequiresPreviewLayer)
             {
@@ -138,16 +138,12 @@ namespace PixiEditor.Models.Controllers
         private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)
         {
             Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
-            using (Manager.ActiveLayer.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
-            {
                 var relativeCoords = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
                 for (int i = 0; i < coordinates.Length; i++)
                 {
                     values.Add(coordinates[i],
                         Manager.ActiveLayer.GetPixel(relativeCoords[i].X, relativeCoords[i].Y));
                 }
-
-            }
             return new BitmapPixelChanges(values);
         }
 

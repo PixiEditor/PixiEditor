@@ -5,11 +5,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Microsoft.Win32;
+using System.Reactive;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
@@ -21,6 +22,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using ReactiveUI;
 
 namespace PixiEditor.ViewModels
 {
@@ -90,7 +92,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _mouseXonCanvas = value;
-                RaisePropertyChanged("MouseXOnCanvas");
+                this.RaisePropertyChanged("MouseXOnCanvas");
             }
         }
 
@@ -100,7 +102,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _mouseYonCanvas = value;
-                RaisePropertyChanged("MouseYOnCanvas");
+                this.RaisePropertyChanged("MouseYOnCanvas");
             }
         }
 
@@ -110,7 +112,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _recenterZoombox = value;
-                RaisePropertyChanged("RecenterZoombox");
+                this.RaisePropertyChanged("RecenterZoombox");
             }
         }
 
@@ -119,12 +121,8 @@ namespace PixiEditor.ViewModels
             get => _primaryColor;
             set
             {
-                if (_primaryColor != value)
-                {
-                    _primaryColor = value;
-                    BitmapManager.PrimaryColor = value;
-                    RaisePropertyChanged("PrimaryColor");
-                }
+                this.RaiseAndSetIfChanged(ref _secondaryColor, value);
+                BitmapManager.PrimaryColor = value;
             }
         }
 
@@ -133,11 +131,7 @@ namespace PixiEditor.ViewModels
             get => _secondaryColor;
             set
             {
-                if (_secondaryColor != value)
-                {
-                    _secondaryColor = value;
-                    RaisePropertyChanged("SecondaryColor");
-                }
+                this.RaiseAndSetIfChanged(ref _secondaryColor, value);
             }
         }
 
@@ -160,7 +154,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _toolCursor = value;
-                RaisePropertyChanged("ToolCursor");
+                this.RaisePropertyChanged("ToolCursor");
             }
         }
 
@@ -175,7 +169,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _selection = value;
-                RaisePropertyChanged("ActiveSelection");
+                this.RaisePropertyChanged("ActiveSelection");
             }
         }
 
@@ -226,7 +220,7 @@ namespace PixiEditor.ViewModels
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool()
+                new CircleTool(), new RectangleTool(), new EarserTool(), new ColorPickerTool(), new BrightnessTool()
             };
             ShortcutController = new ShortcutController
             {
@@ -234,7 +228,7 @@ namespace PixiEditor.ViewModels
                 {
                     //Tools
                     new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.E, SelectToolCommand, ToolType.Eraser),
+                    new Shortcut(Key.E, SelectToolCommand, ToolType.Earser),
                     new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
                     new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
                     new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
@@ -245,24 +239,24 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
                     //Editor
                     new Shortcut(Key.X, SwapColorsCommand),
-                    new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Y, RedoCommand, modifier: KeyModifiers.Control),
                     new Shortcut(Key.Z, UndoCommand),
-                    new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.D, DeselectCommand, modifier: KeyModifiers.Control),
+                    new Shortcut(Key.A, SelectAllCommand, modifier: KeyModifiers.Control),
+                    new Shortcut(Key.C, CopyCommand, modifier: KeyModifiers.Control),
+                    new Shortcut(Key.V, PasteCommand, modifier: KeyModifiers.Control),
+                    new Shortcut(Key.J, DuplicateCommand, modifier: KeyModifiers.Control),
+                    new Shortcut(Key.X, CutCommand, modifier: KeyModifiers.Control),
                     new Shortcut(Key.Delete, DeletePixelsCommand),
-                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: KeyModifiers.Control | KeyModifiers.Shift),
+                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", KeyModifiers.Control | KeyModifiers.Shift),
                     //File
-                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.O, OpenFileCommand, modifier: KeyModifiers.Control),
                     new Shortcut(Key.S, ExportFileCommand,
-                        modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
-                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
+                        modifier: KeyModifiers.Control | KeyModifiers.Shift | KeyModifiers.Alt),
+                    new Shortcut(Key.S, SaveDocumentCommand, modifier: KeyModifiers.Control),
+                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", KeyModifiers.Control | KeyModifiers.Shift),
+                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: KeyModifiers.Control),
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -320,16 +314,15 @@ namespace PixiEditor.ViewModels
         }
 
         private void Open(object property)
-        {
+        { //"All Files|*.*|PixiEditor Files | *.pixi|PNG Files|*.png"
             OpenFileDialog dialog = new OpenFileDialog
             {
-                Filter = "All Files|*.*|PixiEditor Files | *.pixi|PNG Files|*.png",
-                DefaultExt = "pixi"
+                //Filters = new List<FileDialogFilter>() {new FileDialogFilter() },
             };
             if ((bool) dialog.ShowDialog())
             {
-                if (Importer.IsSupportedFile(dialog.FileName))
-                    Open(dialog.FileName);
+                if (Importer.IsSupportedFile(dialog.Title)) //Title? should be sth like filename
+                    Open(dialog.Title);
                 RecenterZoombox = !RecenterZoombox;
             }
         }
@@ -610,7 +603,7 @@ namespace PixiEditor.ViewModels
             if (tool != ToolType.None)
                 ToolCursor = BitmapManager.SelectedTool.Cursor;
             else
-                ToolCursor = Cursors.Arrow;
+                ToolCursor = new Cursor(StandardCursorType.Arrow);
         }
 
         /// <summary>
@@ -763,7 +756,7 @@ namespace PixiEditor.ViewModels
         private void ExportFile(object parameter)
         {
             WriteableBitmap bitmap = BitmapManager.GetCombinedLayersBitmap();
-            Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
+            Exporter.Export(bitmap, new Size(bitmap.PixelSize.Width, bitmap.PixelSize.Height));
         }
 
         /// <summary>

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Media;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -11,7 +12,6 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
 using Transform = PixiEditor.Models.ImageManipulation.Transform;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -31,10 +31,12 @@ namespace PixiEditor.Models.Tools.Tools
         private Coordinates[] _startSelection;
         private bool _updateViewModelSelection = true;
 
+        private Color _transparent = Color.FromArgb(0, 0, 0, 0);
+
         public MoveTool()
         {
             Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers";
-            Cursor = Cursors.Arrow;
+            Cursor = new Cursor(StandardCursorType.Arrow);
             HideHighlight = true;
             RequiresPreviewLayer = true;
             UseDefaultUndoMethod = true;
@@ -54,9 +56,9 @@ namespace PixiEditor.Models.Tools.Tools
                     ((LayerChange[]) changes.OldValue).First(x=> x.LayerIndex == layerIndex).PixelChanges.ChangedPixels
                         .AddRangeOverride(beforeMovePixels.ChangedPixels);
 
-                    ((LayerChange[]) changes.NewValue).First(x => x.LayerIndex == layerIndex).PixelChanges.ChangedPixels
+                    ((LayerChange[])changes.NewValue).First(x => x.LayerIndex == layerIndex).PixelChanges.ChangedPixels
                         .AddRangeNewOnly(BitmapPixelChanges
-                            .FromSingleColoredArray(_startSelection, System.Windows.Media.Colors.Transparent)
+                            .FromSingleColoredArray(_startSelection, _transparent)
                             .ChangedPixels);
                 }
             }
@@ -183,7 +185,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (!_clearedPixels.ContainsKey(layer) || _clearedPixels[layer] == false)
             {
                 ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.First(x => x == layer)
-                    .SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
+                    .SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, _transparent));
 
                 _clearedPixels[layer] = true;
             }

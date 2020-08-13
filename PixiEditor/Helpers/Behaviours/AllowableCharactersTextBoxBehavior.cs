@@ -1,21 +1,20 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Xaml.Interactivity;
+using AvaloniaPlayground.Models;
+using System;
 using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Interactivity;
 
 namespace PixiEditor.Helpers.Behaviours
 {
     public class AllowableCharactersTextBoxBehavior : Behavior<TextBox>
     {
-        public static readonly DependencyProperty RegularExpressionProperty =
-            DependencyProperty.Register("RegularExpression", typeof(string), typeof(AllowableCharactersTextBoxBehavior),
-                new FrameworkPropertyMetadata(".*"));
+        public static readonly StyledProperty<string> RegularExpressionProperty =
+            AvaloniaProperty.Register<AllowableCharactersTextBoxBehavior, string>(nameof(RegularExpression), ".*");
 
-        public static readonly DependencyProperty MaxLengthProperty =
-            DependencyProperty.Register("MaxLength", typeof(int), typeof(AllowableCharactersTextBoxBehavior),
-                new FrameworkPropertyMetadata(int.MinValue));
+        public static readonly StyledProperty<int> MaxLengthProperty =
+            AvaloniaProperty.Register<AllowableCharactersTextBoxBehavior, int>(nameof(MaxLength), int.MinValue);
 
         public string RegularExpression
         {
@@ -32,25 +31,25 @@ namespace PixiEditor.Helpers.Behaviours
         protected override void OnAttached()
         {
             base.OnAttached();
-            AssociatedObject.PreviewTextInput += OnPreviewTextInput;
-            DataObject.AddPastingHandler(AssociatedObject, OnPaste);
+            AssociatedObject.TextInput += OnTextInput;
+            AssociatedObject.KeyDown += OnKeyDown;
         }
 
-        private void OnPaste(object sender, DataObjectPastingEventArgs e)
+        private void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.DataObject.GetDataPresent(DataFormats.Text))
+            if (e.Key == Key.V && e.KeyModifiers == KeyModifiers.Control)
             {
-                string text = Convert.ToString(e.DataObject.GetData(DataFormats.Text));
+                string text = Convert.ToString(Application.Current.Clipboard.GetTextAsync());
 
-                if (!IsValid(text, true)) e.CancelCommand();
+                if (!IsValid(text, true)) e.Handled = true;
             }
             else
             {
-                e.CancelCommand();
+                e.Handled = true;
             }
         }
 
-        private void OnPreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void OnTextInput(object sender, TextInputEventArgs e)
         {
             e.Handled = !IsValid(e.Text, false);
         }
@@ -58,8 +57,8 @@ namespace PixiEditor.Helpers.Behaviours
         protected override void OnDetaching()
         {
             base.OnDetaching();
-            AssociatedObject.PreviewTextInput -= OnPreviewTextInput;
-            DataObject.RemovePastingHandler(AssociatedObject, OnPaste);
+            AssociatedObject.TextInput -= OnTextInput;
+            AssociatedObject.KeyDown -= OnKeyDown;
         }
 
         private bool IsValid(string newText, bool paste)
@@ -76,7 +75,7 @@ namespace PixiEditor.Helpers.Behaviours
 
         private int LengthOfModifiedText(string newText, bool paste)
         {
-            var countOfSelectedChars = AssociatedObject.SelectedText.Length;
+            var countOfSelectedChars = AssociatedObject.SelectionEnd - AssociatedObject.SelectionStart;
             var caretIndex = AssociatedObject.CaretIndex;
             string text = AssociatedObject.Text;
 
@@ -86,7 +85,7 @@ namespace PixiEditor.Helpers.Behaviours
                 return text.Length + newText.Length;
             }
 
-            var insert = Keyboard.IsKeyToggled(Key.Insert);
+            var insert = Keyboard.IsKeyPressed(Key.Insert);
 
             return insert && caretIndex < text.Length ? text.Length : text.Length + newText.Length;
         }

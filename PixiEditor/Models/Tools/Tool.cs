@@ -1,11 +1,12 @@
-﻿using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿
+using Avalonia.Input;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using ReactiveUI;
 
 namespace PixiEditor.Models.Tools
 {
-    public abstract class Tool : NotifyableObject
+    public abstract class Tool : ReactiveObject
     {
         public abstract ToolType ToolType { get; }
         public string ImagePath => $"/Images/{ToolType}Image.png";
@@ -18,11 +19,11 @@ namespace PixiEditor.Models.Tools
             set
             {
                 _isActive = value;
-                RaisePropertyChanged("IsActive");
+                this.RaisePropertyChanged("IsActive");
             }
         }
 
-        public Cursor Cursor { get; set; } = Cursors.Arrow;
+        public Cursor Cursor { get; set; } = new Cursor(StandardCursorType.Arrow);
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 

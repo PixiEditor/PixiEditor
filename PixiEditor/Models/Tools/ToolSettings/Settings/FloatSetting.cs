@@ -1,4 +1,4 @@
-﻿using System.Windows.Data;
+﻿using Avalonia.Data;
 using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings

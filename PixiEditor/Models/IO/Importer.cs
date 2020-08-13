@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
+using Avalonia.Media.Imaging;
+using AvaloniaWriteableBitmapEx;
 using PixiEditor.Models.DataHolders;
+using ReactiveUI;
 
 namespace PixiEditor.Models.IO
 {
-    public class Importer : NotifyableObject
+    public class Importer : ReactiveObject
     {
         /// <summary>
         ///     Imports image from path and resizes it to given dimensions
@@ -17,9 +18,9 @@ namespace PixiEditor.Models.IO
         public static WriteableBitmap ImportImage(string path, int width, int height)
         {
             var wbmp = ImportImage(path);
-            if (wbmp.PixelWidth != width || wbmp.PixelHeight != height)
+            if (wbmp.PixelSize.Width != width || wbmp.PixelSize.Height != height)
             {
-                return wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+                return wbmp.Resize(width, height, WriteableBitmapEx.Interpolation.NearestNeighbor);
             }
 
             return wbmp;
@@ -31,13 +32,13 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path of image.</param>
         public static WriteableBitmap ImportImage(string path)
         {
-            Uri uri = new Uri(path);
+            Uri uri = new Uri(path);        
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = uri;
             bitmap.EndInit();
 
-            return BitmapFactory.ConvertToPbgra32Format(bitmap);
+            return /*BitmapFactory.ConvertToPbgra32Format(*/bitmap;//); TODO: Implement this
         }
 
         public static Document ImportDocument(string path)

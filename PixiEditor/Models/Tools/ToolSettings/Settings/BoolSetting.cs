@@ -1,7 +1,9 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Layout;
+using System;
+using System.Reactive.Subjects;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -23,18 +25,13 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private Control GenerateCheckBox()
         {
+            var source = new Subject<bool>();
             CheckBox checkBox = new CheckBox
             {
-                IsChecked = (bool) Value,
-                VerticalAlignment = VerticalAlignment.Center
+                IsChecked = (bool)Value,
+                VerticalAlignment = VerticalAlignment.Center,
+                [!ToggleButton.IsCheckedProperty] = source.ToBinding()
             };
-
-            Binding binding = new Binding("Value")
-            {
-                Mode = BindingMode.TwoWay
-            };
-
-            checkBox.SetBinding(ToggleButton.IsCheckedProperty, binding);
 
             return checkBox;
         }

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Avalonia.Input;
+using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
+
 
 namespace PixiEditor.Models.Controllers.Shortcuts
 {
@@ -16,7 +17,7 @@ namespace PixiEditor.Models.Controllers.Shortcuts
             Shortcuts = new List<Shortcut>();
         }
 
-        public void KeyPressed(Key key, ModifierKeys modifiers)
+        public void KeyPressed(Key key, KeyModifiers modifiers)
         {
             if (!BlockShortcutExecution)
             {

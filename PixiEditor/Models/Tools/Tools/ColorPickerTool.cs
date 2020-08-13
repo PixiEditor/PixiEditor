@@ -1,7 +1,5 @@
 ﻿using System.Drawing;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
-using Color = System.Windows.Media.Color;
 
 namespace PixiEditor.Models.Tools.Tools
 {

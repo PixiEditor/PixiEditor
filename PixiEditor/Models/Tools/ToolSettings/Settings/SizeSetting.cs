@@ -1,7 +1,9 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Interactivity;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Media;
+using Avalonia.Styling;
+using Avalonia.Xaml.Interactivity;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
 
@@ -28,7 +30,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
             if (Application.Current != null)
             {
-                tb.Style = (Style)Application.Current.TryFindResource("DarkTextBoxStyle"); ;
+                tb.Styles.Add((Style)Application.Current.FindResource("DarkTextBoxStyle"));
             }
 
             Binding binding = new Binding("Value")
@@ -36,7 +38,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 Converter = new ToolSizeToIntConverter(),
                 Mode = BindingMode.TwoWay
             };
-            tb.SetBinding(TextBox.TextProperty, binding);
+            tb.Bind(TextBox.TextProperty, binding);
             TextBoxFocusBehavior behavor = new TextBoxFocusBehavior
             {
                 FillSize = true
