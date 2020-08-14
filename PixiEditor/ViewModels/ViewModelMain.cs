@@ -493,7 +493,7 @@ namespace PixiEditor.ViewModels
         private void KeyUp(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            if (_restoreToolOnKeyUp && ShortcutController.LastShortcut.ShortcutKey == args.Key)
+            if (_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.ShortcutKey == args.Key)
             {
                 _restoreToolOnKeyUp = false;
                 SetActiveTool(_lastActionTool);
@@ -504,7 +504,7 @@ namespace PixiEditor.ViewModels
         public void KeyDown(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            if (args.IsRepeat && !_restoreToolOnKeyUp && ShortcutController.LastShortcut.Command == SelectToolCommand)
+            if (args.IsRepeat && !_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.Command == SelectToolCommand)
             {
                 _restoreToolOnKeyUp = true;
                 ShortcutController.BlockShortcutExecution = true;

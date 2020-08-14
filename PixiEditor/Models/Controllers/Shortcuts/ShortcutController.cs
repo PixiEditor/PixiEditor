@@ -9,7 +9,7 @@ namespace PixiEditor.Models.Controllers.Shortcuts
         public static bool BlockShortcutExecution { get; set; }
 
         public List<Shortcut> Shortcuts { get; set; }
-        public Shortcut LastShortcut { get; private set; } 
+        public Shortcut LastShortcut { get; private set; }
 
         public ShortcutController()
         {
