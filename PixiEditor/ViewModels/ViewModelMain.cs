@@ -79,6 +79,8 @@ namespace PixiEditor.ViewModels
         public RelayCommand CloseWindowCommand { get; set; }
         public RelayCommand CenterContentCommand { get; set; }
         public RelayCommand OpenHyperlinkCommand { get; set; }
+        public RelayCommand ZoomCommand { get; set; }
+
 
         private double _mouseXonCanvas;
 
@@ -236,6 +238,7 @@ namespace PixiEditor.ViewModels
             CloseWindowCommand = new RelayCommand(CloseWindow);
             CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
             OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
+            ZoomCommand = new RelayCommand(ZoomViewport);
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
@@ -257,10 +260,13 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
                     new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
                     new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
+                    new Shortcut(Key.Z, SelectToolCommand, ToolType.Zoom),
+                    new Shortcut(Key.OemPlus, ZoomCommand, 115),
+                    new Shortcut(Key.OemMinus, ZoomCommand, 85),
                     //Editor
                     new Shortcut(Key.X, SwapColorsCommand),
                     new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.Z, UndoCommand),
+                    new Shortcut(Key.Z, UndoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
@@ -284,6 +290,13 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = PrimaryColor;
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
+        }
+
+        private void ZoomViewport(object parameter)
+        {
+            double zoom = (int)parameter;
+            ZoomPercentage = zoom;
+            ZoomPercentage = 100;
         }
 
         private void OpenHyperlink(object parameter)
@@ -643,7 +656,9 @@ namespace PixiEditor.ViewModels
             {
                 if (!BitmapManager.MouseController.IsRecordingChanges)
                 {
-                    BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
+                    bool clickedOnCanvas = MouseXOnCanvas >= 0 && MouseXOnCanvas <= BitmapManager.ActiveDocument.Width &&
+                        MouseYOnCanvas >= 0 && MouseYOnCanvas <= BitmapManager.ActiveDocument.Height;
+                    BitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }

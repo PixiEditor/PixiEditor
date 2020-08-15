@@ -374,8 +374,8 @@ namespace PixiEditor.Models.Layers
 
         private void IncreaseSizeToTop(int newMinX, int newMinY)
         {
-            newMinX = Math.Clamp(Math.Min(newMinX, Width), -OffsetX, 0);
-            newMinY = Math.Clamp(Math.Min(newMinY, Height), -OffsetY, 0);
+            newMinX = Math.Clamp(Math.Min(newMinX, Width), Math.Min(-OffsetX, OffsetX), 0);
+            newMinY = Math.Clamp(Math.Min(newMinY, Height), Math.Min(-OffsetY, OffsetY), 0);
 
             Offset = new Thickness(Math.Clamp(OffsetX + newMinX, 0, MaxWidth),
                 Math.Clamp(OffsetY + newMinY, 0, MaxHeight), 0, 0);

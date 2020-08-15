@@ -15,6 +15,8 @@ namespace PixiEditor.Models.Tools.Tools
         public ZoomTool()
         {
             HideHighlight = true;
+            CanStartOutsideCanvas = true;
+            Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";            
         }
 
         public override void OnMouseDown(MouseEventArgs e)
@@ -28,17 +30,20 @@ namespace PixiEditor.Models.Tools.Tools
             if (e.LeftButton == MouseButtonState.Released && e.RightButton == MouseButtonState.Released && 
                 _startingX == MousePositionConverter.GetCursorPosition().X)
             {
-                double zoomModifier;
                 if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt))
                 {
-                    zoomModifier =  85;
+                    Zoom(85);
                 }
                 else
                 {
-                    zoomModifier = 115;
+                    Zoom(115);
                 }
-                ViewModelMain.Current.ZoomPercentage = zoomModifier;
             }
+        }
+
+        public void Zoom(double percentage)
+        {
+            ViewModelMain.Current.ZoomPercentage = percentage;
         }
 
         public override void Use(Coordinates[] pixels)

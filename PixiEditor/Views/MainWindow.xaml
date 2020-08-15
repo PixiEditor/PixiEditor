@@ -169,6 +169,9 @@
                         <i:EventTrigger EventName="MouseUp">
                             <i:InvokeCommandAction Command="{Binding MouseUpCommand}" />
                         </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseDown">
+                            <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
+                        </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <i:Interaction.Behaviors>
                         <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
@@ -179,11 +182,6 @@
                         <Canvas Width="{Binding BitmapManager.ActiveDocument.Width}"
                                 Height="{Binding BitmapManager.ActiveDocument.Height}" VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
                             <Image Source="/Images/transparentbg.png"
                                    Height="{Binding BitmapManager.ActiveDocument.Height}"
                                    Width="{Binding BitmapManager.ActiveDocument.Width}" Opacity="0.9"

@@ -54,6 +54,11 @@ namespace PixiEditor.Views
         private static void ZoomPercentegeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MainDrawingPanel panel = (MainDrawingPanel)d;
+            double percentage = (double)e.NewValue;
+            if(percentage == 100)
+            {
+                panel.ClickScale = panel.Zoombox.Scale;
+            }
             panel.Zoombox.ZoomTo(panel.ClickScale * ((double)e.NewValue / 100.0));
         }
 
@@ -63,7 +68,7 @@ namespace PixiEditor.Views
         {
             InitializeComponent();
             Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection() { KeyModifier.RightAlt };
-            Zoombox.PreviewMouseDown += Zoombox_MouseDown;
+            ClickScale = Zoombox.Scale;
         }
 
         private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
