@@ -28,11 +28,11 @@ namespace PixiEditor.Models.Tools
 
         private bool _isActive;
 
-        public virtual void OnMouseDown()
+        public virtual void OnMouseDown(MouseEventArgs e)
         {
         }
 
-        public virtual void OnMouseUp()
+        public virtual void OnMouseUp(MouseEventArgs e)
         {
         }
 

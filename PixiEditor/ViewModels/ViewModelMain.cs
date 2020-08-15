@@ -164,6 +164,19 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private double _zoomPercentage = 100;
+
+        public double ZoomPercentage
+        {
+            get { return _zoomPercentage; }
+            set 
+            {
+                _zoomPercentage = value;
+                RaisePropertyChanged(nameof(ZoomPercentage));
+            }
+        }
+
+
         public BitmapManager BitmapManager { get; set; }
         public PixelChangesController ChangesController { get; set; }
 
@@ -226,7 +239,8 @@ namespace PixiEditor.ViewModels
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool()
+                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(), 
+                new ZoomTool()
             };
             ShortcutController = new ShortcutController
             {
@@ -497,8 +511,8 @@ namespace PixiEditor.ViewModels
             {
                 _restoreToolOnKeyUp = false;
                 SetActiveTool(_lastActionTool);
+                ShortcutController.BlockShortcutExecution = false;
             }
-            ShortcutController.BlockShortcutExecution = false;
         }
 
         public void KeyDown(object parameter)

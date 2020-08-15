@@ -62,7 +62,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override void OnMouseUp() //This adds undo if there is no selection, reason why this isn't in AfterUndoAdded,
+        public override void OnMouseUp(MouseEventArgs e) //This adds undo if there is no selection, reason why this isn't in AfterUndoAdded,
         {   //is because it doesn't fire if no pixel changes were made.
             if (_currentSelection != null && _currentSelection.Length == 0)
             {

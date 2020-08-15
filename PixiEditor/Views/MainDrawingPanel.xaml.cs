@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Xceed.Wpf.Toolkit.Core.Input;
 using Xceed.Wpf.Toolkit.Zoombox;
 
 namespace PixiEditor.Views
@@ -37,11 +39,37 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty ItemProperty =
             DependencyProperty.Register("Item", typeof(object), typeof(MainDrawingPanel), new PropertyMetadata(0));
 
+
+
+        public double ZoomPercentage
+        {
+            get { return (double)GetValue(ZoomPrecentageProperty); }
+            set { SetValue(ZoomPrecentageProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ZoomPrecentage.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ZoomPrecentageProperty =
+            DependencyProperty.Register("ZoomPercentage", typeof(double), typeof(MainDrawingPanel), new PropertyMetadata(0.0, ZoomPercentegeChanged));
+
+        private static void ZoomPercentegeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MainDrawingPanel panel = (MainDrawingPanel)d;
+            panel.Zoombox.ZoomTo(panel.ClickScale * ((double)e.NewValue / 100.0));
+        }
+
+        public double ClickScale;
+
         public MainDrawingPanel()
         {
             InitializeComponent();
+            Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection() { KeyModifier.RightAlt };
+            Zoombox.PreviewMouseDown += Zoombox_MouseDown;
         }
 
+        private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ClickScale = Zoombox.Scale;
+        }
 
         public bool Center
         {

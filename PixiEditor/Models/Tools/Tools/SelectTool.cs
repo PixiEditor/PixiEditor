@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Input;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -24,7 +25,7 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new SelectToolToolbar();
         }
 
-        public override void OnMouseDown()
+        public override void OnMouseDown(MouseEventArgs e)
         {
             Enum.TryParse((Toolbar.GetSetting("Mode").Value as ComboBoxItem)?.Content as string, out SelectionType);
 
@@ -34,7 +35,7 @@ namespace PixiEditor.Models.Tools.Tools
                 _oldSelection = ViewModelMain.Current.ActiveSelection;
         }
 
-        public override void OnMouseUp()
+        public override void OnMouseUp(MouseEventArgs e)
         {
             UndoManager.AddUndoChange(new Change("ActiveSelection", _oldSelection,
                 ViewModelMain.Current.ActiveSelection, "Select pixels"));
