@@ -151,9 +151,14 @@ namespace PixiEditor.Views
             ClickScale = Zoombox.Scale;
         }
 
-        private void Zoombox_MouseUp(object sender, MouseButtonEventArgs e)
+        private void Zoombox_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-
+            Point point = new Point(0.5, 0.5);
+            if (Zoombox.ZoomOrigin != point)
+            {
+                Zoombox.CenterContent();
+                Zoombox.ZoomOrigin = point;
+            }
         }
     }
 }

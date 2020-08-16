@@ -8,8 +8,8 @@
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel">
-    <xctk:Zoombox PreviewMouseDown="Zoombox_MouseDown" MouseUp="Zoombox_MouseUp"  Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="True"
+             d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel" PreviewMouseWheel="Zoombox_MouseWheel">
+    <xctk:Zoombox PreviewMouseDown="Zoombox_MouseDown"  Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="True"
                   Loaded="Zoombox_Loaded" IsAnimated="True" CurrentViewChanged="Zoombox_CurrentViewChanged" AnimationDuration="00:00:0.2" DragModifiers="Shift" ZoomModifiers="None">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
