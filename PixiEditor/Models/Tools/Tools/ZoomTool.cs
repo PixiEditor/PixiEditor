@@ -9,6 +9,7 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class ZoomTool : ReadonlyTool
     {
+        public const double DragZoomSpeed = 4.0;
         public override ToolType ToolType => ToolType.Zoom;
         private double _startingX;
 
@@ -50,7 +51,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             double xPos = MousePositionConverter.GetCursorPosition().X;
 
-            ViewModelMain.Current.ZoomPercentage = 100 + ((xPos - _startingX) / 5.0);
+            ViewModelMain.Current.ZoomPercentage = 100 + -((_startingX - xPos) / DragZoomSpeed);
         }
     }
 }

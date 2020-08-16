@@ -1,5 +1,7 @@
-﻿using System;
+﻿using PixiEditor.ViewModels;
+using System;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Xceed.Wpf.Toolkit.Core.Input;
@@ -37,7 +39,7 @@ namespace PixiEditor.Views
 
         // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemProperty =
-            DependencyProperty.Register("Item", typeof(object), typeof(MainDrawingPanel), new PropertyMetadata(0));
+            DependencyProperty.Register("Item", typeof(object), typeof(MainDrawingPanel), new PropertyMetadata(default(FrameworkElement)));
 
 
 
@@ -63,17 +65,38 @@ namespace PixiEditor.Views
         }
 
         public double ClickScale;
+        public Point ClickPoint;
 
         public MainDrawingPanel()
         {
             InitializeComponent();
             Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection() { KeyModifier.RightAlt };
-            ClickScale = Zoombox.Scale;
+        }
+
+        private void Zoombox_CurrentViewChanged(object sender, ZoomboxViewChangedEventArgs e)
+        {
+            Zoombox.MinScale = 32 / ((FrameworkElement)Item).Width;
+            if(Zoombox.Scale > Zoombox.MinScale * 35)
+            {
+                Zoombox.KeepContentInBounds = false;
+            }
+            else
+            {
+                Zoombox.KeepContentInBounds = true;
+            }
         }
 
         private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            SetClickValues();
+        }
+
+        private void SetClickValues()
+        {
             ClickScale = Zoombox.Scale;
+            var item = (FrameworkElement)Item;
+            var mousePos = Mouse.GetPosition(item);
+            Zoombox.ZoomOrigin = new Point(mousePos.X / item.Width, mousePos.Y / item.Height);
         }
 
         public bool Center
@@ -125,6 +148,12 @@ namespace PixiEditor.Views
         private void Zoombox_Loaded(object sender, RoutedEventArgs e)
         {
             if (CenterOnStart) ((Zoombox) sender).CenterContent();
+            ClickScale = Zoombox.Scale;
+        }
+
+        private void Zoombox_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
