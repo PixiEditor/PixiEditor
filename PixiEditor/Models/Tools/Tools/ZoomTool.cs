@@ -1,29 +1,47 @@
-﻿using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class ZoomTool : ReadonlyTool
     {
-        public const double DragZoomSpeed = 4.0;
+        public const float MaxZoomMultiplier = 5f;
         public override ToolType ToolType => ToolType.Zoom;
         private double _startingX;
+        private double _workAreaWidth = SystemParameters.WorkArea.Width;
+        private double _pixelsPerZoomMultiplier;
 
         public ZoomTool()
         {
             HideHighlight = true;
             CanStartOutsideCanvas = true;
-            Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";            
+            Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
+            _pixelsPerZoomMultiplier = _workAreaWidth / MaxZoomMultiplier; //Eg. 1200 px screen width / 5x zoom max = 240 px per 1x diff.
         }
 
         public override void OnMouseDown(MouseEventArgs e)
         {
             _startingX = MousePositionConverter.GetCursorPosition().X;
             ViewModelMain.Current.ZoomPercentage = 100; //This resest the value, so callback in MainDrawingPanel can fire again later
+        }
+
+        public override void OnMouseMove(MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                double xPos = MousePositionConverter.GetCursorPosition().X;
+
+                double rawPrecentDifference = (xPos - _startingX) / _pixelsPerZoomMultiplier; //raw = 0-1 range
+                double normalizedPrecentDifference = rawPrecentDifference * 100.0; // To 0-100 range
+                double sumZoomPrecent = normalizedPrecentDifference + 100; // We are adding 100, so we can get the final zoom precent relative to original
+                Zoom(sumZoomPrecent);
+            }
         }
 
         public override void OnMouseUp(MouseEventArgs e)
@@ -49,9 +67,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Coordinates[] pixels)
         {
-            double xPos = MousePositionConverter.GetCursorPosition().X;
-
-            ViewModelMain.Current.ZoomPercentage = 100 + -((_startingX - xPos) / DragZoomSpeed);
         }
     }
 }

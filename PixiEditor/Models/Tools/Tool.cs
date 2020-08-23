@@ -33,6 +33,8 @@ namespace PixiEditor.Models.Tools
 
         public virtual void OnMouseUp(MouseEventArgs e) { }
 
+        public virtual void OnMouseMove(MouseEventArgs e) { }
+
         public virtual void AfterAddedUndo() { }
     }
 }

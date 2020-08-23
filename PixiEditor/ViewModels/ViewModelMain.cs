@@ -675,8 +675,9 @@ namespace PixiEditor.ViewModels
 
 
             if (BitmapManager.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
+            {
                 BitmapManager.MouseController.RecordMouseMovementChange(cords);
-            else
+            }
                 BitmapManager.MouseController.MouseMoved(cords);
         }
 

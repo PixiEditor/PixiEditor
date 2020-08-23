@@ -59,13 +59,12 @@ namespace PixiEditor.Views
             double percentage = (double)e.NewValue;
             if(percentage == 100)
             {
-                panel.ClickScale = panel.Zoombox.Scale;
+                panel.SetClickValues();
             }
             panel.Zoombox.ZoomTo(panel.ClickScale * ((double)e.NewValue / 100.0));
         }
 
         public double ClickScale;
-        public Point ClickPoint;
 
         public MainDrawingPanel()
         {
@@ -76,27 +75,24 @@ namespace PixiEditor.Views
         private void Zoombox_CurrentViewChanged(object sender, ZoomboxViewChangedEventArgs e)
         {
             Zoombox.MinScale = 32 / ((FrameworkElement)Item).Width;
-            if(Zoombox.Scale > Zoombox.MinScale * 35)
-            {
-                Zoombox.KeepContentInBounds = false;
-            }
-            else
-            {
-                Zoombox.KeepContentInBounds = true;
-            }
+            Zoombox.KeepContentInBounds = !(Zoombox.Scale > Zoombox.MinScale * 35.0);
         }
 
-        private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Zoombox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            SetClickValues();
+            if (ZoomPercentage == 100)
+            {
+                SetClickValues();
+            }
         }
 
         private void SetClickValues()
         {
             ClickScale = Zoombox.Scale;
             var item = (FrameworkElement)Item;
+            if (item == null) return;
             var mousePos = Mouse.GetPosition(item);
-            Zoombox.ZoomOrigin = new Point(mousePos.X / item.Width, mousePos.Y / item.Height);
+            Zoombox.ZoomOrigin = new Point(Math.Clamp(mousePos.X / item.Width, 0, 1), Math.Clamp(mousePos.Y / item.Height,0,1));
         }
 
         public bool Center
@@ -153,12 +149,31 @@ namespace PixiEditor.Views
 
         private void Zoombox_MouseWheel(object sender, MouseWheelEventArgs e)
         {
+            if (ZoomPercentage == 100)
+            {
+                SetClickValues();
+            }
+        }
+
+        public void ResetView()
+        {
             Point point = new Point(0.5, 0.5);
             if (Zoombox.ZoomOrigin != point)
             {
                 Zoombox.CenterContent();
                 Zoombox.ZoomOrigin = point;
             }
+        }
+
+        private void mainDrawingPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((MainDrawingPanel)sender).CaptureMouse();
+            ResetView();
+        }
+
+        private void mainDrawingPanel_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ReleaseMouseCapture();
         }
     }
 }
