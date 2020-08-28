@@ -11,7 +11,7 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class ZoomTool : ReadonlyTool
     {
-        public const float MaxZoomMultiplier = 5f;
+        public const float ZoomSensitivityMultiplier = 30f;
         public override ToolType ToolType => ToolType.Zoom;
         private double _startingX;
         private double _workAreaWidth = SystemParameters.WorkArea.Width;
@@ -22,7 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
             HideHighlight = true;
             CanStartOutsideCanvas = true;
             Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
-            _pixelsPerZoomMultiplier = _workAreaWidth / MaxZoomMultiplier; //Eg. 1200 px screen width / 5x zoom max = 240 px per 1x diff.
+            _pixelsPerZoomMultiplier = _workAreaWidth / ZoomSensitivityMultiplier;
         }
 
         public override void OnMouseDown(MouseEventArgs e)
@@ -37,10 +37,9 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 double xPos = MousePositionConverter.GetCursorPosition().X;
 
-                double rawPrecentDifference = (xPos - _startingX) / _pixelsPerZoomMultiplier; //raw = 0-1 range
-                double normalizedPrecentDifference = rawPrecentDifference * 100.0; // To 0-100 range
-                double sumZoomPrecent = normalizedPrecentDifference + 100; // We are adding 100, so we can get the final zoom precent relative to original
-                Zoom(sumZoomPrecent);
+                double rawPercentDifference = (xPos - _startingX) / _pixelsPerZoomMultiplier; //negative - zoom out, positive - zoom in, linear
+                double finalPercentDifference = Math.Pow(2, rawPercentDifference) * 100.0; //less than 100 - zoom out, greater than 100 - zoom in
+                Zoom(finalPercentDifference);
             }
         }
 
