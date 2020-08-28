@@ -49,12 +49,12 @@ namespace PixiEditor.Views
 
         public double ZoomPercentage
         {
-            get { return (double)GetValue(ZoomPrecentageProperty); }
-            set { SetValue(ZoomPrecentageProperty, value); }
+            get { return (double)GetValue(ZoomPercentageProperty); }
+            set { SetValue(ZoomPercentageProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ZoomPrecentage.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ZoomPrecentageProperty =
+        // Using a DependencyProperty as the backing store for ZoomPercentage.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ZoomPercentageProperty =
             DependencyProperty.Register("ZoomPercentage", typeof(double), typeof(MainDrawingPanel), new PropertyMetadata(0.0, ZoomPercentegeChanged));
 
 
