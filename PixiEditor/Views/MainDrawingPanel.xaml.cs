@@ -140,10 +140,15 @@ namespace PixiEditor.Views
         {
             if (!IsUsingZoomTool) return;
             ClickScale = Zoombox.Scale;
+            SetZoomOrigin();
+        }
+
+        private void SetZoomOrigin()
+        {
             var item = (FrameworkElement)Item;
             if (item == null) return;
             var mousePos = Mouse.GetPosition(item);
-            Zoombox.ZoomOrigin = new Point(Math.Clamp(mousePos.X / item.Width, 0, 1), Math.Clamp(mousePos.Y / item.Height,0,1));
+            Zoombox.ZoomOrigin = new Point(Math.Clamp(mousePos.X / item.Width, 0, 1), Math.Clamp(mousePos.Y / item.Height, 0, 1));
         }
 
         private static void OnCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -161,15 +166,19 @@ namespace PixiEditor.Views
 
         private void Zoombox_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (ZoomPercentage == 100)
-            {
-                SetClickValues();
-            }
+            SetZoomOrigin();
         }
 
         private void mainDrawingPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
             IsUsingZoomTool = ViewModelMain.Current.BitmapManager.SelectedTool is ZoomTool;
+            Mouse.Capture((IInputElement)sender, CaptureMode.SubTree);
+            SetClickValues();
+        }
+
+        private void mainDrawingPanel_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ((IInputElement)sender).ReleaseMouseCapture();
         }
     }
 }
