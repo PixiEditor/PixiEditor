@@ -27,17 +27,14 @@ namespace PixiEditor.Models.Tools
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
         private bool _isActive;
+        public bool CanStartOutsideCanvas { get; set; } = false;
 
-        public virtual void OnMouseDown()
-        {
-        }
+        public virtual void OnMouseDown(MouseEventArgs e) { }
 
-        public virtual void OnMouseUp()
-        {
-        }
+        public virtual void OnMouseUp(MouseEventArgs e) { }
 
-        public virtual void AfterAddedUndo()
-        {
-        }
+        public virtual void OnMouseMove(MouseEventArgs e) { }
+
+        public virtual void AfterAddedUndo() { }
     }
 }

@@ -132,10 +132,10 @@ namespace PixiEditor.Models.Controllers
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport()
-                                                             && MouseController.ClickedOnCanvas && ActiveDocument != null)
+            SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
             {
-                ExecuteTool(e.NewPosition);   
+                ExecuteTool(e.NewPosition, MouseController.ClickedOnCanvas);   
             }
             else if (Mouse.LeftButton == MouseButtonState.Released)
             {
@@ -143,14 +143,21 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        public void ExecuteTool(Coordinates newPosition)
+        public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
         {
-            if (IsOperationTool(SelectedTool))
-                BitmapOperations.ExecuteTool(newPosition,
-                    MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
-            else
-                ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
-                    (ReadonlyTool)SelectedTool);
+            if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
+            {
+                if (IsOperationTool(SelectedTool))
+                {
+                    BitmapOperations.ExecuteTool(newPosition,
+                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                }
+                else
+                {
+                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
+                        (ReadonlyTool)SelectedTool);
+                }
+            }
         }
 
         private bool IsDraggingViewport()
@@ -160,13 +167,13 @@ namespace PixiEditor.Models.Controllers
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnMouseDown();
+            SelectedTool.OnMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             PreviewLayer = null;
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnMouseUp();
+            SelectedTool.OnMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (IsOperationTool(SelectedTool) && ((BitmapOperationTool) SelectedTool).RequiresPreviewLayer)
                 BitmapOperations.StopAction();
         }

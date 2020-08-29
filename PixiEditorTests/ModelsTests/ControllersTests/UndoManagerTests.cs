@@ -10,10 +10,15 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public int ExampleProperty { get; set; } = 1;
         public TestPropertyClass TestPropClass { get; set; } = new TestPropertyClass();
 
+        public UndoManagerTests()
+        {
+            PrepareUndoManagerForTest();
+        }
+
         [Fact]
         public void TestSetRoot()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             UndoManager.SetMainRoot(null);
             UndoManager.SetMainRoot(this);
             Assert.Equal(this, UndoManager.MainRoot);
@@ -22,7 +27,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestAddToUndoStack()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
             Assert.True(UndoManager.UndoStack.Count == 1);
             Assert.True((int)UndoManager.UndoStack.Peek().OldValue == ExampleProperty);
@@ -31,7 +36,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatUndoAddsToRedoStack()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
             UndoManager.Undo();
             Assert.True(UndoManager.RedoStack.Count == 1);
@@ -40,7 +45,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestUndo()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, 55));
             ExampleProperty = 55;
             UndoManager.Undo();
@@ -51,7 +56,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatRedoAddsToUndoStack()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
             UndoManager.Undo();
             UndoManager.Redo();
@@ -61,7 +66,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestRedo()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             ExampleProperty = 55;
             UndoManager.AddUndoChange(new Change("ExampleProperty", 1, ExampleProperty));
             UndoManager.Undo();
@@ -72,7 +77,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatUndoManagerUndoAndRedoWithCustomRootCorrectly()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             TestPropertyClass testProp = new TestPropertyClass();
             int newVal = 5;
             testProp.IntProperty = newVal;
@@ -91,7 +96,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatMixedProcessOfUndoAndRedoWorks()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
 
 
             int newVal = 5;
@@ -119,7 +124,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatProcessBasedUndoAndRedoWorks()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             int newVal = 5;
             UndoManager.AddUndoChange(new Change(ReverseProcess, new object[]{ExampleProperty}, ReverseProcess, 
                 new object[]{newVal}));
@@ -140,7 +145,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatNestedPropertyUndoWorks()
         {
-            PrepareUnoManagerForTest();
+            PrepareUndoManagerForTest();
             int newVal = 5;
 
             UndoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty, 
@@ -164,7 +169,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             ExampleProperty = (int)args[0];
         }
 
-        private void PrepareUnoManagerForTest()
+        private void PrepareUndoManagerForTest()
         {
             UndoManager.SetMainRoot(this);
             UndoManager.UndoStack.Clear();

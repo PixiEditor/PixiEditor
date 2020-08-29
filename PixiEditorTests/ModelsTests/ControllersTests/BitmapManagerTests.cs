@@ -92,7 +92,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             bitmapManager.MouseController.RecordMouseMovementChange(new Coordinates(1, 1));
             bitmapManager.MouseController.StopRecordingMouseMovementChanges();
 
-            bitmapManager.ExecuteTool(new Coordinates(1, 1));
+            bitmapManager.ExecuteTool(new Coordinates(1, 1), true);
 
             Assert.Equal(Colors.Green, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
         }

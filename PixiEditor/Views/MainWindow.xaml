@@ -160,7 +160,7 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
-                <vws:MainDrawingPanel Center="{Binding RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
+                <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay}" Center="{Binding RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
                                       CenterOnStart="True" Cursor="{Binding ToolCursor}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseMove">
@@ -168,6 +168,9 @@
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseUp">
                             <i:InvokeCommandAction Command="{Binding MouseUpCommand}" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseDown">
+                            <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <i:Interaction.Behaviors>
@@ -179,11 +182,6 @@
                         <Canvas Width="{Binding BitmapManager.ActiveDocument.Width}"
                                 Height="{Binding BitmapManager.ActiveDocument.Height}" VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
                             <Image Source="/Images/transparentbg.png"
                                    Height="{Binding BitmapManager.ActiveDocument.Height}"
                                    Width="{Binding BitmapManager.ActiveDocument.Width}" Opacity="0.9"

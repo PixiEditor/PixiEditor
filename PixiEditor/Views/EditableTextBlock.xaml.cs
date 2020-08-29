@@ -66,6 +66,8 @@ namespace PixiEditor.Views
             ShortcutController.BlockShortcutExecution = true;
             TextBlockVisibility = Visibility.Hidden;
             IsEditing = true;
+            textBox.Focus();
+            textBox.SelectAll();
         }
 
         private void DisableEditing()

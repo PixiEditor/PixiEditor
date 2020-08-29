@@ -12,6 +12,7 @@
         Rectangle,
         Eraser,
         Brightness,
-        ColorPicker
+        ColorPicker,
+        Zoom
     }
 }

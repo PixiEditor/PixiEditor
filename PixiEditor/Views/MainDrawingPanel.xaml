@@ -7,10 +7,10 @@
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel">
-    <xctk:Zoombox Cursor="{Binding Cursor}" IsAnimated="False" Name="Zoombox" KeepContentInBounds="True"
-                  Loaded="Zoombox_Loaded" DragModifiers="Shift" ZoomModifiers="None">
+             mc:Ignorable="d" PreviewMouseDown="mainDrawingPanel_MouseDown" PreviewMouseUp="mainDrawingPanel_PreviewMouseUp"
+             d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel" PreviewMouseWheel="Zoombox_MouseWheel">
+    <xctk:Zoombox PreviewMouseDown="Zoombox_PreviewMouseDown" Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="True"
+                  Loaded="Zoombox_Loaded" IsAnimated="False" CurrentViewChanged="Zoombox_CurrentViewChanged" DragModifiers="Shift" ZoomModifiers="None">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=mainDrawingPanel, Mode=OneWay}" />
