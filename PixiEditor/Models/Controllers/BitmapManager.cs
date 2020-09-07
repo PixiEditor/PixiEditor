@@ -43,9 +43,16 @@ namespace PixiEditor.Models.Controllers
 
         public Color PrimaryColor { get; set; }
 
-        public int ToolSize => SelectedTool.Toolbar.GetSetting("ToolSize") != null
-            ? (int) SelectedTool.Toolbar.GetSetting("ToolSize").Value
+        public int ToolSize
+        {
+            get => SelectedTool.Toolbar.GetSetting("ToolSize") != null
+            ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value
             : 1;
+            set
+            {
+                SelectedTool.Toolbar.GetSetting("ToolSize").Value = value;
+            }
+        }
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
