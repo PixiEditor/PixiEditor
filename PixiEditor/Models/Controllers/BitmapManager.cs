@@ -12,6 +12,7 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.ToolSettings;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -50,7 +51,10 @@ namespace PixiEditor.Models.Controllers
             : 1;
             set
             {
-                SelectedTool.Toolbar.GetSetting("ToolSize").Value = value;
+                if (SelectedTool.Toolbar.GetSetting("ToolSize") is Setting toolSize)
+                {
+                    toolSize.Value = value;
+                }
             }
         }
 
