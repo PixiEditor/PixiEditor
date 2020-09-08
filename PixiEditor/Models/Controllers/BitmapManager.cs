@@ -54,6 +54,7 @@ namespace PixiEditor.Models.Controllers
                 if (SelectedTool.Toolbar.GetSetting("ToolSize") is Setting toolSize)
                 {
                     toolSize.Value = value;
+                    HighlightPixels(MousePositionConverter.CurrentCoordinates);
                 }
             }
         }
