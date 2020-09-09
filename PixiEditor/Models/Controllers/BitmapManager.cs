@@ -12,6 +12,7 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.ToolSettings;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -43,9 +44,20 @@ namespace PixiEditor.Models.Controllers
 
         public Color PrimaryColor { get; set; }
 
-        public int ToolSize => SelectedTool.Toolbar.GetSetting("ToolSize") != null
-            ? (int) SelectedTool.Toolbar.GetSetting("ToolSize").Value
+        public int ToolSize
+        {
+            get => SelectedTool.Toolbar.GetSetting("ToolSize") != null
+            ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value
             : 1;
+            set
+            {
+                if (SelectedTool.Toolbar.GetSetting("ToolSize") is Setting toolSize)
+                {
+                    toolSize.Value = value;
+                    HighlightPixels(MousePositionConverter.CurrentCoordinates);
+                }
+            }
+        }
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
