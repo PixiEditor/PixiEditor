@@ -82,6 +82,7 @@
                     <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S"
                               Command="{Binding SaveDocumentCommand}" CommandParameter="AsNew" />
                     <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding ExportFileCommand}" />
+                    <MenuItem Header="_Exit" InputGestureText="Ctrl+Q" Command="{x:Static SystemCommands.CloseWindowCommand}" />
                 </MenuItem>
                 <MenuItem Header="_Edit">
                     <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}" />
