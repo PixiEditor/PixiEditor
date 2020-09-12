@@ -279,7 +279,6 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.Delete, DeletePixelsCommand),
                     new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.Q, SystemCommands.CloseWindowCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.F11, SystemCommands.MaximizeWindowCommand),
                     //File
                     new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
