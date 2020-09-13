@@ -48,23 +48,23 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void Select(Coordinates[] pixels)
         {
-            Coordinates[] selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
+            IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
             ViewModelMain.Current.ActiveSelection.SetSelection(selection, SelectionType);
         }
 
-        public Coordinates[] GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
+        public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
             RectangleTool rectangleTool = new RectangleTool();
             List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
             selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
-            return selection.ToArray();
+            return selection;
         }
 
         /// <summary>
         ///     Gets coordinates of every pixel in root layer
         /// </summary>
         /// <returns>Coordinates array of pixels</returns>
-        public Coordinates[] GetAllSelection()
+        public IEnumerable<Coordinates> GetAllSelection()
         {
             return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument);
         }
@@ -74,7 +74,7 @@ namespace PixiEditor.Models.Tools.Tools
         /// </summary>
         /// <param name="document"></param>
         /// <returns>Coordinates array of pixels</returns>
-        public Coordinates[] GetAllSelection(Document document)
+        public IEnumerable<Coordinates> GetAllSelection(Document document)
         {
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
         }

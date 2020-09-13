@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
 using PixiEditor.Helpers;
@@ -34,7 +35,7 @@ namespace PixiEditor.Models.DataHolders
             _selectionBlue = Color.FromArgb(127, 142, 202, 255);
         }
 
-        public void SetSelection(Coordinates[] selection, SelectionType mode)
+        public void SetSelection(IEnumerable<Coordinates> selection, SelectionType mode)
         {
             Color selectionColor = _selectionBlue;
             switch (mode)

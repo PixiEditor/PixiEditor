@@ -23,14 +23,14 @@ namespace PixiEditor.Models.Tools
 
         public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
 
-        protected Coordinates[] GetThickShape(Coordinates[] shape, int thickness)
+        protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
         {
             List<Coordinates> output = new List<Coordinates>();
-            for (int i = 0; i < shape.Length; i++)
+            foreach(var item in shape)
                 output.AddRange(
                     CoordinatesCalculator.RectangleToCoordinates(
-                        CoordinatesCalculator.CalculateThicknessCenter(shape[i], thickness)));
-            return output.Distinct().ToArray();
+                        CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
+            return output.Distinct();
         }
 
 

@@ -7,7 +7,7 @@ namespace PixiEditor.Models.ImageManipulation
 {
     public class Morphology
     {
-        public static Coordinates[] ApplyDilation(Coordinates[] points, int kernelSize, int[,] mask)
+        public static IEnumerable<Coordinates> ApplyDilation(Coordinates[] points, int kernelSize, int[,] mask)
         {
             int kernelDim = kernelSize;
 
@@ -37,10 +37,10 @@ namespace PixiEditor.Models.ImageManipulation
                 outputArray[x, y] = value;
             }
 
-            return ToCoordinates(outputArray, offset).Distinct().ToArray();
+            return ToCoordinates(outputArray, offset).Distinct();
         }
 
-        private static Coordinates[] ToCoordinates(byte[,] byteArray, Coordinates offset)
+        private static IEnumerable<Coordinates> ToCoordinates(byte[,] byteArray, Coordinates offset)
         {
             List<Coordinates> output = new List<Coordinates>();
             int width = byteArray.GetLength(0);
@@ -49,7 +49,7 @@ namespace PixiEditor.Models.ImageManipulation
             for (int x = 0; x < width; x++)
                 if (byteArray[x, y] == 1)
                     output.Add(new Coordinates(x + offset.X, y + offset.Y));
-            return output.ToArray();
+            return output;
         }
 
         private static byte[,] GetByteArrayForPoints(Coordinates[] points, int margin)

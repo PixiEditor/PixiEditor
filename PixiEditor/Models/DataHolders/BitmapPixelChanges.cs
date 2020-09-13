@@ -28,10 +28,13 @@ namespace PixiEditor.Models.DataHolders
         /// <param name="coordinates"></param>
         /// <param name="color"></param>
         /// <returns>Single-colored BitmapPixelChanges</returns>
-        public static BitmapPixelChanges FromSingleColoredArray(Coordinates[] coordinates, Color color)
+        public static BitmapPixelChanges FromSingleColoredArray(IEnumerable<Coordinates> coordinates, Color color)
         {
             Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
-            for (int i = 0; i < coordinates.Length; i++) dict.Add(coordinates[i], color);
+            foreach (var coordinate in coordinates)
+            {
+                dict.Add(coordinate, color);
+            }
             return new BitmapPixelChanges(dict) {WasBuiltAsSingleColored = true};
         }
 

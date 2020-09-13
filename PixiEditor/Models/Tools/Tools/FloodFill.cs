@@ -59,7 +59,7 @@ namespace PixiEditor.Models.Tools.Tools
                 }
 
             }
-            return BitmapPixelChanges.FromSingleColoredArray(changedCoords.ToArray(), newColor);
+            return BitmapPixelChanges.FromSingleColoredArray(changedCoords, newColor);
         }
     }
 }

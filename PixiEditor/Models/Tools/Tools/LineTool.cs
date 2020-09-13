@@ -30,18 +30,18 @@ namespace PixiEditor.Models.Tools.Tools
             return Only(pixels, layer);
         }
 
-        public Coordinates[] CreateLine(Coordinates start, Coordinates end, int thickness)
+        public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness)
         {
             return CreateLine(new[] { end, start }, thickness, CapType.Square, CapType.Square);
         }
 
-        public Coordinates[] CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap,
+        public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap,
             CapType endCap)
         {
             return CreateLine(new[] {end, start}, thickness, startCap, endCap);
         }
 
-        private Coordinates[] CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
+        private IEnumerable<Coordinates> CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
         {
             Coordinates startingCoordinates = coordinates[^1];
             Coordinates latestCoordinates = coordinates[0];
@@ -51,7 +51,7 @@ namespace PixiEditor.Models.Tools.Tools
             return GetLinePoints(startingCoordinates, latestCoordinates, thickness, startCap, endCap);
         }
 
-        private Coordinates[] GetLinePoints(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
+        private IEnumerable<Coordinates> GetLinePoints(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
             var startingCap = GetCapCoordinates(startCap, start, thickness);
             if (start == end) return startingCap;
@@ -61,16 +61,16 @@ namespace PixiEditor.Models.Tools.Tools
             List<Coordinates> output = new List<Coordinates>(startingCap);
 
             output.AddRange(GetCapCoordinates(endCap, end, thickness));
-            if (line.Length > 2)
+            if (line.Count() > 2)
             {
                 output.AddRange(GetThickShape(line.Except(new []{start,end}).ToArray(), thickness));
             }
 
-            return output.Distinct().ToArray();
+            return output.Distinct();
 
         }
 
-        private Coordinates[] GetCapCoordinates(CapType cap, Coordinates position, int thickness)
+        private IEnumerable<Coordinates> GetCapCoordinates(CapType cap, Coordinates position, int thickness)
         {
             switch (cap)
             {
@@ -89,7 +89,7 @@ namespace PixiEditor.Models.Tools.Tools
         /// <param name="position">Starting position of cap</param>
         /// <param name="thickness">Thickness of cap</param>
         /// <returns></returns>
-        private Coordinates[] GetRoundCap(Coordinates position, int thickness)
+        private IEnumerable<Coordinates> GetRoundCap(Coordinates position, int thickness)
         {
             CircleTool circle = new CircleTool();
             var rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
@@ -97,7 +97,7 @@ namespace PixiEditor.Models.Tools.Tools
             return circle.CreateEllipse(rectangleCords[0], rectangleCords[^1], 1, true);
         }
 
-        private Coordinates[] BresenhamLine(int x1, int y1, int x2, int y2)
+        private IEnumerable<Coordinates> BresenhamLine(int x1, int y1, int x2, int y2)
         {
             List<Coordinates> coordinates = new List<Coordinates>();
             if (x1 == x2 && y1 == y2) return new[] {new Coordinates(x1, y1)};
@@ -176,7 +176,7 @@ namespace PixiEditor.Models.Tools.Tools
                 }
             }
 
-            return coordinates.ToArray();
+            return coordinates;
         }
     }
 }

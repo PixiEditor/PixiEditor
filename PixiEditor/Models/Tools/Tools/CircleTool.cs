@@ -24,7 +24,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             int thickness = (int) Toolbar.GetSetting("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            Coordinates[] outline = CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, thickness);
+            IEnumerable<Coordinates> outline = CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, thickness);
             BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(outline, color);
             if ((bool) Toolbar.GetSetting("Fill").Value)
             {
@@ -45,19 +45,19 @@ namespace PixiEditor.Models.Tools.Tools
         /// <param name="thickness">Thickness of ellipse</param>
         /// <param name="filled">Should ellipse be filled</param>
         /// <returns>Coordinates for ellipse</returns>
-        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness,
+        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness,
             bool filled)
         {
             List<Coordinates> output = new List<Coordinates>();
-            Coordinates[] outline = CreateEllipse(startCoordinates, endCoordinates, thickness);
+            IEnumerable<Coordinates> outline = CreateEllipse(startCoordinates, endCoordinates, thickness);
             output.AddRange(outline);
             if (filled)
             {
                 output.AddRange(CalculateFillForEllipse(outline));
-                return output.Distinct().ToArray();
+                return output.Distinct();
             }
 
-            return output.ToArray();
+            return output;
         }
         /// <summary>
         ///     Calculates ellipse points for specified coordinates and thickness.
@@ -67,7 +67,7 @@ namespace PixiEditor.Models.Tools.Tools
         /// <param name="thickness">Thickness of ellipse</param>
         /// <returns>Coordinates for ellipse</returns>
         
-        public Coordinates[] CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
+        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
             double radiusX = (endCoordinates.X - startCoordinates.X) / 2.0;
             double radiusY = (endCoordinates.Y - startCoordinates.Y) / 2.0;
@@ -75,15 +75,15 @@ namespace PixiEditor.Models.Tools.Tools
             double centerY = (startCoordinates.Y + endCoordinates.Y + 1) / 2.0;
 
             List<Coordinates> output = new List<Coordinates>();
-            Coordinates[] ellipse = MidpointEllipse(radiusX, radiusY, centerX, centerY);
+            IEnumerable<Coordinates> ellipse = MidpointEllipse(radiusX, radiusY, centerX, centerY);
             if (thickness == 1)
                 output.AddRange(ellipse);
             else
                 output.AddRange(GetThickShape(ellipse, thickness));
-            return output.Distinct().ToArray();
+            return output.Distinct();
         }
 
-        public Coordinates[] MidpointEllipse(double halfWidth, double halfHeight, double centerX, double centerY)
+        public IEnumerable<Coordinates> MidpointEllipse(double halfWidth, double halfHeight, double centerX, double centerY)
         {
             if (halfWidth < 1 || halfHeight < 1)
                 return FallbackRectangle(halfWidth, halfHeight, centerX, centerY);
@@ -134,7 +134,7 @@ namespace PixiEditor.Models.Tools.Tools
                 }
             }
 
-            return outputCoordinates.ToArray();
+            return outputCoordinates;
         }
 
         private Coordinates[] FallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY)
@@ -153,7 +153,7 @@ namespace PixiEditor.Models.Tools.Tools
             return coordinates.ToArray();
         }
 
-        private Coordinates[] CalculateFillForEllipse(Coordinates[] outlineCoordinates)
+        private IEnumerable<Coordinates> CalculateFillForEllipse(IEnumerable<Coordinates> outlineCoordinates)
         {
             List<Coordinates> finalCoordinates = new List<Coordinates>();
             int bottom = outlineCoordinates.Max(x => x.Y);
@@ -166,7 +166,7 @@ namespace PixiEditor.Models.Tools.Tools
                 for (int j = left + 1; j < right; j++) finalCoordinates.Add(new Coordinates(j, i));
             }
 
-            return finalCoordinates.ToArray();
+            return finalCoordinates;
         }
         private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)
         {

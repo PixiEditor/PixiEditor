@@ -36,11 +36,11 @@ namespace PixiEditor.Models.Tools.Tools
             return new[] {new LayerChange(pixels, layer)};
         }
 
-        public Coordinates[] CreateRectangle(Coordinates[] coordinates, int thickness)
+        public IEnumerable<Coordinates> CreateRectangle(Coordinates[] coordinates, int thickness)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
             List<Coordinates> output = new List<Coordinates>();
-            Coordinates[] rectangle = CalculateRectanglePoints(fixedCoordinates);
+            IEnumerable<Coordinates> rectangle = CalculateRectanglePoints(fixedCoordinates);
             output.AddRange(rectangle);
 
             for (int i = 1; i < (int) Math.Floor(thickness / 2f) + 1; i++)
@@ -52,15 +52,15 @@ namespace PixiEditor.Models.Tools.Tools
                     new Coordinates(fixedCoordinates.Coords1.X + i, fixedCoordinates.Coords1.Y + i),
                     new Coordinates(fixedCoordinates.Coords2.X - i, fixedCoordinates.Coords2.Y - i))));
 
-            return output.Distinct().ToArray();
+            return output.Distinct();
         }
 
-        public Coordinates[] CreateRectangle(Coordinates start, Coordinates end, int thickness)
+        public IEnumerable<Coordinates> CreateRectangle(Coordinates start, Coordinates end, int thickness)
         {
             return CreateRectangle(new[] {end, start}, thickness);
         }
 
-        private Coordinates[] CalculateRectanglePoints(DoubleCords coordinates)
+        private IEnumerable<Coordinates> CalculateRectanglePoints(DoubleCords coordinates)
         {
             List<Coordinates> finalCoordinates = new List<Coordinates>();
 
@@ -76,10 +76,10 @@ namespace PixiEditor.Models.Tools.Tools
                 finalCoordinates.Add(new Coordinates(coordinates.Coords2.X, i));
             }
 
-            return finalCoordinates.ToArray();
+            return finalCoordinates;
         }
 
-        public Coordinates[] CalculateFillForRectangle(Coordinates start, Coordinates end, int thickness)
+        public IEnumerable<Coordinates> CalculateFillForRectangle(Coordinates start, Coordinates end, int thickness)
         {
             int offset = (int) Math.Ceiling(thickness / 2f);
             DoubleCords fixedCords = CalculateCoordinatesForShapeRotation(start, end);
@@ -103,7 +103,7 @@ namespace PixiEditor.Models.Tools.Tools
                 i++;
             }
 
-            return filledCoordinates.Distinct().ToArray();
+            return filledCoordinates.Distinct();
         }
     }
 }
