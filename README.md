@@ -73,6 +73,10 @@ Struggling with something? You can find support in a few places:
 
 Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
+## FAQ
+
+You can find [FAQ here](https://github.com/PixiEditor/PixiEditor/wiki/FAQ).
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/flabbet/PixiEditor/blob/master/LICENSE) - file for details
