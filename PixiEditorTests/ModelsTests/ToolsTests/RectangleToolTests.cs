@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using PixiEditor;
@@ -27,7 +28,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
 
             int expectedBorderPoints = (endX - startX) * 2 + (endY - startX) * 2;
 
-            Assert.Equal(expectedBorderPoints, outline.Length);
+            Assert.Equal(expectedBorderPoints, outline.Count());
         }
 
     }

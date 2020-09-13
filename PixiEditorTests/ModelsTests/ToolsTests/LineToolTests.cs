@@ -24,7 +24,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
 
             var line = lineTool.CreateLine(new Coordinates(0,0), new Coordinates(length - 1, length - 1), 1);
 
-            Assert.Equal(length, line.Length);
+            Assert.Equal(length, line.Count());
 
             for (int i = 0; i < length; i++)
             {
