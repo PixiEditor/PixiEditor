@@ -37,6 +37,12 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnMouseUp(MouseEventArgs e)
         {
+            if (ViewModelMain.Current.ActiveSelection.SelectedPoints.Count() <= 1)
+            {
+                // If we have not selected multiple points, clear the selection
+                ViewModelMain.Current.ActiveSelection.Clear();
+            }
+
             UndoManager.AddUndoChange(new Change("ActiveSelection", _oldSelection,
                 ViewModelMain.Current.ActiveSelection, "Select pixels"));
         }
