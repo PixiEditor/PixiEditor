@@ -1,5 +1,5 @@
 [![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/6/master)](https://dev.azure.com/flabbet/PixiEditor/_build?definitionId=6) 
-[![Code coverage](https://img.shields.io/azure-devops/coverage/flabbet/PixiEditor/6/master)](https://codecov.io/gh/PixiEditor/PixiEditor)
+[![codecov](https://codecov.io/gh/PixiEditor/PixiEditor/branch/master/graph/badge.svg)](https://codecov.io/gh/PixiEditor/PixiEditor)
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
 [![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
 [![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq) 
