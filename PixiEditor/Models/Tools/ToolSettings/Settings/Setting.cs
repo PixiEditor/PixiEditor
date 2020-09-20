@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Tools.ToolSettings
@@ -25,6 +26,22 @@ namespace PixiEditor.Models.Tools.ToolSettings
         public Setting(string name)
         {
             Name = name;
+        }
+    }
+    public class Setting<T> : Setting
+    {
+        public Setting(T value, string name) : base(name)
+        {
+            Name = name;
+            this.Value = value;
+        }
+
+        public new T Value { get; set; }
+
+        public virtual Setting<T> GetSetting(Setting setting)
+        {
+            var newSetting = new Setting<T>((T)Convert.ChangeType(setting.Value, typeof(T)), setting.Name);
+            return newSetting;
         }
     }
 }

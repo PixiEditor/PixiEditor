@@ -15,9 +15,10 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         /// <param name="name">Setting name, non case sensitive</param>
         /// <returns></returns>
-        public virtual Setting GetSetting(string name)
+        public virtual Setting<T> GetSetting<T>(string name)
         {
-            return Settings.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
+            var setting = Settings.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
+            return new Setting<T>((T)setting.Value, setting.Name);
         }
 
         /// <summary>
