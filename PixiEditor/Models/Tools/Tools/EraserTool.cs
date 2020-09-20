@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            return Erase(layer, coordinates, (int) Toolbar.GetSetting("ToolSize").Value);
+            return Erase(layer, coordinates, Toolbar.GetSetting<int>("ToolSize").Value);
         }
 
         public LayerChange[] Erase(Layer layer, Coordinates[] coordinates, int toolSize)

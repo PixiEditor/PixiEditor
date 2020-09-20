@@ -18,7 +18,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         public virtual Setting<T> GetSetting<T>(string name)
         {
             var setting = Settings.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
-            return new Setting<T>((T)setting.Value, setting.Name);
+            return setting==null?null:new Setting<T>((T)setting.Value, setting.Name);
         }
 
         /// <summary>

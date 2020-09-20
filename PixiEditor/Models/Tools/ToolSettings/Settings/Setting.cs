@@ -37,11 +37,5 @@ namespace PixiEditor.Models.Tools.ToolSettings
         }
 
         public new T Value { get; set; }
-
-        public virtual Setting<T> GetSetting(Setting setting)
-        {
-            var newSetting = new Setting<T>((T)Convert.ChangeType(setting.Value, typeof(T)), setting.Name);
-            return newSetting;
-        }
     }
 }

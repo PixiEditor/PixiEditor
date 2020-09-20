@@ -35,9 +35,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            int toolSize = (int) Toolbar.GetSetting("ToolSize").Value;
-            float correctionFactor = (float) Toolbar.GetSetting("CorrectionFactor").Value;
-            Enum.TryParse<BrightnessMode>((Toolbar.GetSetting("Mode").Value as ComboBoxItem)?.Content as string, out var mode);
+            int toolSize = Toolbar.GetSetting<int>("ToolSize").Value;
+            float correctionFactor = Toolbar.GetSetting<float>("CorrectionFactor").Value;
+            Enum.TryParse<BrightnessMode>(Toolbar.GetSetting<ComboBoxItem>("Mode").Value?.Content as string, out var mode);
             Mode = mode;
 
             LayerChange[] layersChanges = new LayerChange[1];

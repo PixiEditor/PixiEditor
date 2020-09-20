@@ -27,7 +27,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnMouseDown(MouseEventArgs e)
         {
-            Enum.TryParse((Toolbar.GetSetting("Mode").Value as ComboBoxItem)?.Content as string, out SelectionType);
+            Enum.TryParse(Toolbar.GetSetting<ComboBoxItem>("Mode").Value?.Content as string, out SelectionType);
 
             _oldSelection = null;
             if (ViewModelMain.Current.ActiveSelection != null &&

@@ -21,12 +21,12 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            int thickness = (int) Toolbar.GetSetting("ToolSize").Value;
+            int thickness = Toolbar.GetSetting<int>("ToolSize").Value;
             BitmapPixelChanges pixels =
                 BitmapPixelChanges.FromSingleColoredArray(CreateRectangle(coordinates, thickness), color);
-            if ((bool) Toolbar.GetSetting("Fill").Value)
+            if (Toolbar.GetSetting<bool>("Fill").Value)
             {
-                Color fillColor = (Color) Toolbar.GetSetting("FillColor").Value;
+                Color fillColor = Toolbar.GetSetting<Color>("FillColor").Value;
                 pixels.ChangedPixels.AddRangeOverride(
                     BitmapPixelChanges.FromSingleColoredArray
                             (CalculateFillForRectangle(coordinates[^1], coordinates[0], thickness), fillColor)

@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
             Cursor = Cursors.Pen;
             Tooltip = "Standard brush (B)";
             Toolbar = new BasicToolbar();
-            _toolSizeIndex = Toolbar.Settings.IndexOf(Toolbar.GetSetting("ToolSize"));
+            _toolSizeIndex = Toolbar.Settings.IndexOf(Toolbar.GetSetting<int>("ToolSize"));
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
