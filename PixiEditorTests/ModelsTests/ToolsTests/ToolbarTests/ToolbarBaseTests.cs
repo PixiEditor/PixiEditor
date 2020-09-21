@@ -17,7 +17,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
             BasicToolbar toolbar = new BasicToolbar();
             string settingName = "ToolSize";
 
-            Setting setting = toolbar.GetSetting(settingName);
+            Setting setting = toolbar.GetSetting<int>(settingName);
 
             Assert.NotNull(setting);
             Assert.Equal(settingName,setting.Name);
@@ -34,11 +34,11 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
 
             BasicShapeToolbar shapeToolbar = new BasicShapeToolbar();
 
-            Assert.NotEqual(5, (int)shapeToolbar.GetSetting("ToolSize").Value);
+            Assert.NotEqual(5, shapeToolbar.GetSetting<int>("ToolSize").Value);
 
             shapeToolbar.LoadSharedSettings();
 
-            Assert.Equal(5, (int)shapeToolbar.GetSetting("ToolSize").Value);
+            Assert.Equal(5, shapeToolbar.GetSetting<int>("ToolSize").Value);
         }
     }
 }
