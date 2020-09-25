@@ -15,7 +15,7 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
-    public class Document : NotifyableObject
+    public class Document : NotifyableObject, IEquatable<Document>
     {
         public int Width
         {
@@ -284,6 +284,46 @@ namespace PixiEditor.Models.DataHolders
             MoveOffsets(moveVector);
             UndoManager.AddUndoChange(new Change(MoveOffsetsProcess, new object[]{ new Coordinates(-moveVector.X, -moveVector.Y) }, MoveOffsetsProcess, 
                 new object[]{moveVector}, "Center content"));
+        }
+
+        public Document Clone()
+        {
+            Document clone = new Document(Width, Height)
+            {
+                Layers = new ObservableCollection<Layer>(Layers.Select(l => l.Clone())),
+                ActiveLayerIndex = ActiveLayerIndex,
+                Swatches = new ObservableCollection<Color>(Swatches.Select(s => Color.FromArgb(s.A, s.R, s.G, s.B)))
+            };
+            return clone;
+        }
+
+        public bool Equals(Document other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (other.Width != Width && other.Height != Height)
+            {
+                return false;
+            }
+
+            foreach(Layer layer in Layers)
+            {
+                Layer otherLayer = other.Layers.FirstOrDefault(l => l.Name == layer.Name);
+                if (otherLayer == null)
+                {
+                    return false;
+                }
+
+                if (!layer.Equals(otherLayer))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 

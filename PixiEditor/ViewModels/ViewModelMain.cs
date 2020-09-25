@@ -40,8 +40,6 @@ namespace PixiEditor.ViewModels
 
         private LayerChange[] _undoChanges;
 
-        private bool _unsavedDocumentModified;
-
         public Action CloseAction { get; set; }
 
         public static ViewModelMain Current { get; set; }
@@ -337,7 +335,7 @@ namespace PixiEditor.ViewModels
             ((CancelEventArgs) property).Cancel = true;
 
             ConfirmationType result = ConfirmationType.No;
-            if (_unsavedDocumentModified)
+            if (BitmapManager.IsActiveDocumentChanged())
             {
                 result = ConfirmationDialog.Show(ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes) SaveDocument(null);
@@ -377,7 +375,7 @@ namespace PixiEditor.ViewModels
 
         private void Open(string path)
         {
-            if (_unsavedDocumentModified)
+            if (BitmapManager.IsActiveDocumentChanged())
             {
                 var result = ConfirmationDialog.Show(ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes)
@@ -401,7 +399,6 @@ namespace PixiEditor.ViewModels
         {
             BitmapManager.ActiveDocument = Importer.ImportDocument(path);
             Exporter.SaveDocumentPath = path;
-            _unsavedDocumentModified = false;
         }
 
         private void SaveDocument(object parameter)
@@ -411,7 +408,6 @@ namespace PixiEditor.ViewModels
                 Exporter.SaveAsEditableFileWithDialog(BitmapManager.ActiveDocument, !paramIsAsNew);
             else
                 Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
-            _unsavedDocumentModified = false;
         }
 
         private void RemoveSwatch(object parameter)
@@ -431,7 +427,6 @@ namespace PixiEditor.ViewModels
         {
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             RecenterZoombox = !RecenterZoombox;
-            _unsavedDocumentModified = true;
         }
 
         public void AddSwatch(Color color)
@@ -578,7 +573,6 @@ namespace PixiEditor.ViewModels
         {
             ChangesController.AddChanges(new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
-            _unsavedDocumentModified = true;
             if (BitmapManager.IsOperationTool())
                 AddSwatch(PrimaryColor);
         }
@@ -742,7 +736,7 @@ namespace PixiEditor.ViewModels
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             RecenterZoombox = !RecenterZoombox;
             Exporter.SaveDocumentPath = null;
-            _unsavedDocumentModified = false;
+            BitmapManager.LoadedDocument = null;
         }
 
         public void NewLayer(object parameter)

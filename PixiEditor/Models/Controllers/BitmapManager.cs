@@ -68,10 +68,13 @@ namespace PixiEditor.Models.Controllers
             set
             {
                 _activeDocument = value;
+                LoadedDocument = value.Clone();
                 RaisePropertyChanged("ActiveDocument");
                 DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
             }
         }
+
+        public Document LoadedDocument { get; set; }
 
         private Document _activeDocument;
 
@@ -256,6 +259,22 @@ namespace PixiEditor.Models.Controllers
         public static bool IsOperationTool(Tool tool)
         {
             return tool is BitmapOperationTool;
+        }
+
+        public bool IsActiveDocumentChanged()
+        {
+            // If there is no document loaded at all then nothing has changed
+            if (ActiveDocument == null)
+            {
+                return false;
+            }
+
+            if (LoadedDocument == null)
+            {
+                return true;
+            }
+
+            return !ActiveDocument.Equals(LoadedDocument);
         }
     }
 

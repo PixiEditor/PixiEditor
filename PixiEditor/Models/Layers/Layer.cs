@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -10,7 +11,7 @@ using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Layers
 {
-    public class Layer : BasicLayer
+    public class Layer : BasicLayer, IEquatable<Layer>
     {
 
         private const int SizeOfArgb = 4;
@@ -458,6 +459,42 @@ namespace PixiEditor.Models.Layers
                     Height = newHeight;
                 }
             }
+        }
+
+        public bool Equals(Layer other)
+        {
+            if (Name != other.Name)
+            {
+                return false;
+            }
+
+            if (IsVisible != other.IsVisible)
+            {
+                return false;
+            }
+
+            if (Opacity != other.Opacity)
+            {
+                return false;
+            }
+
+            if (!Offset.Equals(other.Offset))
+            {
+                return false;
+            }
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (!Color.Equals(GetPixel(x, y), other.GetPixel(x, y)))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }
