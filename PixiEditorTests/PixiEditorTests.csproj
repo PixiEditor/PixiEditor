@@ -18,6 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="Moq" Version="4.14.5" />
     <PackageReference Include="OpenCover" Version="4.7.922" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.2">
@@ -28,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
     <ProjectReference Include="..\PixiEditor\PixiEditor.csproj" />
   </ItemGroup>
 

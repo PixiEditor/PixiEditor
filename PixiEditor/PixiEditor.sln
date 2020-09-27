@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor", "PixiEditor.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditorTests", "..\PixiEditorTests\PixiEditorTests.csproj", "{D61922EA-3BF3-4AFA-8930-3A8B30A9A195}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.UpdateModule", "..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj", "{9A0AB1E7-435C-4567-9EAC-FF102A9F1B01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D61922EA-3BF3-4AFA-8930-3A8B30A9A195}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D61922EA-3BF3-4AFA-8930-3A8B30A9A195}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D61922EA-3BF3-4AFA-8930-3A8B30A9A195}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A0AB1E7-435C-4567-9EAC-FF102A9F1B01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A0AB1E7-435C-4567-9EAC-FF102A9F1B01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A0AB1E7-435C-4567-9EAC-FF102A9F1B01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A0AB1E7-435C-4567-9EAC-FF102A9F1B01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
