@@ -7,8 +7,10 @@ namespace PixiEditor.UpdateModule
 {
     public class UpdateChecker
     {
-        public string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/releases/latest";
+        public const string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/releases/latest";
         public string CurrentVersionTag { get; set; }
+
+        public ReleaseInfo LatestReleaseInfo { get; set; }
 
         public UpdateChecker(string currentVersionTag)
         {
@@ -17,7 +19,8 @@ namespace PixiEditor.UpdateModule
 
         public async Task<bool> CheckUpdateAvailable()
         {
-            return CheckUpdateAvailable(await GetLatestReleaseInfo());
+            LatestReleaseInfo = await GetLatestReleaseInfo();
+            return CheckUpdateAvailable(LatestReleaseInfo);
         }
 
         public bool CheckUpdateAvailable(ReleaseInfo latestRelease)

@@ -13,6 +13,8 @@ namespace PixiEditor.UpdateModule
         public bool IsDraft { get; set; }
         [JsonPropertyName("prerelease")]
         public bool IsPrerelease { get; set; }
+        [JsonPropertyName("assets")]
+        public Asset[] Assets { get; set; }
         public bool WasDataFetchSuccessfull { get; set; } = true;
 
         public ReleaseInfo() { }

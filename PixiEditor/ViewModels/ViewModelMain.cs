@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -21,6 +23,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.UpdateModule;
 
 namespace PixiEditor.ViewModels
 {
@@ -197,6 +200,8 @@ namespace PixiEditor.ViewModels
         private bool _restoreToolOnKeyUp = false;
         private Tool _lastActionTool;
 
+        public UpdateChecker UpdateChecker { get; set; }
+
         public ViewModelMain()
         {
             BitmapManager = new BitmapManager();
@@ -294,6 +299,21 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = PrimaryColor;
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
+            InitUpdateChecker();
+            Task.Run(async () => {
+                bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
+                if (updateAvailable)
+                {
+                    UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                }
+            });
+        }
+
+        private void InitUpdateChecker()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
+            UpdateChecker = new UpdateChecker(info.FileVersion);
         }
 
         private void ZoomViewport(object parameter)
