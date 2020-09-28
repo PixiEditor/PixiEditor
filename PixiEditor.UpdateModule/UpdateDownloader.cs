@@ -23,7 +23,7 @@ namespace PixiEditor.UpdateModule
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                    File.WriteAllBytes(Path.Join(DownloadLocation, "update.zip"), bytes);
+                    File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
                 }
             }
         }

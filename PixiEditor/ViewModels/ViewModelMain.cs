@@ -110,6 +110,19 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private string _versionText;
+
+        public string VersionText
+        {
+            get => _versionText;
+            set
+            {
+                _versionText = value;
+                RaisePropertyChanged(nameof(VersionText));
+            }
+        }
+
+
         public bool RecenterZoombox
         {
             get => _recenterZoombox;
@@ -300,13 +313,34 @@ namespace PixiEditor.ViewModels
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
             InitUpdateChecker();
+            CheckForUpdate();
+        }
+
+        private void CheckForUpdate()
+        {
+            bool close = false;
             Task.Run(async () => {
                 bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
-                if (updateAvailable)
+                bool updateFileDoesNotExists = !File.Exists($"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
+                if (updateAvailable && updateFileDoesNotExists)
                 {
-                    UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                    VersionText = "Downloading update...";
+                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                    VersionText = "Restart to install update";
+                }
+                else if (!updateFileDoesNotExists) 
+                {
+                    string path = 
+                        Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"PixiEditor.UpdateInstaller.exe");
+                    Process.Start(path);
+                    close = true;
                 }
             });
+            if (close)
+            {
+                CloseAction();
+
+            }
         }
 
         private void InitUpdateChecker()
@@ -314,6 +348,7 @@ namespace PixiEditor.ViewModels
             var assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
             UpdateChecker = new UpdateChecker(info.FileVersion);
+            VersionText = $"Version {info.FileVersion}";
         }
 
         private void ZoomViewport(object parameter)

@@ -391,5 +391,8 @@
                 <TextBlock Margin="4,0,10,0" Text="{Binding MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
             </StackPanel>
         </DockPanel>
+        <TextBlock Padding="10" HorizontalAlignment="Right"
+                   Foreground="White" FontSize="16" VerticalAlignment="Center" Grid.Row="3"
+                   Grid.Column="3" Text="{Binding VersionText}"/>
     </Grid>
 </Window>
