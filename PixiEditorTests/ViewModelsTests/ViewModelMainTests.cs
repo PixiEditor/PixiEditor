@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Windows.Media;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
@@ -87,7 +88,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.True(viewModel.BitmapManager.MouseController.IsRecordingChanges);
 
-            viewModel.MouseUpCommand.Execute(null);
+            viewModel.MouseHook_OnMouseUp(default, default);
 
             Assert.False(viewModel.BitmapManager.MouseController.IsRecordingChanges);
         }
