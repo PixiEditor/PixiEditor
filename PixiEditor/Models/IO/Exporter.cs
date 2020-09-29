@@ -11,6 +11,7 @@ namespace PixiEditor.Models.IO
     public class Exporter
     {
         public static Size FileDimensions;
+
         public static string SaveDocumentPath { get; set; }
 
         /// <summary>
@@ -18,14 +19,20 @@ namespace PixiEditor.Models.IO
         /// </summary>
         /// <param name="document">Document to save</param>
         /// <param name="updateWorkspacePath">Should editor remember dialog path for further saves</param>
-        public static void SaveAsEditableFileWithDialog(Document document, bool updateWorkspacePath = false)
+        public static bool SaveAsEditableFileWithDialog(Document document, bool updateWorkspacePath = false)
         {
             SaveFileDialog dialog = new SaveFileDialog
             {
                 Filter = "PixiEditor Files | *.pixi",
                 DefaultExt = "pixi"
             };
-            if ((bool) dialog.ShowDialog()) SaveAsEditableFile(document, dialog.FileName, updateWorkspacePath);
+            if ((bool)dialog.ShowDialog())
+            {
+                SaveAsEditableFile(document, dialog.FileName, updateWorkspacePath);
+                return true;
+            }
+
+            return false;
         }
 
         public static void SaveAsEditableFile(Document document, string path, bool updateWorkspacePath = false)
