@@ -408,10 +408,15 @@ namespace PixiEditor.ViewModels
         {
             bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
             if (paramIsAsNew || Exporter.SaveDocumentPath == null)
-                Exporter.SaveAsEditableFileWithDialog(BitmapManager.ActiveDocument, !paramIsAsNew);
+            {
+                var saved = Exporter.SaveAsEditableFileWithDialog(BitmapManager.ActiveDocument, !paramIsAsNew);
+                _unsavedDocumentModified = _unsavedDocumentModified && !saved;
+            }
             else
+            {
                 Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
-            _unsavedDocumentModified = false;
+                _unsavedDocumentModified = false;
+            }
         }
 
         private void RemoveSwatch(object parameter)
