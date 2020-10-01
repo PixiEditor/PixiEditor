@@ -396,6 +396,7 @@ namespace PixiEditor.ViewModels
         private void OpenDocument(string path)
         {
             BitmapManager.ActiveDocument = Importer.ImportDocument(path);
+            BitmapManager.LoadedDocument = BitmapManager.ActiveDocument.Clone();
             Exporter.SaveDocumentPath = path;
         }
 
@@ -410,6 +411,7 @@ namespace PixiEditor.ViewModels
             {
                 Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
             }
+            BitmapManager.LoadedDocument = BitmapManager.ActiveDocument.Clone();
         }
 
         private void RemoveSwatch(object parameter)
@@ -728,6 +730,7 @@ namespace PixiEditor.ViewModels
             if(addBaseLayer)
                 BitmapManager.AddNewLayer("Base Layer");
             ResetProgramStateValues();
+            BitmapManager.LoadedDocument = BitmapManager.ActiveDocument.Clone();
         }
 
         /// <summary>
