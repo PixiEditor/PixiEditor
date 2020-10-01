@@ -68,7 +68,6 @@ namespace PixiEditor.Models.Controllers
             set
             {
                 _activeDocument = value;
-                LoadedDocument = value.Clone();
                 RaisePropertyChanged("ActiveDocument");
                 DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
             }
