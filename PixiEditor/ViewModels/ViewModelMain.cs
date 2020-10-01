@@ -312,14 +312,13 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = PrimaryColor;
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
-            InitUpdateChecker();
-            CheckForUpdate();
+            InitUpdateChecker();            
         }
 
-        private void CheckForUpdate()
+        public async Task<bool> CheckForUpdate()
         {
-            bool close = false;
-            Task.Run(async () => {
+            return await Task.Run(async () =>
+            {
                 bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
                 bool updateFileDoesNotExists = !File.Exists($"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
                 if (updateAvailable && updateFileDoesNotExists)
@@ -327,20 +326,10 @@ namespace PixiEditor.ViewModels
                     VersionText = "Downloading update...";
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
                     VersionText = "Restart to install update";
+                    return true;
                 }
-                else if (!updateFileDoesNotExists) 
-                {
-                    string path = 
-                        Path.Join(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"PixiEditor.UpdateInstaller.exe");
-                    Process.Start(path);
-                    close = true;
-                }
+                return false;
             });
-            if (close)
-            {
-                CloseAction();
-
-            }
         }
 
         private void InitUpdateChecker()
@@ -401,13 +390,18 @@ namespace PixiEditor.ViewModels
             if (result != ConfirmationType.Canceled) ((CancelEventArgs) property).Cancel = false;
         }
 
-        private void OnStartup(object parameter)
+        private async void OnStartup(object parameter)
         {
             var lastArg = Environment.GetCommandLineArgs().Last();
             if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
+            {
                 Open(lastArg);
+            }
             else
+            {
                 OpenNewFilePopup(null);
+            }
+            await CheckForUpdate();
         }
 
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)

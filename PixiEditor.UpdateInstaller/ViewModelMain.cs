@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace PixiEditor.UpdateInstaller
 {
@@ -12,6 +14,8 @@ namespace PixiEditor.UpdateInstaller
     {
         public ViewModelMain Current { get; private set; }
         public UpdateModule.UpdateInstaller Installer { get; set; }
+
+        public string UpdateDirectory { get; private set; }
 
         private float _progressValue;
 
@@ -25,17 +29,21 @@ namespace PixiEditor.UpdateInstaller
             }
         }
 
-        public ViewModelMain(Action closeAction)
+        public ViewModelMain()
         {
             Current = this;
 
-            string updateDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
 
 #if DEBUG
             updateDirectory = Environment.GetCommandLineArgs()[1];
 #endif
+            UpdateDirectory = updateDirectory;
+        }
 
-            string[] files = Directory.GetFiles(updateDirectory, "update-*.zip");
+        public void InstallUpdate()
+        {
+            string[] files = Directory.GetFiles(UpdateDirectory, "update-*.zip");
 
             if (files.Length > 0)
             {
@@ -43,15 +51,10 @@ namespace PixiEditor.UpdateInstaller
                 Installer.ProgressChanged += Installer_ProgressChanged;
                 Installer.Install();
             }
-
-            string pixiEditorExecutablePath = Directory.GetFiles(updateDirectory, "PixiEditor.exe")[0];
-            StartPixiEditor(pixiEditorExecutablePath);
-            closeAction();
-        }
-
-        private void StartPixiEditor(string executablePath)
-        {
-            Process process = Process.Start(executablePath);
+            else
+            {
+                ProgressValue = 100;
+            }
         }
 
         private void Installer_ProgressChanged(object sender, UpdateModule.UpdateProgressChangedEventArgs e)

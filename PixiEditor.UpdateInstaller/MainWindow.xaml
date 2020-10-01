@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixiEditor.UpdateInstaller"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="250" Background="#2D2D30" ResizeMode="NoResize"
-        WindowStyle="None" WindowStartupLocation="CenterScreen">
+        WindowStyle="None" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <WindowChrome.WindowChrome>
         <WindowChrome ResizeBorderThickness="6"
             CaptionHeight="30"/>

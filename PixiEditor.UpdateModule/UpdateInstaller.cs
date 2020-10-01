@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 
@@ -28,6 +29,11 @@ namespace PixiEditor.UpdateModule
 
         public void Install()
         {
+            var processes = Process.GetProcessesByName("PixiEditor");
+            if(processes.Length > 0)
+            {
+                processes[0].WaitForExit();
+            }
             ZipFile.ExtractToDirectory(ArchiveFileName, TargetDirectoryName, true);
             Progress = 25; //25% for unzip
             string dirWithFiles = Directory.GetDirectories(TargetDirectoryName)[0];
