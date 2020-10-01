@@ -52,7 +52,6 @@ namespace PixiEditor.ViewModels
         public RelayCommand ExportFileCommand { get; set; } //Command that is used to save file
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RedoCommand { get; set; }
-        public RelayCommand MouseUpCommand { get; set; }
         public RelayCommand OpenFileCommand { get; set; }
         public RelayCommand SetActiveLayerCommand { get; set; }
         public RelayCommand NewLayerCommand { get; set; }
@@ -209,7 +208,6 @@ namespace PixiEditor.ViewModels
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
-            MouseUpCommand = new RelayCommand(MouseUp);
             OpenFileCommand = new RelayCommand(Open);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
@@ -405,9 +403,13 @@ namespace PixiEditor.ViewModels
         {
             bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
             if (paramIsAsNew || Exporter.SaveDocumentPath == null)
+            {
                 Exporter.SaveAsEditableFileWithDialog(BitmapManager.ActiveDocument, !paramIsAsNew);
+            }
             else
+            {
                 Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
+            }
         }
 
         private void RemoveSwatch(object parameter)
@@ -648,15 +650,6 @@ namespace PixiEditor.ViewModels
                 ToolCursor = Cursors.Arrow;
         }
 
-        /// <summary>
-        ///     When mouse is up stops recording changes.
-        /// </summary>
-        /// <param name="parameter"></param>
-        private void MouseUp(object parameter)
-        {
-            BitmapManager.MouseController.StopRecordingMouseMovementChanges();
-        }
-
         private void MouseDown(object parameter)
         {
             if (BitmapManager.ActiveDocument.Layers.Count == 0) return;
@@ -670,6 +663,18 @@ namespace PixiEditor.ViewModels
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }
+
+            // Mouse down is guaranteed to only be raised from within this application, so by subscribing here we
+            // only listen for mouse up events that occurred as a result of a mouse down within this application.
+            // This seems better than maintaining a global listener indefinitely.
+            GlobalMouseHook.OnMouseUp += MouseHook_OnMouseUp;
+        }
+
+        // this is public for testing.
+        public void MouseHook_OnMouseUp(object sender, Point p)
+        {
+            GlobalMouseHook.OnMouseUp -= MouseHook_OnMouseUp;
+            BitmapManager.MouseController.StopRecordingMouseMovementChanges();
         }
 
         /// <summary>
