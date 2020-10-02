@@ -14,7 +14,6 @@
     <PackageIcon>icon.ico</PackageIcon>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <Authors>Krzysztof Krysiński</Authors>
-    <StartupObject />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
