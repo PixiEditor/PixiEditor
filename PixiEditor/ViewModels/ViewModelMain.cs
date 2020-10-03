@@ -345,7 +345,7 @@ namespace PixiEditor.ViewModels
                 {
                     VersionText = "Downloading update...";
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
-                    VersionText = "to install update";
+                    VersionText = "to install update"; //Button shows "Restart" before this text
                     UpdateReadyToInstall = true;
                     return true;
                 }
