@@ -1,5 +1,4 @@
-﻿using Moq;
-using PixiEditor.UpdateModule;
+﻿using PixiEditor.UpdateModule;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
