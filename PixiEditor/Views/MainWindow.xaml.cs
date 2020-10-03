@@ -19,7 +19,7 @@ namespace PixiEditor
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-           viewModel = ((ViewModelMain)DataContext);
+            viewModel = ((ViewModelMain)DataContext);
             viewModel.CloseAction = Close;
         }
 
@@ -70,11 +70,10 @@ namespace PixiEditor
         {
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             bool updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
-            if (updateFileExists)
-            {
-                string path =
-                    Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
-                Process.Start(path);
+            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+            if (updateFileExists && File.Exists(updaterPath))
+            {                
+                Process.Start(updaterPath);
                 Close();
             }
         }

@@ -84,6 +84,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand OpenHyperlinkCommand { get; set; }
         public RelayCommand ZoomCommand { get; set; }
         public RelayCommand ChangeToolSizeCommand { get; set; }
+        public RelayCommand RestartApplicationCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -195,6 +196,18 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private bool _updateReadyToInstall = false;
+
+        public bool UpdateReadyToInstall
+        {
+            get => _updateReadyToInstall;
+            set
+            {
+                _updateReadyToInstall = value;
+                RaisePropertyChanged(nameof(UpdateReadyToInstall));
+            }
+        }
+
         public BitmapManager BitmapManager { get; set; }
         public PixelChangesController ChangesController { get; set; }
 
@@ -258,6 +271,7 @@ namespace PixiEditor.ViewModels
             OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
             ZoomCommand = new RelayCommand(ZoomViewport);
             ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
+            RestartApplicationCommand = new RelayCommand(RestartApplication);
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
@@ -312,7 +326,13 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = PrimaryColor;
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
-            InitUpdateChecker();            
+            InitUpdateChecker();
+        }
+
+        private void RestartApplication(object parameter)
+        {
+            Process.Start(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+            Application.Current.Shutdown();
         }
 
         public async Task<bool> CheckForUpdate()
@@ -325,7 +345,8 @@ namespace PixiEditor.ViewModels
                 {
                     VersionText = "Downloading update...";
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
-                    VersionText = "Restart to install update";
+                    VersionText = "to install update";
+                    UpdateReadyToInstall = true;
                     return true;
                 }
                 return false;

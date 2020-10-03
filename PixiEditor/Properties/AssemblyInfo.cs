@@ -8,7 +8,7 @@ using System.Windows;
 [assembly: AssemblyTitle("PixiEditor")]
 [assembly: AssemblyDescription("A lighweighted Pixel Art editor.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("PixiEditor")]
 [assembly: AssemblyProduct("PixiEditor")]
 [assembly: AssemblyCopyright("Copyright Krzysztof Krysiński © 2018 - 2020")]
 [assembly: AssemblyTrademark("")]
@@ -50,5 +50,5 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("0.1.2.0")]
-[assembly: AssemblyFileVersion("0.1.2.0")]
+[assembly: AssemblyVersion("0.1.3.0")]
+[assembly: AssemblyFileVersion("0.1.3.0")]

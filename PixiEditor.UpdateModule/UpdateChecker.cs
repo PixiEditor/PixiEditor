@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -24,8 +25,31 @@ namespace PixiEditor.UpdateModule
         }
 
         public bool CheckUpdateAvailable(ReleaseInfo latestRelease)
+        {          
+            return latestRelease.WasDataFetchSuccessfull && VersionBigger(CurrentVersionTag, latestRelease.TagName);
+        }
+
+        /// <summary>
+        /// Compares version strings and returns true if newVer > originalVer
+        /// </summary>
+        /// <param name="originalVer"></param>
+        /// <param name="newVer"></param>
+        /// <returns></returns>
+        public static bool VersionBigger(string originalVer, string newVer)
         {
-            return latestRelease.WasDataFetchSuccessfull && latestRelease.TagName != CurrentVersionTag;
+            if(ParseVersionString(originalVer, out float ver1))
+            {
+                if (ParseVersionString(newVer, out float ver2))
+                {
+                    return ver2 > ver1;
+                }
+            }
+            return false;
+        }
+
+        private static bool ParseVersionString(string versionString, out float version)
+        {
+            return float.TryParse(versionString.Replace(".", "").Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out version);
         }
 
         public async Task<ReleaseInfo> GetLatestReleaseInfo()
