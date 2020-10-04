@@ -297,14 +297,14 @@ namespace PixiEditor.Models.DataHolders
             return clone;
         }
 
+        bool SizeIsNotEqual(Document other)
+        {
+            return other.Width != Width && other.Height != Height;
+        }
+
         public bool Equals(Document other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (other.Width != Width && other.Height != Height)
+            if (other == null || SizeIsNotEqual(other))
             {
                 return false;
             }

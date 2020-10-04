@@ -463,17 +463,10 @@ namespace PixiEditor.Models.Layers
 
         public bool Equals(Layer other)
         {
-            if (Name != other.Name)
-            {
-                return false;
-            }
-
-            if (IsVisible != other.IsVisible)
-            {
-                return false;
-            }
-
-            if (Opacity != other.Opacity)
+            if (other == null || 
+                Name != other.Name ||
+                IsVisible != other.IsVisible ||
+                Opacity != other.Opacity)
             {
                 return false;
             }
