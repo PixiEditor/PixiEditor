@@ -52,6 +52,7 @@ steps:
     SourceFolder: 'UpdateInstaller'
     Contents: '**'
     TargetFolder: 'Builds/PixiEditor-x64'
+    flattenFolders: true
 
 - task: PowerShell@2
   displayName: "Compile installer"
@@ -81,6 +82,7 @@ steps:
     SourceFolder: 'UpdateInstaller'
     Contents: '**'
     TargetFolder: 'Builds/PixiEditor-x64-light'
+    flattenFolders: true
 
 - task: PowerShell@2
   displayName: "Compile installer"
