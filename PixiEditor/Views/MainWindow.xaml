@@ -13,7 +13,7 @@
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
-        mc:Ignorable="d" WindowStyle="None"
+        mc:Ignorable="d" WindowStyle="None" Initialized="mainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
     <WindowChrome.WindowChrome>
@@ -391,5 +391,12 @@
                 <TextBlock Margin="4,0,10,0" Text="{Binding MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
             </StackPanel>
         </DockPanel>
+        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Grid.Row="3"
+                       Grid.Column="3" Orientation="Horizontal">
+            <Button Style="{StaticResource BaseDarkButton}" 
+                    Visibility="{Binding UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}}" FontSize="14" Height="20" Command="{Binding RestartApplicationCommand}">Restart</Button>
+            <TextBlock VerticalAlignment="Center" Padding="10" HorizontalAlignment="Right"
+                       Foreground="White" FontSize="14"  Text="{Binding VersionText}" />
+        </StackPanel>
     </Grid>
 </Window>

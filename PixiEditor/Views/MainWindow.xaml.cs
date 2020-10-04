@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.ViewModels;
@@ -10,12 +13,14 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
+        ViewModelMain viewModel;
         public MainWindow()
         {
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            ((ViewModelMain) DataContext).CloseAction = Close;
+            viewModel = ((ViewModelMain)DataContext);
+            viewModel.CloseAction = Close;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -58,6 +63,18 @@ namespace PixiEditor
             {
                 RestoreButton.Visibility = Visibility.Collapsed;
                 MaximizeButton.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void mainWindow_Initialized(object sender, EventArgs e)
+        {
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            bool updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
+            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+            if (updateFileExists && File.Exists(updaterPath))
+            {                
+                Process.Start(updaterPath);
+                Close();
             }
         }
     }

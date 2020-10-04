@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -21,6 +23,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.UpdateModule;
 
 namespace PixiEditor.ViewModels
 {
@@ -80,6 +83,7 @@ namespace PixiEditor.ViewModels
         public RelayCommand OpenHyperlinkCommand { get; set; }
         public RelayCommand ZoomCommand { get; set; }
         public RelayCommand ChangeToolSizeCommand { get; set; }
+        public RelayCommand RestartApplicationCommand { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -105,6 +109,19 @@ namespace PixiEditor.ViewModels
                 RaisePropertyChanged("MouseYOnCanvas");
             }
         }
+
+        private string _versionText;
+
+        public string VersionText
+        {
+            get => _versionText;
+            set
+            {
+                _versionText = value;
+                RaisePropertyChanged(nameof(VersionText));
+            }
+        }
+
 
         public bool RecenterZoombox
         {
@@ -178,6 +195,18 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private bool _updateReadyToInstall = false;
+
+        public bool UpdateReadyToInstall
+        {
+            get => _updateReadyToInstall;
+            set
+            {
+                _updateReadyToInstall = value;
+                RaisePropertyChanged(nameof(UpdateReadyToInstall));
+            }
+        }
+
         public BitmapManager BitmapManager { get; set; }
         public PixelChangesController ChangesController { get; set; }
 
@@ -195,6 +224,8 @@ namespace PixiEditor.ViewModels
 
         private bool _restoreToolOnKeyUp = false;
         private Tool _lastActionTool;
+
+        public UpdateChecker UpdateChecker { get; set; }
 
         public ViewModelMain()
         {
@@ -238,6 +269,7 @@ namespace PixiEditor.ViewModels
             OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
             ZoomCommand = new RelayCommand(ZoomViewport);
             ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
+            RestartApplicationCommand = new RelayCommand(RestartApplication);
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
@@ -292,6 +324,39 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = PrimaryColor;
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
+            InitUpdateChecker();
+        }
+
+        private void RestartApplication(object parameter)
+        {
+            Process.Start(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+            Application.Current.Shutdown();
+        }
+
+        public async Task<bool> CheckForUpdate()
+        {
+            return await Task.Run(async () =>
+            {
+                bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
+                bool updateFileDoesNotExists = !File.Exists($"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
+                if (updateAvailable && updateFileDoesNotExists)
+                {
+                    VersionText = "Downloading update...";
+                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                    VersionText = "to install update"; //Button shows "Restart" before this text
+                    UpdateReadyToInstall = true;
+                    return true;
+                }
+                return false;
+            });
+        }
+
+        private void InitUpdateChecker()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
+            UpdateChecker = new UpdateChecker(info.FileVersion);
+            VersionText = $"Version {info.FileVersion}";
         }
 
         private void ZoomViewport(object parameter)
@@ -344,13 +409,18 @@ namespace PixiEditor.ViewModels
             if (result != ConfirmationType.Canceled) ((CancelEventArgs) property).Cancel = false;
         }
 
-        private void OnStartup(object parameter)
+        private async void OnStartup(object parameter)
         {
             var lastArg = Environment.GetCommandLineArgs().Last();
             if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
+            {
                 Open(lastArg);
+            }
             else
+            {
                 OpenNewFilePopup(null);
+            }
+            await CheckForUpdate();
         }
 
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
