@@ -34,7 +34,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: '**/PixiEditor.UpdateInstaller.csproj'
-    arguments: '-o "UpdateInstaller" -r "win-x64" --self-contained=false -p:PublishSingleFile=true -c Release'
+    arguments: '-o "UpdateInstaller" -r "win-x86" --self-contained=false -p:PublishSingleFile=true -c Release'
     zipAfterPublish: false
 
 - task: DotNetCoreCLI@2
@@ -43,7 +43,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: '**/PixiEditor.csproj'
-    arguments: '-o "Builds/PixiEditor-x64" --self-contained=true -r "win-x64" -c Release'
+    arguments: '-o "Builds/PixiEditor-x86" --self-contained=true -r "win-x86" -c Release'
     zipAfterPublish: false
 
 - task: CopyFiles@2
@@ -51,29 +51,29 @@ steps:
   inputs:
     SourceFolder: 'UpdateInstaller'
     Contents: '**'
-    TargetFolder: 'Builds/PixiEditor-x64'
+    TargetFolder: 'Builds/PixiEditor-x86'
     flattenFolders: true
 
 - task: PowerShell@2
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x64.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x86.iss'
   
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"
   inputs:
-    targetPath: 'Installer/Assets/PixiEditor-x64/'
-    artifact: 'PixiEditor-setup-x64.exe'
+    targetPath: 'Installer/Assets/PixiEditor-x86/'
+    artifact: 'PixiEditor-setup-x86.exe'
     publishLocation: 'pipeline'
 
 - task: DotNetCoreCLI@2
-  displayName: "Build release PixiEditor x64 light"
+  displayName: "Build release PixiEditor x86 light"
   inputs:
     command: 'publish'
     publishWebProjects: false
     projects: '**/PixiEditor.csproj'
-    arguments: '-o "Builds\PixiEditor-x64-light" --self-contained=false -r "win-x64" -c Release'
+    arguments: '-o "Builds\PixiEditor-x86-light" --self-contained=false -r "win-x86" -c Release'
     zipAfterPublish: false
 
 - task: CopyFiles@2
@@ -81,18 +81,18 @@ steps:
   inputs:
     SourceFolder: 'UpdateInstaller'
     Contents: '**'
-    TargetFolder: 'Builds/PixiEditor-x64-light'
+    TargetFolder: 'Builds/PixiEditor-x86-light'
     flattenFolders: true
 
 - task: PowerShell@2
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x64-light.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x86-light.iss'
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"
   inputs:
-    targetPath: 'Installer/Assets/PixiEditor-x64-light/'
-    artifact: 'PixiEditor-setup-x64-light.exe'
+    targetPath: 'Installer/Assets/PixiEditor-x86-light/'
+    artifact: 'PixiEditor-setup-x86-light.exe'
     publishLocation: 'pipeline'
