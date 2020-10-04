@@ -4,7 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 trigger:
-- master
+- release
+- cd-azure-pipelines
 
 pool:
   vmImage: 'windows-latest'
