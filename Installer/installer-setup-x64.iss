@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "PixiEditor"
-#define MyAppVersion GetFileVersion("..\Builds\PixiEditor-x64\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
+#define MyAppVersion GetFileVersion("..\Builds\PixiEditor-x64\PixiEditor\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
 #define MyAppPublisher "PixiEditor"
 #define MyAppURL "https://github.com/PixiEditor/PixiEditor"
 #define MyAppExeName "PixiEditor.exe"
