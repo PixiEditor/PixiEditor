@@ -1,0 +1,118 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+trigger:
+- release
+- cd-azure-pipelines
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: PowerShell@2
+  displayName: "Set tag version"
+  inputs:
+    filePath: 'assemblyVerReader.ps1'
+
+- task: DotNetCoreCLI@2
+  displayName: "Build release PixiEditor.UpdateInstaller"
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**/PixiEditor.UpdateInstaller.csproj'
+    arguments: '-o "UpdateInstaller" -r "win-x86" --self-contained=false -p:PublishSingleFile=true -c Release'
+    zipAfterPublish: false
+
+- task: DotNetCoreCLI@2
+  displayName: "Build release PixiEditor Self-contained"
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**/PixiEditor.csproj'
+    arguments: '-o "Builds/PixiEditor-x86" --self-contained=true -r "win-x86" -c Release'
+    zipAfterPublish: false
+
+- task: CopyFiles@2
+  displayName: "Copy updater to PixiEditor target dir"
+  inputs:
+    SourceFolder: 'UpdateInstaller'
+    Contents: '**'
+    TargetFolder: 'Builds/PixiEditor-x86'
+    flattenFolders: true
+
+- task: PowerShell@2
+  displayName: "Compile installer"
+  inputs:
+    targetType: 'inline'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x86.iss'
+  
+- task: PublishPipelineArtifact@1
+  displayName: "Publish artifact"
+  inputs:
+    targetPath: 'Installer/Assets/PixiEditor-x86/'
+    artifact: 'PixiEditor-setup-x86.exe'
+    publishLocation: 'pipeline'
+
+- task: DotNetCoreCLI@2
+  displayName: "Build release PixiEditor x86 light"
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**/PixiEditor.csproj'
+    arguments: '-o "Builds\PixiEditor-x86-light" --self-contained=false -r "win-x86" -c Release'
+    zipAfterPublish: false
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'Builds\PixiEditor-x86-light'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: 'PixiEditor.$(TagVersion).x86.zip'
+    replaceExistingArchive: true
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish zip artifact"
+  inputs:
+    targetPath: '$(System.DefaultWorkingDirectory)\PixiEditor.$(TagVersion).x86.zip'
+    artifact: 'PixiEditor.$(TagVersion).x86.zip'
+    publishLocation: 'pipeline'
+
+- task: CopyFiles@2
+  displayName: "Copy updater to PixiEditor target dir"
+  inputs:
+    SourceFolder: 'UpdateInstaller'
+    Contents: '**'
+    TargetFolder: 'Builds/PixiEditor-x86-light'
+    flattenFolders: true
+
+- task: PowerShell@2
+  displayName: "Compile installer"
+  inputs:
+    targetType: 'inline'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x86-light.iss'
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish artifact"
+  inputs:
+    targetPath: 'Installer/Assets/PixiEditor-x86-light/'
+    artifact: 'PixiEditor-setup-x86-light.exe'
+    publishLocation: 'pipeline'

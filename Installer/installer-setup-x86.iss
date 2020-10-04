@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "PixiEditor"
-#define MyAppVersion GetFileVersion("E:\Builds\PixiEditor\x64\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
+#define MyAppVersion GetFileVersion("..\Builds\PixiEditor-x86\PixiEditor\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
 #define MyAppPublisher "PixiEditor"
 #define MyAppURL "https://github.com/PixiEditor/PixiEditor"
 #define MyAppExeName "PixiEditor.exe"
-#define TargetPlatform "x32-light"
+#define TargetPlatform "x86"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -24,12 +24,12 @@ DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 ; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.
 UsedUserAreasWarning=no
-LicenseFile=E:\Git\PixiEditor\LICENSE
+LicenseFile=..\LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputDir=E:\Builds\PixiEditor
-OutputBaseFilename=PixiEditor-setup-{#TargetPlatform}
-SetupIconFile=E:\Git\PixiEditor\icon.ico
+OutputDir=Assets\PixiEditor-{#TargetPlatform}
+OutputBaseFilename=PixiEditor-{#MyAppVersion}-setup-{#TargetPlatform}
+SetupIconFile=..\icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -43,8 +43,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-Source: "E:\Builds\PixiEditor\{#TargetPlatform}\PixiEditor.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\Builds\PixiEditor\{#TargetPlatform}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\Builds\PixiEditor-{#TargetPlatform}\PixiEditor\PixiEditor.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Builds\PixiEditor-{#TargetPlatform}\PixiEditor\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
