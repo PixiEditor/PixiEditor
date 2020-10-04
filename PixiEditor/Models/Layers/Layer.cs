@@ -478,11 +478,6 @@ namespace PixiEditor.Models.Layers
                 return false;
             }
 
-            if (!Offset.Equals(other.Offset))
-            {
-                return false;
-            }
-
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
