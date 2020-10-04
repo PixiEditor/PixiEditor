@@ -92,7 +92,7 @@ steps:
 - task: PublishPipelineArtifact@1
   displayName: "Publish zip artifact"
   inputs:
-    targetPath: '/'
+    targetPath: '$(System.DefaultWorkingDirectory)'
     artifact: 'PixiEditor.$(TagVersion).x64.zip'
     publishLocation: 'pipeline'
 
