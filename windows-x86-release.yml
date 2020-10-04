@@ -76,7 +76,7 @@ steps:
     arguments: '-o "Builds\PixiEditor-x86-light" --self-contained=false -r "win-x86" -c Release'
     zipAfterPublish: false
 
-task: ArchiveFiles@2
+- task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: 'Builds\PixiEditor-x86-light'
     includeRootFolder: true
