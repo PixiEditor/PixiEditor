@@ -330,3 +330,5 @@ ASALocalRun/
 .mfractor/
 
 PixiEditor/Properties/
+
+.vscode/
