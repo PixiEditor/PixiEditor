@@ -76,6 +76,21 @@ steps:
     arguments: '-o "Builds\PixiEditor-x86-light" --self-contained=false -r "win-x86" -c Release'
     zipAfterPublish: false
 
+task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'Builds\PixiEditor-x86-light'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: 'PixiEditor.$(TagVersion).x86.zip'
+    replaceExistingArchive: true
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish zip artifact"
+  inputs:
+    targetPath: '/'
+    artifact: 'PixiEditor.$(TagVersion).x86.zip'
+    publishLocation: 'pipeline'
+
 - task: CopyFiles@2
   displayName: "Copy updater to PixiEditor target dir"
   inputs:

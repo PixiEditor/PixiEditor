@@ -30,7 +30,7 @@ namespace PixiEditor.UpdateModule
 
         private static Asset GetMatchingAsset(ReleaseInfo release)
         {
-            string arch = IntPtr.Size == 8 ? "x64" : "x32";
+            string arch = IntPtr.Size == 8 ? "x64" : "x86";
             return release.Assets.First(x => x.ContentType == "application/x-zip-compressed"
             && x.Name.Contains(arch));
         }

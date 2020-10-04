@@ -37,6 +37,11 @@ steps:
     arguments: '-o "UpdateInstaller" -r "win-x64" --self-contained=false -p:PublishSingleFile=true -c Release'
     zipAfterPublish: false
 
+- task: PowerShell@2
+  displayName: "Set tag version"
+  inputs:
+    filePath: 'assemblyVerReader.ps1'
+
 - task: DotNetCoreCLI@2
   displayName: "Build release PixiEditor Self-contained"
   inputs:
@@ -75,6 +80,21 @@ steps:
     projects: '**/PixiEditor.csproj'
     arguments: '-o "Builds\PixiEditor-x64-light" --self-contained=false -r "win-x64" -c Release'
     zipAfterPublish: false
+    
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'Builds\PixiEditor-x64-light'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: 'PixiEditor.$(TagVersion).x64.zip'
+    replaceExistingArchive: true
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish zip artifact"
+  inputs:
+    targetPath: '/'
+    artifact: 'PixiEditor.$(TagVersion).x64.zip'
+    publishLocation: 'pipeline'
 
 - task: CopyFiles@2
   displayName: "Copy updater to PixiEditor target dir"

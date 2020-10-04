@@ -28,7 +28,7 @@ LicenseFile=..\LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=Assets\PixiEditor-{#TargetPlatform}
-OutputBaseFilename=PixiEditor-setup-{#TargetPlatform}
+OutputBaseFilename=PixiEditor-{#MyAppVersion}-setup-{#TargetPlatform}
 SetupIconFile=..\icon.ico
 Compression=lzma
 SolidCompression=yes
