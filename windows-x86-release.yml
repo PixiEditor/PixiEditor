@@ -56,7 +56,7 @@ steps:
   inputs:
     SourceFolder: 'UpdateInstaller'
     Contents: '**'
-    TargetFolder: 'Builds/PixiEditor-x86'
+    TargetFolder: 'Builds/PixiEditor-x86/PixiEditor'
     flattenFolders: true
 
 - task: PowerShell@2
@@ -101,7 +101,7 @@ steps:
   inputs:
     SourceFolder: 'UpdateInstaller'
     Contents: '**'
-    TargetFolder: 'Builds/PixiEditor-x86-light'
+    TargetFolder: 'Builds/PixiEditor-x86-light/PixiEditor'
     flattenFolders: true
 
 - task: PowerShell@2
