@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using Xunit;
 
