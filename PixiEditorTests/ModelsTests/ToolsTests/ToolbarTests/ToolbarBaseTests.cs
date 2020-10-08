@@ -20,7 +20,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         }
 
         [StaFact]
-        public void TestThatGetSettingReturnsSettingWithCorrectType()
+        public void TestThatGenericGetSettingReturnsSettingWithCorrectType()
         {
             const string settingName = "test";
             const bool settingValue = true;
@@ -32,6 +32,28 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
             Setting<bool> actual = toolbar.GetSetting<bool>(settingName);
 
             Assert.Equal(expected.Value, actual.Value);
+        }
+
+        [StaFact]
+        public void TestThatGenericGetSettingReturnsNullWhenSettingIsNotFound()
+        {
+            BasicToolbar toolbar = new BasicToolbar();
+
+            Setting<bool> actual = toolbar.GetSetting<bool>("invalid");
+
+            Assert.Null(actual);
+        }
+
+        [StaFact]
+        public void TestThatGenericGetSettingReturnsNullWhenSettingHasValueWithWrongType()
+        {
+            const string settingName = "test";
+            BasicToolbar toolbar = new BasicToolbar();
+            toolbar.Settings.Add(new BoolSetting(settingName));
+
+            Setting<int> actual = toolbar.GetSetting<int>(settingName);
+
+            Assert.Null(actual);
         }
 
         [StaFact]
