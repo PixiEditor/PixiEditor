@@ -3,13 +3,14 @@ using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    public abstract class Setting<T> : NotifyableObject
+    public abstract class Setting<T> : Setting
     {
-        public string Name { get; }
+        private T value;
 
-        public string Label { get; set; }
-
-        public bool HasLabel => !string.IsNullOrEmpty(Label);
+        protected Setting(string name)
+            : base(name)
+        {
+        }
 
         public T Value
         {
@@ -20,22 +21,21 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 RaisePropertyChanged("Value");
             }
         }
+    }
+
+    public abstract class Setting : NotifyableObject
+    {
+        public string Name { get; }
+
+        public string Label { get; set; }
+
+        public bool HasLabel => !string.IsNullOrEmpty(Label);
 
         public Control SettingControl { get; set; }
-
-        private T value;
 
         protected Setting(string name)
         {
             Name = name;
-        }
-    }
-
-    public abstract class Setting : Setting<object>
-    {
-        protected Setting(string name)
-            : base(name)
-        {
         }
     }
 }

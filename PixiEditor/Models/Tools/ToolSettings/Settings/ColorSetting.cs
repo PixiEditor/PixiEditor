@@ -4,7 +4,7 @@ using ColorPicker;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    public class ColorSetting : Setting
+    public class ColorSetting : Setting<Color>
     {
         public ColorSetting(string name, string label = "") : base(name)
         {

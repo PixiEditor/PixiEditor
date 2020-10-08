@@ -22,15 +22,33 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         }
 
         /// <summary>
+        ///     Gets setting with given type T in toolbar by name.
+        /// </summary>
+        /// <param name="name">Setting name, non case sensitive</param>
+        /// <returns></returns>
+        public Setting<T> GetSetting<T>(string name)
+        {
+            Setting setting =  Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
+
+            if (setting == null)
+                return null;
+
+            if (setting is Setting<T> convertedSetting)
+                return convertedSetting;
+
+            throw new Exception("Setting has value with unexpected type");
+        }
+
+        /// <summary>
         ///     Saves current toolbar state, so other toolbars with common settings can load them.
         /// </summary>
         public void SaveToolbarSettings()
         {
-            for (int i = 0; i < Settings.Count; i++)
-                if (SharedSettings.Any(x => x.Name == Settings[i].Name))
-                    SharedSettings.First(x => x.Name == Settings[i].Name).Value = Settings[i].Value;
-                else
-                    SharedSettings.Add(Settings[i]);
+            SharedSettings.Clear();
+            foreach (Setting setting in Settings)
+            {
+                SharedSettings.Add(setting);
+            }
         }
 
         /// <summary>
@@ -38,9 +56,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void LoadSharedSettings()
         {
-            for (int i = 0; i < SharedSettings.Count; i++)
-                if (Settings.Any(x => x.Name == SharedSettings[i].Name))
-                    Settings.First(x => x.Name == SharedSettings[i].Name).Value = SharedSettings[i].Value;
+            Settings.Clear();
+            foreach (Setting setting in SharedSettings)
+            {
+                Settings.Add(setting);
+            }
         }
     }
 }

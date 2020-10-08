@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using PixiEditor.Models.Tools.ToolSettings;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
+﻿using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using Xunit;
 
@@ -29,17 +25,17 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         {
             BasicToolbar toolbar = new BasicToolbar();
 
-            toolbar.Settings[0].Value = 5;
+            toolbar.GetSetting<int>("ToolSize").Value = 5;
 
             toolbar.SaveToolbarSettings();
 
             BasicShapeToolbar shapeToolbar = new BasicShapeToolbar();
 
-            Assert.NotEqual(5, (int)shapeToolbar.GetSetting("ToolSize").Value);
+            Assert.NotEqual(5, shapeToolbar.GetSetting<int>("ToolSize").Value);
 
             shapeToolbar.LoadSharedSettings();
 
-            Assert.Equal(5, (int)shapeToolbar.GetSetting("ToolSize").Value);
+            Assert.Equal(5, shapeToolbar.GetSetting<int>("ToolSize").Value);
         }
     }
 }

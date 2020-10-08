@@ -26,7 +26,7 @@ namespace PixiEditor.Models.Tools.Tools
             var pixels =
                 BitmapPixelChanges.FromSingleColoredArray(
                     CreateLine(coordinates, 
-                        (int) Toolbar.GetSetting("ToolSize").Value, CapType.Square, CapType.Square), color);
+                        Toolbar.GetSetting<int>("ToolSize").Value, CapType.Square, CapType.Square), color);
             return Only(pixels, layer);
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using PixiEditor.Models.Colors;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -35,9 +34,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            int toolSize = (int) Toolbar.GetSetting("ToolSize").Value;
-            float correctionFactor = (float) Toolbar.GetSetting("CorrectionFactor").Value;
-            Enum.TryParse<BrightnessMode>((Toolbar.GetSetting("Mode").Value as ComboBoxItem)?.Content as string, out var mode);
+            int toolSize = Toolbar.GetSetting<int>("ToolSize").Value;
+            float correctionFactor = Toolbar.GetSetting<float>("CorrectionFactor").Value;
+            Enum.TryParse<BrightnessMode>((Toolbar.GetSetting<object>("Mode").Value as ComboBoxItem)?.Content as string, out var mode);
             Mode = mode;
 
             LayerChange[] layersChanges = new LayerChange[1];
