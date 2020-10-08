@@ -30,13 +30,10 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         {
             Setting setting =  Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
 
-            if (setting == null)
+            if (setting == null || !(setting is Setting<T> convertedSetting))
                 return null;
 
-            if (setting is Setting<T> convertedSetting)
-                return convertedSetting;
-
-            throw new Exception("Setting has value with unexpected type");
+            return convertedSetting;
         }
 
         /// <summary>
