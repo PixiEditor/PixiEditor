@@ -41,13 +41,25 @@ namespace PixiEditor.Models.ImageManipulation
             using (finalBitmap.GetBitmapContext())
             {
                 for (int i = 0; i < layers.Length; i++)
-                for (int y = 0; y < finalBitmap.Height; y++)
-                for (int x = 0; x < finalBitmap.Width; x++)
-                {
-                    Color color = layers[i].GetPixelWithOffset(x, y);
-                    color = Color.FromArgb((byte)(color.A * layers[i].Opacity), color.R,color.G, color.B);
-                    if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0) finalBitmap.SetPixel(x, y, color);
-                }
+                    for (int y = 0; y < finalBitmap.Height; y++)
+                        for (int x = 0; x < finalBitmap.Width; x++)
+                        {
+                            Color color = layers[i].GetPixelWithOffset(x, y);
+                            if (i > 0 && color.A < 255)
+                            {
+                                var lastLayerPixel = layers[i - 1].GetPixelWithOffset(x, y);
+                                byte r = (byte)((color.R * color.A / 255) + (lastLayerPixel.R * lastLayerPixel.A * (255 - color.A) / (255 * 255)));
+                                byte g = (byte)((color.G * color.A / 255) + (lastLayerPixel.G * lastLayerPixel.A * (255 - color.A) / (255 * 255)));
+                                byte b = (byte)((color.B * color.A / 255) + (lastLayerPixel.B * lastLayerPixel.A * (255 - color.A) / (255 * 255)));
+                                byte a = (byte)(color.A + (lastLayerPixel.A * (255 - color.A) / 255));
+                                color = Color.FromArgb((byte)(a * layers[i].Opacity), r, g, b);
+                            }
+                            else
+                            {
+                                color = Color.FromArgb((byte)(color.A * layers[i].Opacity), color.R, color.G, color.B);
+                            }
+                            if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0) finalBitmap.SetPixel(x, y, color);
+                        }
             }
 
             return finalBitmap;
