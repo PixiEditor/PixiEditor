@@ -5,7 +5,8 @@
 
 trigger:
 - release
-- cd-azure-pipelines
+
+pr: none
 
 pool:
   vmImage: 'windows-latest'
