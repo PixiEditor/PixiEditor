@@ -42,13 +42,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.30.0" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.40.0" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.2" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="1.0.0" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="1.0.1" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="WriteableBitmapEx">
       <Version>1.6.7</Version>

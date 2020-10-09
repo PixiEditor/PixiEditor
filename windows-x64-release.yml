@@ -5,7 +5,8 @@
 
 trigger:
 - release
-- cd-azure-pipelines
+
+pr: none
 
 pool:
   vmImage: 'windows-latest'
@@ -84,7 +85,7 @@ steps:
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: 'Builds\PixiEditor-x64-light'
-    includeRootFolder: true
+    includeRootFolder: false
     archiveType: 'zip'
     archiveFile: 'PixiEditor.$(TagVersion).x64.zip'
     replaceExistingArchive: true
