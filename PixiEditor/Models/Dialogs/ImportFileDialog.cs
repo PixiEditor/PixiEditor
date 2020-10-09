@@ -1,4 +1,6 @@
 ﻿using PixiEditor.Views;
+using System;
+using System.Windows;
 
 namespace PixiEditor.Models.Dialogs
 {
@@ -52,8 +54,16 @@ namespace PixiEditor.Models.Dialogs
         public override bool ShowDialog()
         {
             ImportFilePopup popup = new ImportFilePopup();
-            popup.FilePath = FilePath;
-            popup.ShowDialog();
+            try
+            {
+                popup.FilePath = FilePath;
+                popup.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Show dialog error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
             if (popup.DialogResult == true)
             {
                 FileHeight = popup.ImportHeight;
