@@ -330,8 +330,16 @@ namespace PixiEditor.ViewModels
 
         private void RestartApplication(object parameter)
         {
-            ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
-            Application.Current.Shutdown();
+            try
+            {
+                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+                Application.Current.Shutdown();
+            }
+            catch (Win32Exception)
+            {
+                MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public async Task<bool> CheckForUpdate()
