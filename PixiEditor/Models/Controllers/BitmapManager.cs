@@ -12,7 +12,7 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -46,12 +46,12 @@ namespace PixiEditor.Models.Controllers
 
         public int ToolSize
         {
-            get => SelectedTool.Toolbar.GetSetting("ToolSize") != null
-            ? (int)SelectedTool.Toolbar.GetSetting("ToolSize").Value
+            get => SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") != null
+            ? SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize").Value
             : 1;
             set
             {
-                if (SelectedTool.Toolbar.GetSetting("ToolSize") is Setting toolSize)
+                if (SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is var toolSize)
                 {
                     toolSize.Value = value;
                     HighlightPixels(MousePositionConverter.CurrentCoordinates);

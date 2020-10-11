@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 using System.Windows.Media;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -22,13 +21,13 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            int thickness = (int) Toolbar.GetSetting("ToolSize").Value;
+            int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
             IEnumerable<Coordinates> outline = CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, thickness);
             BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(outline, color);
-            if ((bool) Toolbar.GetSetting("Fill").Value)
+            if (Toolbar.GetSetting<BoolSetting>("Fill").Value)
             {
-                Color fillColor = (Color) Toolbar.GetSetting("FillColor").Value;
+                Color fillColor = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
                 pixels.ChangedPixels.AddRangeNewOnly(
                     BitmapPixelChanges.FromSingleColoredArray(CalculateFillForEllipse(outline), fillColor)
                         .ChangedPixels);
