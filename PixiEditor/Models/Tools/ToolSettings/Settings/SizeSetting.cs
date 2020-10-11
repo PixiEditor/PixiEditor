@@ -7,7 +7,7 @@ using PixiEditor.Helpers.Behaviours;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    public class SizeSetting : Setting
+    public class SizeSetting : Setting<int>
     {
         public SizeSetting(string name, string label = null) : base(name)
         {
@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
             if (Application.Current != null)
             {
-                tb.Style = (Style)Application.Current.TryFindResource("DarkTextBoxStyle"); ;
+                tb.Style = (Style)Application.Current.TryFindResource("DarkTextBoxStyle");
             }
 
             Binding binding = new Binding("Value")

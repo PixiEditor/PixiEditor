@@ -1,15 +1,18 @@
 ﻿using System.Windows.Controls;
 using PixiEditor.Helpers;
 
-namespace PixiEditor.Models.Tools.ToolSettings
+namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    public abstract class Setting : NotifyableObject
+    public abstract class Setting<T> : Setting
     {
-        public string Name { get; protected set; }
-        public string Label { get; set; }
-        public bool HasLabel => !string.IsNullOrEmpty(Label);
+        private T value;
 
-        public object Value
+        protected Setting(string name)
+            : base(name)
+        {
+        }
+
+        public T Value
         {
             get => value;
             set
@@ -18,11 +21,19 @@ namespace PixiEditor.Models.Tools.ToolSettings
                 RaisePropertyChanged("Value");
             }
         }
+    }
+
+    public abstract class Setting : NotifyableObject
+    {
+        public string Name { get; }
+
+        public string Label { get; set; }
+
+        public bool HasLabel => !string.IsNullOrEmpty(Label);
 
         public Control SettingControl { get; set; }
-        private object value;
 
-        public Setting(string name)
+        protected Setting(string name)
         {
             Name = name;
         }

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -26,7 +25,7 @@ namespace PixiEditor.Models.Tools.Tools
             var pixels =
                 BitmapPixelChanges.FromSingleColoredArray(
                     CreateLine(coordinates, 
-                        (int) Toolbar.GetSetting("ToolSize").Value, CapType.Square, CapType.Square), color);
+                        Toolbar.GetSetting<SizeSetting>("ToolSize").Value, CapType.Square, CapType.Square), color);
             return Only(pixels, layer);
         }
 

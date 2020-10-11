@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
 {
@@ -21,15 +22,28 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         }
 
         /// <summary>
+        ///     Gets setting of given type T in toolbar by name.
+        /// </summary>
+        /// <param name="name">Setting name, non case sensitive</param>
+        /// <returns></returns>
+        public T GetSetting<T>(string name)
+            where T : Setting
+        {
+            Setting setting =  Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
+
+            if (setting == null || !(setting is T convertedSetting))
+                return null;
+
+            return convertedSetting;
+        }
+
+        /// <summary>
         ///     Saves current toolbar state, so other toolbars with common settings can load them.
         /// </summary>
         public void SaveToolbarSettings()
         {
-            for (int i = 0; i < Settings.Count; i++)
-                if (SharedSettings.Any(x => x.Name == Settings[i].Name))
-                    SharedSettings.First(x => x.Name == Settings[i].Name).Value = Settings[i].Value;
-                else
-                    SharedSettings.Add(Settings[i]);
+            foreach (Setting setting in Settings)
+                AddSettingToCollection(SharedSettings, setting);
         }
 
         /// <summary>
@@ -37,9 +51,17 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void LoadSharedSettings()
         {
-            for (int i = 0; i < SharedSettings.Count; i++)
-                if (Settings.Any(x => x.Name == SharedSettings[i].Name))
-                    Settings.First(x => x.Name == SharedSettings[i].Name).Value = SharedSettings[i].Value;
+            foreach (Setting sharedSetting in SharedSettings)
+                AddSettingToCollection(Settings, sharedSetting);
+        }
+
+        private static void AddSettingToCollection(ICollection<Setting> collection, Setting setting)
+        {
+            Setting storedSetting = collection.FirstOrDefault(currentSetting => currentSetting.Name == setting.Name);
+            if (storedSetting != null)
+                collection.Remove(storedSetting);
+
+            collection.Add(setting);
         }
     }
 }

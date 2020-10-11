@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    public class BoolSetting : Setting
+    public class BoolSetting : Setting<bool>
     {
         public BoolSetting(string name, string label = "") : base(name)
         {
@@ -25,7 +25,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
             CheckBox checkBox = new CheckBox
             {
-                IsChecked = (bool) Value,
+                IsChecked = Value,
                 VerticalAlignment = VerticalAlignment.Center
             };
 

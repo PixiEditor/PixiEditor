@@ -3,7 +3,7 @@ using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    public class FloatSetting : Setting
+    public class FloatSetting : Setting<float>
     {
         public float Min { get; set; }
         public float Max { get; set; }

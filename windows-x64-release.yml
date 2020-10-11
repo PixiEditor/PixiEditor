@@ -44,36 +44,6 @@ steps:
     filePath: 'assemblyVerReader.ps1'
 
 - task: DotNetCoreCLI@2
-  displayName: "Build release PixiEditor Self-contained"
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**/PixiEditor.csproj'
-    arguments: '-o "Builds/PixiEditor-x64" --self-contained=true -r "win-x64" -c Release'
-    zipAfterPublish: false
-
-- task: CopyFiles@2
-  displayName: "Copy updater to PixiEditor target dir"
-  inputs:
-    SourceFolder: 'UpdateInstaller'
-    Contents: '**'
-    TargetFolder: 'Builds/PixiEditor-x64/PixiEditor/'
-    flattenFolders: true
-
-- task: PowerShell@2
-  displayName: "Compile installer"
-  inputs:
-    targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x64.iss'
-  
-- task: PublishPipelineArtifact@1
-  displayName: "Publish artifact"
-  inputs:
-    targetPath: 'Installer/Assets/PixiEditor-x64'
-    artifact: 'PixiEditor-setup-x64.exe'
-    publishLocation: 'pipeline'
-
-- task: DotNetCoreCLI@2
   displayName: "Build release PixiEditor x64 light"
   inputs:
     command: 'publish'
@@ -115,5 +85,5 @@ steps:
   displayName: "Publish artifact"
   inputs:
     targetPath: 'Installer/Assets/PixiEditor-x64-light/'
-    artifact: 'PixiEditor-setup-x64-light.exe'
+    artifact: 'PixiEditor-setup-x64.exe'
     publishLocation: 'pipeline'
