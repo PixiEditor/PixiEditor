@@ -22,15 +22,16 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         }
 
         /// <summary>
-        ///     Gets setting with given type T in toolbar by name.
+        ///     Gets setting of given type T in toolbar by name.
         /// </summary>
         /// <param name="name">Setting name, non case sensitive</param>
         /// <returns></returns>
-        public Setting<T> GetSetting<T>(string name)
+        public T GetSetting<T>(string name)
+            where T : Setting
         {
             Setting setting =  Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
 
-            if (setting == null || !(setting is Setting<T> convertedSetting))
+            if (setting == null || !(setting is T convertedSetting))
                 return null;
 
             return convertedSetting;

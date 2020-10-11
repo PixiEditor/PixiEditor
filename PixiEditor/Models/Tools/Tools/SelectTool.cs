@@ -7,6 +7,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
 
@@ -26,7 +27,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnMouseDown(MouseEventArgs e)
         {
-            Enum.TryParse(Toolbar.GetSetting<ComboBoxItem>("Mode")?.Value?.Content as string, out SelectionType);
+            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType);
 
             _oldSelection = null;
             if (ViewModelMain.Current.ActiveSelection != null &&

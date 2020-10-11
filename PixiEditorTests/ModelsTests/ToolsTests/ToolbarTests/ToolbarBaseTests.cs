@@ -29,7 +29,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
             BasicToolbar toolbar = new BasicToolbar();
             toolbar.Settings.Add(expected);
 
-            Setting<bool> actual = toolbar.GetSetting<bool>(settingName);
+            BoolSetting actual = toolbar.GetSetting<BoolSetting>(settingName);
 
             Assert.Equal(expected.Value, actual.Value);
         }
@@ -39,19 +39,19 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         {
             BasicToolbar toolbar = new BasicToolbar();
 
-            Setting<bool> actual = toolbar.GetSetting<bool>("invalid");
+            BoolSetting actual = toolbar.GetSetting<BoolSetting>("invalid");
 
             Assert.Null(actual);
         }
 
         [StaFact]
-        public void TestThatGenericGetSettingReturnsNullWhenSettingHasValueWithWrongType()
+        public void TestThatGenericGetSettingReturnsNullWhenSettingHasWrongType()
         {
             const string settingName = "test";
             BasicToolbar toolbar = new BasicToolbar();
             toolbar.Settings.Add(new BoolSetting(settingName));
 
-            Setting<int> actual = toolbar.GetSetting<int>(settingName);
+            SizeSetting actual = toolbar.GetSetting<SizeSetting>(settingName);
 
             Assert.Null(actual);
         }
@@ -61,17 +61,17 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         {
             BasicToolbar toolbar = new BasicToolbar();
 
-            toolbar.GetSetting<int>("ToolSize").Value = 5;
+            toolbar.GetSetting<SizeSetting>("ToolSize").Value = 5;
 
             toolbar.SaveToolbarSettings();
 
             BasicShapeToolbar shapeToolbar = new BasicShapeToolbar();
 
-            Assert.NotEqual(5, shapeToolbar.GetSetting<int>("ToolSize").Value);
+            Assert.NotEqual(5, shapeToolbar.GetSetting<SizeSetting>("ToolSize").Value);
 
             shapeToolbar.LoadSharedSettings();
 
-            Assert.Equal(5, shapeToolbar.GetSetting<int>("ToolSize").Value);
+            Assert.Equal(5, shapeToolbar.GetSetting<SizeSetting>("ToolSize").Value);
         }
     }
 }

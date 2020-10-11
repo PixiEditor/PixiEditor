@@ -11,14 +11,14 @@ namespace PixiEditor.Models.Tools.Tools
     public class PenTool : BitmapOperationTool
     {
         public override ToolType ToolType => ToolType.Pen;
-        private readonly Setting<int> _toolSizeSetting;
+        private readonly SizeSetting _toolSizeSetting;
 
         public PenTool()
         {
             Cursor = Cursors.Pen;
             Tooltip = "Standard brush (B)";
             Toolbar = new BasicToolbar();
-            _toolSizeSetting = Toolbar.GetSetting<int>("ToolSize");
+            _toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
