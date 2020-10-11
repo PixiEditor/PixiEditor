@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.Processes;
+using PixiEditor.UpdateModule;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor
@@ -69,12 +72,21 @@ namespace PixiEditor
         private void mainWindow_Initialized(object sender, EventArgs e)
         {
             string dir = AppDomain.CurrentDomain.BaseDirectory;
-            bool updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
+            UpdateDownloader.CreateTempDirectory();
+            bool updateFileExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
             string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
             if (updateFileExists && File.Exists(updaterPath))
-            {                
-                Process.Start(updaterPath);
-                Close();
+            {
+                try
+                {
+                    ProcessHelper.RunAsAdmin(updaterPath);
+                    Close();
+                }
+                catch(Win32Exception)
+                {
+                    MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

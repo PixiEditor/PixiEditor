@@ -21,6 +21,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Processes;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.UpdateModule;
@@ -329,7 +330,7 @@ namespace PixiEditor.ViewModels
 
         private void RestartApplication(object parameter)
         {
-            Process.Start(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+            ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
             Application.Current.Shutdown();
         }
 
@@ -338,7 +339,8 @@ namespace PixiEditor.ViewModels
             return await Task.Run(async () =>
             {
                 bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
-                bool updateFileDoesNotExists = !File.Exists($"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip");
+                bool updateFileDoesNotExists = !File.Exists(
+                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
                 if (updateAvailable && updateFileDoesNotExists)
                 {
                     VersionText = "Downloading update...";
