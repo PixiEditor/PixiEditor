@@ -24,8 +24,8 @@ namespace PixiEditor.Models.Tools.Tools
         {
             List<Coordinates> changedCoords = new List<Coordinates>();
 
-            int width = layer.Width;
-            int height = layer.Height;
+            int width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
+            int height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
 
             var visited = new bool[width, height];
 
