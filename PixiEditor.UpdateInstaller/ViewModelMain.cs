@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.UpdateModule;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -43,11 +44,11 @@ namespace PixiEditor.UpdateInstaller
 
         public void InstallUpdate()
         {
-            string[] files = Directory.GetFiles(UpdateDirectory, "update-*.zip");
+            string[] files = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip");
 
             if (files.Length > 0)
             {
-                Installer = new UpdateModule.UpdateInstaller(files[0]);
+                Installer = new UpdateModule.UpdateInstaller(files[0], UpdateDirectory);
                 Installer.ProgressChanged += Installer_ProgressChanged;
                 Installer.Install();
             }
@@ -57,7 +58,7 @@ namespace PixiEditor.UpdateInstaller
             }
         }
 
-        private void Installer_ProgressChanged(object sender, UpdateModule.UpdateProgressChangedEventArgs e)
+        private void Installer_ProgressChanged(object sender, UpdateProgressChangedEventArgs e)
         {
             ProgressValue = e.Progress;
         }

@@ -3,14 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PixiEditor.UpdateModule
 {
     public static class UpdateDownloader
     {
-        public static string DownloadLocation = AppDomain.CurrentDomain.BaseDirectory;
+        public static string DownloadLocation = Path.Join(Path.GetTempPath(), "PixiEditor");
         public static async Task DownloadReleaseZip(ReleaseInfo release)
         {
             Asset matchingAsset = GetMatchingAsset(release);
@@ -23,8 +22,17 @@ namespace PixiEditor.UpdateModule
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                    CreateTempDirectory();
                     File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
                 }
+            }
+        }
+
+        public static void CreateTempDirectory()
+        {
+            if (!Directory.Exists(DownloadLocation))
+            {
+                Directory.CreateDirectory(DownloadLocation);
             }
         }
 
