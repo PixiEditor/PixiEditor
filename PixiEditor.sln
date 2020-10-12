@@ -11,6 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.UpdateModule", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditorTests", "PixiEditorTests\PixiEditorTests.csproj", "{5193C1C1-8362-40FD-802B-E097E8C88082}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildConfiguration", "BuildConfiguration", "{9337E60D-8425-4E87-950C-F07A09518081}"
+ProjectSection(SolutionItems) = preProject
+	stylecop.json = stylecop.json
+	Custom.ruleset = Custom.ruleset
+	Directory.Build.props = Directory.Build.props
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
