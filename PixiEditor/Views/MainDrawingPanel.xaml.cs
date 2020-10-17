@@ -78,9 +78,13 @@ namespace PixiEditor.Views
                 panel.Zoombox.Position = default;
                 return;
             }
-            Point relativePoint = panel.Zoombox.PointFromScreen((Point)e.NewValue);       
-            panel.Zoombox.Position = new Point(panel.Zoombox.Position.X + relativePoint.X, 
-                panel.Zoombox.Position.Y + relativePoint.Y);
+            Point absClickPoint = panel.Zoombox.PointToScreen(panel.ClickPosition);
+            Point newVal = (Point)e.NewValue;
+            Point relativePoint = panel.Zoombox.PointFromScreen(
+                new Point(absClickPoint.X + newVal.X, absClickPoint.Y + newVal.Y));  
+            panel.Zoombox.Position = new Point(Math.Clamp(panel.Zoombox.Position.X + relativePoint.X, 0, panel.Zoombox.ActualWidth),
+                Math.Clamp(panel.Zoombox.Position.Y + relativePoint.Y, 0, panel.Zoombox.ActualHeight));
+            panel.LastPoint = panel.Zoombox.Position;
         }
 
         public bool Center
@@ -140,6 +144,8 @@ namespace PixiEditor.Views
         }
 
         public double ClickScale;
+        public Point ClickPosition;
+        public Point LastPoint;
 
         public MainDrawingPanel()
         {
@@ -198,6 +204,7 @@ namespace PixiEditor.Views
         {
             IsUsingZoomTool = ViewModelMain.Current.BitmapManager.SelectedTool is ZoomTool;
             Mouse.Capture((IInputElement)sender, CaptureMode.SubTree);
+            ClickPosition = LastPoint;
             SetClickValues();
         }
 
