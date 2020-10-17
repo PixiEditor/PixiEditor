@@ -196,6 +196,19 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private Point _viewPortPosition;
+
+        public Point ViewportPosition
+        {
+            get => _viewPortPosition;
+            set 
+            {
+                _viewPortPosition = value;
+                RaisePropertyChanged(nameof(ViewportPosition));
+            }
+        }
+
+
         private bool _updateReadyToInstall = false;
 
         public bool UpdateReadyToInstall
@@ -273,7 +286,7 @@ namespace PixiEditor.ViewModels
             RestartApplicationCommand = new RelayCommand(RestartApplication);
             ToolSet = new ObservableCollection<Tool>
             {
-                new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
+                new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
                 new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(), 
                 new ZoomTool()
             };

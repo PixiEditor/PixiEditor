@@ -58,6 +58,31 @@ namespace PixiEditor.Views
             DependencyProperty.Register("ZoomPercentage", typeof(double), typeof(MainDrawingPanel), new PropertyMetadata(0.0, ZoomPercentegeChanged));
 
 
+
+        public Point ViewportPosition
+        {
+            get { return (Point)GetValue(ViewportPositionProperty); }
+            set { SetValue(ViewportPositionProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ViewportPosition.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ViewportPositionProperty =
+            DependencyProperty.Register("ViewportPosition", typeof(Point),
+                typeof(MainDrawingPanel), new PropertyMetadata(default(Point), ViewportPosCallback));
+
+        private static void ViewportPosCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MainDrawingPanel panel = (MainDrawingPanel)d;
+            if (PresentationSource.FromVisual(panel.Zoombox) == null)
+            {
+                panel.Zoombox.Position = default;
+                return;
+            }
+            Point relativePoint = panel.Zoombox.PointFromScreen((Point)e.NewValue);       
+            panel.Zoombox.Position = new Point(panel.Zoombox.Position.X + relativePoint.X, 
+                panel.Zoombox.Position.Y + relativePoint.Y);
+        }
+
         public bool Center
         {
             get => (bool) GetValue(CenterProperty);
