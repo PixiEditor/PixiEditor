@@ -14,20 +14,32 @@ namespace PixiEditor.Models.Tools.Tools
         {
             HideHighlight = true;
             Cursor = Cursors.SizeAll;
+            Tooltip = "Move viewport. (H)";
         }
 
         public override void OnMouseDown(MouseEventArgs e)
         {
-             _clickPoint = MousePositionConverter.GetCursorPosition();
+            if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
+            {
+                _clickPoint = MousePositionConverter.GetCursorPosition();
+            }
         }
 
         public override void OnMouseMove(MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
                 var point = MousePositionConverter.GetCursorPosition();
                 ViewModelMain.Current.ViewportPosition = new System.Windows.Point(point.X - _clickPoint.X, 
                     point.Y - _clickPoint.Y);
+            }
+        }
+
+        public override void OnMouseUp(MouseEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Pressed)
+            {
+                ViewModelMain.Current.SetActiveTool(ViewModelMain.Current.LastActionTool);
             }
         }
 

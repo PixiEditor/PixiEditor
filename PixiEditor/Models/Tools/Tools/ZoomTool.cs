@@ -25,7 +25,7 @@ namespace PixiEditor.Models.Tools.Tools
             _pixelsPerZoomMultiplier = _workAreaWidth / ZoomSensitivityMultiplier;
         }
 
-        public override void OnMouseDown(MouseEventArgs e)
+        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             _startingX = MousePositionConverter.GetCursorPosition().X;
             ViewModelMain.Current.ZoomPercentage = 100; //This resest the value, so callback in MainDrawingPanel can fire again later
@@ -43,7 +43,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override void OnMouseUp(MouseEventArgs e)
+        public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Released && e.RightButton == MouseButtonState.Released && 
                 _startingX == MousePositionConverter.GetCursorPosition().X)

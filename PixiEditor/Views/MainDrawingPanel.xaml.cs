@@ -116,6 +116,31 @@ namespace PixiEditor.Views
             set => SetValue(IsUsingZoomToolProperty, value);
         }
 
+        public ICommand MiddleMouseClickedCommand
+        {
+            get { return (ICommand)GetValue(MiddleMouseClickedCommandProperty); }
+            set { SetValue(MiddleMouseClickedCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MiddleMouseClickedCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
+            DependencyProperty.Register("MiddleMouseClickedCommand", typeof(ICommand), typeof(MainDrawingPanel), new PropertyMetadata(default(ICommand)));
+
+
+
+        public object MiddleMouseClickedCommandParameter
+        {
+            get { return (object)GetValue(MiddleMouseClickedCommandParameterProperty); }
+            set { SetValue(MiddleMouseClickedCommandParameterProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MiddleMouseClickedCommandParameter.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MiddleMouseClickedCommandParameterProperty =
+            DependencyProperty.Register("MiddleMouseClickedCommandParameter", typeof(object), typeof(MainDrawingPanel), 
+                new PropertyMetadata(default(object)));
+
+
+
         private static void ZoomPercentegeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MainDrawingPanel panel = (MainDrawingPanel)d;
@@ -212,6 +237,15 @@ namespace PixiEditor.Views
         private void mainDrawingPanel_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             ((IInputElement)sender).ReleaseMouseCapture();
+        }
+
+        private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Pressed && 
+                MiddleMouseClickedCommand.CanExecute(MiddleMouseClickedCommandParameter))
+            {
+                MiddleMouseClickedCommand.Execute(MiddleMouseClickedCommandParameter);
+            }
         }
     }
 }

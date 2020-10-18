@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.Helpers
 {
@@ -32,7 +33,7 @@ namespace PixiEditor.Helpers
 
         public static void RaiseMouseUp()
         {
-            MouseUp?.Invoke(default, default);
+            MouseUp?.Invoke(default, default, default);
         }
 
         private static void Unsubscribe()
@@ -73,11 +74,13 @@ namespace PixiEditor.Helpers
             if (nCode >= 0)
             {
                 MSLLHOOKSTRUCT mouseHookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
-                if (wParam == WM_LBUTTONUP)
+                if (wParam == WM_LBUTTONUP || wParam == WM_MBUTTONUP || wParam == WM_RBUTTONUP)
                 {
                     if (MouseUp != null)
                     {
-                        MouseUp.Invoke(null, new Point(mouseHookStruct.pt.x, mouseHookStruct.pt.y));
+                        MouseButton button = wParam == WM_LBUTTONUP ? MouseButton.Left
+                            : wParam == WM_MBUTTONUP ? MouseButton.Middle : MouseButton.Right;
+                        MouseUp.Invoke(null, new Point(mouseHookStruct.pt.x, mouseHookStruct.pt.y), button);
                     }
                 }
             }
@@ -86,6 +89,8 @@ namespace PixiEditor.Helpers
 
         private const int WH_MOUSE_LL = 14;
         private const int WM_LBUTTONUP = 0x0202;
+        private const int WM_MBUTTONUP = 0x0208;
+        private const int WM_RBUTTONUP = 0x0205;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
@@ -127,5 +132,5 @@ namespace PixiEditor.Helpers
         private static extern IntPtr GetModuleHandle(string name);
     }
 
-    public delegate void MouseUpEventHandler(object sender, Point p);
+    public delegate void MouseUpEventHandler(object sender, Point p, MouseButton button);
 }
