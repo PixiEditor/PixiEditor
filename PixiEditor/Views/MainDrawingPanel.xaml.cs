@@ -7,6 +7,7 @@ using System.Windows.Input;
 using PixiEditor.Models.Tools.Tools;
 using Xceed.Wpf.Toolkit.Core.Input;
 using Xceed.Wpf.Toolkit.Zoombox;
+using PixiEditor.Models.Position;
 
 namespace PixiEditor.Views
 {
@@ -70,23 +71,6 @@ namespace PixiEditor.Views
             DependencyProperty.Register("ViewportPosition", typeof(Point),
                 typeof(MainDrawingPanel), new PropertyMetadata(default(Point), ViewportPosCallback));
 
-        private static void ViewportPosCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            MainDrawingPanel panel = (MainDrawingPanel)d;
-            if (PresentationSource.FromVisual(panel.Zoombox) == null)
-            {
-                panel.Zoombox.Position = default;
-                return;
-            }
-            Point absClickPoint = panel.Zoombox.PointToScreen(panel.ClickPosition);
-            Point newVal = (Point)e.NewValue;
-            Point relativePoint = panel.Zoombox.PointFromScreen(
-                new Point(absClickPoint.X + newVal.X, absClickPoint.Y + newVal.Y));  
-            panel.Zoombox.Position = new Point(Math.Clamp(panel.Zoombox.Position.X + relativePoint.X, 0, panel.Zoombox.ActualWidth),
-                Math.Clamp(panel.Zoombox.Position.Y + relativePoint.Y, 0, panel.Zoombox.ActualHeight));
-            panel.LastPoint = panel.Zoombox.Position;
-        }
-
         public bool Center
         {
             get => (bool) GetValue(CenterProperty);
@@ -145,12 +129,29 @@ namespace PixiEditor.Views
 
         public double ClickScale;
         public Point ClickPosition;
-        public Point LastPoint;
 
         public MainDrawingPanel()
         {
             InitializeComponent();
             Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection() { KeyModifier.RightAlt };
+        }
+
+        private static void ViewportPosCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MainDrawingPanel panel = (MainDrawingPanel)d;
+            if (PresentationSource.FromVisual(panel.Zoombox) == null)
+            {
+                panel.Zoombox.Position = default;
+                return;
+            }           
+            TranslateZoombox(panel, (Point)e.NewValue);
+        }
+
+        private static void TranslateZoombox(MainDrawingPanel panel, Point vector)
+        {
+            var newPos = new Point(panel.ClickPosition.X + vector.X,
+                panel.ClickPosition.Y + vector.Y);
+            panel.Zoombox.Position = newPos;
         }
 
         private void Zoombox_CurrentViewChanged(object sender, ZoomboxViewChangedEventArgs e)
@@ -204,7 +205,7 @@ namespace PixiEditor.Views
         {
             IsUsingZoomTool = ViewModelMain.Current.BitmapManager.SelectedTool is ZoomTool;
             Mouse.Capture((IInputElement)sender, CaptureMode.SubTree);
-            ClickPosition = LastPoint;
+            ClickPosition = ((FrameworkElement)Item).TranslatePoint(new Point(0, 0), Zoombox);
             SetClickValues();
         }
 
