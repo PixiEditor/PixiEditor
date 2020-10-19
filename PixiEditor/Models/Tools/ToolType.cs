@@ -3,6 +3,7 @@
     public enum ToolType
     {
         None,
+        MoveViewport,
         Move,
         Pen,
         Select,

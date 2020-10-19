@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
-        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:tools="clr-namespace:PixiEditor.Models.Tools"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
@@ -163,7 +163,10 @@
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
                 <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay}" Center="{Binding RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
-                                      CenterOnStart="True" Cursor="{Binding ToolCursor}">
+                                      CenterOnStart="True" Cursor="{Binding ToolCursor}" 
+                                      MiddleMouseClickedCommand="{Binding SelectToolCommand}" 
+                                      MiddleMouseClickedCommandParameter="{x:Static tools:ToolType.MoveViewport}"
+                                      ViewportPosition="{Binding ViewportPosition, Mode=TwoWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseMove">
                             <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" />

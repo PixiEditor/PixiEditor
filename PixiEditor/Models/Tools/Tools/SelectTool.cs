@@ -25,7 +25,7 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new SelectToolToolbar();
         }
 
-        public override void OnMouseDown(MouseEventArgs e)
+        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType);
 
@@ -35,7 +35,7 @@ namespace PixiEditor.Models.Tools.Tools
                 _oldSelection = ViewModelMain.Current.ActiveSelection;
         }
 
-        public override void OnMouseUp(MouseEventArgs e)
+        public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
         {
             if (ViewModelMain.Current.ActiveSelection.SelectedPoints.Count() <= 1)
             {

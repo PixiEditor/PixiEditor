@@ -7,6 +7,7 @@ using System.Windows.Input;
 using PixiEditor.Models.Tools.Tools;
 using Xceed.Wpf.Toolkit.Core.Input;
 using Xceed.Wpf.Toolkit.Zoombox;
+using PixiEditor.Models.Position;
 
 namespace PixiEditor.Views
 {
@@ -58,6 +59,18 @@ namespace PixiEditor.Views
             DependencyProperty.Register("ZoomPercentage", typeof(double), typeof(MainDrawingPanel), new PropertyMetadata(0.0, ZoomPercentegeChanged));
 
 
+
+        public Point ViewportPosition
+        {
+            get { return (Point)GetValue(ViewportPositionProperty); }
+            set { SetValue(ViewportPositionProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ViewportPosition.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ViewportPositionProperty =
+            DependencyProperty.Register("ViewportPosition", typeof(Point),
+                typeof(MainDrawingPanel), new PropertyMetadata(default(Point), ViewportPosCallback));
+
         public bool Center
         {
             get => (bool) GetValue(CenterProperty);
@@ -103,6 +116,31 @@ namespace PixiEditor.Views
             set => SetValue(IsUsingZoomToolProperty, value);
         }
 
+        public ICommand MiddleMouseClickedCommand
+        {
+            get { return (ICommand)GetValue(MiddleMouseClickedCommandProperty); }
+            set { SetValue(MiddleMouseClickedCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MiddleMouseClickedCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
+            DependencyProperty.Register("MiddleMouseClickedCommand", typeof(ICommand), typeof(MainDrawingPanel), new PropertyMetadata(default(ICommand)));
+
+
+
+        public object MiddleMouseClickedCommandParameter
+        {
+            get { return (object)GetValue(MiddleMouseClickedCommandParameterProperty); }
+            set { SetValue(MiddleMouseClickedCommandParameterProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MiddleMouseClickedCommandParameter.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MiddleMouseClickedCommandParameterProperty =
+            DependencyProperty.Register("MiddleMouseClickedCommandParameter", typeof(object), typeof(MainDrawingPanel), 
+                new PropertyMetadata(default(object)));
+
+
+
         private static void ZoomPercentegeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MainDrawingPanel panel = (MainDrawingPanel)d;
@@ -115,11 +153,30 @@ namespace PixiEditor.Views
         }
 
         public double ClickScale;
+        public Point ClickPosition;
 
         public MainDrawingPanel()
         {
             InitializeComponent();
             Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection() { KeyModifier.RightAlt };
+        }
+
+        private static void ViewportPosCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MainDrawingPanel panel = (MainDrawingPanel)d;
+            if (PresentationSource.FromVisual(panel.Zoombox) == null)
+            {
+                panel.Zoombox.Position = default;
+                return;
+            }           
+            TranslateZoombox(panel, (Point)e.NewValue);
+        }
+
+        private static void TranslateZoombox(MainDrawingPanel panel, Point vector)
+        {
+            var newPos = new Point(panel.ClickPosition.X + vector.X,
+                panel.ClickPosition.Y + vector.Y);
+            panel.Zoombox.Position = newPos;
         }
 
         private void Zoombox_CurrentViewChanged(object sender, ZoomboxViewChangedEventArgs e)
@@ -173,12 +230,22 @@ namespace PixiEditor.Views
         {
             IsUsingZoomTool = ViewModelMain.Current.BitmapManager.SelectedTool is ZoomTool;
             Mouse.Capture((IInputElement)sender, CaptureMode.SubTree);
+            ClickPosition = ((FrameworkElement)Item).TranslatePoint(new Point(0, 0), Zoombox);
             SetClickValues();
         }
 
         private void mainDrawingPanel_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             ((IInputElement)sender).ReleaseMouseCapture();
+        }
+
+        private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Pressed && 
+                MiddleMouseClickedCommand.CanExecute(MiddleMouseClickedCommandParameter))
+            {
+                MiddleMouseClickedCommand.Execute(MiddleMouseClickedCommandParameter);
+            }
         }
     }
 }

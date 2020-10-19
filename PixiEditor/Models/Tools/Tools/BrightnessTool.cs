@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-        public override void OnMouseDown(MouseEventArgs e)
+        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             _pixelsVisited.Clear();
         }

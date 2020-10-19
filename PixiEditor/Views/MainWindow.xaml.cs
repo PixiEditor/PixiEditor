@@ -22,7 +22,7 @@ namespace PixiEditor
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            viewModel = ((ViewModelMain)DataContext);
+            viewModel = (ViewModelMain)DataContext;
             viewModel.CloseAction = Close;
         }
 

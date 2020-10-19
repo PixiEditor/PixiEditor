@@ -30,8 +30,11 @@ namespace PixiEditor.Models.Tools
         public bool CanStartOutsideCanvas { get; set; } = false;
 
         public virtual void OnMouseDown(MouseEventArgs e) { }
-
         public virtual void OnMouseUp(MouseEventArgs e) { }
+
+        public virtual void OnRecordingLeftMouseDown(MouseEventArgs e) { }
+
+        public virtual void OnStoppedRecordingMouseUp(MouseEventArgs e) { }
 
         public virtual void OnMouseMove(MouseEventArgs e) { }
 

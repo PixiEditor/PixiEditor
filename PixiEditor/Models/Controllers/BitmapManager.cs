@@ -12,6 +12,7 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Controllers
@@ -84,12 +85,24 @@ namespace PixiEditor.Models.Controllers
             MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            MouseController.OnMouseDown += MouseController_OnMouseDown;
+            MouseController.OnMouseUp += MouseController_OnMouseUp;
             BitmapOperations = new BitmapOperationsUtility(this);
             ReadonlyToolUtility = new ReadonlyToolUtility();
         }
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
+
+        private void MouseController_OnMouseDown(object sender, MouseEventArgs e)
+        {
+            SelectedTool.OnMouseDown(e);
+        }
+
+        private void MouseController_OnMouseUp(object sender, MouseEventArgs e)
+        {
+            SelectedTool.OnMouseUp(e);
+        }
 
         public void SetActiveTool(Tool tool)
         {
@@ -174,18 +187,18 @@ namespace PixiEditor.Models.Controllers
 
         private bool IsDraggingViewport()
         {
-            return Keyboard.IsKeyDown(Key.LeftShift) && !(SelectedTool is ShapeTool);
+            return SelectedTool is MoveViewportTool;
         }
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            SelectedTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             PreviewLayer = null;
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            SelectedTool.OnStoppedRecordingMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (IsOperationTool(SelectedTool) && ((BitmapOperationTool) SelectedTool).RequiresPreviewLayer)
                 BitmapOperations.StopAction();
         }

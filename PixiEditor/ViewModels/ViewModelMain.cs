@@ -196,6 +196,19 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        private Point _viewPortPosition;
+
+        public Point ViewportPosition
+        {
+            get => _viewPortPosition;
+            set 
+            {
+                _viewPortPosition = value;
+                RaisePropertyChanged(nameof(ViewportPosition));
+            }
+        }
+
+
         private bool _updateReadyToInstall = false;
 
         public bool UpdateReadyToInstall
@@ -224,7 +237,7 @@ namespace PixiEditor.ViewModels
         }
 
         private bool _restoreToolOnKeyUp = false;
-        private Tool _lastActionTool;
+        public Tool LastActionTool { get; private set; }
 
         public UpdateChecker UpdateChecker { get; set; }
 
@@ -273,7 +286,7 @@ namespace PixiEditor.ViewModels
             RestartApplicationCommand = new RelayCommand(RestartApplication);
             ToolSet = new ObservableCollection<Tool>
             {
-                new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
+                new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
                 new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(), 
                 new ZoomTool()
             };
@@ -293,6 +306,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
                     new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
                     new Shortcut(Key.Z, SelectToolCommand, ToolType.Zoom),
+                    new Shortcut(Key.H, SelectToolCommand, ToolType.MoveViewport),
                     new Shortcut(Key.OemPlus, ZoomCommand, 115),
                     new Shortcut(Key.OemMinus, ZoomCommand, 85),
                     new Shortcut(Key.OemOpenBrackets, ChangeToolSizeCommand, -1),
@@ -620,7 +634,7 @@ namespace PixiEditor.ViewModels
             if (_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.ShortcutKey == args.Key)
             {
                 _restoreToolOnKeyUp = false;
-                SetActiveTool(_lastActionTool);
+                SetActiveTool(LastActionTool);
                 ShortcutController.BlockShortcutExecution = false;
             }
         }
@@ -724,7 +738,7 @@ namespace PixiEditor.ViewModels
             if (activeTool != null) activeTool.IsActive = false;
 
             tool.IsActive = true;
-            _lastActionTool = BitmapManager.SelectedTool;
+            LastActionTool = BitmapManager.SelectedTool;
             BitmapManager.SetActiveTool(tool);
             SetToolCursor(tool.ToolType);
         }
@@ -750,6 +764,8 @@ namespace PixiEditor.ViewModels
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }
+            BitmapManager.MouseController.MouseDown(new MouseEventArgs(Mouse.PrimaryDevice,
+                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
 
             // Mouse down is guaranteed to only be raised from within this application, so by subscribing here we
             // only listen for mouse up events that occurred as a result of a mouse down within this application.
@@ -758,10 +774,15 @@ namespace PixiEditor.ViewModels
         }
 
         // this is public for testing.
-        public void MouseHook_OnMouseUp(object sender, Point p)
+        public void MouseHook_OnMouseUp(object sender, Point p, MouseButton button)
         {
             GlobalMouseHook.OnMouseUp -= MouseHook_OnMouseUp;
-            BitmapManager.MouseController.StopRecordingMouseMovementChanges();
+            if (button == MouseButton.Left)
+            {
+                BitmapManager.MouseController.StopRecordingMouseMovementChanges();
+            }
+            BitmapManager.MouseController.MouseUp(new MouseEventArgs(Mouse.PrimaryDevice, 
+                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
         }
 
         /// <summary>
