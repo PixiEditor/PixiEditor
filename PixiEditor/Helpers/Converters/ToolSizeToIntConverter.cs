@@ -22,8 +22,8 @@ namespace PixiEditor.Helpers
             }
 
             string slicedString = value.ToString().Split(' ').First();
-            slicedString = Regex.Replace(slicedString, "\\p{L}", "");
-            if (slicedString == "")
+            slicedString = Regex.Replace(slicedString, "\\p{L}", string.Empty);
+            if (slicedString == string.Empty)
             {
                 return null;
             }

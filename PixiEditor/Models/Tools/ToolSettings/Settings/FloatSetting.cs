@@ -5,8 +5,12 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class FloatSetting : Setting<float>
     {
-        public FloatSetting(string name, float initialValue, string label = "",
-            float min = float.NegativeInfinity, float max = float.PositiveInfinity)
+        public FloatSetting(
+            string name,
+            float initialValue,
+            string label = "",
+            float min = float.NegativeInfinity,
+            float max = float.PositiveInfinity)
             : base(name)
         {
             Label = label;

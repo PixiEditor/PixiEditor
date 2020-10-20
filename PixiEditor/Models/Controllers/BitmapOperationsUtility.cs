@@ -23,9 +23,9 @@ namespace PixiEditor.Models.Controllers
             Manager = manager;
         }
 
-        public BitmapManager Manager { get; set; }
-
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
+
+        public BitmapManager Manager { get; set; }
 
         public void DeletePixels(Layer[] layers, Coordinates[] pixels)
         {
@@ -45,11 +45,11 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Executes tool Use() method with given parameters. NOTE: mouseMove is reversed inside function!
+        ///     Executes tool Use() method with given parameters. NOTE: mouseMove is reversed inside function!.
         /// </summary>
-        /// <param name="newPos">Most recent coordinates</param>
-        /// <param name="mouseMove">Last mouse movement coordinates</param>
-        /// <param name="tool">Tool to execute</param>
+        /// <param name="newPos">Most recent coordinates.</param>
+        /// <param name="mouseMove">Last mouse movement coordinates.</param>
+        /// <param name="tool">Tool to execute.</param>
         public void ExecuteTool(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
         {
             if (Manager.ActiveDocument != null && tool != null && tool.ToolType != ToolType.None)
@@ -67,7 +67,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Applies pixels from preview layer to selected layer
+        ///     Applies pixels from preview layer to selected layer.
         /// </summary>
         public void StopAction()
         {
@@ -82,8 +82,10 @@ namespace PixiEditor.Models.Controllers
 
                 BitmapPixelChanges oldValues = ApplyToLayer(layer, lastModifiedLayers[i]).PixelChanges;
 
-                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(lastModifiedLayers[i].PixelChanges,
-                    oldValues, lastModifiedLayers[i].LayerIndex));
+                BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(
+                    lastModifiedLayers[i].PixelChanges,
+                    oldValues,
+                    lastModifiedLayers[i].LayerIndex));
                 Manager.PreviewLayer = null;
             }
         }
@@ -104,8 +106,10 @@ namespace PixiEditor.Models.Controllers
                     Layer layer = Manager.ActiveDocument.Layers[modifiedLayers[i].LayerIndex];
                     oldPixelsValues[i] = ApplyToLayer(layer, modifiedLayers[i]);
 
-                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(modifiedLayers[i].PixelChanges,
-                        oldPixelsValues[i].PixelChanges, modifiedLayers[i].LayerIndex));
+                    BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(
+                        modifiedLayers[i].PixelChanges,
+                        oldPixelsValues[i].PixelChanges,
+                        modifiedLayers[i].LayerIndex));
                 }
             }
             else
@@ -134,8 +138,6 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Extracts square from rectangle mouse drag, used to draw symmetric shapes.
         /// </summary>
-        /// <param name="mouseMoveCords"></param>
-        /// <returns></returns>
         private List<Coordinates> GetSquareCoordiantes(List<Coordinates> mouseMoveCords)
         {
             int xLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
@@ -162,7 +164,8 @@ namespace PixiEditor.Models.Controllers
                 Coordinates[] relativeCoords = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
                 for (int i = 0; i < coordinates.Length; i++)
                 {
-                    values.Add(coordinates[i],
+                    values.Add(
+                        coordinates[i],
                         Manager.ActiveLayer.GetPixel(relativeCoords[i].X, relativeCoords[i].Y));
                 }
             }
@@ -176,29 +179,14 @@ namespace PixiEditor.Models.Controllers
             if (mouseMove.Count > 0 && mouseMove[0] != lastMousePos)
             {
                 Manager.GeneratePreviewLayer();
-                modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(Manager.ActiveDocument.ActiveLayer,
-                    mouseMove.ToArray(), Manager.PrimaryColor);
+                modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(
+                    Manager.ActiveDocument.ActiveLayer,
+                    mouseMove.ToArray(),
+                    Manager.PrimaryColor);
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
                 Manager.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
                 lastModifiedLayers = modifiedLayers;
             }
         }
     }
-}
-
-public class BitmapChangedEventArgs : EventArgs
-{
-    public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, BitmapPixelChanges oldPixelsValues,
-        int changedLayerIndex)
-    {
-        PixelsChanged = pixelsChanged;
-        OldPixelsValues = oldPixelsValues;
-        ChangedLayerIndex = changedLayerIndex;
-    }
-
-    public BitmapPixelChanges PixelsChanged { get; set; }
-
-    public BitmapPixelChanges OldPixelsValues { get; set; }
-
-    public int ChangedLayerIndex { get; set; }
 }

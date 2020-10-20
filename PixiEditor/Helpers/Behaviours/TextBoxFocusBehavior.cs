@@ -10,7 +10,10 @@ namespace PixiEditor.Helpers.Behaviours
     {
         // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FillSizeProperty =
-            DependencyProperty.Register("FillSize", typeof(bool), typeof(TextBoxFocusBehavior),
+            DependencyProperty.Register(
+                "FillSize",
+                typeof(bool),
+                typeof(TextBoxFocusBehavior),
                 new PropertyMetadata(false));
 
         private string oldText; // Value of textbox before editing
@@ -20,18 +23,6 @@ namespace PixiEditor.Helpers.Behaviours
         {
             get => (bool)GetValue(FillSizeProperty);
             set => SetValue(FillSizeProperty, value);
-        }
-
-        // Converts number to proper format if enter is clicked and moves focus to next object
-        private void AssociatedObject_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Enter)
-            {
-                return;
-            }
-
-            ConvertValue();
-            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
         }
 
         protected override void OnAttached()
@@ -54,7 +45,20 @@ namespace PixiEditor.Helpers.Behaviours
             AssociatedObject.KeyUp -= AssociatedObject_KeyUp;
         }
 
-        private void AssociatedObjectGotKeyboardFocus(object sender,
+        // Converts number to proper format if enter is clicked and moves focus to next object
+        private void AssociatedObject_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter)
+            {
+                return;
+            }
+
+            ConvertValue();
+            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
+        }
+
+        private void AssociatedObjectGotKeyboardFocus(
+            object sender,
             KeyboardFocusChangedEventArgs e)
         {
             AssociatedObject.SelectAll();
@@ -65,7 +69,8 @@ namespace PixiEditor.Helpers.Behaviours
             }
         }
 
-        private void AssociatedObjectGotMouseCapture(object sender,
+        private void AssociatedObjectGotMouseCapture(
+            object sender,
             MouseEventArgs e)
         {
             AssociatedObject.SelectAll();
@@ -86,7 +91,7 @@ namespace PixiEditor.Helpers.Behaviours
         }
 
         /// <summary>
-        ///     Converts number from textbox to format "number px" ex. "15 px"
+        ///     Converts number from textbox to format "number px" ex. "15 px".
         /// </summary>
         private void ConvertValue()
         {
@@ -95,11 +100,13 @@ namespace PixiEditor.Helpers.Behaviours
                 return;
             }
 
-            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out int result) && result > 0)
+            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", string.Empty), out int result) && result > 0)
             {
                 AssociatedObject.Text = $"{AssociatedObject.Text} px";
             }
-            else // If text in textbox isn't number, set it to old value
+
+            // If text in textbox isn't number, set it to old value
+            else
             {
                 AssociatedObject.Text = oldText;
             }

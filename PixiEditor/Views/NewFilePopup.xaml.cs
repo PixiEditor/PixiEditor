@@ -3,7 +3,7 @@
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for NewFilePopup.xaml
+    ///     Interaction logic for NewFilePopup.xaml.
     /// </summary>
     public partial class NewFilePopup : Window
     {

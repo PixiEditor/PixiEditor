@@ -6,17 +6,17 @@ namespace PixiEditor.Models.Controllers
 {
     public class MouseMovementController
     {
-        public List<Coordinates> LastMouseMoveCoordinates { get; } = new List<Coordinates>();
-
-        public bool IsRecordingChanges { get; private set; }
-
-        public bool ClickedOnCanvas { get; set; }
-
         public event EventHandler StartedRecordingChanges;
 
         public event EventHandler<MouseMovementEventArgs> MousePositionChanged;
 
         public event EventHandler StoppedRecordingChanges;
+
+        public List<Coordinates> LastMouseMoveCoordinates { get; } = new List<Coordinates>();
+
+        public bool IsRecordingChanges { get; private set; }
+
+        public bool ClickedOnCanvas { get; set; }
 
         public void StartRecordingMouseMovementChanges(bool clickedOnCanvas)
         {
@@ -42,9 +42,8 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Plain mouse move, does not affect mouse drag recordings
+        ///     Plain mouse move, does not affect mouse drag recordings.
         /// </summary>
-        /// <param name="mouseCoordinates"></param>
         public void MouseMoved(Coordinates mouseCoordinates)
         {
             MousePositionChanged?.Invoke(this, new MouseMovementEventArgs(mouseCoordinates));
@@ -60,14 +59,4 @@ namespace PixiEditor.Models.Controllers
             }
         }
     }
-}
-
-public class MouseMovementEventArgs : EventArgs
-{
-    public MouseMovementEventArgs(Coordinates mousePosition)
-    {
-        NewPosition = mousePosition;
-    }
-
-    public Coordinates NewPosition { get; set; }
 }

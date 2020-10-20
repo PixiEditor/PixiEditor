@@ -32,6 +32,13 @@ namespace PixiEditor.Helpers.Behaviours
             SetHint(true);
         }
 
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            AssociatedObject.LostFocus -= AssociatedObject_LostFocus;
+            AssociatedObject.GotFocus -= AssociatedObject_GotFocus;
+        }
+
         private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(AssociatedObject.Text))
@@ -60,13 +67,6 @@ namespace PixiEditor.Helpers.Behaviours
                 AssociatedObject.Text = string.Empty;
                 AssociatedObject.Foreground = textColor;
             }
-        }
-
-        protected override void OnDetaching()
-        {
-            base.OnDetaching();
-            AssociatedObject.LostFocus -= AssociatedObject_LostFocus;
-            AssociatedObject.GotFocus -= AssociatedObject_GotFocus;
         }
     }
 }

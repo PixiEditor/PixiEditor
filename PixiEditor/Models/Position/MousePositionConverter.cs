@@ -7,13 +7,13 @@ namespace PixiEditor.Models.Position
     {
         public static Coordinates CurrentCoordinates { get; set; }
 
-        [DllImport("user32.dll")]
-        private static extern bool GetCursorPos(out Point point);
-
         public static Point GetCursorPosition()
         {
             GetCursorPos(out Point point);
             return point;
         }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out Point point);
     }
 }

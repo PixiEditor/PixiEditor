@@ -135,6 +135,22 @@ namespace PixiEditor.Models.Tools.Tools
             return result;
         }
 
+        public BitmapPixelChanges MoveSelection(Layer layer, Coordinates[] mouseMove)
+        {
+            Coordinates end = mouseMove[0];
+
+            currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
+            if (updateViewModelSelection)
+            {
+                ViewModelMain.Current.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
+            }
+
+            ClearSelectedPixels(layer, previousSelection);
+
+            lastMouseMove = end;
+            return BitmapPixelChanges.FromArrays(currentSelection, startPixelColors[layer]);
+        }
+
         private void ApplyOffsets(object[] parameters)
         {
             Dictionary<Layer, Thickness> offsets = (Dictionary<Layer, Thickness>)parameters[0];
@@ -165,22 +181,6 @@ namespace PixiEditor.Models.Tools.Tools
             return pixels;
         }
 
-        public BitmapPixelChanges MoveSelection(Layer layer, Coordinates[] mouseMove)
-        {
-            Coordinates end = mouseMove[0];
-
-            currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
-            if (updateViewModelSelection)
-            {
-                ViewModelMain.Current.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
-            }
-
-            ClearSelectedPixels(layer, previousSelection);
-
-            lastMouseMove = end;
-            return BitmapPixelChanges.FromArrays(currentSelection, startPixelColors[layer]);
-        }
-
         private void ResetSelectionValues(Coordinates start)
         {
             lastStartMousePos = start;
@@ -197,6 +197,7 @@ namespace PixiEditor.Models.Tools.Tools
             previousSelection = currentSelection.ToArray();
             return Transform.Translate(previousSelection, translation);
         }
+
         private void ClearSelectedPixels(Layer layer, Coordinates[] selection)
         {
             if (!clearedPixels.ContainsKey(layer) || clearedPixels[layer] == false)

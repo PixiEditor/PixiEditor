@@ -4,20 +4,15 @@ namespace PixiEditor.Models.Position
 {
     public struct Coordinates
     {
-        public int X { get; set; }
-
-        public int Y { get; set; }
-
         public Coordinates(int x, int y)
         {
             X = x;
             Y = y;
         }
 
-        public override string ToString()
-        {
-            return $"{X}, {Y}";
-        }
+        public int X { get; set; }
+
+        public int Y { get; set; }
 
         public static bool operator ==(Coordinates c1, Coordinates c2)
         {
@@ -27,6 +22,11 @@ namespace PixiEditor.Models.Position
         public static bool operator !=(Coordinates c1, Coordinates c2)
         {
             return !(c1 == c2);
+        }
+
+        public override string ToString()
+        {
+            return $"{X}, {Y}";
         }
 
         public override bool Equals(object obj)

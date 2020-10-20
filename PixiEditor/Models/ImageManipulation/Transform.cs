@@ -7,9 +7,9 @@ namespace PixiEditor.Models.ImageManipulation
         /// <summary>
         ///     Returns translation between two coordinates.
         /// </summary>
-        /// <param name="from">Starting coordinate</param>
-        /// <param name="to">New coordinate</param>
-        /// <returns>Translation as coordinate</returns>
+        /// <param name="from">Starting coordinate.</param>
+        /// <param name="to">New coordinate.</param>
+        /// <returns>Translation as coordinate.</returns>
         public static Coordinates GetTranslation(Coordinates from, Coordinates to)
         {
             int translationX = to.X - from.X;

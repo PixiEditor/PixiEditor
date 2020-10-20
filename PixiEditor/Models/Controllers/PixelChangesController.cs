@@ -12,10 +12,10 @@ namespace PixiEditor.Models.Controllers
         private Dictionary<int, LayerChange> LastOldValues { get; set; }
 
         /// <summary>
-        ///     Adds layer changes to controller
+        ///     Adds layer changes to controller.
         /// </summary>
-        /// <param name="changes">New changes</param>
-        /// <param name="oldValues">Old values of changes</param>
+        /// <param name="changes">New changes.</param>
+        /// <param name="oldValues">Old values of changes.</param>
         public void AddChanges(LayerChange changes, LayerChange oldValues)
         {
             if (changes.PixelChanges.ChangedPixels.Count > 0)
@@ -34,6 +34,39 @@ namespace PixiEditor.Models.Controllers
                     AddNewLayerChange(changes, oldValues);
                 }
             }
+        }
+
+        /// <summary>
+        ///     Returns all changes and deletes them from controller.
+        /// </summary>
+        /// <returns>Tuple array with new changes and old values.</returns>
+        public Tuple<LayerChange, LayerChange>[] PopChanges()
+        {
+            // Maybe replace Tuple with custom data type
+            if (LastChanges == null)
+            {
+                return null;
+            }
+
+            Tuple<LayerChange, LayerChange>[] result = new Tuple<LayerChange, LayerChange>[LastChanges.Count];
+            int i = 0;
+            foreach (KeyValuePair<int, LayerChange> change in LastChanges)
+            {
+                Dictionary<Position.Coordinates, System.Windows.Media.Color> pixelChanges =
+                    change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
+                Dictionary<Position.Coordinates, System.Windows.Media.Color> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels
+                    .ToDictionary(entry => entry.Key, entry => entry.Value);
+
+                LayerChange tmp = new LayerChange(new BitmapPixelChanges(pixelChanges), change.Key);
+                LayerChange oldValuesTmp = new LayerChange(new BitmapPixelChanges(oldValues), change.Key);
+
+                result[i] = new Tuple<LayerChange, LayerChange>(tmp, oldValuesTmp);
+                i++;
+            }
+
+            LastChanges = null;
+            LastOldValues = null;
+            return result;
         }
 
         private void AddNewLayerChange(LayerChange changes, LayerChange oldValues)
@@ -67,39 +100,6 @@ namespace PixiEditor.Models.Controllers
                     LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
                 }
             }
-        }
-
-        /// <summary>
-        ///     Returns all changes and deletes them from controller.
-        /// </summary>
-        /// <returns>Tuple array with new changes and old values</returns>
-        public Tuple<LayerChange, LayerChange>[] PopChanges()
-        {
-            // Maybe replace Tuple with custom data type
-            if (LastChanges == null)
-            {
-                return null;
-            }
-
-            Tuple<LayerChange, LayerChange>[] result = new Tuple<LayerChange, LayerChange>[LastChanges.Count];
-            int i = 0;
-            foreach (KeyValuePair<int, LayerChange> change in LastChanges)
-            {
-                Dictionary<Position.Coordinates, System.Windows.Media.Color> pixelChanges =
-                    change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
-                Dictionary<Position.Coordinates, System.Windows.Media.Color> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels
-                    .ToDictionary(entry => entry.Key, entry => entry.Value);
-
-                LayerChange tmp = new LayerChange(new BitmapPixelChanges(pixelChanges), change.Key);
-                LayerChange oldValuesTmp = new LayerChange(new BitmapPixelChanges(oldValues), change.Key);
-
-                result[i] = new Tuple<LayerChange, LayerChange>(tmp, oldValuesTmp);
-                i++;
-            }
-
-            LastChanges = null;
-            LastOldValues = null;
-            return result;
         }
     }
 }

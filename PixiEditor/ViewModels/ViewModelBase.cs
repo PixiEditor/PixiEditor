@@ -7,7 +7,7 @@ namespace PixiEditor.ViewModels
 {
     public class ViewModelBase : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
+        public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
 
         protected void RaisePropertyChanged(string property)
         {

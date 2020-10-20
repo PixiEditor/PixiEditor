@@ -10,14 +10,13 @@ using Xceed.Wpf.Toolkit.Zoombox;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for MainDrawingPanel.xaml
+    ///     Interaction logic for MainDrawingPanel.xaml.
     /// </summary>
     public partial class MainDrawingPanel : UserControl
     {
         // Using a DependencyProperty as the backing store for Center.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CenterProperty =
-            DependencyProperty.Register("Center", typeof(bool), typeof(MainDrawingPanel),
-                new PropertyMetadata(true, OnCenterChanged));
+            DependencyProperty.Register("Center", typeof(bool), typeof(MainDrawingPanel), new PropertyMetadata(true, OnCenterChanged));
 
         // Using a DependencyProperty as the backing store for MouseX.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MouseXProperty =
@@ -29,13 +28,11 @@ namespace PixiEditor.Views
 
         // Using a DependencyProperty as the backing store for MouseMoveCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MouseMoveCommandProperty =
-            DependencyProperty.Register("MouseMoveCommand", typeof(ICommand), typeof(MainDrawingPanel),
-                new PropertyMetadata(null));
+            DependencyProperty.Register("MouseMoveCommand", typeof(ICommand), typeof(MainDrawingPanel), new PropertyMetadata(null));
 
         // Using a DependencyProperty as the backing store for CenterOnStart.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CenterOnStartProperty =
-            DependencyProperty.Register("CenterOnStart", typeof(bool), typeof(MainDrawingPanel),
-                new PropertyMetadata(false));
+            DependencyProperty.Register("CenterOnStart", typeof(bool), typeof(MainDrawingPanel), new PropertyMetadata(false));
 
         // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemProperty =
@@ -49,13 +46,13 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty ZoomPercentageProperty =
             DependencyProperty.Register("ZoomPercentage", typeof(double), typeof(MainDrawingPanel), new PropertyMetadata(0.0, ZoomPercentegeChanged));
 
-        public double ClickScale;
-
         public MainDrawingPanel()
         {
             InitializeComponent();
             Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection { KeyModifier.RightAlt };
         }
+
+        public double ClickScale { get; set; }
 
         public double ZoomPercentage
         {
@@ -103,6 +100,12 @@ namespace PixiEditor.Views
         {
             get => (bool)GetValue(IsUsingZoomToolProperty);
             set => SetValue(IsUsingZoomToolProperty, value);
+        }
+
+        private static void OnCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            MainDrawingPanel panel = (MainDrawingPanel)d;
+            panel.Zoombox.CenterContent();
         }
 
         private static void ZoomPercentegeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -154,12 +157,6 @@ namespace PixiEditor.Views
             Zoombox.ZoomOrigin = new Point(Math.Clamp(mousePos.X / item.Width, 0, 1), Math.Clamp(mousePos.Y / item.Height, 0, 1));
         }
 
-        private static void OnCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            MainDrawingPanel panel = (MainDrawingPanel)d;
-            panel.Zoombox.CenterContent();
-        }
-
         private void Zoombox_Loaded(object sender, RoutedEventArgs e)
         {
             if (CenterOnStart)
@@ -175,14 +172,14 @@ namespace PixiEditor.Views
             SetZoomOrigin();
         }
 
-        private void mainDrawingPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        private void MainDrawingPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
             IsUsingZoomTool = ViewModelMain.Current.BitmapManager.SelectedTool is ZoomTool;
             Mouse.Capture((IInputElement)sender, CaptureMode.SubTree);
             SetClickValues();
         }
 
-        private void mainDrawingPanel_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        private void MainDrawingPanel_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
             ((IInputElement)sender).ReleaseMouseCapture();
         }

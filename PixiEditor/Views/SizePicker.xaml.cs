@@ -4,7 +4,7 @@ using System.Windows.Controls;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for SizePicker.xaml
+    ///     Interaction logic for SizePicker.xaml.
     /// </summary>
     public partial class SizePicker : UserControl
     {

@@ -47,7 +47,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
                 ActiveDocument = document
             };
             manager.AddNewLayer("test");
-            manager.ActiveLayer.SetPixel(new Coordinates((int)Math.Ceiling(initialWidth / 2f),
+            manager.ActiveLayer.SetPixel(
+                new Coordinates(
+                (int)Math.Ceiling(initialWidth / 2f),
                 (int)Math.Ceiling(initialHeight / 2f)), Colors.Black);
 
             manager.ActiveLayer.SetPixel(new Coordinates(additionalPixelX, additionalPixelY), Colors.Black);
@@ -71,7 +73,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
                 ActiveDocument = document
             };
             manager.AddNewLayer("test");
-            manager.ActiveLayer.SetPixel(new Coordinates((int)Math.Ceiling(initialWidth / 2f),
+            manager.ActiveLayer.SetPixel(
+                new Coordinates(
+                (int)Math.Ceiling(initialWidth / 2f),
                 (int)Math.Ceiling(initialHeight / 2f)), Colors.Black); // Set pixel in center
 
             manager.AddNewLayer("test2");

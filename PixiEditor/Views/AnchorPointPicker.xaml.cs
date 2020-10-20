@@ -6,14 +6,13 @@ using PixiEditor.Models.Enums;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for AnchorPointPicker.xaml
+    ///     Interaction logic for AnchorPointPicker.xaml.
     /// </summary>
     public partial class AnchorPointPicker : UserControl
     {
         // Using a DependencyProperty as the backing store for AnchorPoint.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AnchorPointProperty =
-            DependencyProperty.Register("AnchorPoint", typeof(AnchorPoint), typeof(AnchorPointPicker),
-                new PropertyMetadata());
+            DependencyProperty.Register("AnchorPoint", typeof(AnchorPoint), typeof(AnchorPointPicker), new PropertyMetadata());
 
         private ToggleButton selectedToggleButton;
 

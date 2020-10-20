@@ -27,14 +27,15 @@ using System.Windows;
 // the line below to match the UICulture setting in the project file.
 
 // [assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.Satellite)]
-
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None, // where theme specific resource dictionaries are located
-                                     // (used if a resource is not found in the page,
-                                     // or application resource dictionaries)
+
+    // (used if a resource is not found in the page,
+    // or application resource dictionaries)
     ResourceDictionaryLocation.SourceAssembly) // where the generic resource dictionary is located
-                                               // (used if a resource is not found in the page,
-                                               // app, or any theme specific resource dictionaries)
+
+// (used if a resource is not found in the page,
+// app, or any theme specific resource dictionaries)
 ]
 
 // Version information for an assembly consists of the following four values:
@@ -47,6 +48,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-
 [assembly: AssemblyVersion("0.1.3.0")]
 [assembly: AssemblyFileVersion("0.1.3.0")]

@@ -8,7 +8,7 @@ namespace PixiEditor.Models.IO
     public class Importer : NotifyableObject
     {
         /// <summary>
-        ///     Imports image from path and resizes it to given dimensions
+        ///     Imports image from path and resizes it to given dimensions.
         /// </summary>
         /// <param name="path">Path of image.</param>
         /// <param name="width">New width of image.</param>
@@ -26,7 +26,7 @@ namespace PixiEditor.Models.IO
         }
 
         /// <summary>
-        ///     Imports image from path and resizes it to given dimensions
+        ///     Imports image from path and resizes it to given dimensions.
         /// </summary>
         /// <param name="path">Path of image.</param>
         public static WriteableBitmap ImportImage(string path)

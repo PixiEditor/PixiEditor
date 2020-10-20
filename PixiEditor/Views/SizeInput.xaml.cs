@@ -5,7 +5,7 @@ using System.Windows.Controls;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for SizeInput.xaml
+    ///     Interaction logic for SizeInput.xaml.
     /// </summary>
     public partial class SizeInput : UserControl
     {
@@ -15,13 +15,11 @@ namespace PixiEditor.Views
 
         // Using a DependencyProperty as the backing store for PreserveAspectRatio.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PreserveAspectRatioProperty =
-            DependencyProperty.Register("PreserveAspectRatio", typeof(bool), typeof(SizeInput),
-                new PropertyMetadata(false));
+            DependencyProperty.Register("PreserveAspectRatio", typeof(bool), typeof(SizeInput), new PropertyMetadata(false));
 
         // Using a DependencyProperty as the backing store for AspectRatioValue.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AspectRatioValueProperty =
-            DependencyProperty.Register("AspectRatioValue", typeof(int), typeof(SizeInput),
-                new PropertyMetadata(1, AspectRatioValChanged));
+            DependencyProperty.Register("AspectRatioValue", typeof(int), typeof(SizeInput), new PropertyMetadata(1, AspectRatioValChanged));
 
         private int loadedAspectRatioSize = -1;
 
@@ -62,7 +60,7 @@ namespace PixiEditor.Views
             }
         }
 
-        private void uc_LayoutUpdated(object sender, EventArgs e)
+        private void Uc_LayoutUpdated(object sender, EventArgs e)
         {
             if (loadedSize == -1)
             {

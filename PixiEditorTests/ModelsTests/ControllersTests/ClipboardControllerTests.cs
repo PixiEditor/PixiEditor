@@ -11,13 +11,14 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class ClipboardControllerTests
     {
+        private const string Text = "Text data";
         private readonly Color testColor = Colors.Coral;
 
         [StaFact]
         public void TestThatClipboardControllerIgnoresNonImageDataInClipboard()
         {
             Clipboard.Clear();
-            Clipboard.SetText("Text data");
+            Clipboard.SetText(Text);
             WriteableBitmap img = ClipboardController.GetImageFromClipboard();
             Assert.Null(img);
         }
@@ -48,8 +49,11 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             testLayer.SetPixel(new Coordinates(4, 4), testColor);
             testLayer2.SetPixel(new Coordinates(5, 5), testColor);
 
-            ClipboardController.CopyToClipboard(new[] { testLayer, testLayer2 },
-                new[] { new Coordinates(4, 4), new Coordinates(5, 5) }, 10, 10);
+            ClipboardController.CopyToClipboard(
+                new[] { testLayer, testLayer2 },
+                new[] { new Coordinates(4, 4), new Coordinates(5, 5) },
+                10,
+                10);
 
             BitmapSource img = Clipboard.GetImage(); // Using default Clipboard get image to avoid false positives from faulty ClipboardController GetImage
 

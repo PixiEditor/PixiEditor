@@ -30,8 +30,8 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 Color fillColor = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
                 pixels.ChangedPixels.AddRangeOverride(
-                    BitmapPixelChanges.FromSingleColoredArray
-                            (CalculateFillForRectangle(coordinates[^1], coordinates[0], thickness), fillColor)
+                    BitmapPixelChanges.FromSingleColoredArray(
+                            CalculateFillForRectangle(coordinates[^1], coordinates[0], thickness), fillColor)
                         .ChangedPixels);
             }
 
@@ -67,25 +67,6 @@ namespace PixiEditor.Models.Tools.Tools
             return CreateRectangle(new[] { end, start }, thickness);
         }
 
-        private IEnumerable<Coordinates> CalculateRectanglePoints(DoubleCords coordinates)
-        {
-            List<Coordinates> finalCoordinates = new List<Coordinates>();
-
-            for (int i = coordinates.Coords1.X; i < coordinates.Coords2.X + 1; i++)
-            {
-                finalCoordinates.Add(new Coordinates(i, coordinates.Coords1.Y));
-                finalCoordinates.Add(new Coordinates(i, coordinates.Coords2.Y));
-            }
-
-            for (int i = coordinates.Coords1.Y + 1; i <= coordinates.Coords2.Y - 1; i++)
-            {
-                finalCoordinates.Add(new Coordinates(coordinates.Coords1.X, i));
-                finalCoordinates.Add(new Coordinates(coordinates.Coords2.X, i));
-            }
-
-            return finalCoordinates;
-        }
-
         public IEnumerable<Coordinates> CalculateFillForRectangle(Coordinates start, Coordinates end, int thickness)
         {
             int offset = (int)Math.Ceiling(thickness / 2f);
@@ -117,6 +98,25 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             return filledCoordinates.Distinct();
+        }
+
+        private IEnumerable<Coordinates> CalculateRectanglePoints(DoubleCords coordinates)
+        {
+            List<Coordinates> finalCoordinates = new List<Coordinates>();
+
+            for (int i = coordinates.Coords1.X; i < coordinates.Coords2.X + 1; i++)
+            {
+                finalCoordinates.Add(new Coordinates(i, coordinates.Coords1.Y));
+                finalCoordinates.Add(new Coordinates(i, coordinates.Coords2.Y));
+            }
+
+            for (int i = coordinates.Coords1.Y + 1; i <= coordinates.Coords2.Y - 1; i++)
+            {
+                finalCoordinates.Add(new Coordinates(coordinates.Coords1.X, i));
+                finalCoordinates.Add(new Coordinates(coordinates.Coords2.X, i));
+            }
+
+            return finalCoordinates;
         }
     }
 }

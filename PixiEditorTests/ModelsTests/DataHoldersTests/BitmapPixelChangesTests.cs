@@ -37,8 +37,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatFromArraysThrowsError()
         {
-            Assert.Throws<ArrayLengthMismatchException>
-                (() => BitmapPixelChanges.FromArrays(new[] { new Coordinates(0, 0) }, new[] { Colors.Red, Colors.Green }));
+            Assert.Throws<ArrayLengthMismatchException>(
+                () => BitmapPixelChanges.FromArrays(new[] { new Coordinates(0, 0) }, new[] { Colors.Red, Colors.Green }));
         }
 
         [Fact]

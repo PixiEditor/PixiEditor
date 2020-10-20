@@ -68,7 +68,7 @@ namespace PixiEditor.ViewModels
         }
 
         /// <summary>
-        ///     Command that handles Path choosing to save file
+        ///     Command that handles Path choosing to save file.
         /// </summary>
         /// <param name="parameter"></param>
         private void ChoosePath(object parameter)

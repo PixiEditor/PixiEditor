@@ -3,7 +3,7 @@
 namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
 {
     /// <summary>
-    ///     Toolbar with size setting
+    ///     Toolbar with size setting.
     /// </summary>
     public class BasicToolbar : Toolbar
     {

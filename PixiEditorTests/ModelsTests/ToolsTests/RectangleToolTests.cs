@@ -17,10 +17,12 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         {
             RectangleTool tool = new RectangleTool();
 
-            System.Collections.Generic.IEnumerable<Coordinates> outline = tool.CreateRectangle(new Coordinates(startX, startY),
-                new Coordinates(endX, endY), 1);
+            System.Collections.Generic.IEnumerable<Coordinates> outline = tool.CreateRectangle(
+                new Coordinates(startX, startY),
+                new Coordinates(endX, endY),
+                1);
 
-            int expectedBorderPoints = (endX - startX) * 2 + (endY - startX) * 2;
+            int expectedBorderPoints = ((endX - startX) * 2) + ((endY - startX) * 2);
 
             Assert.Equal(expectedBorderPoints, outline.Count());
         }

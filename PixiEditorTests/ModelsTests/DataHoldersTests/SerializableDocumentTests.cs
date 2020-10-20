@@ -47,7 +47,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             Assert.Equal(document.Height, convertedDocument.Height);
             Assert.Equal(document.Width, convertedDocument.Width);
             Assert.Equal(document.Swatches, convertedDocument.Swatches);
-            Assert.Equal(document.Layers.Select(x => x.LayerBitmap.ToByteArray()),
+            Assert.Equal(
+                document.Layers.Select(x => x.LayerBitmap.ToByteArray()),
                 convertedDocument.Layers.Select(x => x.LayerBitmap.ToByteArray()));
         }
 

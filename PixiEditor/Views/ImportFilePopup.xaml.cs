@@ -4,7 +4,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for ImportFilePopup.xaml
+    ///     Interaction logic for ImportFilePopup.xaml.
     /// </summary>
     public partial class ImportFilePopup : Window
     {

@@ -89,15 +89,4 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.Equal(Colors.Green, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
         }
     }
-
-    public class MockedSinglePixelPen : BitmapOperationTool
-    {
-        public override ToolType ToolType { get; } = ToolType.Pen;
-
-        public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
-        {
-            return Only(
-                BitmapPixelChanges.FromSingleColoredArray(new[] { mouseMove[0] }, color), 0);
-        }
-    }
 }

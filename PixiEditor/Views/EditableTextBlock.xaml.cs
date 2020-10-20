@@ -6,24 +6,21 @@ using PixiEditor.Models.Controllers.Shortcuts;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for EditableTextBlock.xaml
+    ///     Interaction logic for EditableTextBlock.xaml.
     /// </summary>
     public partial class EditableTextBlock : UserControl
     {
         // Using a DependencyProperty as the backing store for TextBlockVisibility.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextBlockVisibilityProperty =
-            DependencyProperty.Register("TextBlockVisibility", typeof(Visibility), typeof(EditableTextBlock),
-                new PropertyMetadata(Visibility.Visible));
+            DependencyProperty.Register("TextBlockVisibility", typeof(Visibility), typeof(EditableTextBlock), new PropertyMetadata(Visibility.Visible));
 
         // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock),
-                new PropertyMetadata(default(string)));
+            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock), new PropertyMetadata(default(string)));
 
         // Using a DependencyProperty as the backing store for EnableEditing.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty EnableEditingProperty =
-            DependencyProperty.Register("IsEditing", typeof(bool), typeof(EditableTextBlock),
-                new PropertyMetadata(OnIsEditingChanged));
+            DependencyProperty.Register("IsEditing", typeof(bool), typeof(EditableTextBlock), new PropertyMetadata(OnIsEditingChanged));
 
         public EditableTextBlock()
         {
@@ -48,15 +45,6 @@ namespace PixiEditor.Views
             set => SetValue(TextProperty, value);
         }
 
-        private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if ((bool)e.NewValue)
-            {
-                EditableTextBlock tb = (EditableTextBlock)d;
-                tb.EnableEditing();
-            }
-        }
-
         public void EnableEditing()
         {
             ShortcutController.BlockShortcutExecution = true;
@@ -64,6 +52,15 @@ namespace PixiEditor.Views
             IsEditing = true;
             textBox.Focus();
             textBox.SelectAll();
+        }
+
+        private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool)e.NewValue)
+            {
+                EditableTextBlock tb = (EditableTextBlock)d;
+                tb.EnableEditing();
+            }
         }
 
         private void DisableEditing()
@@ -94,7 +91,7 @@ namespace PixiEditor.Views
             DisableEditing();
         }
 
-        private void textBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             DisableEditing();
         }

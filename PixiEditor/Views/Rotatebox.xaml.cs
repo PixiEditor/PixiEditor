@@ -6,7 +6,7 @@ using System.Windows.Input;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for Rotatebox.xaml
+    ///     Interaction logic for Rotatebox.xaml.
     /// </summary>
     public partial class Rotatebox : UserControl
     {
@@ -14,8 +14,10 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty AngleProperty =
             DependencyProperty.Register("Angle", typeof(double), typeof(Rotatebox), new UIPropertyMetadata(0.0));
 
-        private double height, width;
         private readonly float offset = 90;
+
+        private double height;
+        private double width;
 
         public Rotatebox()
         {
@@ -56,7 +58,7 @@ namespace PixiEditor.Views
                 // Calculate an angle
                 double radians = Math.Atan((currentLocation.Y - knobCenter.Y) /
                                         (currentLocation.X - knobCenter.X));
-                Angle = radians * 180 / Math.PI + offset;
+                Angle = (radians * 180 / Math.PI) + offset;
 
                 // Apply a 180 degree shift when X is negative so that we can rotate
                 // all of the way around

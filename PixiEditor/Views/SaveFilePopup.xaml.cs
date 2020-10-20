@@ -4,7 +4,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for SaveFilePopup.xaml
+    ///     Interaction logic for SaveFilePopup.xaml.
     /// </summary>
     public partial class SaveFilePopup : Window
     {

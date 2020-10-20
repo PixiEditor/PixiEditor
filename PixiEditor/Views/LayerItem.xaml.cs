@@ -6,7 +6,7 @@ using PixiEditor.Helpers;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for LayerItem.xaml
+    ///     Interaction logic for LayerItem.xaml.
     /// </summary>
     public partial class LayerItem : UserControl
     {

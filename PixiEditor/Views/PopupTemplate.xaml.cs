@@ -4,7 +4,7 @@ using System.Windows.Input;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for PopupTemplate.xaml
+    ///     Interaction logic for PopupTemplate.xaml.
     /// </summary>
     public partial class PopupTemplate : Window
     {

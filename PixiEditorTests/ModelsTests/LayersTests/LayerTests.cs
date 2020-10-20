@@ -92,7 +92,8 @@ namespace PixiEditorTests.ModelsTests.LayersTests
             Assert.Equal(2, layer.MaxWidth);
             Assert.Equal(2, layer.MaxHeight);
 
-            for (int y = 0; y < layer.Height; y++) // 4 is new area of bitmap
+            // 4 is new area of bitmap
+            for (int y = 0; y < layer.Height; y++)
             {
                 for (int x = 0; x < layer.Width; x++)
                 {

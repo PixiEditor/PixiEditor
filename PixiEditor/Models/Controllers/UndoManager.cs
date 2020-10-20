@@ -28,12 +28,12 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Adds property change to UndoStack
+        ///     Adds property change to UndoStack.
         /// </summary>
-        /// <param name="change"></param>
         public static void AddUndoChange(Change change)
         {
-            if (lastChangeWasUndo == false && RedoStack.Count > 0) // Clears RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
+            // Clears RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
+            if (lastChangeWasUndo == false && RedoStack.Count > 0)
             {
                 RedoStack.Clear();
             }
@@ -44,7 +44,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Sets top property in UndoStack to Old Value
+        ///     Sets top property in UndoStack to Old Value.
         /// </summary>
         public static void Undo()
         {
@@ -63,7 +63,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Sets top property from RedoStack to old value
+        ///     Sets top property from RedoStack to old value.
         /// </summary>
         public static void Redo()
         {

@@ -24,8 +24,11 @@ namespace PixiEditor.Models.Tools.Tools
         {
             BitmapPixelChanges pixels =
                 BitmapPixelChanges.FromSingleColoredArray(
-                    CreateLine(coordinates,
-                        Toolbar.GetSetting<SizeSetting>("ToolSize").Value, CapType.Square, CapType.Square), color);
+                    CreateLine(
+                        coordinates,
+                        Toolbar.GetSetting<SizeSetting>("ToolSize").Value,
+                        CapType.Square,
+                        CapType.Square), color);
             return Only(pixels, layer);
         }
 
@@ -34,8 +37,7 @@ namespace PixiEditor.Models.Tools.Tools
             return CreateLine(new[] { end, start }, thickness, CapType.Square, CapType.Square);
         }
 
-        public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap,
-            CapType endCap)
+        public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
             return CreateLine(new[] { end, start }, thickness, startCap, endCap);
         }
@@ -46,8 +48,7 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates latestCoordinates = coordinates[0];
             if (thickness == 1)
             {
-                return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X,
-                    latestCoordinates.Y);
+                return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
             }
 
             return GetLinePoints(startingCoordinates, latestCoordinates, thickness, startCap, endCap);
@@ -82,17 +83,17 @@ namespace PixiEditor.Models.Tools.Tools
                     {
                         return GetRoundCap(position, thickness); // Round cap is not working very well, circle tool must be improved
                     }
+
                 default:
                     return GetThickShape(new[] { position }, thickness);
             }
         }
 
         /// <summary>
-        ///     Gets points for rounded cap on specified position and thickness
+        ///     Gets points for rounded cap on specified position and thickness.
         /// </summary>
-        /// <param name="position">Starting position of cap</param>
-        /// <param name="thickness">Thickness of cap</param>
-        /// <returns></returns>
+        /// <param name="position">Starting position of cap.</param>
+        /// <param name="thickness">Thickness of cap.</param>
         private IEnumerable<Coordinates> GetRoundCap(Coordinates position, int thickness)
         {
             CircleTool circle = new CircleTool();

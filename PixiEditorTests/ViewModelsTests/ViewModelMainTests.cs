@@ -155,7 +155,8 @@ namespace PixiEditorTests.ViewModelsTests
 
             viewModel.SelectAllCommand.Execute(null);
 
-            Assert.Equal(viewModel.BitmapManager.ActiveDocument.Width * viewModel.BitmapManager.ActiveDocument.Height,
+            Assert.Equal(
+                viewModel.BitmapManager.ActiveDocument.Width * viewModel.BitmapManager.ActiveDocument.Height,
                 viewModel.ActiveSelection.SelectedPoints.Count);
         }
 

@@ -24,7 +24,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             PixelChangesController controller = CreateBasicController();
             Coordinates[] cords = { new Coordinates(5, 3), new Coordinates(7, 2) };
 
-            controller.AddChanges(new LayerChange(
+            controller.AddChanges(
+                new LayerChange(
                     BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), 1),
                 new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), 1));
 
@@ -38,7 +39,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Coordinates[] cords2 = { new Coordinates(2, 2), new Coordinates(5, 5) };
             PixelChangesController controller = CreateBasicController();
 
-            controller.AddChanges(new LayerChange(
+            controller.AddChanges(
+                new LayerChange(
                     BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Black), 0),
                 new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Transparent), 0));
 
@@ -53,7 +55,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };
             PixelChangesController controller = new PixelChangesController();
 
-            controller.AddChanges(new LayerChange(
+            controller.AddChanges(
+                new LayerChange(
                     BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), 0),
                 new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), 0));
             return controller;

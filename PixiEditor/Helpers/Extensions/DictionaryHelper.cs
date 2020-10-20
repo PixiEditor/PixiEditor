@@ -4,7 +4,8 @@ namespace PixiEditor.Helpers.Extensions
 {
     public static class DictionaryHelper
     {
-        public static void AddRangeOverride<TKey, TValue>(this IDictionary<TKey, TValue> dict,
+        public static void AddRangeOverride<TKey, TValue>(
+            this IDictionary<TKey, TValue> dict,
             IDictionary<TKey, TValue> dictToAdd)
         {
             foreach (KeyValuePair<TKey, TValue> item in dictToAdd)
@@ -13,7 +14,8 @@ namespace PixiEditor.Helpers.Extensions
             }
         }
 
-        public static void AddRangeNewOnly<TKey, TValue>(this IDictionary<TKey, TValue> dict,
+        public static void AddRangeNewOnly<TKey, TValue>(
+            this IDictionary<TKey, TValue> dict,
             IDictionary<TKey, TValue> dictToAdd)
         {
             foreach (KeyValuePair<TKey, TValue> item in dictToAdd)

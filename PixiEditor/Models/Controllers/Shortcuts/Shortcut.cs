@@ -4,8 +4,7 @@ namespace PixiEditor.Models.Controllers.Shortcuts
 {
     public class Shortcut
     {
-        public Shortcut(Key shortcutKey, ICommand command, object commandParameter = null,
-            ModifierKeys modifier = ModifierKeys.None)
+        public Shortcut(Key shortcutKey, ICommand command, object commandParameter = null, ModifierKeys modifier = ModifierKeys.None)
         {
             ShortcutKey = shortcutKey;
             Modifier = modifier;

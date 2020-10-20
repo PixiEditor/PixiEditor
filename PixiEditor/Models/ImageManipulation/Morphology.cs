@@ -42,6 +42,7 @@ namespace PixiEditor.Models.ImageManipulation
                             }
                         }
                     }
+
                     // Write processed data into the second array
                     outputArray[x, y] = value;
                 }
@@ -74,7 +75,7 @@ namespace PixiEditor.Models.ImageManipulation
             Tuple<int, int> dimensions = GetDimensionsForPoints(points);
             int minX = points.Min(x => x.X);
             int minY = points.Min(x => x.Y);
-            byte[,] array = new byte[dimensions.Item1 + margin * 2, dimensions.Item2 + margin * 2];
+            byte[,] array = new byte[dimensions.Item1 + (margin * 2), dimensions.Item2 + (margin * 2)];
 
             for (int y = 0; y < dimensions.Item2 + margin; y++)
             {

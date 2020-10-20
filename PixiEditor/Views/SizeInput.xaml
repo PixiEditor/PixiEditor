@@ -8,7 +8,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers"
              xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
              mc:Ignorable="d"
-             d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="uc_LayoutUpdated">
+             d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="Uc_LayoutUpdated">
     <UserControl.Resources>
         <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </UserControl.Resources>

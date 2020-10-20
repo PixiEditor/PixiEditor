@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// <summary>
         ///     Gets setting in toolbar by name.
         /// </summary>
-        /// <param name="name">Setting name, non case sensitive</param>
+        /// <param name="name">Setting name, non case sensitive.</param>
         /// <returns></returns>
         public virtual Setting GetSetting(string name)
         {
@@ -25,7 +25,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// <summary>
         ///     Gets setting of given type T in toolbar by name.
         /// </summary>
-        /// <param name="name">Setting name, non case sensitive</param>
+        /// <param name="name">Setting name, non case sensitive.</param>
         /// <returns></returns>
         public T GetSetting<T>(string name)
             where T : Setting

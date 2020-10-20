@@ -11,7 +11,6 @@ namespace PixiEditorTests.ModelsTests.IO
         private readonly string testImagePath;
 
         // I am not testing ImportDocument, because it's just a wrapper for BinarySerialization which is tested.
-
         public ImporterTests()
         {
             testImagePath = $"{Environment.CurrentDirectory}\\..\\..\\..\\ModelsTests\\IO\\TestImage.png";

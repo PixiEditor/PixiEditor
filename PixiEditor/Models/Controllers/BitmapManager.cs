@@ -33,6 +33,10 @@ namespace PixiEditor.Models.Controllers
             ReadonlyToolUtility = new ReadonlyToolUtility();
         }
 
+        public event EventHandler<LayersChangedEventArgs> LayersChanged;
+
+        public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
+
         public MouseMovementController MouseController { get; set; }
 
         public Tool SelectedTool
@@ -89,9 +93,13 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        public event EventHandler<LayersChangedEventArgs> LayersChanged;
-
-        public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
+        /// <summary>
+        ///     Returns if tool is BitmapOperationTool.
+        /// </summary>
+        public static bool IsOperationTool(Tool tool)
+        {
+            return tool is BitmapOperationTool;
+        }
 
         public void SetActiveTool(Tool tool)
         {
@@ -158,6 +166,51 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
+        {
+            if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
+            {
+                if (IsOperationTool(SelectedTool))
+                {
+                    BitmapOperations.ExecuteTool(
+                        newPosition,
+                        MouseController.LastMouseMoveCoordinates.ToList(),
+                        (BitmapOperationTool)SelectedTool);
+                }
+                else
+                {
+                    ReadonlyToolUtility.ExecuteTool(
+                        MouseController.LastMouseMoveCoordinates.ToArray(),
+                        (ReadonlyTool)SelectedTool);
+                }
+            }
+        }
+
+        public void GeneratePreviewLayer()
+        {
+            if (ActiveDocument != null)
+            {
+                PreviewLayer = new Layer("_previewLayer")
+                {
+                    MaxWidth = ActiveDocument.Width,
+                    MaxHeight = ActiveDocument.Height
+                };
+            }
+        }
+
+        public WriteableBitmap GetCombinedLayersBitmap()
+        {
+            return BitmapUtils.CombineLayers(ActiveDocument.Layers.Where(x => x.IsVisible).ToArray(), ActiveDocument.Width, ActiveDocument.Height);
+        }
+
+        /// <summary>
+        ///     Returns if selected tool is BitmapOperationTool.
+        /// </summary>
+        public bool IsOperationTool()
+        {
+            return IsOperationTool(SelectedTool);
+        }
+
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
             SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
@@ -168,23 +221,6 @@ namespace PixiEditor.Models.Controllers
             else if (Mouse.LeftButton == MouseButtonState.Released)
             {
                 HighlightPixels(e.NewPosition);
-            }
-        }
-
-        public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
-        {
-            if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
-            {
-                if (IsOperationTool(SelectedTool))
-                {
-                    BitmapOperations.ExecuteTool(newPosition,
-                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
-                }
-                else
-                {
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
-                        (ReadonlyTool)SelectedTool);
-                }
             }
         }
 
@@ -205,18 +241,6 @@ namespace PixiEditor.Models.Controllers
             if (IsOperationTool(SelectedTool) && ((BitmapOperationTool)SelectedTool).RequiresPreviewLayer)
             {
                 BitmapOperations.StopAction();
-            }
-        }
-
-        public void GeneratePreviewLayer()
-        {
-            if (ActiveDocument != null)
-            {
-                PreviewLayer = new Layer("_previewLayer")
-                {
-                    MaxWidth = ActiveDocument.Width,
-                    MaxHeight = ActiveDocument.Height
-                };
             }
         }
 
@@ -257,42 +281,5 @@ namespace PixiEditor.Models.Controllers
                    highlightArea[0].Y <= ActiveDocument.Height - 1 &&
                    highlightArea[^1].X >= 0 && highlightArea[^1].Y >= 0;
         }
-
-        public WriteableBitmap GetCombinedLayersBitmap()
-        {
-            return BitmapUtils.CombineLayers(ActiveDocument.Layers.Where(x => x.IsVisible).ToArray(), ActiveDocument.Width, ActiveDocument.Height);
-        }
-
-        /// <summary>
-        ///     Returns if selected tool is BitmapOperationTool
-        /// </summary>
-        /// <returns></returns>
-        public bool IsOperationTool()
-        {
-            return IsOperationTool(SelectedTool);
-        }
-
-        /// <summary>
-        ///     Returns if tool is BitmapOperationTool
-        /// </summary>
-        /// <param name="tool"></param>
-        /// <returns></returns>
-        public static bool IsOperationTool(Tool tool)
-        {
-            return tool is BitmapOperationTool;
-        }
-    }
-
-    public class LayersChangedEventArgs : EventArgs
-    {
-        public LayersChangedEventArgs(int layerAffected, LayerAction layerChangeType)
-        {
-            LayerAffected = layerAffected;
-            LayerChangeType = layerChangeType;
-        }
-
-        public int LayerAffected { get; set; }
-
-        public LayerAction LayerChangeType { get; set; }
     }
 }

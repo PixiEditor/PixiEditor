@@ -100,7 +100,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             int newVal = 5;
 
             UndoManager.AddUndoChange(
-                new Change("ExampleProperty",
+                new Change(
+                    "ExampleProperty",
                     ReverseProcess,
                     new object[] { ExampleProperty },
                     newVal));
@@ -123,7 +124,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             PrepareUndoManagerForTest();
             int newVal = 5;
-            UndoManager.AddUndoChange(new Change(ReverseProcess, new object[] { ExampleProperty }, ReverseProcess,
+            UndoManager.AddUndoChange(new Change(
+                ReverseProcess,
+                new object[] { ExampleProperty },
+                ReverseProcess,
                 new object[] { newVal }));
 
             ExampleProperty = newVal;
@@ -145,8 +149,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             PrepareUndoManagerForTest();
             int newVal = 5;
 
-            UndoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty,
-                newVal));
+            UndoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty, newVal));
 
             TestPropClass.IntProperty = newVal;
 
@@ -174,10 +177,5 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             ExampleProperty = 1;
             TestPropClass = new TestPropertyClass { IntProperty = 0 };
         }
-    }
-
-    public class TestPropertyClass
-    {
-        public int IntProperty { get; set; }
     }
 }

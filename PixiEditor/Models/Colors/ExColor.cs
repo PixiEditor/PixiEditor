@@ -30,12 +30,12 @@ namespace PixiEditor.Models.Colors
         }
 
         /// <summary>
-        ///     Converts RGB to HSL
+        ///     Converts RGB to HSL.
         /// </summary>
-        /// <param name="r">Red value</param>
-        /// <param name="b">Blue value</param>
-        /// <param name="g">Green value</param>
-        /// <returns>Tuple with 3 values in order: h, s, l0</returns>
+        /// <param name="r">Red value.</param>
+        /// <param name="g">Green value.</param>
+        /// <param name="b">Blue value.</param>
+        /// <returns>Tuple with 3 values in order: h, s, l0.</returns>
         public static Tuple<int, float, float> RgbToHsl(int r, int g, int b)
         {
             int h;
@@ -67,11 +67,11 @@ namespace PixiEditor.Models.Colors
                 }
                 else if (dG == max)
                 {
-                    hue = 1.0f / 3 + (dB - dR) / 6 / delta;
+                    hue = (1.0f / 3) + ((dB - dR) / 6 / delta);
                 }
                 else
                 {
-                    hue = 2.0f / 3 + (dR - dG) / 6 / delta;
+                    hue = (2.0f / 3) + ((dR - dG) / 6 / delta);
                 }
 
                 if (hue < 0)
@@ -91,12 +91,9 @@ namespace PixiEditor.Models.Colors
         }
 
         /// <summary>
-        ///     Converts HSL color format to RGB
+        ///     Converts HSL color format to RGB.
         /// </summary>
-        /// <param name="h"></param>
-        /// <param name="s"></param>
-        /// <param name="l"></param>
-        /// <returns>RGB Color</returns>
+        /// <returns>RGB Color.</returns>
         public static Color HslToRgb(int h, float s, float l)
         {
             s /= 100;
@@ -114,12 +111,12 @@ namespace PixiEditor.Models.Colors
                 float v1, v2;
                 float hue = (float)h / 360;
 
-                v2 = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                v1 = 2 * l - v2;
+                v2 = l < 0.5 ? l * (1 + s) : l + s - (l * s);
+                v1 = (2 * l) - v2;
 
-                r = (byte)(255 * HueToRgb(v1, v2, hue + 1.0f / 3));
+                r = (byte)(255 * HueToRgb(v1, v2, hue + (1.0f / 3)));
                 g = (byte)(255 * HueToRgb(v1, v2, hue));
-                b = (byte)(255 * HueToRgb(v1, v2, hue - 1.0f / 3));
+                b = (byte)(255 * HueToRgb(v1, v2, hue - (1.0f / 3)));
             }
 
             return Color.FromRgb(r, g, b);
@@ -139,7 +136,7 @@ namespace PixiEditor.Models.Colors
 
             if (6 * hue < 1)
             {
-                return v1 + (v2 - v1) * 6 * hue;
+                return v1 + ((v2 - v1) * 6 * hue);
             }
 
             if (2 * hue < 1)
@@ -149,7 +146,7 @@ namespace PixiEditor.Models.Colors
 
             if (3 * hue < 2)
             {
-                return v1 + (v2 - v1) * (2.0f / 3 - hue) * 6;
+                return v1 + ((v2 - v1) * ((2.0f / 3) - hue) * 6);
             }
 
             return v1;

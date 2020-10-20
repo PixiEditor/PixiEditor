@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Layers
 
         public float Opacity { get; set; }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj == null || obj.GetType() != typeof(SerializableLayer))
             {
@@ -52,15 +52,9 @@ namespace PixiEditor.Models.Layers
             return Equals(layer);
         }
 
-        protected bool Equals(SerializableLayer other)
-        {
-            return Name == other.Name && Width == other.Width && Height == other.Height && MaxWidth == other.MaxWidth && MaxHeight == other.MaxHeight &&
-                   BitmapBytes.SequenceEqual(other.BitmapBytes) && IsVisible == other.IsVisible && OffsetX == other.OffsetX && OffsetY == other.OffsetY && Opacity.Equals(other.Opacity);
-        }
-
         public override int GetHashCode()
         {
-            HashCode hashCode = new HashCode();
+            HashCode hashCode = default(HashCode);
             hashCode.Add(Name);
             hashCode.Add(Width);
             hashCode.Add(Height);
@@ -72,6 +66,12 @@ namespace PixiEditor.Models.Layers
             hashCode.Add(OffsetY);
             hashCode.Add(Opacity);
             return hashCode.ToHashCode();
+        }
+
+        protected bool Equals(SerializableLayer other)
+        {
+            return Name == other.Name && Width == other.Width && Height == other.Height && MaxWidth == other.MaxWidth && MaxHeight == other.MaxHeight &&
+                   BitmapBytes.SequenceEqual(other.BitmapBytes) && IsVisible == other.IsVisible && OffsetX == other.OffsetX && OffsetY == other.OffsetY && Opacity.Equals(other.Opacity);
         }
     }
 }

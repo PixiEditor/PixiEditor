@@ -37,7 +37,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             bool eventRaised = false;
             Coordinates position = new Coordinates(5, 5);
-            MouseMovementEventArgs args = new MouseMovementEventArgs(new Coordinates());
+            MouseMovementEventArgs args = new MouseMovementEventArgs(default(Coordinates));
 
             MouseMovementController controller = new MouseMovementController();
             controller.MousePositionChanged += (s, e) =>

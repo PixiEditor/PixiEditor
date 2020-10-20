@@ -4,7 +4,7 @@ using System.Windows.Input;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for ResizeDocumentPopup.xaml
+    ///     Interaction logic for ResizeDocumentPopup.xaml.
     /// </summary>
     public partial class ResizeDocumentPopup : Window
     {

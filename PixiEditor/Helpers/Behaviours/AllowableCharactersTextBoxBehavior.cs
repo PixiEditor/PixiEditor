@@ -42,6 +42,13 @@ namespace PixiEditor.Helpers.Behaviours
             DataObject.AddPastingHandler(AssociatedObject, OnPaste);
         }
 
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            AssociatedObject.PreviewTextInput -= OnPreviewTextInput;
+            DataObject.RemovePastingHandler(AssociatedObject, OnPaste);
+        }
+
         private void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
             if (e.DataObject.GetDataPresent(DataFormats.Text))
@@ -62,13 +69,6 @@ namespace PixiEditor.Helpers.Behaviours
         private void OnPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !IsValid(e.Text, false);
-        }
-
-        protected override void OnDetaching()
-        {
-            base.OnDetaching();
-            AssociatedObject.PreviewTextInput -= OnPreviewTextInput;
-            DataObject.RemovePastingHandler(AssociatedObject, OnPaste);
         }
 
         private bool IsValid(string newText, bool paste)

@@ -5,13 +5,16 @@ using PixiEditor.Models.Enums;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for ResizeCanvasPopup.xaml
+    ///     Interaction logic for ResizeCanvasPopup.xaml.
     /// </summary>
     public partial class ResizeCanvasPopup : Window
     {
         // Using a DependencyProperty as the backing store for SelectedAnchorPoint.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedAnchorPointProperty =
-            DependencyProperty.Register("SelectedAnchorPoint", typeof(AnchorPoint), typeof(ResizeCanvasPopup),
+            DependencyProperty.Register(
+                "SelectedAnchorPoint",
+                typeof(AnchorPoint),
+                typeof(ResizeCanvasPopup),
                 new PropertyMetadata(AnchorPoint.Top | AnchorPoint.Left));
 
         // Using a DependencyProperty as the backing store for NewHeight.  This enables animation, styling, binding, etc...

@@ -27,8 +27,7 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
-                    graphics.CopyFromScreen(MousePositionConverter.GetCursorPosition(), new Point(0, 0),
-                        new Size(1, 1));
+                    graphics.CopyFromScreen(MousePositionConverter.GetCursorPosition(), new Point(0, 0), new Size(1, 1));
                 }
 
                 color = bitmap.GetPixel(0, 0);

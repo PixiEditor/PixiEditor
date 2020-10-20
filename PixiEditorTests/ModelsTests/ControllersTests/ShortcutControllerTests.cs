@@ -7,14 +7,6 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class ShortcutControllerTests
     {
-        private static ShortcutController GenerateStandardShortcutController(Key shortcutKey, ModifierKeys modifiers, RelayCommand shortcutCommand)
-        {
-            ShortcutController controller = new ShortcutController();
-            controller.Shortcuts.Add(new Shortcut(shortcutKey, shortcutCommand, 0, modifiers));
-            ShortcutController.BlockShortcutExecution = false;
-            return controller;
-        }
-
         [StaTheory]
         [InlineData(Key.A, ModifierKeys.None, Key.A, ModifierKeys.None)]
         [InlineData(Key.A, ModifierKeys.Alt, Key.A, ModifierKeys.Alt)]
@@ -72,12 +64,19 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [StaFact]
         public void TestThatKeyPressedSetsLastShortcut()
         {
-            ShortcutController controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None,
-                new RelayCommand(parameter => { }));
+            ShortcutController controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, new RelayCommand(parameter => { }));
 
             Assert.Null(controller.LastShortcut);
             controller.KeyPressed(Key.A, ModifierKeys.None);
             Assert.Equal(controller.Shortcuts[0], controller.LastShortcut);
+        }
+
+        private static ShortcutController GenerateStandardShortcutController(Key shortcutKey, ModifierKeys modifiers, RelayCommand shortcutCommand)
+        {
+            ShortcutController controller = new ShortcutController();
+            controller.Shortcuts.Add(new Shortcut(shortcutKey, shortcutCommand, 0, modifiers));
+            ShortcutController.BlockShortcutExecution = false;
+            return controller;
         }
     }
 }

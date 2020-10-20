@@ -10,8 +10,8 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public const float ZoomSensitivityMultiplier = 30f;
         private readonly double pixelsPerZoomMultiplier;
-        private double startingX;
         private readonly double workAreaWidth = SystemParameters.WorkArea.Width;
+        private double startingX;
 
         public ZoomTool()
         {

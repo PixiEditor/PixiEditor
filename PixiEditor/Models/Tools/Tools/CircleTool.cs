@@ -39,13 +39,12 @@ namespace PixiEditor.Models.Tools.Tools
         /// <summary>
         ///     Calculates ellipse points for specified coordinates and thickness.
         /// </summary>
-        /// <param name="startCoordinates">Top left coordinate of ellipse</param>
-        /// <param name="endCoordinates">Bottom right coordinate of ellipse</param>
-        /// <param name="thickness">Thickness of ellipse</param>
-        /// <param name="filled">Should ellipse be filled</param>
-        /// <returns>Coordinates for ellipse</returns>
-        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness,
-            bool filled)
+        /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
+        /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
+        /// <param name="thickness">Thickness of ellipse.</param>
+        /// <param name="filled">Should ellipse be filled.</param>
+        /// <returns>Coordinates for ellipse.</returns>
+        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness, bool filled)
         {
             List<Coordinates> output = new List<Coordinates>();
             IEnumerable<Coordinates> outline = CreateEllipse(startCoordinates, endCoordinates, thickness);
@@ -62,10 +61,10 @@ namespace PixiEditor.Models.Tools.Tools
         /// <summary>
         ///     Calculates ellipse points for specified coordinates and thickness.
         /// </summary>
-        /// <param name="startCoordinates">Top left coordinate of ellipse</param>
-        /// <param name="endCoordinates">Bottom right coordinate of ellipse</param>
-        /// <param name="thickness">Thickness of ellipse</param>
-        /// <returns>Coordinates for ellipse</returns>
+        /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
+        /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
+        /// <param name="thickness">Thickness of ellipse.</param>
+        /// <returns>Coordinates for ellipse.</returns>
         public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
             double radiusX = (endCoordinates.X - startCoordinates.X) / 2.0;
@@ -112,9 +111,9 @@ namespace PixiEditor.Models.Tools.Tools
                 // calculate next pixel coords
                 currentX++;
 
-                if (Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX, 2) +
-                    Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY - 0.5, 2) -
-                    Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2) >= 0)
+                if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX, 2)) +
+                    (Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY - 0.5, 2)) -
+                    (Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2)) >= 0)
                 {
                     currentY--;
                 }
@@ -123,7 +122,8 @@ namespace PixiEditor.Models.Tools.Tools
                 double derivativeX = 2 * Math.Pow(halfHeight, 2) * (currentX - centerX);
                 double derivativeY = 2 * Math.Pow(halfWidth, 2) * (currentY - centerY);
                 currentSlope = -(derivativeX / derivativeY);
-            } while (currentSlope > -1 && currentY - centerY > 0.5);
+            }
+            while (currentSlope > -1 && currentY - centerY > 0.5);
 
             // from middle to 0
             while (currentY - centerY >= 0)
@@ -131,9 +131,9 @@ namespace PixiEditor.Models.Tools.Tools
                 outputCoordinates.AddRange(GetRegionPoints(currentX, centerX, currentY, centerY));
 
                 currentY--;
-                if (Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2) +
-                    Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY, 2) -
-                    Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2) < 0)
+                if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2)) +
+                    (Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY, 2)) -
+                    (Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2)) < 0)
                 {
                     currentX++;
                 }

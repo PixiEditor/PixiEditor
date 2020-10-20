@@ -8,7 +8,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor
 {
     /// <summary>
-    ///     Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml.
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -62,7 +62,7 @@ namespace PixiEditor
             }
         }
 
-        private void mainWindow_Initialized(object sender, EventArgs e)
+        private void MainWindow_Initialized(object sender, EventArgs e)
         {
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             bool updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;

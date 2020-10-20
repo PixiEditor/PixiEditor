@@ -12,6 +12,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         [StaTheory]
         [InlineData(5, 12, 12, 12)]
         [InlineData(-5, 242, 242, 242)]
+
         // If correction factor is negative, testing color will be white, otherwise black
         public void TestThatBrightnessToolChangesPixelBrightness(float correctionFactor, byte expectedR, byte expectedG, byte expectedB)
         {

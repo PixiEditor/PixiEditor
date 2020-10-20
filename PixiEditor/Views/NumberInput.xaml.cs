@@ -7,23 +7,32 @@ using System.Windows.Input;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for NumerInput.xaml
+    ///     Interaction logic for NumerInput.xaml.
     /// </summary>
     public partial class NumberInput : UserControl
     {
         // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register("Value", typeof(float), typeof(NumberInput),
+            DependencyProperty.Register(
+                "Value",
+                typeof(float),
+                typeof(NumberInput),
                 new PropertyMetadata(0f, OnValueChanged));
 
         // Using a DependencyProperty as the backing store for Min.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MinProperty =
-            DependencyProperty.Register("Min", typeof(float), typeof(NumberInput),
+            DependencyProperty.Register(
+                "Min",
+                typeof(float),
+                typeof(NumberInput),
                 new PropertyMetadata(float.NegativeInfinity));
 
         // Using a DependencyProperty as the backing store for Max.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MaxProperty =
-            DependencyProperty.Register("Max", typeof(float), typeof(NumberInput),
+            DependencyProperty.Register(
+                "Max",
+                typeof(float),
+                typeof(NumberInput),
                 new PropertyMetadata(float.PositiveInfinity));
 
         public NumberInput()

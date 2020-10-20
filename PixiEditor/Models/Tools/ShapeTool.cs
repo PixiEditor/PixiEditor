@@ -35,32 +35,37 @@ namespace PixiEditor.Models.Tools
             return output.Distinct();
         }
 
-        protected DoubleCords CalculateCoordinatesForShapeRotation(Coordinates startingCords,
+        protected DoubleCords CalculateCoordinatesForShapeRotation(
+            Coordinates startingCords,
             Coordinates secondCoordinates)
         {
             Coordinates currentCoordinates = secondCoordinates;
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(new Coordinates(currentCoordinates.X, currentCoordinates.Y),
+                return new DoubleCords(
+                    new Coordinates(currentCoordinates.X, currentCoordinates.Y),
                     new Coordinates(startingCords.X, startingCords.Y));
             }
 
             if (startingCords.X < currentCoordinates.X && startingCords.Y < currentCoordinates.Y)
             {
-                return new DoubleCords(new Coordinates(startingCords.X, startingCords.Y),
+                return new DoubleCords(
+                    new Coordinates(startingCords.X, startingCords.Y),
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y));
             }
 
             if (startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(new Coordinates(startingCords.X, currentCoordinates.Y),
+                return new DoubleCords(
+                    new Coordinates(startingCords.X, currentCoordinates.Y),
                     new Coordinates(currentCoordinates.X, startingCords.Y));
             }
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y <= currentCoordinates.Y)
             {
-                return new DoubleCords(new Coordinates(currentCoordinates.X, startingCords.Y),
+                return new DoubleCords(
+                    new Coordinates(currentCoordinates.X, startingCords.Y),
                     new Coordinates(startingCords.X, currentCoordinates.Y));
             }
 
