@@ -6,13 +6,13 @@ namespace PixiEditor.ViewModels
 {
     internal class SaveFilePopupViewModel : ViewModelBase
     {
-        private string _filePath;
+        private string filePath;
 
 
-        private string _pathButtonBorder = "#f08080";
+        private string pathButtonBorder = "#f08080";
 
 
-        private bool _pathIsCorrect;
+        private bool pathIsCorrect;
 
         public SaveFilePopupViewModel()
         {
@@ -29,12 +29,12 @@ namespace PixiEditor.ViewModels
 
         public string PathButtonBorder
         {
-            get => _pathButtonBorder;
+            get => pathButtonBorder;
             set
             {
-                if (_pathButtonBorder != value)
+                if (pathButtonBorder != value)
                 {
-                    _pathButtonBorder = value;
+                    pathButtonBorder = value;
                     RaisePropertyChanged("PathButtonBorder");
                 }
             }
@@ -42,12 +42,12 @@ namespace PixiEditor.ViewModels
 
         public bool PathIsCorrect
         {
-            get => _pathIsCorrect;
+            get => pathIsCorrect;
             set
             {
-                if (_pathIsCorrect != value)
+                if (pathIsCorrect != value)
                 {
-                    _pathIsCorrect = value;
+                    pathIsCorrect = value;
                     RaisePropertyChanged("PathIsCorrect");
                 }
             }
@@ -55,12 +55,12 @@ namespace PixiEditor.ViewModels
 
         public string FilePath
         {
-            get => _filePath;
+            get => filePath;
             set
             {
-                if (_filePath != value)
+                if (filePath != value)
                 {
-                    _filePath = value;
+                    filePath = value;
                     RaisePropertyChanged("FilePath");
                 }
             }
@@ -72,7 +72,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void ChoosePath(object parameter)
         {
-            SaveFileDialog path = new SaveFileDialog
+            var path = new SaveFileDialog
             {
                 Title = "Export path",
                 CheckPathExists = true,

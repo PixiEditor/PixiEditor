@@ -17,7 +17,7 @@ namespace PixiEditor.Helpers
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (string.IsNullOrWhiteSpace(value as string)) return null;
-            string slicedString = value.ToString().Split(' ').First();
+            var slicedString = value.ToString().Split(' ').First();
             slicedString = Regex.Replace(slicedString, "\\p{L}", "");
             if (slicedString == "") return null;
             return int.Parse(slicedString);

@@ -5,13 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:helpers1="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         Title="SaveFilePopup" Height="300" Width="400" WindowStyle="None" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen" Name="saveFilePopup">
     <Window.Resources>
-        <helpers1:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
         <Grid Background="{StaticResource AccentColor}">

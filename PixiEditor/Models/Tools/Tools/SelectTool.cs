@@ -15,8 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
-        public override ToolType ToolType => ToolType.Select;
-        private Selection _oldSelection;
+        private Selection oldSelection;
         public SelectionType SelectionType = SelectionType.Add;
 
         public SelectTool()
@@ -25,25 +24,25 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new SelectToolToolbar();
         }
 
+        public override ToolType ToolType => ToolType.Select;
+
         public override void OnMouseDown(MouseEventArgs e)
         {
             Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType);
 
-            _oldSelection = null;
+            oldSelection = null;
             if (ViewModelMain.Current.ActiveSelection != null &&
                 ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
-                _oldSelection = ViewModelMain.Current.ActiveSelection;
+                oldSelection = ViewModelMain.Current.ActiveSelection;
         }
 
         public override void OnMouseUp(MouseEventArgs e)
         {
             if (ViewModelMain.Current.ActiveSelection.SelectedPoints.Count() <= 1)
-            {
                 // If we have not selected multiple points, clear the selection
                 ViewModelMain.Current.ActiveSelection.Clear();
-            }
 
-            UndoManager.AddUndoChange(new Change("ActiveSelection", _oldSelection,
+            UndoManager.AddUndoChange(new Change("ActiveSelection", oldSelection,
                 ViewModelMain.Current.ActiveSelection, "Select pixels"));
         }
 
@@ -54,14 +53,14 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void Select(Coordinates[] pixels)
         {
-            IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
+            var selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
             ViewModelMain.Current.ActiveSelection.SetSelection(selection, SelectionType);
         }
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            RectangleTool rectangleTool = new RectangleTool();
-            List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
+            var rectangleTool = new RectangleTool();
+            var selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
             selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
             return selection;
         }

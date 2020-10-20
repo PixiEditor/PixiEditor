@@ -43,7 +43,7 @@ namespace PixiEditor.Views
 
         private void SetResultAndClose(object property)
         {
-            bool result = (bool) property;
+            var result = (bool) property;
             Result = result;
             DialogResult = true;
             Close();

@@ -5,7 +5,7 @@ namespace PixiEditor.ViewModels
 {
     internal class MenuButtonViewModel : ViewModelBase
     {
-        private Visibility _listViewVisibility;
+        private Visibility listViewVisibility;
 
 
         public MenuButtonViewModel()
@@ -20,10 +20,10 @@ namespace PixiEditor.ViewModels
 
         public Visibility ListViewVisibility
         {
-            get => _listViewVisibility;
+            get => listViewVisibility;
             set
             {
-                _listViewVisibility = value;
+                listViewVisibility = value;
                 RaisePropertyChanged("ListViewVisibility");
             }
         }

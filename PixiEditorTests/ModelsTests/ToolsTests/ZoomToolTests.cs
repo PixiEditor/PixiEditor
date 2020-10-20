@@ -1,8 +1,5 @@
 ﻿using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ToolsTests
@@ -13,12 +10,11 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         [StaFact]
         public void TestThatZoomSetsViewModelsZoomPercentage()
         {
-            ViewModelMain vm = new ViewModelMain();
-            ZoomTool zoomTool = new ZoomTool();
+            var vm = new ViewModelMain();
+            var zoomTool = new ZoomTool();
             double zoom = 110;
             zoomTool.Zoom(zoom);
             Assert.Equal(zoom, vm.ZoomPercentage);
         }
-
     }
 }

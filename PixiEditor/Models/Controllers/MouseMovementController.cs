@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Accessibility;
 using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Controllers
@@ -58,10 +57,10 @@ namespace PixiEditor.Models.Controllers
 
 public class MouseMovementEventArgs : EventArgs
 {
-    public Coordinates NewPosition { get; set; }
-
     public MouseMovementEventArgs(Coordinates mousePosition)
     {
         NewPosition = mousePosition;
     }
+
+    public Coordinates NewPosition { get; set; }
 }

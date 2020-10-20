@@ -21,7 +21,7 @@ namespace PixiEditor.ViewModels
 
         protected void DragMove(object parameter)
         {
-            Window popup = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+            var popup = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
             if (Mouse.LeftButton == MouseButtonState.Pressed) popup.DragMove();
         }
     }

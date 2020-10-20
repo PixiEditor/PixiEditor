@@ -31,10 +31,7 @@ namespace PixiEditor.Models.Position
 
         public override bool Equals(object obj)
         {
-            if (obj is Coordinates coords)
-            {
-                return this == coords;
-            }
+            if (obj is Coordinates coords) return this == coords;
 
             return false;
         }

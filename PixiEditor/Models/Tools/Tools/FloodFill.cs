@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
@@ -11,12 +10,12 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class FloodFill : BitmapOperationTool
     {
-        public override ToolType ToolType => ToolType.Bucket;
-
         public FloodFill()
         {
             Tooltip = "Fills area with color (G)";
         }
+
+        public override ToolType ToolType => ToolType.Bucket;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
@@ -25,18 +24,18 @@ namespace PixiEditor.Models.Tools.Tools
 
         public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)
         {
-            List<Coordinates> changedCoords = new List<Coordinates>();
+            var changedCoords = new List<Coordinates>();
 
-            Layer clone = layer.Clone();
-            int width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
-            int height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
+            var clone = layer.Clone();
+            var width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
+            var height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
 
-            Color colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
+            var colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
 
             var stack = new Stack<Coordinates>();
             stack.Push(new Coordinates(startingCoords.X, startingCoords.Y));
-            
-            using(clone.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadWrite))
+
+            using (clone.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadWrite))
             {
                 while (stack.Count > 0)
                 {
@@ -57,8 +56,8 @@ namespace PixiEditor.Models.Tools.Tools
                         stack.Push(new Coordinates(cords.X - 1, cords.Y));
                     }
                 }
-
             }
+
             return BitmapPixelChanges.FromSingleColoredArray(changedCoords, newColor);
         }
     }

@@ -16,7 +16,7 @@ namespace PixiEditor.Views
                 new PropertyMetadata());
 
 
-        private ToggleButton _selectedToggleButton;
+        private ToggleButton selectedToggleButton;
 
         public AnchorPointPicker()
         {
@@ -31,10 +31,10 @@ namespace PixiEditor.Views
 
         private void ToggleButton_Checked(object sender, RoutedEventArgs e)
         {
-            ToggleButton btn = (ToggleButton) sender;
+            var btn = (ToggleButton) sender;
             AnchorPoint = (AnchorPoint) (1 << (Grid.GetRow(btn) + 3)) | (AnchorPoint) (1 << Grid.GetColumn(btn));
-            if (_selectedToggleButton != null) _selectedToggleButton.IsChecked = false;
-            _selectedToggleButton = btn;
+            if (selectedToggleButton != null) selectedToggleButton.IsChecked = false;
+            selectedToggleButton = btn;
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)

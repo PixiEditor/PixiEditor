@@ -11,11 +11,6 @@ namespace PixiEditor.Models.DataHolders
     [Serializable]
     public class SerializableDocument
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public SerializableLayer[] Layers { get; set; }
-        public Tuple<byte, byte, byte, byte>[] Swatches { get; set; }
-
         public SerializableDocument(Document document)
         {
             Width = document.Width;
@@ -24,9 +19,14 @@ namespace PixiEditor.Models.DataHolders
             Swatches = document.Swatches.Select(x => new Tuple<byte, byte, byte, byte>(x.A, x.R, x.G, x.B)).ToArray();
         }
 
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public SerializableLayer[] Layers { get; set; }
+        public Tuple<byte, byte, byte, byte>[] Swatches { get; set; }
+
         public Document ToDocument()
         {
-            Document document = new Document(Width, Height)
+            var document = new Document(Width, Height)
             {
                 Layers = ToLayers(),
                 Swatches = new ObservableCollection<Color>(Swatches.Select(x =>
@@ -37,12 +37,12 @@ namespace PixiEditor.Models.DataHolders
 
         public ObservableCollection<Layer> ToLayers()
         {
-            ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
-            for (int i = 0; i < Layers.Length; i++)
+            var layers = new ObservableCollection<Layer>();
+            for (var i = 0; i < Layers.Length; i++)
             {
-                SerializableLayer serLayer = Layers[i];
-                Layer layer =
-                    new Layer(serLayer.Name,BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
+                var serLayer = Layers[i];
+                var layer =
+                    new Layer(serLayer.Name, BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
                     {
                         IsVisible = serLayer.IsVisible,
                         Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),

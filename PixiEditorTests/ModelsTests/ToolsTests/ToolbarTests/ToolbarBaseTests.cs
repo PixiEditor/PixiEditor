@@ -10,13 +10,13 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         [StaFact]
         public void TestThatGetSettingReturnsCorrectSetting()
         {
-            BasicToolbar toolbar = new BasicToolbar();
-            string settingName = "ToolSize";
+            var toolbar = new BasicToolbar();
+            var settingName = "ToolSize";
 
-            Setting setting = toolbar.GetSetting(settingName);
+            var setting = toolbar.GetSetting(settingName);
 
             Assert.NotNull(setting);
-            Assert.Equal(settingName,setting.Name);
+            Assert.Equal(settingName, setting.Name);
         }
 
         [StaFact]
@@ -26,10 +26,10 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
             const bool settingValue = true;
             Setting<bool> expected = new BoolSetting(settingName, settingValue);
 
-            BasicToolbar toolbar = new BasicToolbar();
+            var toolbar = new BasicToolbar();
             toolbar.Settings.Add(expected);
 
-            BoolSetting actual = toolbar.GetSetting<BoolSetting>(settingName);
+            var actual = toolbar.GetSetting<BoolSetting>(settingName);
 
             Assert.Equal(expected.Value, actual.Value);
         }
@@ -37,9 +37,9 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         [StaFact]
         public void TestThatGenericGetSettingReturnsNullWhenSettingIsNotFound()
         {
-            BasicToolbar toolbar = new BasicToolbar();
+            var toolbar = new BasicToolbar();
 
-            BoolSetting actual = toolbar.GetSetting<BoolSetting>("invalid");
+            var actual = toolbar.GetSetting<BoolSetting>("invalid");
 
             Assert.Null(actual);
         }
@@ -48,10 +48,10 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         public void TestThatGenericGetSettingReturnsNullWhenSettingHasWrongType()
         {
             const string settingName = "test";
-            BasicToolbar toolbar = new BasicToolbar();
+            var toolbar = new BasicToolbar();
             toolbar.Settings.Add(new BoolSetting(settingName));
 
-            SizeSetting actual = toolbar.GetSetting<SizeSetting>(settingName);
+            var actual = toolbar.GetSetting<SizeSetting>(settingName);
 
             Assert.Null(actual);
         }
@@ -59,13 +59,13 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
         [StaFact]
         public void TestThatSaveToolbarSettingsSavesSettingAndLoadsItIntoNewToolbar()
         {
-            BasicToolbar toolbar = new BasicToolbar();
+            var toolbar = new BasicToolbar();
 
             toolbar.GetSetting<SizeSetting>("ToolSize").Value = 5;
 
             toolbar.SaveToolbarSettings();
 
-            BasicShapeToolbar shapeToolbar = new BasicShapeToolbar();
+            var shapeToolbar = new BasicShapeToolbar();
 
             Assert.NotEqual(5, shapeToolbar.GetSetting<SizeSetting>("ToolSize").Value);
 

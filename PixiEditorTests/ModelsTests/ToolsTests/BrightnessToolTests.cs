@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Media;
-using PixiEditor;
+﻿using System.Windows.Media;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
@@ -20,17 +15,17 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         // If correction factor is negative, testing color will be white, otherwise black
         public void TestThatBrightnessToolChangesPixelBrightness(float correctionFactor, byte expectedR, byte expectedG, byte expectedB)
         {
-            Color expectedColor = Color.FromRgb(expectedR, expectedG, expectedB);
+            var expectedColor = Color.FromRgb(expectedR, expectedG, expectedB);
 
-            BrightnessTool tool = new BrightnessTool();
+            var tool = new BrightnessTool();
 
-            Layer layer = new Layer("test", 1, 1);
-            layer.SetPixel(new Coordinates(0,0), correctionFactor < 0 ? Colors.White : Colors.Black);
+            var layer = new Layer("test", 1, 1);
+            layer.SetPixel(new Coordinates(0, 0), correctionFactor < 0 ? Colors.White : Colors.Black);
 
-            var changes = tool.ChangeBrightness(layer, new Coordinates(0, 0),1,correctionFactor);
+            var changes = tool.ChangeBrightness(layer, new Coordinates(0, 0), 1, correctionFactor);
             layer.SetPixels(changes);
 
-            Assert.Equal(expectedColor,layer.GetPixel(0,0));
+            Assert.Equal(expectedColor, layer.GetPixel(0, 0));
         }
     }
 }

@@ -25,6 +25,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
     public abstract class Setting : NotifyableObject
     {
+        protected Setting(string name)
+        {
+            Name = name;
+        }
+
         public string Name { get; }
 
         public string Label { get; set; }
@@ -32,10 +37,5 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         public bool HasLabel => !string.IsNullOrEmpty(Label);
 
         public Control SettingControl { get; set; }
-
-        protected Setting(string name)
-        {
-            Name = name;
-        }
     }
 }

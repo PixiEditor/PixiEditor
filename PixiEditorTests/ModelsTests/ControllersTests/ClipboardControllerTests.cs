@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -14,7 +11,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class ClipboardControllerTests
     {
-        private Color testColor = Colors.Coral;
+        private readonly Color testColor = Colors.Coral;
 
         [StaFact]
         public void TestThatClipboardControllerIgnoresNonImageDataInClipboard()
@@ -36,8 +33,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [StaFact]
         public void TestThatClipboardControllerSavesImageToClipboard()
         {
-            Layer testLayer = new Layer("test layer", 10, 10);
-            ClipboardController.CopyToClipboard(new []{testLayer}, CoordinatesCalculator.RectangleToCoordinates(0,0, 9,9), 10, 10);
+            var testLayer = new Layer("test layer", 10, 10);
+            ClipboardController.CopyToClipboard(new[] {testLayer}, CoordinatesCalculator.RectangleToCoordinates(0, 0, 9, 9), 10, 10);
             Assert.True(ClipboardController.IsImageInClipboard());
         }
 
@@ -46,13 +43,13 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             Clipboard.Clear();
 
-            Layer testLayer = new Layer("test layer", 10, 10);
-            Layer testLayer2 = new Layer("test layer", 10, 10);
-            testLayer.SetPixel(new Coordinates(4,4), testColor);
-            testLayer2.SetPixel(new Coordinates(5,5), testColor);
+            var testLayer = new Layer("test layer", 10, 10);
+            var testLayer2 = new Layer("test layer", 10, 10);
+            testLayer.SetPixel(new Coordinates(4, 4), testColor);
+            testLayer2.SetPixel(new Coordinates(5, 5), testColor);
 
-            ClipboardController.CopyToClipboard(new []{testLayer, testLayer2}, 
-                new []{new Coordinates(4,4), new Coordinates(5,5)}, 10, 10);
+            ClipboardController.CopyToClipboard(new[] {testLayer, testLayer2},
+                new[] {new Coordinates(4, 4), new Coordinates(5, 5)}, 10, 10);
 
             var img = Clipboard.GetImage(); // Using default Clipboard get image to avoid false positives from faulty ClipboardController GetImage
 
@@ -86,12 +83,12 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             Clipboard.Clear();
             var bmp = BitmapFactory.New(10, 10);
-            bmp.SetPixel(4,4, testColor);
+            bmp.SetPixel(4, 4, testColor);
             using (var pngStream = new MemoryStream())
             {
-                DataObject data = new DataObject();
+                var data = new DataObject();
 
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                var encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(bmp));
                 encoder.Save(pngStream);
                 data.SetData("PNG", pngStream, false); //PNG, supports transparency
@@ -102,7 +99,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.NotNull(img);
             Assert.Equal(10, img.PixelWidth);
             Assert.Equal(10, img.PixelHeight);
-            Assert.Equal(testColor, bmp.GetPixel(4,4));
+            Assert.Equal(testColor, bmp.GetPixel(4, 4));
         }
 
         [StaFact]
@@ -112,7 +109,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             var bmp = BitmapFactory.New(10, 10);
             bmp.SetPixel(4, 4, testColor);
 
-            DataObject data = new DataObject();
+            var data = new DataObject();
             data.SetData(DataFormats.Bitmap, bmp, false); //PNG, supports transparency
             Clipboard.SetDataObject(data, true);
 
@@ -122,7 +119,5 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.Equal(10, img.PixelHeight);
             Assert.Equal(testColor, bmp.GetPixel(4, 4));
         }
-
-        
     }
 }

@@ -9,12 +9,12 @@ namespace PixiEditor.Helpers.UI
     {
         protected override Size ArrangeOverride(Size arrangeSize)
         {
-            bool fHorizontal = Orientation == Orientation.Horizontal;
+            var fHorizontal = Orientation == Orientation.Horizontal;
             var rcChild = new Rect(arrangeSize);
-            double previousChildSize = 0.0;
+            var previousChildSize = 0.0;
 
             var children = InternalChildren.Cast<UIElement>().Reverse();
-            foreach (UIElement child in children)
+            foreach (var child in children)
             {
                 if (child == null)
                     continue;

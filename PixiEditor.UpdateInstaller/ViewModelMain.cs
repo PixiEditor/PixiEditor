@@ -1,39 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using PixiEditor.UpdateModule;
 
 namespace PixiEditor.UpdateInstaller
 {
     public class ViewModelMain : ViewModelBase
     {
-        public ViewModelMain Current { get; private set; }
-        public UpdateModule.UpdateInstaller Installer { get; set; }
-
-        public string UpdateDirectory { get; private set; }
-
-        private float _progressValue;
-
-        public float ProgressValue
-        {
-            get => _progressValue;
-            set 
-            { 
-                _progressValue = value;
-                RaisePropertyChanged(nameof(ProgressValue));
-            }
-        }
+        private float progressValue;
 
         public ViewModelMain()
         {
             Current = this;
 
-            string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
+            var updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
 
 #if DEBUG
             updateDirectory = Environment.GetCommandLineArgs()[1];
@@ -41,9 +20,24 @@ namespace PixiEditor.UpdateInstaller
             UpdateDirectory = updateDirectory;
         }
 
+        public ViewModelMain Current { get; }
+        public UpdateModule.UpdateInstaller Installer { get; set; }
+
+        public string UpdateDirectory { get; }
+
+        public float ProgressValue
+        {
+            get => progressValue;
+            set
+            {
+                progressValue = value;
+                RaisePropertyChanged(nameof(ProgressValue));
+            }
+        }
+
         public void InstallUpdate()
         {
-            string[] files = Directory.GetFiles(UpdateDirectory, "update-*.zip");
+            var files = Directory.GetFiles(UpdateDirectory, "update-*.zip");
 
             if (files.Length > 0)
             {
@@ -57,7 +51,7 @@ namespace PixiEditor.UpdateInstaller
             }
         }
 
-        private void Installer_ProgressChanged(object sender, UpdateModule.UpdateProgressChangedEventArgs e)
+        private void Installer_ProgressChanged(object sender, UpdateProgressChangedEventArgs e)
         {
             ProgressValue = e.Progress;
         }

@@ -21,12 +21,12 @@ namespace PixiEditor.Models.IO
         /// <param name="updateWorkspacePath">Should editor remember dialog path for further saves</param>
         public static bool SaveAsEditableFileWithDialog(Document document, bool updateWorkspacePath = false)
         {
-            SaveFileDialog dialog = new SaveFileDialog
+            var dialog = new SaveFileDialog
             {
                 Filter = "PixiEditor Files | *.pixi",
                 DefaultExt = "pixi"
             };
-            if ((bool)dialog.ShowDialog())
+            if ((bool) dialog.ShowDialog())
             {
                 SaveAsEditableFile(document, dialog.FileName, updateWorkspacePath);
                 return true;
@@ -50,7 +50,7 @@ namespace PixiEditor.Models.IO
         /// <param name="fileDimensions">Size of file</param>
         public static void Export(WriteableBitmap bitmap, Size fileDimensions)
         {
-            ExportFileDialog info = new ExportFileDialog(fileDimensions);
+            var info = new ExportFileDialog(fileDimensions);
             //If OK on dialog has been clicked
             if (info.ShowDialog())
             {
@@ -80,9 +80,9 @@ namespace PixiEditor.Models.IO
             {
                 bitmap = bitmap.Resize(exportWidth, exportHeight,
                     WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                using (FileStream stream = new FileStream(savePath, FileMode.Create))
+                using (var stream = new FileStream(savePath, FileMode.Create))
                 {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    var encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     encoder.Save(stream);
                 }

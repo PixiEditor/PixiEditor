@@ -6,38 +6,36 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
     public class Selection : NotifyableObject
     {
-        public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
-
-        public Layer SelectionLayer
-        {
-            get => _selectionLayer;
-            set
-            {
-                _selectionLayer = value;
-                RaisePropertyChanged("SelectionLayer");
-            }
-        }
-
-        private readonly Color _selectionBlue;
-        private Layer _selectionLayer;
+        private readonly Color selectionBlue;
+        private Layer selectionLayer;
 
         public Selection(Coordinates[] selectedPoints)
         {
             SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
             SelectionLayer = new Layer("_selectionLayer");
-            _selectionBlue = Color.FromArgb(127, 142, 202, 255);
+            selectionBlue = Color.FromArgb(127, 142, 202, 255);
+        }
+
+        public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
+
+        public Layer SelectionLayer
+        {
+            get => selectionLayer;
+            set
+            {
+                selectionLayer = value;
+                RaisePropertyChanged("SelectionLayer");
+            }
         }
 
         public void SetSelection(IEnumerable<Coordinates> selection, SelectionType mode)
         {
-            Color selectionColor = _selectionBlue;
+            var selectionColor = selectionBlue;
             switch (mode)
             {
                 case SelectionType.New:

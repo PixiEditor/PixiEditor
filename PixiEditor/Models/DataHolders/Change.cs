@@ -5,19 +5,8 @@ namespace PixiEditor.Models.DataHolders
     [Serializable]
     public class Change
     {
-        public object OldValue { get; set; }
-
-        public object NewValue { get; set; }
-
-        public string Description { get; set; }
-
-        public string Property { get; set; }
-
-        public Action<object[]> ReverseProcess { get; set; }
-        public Action<object[]> Process { get; set; }
         public object[] ProcessArguments;
         public object[] ReverseProcessArguments;
-        public object Root { get; set; }
 
         /// <summary>
         ///     Creates new change for property based undo system
@@ -74,5 +63,17 @@ namespace PixiEditor.Models.DataHolders
             ProcessArguments = processArguments;
             Description = description;
         }
+
+        public object OldValue { get; set; }
+
+        public object NewValue { get; set; }
+
+        public string Description { get; set; }
+
+        public string Property { get; set; }
+
+        public Action<object[]> ReverseProcess { get; set; }
+        public Action<object[]> Process { get; set; }
+        public object Root { get; set; }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
@@ -12,7 +10,7 @@ namespace PixiEditor.Helpers.Converters
         {
             if (value is double || value is float)
             {
-                double val = (double) value;
+                var val = (double) value;
                 return (int) val;
             }
 

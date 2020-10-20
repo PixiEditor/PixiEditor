@@ -14,8 +14,8 @@ namespace PixiEditor.Helpers.Behaviours
                 new PropertyMetadata(false));
 
 
-        private string _oldText; //Value of textbox before editing
-        private bool _valueConverted; //This bool is used to avoid double convertion if enter is hitted
+        private string oldText; //Value of textbox before editing
+        private bool valueConverted; //This bool is used to avoid double convertion if enter is hitted
 
         public bool FillSize
         {
@@ -58,8 +58,8 @@ namespace PixiEditor.Helpers.Behaviours
             AssociatedObject.SelectAll();
             if (FillSize)
             {
-                _valueConverted = false;
-                _oldText = AssociatedObject.Text; //Sets old value when keyboard is focused on object
+                valueConverted = false;
+                oldText = AssociatedObject.Text; //Sets old value when keyboard is focused on object
             }
         }
 
@@ -88,13 +88,13 @@ namespace PixiEditor.Helpers.Behaviours
         /// </summary>
         private void ConvertValue()
         {
-            if (_valueConverted || FillSize == false) return;
+            if (valueConverted || FillSize == false) return;
 
-            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out int result) && result > 0)
+            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out var result) && result > 0)
                 AssociatedObject.Text = $"{AssociatedObject.Text} px";
             else //If text in textbox isn't number, set it to old value
-                AssociatedObject.Text = _oldText;
-            _valueConverted = true;
+                AssociatedObject.Text = oldText;
+            valueConverted = true;
         }
     }
 }

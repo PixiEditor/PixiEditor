@@ -17,10 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private const float CorrectionFactor = 5f; //Initial correction factor
 
-        public override ToolType ToolType => ToolType.Brightness;
-        public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
-
-        private List<Coordinates> _pixelsVisited = new List<Coordinates>();
+        private readonly List<Coordinates> pixelsVisited = new List<Coordinates>();
 
         public BrightnessTool()
         {
@@ -28,19 +25,22 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
+        public override ToolType ToolType => ToolType.Brightness;
+        public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
+
         public override void OnMouseDown(MouseEventArgs e)
         {
-            _pixelsVisited.Clear();
+            pixelsVisited.Clear();
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
-            float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
+            var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
+            var correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
             Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out BrightnessMode mode);
             Mode = mode;
 
-            LayerChange[] layersChanges = new LayerChange[1];
+            var layersChanges = new LayerChange[1];
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
                 layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor),
                     layer);
@@ -53,23 +53,23 @@ namespace PixiEditor.Models.Tools.Tools
         public BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize,
             float correctionFactor)
         {
-            DoubleCords centeredCoords = CoordinatesCalculator.CalculateThicknessCenter(coordinates, toolSize);
-            Coordinates[] rectangleCoordinates = CoordinatesCalculator.RectangleToCoordinates(centeredCoords.Coords1.X,
+            var centeredCoords = CoordinatesCalculator.CalculateThicknessCenter(coordinates, toolSize);
+            var rectangleCoordinates = CoordinatesCalculator.RectangleToCoordinates(centeredCoords.Coords1.X,
                 centeredCoords.Coords1.Y,
                 centeredCoords.Coords2.X, centeredCoords.Coords2.Y);
-            BitmapPixelChanges changes = new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
+            var changes = new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
 
-            for (int i = 0; i < rectangleCoordinates.Length; i++)
+            for (var i = 0; i < rectangleCoordinates.Length; i++)
             {
                 if (Mode == BrightnessMode.Default)
                 {
-                    if(_pixelsVisited.Contains(rectangleCoordinates[i]))
+                    if (pixelsVisited.Contains(rectangleCoordinates[i]))
                         continue;
-                    _pixelsVisited.Add(rectangleCoordinates[i]);
+                    pixelsVisited.Add(rectangleCoordinates[i]);
                 }
 
-                Color pixel = layer.GetPixelWithOffset(rectangleCoordinates[i].X, rectangleCoordinates[i].Y);
-                Color newColor = ExColor.ChangeColorBrightness(Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
+                var pixel = layer.GetPixelWithOffset(rectangleCoordinates[i].X, rectangleCoordinates[i].Y);
+                var newColor = ExColor.ChangeColorBrightness(Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
                     correctionFactor);
                 changes.ChangedPixels.Add(new Coordinates(rectangleCoordinates[i].X, rectangleCoordinates[i].Y),
                     newColor);

@@ -7,6 +7,7 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
+        private bool isActive;
         public abstract ToolType ToolType { get; }
         public string ImagePath => $"/Images/{ToolType}Image.png";
         public bool HideHighlight { get; set; } = false;
@@ -14,10 +15,10 @@ namespace PixiEditor.Models.Tools
 
         public bool IsActive
         {
-            get => _isActive;
+            get => isActive;
             set
             {
-                _isActive = value;
+                isActive = value;
                 RaisePropertyChanged("IsActive");
             }
         }
@@ -25,16 +26,22 @@ namespace PixiEditor.Models.Tools
         public Cursor Cursor { get; set; } = Cursors.Arrow;
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
-
-        private bool _isActive;
         public bool CanStartOutsideCanvas { get; set; } = false;
 
-        public virtual void OnMouseDown(MouseEventArgs e) { }
+        public virtual void OnMouseDown(MouseEventArgs e)
+        {
+        }
 
-        public virtual void OnMouseUp(MouseEventArgs e) { }
+        public virtual void OnMouseUp(MouseEventArgs e)
+        {
+        }
 
-        public virtual void OnMouseMove(MouseEventArgs e) { }
+        public virtual void OnMouseMove(MouseEventArgs e)
+        {
+        }
 
-        public virtual void AfterAddedUndo() { }
+        public virtual void AfterAddedUndo()
+        {
+        }
     }
 }

@@ -7,7 +7,7 @@ namespace PixiEditor.Models.Dialogs
     {
         public static ConfirmationType Show(string message)
         {
-            ConfirmationPopup popup = new ConfirmationPopup
+            var popup = new ConfirmationPopup
             {
                 Body = message
             };

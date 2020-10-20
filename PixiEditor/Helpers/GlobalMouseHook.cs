@@ -11,11 +11,13 @@ namespace PixiEditor.Helpers
     [ExcludeFromCodeCoverage]
     public static class GlobalMouseHook
     {
-        private delegate int HookProc(int nCode, int wParam, IntPtr lParam);
-        private static int _mouseHookHandle;
-        private static HookProc _mouseDelegate;
+        private const int WhMouseLl = 14;
+        private const int WmLbuttonup = 0x0202;
+        private static int mouseHookHandle;
+        private static HookProc mouseDelegate;
 
         private static event MouseUpEventHandler MouseUp;
+
         public static event MouseUpEventHandler OnMouseUp
         {
             add
@@ -37,14 +39,14 @@ namespace PixiEditor.Helpers
 
         private static void Unsubscribe()
         {
-            if (_mouseHookHandle != 0)
+            if (mouseHookHandle != 0)
             {
-                int result = UnhookWindowsHookEx(_mouseHookHandle);
-                _mouseHookHandle = 0;
-                _mouseDelegate = null;
+                var result = UnhookWindowsHookEx(mouseHookHandle);
+                mouseHookHandle = 0;
+                mouseDelegate = null;
                 if (result == 0)
                 {
-                    int errorCode = Marshal.GetLastWin32Error();
+                    var errorCode = Marshal.GetLastWin32Error();
                     throw new Win32Exception(errorCode);
                 }
             }
@@ -52,17 +54,17 @@ namespace PixiEditor.Helpers
 
         private static void Subscribe()
         {
-            if (_mouseHookHandle == 0)
+            if (mouseHookHandle == 0)
             {
-                _mouseDelegate = MouseHookProc;
-                _mouseHookHandle = SetWindowsHookEx(
-                    WH_MOUSE_LL,
-                    _mouseDelegate,
+                mouseDelegate = MouseHookProc;
+                mouseHookHandle = SetWindowsHookEx(
+                    WhMouseLl,
+                    mouseDelegate,
                     GetModuleHandle(Process.GetCurrentProcess().MainModule.ModuleName),
                     0);
-                if (_mouseHookHandle == 0)
+                if (mouseHookHandle == 0)
                 {
-                    int errorCode = Marshal.GetLastWin32Error();
+                    var errorCode = Marshal.GetLastWin32Error();
                     throw new Win32Exception(errorCode);
                 }
             }
@@ -72,41 +74,18 @@ namespace PixiEditor.Helpers
         {
             if (nCode >= 0)
             {
-                MSLLHOOKSTRUCT mouseHookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
-                if (wParam == WM_LBUTTONUP)
-                {
+                var mouseHookStruct = (Msllhookstruct) Marshal.PtrToStructure(lParam, typeof(Msllhookstruct));
+                if (wParam == WmLbuttonup)
                     if (MouseUp != null)
-                    {
-                        MouseUp.Invoke(null, new Point(mouseHookStruct.pt.x, mouseHookStruct.pt.y));
-                    }
-                }
+                        MouseUp.Invoke(null, new System.Windows.Point(mouseHookStruct.pt.x, mouseHookStruct.pt.y));
             }
-            return CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+
+            return CallNextHookEx(mouseHookHandle, nCode, wParam, lParam);
         }
 
-        private const int WH_MOUSE_LL = 14;
-        private const int WM_LBUTTONUP = 0x0202;
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT
-        {
-            public int x;
-            public int y;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MSLLHOOKSTRUCT
-        {
-            public POINT pt;
-            public uint mouseData;
-            public uint flags;
-            public uint time;
-            public IntPtr dwExtraInfo;
-        }
-
-        [DllImport("user32.dll", 
+        [DllImport("user32.dll",
             CharSet = CharSet.Auto,
-            CallingConvention = CallingConvention.StdCall, 
+            CallingConvention = CallingConvention.StdCall,
             SetLastError = true)]
         private static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, int dwThreadId);
 
@@ -118,13 +97,32 @@ namespace PixiEditor.Helpers
         private static extern int UnhookWindowsHookEx(int idHook);
 
         [DllImport(
-            "user32.dll", 
+            "user32.dll",
             CharSet = CharSet.Auto,
             CallingConvention = CallingConvention.StdCall)]
         private static extern int CallNextHookEx(int idHook, int nCode, int wParam, IntPtr lParam);
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetModuleHandle(string name);
+
+        private delegate int HookProc(int nCode, int wParam, IntPtr lParam);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct Point
+        {
+            public readonly int x;
+            public readonly int y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct Msllhookstruct
+        {
+            public readonly Point pt;
+            public readonly uint mouseData;
+            public readonly uint flags;
+            public readonly uint time;
+            public readonly IntPtr dwExtraInfo;
+        }
     }
 
     public delegate void MouseUpEventHandler(object sender, Point p);

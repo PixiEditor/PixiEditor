@@ -1,7 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using System.Windows;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
+﻿using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace PixiEditor.Models.Position
 {
@@ -10,11 +8,11 @@ namespace PixiEditor.Models.Position
         public static Coordinates CurrentCoordinates { get; set; }
 
         [DllImport("user32.dll")]
-        private static extern bool GetCursorPos(out System.Drawing.Point point);
+        private static extern bool GetCursorPos(out Point point);
 
-        public static System.Drawing.Point GetCursorPosition()
+        public static Point GetCursorPosition()
         {
-            System.Drawing.Point point;
+            Point point;
             GetCursorPos(out point);
             return point;
         }

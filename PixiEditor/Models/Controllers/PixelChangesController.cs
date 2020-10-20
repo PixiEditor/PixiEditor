@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -67,13 +64,13 @@ namespace PixiEditor.Models.Controllers
         {
             //Maybe replace Tuple with custom data type
             if (LastChanges == null) return null;
-            Tuple<LayerChange, LayerChange>[] result = new Tuple<LayerChange, LayerChange>[LastChanges.Count];
-            int i = 0;
+            var result = new Tuple<LayerChange, LayerChange>[LastChanges.Count];
+            var i = 0;
             foreach (var change in LastChanges)
             {
-                Dictionary<Coordinates, Color> pixelChanges =
+                var pixelChanges =
                     change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
-                Dictionary<Coordinates, Color> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels
+                var oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels
                     .ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 var tmp = new LayerChange(new BitmapPixelChanges(pixelChanges), change.Key);

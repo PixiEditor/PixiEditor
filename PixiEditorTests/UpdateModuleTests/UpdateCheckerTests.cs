@@ -1,9 +1,4 @@
 ﻿using PixiEditor.UpdateModule;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace PixiEditorTests.UpdateModuleTests
@@ -18,8 +13,8 @@ namespace PixiEditorTests.UpdateModuleTests
         [InlineData("0.2.1", "0.1.3", false)]
         public void TestThatCheckUpdateAvailableChecksCorrectly(string currentVersion, string newVersion, bool expectedValue)
         {
-            UpdateChecker checker = new UpdateChecker(currentVersion);
-            bool result = checker.CheckUpdateAvailable(new ReleaseInfo(true) { TagName = newVersion });
+            var checker = new UpdateChecker(currentVersion);
+            var result = checker.CheckUpdateAvailable(new ReleaseInfo(true) {TagName = newVersion});
             Assert.True(result == expectedValue);
         }
 

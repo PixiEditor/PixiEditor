@@ -5,15 +5,12 @@ using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class ShapeTool : BitmapOperationTool
     {
-        public abstract override ToolType ToolType { get; }
-
         public ShapeTool()
         {
             RequiresPreviewLayer = true;
@@ -21,12 +18,14 @@ namespace PixiEditor.Models.Tools
             Toolbar = new BasicShapeToolbar();
         }
 
+        public abstract override ToolType ToolType { get; }
+
         public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
 
         protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
         {
-            List<Coordinates> output = new List<Coordinates>();
-            foreach(var item in shape)
+            var output = new List<Coordinates>();
+            foreach (var item in shape)
                 output.AddRange(
                     CoordinatesCalculator.RectangleToCoordinates(
                         CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
@@ -37,7 +36,7 @@ namespace PixiEditor.Models.Tools
         protected DoubleCords CalculateCoordinatesForShapeRotation(Coordinates startingCords,
             Coordinates secondCoordinates)
         {
-            Coordinates currentCoordinates = secondCoordinates;
+            var currentCoordinates = secondCoordinates;
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y > currentCoordinates.Y)
                 return new DoubleCords(new Coordinates(currentCoordinates.X, currentCoordinates.Y),

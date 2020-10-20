@@ -5,51 +5,12 @@ namespace PixiEditor.Models.Dialogs
 {
     public class ExportFileDialog : CustomDialog
     {
-        public int FileWidth
-        {
-            get => _fileWidth;
-            set
-            {
-                if (_fileWidth != value)
-                {
-                    _fileWidth = value;
-                    RaisePropertyChanged("Width");
-                }
-            }
-        }
-
-        public int FileHeight
-        {
-            get => _fileHeight;
-            set
-            {
-                if (_fileHeight != value)
-                {
-                    _fileHeight = value;
-                    RaisePropertyChanged("FileHeight");
-                }
-            }
-        }
-
-        public string FilePath
-        {
-            get => _filePath;
-            set
-            {
-                if (_filePath != value)
-                {
-                    _filePath = value;
-                    RaisePropertyChanged("FilePath");
-                }
-            }
-        }
-
-        private int _fileHeight;
+        private int fileHeight;
 
 
-        private string _filePath;
+        private string filePath;
 
-        private int _fileWidth;
+        private int fileWidth;
 
         public ExportFileDialog(Size fileDimensions)
         {
@@ -57,9 +18,48 @@ namespace PixiEditor.Models.Dialogs
             FileWidth = (int) fileDimensions.Width;
         }
 
+        public int FileWidth
+        {
+            get => fileWidth;
+            set
+            {
+                if (fileWidth != value)
+                {
+                    fileWidth = value;
+                    RaisePropertyChanged("Width");
+                }
+            }
+        }
+
+        public int FileHeight
+        {
+            get => fileHeight;
+            set
+            {
+                if (fileHeight != value)
+                {
+                    fileHeight = value;
+                    RaisePropertyChanged("FileHeight");
+                }
+            }
+        }
+
+        public string FilePath
+        {
+            get => filePath;
+            set
+            {
+                if (filePath != value)
+                {
+                    filePath = value;
+                    RaisePropertyChanged("FilePath");
+                }
+            }
+        }
+
         public override bool ShowDialog()
         {
-            SaveFilePopup popup = new SaveFilePopup
+            var popup = new SaveFilePopup
             {
                 SaveWidth = FileWidth,
                 SaveHeight = FileHeight

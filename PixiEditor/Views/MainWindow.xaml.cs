@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.ViewModels;
@@ -13,13 +12,14 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
-        ViewModelMain viewModel;
+        private readonly ViewModelMain viewModel;
+
         public MainWindow()
         {
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            viewModel = ((ViewModelMain)DataContext);
+            viewModel = (ViewModelMain) DataContext;
             viewModel.CloseAction = Close;
         }
 
@@ -68,11 +68,11 @@ namespace PixiEditor
 
         private void mainWindow_Initialized(object sender, EventArgs e)
         {
-            string dir = AppDomain.CurrentDomain.BaseDirectory;
-            bool updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
-            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            var updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
+            var updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
             if (updateFileExists && File.Exists(updaterPath))
-            {                
+            {
                 Process.Start(updaterPath);
                 Close();
             }

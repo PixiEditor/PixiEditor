@@ -16,7 +16,7 @@ namespace PixiEditorTests.ModelsTests.PositionTests
         [Fact]
         public void CalculateSquareEvenThicknessCenterTest()
         {
-            DoubleCords cords = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(3, 3), 4);
+            var cords = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(3, 3), 4);
 
             Assert.Equal(1, cords.Coords1.X);
             Assert.Equal(1, cords.Coords1.Y);
@@ -27,7 +27,7 @@ namespace PixiEditorTests.ModelsTests.PositionTests
         [Fact]
         public void CalculateSquareOddThicknessCenterTest()
         {
-            DoubleCords cords = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(3, 3), 3);
+            var cords = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(3, 3), 3);
 
             Assert.Equal(2, cords.Coords1.X);
             Assert.Equal(2, cords.Coords1.Y);
@@ -42,7 +42,7 @@ namespace PixiEditorTests.ModelsTests.PositionTests
         [InlineData(5, 5, 9, 9, 7, 7)]
         public void TestGetCenter(int x1, int y1, int x2, int y2, int expectedX, int expectedY)
         {
-            Coordinates center = CoordinatesCalculator.GetCenterPoint(new Coordinates(x1, y1), new Coordinates(x2, y2));
+            var center = CoordinatesCalculator.GetCenterPoint(new Coordinates(x1, y1), new Coordinates(x2, y2));
             Assert.Equal(new Coordinates(expectedX, expectedY), center);
         }
     }

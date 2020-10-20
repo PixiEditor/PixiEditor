@@ -40,7 +40,7 @@ namespace PixiEditor.Helpers.Behaviours
         {
             if (e.DataObject.GetDataPresent(DataFormats.Text))
             {
-                string text = Convert.ToString(e.DataObject.GetData(DataFormats.Text));
+                var text = Convert.ToString(e.DataObject.GetData(DataFormats.Text));
 
                 if (!IsValid(text, true)) e.CancelCommand();
             }
@@ -78,7 +78,7 @@ namespace PixiEditor.Helpers.Behaviours
         {
             var countOfSelectedChars = AssociatedObject.SelectedText.Length;
             var caretIndex = AssociatedObject.CaretIndex;
-            string text = AssociatedObject.Text;
+            var text = AssociatedObject.Text;
 
             if (countOfSelectedChars > 0 || paste)
             {

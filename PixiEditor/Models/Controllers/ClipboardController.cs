@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -22,14 +21,14 @@ namespace PixiEditor.Models.Controllers
         public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight)
         {
             Clipboard.Clear();
-            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(layers, originalImageWidth, originalImageHeight);
+            var combinedBitmaps = BitmapUtils.CombineLayers(layers, originalImageWidth, originalImageHeight);
             using (var pngStream = new MemoryStream())
             {
-                DataObject data = new DataObject();
+                var data = new DataObject();
                 var croppedBmp = BitmapSelectionToBmpSource(combinedBitmaps, selection);
                 data.SetData(DataFormats.Bitmap, croppedBmp, true); //Bitmap, no transparency support
 
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                var encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(croppedBmp));
                 encoder.Save(pngStream);
                 data.SetData("PNG", pngStream, false); //PNG, supports transparency
@@ -44,7 +43,7 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void PasteFromClipboard()
         {
-            WriteableBitmap image = GetImageFromClipboard();
+            var image = GetImageFromClipboard();
             if (image != null) AddImageToLayers(image);
         }
 
@@ -54,14 +53,14 @@ namespace PixiEditor.Models.Controllers
         /// <returns>WriteableBitmap</returns>
         public static WriteableBitmap GetImageFromClipboard()
         {
-            DataObject dao = (DataObject)Clipboard.GetDataObject();
+            var dao = (DataObject) Clipboard.GetDataObject();
             WriteableBitmap finalImage = null;
             if (dao.GetDataPresent("PNG"))
-                using (MemoryStream pngStream = dao.GetData("PNG") as MemoryStream)
+                using (var pngStream = dao.GetData("PNG") as MemoryStream)
                 {
                     if (pngStream != null)
                     {
-                        PngBitmapDecoder decoder = new PngBitmapDecoder(pngStream, BitmapCreateOptions.IgnoreImageCache,
+                        var decoder = new PngBitmapDecoder(pngStream, BitmapCreateOptions.IgnoreImageCache,
                             BitmapCacheOption.OnLoad);
                         finalImage = new WriteableBitmap(decoder.Frames[0].Clone());
                     }
@@ -76,7 +75,7 @@ namespace PixiEditor.Models.Controllers
 
         public static bool IsImageInClipboard()
         {
-            DataObject dao = (DataObject) Clipboard.GetDataObject();
+            var dao = (DataObject) Clipboard.GetDataObject();
             if (dao == null) return false;
             return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) ||
                    dao.GetDataPresent(DataFormats.Bitmap);
@@ -89,10 +88,10 @@ namespace PixiEditor.Models.Controllers
 
         public static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection)
         {
-            int offsetX = selection.Min(x => x.X);
-            int offsetY = selection.Min(x => x.Y);
-            int width = selection.Max(x => x.X) - offsetX + 1;
-            int height = selection.Max(x => x.Y) - offsetY + 1;
+            var offsetX = selection.Min(x => x.X);
+            var offsetY = selection.Min(x => x.Y);
+            var width = selection.Max(x => x.X) - offsetX + 1;
+            var height = selection.Max(x => x.Y) - offsetY + 1;
             return bitmap.Crop(offsetX, offsetY, width, height);
         }
     }

@@ -15,8 +15,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private PortableColorPicker GenerateColorPicker()
         {
-            PortableColorPicker picker = new PortableColorPicker();
-            Binding binding = new Binding("Value")
+            var picker = new PortableColorPicker();
+            var binding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay
             };

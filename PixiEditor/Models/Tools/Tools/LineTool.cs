@@ -12,26 +12,26 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class LineTool : ShapeTool
     {
-        public override ToolType ToolType => ToolType.Line;
-
         public LineTool()
         {
             Tooltip = "Draws line on canvas (L). Hold Shift to draw even line.";
             Toolbar = new BasicToolbar();
         }
 
+        public override ToolType ToolType => ToolType.Line;
+
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             var pixels =
                 BitmapPixelChanges.FromSingleColoredArray(
-                    CreateLine(coordinates, 
+                    CreateLine(coordinates,
                         Toolbar.GetSetting<SizeSetting>("ToolSize").Value, CapType.Square, CapType.Square), color);
             return Only(pixels, layer);
         }
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness)
         {
-            return CreateLine(new[] { end, start }, thickness, CapType.Square, CapType.Square);
+            return CreateLine(new[] {end, start}, thickness, CapType.Square, CapType.Square);
         }
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap,
@@ -42,8 +42,8 @@ namespace PixiEditor.Models.Tools.Tools
 
         private IEnumerable<Coordinates> CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
         {
-            Coordinates startingCoordinates = coordinates[^1];
-            Coordinates latestCoordinates = coordinates[0];
+            var startingCoordinates = coordinates[^1];
+            var latestCoordinates = coordinates[0];
             if (thickness == 1)
                 return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X,
                     latestCoordinates.Y);
@@ -57,16 +57,12 @@ namespace PixiEditor.Models.Tools.Tools
 
             var line = BresenhamLine(start.X, start.Y, end.X, end.Y);
 
-            List<Coordinates> output = new List<Coordinates>(startingCap);
+            var output = new List<Coordinates>(startingCap);
 
             output.AddRange(GetCapCoordinates(endCap, end, thickness));
-            if (line.Count() > 2)
-            {
-                output.AddRange(GetThickShape(line.Except(new []{start,end}).ToArray(), thickness));
-            }
+            if (line.Count() > 2) output.AddRange(GetThickShape(line.Except(new[] {start, end}).ToArray(), thickness));
 
             return output.Distinct();
-
         }
 
         private IEnumerable<Coordinates> GetCapCoordinates(CapType cap, Coordinates position, int thickness)
@@ -77,8 +73,8 @@ namespace PixiEditor.Models.Tools.Tools
                 {
                     return GetRoundCap(position, thickness); // Round cap is not working very well, circle tool must be improved
                 }
-                default: 
-                    return GetThickShape(new[] { position }, thickness);
+                default:
+                    return GetThickShape(new[] {position}, thickness);
             }
         }
 
@@ -90,7 +86,7 @@ namespace PixiEditor.Models.Tools.Tools
         /// <returns></returns>
         private IEnumerable<Coordinates> GetRoundCap(Coordinates position, int thickness)
         {
-            CircleTool circle = new CircleTool();
+            var circle = new CircleTool();
             var rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
             return circle.CreateEllipse(rectangleCords[0], rectangleCords[^1], 1, true);
@@ -98,7 +94,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         private IEnumerable<Coordinates> BresenhamLine(int x1, int y1, int x2, int y2)
         {
-            List<Coordinates> coordinates = new List<Coordinates>();
+            var coordinates = new List<Coordinates>();
             if (x1 == x2 && y1 == y2) return new[] {new Coordinates(x1, y1)};
 
             int d, dx, dy, ai, bi, xi, yi;

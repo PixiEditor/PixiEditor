@@ -10,7 +10,6 @@ namespace PixiEditor.Models.DataHolders
 {
     public struct BitmapPixelChanges
     {
-
         public bool WasBuiltAsSingleColored { get; private set; }
 
         public static BitmapPixelChanges Empty => new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
@@ -30,11 +29,8 @@ namespace PixiEditor.Models.DataHolders
         /// <returns>Single-colored BitmapPixelChanges</returns>
         public static BitmapPixelChanges FromSingleColoredArray(IEnumerable<Coordinates> coordinates, Color color)
         {
-            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
-            foreach (var coordinate in coordinates)
-            {
-                dict.Add(coordinate, color);
-            }
+            var dict = new Dictionary<Coordinates, Color>();
+            foreach (var coordinate in coordinates) dict.Add(coordinate, color);
             return new BitmapPixelChanges(dict) {WasBuiltAsSingleColored = true};
         }
 
@@ -46,9 +42,9 @@ namespace PixiEditor.Models.DataHolders
         public static BitmapPixelChanges CombineOverride(BitmapPixelChanges[] changes)
         {
             if (changes == null || changes.Length == 0) throw new ArgumentException();
-            BitmapPixelChanges output = Empty;
+            var output = Empty;
 
-            for (int i = 0; i < changes.Length; i++) output.ChangedPixels.AddRangeOverride(changes[i].ChangedPixels);
+            for (var i = 0; i < changes.Length; i++) output.ChangedPixels.AddRangeOverride(changes[i].ChangedPixels);
             return output;
         }
 
@@ -63,8 +59,8 @@ namespace PixiEditor.Models.DataHolders
             var coordinateArray = coordinates.ToArray();
             var colorArray = color.ToArray();
             if (coordinateArray.Length != colorArray.Length) throw new ArrayLengthMismatchException();
-            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
-            for (int i = 0; i < coordinateArray.Length; i++) dict.Add(coordinateArray[i], colorArray[i]);
+            var dict = new Dictionary<Coordinates, Color>();
+            for (var i = 0; i < coordinateArray.Length; i++) dict.Add(coordinateArray[i], colorArray[i]);
             return new BitmapPixelChanges(dict);
         }
     }

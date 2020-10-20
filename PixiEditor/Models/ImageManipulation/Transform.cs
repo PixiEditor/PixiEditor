@@ -12,15 +12,15 @@ namespace PixiEditor.Models.ImageManipulation
         /// <returns>Translation as coordinate</returns>
         public static Coordinates GetTranslation(Coordinates from, Coordinates to)
         {
-            int translationX = to.X - from.X;
-            int translationY = to.Y - from.Y;
+            var translationX = to.X - from.X;
+            var translationY = to.Y - from.Y;
             return new Coordinates(translationX, translationY);
         }
 
         public static Coordinates[] Translate(Coordinates[] points, Coordinates vector)
         {
-            Coordinates[] translatedPoints = new Coordinates[points.Length];
-            for (int i = 0; i < translatedPoints.Length; i++)
+            var translatedPoints = new Coordinates[points.Length];
+            for (var i = 0; i < translatedPoints.Length; i++)
                 translatedPoints[i] = new Coordinates(points[i].X + vector.X, points[i].Y + vector.Y);
             return translatedPoints;
         }

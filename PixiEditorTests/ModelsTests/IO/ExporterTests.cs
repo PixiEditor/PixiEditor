@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
@@ -19,7 +16,7 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatSaveAsPngSavesFile()
         {
-            Exporter.SaveAsPng(FilePath, 10, 10, BitmapFactory.New(10,10));
+            Exporter.SaveAsPng(FilePath, 10, 10, BitmapFactory.New(10, 10));
             Assert.True(File.Exists(FilePath));
 
             File.Delete(FilePath);
@@ -28,12 +25,12 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatSaveAsEditableFileSavesPixiFile()
         {
-            Document document = new Document(2,2);
+            var document = new Document(2, 2);
 
-            string filePath = "testFile.pixi";
+            var filePath = "testFile.pixi";
 
             document.Layers.Add(new Layer("layer1"));
-            document.Layers[0].SetPixel(new Coordinates(1,1), Colors.White);
+            document.Layers[0].SetPixel(new Coordinates(1, 1), Colors.White);
 
             document.Swatches.Add(Colors.White);
 

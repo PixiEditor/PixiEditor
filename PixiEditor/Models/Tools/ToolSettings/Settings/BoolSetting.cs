@@ -23,13 +23,13 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private Control GenerateCheckBox()
         {
-            CheckBox checkBox = new CheckBox
+            var checkBox = new CheckBox
             {
                 IsChecked = Value,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            Binding binding = new Binding("Value")
+            var binding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay
             };

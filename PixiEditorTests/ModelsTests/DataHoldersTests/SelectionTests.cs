@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
@@ -11,11 +8,10 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 {
     public class SelectionTests
     {
-
         [Fact]
         public void TestThatSetSelectionNewSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
+            var selection = new Selection(Array.Empty<Coordinates>());
             Coordinates[] points = {new Coordinates(0, 0), new Coordinates(1, 1)};
 
             selection.SetSelection(points, SelectionType.New);
@@ -27,9 +23,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionAddSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
-            Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
-            Coordinates[] points2 = { new Coordinates(2, 4), new Coordinates(5, 7) };
+            var selection = new Selection(Array.Empty<Coordinates>());
+            Coordinates[] points = {new Coordinates(0, 0), new Coordinates(1, 1)};
+            Coordinates[] points2 = {new Coordinates(2, 4), new Coordinates(5, 7)};
 
             selection.SetSelection(points, SelectionType.Add);
             selection.SetSelection(points2, SelectionType.Add); //Doing it twice, to check if it sets every time properly
@@ -40,9 +36,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionSubtractSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
-            Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
-            Coordinates[] points2 = { new Coordinates(1, 1)};
+            var selection = new Selection(Array.Empty<Coordinates>());
+            Coordinates[] points = {new Coordinates(0, 0), new Coordinates(1, 1)};
+            Coordinates[] points2 = {new Coordinates(1, 1)};
 
             selection.SetSelection(points, SelectionType.Add);
             selection.SetSelection(points2, SelectionType.Subtract); //Doing it twice, to check if it sets every time properly
@@ -53,12 +49,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestClearWorks()
         {
-            Selection selection = new Selection(new []{new Coordinates(0,0), new Coordinates(5,7)});
+            var selection = new Selection(new[] {new Coordinates(0, 0), new Coordinates(5, 7)});
             selection.Clear();
 
             Assert.Empty(selection.SelectedPoints);
-            Assert.Equal(0,selection.SelectionLayer.Width + selection.SelectionLayer.Height);
+            Assert.Equal(0, selection.SelectionLayer.Width + selection.SelectionLayer.Height);
         }
-
     }
 }

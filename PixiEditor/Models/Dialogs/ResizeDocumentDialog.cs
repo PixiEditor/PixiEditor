@@ -5,17 +5,27 @@ namespace PixiEditor.Models.Dialogs
 {
     public class ResizeDocumentDialog : CustomDialog
     {
+        private int height;
+        private int width;
+
+        public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
+        {
+            Width = currentWidth;
+            Height = currentHeight;
+            OpenResizeCanvas = openResizeCanvas;
+        }
+
         public bool OpenResizeCanvas { get; set; }
         public AnchorPoint ResizeAnchor { get; set; }
 
         public int Width
         {
-            get => _width;
+            get => width;
             set
             {
-                if (_width != value)
+                if (width != value)
                 {
-                    _width = value;
+                    width = value;
                     RaisePropertyChanged("Width");
                 }
             }
@@ -23,25 +33,15 @@ namespace PixiEditor.Models.Dialogs
 
         public int Height
         {
-            get => _height;
+            get => height;
             set
             {
-                if (_height != value)
+                if (height != value)
                 {
-                    _height = value;
+                    height = value;
                     RaisePropertyChanged("Height");
                 }
             }
-        }
-
-        private int _height;
-        private int _width;
-
-        public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
-        {
-            Width = currentWidth;
-            Height = currentHeight;
-            OpenResizeCanvas = openResizeCanvas;
         }
 
         public override bool ShowDialog()
@@ -51,7 +51,7 @@ namespace PixiEditor.Models.Dialogs
 
         private bool ShowResizeDocumentCanvas()
         {
-            ResizeDocumentPopup popup = new ResizeDocumentPopup
+            var popup = new ResizeDocumentPopup
             {
                 NewHeight = Height,
                 NewWidth = Width
@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Dialogs
 
         private bool ShowResizeCanvasDialog()
         {
-            ResizeCanvasPopup popup = new ResizeCanvasPopup
+            var popup = new ResizeCanvasPopup
             {
                 NewHeight = Height,
                 NewWidth = Width

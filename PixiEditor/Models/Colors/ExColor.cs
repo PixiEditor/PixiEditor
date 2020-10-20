@@ -18,13 +18,13 @@ namespace PixiEditor.Models.Colors
         /// </returns>
         public static Color ChangeColorBrightness(Color color, float correctionFactor)
         {
-            Tuple<int, float, float> hsl = RgbToHsl(color.R, color.G, color.B);
-            int h = hsl.Item1;
-            float s = hsl.Item2;
-            float l = hsl.Item3;
+            var hsl = RgbToHsl(color.R, color.G, color.B);
+            var h = hsl.Item1;
+            var s = hsl.Item2;
+            var l = hsl.Item3;
 
             l = Math.Clamp(l + correctionFactor, 0, 100);
-            Color rgb = HslToRGB(h, s, l);
+            var rgb = HslToRgb(h, s, l);
 
             return Color.FromArgb(color.A, rgb.R, rgb.G, rgb.B);
         }
@@ -41,13 +41,13 @@ namespace PixiEditor.Models.Colors
         {
             int h;
             float s, l;
-            float dR = r / 255.0f;
-            float dG = g / 255.0f;
-            float dB = b / 255.0f;
+            var dR = r / 255.0f;
+            var dG = g / 255.0f;
+            var dB = b / 255.0f;
 
-            float min = Math.Min(Math.Min(dR, dG), dB);
-            float max = Math.Max(Math.Max(dR, dG), dB);
-            float delta = max - min;
+            var min = Math.Min(Math.Min(dR, dG), dB);
+            var max = Math.Max(Math.Max(dR, dG), dB);
+            var delta = max - min;
 
             l = (max + min) / 2;
 
@@ -87,7 +87,7 @@ namespace PixiEditor.Models.Colors
         /// <param name="s"></param>
         /// <param name="l"></param>
         /// <returns>RGB Color</returns>
-        public static Color HslToRGB(int h, float s, float l)
+        public static Color HslToRgb(int h, float s, float l)
         {
             s /= 100;
             l /= 100;
@@ -102,20 +102,20 @@ namespace PixiEditor.Models.Colors
             else
             {
                 float v1, v2;
-                float hue = (float) h / 360;
+                var hue = (float) h / 360;
 
                 v2 = l < 0.5 ? l * (1 + s) : l + s - l * s;
                 v1 = 2 * l - v2;
 
-                r = (byte) (255 * HueToRGB(v1, v2, hue + 1.0f / 3));
-                g = (byte) (255 * HueToRGB(v1, v2, hue));
-                b = (byte) (255 * HueToRGB(v1, v2, hue - 1.0f / 3));
+                r = (byte) (255 * HueToRgb(v1, v2, hue + 1.0f / 3));
+                g = (byte) (255 * HueToRgb(v1, v2, hue));
+                b = (byte) (255 * HueToRgb(v1, v2, hue - 1.0f / 3));
             }
 
             return Color.FromRgb(r, g, b);
         }
 
-        private static float HueToRGB(float v1, float v2, float hue)
+        private static float HueToRgb(float v1, float v2, float hue)
         {
             if (hue < 0)
                 hue += 1;

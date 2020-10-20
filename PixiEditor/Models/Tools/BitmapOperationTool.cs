@@ -13,12 +13,12 @@ namespace PixiEditor.Models.Tools
 
         protected LayerChange[] Only(BitmapPixelChanges changes, Layer layer)
         {
-            return new[] { new LayerChange(changes, layer) };
+            return new[] {new LayerChange(changes, layer)};
         }
 
         protected LayerChange[] Only(BitmapPixelChanges changes, int layerIndex)
         {
-            return new[] { new LayerChange(changes, layerIndex) };
+            return new[] {new LayerChange(changes, layerIndex)};
         }
     }
 }

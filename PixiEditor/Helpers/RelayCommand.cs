@@ -7,8 +7,8 @@ namespace PixiEditor.Helpers
     {
         #region Fields
 
-        private readonly Action<object> _execute;
-        private readonly Predicate<object> _canExecute;
+        private readonly Action<object> execute;
+        private readonly Predicate<object> canExecute;
 
         #endregion // Fields
 
@@ -24,8 +24,8 @@ namespace PixiEditor.Helpers
             if (execute == null)
                 throw new ArgumentNullException("execute");
 
-            _execute = execute;
-            _canExecute = canExecute;
+            this.execute = execute;
+            this.canExecute = canExecute;
         }
 
         #endregion // Constructors
@@ -34,7 +34,7 @@ namespace PixiEditor.Helpers
 
         public bool CanExecute(object parameter)
         {
-            return _canExecute == null ? true : _canExecute(parameter);
+            return canExecute == null ? true : canExecute(parameter);
         }
 
         public event EventHandler CanExecuteChanged
@@ -45,7 +45,7 @@ namespace PixiEditor.Helpers
 
         public void Execute(object parameter)
         {
-            _execute(parameter);
+            execute(parameter);
         }
 
         #endregion // ICommand Members

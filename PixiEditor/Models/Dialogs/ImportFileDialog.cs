@@ -4,14 +4,20 @@ namespace PixiEditor.Models.Dialogs
 {
     internal class ImportFileDialog : CustomDialog
     {
+        private int fileHeight;
+
+
+        private string filePath;
+        private int fileWidth;
+
         public int FileWidth
         {
-            get => _fileWidth;
+            get => fileWidth;
             set
             {
-                if (_fileWidth != value)
+                if (fileWidth != value)
                 {
-                    _fileWidth = value;
+                    fileWidth = value;
                     RaisePropertyChanged("Width");
                 }
             }
@@ -19,12 +25,12 @@ namespace PixiEditor.Models.Dialogs
 
         public int FileHeight
         {
-            get => _fileHeight;
+            get => fileHeight;
             set
             {
-                if (_fileHeight != value)
+                if (fileHeight != value)
                 {
-                    _fileHeight = value;
+                    fileHeight = value;
                     RaisePropertyChanged("FileHeight");
                 }
             }
@@ -32,26 +38,20 @@ namespace PixiEditor.Models.Dialogs
 
         public string FilePath
         {
-            get => _filePath;
+            get => filePath;
             set
             {
-                if (_filePath != value)
+                if (filePath != value)
                 {
-                    _filePath = value;
+                    filePath = value;
                     RaisePropertyChanged("FilePath");
                 }
             }
         }
 
-        private int _fileHeight;
-
-
-        private string _filePath;
-        private int _fileWidth;
-
         public override bool ShowDialog()
         {
-            ImportFilePopup popup = new ImportFilePopup();
+            var popup = new ImportFilePopup();
             popup.FilePath = FilePath;
             popup.ShowDialog();
             if (popup.DialogResult == true)

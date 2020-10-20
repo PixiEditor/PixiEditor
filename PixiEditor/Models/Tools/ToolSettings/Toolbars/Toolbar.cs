@@ -29,7 +29,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         public T GetSetting<T>(string name)
             where T : Setting
         {
-            Setting setting =  Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
+            var setting = Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
 
             if (setting == null || !(setting is T convertedSetting))
                 return null;
@@ -42,7 +42,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void SaveToolbarSettings()
         {
-            foreach (Setting setting in Settings)
+            foreach (var setting in Settings)
                 AddSettingToCollection(SharedSettings, setting);
         }
 
@@ -51,13 +51,13 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void LoadSharedSettings()
         {
-            foreach (Setting sharedSetting in SharedSettings)
+            foreach (var sharedSetting in SharedSettings)
                 AddSettingToCollection(Settings, sharedSetting);
         }
 
         private static void AddSettingToCollection(ICollection<Setting> collection, Setting setting)
         {
-            Setting storedSetting = collection.FirstOrDefault(currentSetting => currentSetting.Name == setting.Name);
+            var storedSetting = collection.FirstOrDefault(currentSetting => currentSetting.Name == setting.Name);
             if (storedSetting != null)
                 collection.Remove(storedSetting);
 

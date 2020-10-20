@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Views
@@ -56,7 +55,7 @@ namespace PixiEditor.Views
         {
             if ((bool) e.NewValue)
             {
-                EditableTextBlock tb = (EditableTextBlock) d;
+                var tb = (EditableTextBlock) d;
                 tb.EnableEditing();
             }
         }

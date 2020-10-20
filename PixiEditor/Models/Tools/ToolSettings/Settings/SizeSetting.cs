@@ -18,7 +18,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private TextBox GenerateTextBox()
         {
-            TextBox tb = new TextBox
+            var tb = new TextBox
             {
                 TextAlignment = TextAlignment.Center,
                 MaxLength = 4,
@@ -26,18 +26,15 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 Height = 20
             };
 
-            if (Application.Current != null)
-            {
-                tb.Style = (Style)Application.Current.TryFindResource("DarkTextBoxStyle");
-            }
+            if (Application.Current != null) tb.Style = (Style) Application.Current.TryFindResource("DarkTextBoxStyle");
 
-            Binding binding = new Binding("Value")
+            var binding = new Binding("Value")
             {
                 Converter = new ToolSizeToIntConverter(),
                 Mode = BindingMode.TwoWay
             };
             tb.SetBinding(TextBox.TextProperty, binding);
-            TextBoxFocusBehavior behavor = new TextBoxFocusBehavior
+            var behavor = new TextBoxFocusBehavior
             {
                 FillSize = true
             };

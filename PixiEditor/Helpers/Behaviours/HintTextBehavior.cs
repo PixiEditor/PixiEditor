@@ -12,7 +12,7 @@ namespace PixiEditor.Helpers.Behaviours
             DependencyProperty.Register("Hint", typeof(string), typeof(HintTextBehavior),
                 new PropertyMetadata(string.Empty));
 
-        private Brush _textColor;
+        private Brush textColor;
 
         public string Hint
         {
@@ -26,7 +26,7 @@ namespace PixiEditor.Helpers.Behaviours
             base.OnAttached();
             AssociatedObject.GotFocus += AssociatedObject_GotFocus;
             AssociatedObject.LostFocus += AssociatedObject_LostFocus;
-            _textColor = AssociatedObject.Foreground;
+            textColor = AssociatedObject.Foreground;
             SetHint(true);
         }
 
@@ -50,7 +50,7 @@ namespace PixiEditor.Helpers.Behaviours
             else
             {
                 AssociatedObject.Text = string.Empty;
-                AssociatedObject.Foreground = _textColor;
+                AssociatedObject.Foreground = textColor;
             }
         }
 
