@@ -27,10 +27,9 @@ namespace PixiEditor.Views
 
         public string Text
         {
-            get => (string) GetValue(MenuButtonTextProperty);
+            get => (string)GetValue(MenuButtonTextProperty);
             set => SetValue(MenuButtonTextProperty, value);
         }
-
 
         public object Item
         {

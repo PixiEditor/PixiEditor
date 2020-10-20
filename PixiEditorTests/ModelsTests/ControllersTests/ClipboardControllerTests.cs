@@ -18,7 +18,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             Clipboard.Clear();
             Clipboard.SetText("Text data");
-            var img = ClipboardController.GetImageFromClipboard();
+            WriteableBitmap img = ClipboardController.GetImageFromClipboard();
             Assert.Null(img);
         }
 
@@ -33,8 +33,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [StaFact]
         public void TestThatClipboardControllerSavesImageToClipboard()
         {
-            var testLayer = new Layer("test layer", 10, 10);
-            ClipboardController.CopyToClipboard(new[] {testLayer}, CoordinatesCalculator.RectangleToCoordinates(0, 0, 9, 9), 10, 10);
+            Layer testLayer = new Layer("test layer", 10, 10);
+            ClipboardController.CopyToClipboard(new[] { testLayer }, CoordinatesCalculator.RectangleToCoordinates(0, 0, 9, 9), 10, 10);
             Assert.True(ClipboardController.IsImageInClipboard());
         }
 
@@ -43,22 +43,22 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             Clipboard.Clear();
 
-            var testLayer = new Layer("test layer", 10, 10);
-            var testLayer2 = new Layer("test layer", 10, 10);
+            Layer testLayer = new Layer("test layer", 10, 10);
+            Layer testLayer2 = new Layer("test layer", 10, 10);
             testLayer.SetPixel(new Coordinates(4, 4), testColor);
             testLayer2.SetPixel(new Coordinates(5, 5), testColor);
 
-            ClipboardController.CopyToClipboard(new[] {testLayer, testLayer2},
-                new[] {new Coordinates(4, 4), new Coordinates(5, 5)}, 10, 10);
+            ClipboardController.CopyToClipboard(new[] { testLayer, testLayer2 },
+                new[] { new Coordinates(4, 4), new Coordinates(5, 5) }, 10, 10);
 
-            var img = Clipboard.GetImage(); // Using default Clipboard get image to avoid false positives from faulty ClipboardController GetImage
+            BitmapSource img = Clipboard.GetImage(); // Using default Clipboard get image to avoid false positives from faulty ClipboardController GetImage
 
             Assert.True(ClipboardController.IsImageInClipboard());
             Assert.NotNull(img);
             Assert.Equal(2, img.PixelWidth);
             Assert.Equal(2, img.PixelHeight);
 
-            var bmp = new WriteableBitmap(img);
+            WriteableBitmap bmp = new WriteableBitmap(img);
             Assert.Equal(testColor, bmp.GetPixel(0, 0));
             Assert.Equal(testColor, bmp.GetPixel(1, 1));
         }
@@ -67,11 +67,11 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatClipboardControllerGetsCorrectImageInDibFormatFromClipboard()
         {
             Clipboard.Clear();
-            var bmp = BitmapFactory.New(10, 10);
+            WriteableBitmap bmp = BitmapFactory.New(10, 10);
             bmp.SetPixel(4, 4, testColor);
             Clipboard.SetImage(bmp);
 
-            var img = ClipboardController.GetImageFromClipboard();
+            WriteableBitmap img = ClipboardController.GetImageFromClipboard();
             Assert.NotNull(img);
             Assert.Equal(10, img.PixelWidth);
             Assert.Equal(10, img.PixelHeight);
@@ -82,20 +82,20 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatClipboardControllerGetsCorrectImageInPngFormatFromClipboard()
         {
             Clipboard.Clear();
-            var bmp = BitmapFactory.New(10, 10);
+            WriteableBitmap bmp = BitmapFactory.New(10, 10);
             bmp.SetPixel(4, 4, testColor);
-            using (var pngStream = new MemoryStream())
+            using (MemoryStream pngStream = new MemoryStream())
             {
-                var data = new DataObject();
+                DataObject data = new DataObject();
 
-                var encoder = new PngBitmapEncoder();
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(bmp));
                 encoder.Save(pngStream);
-                data.SetData("PNG", pngStream, false); //PNG, supports transparency
+                data.SetData("PNG", pngStream, false); // PNG, supports transparency
                 Clipboard.SetDataObject(data, true);
             }
 
-            var img = ClipboardController.GetImageFromClipboard();
+            WriteableBitmap img = ClipboardController.GetImageFromClipboard();
             Assert.NotNull(img);
             Assert.Equal(10, img.PixelWidth);
             Assert.Equal(10, img.PixelHeight);
@@ -106,14 +106,14 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatClipboardControllerGetsCorrectImageInBitmapFormatFromClipboard()
         {
             Clipboard.Clear();
-            var bmp = BitmapFactory.New(10, 10);
+            WriteableBitmap bmp = BitmapFactory.New(10, 10);
             bmp.SetPixel(4, 4, testColor);
 
-            var data = new DataObject();
-            data.SetData(DataFormats.Bitmap, bmp, false); //PNG, supports transparency
+            DataObject data = new DataObject();
+            data.SetData(DataFormats.Bitmap, bmp, false); // PNG, supports transparency
             Clipboard.SetDataObject(data, true);
 
-            var img = ClipboardController.GetImageFromClipboard();
+            WriteableBitmap img = ClipboardController.GetImageFromClipboard();
             Assert.NotNull(img);
             Assert.Equal(10, img.PixelWidth);
             Assert.Equal(10, img.PixelHeight);

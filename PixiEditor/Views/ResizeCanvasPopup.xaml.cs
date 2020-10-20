@@ -27,27 +27,23 @@ namespace PixiEditor.Views
             InitializeComponent();
         }
 
-
         public AnchorPoint SelectedAnchorPoint
         {
-            get => (AnchorPoint) GetValue(SelectedAnchorPointProperty);
+            get => (AnchorPoint)GetValue(SelectedAnchorPointProperty);
             set => SetValue(SelectedAnchorPointProperty, value);
         }
 
-
         public int NewHeight
         {
-            get => (int) GetValue(NewHeightProperty);
+            get => (int)GetValue(NewHeightProperty);
             set => SetValue(NewHeightProperty, value);
         }
 
-
         public int NewWidth
         {
-            get => (int) GetValue(NewWidthProperty);
+            get => (int)GetValue(NewWidthProperty);
             set => SetValue(NewWidthProperty, value);
         }
-
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {

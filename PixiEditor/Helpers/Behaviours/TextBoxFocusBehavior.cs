@@ -13,20 +13,22 @@ namespace PixiEditor.Helpers.Behaviours
             DependencyProperty.Register("FillSize", typeof(bool), typeof(TextBoxFocusBehavior),
                 new PropertyMetadata(false));
 
-
-        private string oldText; //Value of textbox before editing
-        private bool valueConverted; //This bool is used to avoid double convertion if enter is hitted
+        private string oldText; // Value of textbox before editing
+        private bool valueConverted; // This bool is used to avoid double convertion if enter is hitted
 
         public bool FillSize
         {
-            get => (bool) GetValue(FillSizeProperty);
+            get => (bool)GetValue(FillSizeProperty);
             set => SetValue(FillSizeProperty, value);
         }
 
-        //Converts number to proper format if enter is clicked and moves focus to next object
+        // Converts number to proper format if enter is clicked and moves focus to next object
         private void AssociatedObject_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Enter) return;
+            if (e.Key != Key.Enter)
+            {
+                return;
+            }
 
             ConvertValue();
             AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
@@ -59,7 +61,7 @@ namespace PixiEditor.Helpers.Behaviours
             if (FillSize)
             {
                 valueConverted = false;
-                oldText = AssociatedObject.Text; //Sets old value when keyboard is focused on object
+                oldText = AssociatedObject.Text; // Sets old value when keyboard is focused on object
             }
         }
 
@@ -88,12 +90,20 @@ namespace PixiEditor.Helpers.Behaviours
         /// </summary>
         private void ConvertValue()
         {
-            if (valueConverted || FillSize == false) return;
+            if (valueConverted || FillSize == false)
+            {
+                return;
+            }
 
-            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out var result) && result > 0)
+            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out int result) && result > 0)
+            {
                 AssociatedObject.Text = $"{AssociatedObject.Text} px";
-            else //If text in textbox isn't number, set it to old value
+            }
+            else // If text in textbox isn't number, set it to old value
+            {
                 AssociatedObject.Text = oldText;
+            }
+
             valueConverted = true;
         }
     }

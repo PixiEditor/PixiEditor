@@ -13,8 +13,8 @@ namespace PixiEditorTests.UpdateModuleTests
         [InlineData("0.2.1", "0.1.3", false)]
         public void TestThatCheckUpdateAvailableChecksCorrectly(string currentVersion, string newVersion, bool expectedValue)
         {
-            var checker = new UpdateChecker(currentVersion);
-            var result = checker.CheckUpdateAvailable(new ReleaseInfo(true) {TagName = newVersion});
+            UpdateChecker checker = new UpdateChecker(currentVersion);
+            bool result = checker.CheckUpdateAvailable(new ReleaseInfo(true) { TagName = newVersion });
             Assert.True(result == expectedValue);
         }
 

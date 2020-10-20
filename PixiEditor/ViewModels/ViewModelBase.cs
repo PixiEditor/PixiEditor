@@ -11,18 +11,24 @@ namespace PixiEditor.ViewModels
 
         protected void RaisePropertyChanged(string property)
         {
-            if (property != null) PropertyChanged(this, new PropertyChangedEventArgs(property));
+            if (property != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
         }
 
         protected void CloseButton(object parameter)
         {
-            ((Window) parameter).Close();
+            ((Window)parameter).Close();
         }
 
         protected void DragMove(object parameter)
         {
-            var popup = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
-            if (Mouse.LeftButton == MouseButtonState.Pressed) popup.DragMove();
+            Window popup = Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                popup.DragMove();
+            }
         }
     }
 }

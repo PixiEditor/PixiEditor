@@ -11,15 +11,11 @@ namespace PixiEditor.ViewModels
     {
         private string filePath;
 
-
         private int importHeight = 16;
-
 
         private int importWidth = 16;
 
-
         private string pathButtonBorder = "#f08080";
-
 
         private bool pathIsCorrect;
 
@@ -32,8 +28,11 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
+
         public RelayCommand DragMoveCommand { get; set; }
+
         public RelayCommand ChoosePathCommand { get; set; }
+
         public RelayCommand OkCommand { get; set; }
 
         public string PathButtonBorder
@@ -108,7 +107,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void ChoosePath(object parameter)
         {
-            var path = new OpenFileDialog
+            OpenFileDialog path = new OpenFileDialog
             {
                 Title = "Import path",
                 CheckPathExists = true,
@@ -135,7 +134,7 @@ namespace PixiEditor.ViewModels
                 PathButtonBorder = "#b8f080";
                 PathIsCorrect = true;
                 filePath = path;
-                var bitmap = new BitmapImage(new Uri(path));
+                BitmapImage bitmap = new BitmapImage(new Uri(path));
                 ImportHeight = bitmap.PixelHeight;
                 ImportWidth = bitmap.PixelWidth;
             }
@@ -143,7 +142,7 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window) parameter).DialogResult = false;
+            ((Window)parameter).DialogResult = false;
             CloseButton(parameter);
         }
 
@@ -154,7 +153,7 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
-            ((Window) parameter).DialogResult = true;
+            ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
         }
 

@@ -19,7 +19,7 @@ namespace PixiEditor.UpdateInstaller
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            var vmm = (ViewModelMain)DataContext;
+            ViewModelMain vmm = (ViewModelMain)DataContext;
             await Task.Run(() =>
             {
                 try
@@ -33,7 +33,7 @@ namespace PixiEditor.UpdateInstaller
                 }
                 finally
                 {
-                    var pixiEditorExecutablePath = Directory.GetFiles(vmm.UpdateDirectory, "PixiEditor.exe")[0];
+                    string pixiEditorExecutablePath = Directory.GetFiles(vmm.UpdateDirectory, "PixiEditor.exe")[0];
                     Process.Start(pixiEditorExecutablePath);
                 }
             });

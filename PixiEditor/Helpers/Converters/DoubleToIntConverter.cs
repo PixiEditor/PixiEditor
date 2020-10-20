@@ -10,8 +10,8 @@ namespace PixiEditor.Helpers.Converters
         {
             if (value is double || value is float)
             {
-                var val = (double) value;
-                return (int) val;
+                double val = (double)value;
+                return (int)val;
             }
 
             return value;

@@ -9,6 +9,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
     public abstract class Toolbar
     {
         private static readonly List<Setting> SharedSettings = new List<Setting>();
+
         public ObservableCollection<Setting> Settings { get; set; } = new ObservableCollection<Setting>();
 
         /// <summary>
@@ -29,10 +30,12 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         public T GetSetting<T>(string name)
             where T : Setting
         {
-            var setting = Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
+            Setting setting = Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
 
             if (setting == null || !(setting is T convertedSetting))
+            {
                 return null;
+            }
 
             return convertedSetting;
         }
@@ -42,8 +45,10 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void SaveToolbarSettings()
         {
-            foreach (var setting in Settings)
+            foreach (Setting setting in Settings)
+            {
                 AddSettingToCollection(SharedSettings, setting);
+            }
         }
 
         /// <summary>
@@ -51,15 +56,19 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void LoadSharedSettings()
         {
-            foreach (var sharedSetting in SharedSettings)
+            foreach (Setting sharedSetting in SharedSettings)
+            {
                 AddSettingToCollection(Settings, sharedSetting);
+            }
         }
 
         private static void AddSettingToCollection(ICollection<Setting> collection, Setting setting)
         {
-            var storedSetting = collection.FirstOrDefault(currentSetting => currentSetting.Name == setting.Name);
+            Setting storedSetting = collection.FirstOrDefault(currentSetting => currentSetting.Name == setting.Name);
             if (storedSetting != null)
+            {
                 collection.Remove(storedSetting);
+            }
 
             collection.Add(setting);
         }

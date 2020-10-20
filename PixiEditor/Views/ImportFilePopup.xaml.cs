@@ -16,20 +16,17 @@ namespace PixiEditor.Views
             DataContext = dc;
         }
 
-
         public int ImportHeight
         {
             get => dc.ImportHeight;
             set => dc.ImportWidth = value;
         }
 
-
         public int ImportWidth
         {
             get => dc.ImportWidth;
             set => dc.ImportWidth = value;
         }
-
 
         public string FilePath
         {

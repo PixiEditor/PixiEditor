@@ -6,7 +6,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class ColorSetting : Setting<Color>
     {
-        public ColorSetting(string name, string label = "") : base(name)
+        public ColorSetting(string name, string label = "")
+            : base(name)
         {
             Label = label;
             SettingControl = GenerateColorPicker();
@@ -15,8 +16,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private PortableColorPicker GenerateColorPicker()
         {
-            var picker = new PortableColorPicker();
-            var binding = new Binding("Value")
+            PortableColorPicker picker = new PortableColorPicker();
+            Binding binding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay
             };

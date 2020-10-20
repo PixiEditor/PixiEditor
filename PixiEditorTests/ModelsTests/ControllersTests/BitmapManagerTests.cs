@@ -13,7 +13,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatBitmapManagerSetsCorrectTool()
         {
-            var bitmapManager = new BitmapManager();
+            BitmapManager bitmapManager = new BitmapManager();
             bitmapManager.SetActiveTool(new MockedSinglePixelPen());
             Assert.Equal(ToolType.Pen, bitmapManager.SelectedTool.ToolType);
         }
@@ -21,8 +21,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatBitmapManagerAddsEmptyNewLayer()
         {
-            var layerName = "TestLayer";
-            var bitmapManager = new BitmapManager
+            string layerName = "TestLayer";
+            BitmapManager bitmapManager = new BitmapManager
             {
                 ActiveDocument = new Document(10, 10)
             };
@@ -35,7 +35,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatBitmapManagerRemovesLayer()
         {
-            var bitmapManager = new BitmapManager
+            BitmapManager bitmapManager = new BitmapManager
             {
                 ActiveDocument = new Document(10, 10)
             };
@@ -49,14 +49,14 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatGeneratePreviewLayerGeneratesPreviewLayer()
         {
-            var bitmapManager = new BitmapManager
+            BitmapManager bitmapManager = new BitmapManager
             {
                 ActiveDocument = new Document(10, 10)
             };
             bitmapManager.GeneratePreviewLayer();
             Assert.NotNull(bitmapManager.PreviewLayer);
-            Assert.Equal(0, bitmapManager.PreviewLayer.Width + bitmapManager.PreviewLayer.Height); //Size is zero
-            Assert.Equal(0, bitmapManager.PreviewLayer.OffsetX + bitmapManager.PreviewLayer.OffsetY); //Offset is zero
+            Assert.Equal(0, bitmapManager.PreviewLayer.Width + bitmapManager.PreviewLayer.Height); // Size is zero
+            Assert.Equal(0, bitmapManager.PreviewLayer.OffsetX + bitmapManager.PreviewLayer.OffsetY); // Offset is zero
             Assert.Equal(bitmapManager.ActiveDocument.Width, bitmapManager.PreviewLayer.MaxWidth);
             Assert.Equal(bitmapManager.ActiveDocument.Height, bitmapManager.PreviewLayer.MaxHeight);
         }
@@ -64,14 +64,14 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatIsOperationToolWorks()
         {
-            var singlePixelPen = new MockedSinglePixelPen();
+            MockedSinglePixelPen singlePixelPen = new MockedSinglePixelPen();
             Assert.True(BitmapManager.IsOperationTool(singlePixelPen));
         }
 
         [StaFact]
         public void TestThatBitmapChangesExecuteToolExecutesPenTool()
         {
-            var bitmapManager = new BitmapManager
+            BitmapManager bitmapManager = new BitmapManager
             {
                 ActiveDocument = new Document(5, 5)
             };
@@ -97,7 +97,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
             return Only(
-                BitmapPixelChanges.FromSingleColoredArray(new[] {mouseMove[0]}, color), 0);
+                BitmapPixelChanges.FromSingleColoredArray(new[] { mouseMove[0] }, color), 0);
         }
     }
 }

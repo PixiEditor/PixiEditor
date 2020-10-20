@@ -54,49 +54,44 @@ namespace PixiEditor.Views
         public MainDrawingPanel()
         {
             InitializeComponent();
-            Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection {KeyModifier.RightAlt};
+            Zoombox.ZoomToSelectionModifiers = new KeyModifierCollection { KeyModifier.RightAlt };
         }
-
 
         public double ZoomPercentage
         {
-            get => (double) GetValue(ZoomPercentageProperty);
+            get => (double)GetValue(ZoomPercentageProperty);
             set => SetValue(ZoomPercentageProperty, value);
         }
 
-
         public bool Center
         {
-            get => (bool) GetValue(CenterProperty);
+            get => (bool)GetValue(CenterProperty);
             set => SetValue(CenterProperty, value);
         }
 
         public double MouseX
         {
-            get => (double) GetValue(MouseXProperty);
+            get => (double)GetValue(MouseXProperty);
             set => SetValue(MouseXProperty, value);
         }
 
         public double MouseY
         {
-            get => (double) GetValue(MouseYProperty);
+            get => (double)GetValue(MouseYProperty);
             set => SetValue(MouseYProperty, value);
         }
 
-
         public ICommand MouseMoveCommand
         {
-            get => (ICommand) GetValue(MouseMoveCommandProperty);
+            get => (ICommand)GetValue(MouseMoveCommandProperty);
             set => SetValue(MouseMoveCommandProperty, value);
         }
 
-
         public bool CenterOnStart
         {
-            get => (bool) GetValue(CenterOnStartProperty);
+            get => (bool)GetValue(CenterOnStartProperty);
             set => SetValue(CenterOnStartProperty, value);
         }
-
 
         public object Item
         {
@@ -106,54 +101,72 @@ namespace PixiEditor.Views
 
         public bool IsUsingZoomTool
         {
-            get => (bool) GetValue(IsUsingZoomToolProperty);
+            get => (bool)GetValue(IsUsingZoomToolProperty);
             set => SetValue(IsUsingZoomToolProperty, value);
         }
 
         private static void ZoomPercentegeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var panel = (MainDrawingPanel) d;
-            var percentage = (double) e.NewValue;
-            if (percentage == 100) panel.SetClickValues();
-            panel.Zoombox.ZoomTo(panel.ClickScale * ((double) e.NewValue / 100.0));
+            MainDrawingPanel panel = (MainDrawingPanel)d;
+            double percentage = (double)e.NewValue;
+            if (percentage == 100)
+            {
+                panel.SetClickValues();
+            }
+
+            panel.Zoombox.ZoomTo(panel.ClickScale * ((double)e.NewValue / 100.0));
         }
 
         private void Zoombox_CurrentViewChanged(object sender, ZoomboxViewChangedEventArgs e)
         {
-            Zoombox.MinScale = 32 / ((FrameworkElement) Item).Width;
+            Zoombox.MinScale = 32 / ((FrameworkElement)Item).Width;
             Zoombox.KeepContentInBounds = !(Zoombox.Scale > Zoombox.MinScale * 35.0);
         }
 
         private void Zoombox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (ZoomPercentage == 100) SetClickValues();
+            if (ZoomPercentage == 100)
+            {
+                SetClickValues();
+            }
         }
 
         private void SetClickValues()
         {
-            if (!IsUsingZoomTool) return;
+            if (!IsUsingZoomTool)
+            {
+                return;
+            }
+
             ClickScale = Zoombox.Scale;
             SetZoomOrigin();
         }
 
         private void SetZoomOrigin()
         {
-            var item = (FrameworkElement) Item;
-            if (item == null) return;
-            var mousePos = Mouse.GetPosition(item);
+            FrameworkElement item = (FrameworkElement)Item;
+            if (item == null)
+            {
+                return;
+            }
+
+            Point mousePos = Mouse.GetPosition(item);
             Zoombox.ZoomOrigin = new Point(Math.Clamp(mousePos.X / item.Width, 0, 1), Math.Clamp(mousePos.Y / item.Height, 0, 1));
         }
 
         private static void OnCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var panel = (MainDrawingPanel) d;
+            MainDrawingPanel panel = (MainDrawingPanel)d;
             panel.Zoombox.CenterContent();
         }
 
-
         private void Zoombox_Loaded(object sender, RoutedEventArgs e)
         {
-            if (CenterOnStart) ((Zoombox) sender).CenterContent();
+            if (CenterOnStart)
+            {
+                ((Zoombox)sender).CenterContent();
+            }
+
             ClickScale = Zoombox.Scale;
         }
 
@@ -165,13 +178,13 @@ namespace PixiEditor.Views
         private void mainDrawingPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
             IsUsingZoomTool = ViewModelMain.Current.BitmapManager.SelectedTool is ZoomTool;
-            Mouse.Capture((IInputElement) sender, CaptureMode.SubTree);
+            Mouse.Capture((IInputElement)sender, CaptureMode.SubTree);
             SetClickValues();
         }
 
         private void mainDrawingPanel_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            ((IInputElement) sender).ReleaseMouseCapture();
+            ((IInputElement)sender).ReleaseMouseCapture();
         }
     }
 }

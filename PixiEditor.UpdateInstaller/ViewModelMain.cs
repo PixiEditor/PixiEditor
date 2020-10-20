@@ -12,7 +12,7 @@ namespace PixiEditor.UpdateInstaller
         {
             Current = this;
 
-            var updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
+            string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
 
 #if DEBUG
             updateDirectory = Environment.GetCommandLineArgs()[1];
@@ -38,7 +38,7 @@ namespace PixiEditor.UpdateInstaller
 
         public void InstallUpdate()
         {
-            var files = Directory.GetFiles(UpdateDirectory, "update-*.zip");
+            string[] files = Directory.GetFiles(UpdateDirectory, "update-*.zip");
 
             if (files.Length > 0)
             {

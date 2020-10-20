@@ -24,32 +24,46 @@ namespace PixiEditor.Models.Tools
 
         protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
         {
-            var output = new List<Coordinates>();
-            foreach (var item in shape)
+            List<Coordinates> output = new List<Coordinates>();
+            foreach (Coordinates item in shape)
+            {
                 output.AddRange(
                     CoordinatesCalculator.RectangleToCoordinates(
                         CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
+            }
+
             return output.Distinct();
         }
-
 
         protected DoubleCords CalculateCoordinatesForShapeRotation(Coordinates startingCords,
             Coordinates secondCoordinates)
         {
-            var currentCoordinates = secondCoordinates;
+            Coordinates currentCoordinates = secondCoordinates;
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y > currentCoordinates.Y)
+            {
                 return new DoubleCords(new Coordinates(currentCoordinates.X, currentCoordinates.Y),
                     new Coordinates(startingCords.X, startingCords.Y));
+            }
+
             if (startingCords.X < currentCoordinates.X && startingCords.Y < currentCoordinates.Y)
+            {
                 return new DoubleCords(new Coordinates(startingCords.X, startingCords.Y),
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y));
+            }
+
             if (startingCords.Y > currentCoordinates.Y)
+            {
                 return new DoubleCords(new Coordinates(startingCords.X, currentCoordinates.Y),
                     new Coordinates(currentCoordinates.X, startingCords.Y));
+            }
+
             if (startingCords.X > currentCoordinates.X && startingCords.Y <= currentCoordinates.Y)
+            {
                 return new DoubleCords(new Coordinates(currentCoordinates.X, startingCords.Y),
                     new Coordinates(startingCords.X, currentCoordinates.Y));
+            }
+
             return new DoubleCords(startingCords, secondCoordinates);
         }
     }

@@ -15,7 +15,6 @@ namespace PixiEditor.Views
             DependencyProperty.Register("TextBlockVisibility", typeof(Visibility), typeof(EditableTextBlock),
                 new PropertyMetadata(Visibility.Visible));
 
-
         // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock),
@@ -33,29 +32,27 @@ namespace PixiEditor.Views
 
         public Visibility TextBlockVisibility
         {
-            get => (Visibility) GetValue(TextBlockVisibilityProperty);
+            get => (Visibility)GetValue(TextBlockVisibilityProperty);
             set => SetValue(TextBlockVisibilityProperty, value);
         }
 
-
         public bool IsEditing
         {
-            get => (bool) GetValue(EnableEditingProperty);
+            get => (bool)GetValue(EnableEditingProperty);
             set => SetValue(EnableEditingProperty, value);
         }
 
-
         public string Text
         {
-            get => (string) GetValue(TextProperty);
+            get => (string)GetValue(TextProperty);
             set => SetValue(TextProperty, value);
         }
 
         private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if ((bool) e.NewValue)
+            if ((bool)e.NewValue)
             {
-                var tb = (EditableTextBlock) d;
+                EditableTextBlock tb = (EditableTextBlock)d;
                 tb.EnableEditing();
             }
         }
@@ -76,15 +73,20 @@ namespace PixiEditor.Views
             IsEditing = false;
         }
 
-
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2) EnableEditing();
+            if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2)
+            {
+                EnableEditing();
+            }
         }
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter) DisableEditing();
+            if (e.Key == Key.Enter)
+            {
+                DisableEditing();
+            }
         }
 
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)

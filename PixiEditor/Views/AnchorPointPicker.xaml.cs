@@ -15,7 +15,6 @@ namespace PixiEditor.Views
             DependencyProperty.Register("AnchorPoint", typeof(AnchorPoint), typeof(AnchorPointPicker),
                 new PropertyMetadata());
 
-
         private ToggleButton selectedToggleButton;
 
         public AnchorPointPicker()
@@ -25,22 +24,28 @@ namespace PixiEditor.Views
 
         public AnchorPoint AnchorPoint
         {
-            get => (AnchorPoint) GetValue(AnchorPointProperty);
+            get => (AnchorPoint)GetValue(AnchorPointProperty);
             set => SetValue(AnchorPointProperty, value);
         }
 
         private void ToggleButton_Checked(object sender, RoutedEventArgs e)
         {
-            var btn = (ToggleButton) sender;
-            AnchorPoint = (AnchorPoint) (1 << (Grid.GetRow(btn) + 3)) | (AnchorPoint) (1 << Grid.GetColumn(btn));
-            if (selectedToggleButton != null) selectedToggleButton.IsChecked = false;
+            ToggleButton btn = (ToggleButton)sender;
+            AnchorPoint = (AnchorPoint)(1 << (Grid.GetRow(btn) + 3)) | (AnchorPoint)(1 << Grid.GetColumn(btn));
+            if (selectedToggleButton != null)
+            {
+                selectedToggleButton.IsChecked = false;
+            }
+
             selectedToggleButton = btn;
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as ToggleButton).IsChecked.Value)
+            {
                 e.Handled = true;
+            }
         }
     }
 }

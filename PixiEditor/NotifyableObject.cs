@@ -10,7 +10,10 @@ namespace PixiEditor.Helpers
 
         protected void RaisePropertyChanged(string property)
         {
-            if (property != null) PropertyChanged(this, new PropertyChangedEventArgs(property));
+            if (property != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         }
 
         public int ExampleProperty { get; set; } = 1;
+
         public TestPropertyClass TestPropClass { get; set; } = new TestPropertyClass();
 
         [Fact]
@@ -29,7 +30,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             PrepareUndoManagerForTest();
             UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
             Assert.True(UndoManager.UndoStack.Count == 1);
-            Assert.True((int) UndoManager.UndoStack.Peek().OldValue == ExampleProperty);
+            Assert.True((int)UndoManager.UndoStack.Peek().OldValue == ExampleProperty);
         }
 
         [Fact]
@@ -48,9 +49,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, 55));
             ExampleProperty = 55;
             UndoManager.Undo();
-            Assert.True((int) UndoManager.RedoStack.Peek().OldValue == ExampleProperty);
+            Assert.True((int)UndoManager.RedoStack.Peek().OldValue == ExampleProperty);
         }
-
 
         [Fact]
         public void TestThatRedoAddsToUndoStack()
@@ -70,15 +70,15 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             UndoManager.AddUndoChange(new Change("ExampleProperty", 1, ExampleProperty));
             UndoManager.Undo();
             UndoManager.Redo();
-            Assert.True((int) UndoManager.UndoStack.Peek().NewValue == ExampleProperty);
+            Assert.True((int)UndoManager.UndoStack.Peek().NewValue == ExampleProperty);
         }
 
         [Fact]
         public void TestThatUndoManagerUndoAndRedoWithCustomRootCorrectly()
         {
             PrepareUndoManagerForTest();
-            var testProp = new TestPropertyClass();
-            var newVal = 5;
+            TestPropertyClass testProp = new TestPropertyClass();
+            int newVal = 5;
             testProp.IntProperty = newVal;
             UndoManager.AddUndoChange(new Change("IntProperty", 0, newVal, root: testProp));
             Assert.Equal(newVal, testProp.IntProperty);
@@ -97,14 +97,12 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             PrepareUndoManagerForTest();
 
-
-            var newVal = 5;
-
+            int newVal = 5;
 
             UndoManager.AddUndoChange(
                 new Change("ExampleProperty",
                     ReverseProcess,
-                    new object[] {ExampleProperty},
+                    new object[] { ExampleProperty },
                     newVal));
 
             ExampleProperty = newVal;
@@ -124,9 +122,9 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatProcessBasedUndoAndRedoWorks()
         {
             PrepareUndoManagerForTest();
-            var newVal = 5;
-            UndoManager.AddUndoChange(new Change(ReverseProcess, new object[] {ExampleProperty}, ReverseProcess,
-                new object[] {newVal}));
+            int newVal = 5;
+            UndoManager.AddUndoChange(new Change(ReverseProcess, new object[] { ExampleProperty }, ReverseProcess,
+                new object[] { newVal }));
 
             ExampleProperty = newVal;
 
@@ -145,7 +143,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatNestedPropertyUndoWorks()
         {
             PrepareUndoManagerForTest();
-            var newVal = 5;
+            int newVal = 5;
 
             UndoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty,
                 newVal));
@@ -165,7 +163,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
         private void ReverseProcess(object[] args)
         {
-            ExampleProperty = (int) args[0];
+            ExampleProperty = (int)args[0];
         }
 
         private void PrepareUndoManagerForTest()
@@ -174,7 +172,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();
             ExampleProperty = 1;
-            TestPropClass = new TestPropertyClass {IntProperty = 0};
+            TestPropClass = new TestPropertyClass { IntProperty = 0 };
         }
     }
 

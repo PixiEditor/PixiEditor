@@ -22,7 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            var pixels =
+            BitmapPixelChanges pixels =
                 BitmapPixelChanges.FromSingleColoredArray(
                     CreateLine(coordinates,
                         Toolbar.GetSetting<SizeSetting>("ToolSize").Value, CapType.Square, CapType.Square), color);
@@ -31,36 +31,45 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness)
         {
-            return CreateLine(new[] {end, start}, thickness, CapType.Square, CapType.Square);
+            return CreateLine(new[] { end, start }, thickness, CapType.Square, CapType.Square);
         }
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap,
             CapType endCap)
         {
-            return CreateLine(new[] {end, start}, thickness, startCap, endCap);
+            return CreateLine(new[] { end, start }, thickness, startCap, endCap);
         }
 
         private IEnumerable<Coordinates> CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
         {
-            var startingCoordinates = coordinates[^1];
-            var latestCoordinates = coordinates[0];
+            Coordinates startingCoordinates = coordinates[^1];
+            Coordinates latestCoordinates = coordinates[0];
             if (thickness == 1)
+            {
                 return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X,
                     latestCoordinates.Y);
+            }
+
             return GetLinePoints(startingCoordinates, latestCoordinates, thickness, startCap, endCap);
         }
 
         private IEnumerable<Coordinates> GetLinePoints(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
-            var startingCap = GetCapCoordinates(startCap, start, thickness);
-            if (start == end) return startingCap;
+            IEnumerable<Coordinates> startingCap = GetCapCoordinates(startCap, start, thickness);
+            if (start == end)
+            {
+                return startingCap;
+            }
 
-            var line = BresenhamLine(start.X, start.Y, end.X, end.Y);
+            IEnumerable<Coordinates> line = BresenhamLine(start.X, start.Y, end.X, end.Y);
 
-            var output = new List<Coordinates>(startingCap);
+            List<Coordinates> output = new List<Coordinates>(startingCap);
 
             output.AddRange(GetCapCoordinates(endCap, end, thickness));
-            if (line.Count() > 2) output.AddRange(GetThickShape(line.Except(new[] {start, end}).ToArray(), thickness));
+            if (line.Count() > 2)
+            {
+                output.AddRange(GetThickShape(line.Except(new[] { start, end }).ToArray(), thickness));
+            }
 
             return output.Distinct();
         }
@@ -70,11 +79,11 @@ namespace PixiEditor.Models.Tools.Tools
             switch (cap)
             {
                 case CapType.Round:
-                {
-                    return GetRoundCap(position, thickness); // Round cap is not working very well, circle tool must be improved
-                }
+                    {
+                        return GetRoundCap(position, thickness); // Round cap is not working very well, circle tool must be improved
+                    }
                 default:
-                    return GetThickShape(new[] {position}, thickness);
+                    return GetThickShape(new[] { position }, thickness);
             }
         }
 
@@ -86,16 +95,19 @@ namespace PixiEditor.Models.Tools.Tools
         /// <returns></returns>
         private IEnumerable<Coordinates> GetRoundCap(Coordinates position, int thickness)
         {
-            var circle = new CircleTool();
-            var rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
+            CircleTool circle = new CircleTool();
+            Coordinates[] rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
             return circle.CreateEllipse(rectangleCords[0], rectangleCords[^1], 1, true);
         }
 
         private IEnumerable<Coordinates> BresenhamLine(int x1, int y1, int x2, int y2)
         {
-            var coordinates = new List<Coordinates>();
-            if (x1 == x2 && y1 == y2) return new[] {new Coordinates(x1, y1)};
+            List<Coordinates> coordinates = new List<Coordinates>();
+            if (x1 == x2 && y1 == y2)
+            {
+                return new[] { new Coordinates(x1, y1) };
+            }
 
             int d, dx, dy, ai, bi, xi, yi;
             int x = x1, y = y1;

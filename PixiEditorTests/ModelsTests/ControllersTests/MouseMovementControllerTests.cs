@@ -9,8 +9,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatStartRecordingMouseMovChangesStartsRecordingAndInvokesEvent()
         {
-            var eventInvoked = false;
-            var controller = new MouseMovementController();
+            bool eventInvoked = false;
+            MouseMovementController controller = new MouseMovementController();
             controller.StartedRecordingChanges += (sender, e) => eventInvoked = true;
 
             controller.StartRecordingMouseMovementChanges(false);
@@ -23,7 +23,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatRecordMouseMovementChangeRecordsMouseMovementChange()
         {
-            var controller = new MouseMovementController();
+            MouseMovementController controller = new MouseMovementController();
             controller.StartRecordingMouseMovementChanges(false);
             controller.RecordMouseMovementChange(new Coordinates(5, 5));
 
@@ -35,11 +35,11 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatMouseMovedRaisesEvent()
         {
-            var eventRaised = false;
-            var position = new Coordinates(5, 5);
-            var args = new MouseMovementEventArgs(new Coordinates());
+            bool eventRaised = false;
+            Coordinates position = new Coordinates(5, 5);
+            MouseMovementEventArgs args = new MouseMovementEventArgs(new Coordinates());
 
-            var controller = new MouseMovementController();
+            MouseMovementController controller = new MouseMovementController();
             controller.MousePositionChanged += (s, e) =>
             {
                 eventRaised = true;
@@ -55,7 +55,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestStopRecordingChangesStopsRecording()
         {
-            var controller = new MouseMovementController();
+            MouseMovementController controller = new MouseMovementController();
 
             controller.StartRecordingMouseMovementChanges(true);
             controller.StopRecordingMouseMovementChanges();
@@ -67,7 +67,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatRecordChangesNotRecords()
         {
-            var controller = new MouseMovementController();
+            MouseMovementController controller = new MouseMovementController();
             controller.RecordMouseMovementChange(new Coordinates(5, 10));
 
             Assert.False(controller.IsRecordingChanges);

@@ -18,6 +18,7 @@ namespace PixiEditor.Models.DataHolders
         }
 
         public BitmapPixelChanges PixelChanges { get; set; }
+
         public int LayerIndex { get; set; }
     }
 }

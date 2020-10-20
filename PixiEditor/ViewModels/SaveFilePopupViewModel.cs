@@ -8,9 +8,7 @@ namespace PixiEditor.ViewModels
     {
         private string filePath;
 
-
         private string pathButtonBorder = "#f08080";
-
 
         private bool pathIsCorrect;
 
@@ -23,8 +21,11 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
+
         public RelayCommand DragMoveCommand { get; set; }
+
         public RelayCommand ChoosePathCommand { get; set; }
+
         public RelayCommand OkCommand { get; set; }
 
         public string PathButtonBorder
@@ -72,7 +73,7 @@ namespace PixiEditor.ViewModels
         /// <param name="parameter"></param>
         private void ChoosePath(object parameter)
         {
-            var path = new SaveFileDialog
+            SaveFileDialog path = new SaveFileDialog
             {
                 Title = "Export path",
                 CheckPathExists = true,
@@ -97,7 +98,7 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window) parameter).DialogResult = false;
+            ((Window)parameter).DialogResult = false;
             CloseButton(parameter);
         }
 
@@ -108,7 +109,7 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
-            ((Window) parameter).DialogResult = true;
+            ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
         }
 

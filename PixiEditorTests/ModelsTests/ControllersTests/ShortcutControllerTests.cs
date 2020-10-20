@@ -9,7 +9,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
     {
         private static ShortcutController GenerateStandardShortcutController(Key shortcutKey, ModifierKeys modifiers, RelayCommand shortcutCommand)
         {
-            var controller = new ShortcutController();
+            ShortcutController controller = new ShortcutController();
             controller.Shortcuts.Add(new Shortcut(shortcutKey, shortcutCommand, 0, modifiers));
             ShortcutController.BlockShortcutExecution = false;
             return controller;
@@ -21,9 +21,9 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [InlineData(Key.B, ModifierKeys.Alt | ModifierKeys.Control, Key.B, ModifierKeys.Alt | ModifierKeys.Control)]
         public void TestThatShortcutControllerExecutesShortcut(Key shortcutKey, ModifierKeys shortcutModifiers, Key clickedKey, ModifierKeys clickedModifiers)
         {
-            var result = -1;
-            var shortcutCommand = new RelayCommand(arg => { result = (int) arg; });
-            var controller = GenerateStandardShortcutController(shortcutKey, shortcutModifiers, shortcutCommand);
+            int result = -1;
+            RelayCommand shortcutCommand = new RelayCommand(arg => { result = (int)arg; });
+            ShortcutController controller = GenerateStandardShortcutController(shortcutKey, shortcutModifiers, shortcutCommand);
 
             controller.KeyPressed(clickedKey, clickedModifiers);
             Assert.Equal(0, result);
@@ -35,10 +35,9 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [InlineData(Key.C, ModifierKeys.Alt | ModifierKeys.Control, Key.C, ModifierKeys.Alt | ModifierKeys.Windows)]
         public void TestThatShortcutControllerNotExecutesShortcut(Key shortcutKey, ModifierKeys shortcutModifiers, Key clickedKey, ModifierKeys clickedModifiers)
         {
-            var result = -1;
-            var shortcutCommand = new RelayCommand(arg => { result = (int) arg; });
-            var controller = GenerateStandardShortcutController(shortcutKey, shortcutModifiers, shortcutCommand);
-
+            int result = -1;
+            RelayCommand shortcutCommand = new RelayCommand(arg => { result = (int)arg; });
+            ShortcutController controller = GenerateStandardShortcutController(shortcutKey, shortcutModifiers, shortcutCommand);
 
             controller.KeyPressed(clickedKey, clickedModifiers);
             Assert.Equal(-1, result);
@@ -47,10 +46,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [StaFact]
         public void TestThatShortcutControllerIsBlocked()
         {
-            var result = -1;
-            var shortcutCommand = new RelayCommand(arg => { result = (int) arg; });
+            int result = -1;
+            RelayCommand shortcutCommand = new RelayCommand(arg => { result = (int)arg; });
 
-            var controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, shortcutCommand);
+            ShortcutController controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, shortcutCommand);
             ShortcutController.BlockShortcutExecution = true;
 
             controller.KeyPressed(Key.A, ModifierKeys.None);
@@ -60,10 +59,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [StaFact]
         public void TestThatShortcutControllerPicksCorrectShortcut()
         {
-            var result = -1;
-            var shortcutCommand = new RelayCommand(arg => { result = (int) arg; });
+            int result = -1;
+            RelayCommand shortcutCommand = new RelayCommand(arg => { result = (int)arg; });
 
-            var controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, shortcutCommand);
+            ShortcutController controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, shortcutCommand);
             controller.Shortcuts.Add(new Shortcut(Key.A, shortcutCommand, 1, ModifierKeys.Control));
 
             controller.KeyPressed(Key.A, ModifierKeys.Control);
@@ -73,7 +72,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [StaFact]
         public void TestThatKeyPressedSetsLastShortcut()
         {
-            var controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None,
+            ShortcutController controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None,
                 new RelayCommand(parameter => { }));
 
             Assert.Null(controller.LastShortcut);

@@ -27,12 +27,12 @@ namespace PixiEditor.UpdateModule
         /// <returns></returns>
         public static bool VersionBigger(string originalVer, string newVer)
         {
-            if (!ParseVersionString(originalVer, out var ver1))
+            if (!ParseVersionString(originalVer, out float ver1))
             {
                 return false;
             }
 
-            if (ParseVersionString(newVer, out var ver2))
+            if (ParseVersionString(newVer, out float ver2))
             {
                 return ver2 > ver1;
             }
@@ -53,13 +53,13 @@ namespace PixiEditor.UpdateModule
 
         private static async Task<ReleaseInfo> GetLatestReleaseInfo_Async()
         {
-            using (var client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-                var response = await client.GetAsync(ReleaseApiUrl);
+                HttpResponseMessage response = await client.GetAsync(ReleaseApiUrl);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
+                    string content = await response.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<ReleaseInfo>(content);
                 }
             }

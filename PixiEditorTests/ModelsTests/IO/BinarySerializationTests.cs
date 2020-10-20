@@ -14,7 +14,7 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatWriteToBinaryFileCreatesFile()
         {
-            var doc = new SerializableDocument(new Document(10, 10));
+            SerializableDocument doc = new SerializableDocument(new Document(10, 10));
             BinarySerialization.WriteToBinaryFile(Path, doc);
 
             Assert.True(File.Exists(Path));
@@ -25,14 +25,14 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatReadFromBinaryFileReadsCorrectly()
         {
-            var document = new Document(10, 10);
+            Document document = new Document(10, 10);
             document.Layers.Add(new Layer("yeet"));
             document.Swatches.Add(Colors.Green);
 
-            var doc = new SerializableDocument(document);
+            SerializableDocument doc = new SerializableDocument(document);
             BinarySerialization.WriteToBinaryFile(Path, doc);
 
-            var file = BinarySerialization.ReadFromBinaryFile<SerializableDocument>(Path);
+            SerializableDocument file = BinarySerialization.ReadFromBinaryFile<SerializableDocument>(Path);
 
             Assert.Equal(doc.Layers, file.Layers);
             Assert.Equal(doc.Height, file.Height);

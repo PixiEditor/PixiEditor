@@ -11,10 +11,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatExecuteToolExecutesTool()
         {
-            var toolUsed = false;
+            bool toolUsed = false;
 
-            var util = new ReadonlyToolUtility();
-            util.ExecuteTool(new[] {new Coordinates(0, 0)}, new TestReadonlyTool(() => toolUsed = true));
+            ReadonlyToolUtility util = new ReadonlyToolUtility();
+            util.ExecuteTool(new[] { new Coordinates(0, 0) }, new TestReadonlyTool(() => toolUsed = true));
             Assert.True(toolUsed);
         }
     }

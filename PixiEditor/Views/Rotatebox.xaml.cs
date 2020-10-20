@@ -27,10 +27,9 @@ namespace PixiEditor.Views
 
         public double Angle
         {
-            get => (double) GetValue(AngleProperty);
+            get => (double)GetValue(AngleProperty);
             set => SetValue(AngleProperty, value);
         }
-
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -49,19 +48,22 @@ namespace PixiEditor.Views
             if (Equals(Mouse.Captured, this))
             {
                 // Get the current mouse position relative to the control
-                var currentLocation = Mouse.GetPosition(this);
+                Point currentLocation = Mouse.GetPosition(this);
 
                 // We want to rotate around the center of the knob, not the top corner
-                var knobCenter = new Point(width / 2, height / 2);
+                Point knobCenter = new Point(width / 2, height / 2);
 
                 // Calculate an angle
-                var radians = Math.Atan((currentLocation.Y - knobCenter.Y) /
+                double radians = Math.Atan((currentLocation.Y - knobCenter.Y) /
                                         (currentLocation.X - knobCenter.X));
                 Angle = radians * 180 / Math.PI + offset;
 
                 // Apply a 180 degree shift when X is negative so that we can rotate
                 // all of the way around
-                if (currentLocation.X - knobCenter.X < 0) Angle += 180;
+                if (currentLocation.X - knobCenter.X < 0)
+                {
+                    Angle += 180;
+                }
             }
         }
     }

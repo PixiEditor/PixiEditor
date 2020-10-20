@@ -13,16 +13,16 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSerializableDocumentCreatesCorrectly()
         {
-            var document = GenerateSampleDocument();
-            var doc = new SerializableDocument(document);
+            Document document = GenerateSampleDocument();
+            SerializableDocument doc = new SerializableDocument(document);
 
-            var swatch = document.Swatches.First();
-            var color = Tuple.Create(swatch.A, swatch.R, swatch.G, swatch.B);
+            Color swatch = document.Swatches.First();
+            Tuple<byte, byte, byte, byte> color = Tuple.Create(swatch.A, swatch.R, swatch.G, swatch.B);
 
             Assert.Equal(document.Width, doc.Width);
             Assert.Equal(document.Height, doc.Height);
             Assert.Equal(color, doc.Swatches.First());
-            for (var i = 0; i < doc.Layers.Length; i++)
+            for (int i = 0; i < doc.Layers.Length; i++)
             {
                 Assert.Equal(document.Layers[i].ConvertBitmapToBytes(), doc.Layers[i].BitmapBytes);
                 Assert.Equal(document.Layers[i].OffsetX, doc.Layers[i].OffsetX);
@@ -39,10 +39,10 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatToDocumentConvertsCorrectly()
         {
-            var document = GenerateSampleDocument();
-            var doc = new SerializableDocument(document);
+            Document document = GenerateSampleDocument();
+            SerializableDocument doc = new SerializableDocument(document);
 
-            var convertedDocument = doc.ToDocument();
+            Document convertedDocument = doc.ToDocument();
 
             Assert.Equal(document.Height, convertedDocument.Height);
             Assert.Equal(document.Width, convertedDocument.Width);
@@ -54,11 +54,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatToLayersConvertsCorrectly()
         {
-            var document = GenerateSampleDocument();
-            var doc = new SerializableDocument(document);
+            Document document = GenerateSampleDocument();
+            SerializableDocument doc = new SerializableDocument(document);
 
-            var layers = doc.ToLayers();
-            for (var i = 0; i < layers.Count; i++)
+            System.Collections.ObjectModel.ObservableCollection<Layer> layers = doc.ToLayers();
+            for (int i = 0; i < layers.Count; i++)
             {
                 Assert.Equal(document.Layers[i].LayerBitmap.ToByteArray(), layers[i].ConvertBitmapToBytes());
                 Assert.Equal(document.Layers[i].Height, layers[i].Height);
@@ -73,7 +73,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
         private static Document GenerateSampleDocument()
         {
-            var document = new Document(10, 10);
+            Document document = new Document(10, 10);
             document.Layers.Add(new Layer("Test", 5, 8));
             document.Swatches.Add(Colors.Green);
             return document;

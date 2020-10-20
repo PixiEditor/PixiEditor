@@ -26,7 +26,7 @@ namespace PixiEditor.Models.Tools.Tools
         public override void OnMouseDown(MouseEventArgs e)
         {
             startingX = MousePositionConverter.GetCursorPosition().X;
-            ViewModelMain.Current.ZoomPercentage = 100; //This resest the value, so callback in MainDrawingPanel can fire again later
+            ViewModelMain.Current.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
         }
 
         public override void OnMouseMove(MouseEventArgs e)
@@ -35,8 +35,8 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 double xPos = MousePositionConverter.GetCursorPosition().X;
 
-                var rawPercentDifference = (xPos - startingX) / pixelsPerZoomMultiplier; //negative - zoom out, positive - zoom in, linear
-                var finalPercentDifference = Math.Pow(2, rawPercentDifference) * 100.0; //less than 100 - zoom out, greater than 100 - zoom in
+                double rawPercentDifference = (xPos - startingX) / pixelsPerZoomMultiplier; // negative - zoom out, positive - zoom in, linear
+                double finalPercentDifference = Math.Pow(2, rawPercentDifference) * 100.0; // less than 100 - zoom out, greater than 100 - zoom in
                 Zoom(finalPercentDifference);
             }
         }
@@ -47,9 +47,13 @@ namespace PixiEditor.Models.Tools.Tools
                 startingX == MousePositionConverter.GetCursorPosition().X)
             {
                 if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt))
+                {
                     Zoom(85);
+                }
                 else
+                {
                     Zoom(115);
+                }
             }
         }
 

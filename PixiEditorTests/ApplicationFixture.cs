@@ -11,7 +11,7 @@ namespace PixiEditorTests
         {
             if (Application.Current == null)
             {
-                var app = new App();
+                App app = new App();
                 app.InitializeComponent();
             }
         }

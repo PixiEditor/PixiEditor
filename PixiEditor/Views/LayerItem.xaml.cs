@@ -42,53 +42,51 @@ namespace PixiEditor.Views
 
         public bool IsRenaming
         {
-            get => (bool) GetValue(IsRenamingProperty);
+            get => (bool)GetValue(IsRenamingProperty);
             set => SetValue(IsRenamingProperty, value);
         }
 
         public bool IsActive
         {
-            get => (bool) GetValue(IsActiveProperty);
+            get => (bool)GetValue(IsActiveProperty);
             set => SetValue(IsActiveProperty, value);
         }
 
         public RelayCommand SetActiveLayerCommand
         {
-            get => (RelayCommand) GetValue(SetActiveLayerCommandProperty);
+            get => (RelayCommand)GetValue(SetActiveLayerCommandProperty);
             set => SetValue(SetActiveLayerCommandProperty, value);
         }
 
         public int LayerIndex
         {
-            get => (int) GetValue(LayerIndexProperty);
+            get => (int)GetValue(LayerIndexProperty);
             set => SetValue(LayerIndexProperty, value);
         }
 
         public string LayerName
         {
-            get => (string) GetValue(LayerNameProperty);
+            get => (string)GetValue(LayerNameProperty);
             set => SetValue(LayerNameProperty, value);
         }
 
         public Visibility ControlButtonsVisible
         {
-            get => (Visibility) GetValue(ControlButtonsVisibleProperty);
+            get => (Visibility)GetValue(ControlButtonsVisibleProperty);
             set => SetValue(ControlButtonsVisibleProperty, value);
         }
 
-
         public RelayCommand MoveToBackCommand
         {
-            get => (RelayCommand) GetValue(MoveToBackCommandProperty);
+            get => (RelayCommand)GetValue(MoveToBackCommandProperty);
             set => SetValue(MoveToBackCommandProperty, value);
         }
 
         public RelayCommand MoveToFrontCommand
         {
-            get => (RelayCommand) GetValue(MoveToFrontCommandProperty);
+            get => (RelayCommand)GetValue(MoveToFrontCommandProperty);
             set => SetValue(MoveToFrontCommandProperty, value);
         }
-
 
         private void LayerItem_OnMouseEnter(object sender, MouseEventArgs e)
         {

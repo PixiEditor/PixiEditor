@@ -14,13 +14,19 @@ namespace PixiEditor.Models.Controllers.Shortcuts
         }
 
         public Key ShortcutKey { get; set; }
+
         public ModifierKeys Modifier { get; set; }
+
         public ICommand Command { get; set; }
+
         public object CommandParameter { get; set; }
 
         public void Execute()
         {
-            if (Command.CanExecute(CommandParameter)) Command.Execute(CommandParameter);
+            if (Command.CanExecute(CommandParameter))
+            {
+                Command.Execute(CommandParameter);
+            }
         }
     }
 }

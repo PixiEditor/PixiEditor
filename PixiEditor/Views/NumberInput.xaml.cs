@@ -26,7 +26,6 @@ namespace PixiEditor.Views
             DependencyProperty.Register("Max", typeof(float), typeof(NumberInput),
                 new PropertyMetadata(float.PositiveInfinity));
 
-
         public NumberInput()
         {
             InitializeComponent();
@@ -34,32 +33,31 @@ namespace PixiEditor.Views
 
         public float Value
         {
-            get => (float) GetValue(ValueProperty);
+            get => (float)GetValue(ValueProperty);
             set => SetValue(ValueProperty, value);
         }
 
         public float Min
         {
-            get => (float) GetValue(MinProperty);
+            get => (float)GetValue(MinProperty);
             set => SetValue(MinProperty, value);
         }
 
-
         public float Max
         {
-            get => (float) GetValue(MaxProperty);
+            get => (float)GetValue(MaxProperty);
             set => SetValue(MaxProperty, value);
         }
 
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var input = (NumberInput) d;
-            input.Value = Math.Clamp((float) e.NewValue, input.Min, input.Max);
+            NumberInput input = (NumberInput)d;
+            input.Value = Math.Clamp((float)e.NewValue, input.Min, input.Max);
         }
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            var regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$");
+            Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$");
             e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
         }
     }

@@ -9,12 +9,12 @@ namespace PixiEditorTests.HelpersTests.ConvertersTests
         [Fact]
         public void TestThatConvertConvertsDoubleToInt()
         {
-            var converter = new DoubleToIntConverter();
+            DoubleToIntConverter converter = new DoubleToIntConverter();
 
-            var value = converter.Convert(5.123, typeof(int), null, CultureInfo.CurrentCulture);
+            object value = converter.Convert(5.123, typeof(int), null, CultureInfo.CurrentCulture);
 
             Assert.IsType<int>(value);
-            Assert.Equal(5, (int) value);
+            Assert.Equal(5, (int)value);
         }
     }
 }

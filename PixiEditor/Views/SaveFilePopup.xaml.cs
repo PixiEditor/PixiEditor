@@ -12,7 +12,6 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty SaveHeightProperty =
             DependencyProperty.Register("SaveHeight", typeof(int), typeof(SaveFilePopup), new PropertyMetadata(32));
 
-
         // Using a DependencyProperty as the backing store for SaveWidth.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SaveWidthProperty =
             DependencyProperty.Register("SaveWidth", typeof(int), typeof(SaveFilePopup), new PropertyMetadata(32));
@@ -25,17 +24,15 @@ namespace PixiEditor.Views
             DataContext = dataContext;
         }
 
-
         public int SaveWidth
         {
-            get => (int) GetValue(SaveWidthProperty);
+            get => (int)GetValue(SaveWidthProperty);
             set => SetValue(SaveWidthProperty, value);
         }
 
-
         public int SaveHeight
         {
-            get => (int) GetValue(SaveHeightProperty);
+            get => (int)GetValue(SaveHeightProperty);
             set => SetValue(SaveHeightProperty, value);
         }
 

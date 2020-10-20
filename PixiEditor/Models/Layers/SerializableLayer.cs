@@ -13,29 +13,41 @@ namespace PixiEditor.Models.Layers
             Height = layer.Height;
             BitmapBytes = layer.ConvertBitmapToBytes();
             IsVisible = layer.IsVisible;
-            OffsetX = (int) layer.Offset.Left;
-            OffsetY = (int) layer.Offset.Top;
+            OffsetX = (int)layer.Offset.Left;
+            OffsetY = (int)layer.Offset.Top;
             Opacity = layer.Opacity;
             MaxWidth = layer.MaxWidth;
             MaxHeight = layer.MaxHeight;
         }
 
         public string Name { get; set; }
+
         public int Width { get; set; }
+
         public int Height { get; set; }
+
         public int MaxWidth { get; set; }
+
         public int MaxHeight { get; set; }
+
         public byte[] BitmapBytes { get; set; }
+
         public bool IsVisible { get; set; }
+
         public int OffsetX { get; set; }
+
         public int OffsetY { get; set; }
+
         public float Opacity { get; set; }
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || obj.GetType() != typeof(SerializableLayer)) return false;
+            if (obj == null || obj.GetType() != typeof(SerializableLayer))
+            {
+                return false;
+            }
 
-            var layer = (SerializableLayer) obj;
+            SerializableLayer layer = (SerializableLayer)obj;
 
             return Equals(layer);
         }
@@ -48,7 +60,7 @@ namespace PixiEditor.Models.Layers
 
         public override int GetHashCode()
         {
-            var hashCode = new HashCode();
+            HashCode hashCode = new HashCode();
             hashCode.Add(Name);
             hashCode.Add(Width);
             hashCode.Add(Height);

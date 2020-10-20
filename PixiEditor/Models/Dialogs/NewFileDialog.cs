@@ -41,7 +41,7 @@ namespace PixiEditor.Models.Dialogs
             popup.ShowDialog();
             Height = (popup as NewFilePopup).FileHeight;
             Width = (popup as NewFilePopup).FileWidth;
-            return (bool) popup.DialogResult;
+            return (bool)popup.DialogResult;
         }
     }
 }

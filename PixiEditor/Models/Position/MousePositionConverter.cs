@@ -12,8 +12,7 @@ namespace PixiEditor.Models.Position
 
         public static Point GetCursorPosition()
         {
-            Point point;
-            GetCursorPos(out point);
+            GetCursorPos(out Point point);
             return point;
         }
     }

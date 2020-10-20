@@ -16,7 +16,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatConstructorSetsUpControllersCorrectly()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
 
             Assert.Equal(viewModel, UndoManager.MainRoot);
             Assert.NotNull(viewModel.ChangesController);
@@ -29,10 +29,11 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatSwapColorsCommandSwapsColors()
         {
-            var viewModel = new ViewModelMain();
-
-            viewModel.PrimaryColor = Colors.Black;
-            viewModel.SecondaryColor = Colors.White;
+            ViewModelMain viewModel = new ViewModelMain
+            {
+                PrimaryColor = Colors.Black,
+                SecondaryColor = Colors.White
+            };
 
             viewModel.SwapColorsCommand.Execute(null);
 
@@ -43,7 +44,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatNewDocumentCreatesNewDocumentWithBaseLayer()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
 
             viewModel.NewDocument(5, 5);
 
@@ -54,7 +55,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatMouseMoveCommandUpdatesCurrentCoordinates()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
 
             Assert.Equal(new Coordinates(0, 0), MousePositionConverter.CurrentCoordinates);
 
@@ -69,7 +70,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatSelectToolCommandSelectsNewTool()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
 
             Assert.Equal(ToolType.Move, viewModel.BitmapManager.SelectedTool.ToolType);
 
@@ -81,7 +82,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatMouseUpCommandStopsRecordingMouseMovements()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
 
             viewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
 
@@ -95,7 +96,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatNewLayerCommandCreatesNewLayer()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
 
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
@@ -109,8 +110,8 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatSaveDocumentCommandSavesFile()
         {
-            var viewModel = new ViewModelMain();
-            var fileName = "testFile.pixi";
+            ViewModelMain viewModel = new ViewModelMain();
+            string fileName = "testFile.pixi";
 
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
@@ -126,7 +127,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatAddSwatchAddsNonDuplicateSwatch()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
             viewModel.AddSwatch(Colors.Green);
@@ -146,9 +147,9 @@ namespace PixiEditorTests.ViewModelsTests
         [InlineData(120, 150)]
         public void TestThatSelectAllCommandSelectsWholeDocument(int docWidth, int docHeight)
         {
-            var viewModel = new ViewModelMain
+            ViewModelMain viewModel = new ViewModelMain
             {
-                BitmapManager = {ActiveDocument = new Document(docWidth, docHeight)}
+                BitmapManager = { ActiveDocument = new Document(docWidth, docHeight) }
             };
             viewModel.BitmapManager.AddNewLayer("layer");
 
@@ -161,7 +162,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatDocumentIsNotNullReturnsTrue()
         {
-            var viewModel = new ViewModelMain();
+            ViewModelMain viewModel = new ViewModelMain();
 
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 

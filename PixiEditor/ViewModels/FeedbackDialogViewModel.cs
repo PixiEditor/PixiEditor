@@ -7,7 +7,6 @@ namespace PixiEditor.ViewModels
     {
         private string emailBody;
 
-
         private string mailFrom;
 
         public FeedbackDialogViewModel()
@@ -17,6 +16,7 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
+
         public RelayCommand SendButtonCommand { get; set; }
 
         public string MailFrom
@@ -47,7 +47,7 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window) parameter).DialogResult = false;
+            ((Window)parameter).DialogResult = false;
             CloseButton(parameter);
         }
 

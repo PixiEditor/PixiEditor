@@ -16,8 +16,11 @@ namespace PixiEditor.Models.IO
         /// <returns></returns>
         public static WriteableBitmap ImportImage(string path, int width, int height)
         {
-            var wbmp = ImportImage(path);
-            if (wbmp.PixelWidth != width || wbmp.PixelHeight != height) return wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            WriteableBitmap wbmp = ImportImage(path);
+            if (wbmp.PixelWidth != width || wbmp.PixelHeight != height)
+            {
+                return wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            }
 
             return wbmp;
         }
@@ -28,8 +31,8 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path of image.</param>
         public static WriteableBitmap ImportImage(string path)
         {
-            var uri = new Uri(path);
-            var bitmap = new BitmapImage();
+            Uri uri = new Uri(path);
+            BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = uri;
             bitmap.EndInit();

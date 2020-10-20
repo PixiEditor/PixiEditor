@@ -35,7 +35,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void SetSelection(IEnumerable<Coordinates> selection, SelectionType mode)
         {
-            var selectionColor = selectionBlue;
+            Color selectionColor = selectionBlue;
             switch (mode)
             {
                 case SelectionType.New:

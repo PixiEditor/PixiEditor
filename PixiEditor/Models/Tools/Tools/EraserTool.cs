@@ -24,10 +24,10 @@ namespace PixiEditor.Models.Tools.Tools
 
         public LayerChange[] Erase(Layer layer, Coordinates[] coordinates, int toolSize)
         {
-            var startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
-            var pen = new PenTool();
-            var pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
-            return new[] {new LayerChange(pixels, layer)};
+            Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
+            PenTool pen = new PenTool();
+            BitmapPixelChanges pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
+            return new[] { new LayerChange(pixels, layer) };
         }
     }
 }

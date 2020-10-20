@@ -10,8 +10,8 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         [StaFact]
         public void TestThatZoomSetsViewModelsZoomPercentage()
         {
-            var vm = new ViewModelMain();
-            var zoomTool = new ZoomTool();
+            ViewModelMain vm = new ViewModelMain();
+            ZoomTool zoomTool = new ZoomTool();
             double zoom = 110;
             zoomTool.Zoom(zoom);
             Assert.Equal(zoom, vm.ZoomPercentage);

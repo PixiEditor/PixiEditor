@@ -22,20 +22,17 @@ namespace PixiEditor.Views
             DataContext = this;
         }
 
-
         public int NewHeight
         {
-            get => (int) GetValue(NewHeightProperty);
+            get => (int)GetValue(NewHeightProperty);
             set => SetValue(NewHeightProperty, value);
         }
 
-
         public int NewWidth
         {
-            get => (int) GetValue(NewWidthProperty);
+            get => (int)GetValue(NewWidthProperty);
             set => SetValue(NewWidthProperty, value);
         }
-
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {

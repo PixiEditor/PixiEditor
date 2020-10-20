@@ -20,17 +20,15 @@ namespace PixiEditor.Views
             InitializeComponent();
         }
 
-
         public int FileHeight
         {
-            get => (int) GetValue(FileHeightProperty);
+            get => (int)GetValue(FileHeightProperty);
             set => SetValue(FileHeightProperty, value);
         }
 
-
         public int FileWidth
         {
-            get => (int) GetValue(FileWidthProperty);
+            get => (int)GetValue(FileWidthProperty);
             set => SetValue(FileWidthProperty, value);
         }
     }

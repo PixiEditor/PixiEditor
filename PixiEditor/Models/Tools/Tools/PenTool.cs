@@ -24,14 +24,14 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
-            var startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
-            var pixels = Draw(startingCords, coordinates[0], color, toolSizeSetting.Value);
+            Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
+            BitmapPixelChanges pixels = Draw(startingCords, coordinates[0], color, toolSizeSetting.Value);
             return Only(pixels, layer);
         }
 
         public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize)
         {
-            var line = new LineTool();
+            LineTool line = new LineTool();
             return BitmapPixelChanges.FromSingleColoredArray(
                 line.CreateLine(startingCoords, latestCords, toolSize), color);
         }

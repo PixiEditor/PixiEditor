@@ -13,6 +13,7 @@ namespace PixiEditor.Models.DataHolders
         public bool WasBuiltAsSingleColored { get; private set; }
 
         public static BitmapPixelChanges Empty => new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
+
         public Dictionary<Coordinates, Color> ChangedPixels { get; set; }
 
         public BitmapPixelChanges(Dictionary<Coordinates, Color> changedPixels)
@@ -29,9 +30,13 @@ namespace PixiEditor.Models.DataHolders
         /// <returns>Single-colored BitmapPixelChanges</returns>
         public static BitmapPixelChanges FromSingleColoredArray(IEnumerable<Coordinates> coordinates, Color color)
         {
-            var dict = new Dictionary<Coordinates, Color>();
-            foreach (var coordinate in coordinates) dict.Add(coordinate, color);
-            return new BitmapPixelChanges(dict) {WasBuiltAsSingleColored = true};
+            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
+            foreach (Coordinates coordinate in coordinates)
+            {
+                dict.Add(coordinate, color);
+            }
+
+            return new BitmapPixelChanges(dict) { WasBuiltAsSingleColored = true };
         }
 
         /// <summary>
@@ -41,10 +46,18 @@ namespace PixiEditor.Models.DataHolders
         /// <returns>Combined BitmapPixelChanges</returns>
         public static BitmapPixelChanges CombineOverride(BitmapPixelChanges[] changes)
         {
-            if (changes == null || changes.Length == 0) throw new ArgumentException();
-            var output = Empty;
+            if (changes == null || changes.Length == 0)
+            {
+                throw new ArgumentException();
+            }
 
-            for (var i = 0; i < changes.Length; i++) output.ChangedPixels.AddRangeOverride(changes[i].ChangedPixels);
+            BitmapPixelChanges output = Empty;
+
+            for (int i = 0; i < changes.Length; i++)
+            {
+                output.ChangedPixels.AddRangeOverride(changes[i].ChangedPixels);
+            }
+
             return output;
         }
 
@@ -56,11 +69,19 @@ namespace PixiEditor.Models.DataHolders
         /// <returns></returns>
         public static BitmapPixelChanges FromArrays(IEnumerable<Coordinates> coordinates, IEnumerable<Color> color)
         {
-            var coordinateArray = coordinates.ToArray();
-            var colorArray = color.ToArray();
-            if (coordinateArray.Length != colorArray.Length) throw new ArrayLengthMismatchException();
-            var dict = new Dictionary<Coordinates, Color>();
-            for (var i = 0; i < coordinateArray.Length; i++) dict.Add(coordinateArray[i], colorArray[i]);
+            Coordinates[] coordinateArray = coordinates.ToArray();
+            Color[] colorArray = color.ToArray();
+            if (coordinateArray.Length != colorArray.Length)
+            {
+                throw new ArrayLengthMismatchException();
+            }
+
+            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
+            for (int i = 0; i < coordinateArray.Length; i++)
+            {
+                dict.Add(coordinateArray[i], colorArray[i]);
+            }
+
             return new BitmapPixelChanges(dict);
         }
     }

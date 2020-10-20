@@ -13,10 +13,10 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Theory]
         [InlineData(10, 10, 20, 20)]
         [InlineData(1, 2, 5, 8)]
-        [InlineData(20, 20, 10, 10)] //TODO Anchor
+        [InlineData(20, 20, 10, 10)] // TODO Anchor
         public void TestResizeCanvasResizesProperly(int oldWidth, int oldHeight, int newWidth, int newHeight)
         {
-            var document = new Document(oldWidth, oldHeight);
+            Document document = new Document(oldWidth, oldHeight);
 
             document.ResizeCanvas(newWidth, newHeight, AnchorPoint.Top | AnchorPoint.Left);
             Assert.Equal(newHeight, document.Height);
@@ -28,7 +28,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(5, 8, 10, 16)]
         public void TestResizeWorks(int oldWidth, int oldHeight, int newWidth, int newHeight)
         {
-            var document = new Document(oldWidth, oldHeight);
+            Document document = new Document(oldWidth, oldHeight);
 
             document.Resize(newWidth, newHeight);
 
@@ -41,14 +41,14 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(50, 50, 10, 49)]
         public void TestThatClipCanvasWorksForSingleLayer(int initialWidth, int initialHeight, int additionalPixelX, int additionalPixelY)
         {
-            var document = new Document(initialWidth, initialHeight);
-            var manager = new BitmapManager
+            Document document = new Document(initialWidth, initialHeight);
+            BitmapManager manager = new BitmapManager
             {
                 ActiveDocument = document
             };
             manager.AddNewLayer("test");
-            manager.ActiveLayer.SetPixel(new Coordinates((int) Math.Ceiling(initialWidth / 2f),
-                (int) Math.Ceiling(initialHeight / 2f)), Colors.Black);
+            manager.ActiveLayer.SetPixel(new Coordinates((int)Math.Ceiling(initialWidth / 2f),
+                (int)Math.Ceiling(initialHeight / 2f)), Colors.Black);
 
             manager.ActiveLayer.SetPixel(new Coordinates(additionalPixelX, additionalPixelY), Colors.Black);
 
@@ -65,14 +65,14 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(1, 1, 0, 0)]
         public void TestThatClipCanvasWorksForMultipleLayers(int initialWidth, int initialHeight, int secondLayerPixelX, int secondLayerPixelY)
         {
-            var document = new Document(initialWidth, initialHeight);
-            var manager = new BitmapManager
+            Document document = new Document(initialWidth, initialHeight);
+            BitmapManager manager = new BitmapManager
             {
                 ActiveDocument = document
             };
             manager.AddNewLayer("test");
-            manager.ActiveLayer.SetPixel(new Coordinates((int) Math.Ceiling(initialWidth / 2f),
-                (int) Math.Ceiling(initialHeight / 2f)), Colors.Black); //Set pixel in center
+            manager.ActiveLayer.SetPixel(new Coordinates((int)Math.Ceiling(initialWidth / 2f),
+                (int)Math.Ceiling(initialHeight / 2f)), Colors.Black); // Set pixel in center
 
             manager.AddNewLayer("test2");
 
@@ -80,11 +80,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             document.ClipCanvas();
 
-            var totalWidth = Math.Abs(manager.ActiveDocument.Layers[1].OffsetX +
+            int totalWidth = Math.Abs(manager.ActiveDocument.Layers[1].OffsetX +
                 manager.ActiveDocument.Layers[1].Width - (manager.ActiveDocument.Layers[0].OffsetX +
                                                           manager.ActiveDocument.Layers[0].Width)) + 1;
 
-            var totalHeight = Math.Abs(manager.ActiveDocument.Layers[1].OffsetY +
+            int totalHeight = Math.Abs(manager.ActiveDocument.Layers[1].OffsetY +
                 manager.ActiveDocument.Layers[1].Height - (manager.ActiveDocument.Layers[0].OffsetY +
                                                            manager.ActiveDocument.Layers[0].Height)) + 1;
 
@@ -98,8 +98,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(25, 17)]
         public void TestThatCenterContentCentersContentForSingleLayer(int docWidth, int docHeight)
         {
-            var doc = new Document(docWidth, docHeight);
-            var manager = new BitmapManager
+            Document doc = new Document(docWidth, docHeight);
+            BitmapManager manager = new BitmapManager
             {
                 ActiveDocument = doc
             };
@@ -119,8 +119,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(25, 17)]
         public void TestThatCenterContentCentersContentForMultipleLayers(int docWidth, int docHeight)
         {
-            var doc = new Document(docWidth, docHeight);
-            var manager = new BitmapManager
+            Document doc = new Document(docWidth, docHeight);
+            BitmapManager manager = new BitmapManager
             {
                 ActiveDocument = doc
             };
@@ -132,8 +132,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             doc.CenterContent();
 
-            var midWidth = (int) Math.Floor(docWidth / 2f);
-            var midHeight = (int) Math.Floor(docHeight / 2f);
+            int midWidth = (int)Math.Floor(docWidth / 2f);
+            int midHeight = (int)Math.Floor(docHeight / 2f);
 
             Assert.Equal(midWidth - 1, manager.ActiveDocument.Layers[0].OffsetX);
             Assert.Equal(midHeight - 1, manager.ActiveDocument.Layers[0].OffsetY);

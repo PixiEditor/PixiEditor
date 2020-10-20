@@ -24,27 +24,38 @@ namespace PixiEditor.Models.Tools.Tools
 
         public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)
         {
-            var changedCoords = new List<Coordinates>();
+            List<Coordinates> changedCoords = new List<Coordinates>();
 
-            var clone = layer.Clone();
-            var width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
-            var height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
+            Layer clone = layer.Clone();
+            int width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
+            int height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
 
-            var colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
+            Color colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
 
-            var stack = new Stack<Coordinates>();
+            Stack<Coordinates> stack = new Stack<Coordinates>();
             stack.Push(new Coordinates(startingCoords.X, startingCoords.Y));
 
             using (clone.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadWrite))
             {
                 while (stack.Count > 0)
                 {
-                    var cords = stack.Pop();
-                    var relativeCords = clone.GetRelativePosition(cords);
+                    Coordinates cords = stack.Pop();
+                    Coordinates relativeCords = clone.GetRelativePosition(cords);
 
-                    if (cords.X < 0 || cords.X > width - 1) continue;
-                    if (cords.Y < 0 || cords.Y > height - 1) continue;
-                    if (clone.GetPixel(relativeCords.X, relativeCords.Y) == newColor) continue;
+                    if (cords.X < 0 || cords.X > width - 1)
+                    {
+                        continue;
+                    }
+
+                    if (cords.Y < 0 || cords.Y > height - 1)
+                    {
+                        continue;
+                    }
+
+                    if (clone.GetPixel(relativeCords.X, relativeCords.Y) == newColor)
+                    {
+                        continue;
+                    }
 
                     if (clone.GetPixel(relativeCords.X, relativeCords.Y) == colorToReplace)
                     {

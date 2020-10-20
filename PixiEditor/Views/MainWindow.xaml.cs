@@ -19,7 +19,7 @@ namespace PixiEditor
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            viewModel = (ViewModelMain) DataContext;
+            viewModel = (ViewModelMain)DataContext;
             viewModel.CloseAction = Close;
         }
 
@@ -28,18 +28,15 @@ namespace PixiEditor
             e.CanExecute = true;
         }
 
-
         private void CommandBinding_Executed_Minimize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MinimizeWindow(this);
         }
 
-
         private void CommandBinding_Executed_Maximize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MaximizeWindow(this);
         }
-
 
         private void CommandBinding_Executed_Restore(object sender, ExecutedRoutedEventArgs e)
         {
@@ -50,7 +47,6 @@ namespace PixiEditor
         {
             SystemCommands.CloseWindow(this);
         }
-
 
         private void MainWindowStateChangeRaised(object sender, EventArgs e)
         {
@@ -68,9 +64,9 @@ namespace PixiEditor
 
         private void mainWindow_Initialized(object sender, EventArgs e)
         {
-            var dir = AppDomain.CurrentDomain.BaseDirectory;
-            var updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
-            var updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            bool updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
+            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
             if (updateFileExists && File.Exists(updaterPath))
             {
                 Process.Start(updaterPath);

@@ -7,14 +7,16 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class BoolSetting : Setting<bool>
     {
-        public BoolSetting(string name, string label = "") : base(name)
+        public BoolSetting(string name, string label = "")
+            : base(name)
         {
             Label = label;
             Value = false;
             SettingControl = GenerateCheckBox();
         }
 
-        public BoolSetting(string name, bool isChecked, string label = "") : base(name)
+        public BoolSetting(string name, bool isChecked, string label = "")
+            : base(name)
         {
             Label = label;
             Value = isChecked;
@@ -23,13 +25,13 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private Control GenerateCheckBox()
         {
-            var checkBox = new CheckBox
+            CheckBox checkBox = new CheckBox
             {
                 IsChecked = Value,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            var binding = new Binding("Value")
+            Binding binding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay
             };

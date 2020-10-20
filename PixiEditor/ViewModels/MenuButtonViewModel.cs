@@ -7,7 +7,6 @@ namespace PixiEditor.ViewModels
     {
         private Visibility listViewVisibility;
 
-
         public MenuButtonViewModel()
         {
             OpenListViewCommand = new RelayCommand(OpenListView);
@@ -16,6 +15,7 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand OpenListViewCommand { get; set; }
+
         public RelayCommand CloseListViewCommand { get; set; }
 
         public Visibility ListViewVisibility

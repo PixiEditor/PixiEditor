@@ -32,35 +32,33 @@ namespace PixiEditor.Views
             InitializeComponent();
         }
 
-
         public int Size
         {
-            get => (int) GetValue(SizeProperty);
+            get => (int)GetValue(SizeProperty);
             set => SetValue(SizeProperty, value);
         }
 
         public bool PreserveAspectRatio
         {
-            get => (bool) GetValue(PreserveAspectRatioProperty);
+            get => (bool)GetValue(PreserveAspectRatioProperty);
             set => SetValue(PreserveAspectRatioProperty, value);
         }
 
-
         public int AspectRatioValue
         {
-            get => (int) GetValue(AspectRatioValueProperty);
+            get => (int)GetValue(AspectRatioValueProperty);
             set => SetValue(AspectRatioValueProperty, value);
         }
 
         private static void AspectRatioValChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var input = (SizeInput) d;
+            SizeInput input = (SizeInput)d;
 
             if (input.PreserveAspectRatio && input.loadedSize != -1)
             {
-                var newVal = (int) e.NewValue;
-                var ratio = newVal / Math.Clamp(input.loadedAspectRatioSize, 1f, float.MaxValue);
-                input.Size = (int) (input.loadedSize * ratio);
+                int newVal = (int)e.NewValue;
+                float ratio = newVal / Math.Clamp(input.loadedAspectRatioSize, 1f, float.MaxValue);
+                input.Size = (int)(input.loadedSize * ratio);
             }
         }
 

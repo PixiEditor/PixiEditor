@@ -25,6 +25,7 @@ namespace PixiEditor.Helpers
                 Subscribe();
                 MouseUp += value;
             }
+
             remove
             {
                 MouseUp -= value;
@@ -41,12 +42,12 @@ namespace PixiEditor.Helpers
         {
             if (mouseHookHandle != 0)
             {
-                var result = UnhookWindowsHookEx(mouseHookHandle);
+                int result = UnhookWindowsHookEx(mouseHookHandle);
                 mouseHookHandle = 0;
                 mouseDelegate = null;
                 if (result == 0)
                 {
-                    var errorCode = Marshal.GetLastWin32Error();
+                    int errorCode = Marshal.GetLastWin32Error();
                     throw new Win32Exception(errorCode);
                 }
             }
@@ -64,7 +65,7 @@ namespace PixiEditor.Helpers
                     0);
                 if (mouseHookHandle == 0)
                 {
-                    var errorCode = Marshal.GetLastWin32Error();
+                    int errorCode = Marshal.GetLastWin32Error();
                     throw new Win32Exception(errorCode);
                 }
             }
@@ -74,10 +75,14 @@ namespace PixiEditor.Helpers
         {
             if (nCode >= 0)
             {
-                var mouseHookStruct = (Msllhookstruct) Marshal.PtrToStructure(lParam, typeof(Msllhookstruct));
+                Msllhookstruct mouseHookStruct = (Msllhookstruct)Marshal.PtrToStructure(lParam, typeof(Msllhookstruct));
                 if (wParam == WmLbuttonup)
+                {
                     if (MouseUp != null)
+                    {
                         MouseUp.Invoke(null, new System.Windows.Point(mouseHookStruct.pt.x, mouseHookStruct.pt.y));
+                    }
+                }
             }
 
             return CallNextHookEx(mouseHookHandle, nCode, wParam, lParam);

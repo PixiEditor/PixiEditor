@@ -44,7 +44,6 @@ namespace PixiEditor.Models.Layers
             Height = height;
         }
 
-
         public Layer(string name, WriteableBitmap layerBitmap)
         {
             Name = name;
@@ -93,7 +92,6 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-
         public WriteableBitmap LayerBitmap
         {
             get => layerBitmap;
@@ -114,9 +112,9 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public int OffsetX => (int) Offset.Left;
+        public int OffsetX => (int)Offset.Left;
 
-        public int OffsetY => (int) Offset.Top;
+        public int OffsetY => (int)Offset.Top;
 
         public Thickness Offset
         {
@@ -129,6 +127,7 @@ namespace PixiEditor.Models.Layers
         }
 
         public int MaxWidth { get; set; } = int.MaxValue;
+
         public int MaxHeight { get; set; } = int.MaxValue;
 
         /// <summary>
@@ -183,7 +182,7 @@ namespace PixiEditor.Models.Layers
         /// <returns>Color of a pixel</returns>
         public Color GetPixelWithOffset(int x, int y)
         {
-            var cords = GetRelativePosition(new Coordinates(x, y));
+            Coordinates cords = GetRelativePosition(new Coordinates(x, y));
             return GetPixel(cords.X, cords.Y);
         }
 
@@ -195,7 +194,10 @@ namespace PixiEditor.Models.Layers
         /// <returns>Color of pixel, if out of bounds, returns transparent pixel.</returns>
         public Color GetPixel(int x, int y)
         {
-            if (x > Width - 1 || x < 0 || y > Height - 1 || y < 0) return Color.FromArgb(0, 0, 0, 0);
+            if (x > Width - 1 || x < 0 || y > Height - 1 || y < 0)
+            {
+                return Color.FromArgb(0, 0, 0, 0);
+            }
 
             return LayerBitmap.GetPixel(x, y);
         }
@@ -209,7 +211,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
         public void SetPixel(Coordinates coordinates, Color color, bool dynamicResize = true, bool applyOffset = true)
         {
-            SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] {coordinates}, color), dynamicResize, applyOffset);
+            SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { coordinates }, color), dynamicResize, applyOffset);
         }
 
         /// <summary>
@@ -220,18 +222,32 @@ namespace PixiEditor.Models.Layers
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap</param>
         public void SetPixels(BitmapPixelChanges pixels, bool dynamicResize = true, bool applyOffset = true)
         {
-            if (pixels.ChangedPixels == null || pixels.ChangedPixels.Count == 0) return;
+            if (pixels.ChangedPixels == null || pixels.ChangedPixels.Count == 0)
+            {
+                return;
+            }
+
             if (dynamicResize)
+            {
                 DynamicResize(pixels);
+            }
+
             if (applyOffset)
+            {
                 pixels.ChangedPixels = GetRelativePosition(pixels.ChangedPixels);
+            }
+
             LastRelativeCoordinates = pixels.ChangedPixels;
 
-            using (var ctx = LayerBitmap.GetBitmapContext())
+            using (BitmapContext ctx = LayerBitmap.GetBitmapContext())
             {
-                foreach (var coords in pixels.ChangedPixels)
+                foreach (KeyValuePair<Coordinates, Color> coords in pixels.ChangedPixels)
                 {
-                    if (OutOfBounds(coords.Key)) continue;
+                    if (OutOfBounds(coords.Key))
+                    {
+                        continue;
+                    }
+
                     ctx.WriteableBitmap.SetPixel(coords.Key.X, coords.Key.Y, coords.Value);
                 }
             }
@@ -252,8 +268,11 @@ namespace PixiEditor.Models.Layers
         /// <returns></returns>
         public Coordinates[] ConvertToRelativeCoordinates(Coordinates[] nonRelativeCords)
         {
-            var result = new Coordinates[nonRelativeCords.Length];
-            for (var i = 0; i < nonRelativeCords.Length; i++) result[i] = new Coordinates(nonRelativeCords[i].X - OffsetX, nonRelativeCords[i].Y - OffsetY);
+            Coordinates[] result = new Coordinates[nonRelativeCords.Length];
+            for (int i = 0; i < nonRelativeCords.Length; i++)
+            {
+                result[i] = new Coordinates(nonRelativeCords[i].X - OffsetX, nonRelativeCords[i].Y - OffsetY);
+            }
 
             return result;
         }
@@ -264,44 +283,71 @@ namespace PixiEditor.Models.Layers
         /// <param name="pixels"></param>
         public void DynamicResize(BitmapPixelChanges pixels)
         {
-            if (pixels.ChangedPixels.Count == 0) return;
+            if (pixels.ChangedPixels.Count == 0)
+            {
+                return;
+            }
+
             ResetOffset(pixels);
-            var borderData = ExtractBorderData(pixels);
-            var minMaxCords = borderData.Item1;
-            var newMaxX = minMaxCords.Coords2.X - OffsetX;
-            var newMaxY = minMaxCords.Coords2.Y - OffsetY;
-            var newMinX = minMaxCords.Coords1.X - OffsetX;
-            var newMinY = minMaxCords.Coords1.Y - OffsetY;
+            Tuple<DoubleCords, bool> borderData = ExtractBorderData(pixels);
+            DoubleCords minMaxCords = borderData.Item1;
+            int newMaxX = minMaxCords.Coords2.X - OffsetX;
+            int newMaxY = minMaxCords.Coords2.Y - OffsetY;
+            int newMinX = minMaxCords.Coords1.X - OffsetX;
+            int newMinY = minMaxCords.Coords1.Y - OffsetY;
 
             if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.A == 0))
             {
-                if (newMaxX + 1 > Width || newMaxY + 1 > Height) IncreaseSizeToBottom(newMaxX, newMaxY);
-                if (newMinX < 0 || newMinY < 0) IncreaseSizeToTop(newMinX, newMinY);
+                if (newMaxX + 1 > Width || newMaxY + 1 > Height)
+                {
+                    IncreaseSizeToBottom(newMaxX, newMaxY);
+                }
+
+                if (newMinX < 0 || newMinY < 0)
+                {
+                    IncreaseSizeToTop(newMinX, newMinY);
+                }
             }
 
-            if (borderData.Item2) //if clip is requested
+            if (borderData.Item2) // if clip is requested
+            {
                 clipRequested = true;
+            }
         }
 
         private Tuple<DoubleCords, bool> ExtractBorderData(BitmapPixelChanges pixels)
         {
-            var firstCords = pixels.ChangedPixels.First().Key;
-            var minX = firstCords.X;
-            var minY = firstCords.Y;
-            var maxX = minX;
-            var maxY = minY;
-            var clipRequested = false;
+            Coordinates firstCords = pixels.ChangedPixels.First().Key;
+            int minX = firstCords.X;
+            int minY = firstCords.Y;
+            int maxX = minX;
+            int maxY = minY;
+            bool clipRequested = false;
 
-            foreach (var pixel in pixels.ChangedPixels)
+            foreach (KeyValuePair<Coordinates, Color> pixel in pixels.ChangedPixels)
             {
-                if (pixel.Key.X < minX) minX = pixel.Key.X;
-                else if (pixel.Key.X > maxX) maxX = pixel.Key.X;
+                if (pixel.Key.X < minX)
+                {
+                    minX = pixel.Key.X;
+                }
+                else if (pixel.Key.X > maxX)
+                {
+                    maxX = pixel.Key.X;
+                }
 
-                if (pixel.Key.Y < minY) minY = pixel.Key.Y;
-                else if (pixel.Key.Y > maxY) maxY = pixel.Key.Y;
+                if (pixel.Key.Y < minY)
+                {
+                    minY = pixel.Key.Y;
+                }
+                else if (pixel.Key.Y > maxY)
+                {
+                    maxY = pixel.Key.Y;
+                }
 
                 if (clipRequested == false && IsBorderPixel(pixel.Key) && pixel.Value.A == 0)
+                {
                     clipRequested = true;
+                }
             }
 
             return new Tuple<DoubleCords, bool>(
@@ -333,24 +379,30 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public void ClipCanvas()
         {
-            var points = GetEdgePoints();
-            var smallestX = points.Coords1.X;
-            var smallestY = points.Coords1.Y;
-            var biggestX = points.Coords2.X;
-            var biggestY = points.Coords2.Y;
+            DoubleCords points = GetEdgePoints();
+            int smallestX = points.Coords1.X;
+            int smallestY = points.Coords1.Y;
+            int biggestX = points.Coords2.X;
+            int biggestY = points.Coords2.Y;
 
             if (smallestX < 0 && smallestY < 0 && biggestX < 0 && biggestY < 0)
+            {
                 return;
+            }
 
-            var width = biggestX - smallestX + 1;
-            var height = biggestY - smallestY + 1;
+            int width = biggestX - smallestX + 1;
+            int height = biggestY - smallestY + 1;
             ResizeCanvas(0, 0, smallestX, smallestY, width, height);
             Offset = new Thickness(OffsetX + smallestX, OffsetY + smallestY, 0, 0);
         }
 
         private void IncreaseSizeToBottom(int newMaxX, int newMaxY)
         {
-            if (MaxWidth - OffsetX < 0 || MaxHeight - OffsetY < 0) return;
+            if (MaxWidth - OffsetX < 0 || MaxHeight - OffsetY < 0)
+            {
+                return;
+            }
+
             newMaxX = Math.Clamp(Math.Max(newMaxX + 1, Width), 0, MaxWidth - OffsetX);
             newMaxY = Math.Clamp(Math.Max(newMaxY + 1, Height), 0, MaxHeight - OffsetY);
 
@@ -365,19 +417,19 @@ namespace PixiEditor.Models.Layers
             Offset = new Thickness(Math.Clamp(OffsetX + newMinX, 0, MaxWidth),
                 Math.Clamp(OffsetY + newMinY, 0, MaxHeight), 0, 0);
 
-            var newWidth = Math.Clamp(Width - newMinX, 0, MaxWidth);
-            var newHeight = Math.Clamp(Height - newMinY, 0, MaxHeight);
+            int newWidth = Math.Clamp(Width - newMinX, 0, MaxWidth);
+            int newHeight = Math.Clamp(Height - newMinY, 0, MaxHeight);
 
-            var offsetX = Math.Abs(newWidth - Width);
-            var offsetY = Math.Abs(newHeight - Height);
+            int offsetX = Math.Abs(newWidth - Width);
+            int offsetY = Math.Abs(newHeight - Height);
 
             ResizeCanvas(offsetX, offsetY, 0, 0, newWidth, newHeight);
         }
 
         private DoubleCords GetEdgePoints()
         {
-            var smallestPixel = CoordinatesCalculator.FindMinEdgeNonTransparentPixel(LayerBitmap);
-            var biggestPixel = CoordinatesCalculator.FindMostEdgeNonTransparentPixel(LayerBitmap);
+            Coordinates smallestPixel = CoordinatesCalculator.FindMinEdgeNonTransparentPixel(LayerBitmap);
+            Coordinates biggestPixel = CoordinatesCalculator.FindMostEdgeNonTransparentPixel(LayerBitmap);
 
             return new DoubleCords(smallestPixel, biggestPixel);
         }
@@ -386,8 +438,8 @@ namespace PixiEditor.Models.Layers
         {
             if (Width == 0 || Height == 0)
             {
-                var offsetX = pixels.ChangedPixels.Min(x => x.Key.X);
-                var offsetY = pixels.ChangedPixels.Min(x => x.Key.Y);
+                int offsetX = pixels.ChangedPixels.Min(x => x.Key.X);
+                int offsetY = pixels.ChangedPixels.Min(x => x.Key.Y);
                 Offset = new Thickness(offsetX, offsetY, 0, 0);
             }
         }
@@ -407,7 +459,7 @@ namespace PixiEditor.Models.Layers
         public byte[] ConvertBitmapToBytes()
         {
             LayerBitmap.Lock();
-            var byteArray = LayerBitmap.ToByteArray();
+            byte[] byteArray = LayerBitmap.ToByteArray();
             LayerBitmap.Unlock();
             return byteArray;
         }
@@ -423,18 +475,18 @@ namespace PixiEditor.Models.Layers
         /// <param name="newHeight"></param>
         private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int newWidth, int newHeight)
         {
-            var iteratorHeight = Height > newHeight ? newHeight : Height;
-            var count = Width > newWidth ? newWidth : Width;
+            int iteratorHeight = Height > newHeight ? newHeight : Height;
+            int count = Width > newWidth ? newWidth : Width;
 
-            using (var srcContext = LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
+            using (BitmapContext srcContext = LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
-                var result = BitmapFactory.New(newWidth, newHeight);
-                using (var destContext = result.GetBitmapContext())
+                WriteableBitmap result = BitmapFactory.New(newWidth, newHeight);
+                using (BitmapContext destContext = result.GetBitmapContext())
                 {
-                    for (var line = 0; line < iteratorHeight; line++)
+                    for (int line = 0; line < iteratorHeight; line++)
                     {
-                        var srcOff = ((offsetYSrc + line) * Width + offsetXSrc) * SizeOfArgb;
-                        var dstOff = ((offsetY + line) * newWidth + offsetX) * SizeOfArgb;
+                        int srcOff = ((offsetYSrc + line) * Width + offsetXSrc) * SizeOfArgb;
+                        int dstOff = ((offsetY + line) * newWidth + offsetX) * SizeOfArgb;
                         BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * SizeOfArgb);
                     }
 

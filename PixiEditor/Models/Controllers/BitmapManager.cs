@@ -75,6 +75,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
+
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
 
         public Document ActiveDocument
@@ -89,6 +90,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
+
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
 
         public void SetActiveTool(Tool tool)
@@ -102,7 +104,10 @@ namespace PixiEditor.Models.Controllers
         public void SetActiveLayer(int index)
         {
             if (ActiveDocument.ActiveLayerIndex <= ActiveDocument.Layers.Count - 1)
+            {
                 ActiveDocument.ActiveLayer.IsActive = false;
+            }
+
             ActiveDocument.ActiveLayerIndex = index;
             ActiveDocument.ActiveLayer.IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
@@ -126,28 +131,44 @@ namespace PixiEditor.Models.Controllers
                 MaxHeight = ActiveDocument.Height,
                 MaxWidth = ActiveDocument.Width
             });
-            if (setAsActive) SetActiveLayer(ActiveDocument.Layers.Count - 1);
+            if (setAsActive)
+            {
+                SetActiveLayer(ActiveDocument.Layers.Count - 1);
+            }
+
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
 
         public void RemoveLayer(int layerIndex)
         {
-            if (ActiveDocument.Layers.Count == 0) return;
+            if (ActiveDocument.Layers.Count == 0)
+            {
+                return;
+            }
 
-            var wasActive = ActiveDocument.Layers[layerIndex].IsActive;
+            bool wasActive = ActiveDocument.Layers[layerIndex].IsActive;
             ActiveDocument.Layers.RemoveAt(layerIndex);
             if (wasActive)
+            {
                 SetActiveLayer(0);
+            }
             else if (ActiveDocument.ActiveLayerIndex > ActiveDocument.Layers.Count - 1)
+            {
                 SetActiveLayer(ActiveDocument.Layers.Count - 1);
+            }
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int) DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
+            {
                 ExecuteTool(e.NewPosition, MouseController.ClickedOnCanvas);
-            else if (Mouse.LeftButton == MouseButtonState.Released) HighlightPixels(e.NewPosition);
+            }
+            else if (Mouse.LeftButton == MouseButtonState.Released)
+            {
+                HighlightPixels(e.NewPosition);
+            }
         }
 
         public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
@@ -155,11 +176,15 @@ namespace PixiEditor.Models.Controllers
             if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
             {
                 if (IsOperationTool(SelectedTool))
+                {
                     BitmapOperations.ExecuteTool(newPosition,
-                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool) SelectedTool);
+                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                }
                 else
+                {
                     ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
-                        (ReadonlyTool) SelectedTool);
+                        (ReadonlyTool)SelectedTool);
+                }
             }
         }
 
@@ -170,31 +195,39 @@ namespace PixiEditor.Models.Controllers
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int) DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            SelectedTool.OnMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             PreviewLayer = null;
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int) DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            if (IsOperationTool(SelectedTool) && ((BitmapOperationTool) SelectedTool).RequiresPreviewLayer)
+            SelectedTool.OnMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            if (IsOperationTool(SelectedTool) && ((BitmapOperationTool)SelectedTool).RequiresPreviewLayer)
+            {
                 BitmapOperations.StopAction();
+            }
         }
 
         public void GeneratePreviewLayer()
         {
             if (ActiveDocument != null)
+            {
                 PreviewLayer = new Layer("_previewLayer")
                 {
                     MaxWidth = ActiveDocument.Width,
                     MaxHeight = ActiveDocument.Height
                 };
+            }
         }
 
         private void HighlightPixels(Coordinates newPosition)
         {
-            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || SelectedTool.HideHighlight) return;
-            var highlightArea = CoordinatesCalculator.RectangleToCoordinates(
+            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || SelectedTool.HideHighlight)
+            {
+                return;
+            }
+
+            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
             if (CanChangeHighlightOffset(highlightArea))
             {
@@ -259,6 +292,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         public int LayerAffected { get; set; }
+
         public LayerAction LayerChangeType { get; set; }
     }
 }

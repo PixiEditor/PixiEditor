@@ -9,7 +9,7 @@ namespace PixiEditor.Models.IO
         {
             using (Stream stream = File.Open(path, FileMode.Create))
             {
-                var binaryFormatter = new BinaryFormatter();
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
                 binaryFormatter.Serialize(stream, objectToWrite);
             }
         }
@@ -18,8 +18,8 @@ namespace PixiEditor.Models.IO
         {
             using (Stream stream = File.Open(path, FileMode.Open))
             {
-                var formatter = new BinaryFormatter();
-                return (T) formatter.Deserialize(stream);
+                BinaryFormatter formatter = new BinaryFormatter();
+                return (T)formatter.Deserialize(stream);
             }
         }
     }

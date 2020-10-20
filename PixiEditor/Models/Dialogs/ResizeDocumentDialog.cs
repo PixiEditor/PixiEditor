@@ -16,6 +16,7 @@ namespace PixiEditor.Models.Dialogs
         }
 
         public bool OpenResizeCanvas { get; set; }
+
         public AnchorPoint ResizeAnchor { get; set; }
 
         public int Width
@@ -51,7 +52,7 @@ namespace PixiEditor.Models.Dialogs
 
         private bool ShowResizeDocumentCanvas()
         {
-            var popup = new ResizeDocumentPopup
+            ResizeDocumentPopup popup = new ResizeDocumentPopup
             {
                 NewHeight = Height,
                 NewWidth = Width
@@ -64,12 +65,12 @@ namespace PixiEditor.Models.Dialogs
                 Height = popup.NewHeight;
             }
 
-            return (bool) popup.DialogResult;
+            return (bool)popup.DialogResult;
         }
 
         private bool ShowResizeCanvasDialog()
         {
-            var popup = new ResizeCanvasPopup
+            ResizeCanvasPopup popup = new ResizeCanvasPopup
             {
                 NewHeight = Height,
                 NewWidth = Width
@@ -83,7 +84,7 @@ namespace PixiEditor.Models.Dialogs
                 ResizeAnchor = popup.SelectedAnchorPoint;
             }
 
-            return (bool) popup.DialogResult;
+            return (bool)popup.DialogResult;
         }
     }
 }

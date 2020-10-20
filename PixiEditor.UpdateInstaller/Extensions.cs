@@ -13,7 +13,7 @@ namespace PixiEditor.UpdateInstaller
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var sb = new StringBuilder(MaxPath);
+                StringBuilder sb = new StringBuilder(MaxPath);
                 GetModuleFileName(IntPtr.Zero, sb, MaxPath);
                 return sb.ToString();
             }

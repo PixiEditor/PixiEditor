@@ -12,7 +12,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         [Fact]
         public void TestThatEmptyLayerGeneratesCorrectly()
         {
-            var layer = new Layer("layer");
+            Layer layer = new Layer("layer");
 
             Assert.Equal("layer", layer.Name);
             Assert.Equal(0, layer.Width);
@@ -24,7 +24,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         [Fact]
         public void TestThatEmptyLayerWithSizeGeneratesCorrectly()
         {
-            var layer = new Layer("layer", 10, 10);
+            Layer layer = new Layer("layer", 10, 10);
 
             Assert.Equal("layer", layer.Name);
             Assert.Equal(10, layer.Width);
@@ -36,9 +36,9 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         [Fact]
         public void TestThatLayerFromBitmapGeneratesCorrectly()
         {
-            var bmp = BitmapFactory.New(10, 10);
+            WriteableBitmap bmp = BitmapFactory.New(10, 10);
 
-            var layer = new Layer("layer", bmp);
+            Layer layer = new Layer("layer", bmp);
 
             Assert.Equal("layer", layer.Name);
             Assert.Equal(10, layer.Width);
@@ -50,9 +50,9 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         [Fact]
         public void TestThatCloneClonesCorrectly()
         {
-            var layer = new Layer("test", 5, 2);
+            Layer layer = new Layer("test", 5, 2);
 
-            var clone = layer.Clone();
+            Layer clone = layer.Clone();
 
             Assert.Equal(layer.Name, clone.Name);
             Assert.Equal(layer.Offset, clone.Offset);
@@ -69,11 +69,11 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         [Fact]
         public void TestThatCloneIsMakingDeepCopyOfBitmap()
         {
-            var layer = new Layer("test", 5, 2);
+            Layer layer = new Layer("test", 5, 2);
 
-            var clone = layer.Clone();
+            Layer clone = layer.Clone();
 
-            clone.LayerBitmap.SetPixel(0, 0, Colors.Green); //Actually we are checking if modifying clone bitmap does not affect original
+            clone.LayerBitmap.SetPixel(0, 0, Colors.Green); // Actually we are checking if modifying clone bitmap does not affect original
 
             Assert.NotEqual(Colors.Green, layer.GetPixel(0, 0));
         }
@@ -81,7 +81,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         [Fact]
         public void TestThatResizeResizesBitmap()
         {
-            var layer = new Layer("layer", 1, 1);
+            Layer layer = new Layer("layer", 1, 1);
 
             layer.SetPixel(new Coordinates(0, 0), Colors.Black);
 
@@ -92,35 +92,42 @@ namespace PixiEditorTests.ModelsTests.LayersTests
             Assert.Equal(2, layer.MaxWidth);
             Assert.Equal(2, layer.MaxHeight);
 
-            for (var y = 0; y < layer.Height; y++) //4 is new area of bitmap
-            for (var x = 0; x < layer.Width; x++)
-                Assert.Equal(Colors.Black, layer.GetPixel(x, y));
+            for (int y = 0; y < layer.Height; y++) // 4 is new area of bitmap
+            {
+                for (int x = 0; x < layer.Width; x++)
+                {
+                    Assert.Equal(Colors.Black, layer.GetPixel(x, y));
+                }
+            }
         }
 
         [Fact]
         public void TestThatGetPixelReturnsTransparentIfOutOfBounds()
         {
-            var layer = new Layer("layer");
+            Layer layer = new Layer("layer");
 
             Assert.Equal(0, layer.GetPixel(-1, 999).A);
         }
 
         [Fact]
-        public void TestThatSetPixelsSetsPixels() //This also tests if Dynamic Resize works
+        public void TestThatSetPixelsSetsPixels() // This also tests if Dynamic Resize works
         {
-            Coordinates[] pixels = {new Coordinates(4, 2), new Coordinates(0, 0), new Coordinates(15, 2)};
+            Coordinates[] pixels = { new Coordinates(4, 2), new Coordinates(0, 0), new Coordinates(15, 2) };
 
-            var layer = new Layer("layer");
+            Layer layer = new Layer("layer");
 
             layer.SetPixels(BitmapPixelChanges.FromSingleColoredArray(pixels, Colors.Green));
 
-            for (var i = 0; i < pixels.Length; i++) Assert.Equal(Colors.Green, layer.GetPixelWithOffset(pixels[i].X, pixels[i].Y));
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                Assert.Equal(Colors.Green, layer.GetPixelWithOffset(pixels[i].X, pixels[i].Y));
+            }
         }
 
         [Fact]
         public void TestThatClipCanvasResizesBitmapCorrectly()
         {
-            var layer = new Layer("layer", 10, 10);
+            Layer layer = new Layer("layer", 10, 10);
             layer.SetPixel(new Coordinates(4, 4), Colors.Blue);
 
             layer.ClipCanvas();

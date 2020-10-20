@@ -7,26 +7,26 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class DropdownSetting : Setting<object>
     {
-        public DropdownSetting(string name, string[] values, string label) : base(name)
+        public DropdownSetting(string name, string[] values, string label)
+            : base(name)
         {
             Values = values;
             SettingControl = GenerateDropdown();
-            Value = ((ComboBox) SettingControl).Items[0];
+            Value = ((ComboBox)SettingControl).Items[0];
             Label = label;
         }
 
         public string[] Values { get; set; }
 
-
         private ComboBox GenerateDropdown()
         {
-            var combobox = new ComboBox
+            ComboBox combobox = new ComboBox
             {
                 VerticalAlignment = VerticalAlignment.Center
             };
             GenerateItems(combobox);
 
-            var binding = new Binding("Value")
+            Binding binding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay
             };
@@ -36,9 +36,9 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private void GenerateItems(ComboBox comboBox)
         {
-            for (var i = 0; i < Values.Length; i++)
+            for (int i = 0; i < Values.Length; i++)
             {
-                var item = new ComboBoxItem
+                ComboBoxItem item = new ComboBoxItem
                 {
                     Content = Values[i]
                 };

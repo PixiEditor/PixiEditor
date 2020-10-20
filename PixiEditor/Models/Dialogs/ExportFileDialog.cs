@@ -7,15 +7,14 @@ namespace PixiEditor.Models.Dialogs
     {
         private int fileHeight;
 
-
         private string filePath;
 
         private int fileWidth;
 
         public ExportFileDialog(Size fileDimensions)
         {
-            FileHeight = (int) fileDimensions.Height;
-            FileWidth = (int) fileDimensions.Width;
+            FileHeight = (int)fileDimensions.Height;
+            FileWidth = (int)fileDimensions.Width;
         }
 
         public int FileWidth
@@ -59,7 +58,7 @@ namespace PixiEditor.Models.Dialogs
 
         public override bool ShowDialog()
         {
-            var popup = new SaveFilePopup
+            SaveFilePopup popup = new SaveFilePopup
             {
                 SaveWidth = FileWidth,
                 SaveHeight = FileHeight
@@ -72,7 +71,7 @@ namespace PixiEditor.Models.Dialogs
                 FilePath = popup.SavePath;
             }
 
-            return (bool) popup.DialogResult;
+            return (bool)popup.DialogResult;
         }
     }
 }

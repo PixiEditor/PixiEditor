@@ -73,7 +73,9 @@ namespace PixiEditor.Models.DataHolders
         public string Property { get; set; }
 
         public Action<object[]> ReverseProcess { get; set; }
+
         public Action<object[]> Process { get; set; }
+
         public object Root { get; set; }
     }
 }

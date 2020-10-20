@@ -21,12 +21,12 @@ namespace PixiEditor.Models.IO
         /// <param name="updateWorkspacePath">Should editor remember dialog path for further saves</param>
         public static bool SaveAsEditableFileWithDialog(Document document, bool updateWorkspacePath = false)
         {
-            var dialog = new SaveFileDialog
+            SaveFileDialog dialog = new SaveFileDialog
             {
                 Filter = "PixiEditor Files | *.pixi",
                 DefaultExt = "pixi"
             };
-            if ((bool) dialog.ShowDialog())
+            if ((bool)dialog.ShowDialog())
             {
                 SaveAsEditableFile(document, dialog.FileName, updateWorkspacePath);
                 return true;
@@ -40,7 +40,9 @@ namespace PixiEditor.Models.IO
             BinarySerialization.WriteToBinaryFile(path, new SerializableDocument(document));
 
             if (updateWorkspacePath)
+            {
                 SaveDocumentPath = path;
+            }
         }
 
         /// <summary>
@@ -50,11 +52,11 @@ namespace PixiEditor.Models.IO
         /// <param name="fileDimensions">Size of file</param>
         public static void Export(WriteableBitmap bitmap, Size fileDimensions)
         {
-            var info = new ExportFileDialog(fileDimensions);
-            //If OK on dialog has been clicked
+            ExportFileDialog info = new ExportFileDialog(fileDimensions);
+            // If OK on dialog has been clicked
             if (info.ShowDialog())
             {
-                //If sizes are incorrect
+                // If sizes are incorrect
                 if (info.FileWidth < bitmap.Width || info.FileHeight < bitmap.Height)
                 {
                     MessageBox.Show("Incorrect height or width value", "Error", MessageBoxButton.OK,
@@ -80,9 +82,9 @@ namespace PixiEditor.Models.IO
             {
                 bitmap = bitmap.Resize(exportWidth, exportHeight,
                     WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                using (var stream = new FileStream(savePath, FileMode.Create))
+                using (FileStream stream = new FileStream(savePath, FileMode.Create))
                 {
-                    var encoder = new PngBitmapEncoder();
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     encoder.Save(stream);
                 }

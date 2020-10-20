@@ -8,12 +8,12 @@ namespace PixiEditor.Helpers.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (float) value * 100;
+            return (float)value * 100;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (float) value / 100;
+            return (float)value / 100;
         }
     }
 }

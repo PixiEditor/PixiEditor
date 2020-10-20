@@ -20,13 +20,16 @@ namespace PixiEditor.Models.DataHolders
         }
 
         public int Width { get; set; }
+
         public int Height { get; set; }
+
         public SerializableLayer[] Layers { get; set; }
+
         public Tuple<byte, byte, byte, byte>[] Swatches { get; set; }
 
         public Document ToDocument()
         {
-            var document = new Document(Width, Height)
+            Document document = new Document(Width, Height)
             {
                 Layers = ToLayers(),
                 Swatches = new ObservableCollection<Color>(Swatches.Select(x =>
@@ -37,11 +40,11 @@ namespace PixiEditor.Models.DataHolders
 
         public ObservableCollection<Layer> ToLayers()
         {
-            var layers = new ObservableCollection<Layer>();
-            for (var i = 0; i < Layers.Length; i++)
+            ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
+            for (int i = 0; i < Layers.Length; i++)
             {
-                var serLayer = Layers[i];
-                var layer =
+                SerializableLayer serLayer = Layers[i];
+                Layer layer =
                     new Layer(serLayer.Name, BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
                     {
                         IsVisible = serLayer.IsVisible,

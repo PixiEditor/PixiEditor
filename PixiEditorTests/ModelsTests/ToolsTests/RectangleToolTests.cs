@@ -15,12 +15,12 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         [InlineData(0, 0, 15, 15)]
         public void TestThatCreateRectangleCalculatesCorrectOutlineWithOneThickness(int startX, int startY, int endX, int endY)
         {
-            var tool = new RectangleTool();
+            RectangleTool tool = new RectangleTool();
 
-            var outline = tool.CreateRectangle(new Coordinates(startX, startY),
+            System.Collections.Generic.IEnumerable<Coordinates> outline = tool.CreateRectangle(new Coordinates(startX, startY),
                 new Coordinates(endX, endY), 1);
 
-            var expectedBorderPoints = (endX - startX) * 2 + (endY - startX) * 2;
+            int expectedBorderPoints = (endX - startX) * 2 + (endY - startX) * 2;
 
             Assert.Equal(expectedBorderPoints, outline.Count());
         }

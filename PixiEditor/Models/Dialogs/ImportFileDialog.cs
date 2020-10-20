@@ -6,7 +6,6 @@ namespace PixiEditor.Models.Dialogs
     {
         private int fileHeight;
 
-
         private string filePath;
         private int fileWidth;
 
@@ -51,8 +50,10 @@ namespace PixiEditor.Models.Dialogs
 
         public override bool ShowDialog()
         {
-            var popup = new ImportFilePopup();
-            popup.FilePath = FilePath;
+            ImportFilePopup popup = new ImportFilePopup
+            {
+                FilePath = FilePath
+            };
             popup.ShowDialog();
             if (popup.DialogResult == true)
             {
@@ -61,7 +62,7 @@ namespace PixiEditor.Models.Dialogs
                 FilePath = popup.FilePath;
             }
 
-            return (bool) popup.DialogResult;
+            return (bool)popup.DialogResult;
         }
     }
 }

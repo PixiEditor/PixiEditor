@@ -25,9 +25,9 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatSaveAsEditableFileSavesPixiFile()
         {
-            var document = new Document(2, 2);
+            Document document = new Document(2, 2);
 
-            var filePath = "testFile.pixi";
+            string filePath = "testFile.pixi";
 
             document.Layers.Add(new Layer("layer1"));
             document.Layers[0].SetPixel(new Coordinates(1, 1), Colors.White);

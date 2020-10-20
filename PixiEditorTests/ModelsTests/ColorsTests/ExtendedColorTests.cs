@@ -12,19 +12,18 @@ namespace PixiEditorTests.ModelsTests.ColorsTests
         [Fact]
         public void ChangeColorBrightnessIsNotTheSameTest()
         {
-            var newColor = ExColor.ChangeColorBrightness(Colors.White, -1);
+            Color newColor = ExColor.ChangeColorBrightness(Colors.White, -1);
             Assert.NotEqual(Colors.White, newColor);
         }
 
         [Fact]
         public void ChangeColorBrightnessNewValueTest()
         {
-            var newColor = ExColor.ChangeColorBrightness(Colors.White, -100);
+            Color newColor = ExColor.ChangeColorBrightness(Colors.White, -100);
             Assert.Equal(Colors.Black, newColor);
         }
 
-
-        //Acceptable margin of error is 1
+        // Acceptable margin of error is 1
         [Theory]
         [InlineData(0, 0, 0, 0, 0, 0)]
         [InlineData(255, 255, 255, 0, 0, 100)]
@@ -33,10 +32,10 @@ namespace PixiEditorTests.ModelsTests.ColorsTests
         [InlineData(137, 43, 226, 271, 75.9f, 52.7f)]
         public void RgbToHslTest(int r, int g, int b, int h, float s, float l)
         {
-            var hsl = ExColor.RgbToHsl(r, g, b);
+            Tuple<int, float, float> hsl = ExColor.RgbToHsl(r, g, b);
             float marginOfErrorH = Math.Abs(hsl.Item1 - h);
-            var marginOfErrorS = Math.Abs(hsl.Item2 - s);
-            var marginOfErrorL = Math.Abs(hsl.Item3 - l);
+            float marginOfErrorS = Math.Abs(hsl.Item2 - s);
+            float marginOfErrorL = Math.Abs(hsl.Item3 - l);
             Assert.True(marginOfErrorH <= AcceptableMaringOfError);
             Assert.True(marginOfErrorS <= AcceptableMaringOfError);
             Assert.True(marginOfErrorL <= AcceptableMaringOfError);
@@ -50,10 +49,10 @@ namespace PixiEditorTests.ModelsTests.ColorsTests
         [InlineData(271, 75.9f, 52.7f, 137, 43, 226)]
         public void HslToRgbTest(int h, float s, float l, int r, int g, int b)
         {
-            var rgb = ExColor.HslToRgb(h, s, l);
-            var marginOfErrorR = Math.Abs(rgb.R - r);
-            var marginOfErrorG = Math.Abs(rgb.G - g);
-            var marginOfErrorB = Math.Abs(rgb.B - b);
+            Color rgb = ExColor.HslToRgb(h, s, l);
+            int marginOfErrorR = Math.Abs(rgb.R - r);
+            int marginOfErrorG = Math.Abs(rgb.G - g);
+            int marginOfErrorB = Math.Abs(rgb.B - b);
             Assert.True(marginOfErrorR <= AcceptableMaringOfError);
             Assert.True(marginOfErrorG <= AcceptableMaringOfError);
             Assert.True(marginOfErrorB <= AcceptableMaringOfError);

@@ -14,13 +14,16 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         [InlineData(100)]
         public void TestThatCreateLineCreatesDiagonalLine(int length)
         {
-            var lineTool = new LineTool();
+            LineTool lineTool = new LineTool();
 
-            var line = lineTool.CreateLine(new Coordinates(0, 0), new Coordinates(length - 1, length - 1), 1);
+            System.Collections.Generic.IEnumerable<Coordinates> line = lineTool.CreateLine(new Coordinates(0, 0), new Coordinates(length - 1, length - 1), 1);
 
             Assert.Equal(length, line.Count());
 
-            for (var i = 0; i < length; i++) Assert.Contains(new Coordinates(i, i), line);
+            for (int i = 0; i < length; i++)
+            {
+                Assert.Contains(new Coordinates(i, i), line);
+            }
         }
     }
 }
