@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Name" Description="Description" ToolsVersion="15.0">
+<RuleSet Name="Name" Description="Description" ToolsVersion="16.0">
     <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+        <Rule Id="SA1101" Action="None" />
     </Rules>
 </RuleSet>
