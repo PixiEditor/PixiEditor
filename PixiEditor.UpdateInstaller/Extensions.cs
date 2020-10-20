@@ -7,10 +7,7 @@ namespace PixiEditor.UpdateInstaller
 {
     public static class Extensions
     {
-        private static readonly int MaxPath = 255;
-
-        [DllImport("kernel32.dll")]
-        private static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, int nSize);
+        private const int MaxPath = 255;
 
         public static string GetExecutablePath()
         {
@@ -21,7 +18,10 @@ namespace PixiEditor.UpdateInstaller
                 return sb.ToString();
             }
 
-            return Process.GetCurrentProcess().MainModule.FileName;
+            return Process.GetCurrentProcess().MainModule?.FileName;
         }
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, int nSize);
     }
 }

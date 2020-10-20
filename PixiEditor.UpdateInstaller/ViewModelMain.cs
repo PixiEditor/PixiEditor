@@ -21,6 +21,7 @@ namespace PixiEditor.UpdateInstaller
         }
 
         public ViewModelMain Current { get; }
+
         public UpdateModule.UpdateInstaller Installer { get; set; }
 
         public string UpdateDirectory { get; }

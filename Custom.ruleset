@@ -3,5 +3,6 @@
     <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
         <Rule Id="SA1101" Action="None" />
         <Rule Id="SA1633" Action="None" />
+        <Rule Id="SA0001" Action="None" />
     </Rules>
 </RuleSet>
