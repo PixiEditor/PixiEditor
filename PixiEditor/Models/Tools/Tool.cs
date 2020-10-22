@@ -7,6 +7,8 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
+        private bool isActive;
+
         public abstract ToolType ToolType { get; }
 
         public string ImagePath => $"/Images/{ToolType}Image.png";
@@ -28,8 +30,6 @@ namespace PixiEditor.Models.Tools
         public Cursor Cursor { get; set; } = Cursors.Arrow;
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
-
-        private bool isActive;
 
         public bool CanStartOutsideCanvas { get; set; } = false;
 

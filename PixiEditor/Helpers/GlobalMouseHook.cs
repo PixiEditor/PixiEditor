@@ -8,16 +8,21 @@ using System.Windows.Input;
 
 namespace PixiEditor.Helpers
 {
+    public delegate void MouseUpEventHandler(object sender, Point p, MouseButton button);
+
     // see https://stackoverflow.com/questions/22659925/how-to-capture-mouseup-event-outside-the-wpf-window
     [ExcludeFromCodeCoverage]
     public static class GlobalMouseHook
     {
-        private delegate int HookProc(int nCode, int wParam, IntPtr lParam);
+        private const int WH_MOUSE_LL = 14;
+        private const int WM_LBUTTONUP = 0x0202;
+        private const int WM_MBUTTONUP = 0x0208;
+        private const int WM_RBUTTONUP = 0x0205;
 
         private static int mouseHookHandle;
         private static HookProc mouseDelegate;
 
-        private static event MouseUpEventHandler MouseUp;
+        private delegate int HookProc(int nCode, int wParam, IntPtr lParam);
 
         public static event MouseUpEventHandler OnMouseUp
         {
@@ -33,6 +38,8 @@ namespace PixiEditor.Helpers
                 Unsubscribe();
             }
         }
+
+        private static event MouseUpEventHandler MouseUp;
 
         public static void RaiseMouseUp()
         {
@@ -91,29 +98,8 @@ namespace PixiEditor.Helpers
             return CallNextHookEx(mouseHookHandle, nCode, wParam, lParam);
         }
 
-        private const int WH_MOUSE_LL = 14;
-        private const int WM_LBUTTONUP = 0x0202;
-        private const int WM_MBUTTONUP = 0x0208;
-        private const int WM_RBUTTONUP = 0x0205;
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT
-        {
-            public int X;
-            public int Y;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MSLLHOOKSTRUCT
-        {
-            public POINT Pt;
-            public uint MouseData;
-            public uint Flags;
-            public uint Time;
-            public IntPtr DwExtraInfo;
-        }
-
-        [DllImport("user32.dll",
+        [DllImport(
+            "user32.dll",
             CharSet = CharSet.Auto,
             CallingConvention = CallingConvention.StdCall,
             SetLastError = true)]
@@ -134,7 +120,22 @@ namespace PixiEditor.Helpers
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetModuleHandle(string name);
-    }
 
-    public delegate void MouseUpEventHandler(object sender, Point p, MouseButton button);
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MSLLHOOKSTRUCT
+        {
+            public POINT Pt;
+            public uint MouseData;
+            public uint Flags;
+            public uint Time;
+            public IntPtr DwExtraInfo;
+        }
+    }
 }

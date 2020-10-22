@@ -7,8 +7,6 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class MoveViewportTool : ReadonlyTool
     {
-        public override ToolType ToolType => ToolType.MoveViewport;
-
         private Point clickPoint;
 
         public MoveViewportTool()
@@ -17,6 +15,8 @@ namespace PixiEditor.Models.Tools.Tools
             Cursor = Cursors.SizeAll;
             Tooltip = "Move viewport. (H)";
         }
+
+        public override ToolType ToolType => ToolType.MoveViewport;
 
         public override void OnMouseDown(MouseEventArgs e)
         {
@@ -31,7 +31,8 @@ namespace PixiEditor.Models.Tools.Tools
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
                 var point = MousePositionConverter.GetCursorPosition();
-                ViewModelMain.Current.ViewportPosition = new System.Windows.Point(point.X - clickPoint.X,
+                ViewModelMain.Current.ViewportPosition = new System.Windows.Point(
+                    point.X - clickPoint.X,
                     point.Y - clickPoint.Y);
             }
         }

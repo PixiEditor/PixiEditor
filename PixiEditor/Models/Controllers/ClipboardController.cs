@@ -68,11 +68,11 @@ namespace PixiEditor.Models.Controllers
             }
             else if (dao.GetDataPresent(DataFormats.Dib))
             {
-                finalImage = new WriteableBitmap(Clipboard.GetImage()!);
+                finalImage = new WriteableBitmap(Clipboard.GetImage() !);
             }
             else if (dao.GetDataPresent(DataFormats.Bitmap))
             {
-                finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource)!);
+                finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource) !);
             }
 
             return finalImage;

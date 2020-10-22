@@ -19,6 +19,26 @@ namespace PixiEditor.Models.Controllers
 {
     public class BitmapManager : NotifyableObject
     {
+        private Document activeDocument;
+        private Layer previewLayer;
+        private Tool selectedTool;
+
+        public BitmapManager()
+        {
+            MouseController = new MouseMovementController();
+            MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
+            MouseController.MousePositionChanged += Controller_MousePositionChanged;
+            MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            MouseController.OnMouseDown += MouseController_OnMouseDown;
+            MouseController.OnMouseUp += MouseController_OnMouseUp;
+            BitmapOperations = new BitmapOperationsUtility(this);
+            ReadonlyToolUtility = new ReadonlyToolUtility();
+        }
+
+        public event EventHandler<LayersChangedEventArgs> LayersChanged;
+
+        public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
+
         public MouseMovementController MouseController { get; set; }
 
         public Tool SelectedTool
@@ -75,35 +95,12 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        private Document activeDocument;
-
-        private Layer previewLayer;
-        private Tool selectedTool;
-
-        public BitmapManager()
+        /// <summary>
+        ///     Returns if tool is BitmapOperationTool.
+        /// </summary>
+        public static bool IsOperationTool(Tool tool)
         {
-            MouseController = new MouseMovementController();
-            MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
-            MouseController.MousePositionChanged += Controller_MousePositionChanged;
-            MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
-            MouseController.OnMouseDown += MouseController_OnMouseDown;
-            MouseController.OnMouseUp += MouseController_OnMouseUp;
-            BitmapOperations = new BitmapOperationsUtility(this);
-            ReadonlyToolUtility = new ReadonlyToolUtility();
-        }
-
-        public event EventHandler<LayersChangedEventArgs> LayersChanged;
-
-        public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
-
-        private void MouseController_OnMouseDown(object sender, MouseEventArgs e)
-        {
-            SelectedTool.OnMouseDown(e);
-        }
-
-        private void MouseController_OnMouseUp(object sender, MouseEventArgs e)
-        {
-            SelectedTool.OnMouseUp(e);
+            return tool is BitmapOperationTool;
         }
 
         public void SetActiveTool(Tool tool)
@@ -171,6 +168,46 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
+        {
+            if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
+            {
+                if (IsOperationTool(SelectedTool))
+                {
+                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                }
+                else
+                {
+                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(), (ReadonlyTool)SelectedTool);
+                }
+            }
+        }
+
+        public void GeneratePreviewLayer()
+        {
+            if (ActiveDocument != null)
+            {
+                PreviewLayer = new Layer("_previewLayer")
+                {
+                    MaxWidth = ActiveDocument.Width,
+                    MaxHeight = ActiveDocument.Height
+                };
+            }
+        }
+
+        public WriteableBitmap GetCombinedLayersBitmap()
+        {
+            return BitmapUtils.CombineLayers(ActiveDocument.Layers.Where(x => x.IsVisible).ToArray(), ActiveDocument.Width, ActiveDocument.Height);
+        }
+
+        /// <summary>
+        ///     Returns if selected tool is BitmapOperationTool.
+        /// </summary>
+        public bool IsOperationTool()
+        {
+            return IsOperationTool(SelectedTool);
+        }
+
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
             SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
@@ -184,21 +221,14 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
+        private void MouseController_OnMouseDown(object sender, MouseEventArgs e)
         {
-            if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
-            {
-                if (IsOperationTool(SelectedTool))
-                {
-                    BitmapOperations.ExecuteTool(newPosition,
-                        MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
-                }
-                else
-                {
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(),
-                        (ReadonlyTool)SelectedTool);
-                }
-            }
+            SelectedTool.OnMouseDown(e);
+        }
+
+        private void MouseController_OnMouseUp(object sender, MouseEventArgs e)
+        {
+            SelectedTool.OnMouseUp(e);
         }
 
         private bool IsDraggingViewport()
@@ -219,16 +249,6 @@ namespace PixiEditor.Models.Controllers
             {
                 BitmapOperations.StopAction();
             }
-        }
-
-        public void GeneratePreviewLayer()
-        {
-            if (ActiveDocument != null)
-                PreviewLayer = new Layer("_previewLayer")
-                {
-                    MaxWidth = ActiveDocument.Width,
-                    MaxHeight = ActiveDocument.Height
-                };
         }
 
         private void HighlightPixels(Coordinates newPosition)
@@ -267,28 +287,6 @@ namespace PixiEditor.Models.Controllers
             return highlightArea[0].X <= ActiveDocument.Width - 1 &&
                     highlightArea[0].Y <= ActiveDocument.Height - 1 &&
                    highlightArea[^1].X >= 0 && highlightArea[^1].Y >= 0;
-        }
-
-        public WriteableBitmap GetCombinedLayersBitmap()
-        {
-            return BitmapUtils.CombineLayers(ActiveDocument.Layers.Where(x => x.IsVisible).ToArray(), ActiveDocument.Width, ActiveDocument.Height);
-        }
-
-        /// <summary>
-        ///     Returns if selected tool is BitmapOperationTool.
-        /// </summary>
-        /// <returns></returns>
-        public bool IsOperationTool()
-        {
-            return IsOperationTool(SelectedTool);
-        }
-
-        /// <summary>
-        ///     Returns if tool is BitmapOperationTool.
-        /// </summary>
-        public static bool IsOperationTool(Tool tool)
-        {
-            return tool is BitmapOperationTool;
         }
     }
 }

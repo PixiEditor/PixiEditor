@@ -8,11 +8,18 @@ namespace PixiEditor.UpdateModule
     public class UpdateInstaller
     {
         public const string TargetDirectoryName = "UpdateFiles";
-        public static string UpdateFilesPath = Path.Join(UpdateDownloader.DownloadLocation, TargetDirectoryName);
+
+        private float progress = 0;
+
+        public UpdateInstaller(string archiveFileName, string targetDirectory)
+        {
+            ArchiveFileName = archiveFileName;
+            TargetDirectory = targetDirectory;
+        }
 
         public event EventHandler<UpdateProgressChangedEventArgs> ProgressChanged;
 
-        private float progress = 0;
+        public static string UpdateFilesPath { get; set; } = Path.Join(UpdateDownloader.DownloadLocation, TargetDirectoryName);
 
         public float Progress
         {
@@ -28,12 +35,6 @@ namespace PixiEditor.UpdateModule
 
         public string TargetDirectory { get; set; }
 
-        public UpdateInstaller(string archiveFileName, string targetDirectory)
-        {
-            ArchiveFileName = archiveFileName;
-            TargetDirectory = targetDirectory;
-        }
-
         public void Install()
         {
             var processes = Process.GetProcessesByName("PixiEditor");
@@ -43,7 +44,7 @@ namespace PixiEditor.UpdateModule
             }
 
             ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
-            Progress = 25; //25% for unzip
+            Progress = 25; // 25% for unzip
             string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
             string[] files = Directory.GetFiles(dirWithFiles);
             CopyFilesToDestination(files);
@@ -59,7 +60,7 @@ namespace PixiEditor.UpdateModule
 
         private void CopyFilesToDestination(string[] files)
         {
-            float fileCopiedVal = 74f / files.Length; //74% is reserved for copying
+            float fileCopiedVal = 74f / files.Length; // 74% is reserved for copying
             string destinationDir = TargetDirectory;
             foreach (string file in files)
             {

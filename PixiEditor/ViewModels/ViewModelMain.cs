@@ -46,15 +46,131 @@ namespace PixiEditor.ViewModels
 
         private bool unsavedDocumentModified;
 
-        public Action CloseAction { get; set; }
+        private double mouseXonCanvas;
+
+        private double mouseYonCanvas;
+
+        private string versionText;
+
+        private double zoomPercentage = 100;
+
+        private Point viewPortPosition;
+
+        private bool updateReadyToInstall = false;
+
+        private bool restoreToolOnKeyUp = false;
+
+        public ViewModelMain()
+        {
+            BitmapManager = new BitmapManager();
+            BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
+            BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
+            BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+            ChangesController = new PixelChangesController();
+            SelectToolCommand = new RelayCommand(SetTool, DocumentIsNotNull);
+            OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
+            MouseMoveCommand = new RelayCommand(MouseMove);
+            MouseDownCommand = new RelayCommand(MouseDown);
+            ExportFileCommand = new RelayCommand(ExportFile, CanSave);
+            UndoCommand = new RelayCommand(Undo, CanUndo);
+            RedoCommand = new RelayCommand(Redo, CanRedo);
+            OpenFileCommand = new RelayCommand(Open);
+            SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
+            NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
+            DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
+            MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
+            MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
+            SwapColorsCommand = new RelayCommand(SwapColors);
+            KeyDownCommand = new RelayCommand(KeyDown);
+            KeyUpCommand = new RelayCommand(KeyUp);
+            RenameLayerCommand = new RelayCommand(RenameLayer);
+            DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
+            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
+            CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
+            DuplicateCommand = new RelayCommand(Duplicate, SelectionIsNotEmpty);
+            CutCommand = new RelayCommand(Cut, SelectionIsNotEmpty);
+            PasteCommand = new RelayCommand(Paste, CanPaste);
+            ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
+            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
+            OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
+            SelectColorCommand = new RelayCommand(SelectColor);
+            RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
+            SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
+            OnStartupCommand = new RelayCommand(OnStartup);
+            CloseWindowCommand = new RelayCommand(CloseWindow);
+            CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
+            OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
+            ZoomCommand = new RelayCommand(ZoomViewport);
+            ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
+            RestartApplicationCommand = new RelayCommand(RestartApplication);
+            ToolSet = new ObservableCollection<Tool>
+            {
+                new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
+                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(),
+                new ZoomTool()
+            };
+            ShortcutController = new ShortcutController
+            {
+                Shortcuts = new List<Shortcut>
+                {
+                    // Tools
+                    new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
+                    new Shortcut(Key.E, SelectToolCommand, ToolType.Eraser),
+                    new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
+                    new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
+                    new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
+                    new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
+                    new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
+                    new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
+                    new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
+                    new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
+                    new Shortcut(Key.Z, SelectToolCommand, ToolType.Zoom),
+                    new Shortcut(Key.H, SelectToolCommand, ToolType.MoveViewport),
+                    new Shortcut(Key.OemPlus, ZoomCommand, 115),
+                    new Shortcut(Key.OemMinus, ZoomCommand, 85),
+                    new Shortcut(Key.OemOpenBrackets, ChangeToolSizeCommand, -1),
+                    new Shortcut(Key.OemCloseBrackets, ChangeToolSizeCommand, 1),
+
+                    // Editor
+                    new Shortcut(Key.X, SwapColorsCommand),
+                    new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Z, UndoCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Delete, DeletePixelsCommand),
+                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.F11, SystemCommands.MaximizeWindowCommand),
+
+                    // File
+                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, ExportFileCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
+                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
+                }
+            };
+            UndoManager.SetMainRoot(this);
+            SetActiveTool(ToolType.Move);
+            BitmapManager.PrimaryColor = PrimaryColor;
+            ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            Current = this;
+            InitUpdateChecker();
+        }
 
         public static ViewModelMain Current { get; set; }
 
-        public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching
+        public Action CloseAction { get; set; }
 
-        public RelayCommand OpenNewFilePopupCommand { get; set; } //Command that generates draw area
+        public RelayCommand SelectToolCommand { get; set; } // Command that handles tool switching
 
-        public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
+        public RelayCommand OpenNewFilePopupCommand { get; set; } // Command that generates draw area
+
+        public RelayCommand MouseMoveCommand { get; set; } // Command that is used to draw
 
         public RelayCommand MouseDownCommand { get; set; }
 
@@ -62,7 +178,7 @@ namespace PixiEditor.ViewModels
 
         public RelayCommand KeyUpCommand { get; set; }
 
-        public RelayCommand ExportFileCommand { get; set; } //Command that is used to save file
+        public RelayCommand ExportFileCommand { get; set; } // Command that is used to save file
 
         public RelayCommand UndoCommand { get; set; }
 
@@ -122,11 +238,7 @@ namespace PixiEditor.ViewModels
 
         public RelayCommand RestartApplicationCommand { get; set; }
 
-        private double mouseXonCanvas;
-
-        private double mouseYonCanvas;
-
-        public double MouseXOnCanvas //Mouse X coordinate relative to canvas
+        public double MouseXOnCanvas // Mouse X coordinate relative to canvas
         {
             get => mouseXonCanvas;
             set
@@ -136,7 +248,7 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        public double MouseYOnCanvas //Mouse Y coordinate relative to canvas
+        public double MouseYOnCanvas // Mouse Y coordinate relative to canvas
         {
             get => mouseYonCanvas;
             set
@@ -145,8 +257,6 @@ namespace PixiEditor.ViewModels
                 RaisePropertyChanged("MouseYOnCanvas");
             }
         }
-
-        private string versionText;
 
         public string VersionText
         {
@@ -168,7 +278,7 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        public Color PrimaryColor //Primary color, hooked with left mouse button
+        public Color PrimaryColor // Primary color, hooked with left mouse button
         {
             get => primaryColor;
             set
@@ -197,7 +307,7 @@ namespace PixiEditor.ViewModels
 
         public ObservableCollection<Tool> ToolSet { get; set; }
 
-        public LayerChange[] UndoChanges //This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
+        public LayerChange[] UndoChanges // This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
         {
             get => undoChanges;
             set
@@ -220,8 +330,6 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private double zoomPercentage = 100;
-
         public double ZoomPercentage
         {
             get
@@ -236,8 +344,6 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private Point viewPortPosition;
-
         public Point ViewportPosition
         {
             get => viewPortPosition;
@@ -247,8 +353,6 @@ namespace PixiEditor.ViewModels
                 RaisePropertyChanged(nameof(ViewportPosition));
             }
         }
-
-        private bool updateReadyToInstall = false;
 
         public bool UpdateReadyToInstall
         {
@@ -276,126 +380,9 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private bool restoreToolOnKeyUp = false;
-
         public Tool LastActionTool { get; private set; }
 
         public UpdateChecker UpdateChecker { get; set; }
-
-        public ViewModelMain()
-        {
-            BitmapManager = new BitmapManager();
-            BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
-            BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
-            BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
-            ChangesController = new PixelChangesController();
-            SelectToolCommand = new RelayCommand(SetTool, DocumentIsNotNull);
-            OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
-            MouseMoveCommand = new RelayCommand(MouseMove);
-            MouseDownCommand = new RelayCommand(MouseDown);
-            ExportFileCommand = new RelayCommand(ExportFile, CanSave);
-            UndoCommand = new RelayCommand(Undo, CanUndo);
-            RedoCommand = new RelayCommand(Redo, CanRedo);
-            OpenFileCommand = new RelayCommand(Open);
-            SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
-            NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
-            MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
-            MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
-            SwapColorsCommand = new RelayCommand(SwapColors);
-            KeyDownCommand = new RelayCommand(KeyDown);
-            KeyUpCommand = new RelayCommand(KeyUp);
-            RenameLayerCommand = new RelayCommand(RenameLayer);
-            DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
-            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
-            CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
-            DuplicateCommand = new RelayCommand(Duplicate, SelectionIsNotEmpty);
-            CutCommand = new RelayCommand(Cut, SelectionIsNotEmpty);
-            PasteCommand = new RelayCommand(Paste, CanPaste);
-            ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
-            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
-            OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
-            SelectColorCommand = new RelayCommand(SelectColor);
-            RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
-            SaveDocumentCommand = new RelayCommand(SaveDocument, DocumentIsNotNull);
-            OnStartupCommand = new RelayCommand(OnStartup);
-            CloseWindowCommand = new RelayCommand(CloseWindow);
-            CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
-            OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
-            ZoomCommand = new RelayCommand(ZoomViewport);
-            ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
-            RestartApplicationCommand = new RelayCommand(RestartApplication);
-            ToolSet = new ObservableCollection<Tool>
-            {
-                new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(),
-                new ZoomTool()
-            };
-            ShortcutController = new ShortcutController
-            {
-                Shortcuts = new List<Shortcut>
-                {
-                    //Tools
-                    new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.E, SelectToolCommand, ToolType.Eraser),
-                    new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
-                    new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
-                    new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
-                    new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
-                    new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
-                    new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
-                    new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
-                    new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
-                    new Shortcut(Key.Z, SelectToolCommand, ToolType.Zoom),
-                    new Shortcut(Key.H, SelectToolCommand, ToolType.MoveViewport),
-                    new Shortcut(Key.OemPlus, ZoomCommand, 115),
-                    new Shortcut(Key.OemMinus, ZoomCommand, 85),
-                    new Shortcut(Key.OemOpenBrackets, ChangeToolSizeCommand, -1),
-                    new Shortcut(Key.OemCloseBrackets, ChangeToolSizeCommand, 1),
-                    //Editor
-                    new Shortcut(Key.X, SwapColorsCommand),
-                    new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.Z, UndoCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.Delete, DeletePixelsCommand),
-                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.F11, SystemCommands.MaximizeWindowCommand),
-                    //File
-                    new Shortcut(Key.O, OpenFileCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, ExportFileCommand,
-                        modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
-                    new Shortcut(Key.S, SaveDocumentCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.N, OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
-                }
-            };
-            UndoManager.SetMainRoot(this);
-            SetActiveTool(ToolType.Move);
-            BitmapManager.PrimaryColor = PrimaryColor;
-            ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            Current = this;
-            InitUpdateChecker();
-        }
-
-        private void RestartApplication(object parameter)
-        {
-            try
-            {
-                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
-                Application.Current.Shutdown();
-            }
-            catch (Win32Exception)
-            {
-                MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
 
         public async Task<bool> CheckForUpdate()
         {
@@ -408,13 +395,280 @@ namespace PixiEditor.ViewModels
                 {
                     VersionText = "Downloading update...";
                     await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
-                    VersionText = "to install update"; //Button shows "Restart" before this text
+                    VersionText = "to install update"; // Button shows "Restart" before this text
                     UpdateReadyToInstall = true;
                     return true;
                 }
 
                 return false;
             });
+        }
+
+        public void AddSwatch(Color color)
+        {
+            if (!BitmapManager.ActiveDocument.Swatches.Contains(color))
+            {
+                BitmapManager.ActiveDocument.Swatches.Add(color);
+            }
+        }
+
+        public void ClipCanvas(object parameter)
+        {
+            BitmapManager.ActiveDocument?.ClipCanvas();
+        }
+
+        public void Duplicate(object parameter)
+        {
+            Copy(null);
+            Paste(null);
+        }
+
+        public void Cut(object parameter)
+        {
+            Copy(null);
+            BitmapManager.ActiveLayer.SetPixels(
+                BitmapPixelChanges.FromSingleColoredArray(ActiveSelection.SelectedPoints.ToArray(), Colors.Transparent));
+        }
+
+        public void Paste(object parameter)
+        {
+            ClipboardController.PasteFromClipboard();
+        }
+
+        public void SelectAll(object parameter)
+        {
+            SelectTool select = new SelectTool();
+            ActiveSelection.SetSelection(select.GetAllSelection(), SelectionType.New);
+        }
+
+        public bool DocumentIsNotNull(object property)
+        {
+            return BitmapManager.ActiveDocument != null;
+        }
+
+        public void Deselect(object parameter)
+        {
+            ActiveSelection?.Clear();
+        }
+
+        public void SetTool(object parameter)
+        {
+            SetActiveTool((ToolType)parameter);
+        }
+
+        public void RenameLayer(object parameter)
+        {
+            BitmapManager.ActiveDocument.Layers[(int)parameter].IsRenaming = true;
+        }
+
+        public void KeyDown(object parameter)
+        {
+            KeyEventArgs args = (KeyEventArgs)parameter;
+            if (args.IsRepeat && !restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.Command == SelectToolCommand)
+            {
+                restoreToolOnKeyUp = true;
+                ShortcutController.BlockShortcutExecution = true;
+            }
+
+            ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
+        }
+
+        public void TriggerNewUndoChange(Tool toolUsed)
+        {
+            if (BitmapManager.IsOperationTool(toolUsed)
+                && ((BitmapOperationTool)toolUsed).UseDefaultUndoMethod)
+            {
+                Tuple<LayerChange, LayerChange>[] changes = ChangesController.PopChanges();
+                if (changes != null && changes.Length > 0)
+                {
+                    LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
+                    LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
+                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues));
+                    toolUsed.AfterAddedUndo();
+                }
+            }
+        }
+
+        public void SwapColors(object parameter)
+        {
+            var tmp = PrimaryColor;
+            PrimaryColor = SecondaryColor;
+            SecondaryColor = tmp;
+        }
+
+        public void MoveLayerToFront(object parameter)
+        {
+            int oldIndex = (int)parameter;
+            BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex + 1);
+            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
+            {
+                BitmapManager.SetActiveLayer(oldIndex + 1);
+            }
+        }
+
+        public void MoveLayerToBack(object parameter)
+        {
+            int oldIndex = (int)parameter;
+            BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex - 1);
+            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
+            {
+                BitmapManager.SetActiveLayer(oldIndex - 1);
+            }
+        }
+
+        public bool CanMoveToFront(object property)
+        {
+            return DocumentIsNotNull(null) && BitmapManager.ActiveDocument.Layers.Count - 1 > (int)property;
+        }
+
+        public bool CanMoveToBack(object property)
+        {
+            return (int)property > 0;
+        }
+
+        public void SetActiveLayer(object parameter)
+        {
+            BitmapManager.SetActiveLayer((int)parameter);
+        }
+
+        public void DeleteLayer(object parameter)
+        {
+            BitmapManager.RemoveLayer((int)parameter);
+        }
+
+        public bool CanDeleteLayer(object property)
+        {
+            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 1;
+        }
+
+        public void SetActiveTool(ToolType tool)
+        {
+            Tool foundTool = ToolSet.First(x => x.ToolType == tool);
+            SetActiveTool(foundTool);
+        }
+
+        public void SetActiveTool(Tool tool)
+        {
+            Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
+            if (activeTool != null)
+            {
+                activeTool.IsActive = false;
+            }
+
+            tool.IsActive = true;
+            LastActionTool = BitmapManager.SelectedTool;
+            BitmapManager.SetActiveTool(tool);
+            SetToolCursor(tool.ToolType);
+        }
+
+        // this is public for testing.
+        public void MouseHook_OnMouseUp(object sender, Point p, MouseButton button)
+        {
+            GlobalMouseHook.OnMouseUp -= MouseHook_OnMouseUp;
+            if (button == MouseButton.Left)
+            {
+                BitmapManager.MouseController.StopRecordingMouseMovementChanges();
+            }
+
+            BitmapManager.MouseController.MouseUp(new MouseEventArgs(
+                Mouse.PrimaryDevice,
+                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+        }
+
+        /// <summary>
+        ///     Generates new Layer and sets it as active one.
+        /// </summary>
+        public void OpenNewFilePopup(object parameter)
+        {
+            NewFileDialog newFile = new NewFileDialog();
+            if (newFile.ShowDialog())
+            {
+                NewDocument(newFile.Width, newFile.Height);
+            }
+        }
+
+        /// <summary>
+        ///     Opens file from path.
+        /// </summary>
+        public void OpenFile(string path)
+        {
+            ImportFileDialog dialog = new ImportFileDialog();
+
+            if (path != null && File.Exists(path))
+            {
+                dialog.FilePath = path;
+            }
+
+            if (dialog.ShowDialog())
+            {
+                NewDocument(dialog.FileWidth, dialog.FileHeight, false);
+                BitmapManager.AddNewLayer("Image", Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
+            }
+        }
+
+        public void NewDocument(int width, int height, bool addBaseLayer = true)
+        {
+            BitmapManager.ActiveDocument = new Document(width, height);
+            if (addBaseLayer)
+            {
+                BitmapManager.AddNewLayer("Base Layer");
+            }
+
+            ResetProgramStateValues();
+        }
+
+        /// <summary>
+        ///     Resets most variables and controller, so new documents can be handled.
+        /// </summary>
+        public void ResetProgramStateValues()
+        {
+            BitmapManager.PreviewLayer = null;
+            UndoManager.UndoStack.Clear();
+            UndoManager.RedoStack.Clear();
+            ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            RecenterZoombox = !RecenterZoombox;
+            Exporter.SaveDocumentPath = null;
+            unsavedDocumentModified = false;
+        }
+
+        public void NewLayer(object parameter)
+        {
+            BitmapManager.AddNewLayer($"New Layer {BitmapManager.ActiveDocument.Layers.Count}");
+        }
+
+        public bool CanCreateNewLayer(object parameter)
+        {
+            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 0;
+        }
+
+        /// <summary>
+        ///     Undo last action.
+        /// </summary>
+        public void Undo(object parameter)
+        {
+            Deselect(null);
+            UndoManager.Undo();
+        }
+
+        /// <summary>
+        ///     Redo last action.
+        /// </summary>
+        public void Redo(object parameter)
+        {
+            UndoManager.Redo();
+        }
+
+        private void RestartApplication(object parameter)
+        {
+            try
+            {
+                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+                Application.Current.Shutdown();
+            }
+            catch (Win32Exception)
+            {
+                MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void InitUpdateChecker()
@@ -469,7 +723,8 @@ namespace PixiEditor.ViewModels
             {
                 throw new ArgumentException();
             }
-((CancelEventArgs)property).Cancel = true;
+
+            ((CancelEventArgs)property).Cancel = true;
 
             ConfirmationType result = ConfirmationType.No;
             if (unsavedDocumentModified)
@@ -599,19 +854,10 @@ namespace PixiEditor.ViewModels
             unsavedDocumentModified = true;
         }
 
-        public void AddSwatch(Color color)
-        {
-            if (!BitmapManager.ActiveDocument.Swatches.Contains(color))
-            {
-                BitmapManager.ActiveDocument.Swatches.Add(color);
-            }
-        }
-
         private void OpenResizePopup(object parameter)
         {
             bool isCanvasDialog = (string)parameter == "canvas";
-            ResizeDocumentDialog dialog = new ResizeDocumentDialog(BitmapManager.ActiveDocument.Width,
-                BitmapManager.ActiveDocument.Height, isCanvasDialog);
+            ResizeDocumentDialog dialog = new ResizeDocumentDialog(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height, isCanvasDialog);
             if (dialog.ShowDialog())
             {
                 if (isCanvasDialog)
@@ -627,32 +873,9 @@ namespace PixiEditor.ViewModels
 
         private void DeletePixels(object parameter)
         {
-            BitmapManager.BitmapOperations.DeletePixels(new[] { BitmapManager.ActiveLayer },
+            BitmapManager.BitmapOperations.DeletePixels(
+                new[] { BitmapManager.ActiveLayer },
                 ActiveSelection.SelectedPoints.ToArray());
-        }
-
-        public void ClipCanvas(object parameter)
-        {
-            BitmapManager.ActiveDocument?.ClipCanvas();
-        }
-
-        public void Duplicate(object parameter)
-        {
-            Copy(null);
-            Paste(null);
-        }
-
-        public void Cut(object parameter)
-        {
-            Copy(null);
-            BitmapManager.ActiveLayer.SetPixels(
-                BitmapPixelChanges.FromSingleColoredArray(ActiveSelection.SelectedPoints.ToArray(),
-                    Colors.Transparent));
-        }
-
-        public void Paste(object parameter)
-        {
-            ClipboardController.PasteFromClipboard();
         }
 
         private bool CanPaste(object property)
@@ -662,14 +885,11 @@ namespace PixiEditor.ViewModels
 
         private void Copy(object parameter)
         {
-            ClipboardController.CopyToClipboard(BitmapManager.ActiveDocument.Layers.ToArray(),
-                ActiveSelection.SelectedPoints.ToArray(), BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height);
-        }
-
-        public void SelectAll(object parameter)
-        {
-            SelectTool select = new SelectTool();
-            ActiveSelection.SetSelection(select.GetAllSelection(), SelectionType.New);
+            ClipboardController.CopyToClipboard(
+                BitmapManager.ActiveDocument.Layers.ToArray(),
+                ActiveSelection.SelectedPoints.ToArray(),
+                BitmapManager.ActiveDocument.Width,
+                BitmapManager.ActiveDocument.Height);
         }
 
         private bool CanSelectAll(object property)
@@ -677,29 +897,9 @@ namespace PixiEditor.ViewModels
             return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 0;
         }
 
-        public bool DocumentIsNotNull(object property)
-        {
-            return BitmapManager.ActiveDocument != null;
-        }
-
-        public void Deselect(object parameter)
-        {
-            ActiveSelection?.Clear();
-        }
-
         private bool SelectionIsNotEmpty(object property)
         {
             return ActiveSelection?.SelectedPoints != null && ActiveSelection.SelectedPoints.Count > 0;
-        }
-
-        public void SetTool(object parameter)
-        {
-            SetActiveTool((ToolType)parameter);
-        }
-
-        public void RenameLayer(object parameter)
-        {
-            BitmapManager.ActiveDocument.Layers[(int)parameter].IsRenaming = true;
         }
 
         private void KeyUp(object parameter)
@@ -713,120 +913,23 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        public void KeyDown(object parameter)
-        {
-            KeyEventArgs args = (KeyEventArgs)parameter;
-            if (args.IsRepeat && !restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.Command == SelectToolCommand)
-            {
-                restoreToolOnKeyUp = true;
-                ShortcutController.BlockShortcutExecution = true;
-            }
-
-            ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
-        }
-
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
             TriggerNewUndoChange(BitmapManager.SelectedTool);
         }
 
-        public void TriggerNewUndoChange(Tool toolUsed)
-        {
-            if (BitmapManager.IsOperationTool(toolUsed)
-                && ((BitmapOperationTool)toolUsed).UseDefaultUndoMethod)
-            {
-                Tuple<LayerChange, LayerChange>[] changes = ChangesController.PopChanges();
-                if (changes != null && changes.Length > 0)
-                {
-                    LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
-                    LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
-                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues));
-                    toolUsed.AfterAddedUndo();
-                }
-            }
-        }
-
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
-            ChangesController.AddChanges(new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
+            ChangesController.AddChanges(
+                new LayerChange(
+                    e.PixelsChanged,
+                    e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
             unsavedDocumentModified = true;
             if (BitmapManager.IsOperationTool())
             {
                 AddSwatch(PrimaryColor);
             }
-        }
-
-        public void SwapColors(object parameter)
-        {
-            var tmp = PrimaryColor;
-            PrimaryColor = SecondaryColor;
-            SecondaryColor = tmp;
-        }
-
-        public void MoveLayerToFront(object parameter)
-        {
-            int oldIndex = (int)parameter;
-            BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex + 1);
-            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
-            {
-                BitmapManager.SetActiveLayer(oldIndex + 1);
-            }
-        }
-
-        public void MoveLayerToBack(object parameter)
-        {
-            int oldIndex = (int)parameter;
-            BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex - 1);
-            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
-            {
-                BitmapManager.SetActiveLayer(oldIndex - 1);
-            }
-        }
-
-        public bool CanMoveToFront(object property)
-        {
-            return DocumentIsNotNull(null) && BitmapManager.ActiveDocument.Layers.Count - 1 > (int)property;
-        }
-
-        public bool CanMoveToBack(object property)
-        {
-            return (int)property > 0;
-        }
-
-        public void SetActiveLayer(object parameter)
-        {
-            BitmapManager.SetActiveLayer((int)parameter);
-        }
-
-        public void DeleteLayer(object parameter)
-        {
-            BitmapManager.RemoveLayer((int)parameter);
-        }
-
-        public bool CanDeleteLayer(object property)
-        {
-            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 1;
-        }
-
-        public void SetActiveTool(ToolType tool)
-        {
-            Tool foundTool = ToolSet.First(x => x.ToolType == tool);
-            SetActiveTool(foundTool);
-        }
-
-        public void SetActiveTool(Tool tool)
-        {
-            Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
-            if (activeTool != null)
-            {
-                activeTool.IsActive = false;
-            }
-
-            tool.IsActive = true;
-            LastActionTool = BitmapManager.SelectedTool;
-            BitmapManager.SetActiveTool(tool);
-            SetToolCursor(tool.ToolType);
         }
 
         private void SetToolCursor(ToolType tool)
@@ -859,7 +962,8 @@ namespace PixiEditor.ViewModels
                 }
             }
 
-            BitmapManager.MouseController.MouseDown(new MouseEventArgs(Mouse.PrimaryDevice,
+            BitmapManager.MouseController.MouseDown(new MouseEventArgs(
+                Mouse.PrimaryDevice,
                 (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
 
             // Mouse down is guaranteed to only be raised from within this application, so by subscribing here we
@@ -868,23 +972,9 @@ namespace PixiEditor.ViewModels
             GlobalMouseHook.OnMouseUp += MouseHook_OnMouseUp;
         }
 
-        // this is public for testing.
-        public void MouseHook_OnMouseUp(object sender, Point p, MouseButton button)
-        {
-            GlobalMouseHook.OnMouseUp -= MouseHook_OnMouseUp;
-            if (button == MouseButton.Left)
-            {
-                BitmapManager.MouseController.StopRecordingMouseMovementChanges();
-            }
-
-            BitmapManager.MouseController.MouseUp(new MouseEventArgs(Mouse.PrimaryDevice,
-                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-        }
-
         /// <summary>
         ///     Method connected with command, it executes tool "activity".
         /// </summary>
-        /// <param name="parameter"></param>
         private void MouseMove(object parameter)
         {
             Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
@@ -899,105 +989,16 @@ namespace PixiEditor.ViewModels
         }
 
         /// <summary>
-        ///     Generates new Layer and sets it as active one.
-        /// </summary>
-        public void OpenNewFilePopup(object parameter)
-        {
-            NewFileDialog newFile = new NewFileDialog();
-            if (newFile.ShowDialog())
-            {
-                NewDocument(newFile.Width, newFile.Height);
-            }
-        }
-
-        /// <summary>
-        ///     Opens file from path.
-        /// </summary>
-        public void OpenFile(string path)
-        {
-            ImportFileDialog dialog = new ImportFileDialog();
-
-            if (path != null && File.Exists(path))
-            {
-                dialog.FilePath = path;
-            }
-
-            if (dialog.ShowDialog())
-            {
-                NewDocument(dialog.FileWidth, dialog.FileHeight, false);
-                BitmapManager.AddNewLayer("Image", Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
-            }
-        }
-
-        public void NewDocument(int width, int height, bool addBaseLayer = true)
-        {
-            BitmapManager.ActiveDocument = new Document(width, height);
-            if (addBaseLayer)
-            {
-                BitmapManager.AddNewLayer("Base Layer");
-            }
-
-            ResetProgramStateValues();
-        }
-
-        /// <summary>
-        ///     Resets most variables and controller, so new documents can be handled.
-        /// </summary>
-        public void ResetProgramStateValues()
-        {
-            BitmapManager.PreviewLayer = null;
-            UndoManager.UndoStack.Clear();
-            UndoManager.RedoStack.Clear();
-            ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            RecenterZoombox = !RecenterZoombox;
-            Exporter.SaveDocumentPath = null;
-            unsavedDocumentModified = false;
-        }
-
-        public void NewLayer(object parameter)
-        {
-            BitmapManager.AddNewLayer($"New Layer {BitmapManager.ActiveDocument.Layers.Count}");
-        }
-
-        public bool CanCreateNewLayer(object parameter)
-        {
-            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 0;
-        }
-
-        /// <summary>
-        ///     Undo last action.
-        /// </summary>
-        /// <param name="parameter"></param>
-        public void Undo(object parameter)
-        {
-            Deselect(null);
-            UndoManager.Undo();
-        }
-
-        /// <summary>
         ///     Returns true if undo can be done.
         /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
         private bool CanUndo(object property)
         {
             return UndoManager.CanUndo;
         }
 
         /// <summary>
-        ///     Redo last action.
-        /// </summary>
-        /// <param name="parameter"></param>
-        public void Redo(object parameter)
-        {
-            UndoManager.Redo();
-        }
-
-        /// <summary>
         ///     Returns true if redo can be done.
         /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
         private bool CanRedo(object property)
         {
             return UndoManager.CanRedo;
@@ -1006,7 +1007,6 @@ namespace PixiEditor.ViewModels
         /// <summary>
         ///     Generates export dialog or saves directly if save data is known.
         /// </summary>
-        /// <param name="parameter"></param>
         private void ExportFile(object parameter)
         {
             WriteableBitmap bitmap = BitmapManager.GetCombinedLayersBitmap();
@@ -1016,8 +1016,6 @@ namespace PixiEditor.ViewModels
         /// <summary>
         ///     Returns true if file save is possible.
         /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
         private bool CanSave(object property)
         {
             return BitmapManager.ActiveDocument != null;

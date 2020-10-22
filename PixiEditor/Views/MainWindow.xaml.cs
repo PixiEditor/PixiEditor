@@ -14,7 +14,7 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
-        ViewModelMain viewModel;
+        private ViewModelMain viewModel;
 
         public MainWindow()
         {
@@ -79,8 +79,7 @@ namespace PixiEditor
                 }
                 catch (Win32Exception)
                 {
-                    MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

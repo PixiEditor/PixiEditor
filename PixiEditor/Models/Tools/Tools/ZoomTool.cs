@@ -10,9 +10,8 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public const float ZoomSensitivityMultiplier = 30f;
 
-        public override ToolType ToolType => ToolType.Zoom;
-
         private double startingX;
+
         private double workAreaWidth = SystemParameters.WorkArea.Width;
         private double pixelsPerZoomMultiplier;
 
@@ -24,10 +23,12 @@ namespace PixiEditor.Models.Tools.Tools
             pixelsPerZoomMultiplier = workAreaWidth / ZoomSensitivityMultiplier;
         }
 
+        public override ToolType ToolType => ToolType.Zoom;
+
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             startingX = MousePositionConverter.GetCursorPosition().X;
-            ViewModelMain.Current.ZoomPercentage = 100; //This resest the value, so callback in MainDrawingPanel can fire again later
+            ViewModelMain.Current.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
         }
 
         public override void OnMouseMove(MouseEventArgs e)
@@ -36,8 +37,8 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 double xPos = MousePositionConverter.GetCursorPosition().X;
 
-                double rawPercentDifference = (xPos - startingX) / pixelsPerZoomMultiplier; //negative - zoom out, positive - zoom in, linear
-                double finalPercentDifference = Math.Pow(2, rawPercentDifference) * 100.0; //less than 100 - zoom out, greater than 100 - zoom in
+                double rawPercentDifference = (xPos - startingX) / pixelsPerZoomMultiplier; // negative - zoom out, positive - zoom in, linear
+                double finalPercentDifference = Math.Pow(2, rawPercentDifference) * 100.0; // less than 100 - zoom out, greater than 100 - zoom in
                 Zoom(finalPercentDifference);
             }
         }

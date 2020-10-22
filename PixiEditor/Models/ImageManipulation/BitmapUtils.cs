@@ -15,8 +15,7 @@ namespace PixiEditor.Models.ImageManipulation
         /// <param name="currentBitmapHeight">Height of bitmap.</param>
         /// <param name="byteArray">Bitmap byte array.</param>
         /// <returns>WriteableBitmap.</returns>
-        public static WriteableBitmap BytesToWriteableBitmap(int currentBitmapWidth, int currentBitmapHeight,
-            byte[] byteArray)
+        public static WriteableBitmap BytesToWriteableBitmap(int currentBitmapWidth, int currentBitmapHeight, byte[] byteArray)
         {
             WriteableBitmap bitmap = BitmapFactory.New(currentBitmapWidth, currentBitmapHeight);
             bitmap.FromByteArray(byteArray);
@@ -37,7 +36,9 @@ namespace PixiEditor.Models.ImageManipulation
             using (finalBitmap.GetBitmapContext())
             {
                 for (int i = 0; i < layers.Length; i++)
+                {
                     for (int y = 0; y < finalBitmap.Height; y++)
+                    {
                         for (int x = 0; x < finalBitmap.Width; x++)
                         {
                             Color color = layers[i].GetPixelWithOffset(x, y);
@@ -60,6 +61,8 @@ namespace PixiEditor.Models.ImageManipulation
                                 finalBitmap.SetPixel(x, y, color);
                             }
                         }
+                    }
+                }
             }
 
             return finalBitmap;
@@ -75,7 +78,6 @@ namespace PixiEditor.Models.ImageManipulation
 
                 using (layers[i].LayerBitmap.GetBitmapContext())
                 {
-
                     for (int j = 0; j < pixels.Length; j++)
                     {
                         Coordinates position = layers[i].GetRelativePosition(selection[j]);
