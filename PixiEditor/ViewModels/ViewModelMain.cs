@@ -32,116 +32,150 @@ namespace PixiEditor.ViewModels
     {
         private const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
 
-        private Color _primaryColor = Colors.Black;
+        private Color primaryColor = Colors.Black;
 
-        private bool _recenterZoombox;
+        private bool recenterZoombox;
 
-        private Color _secondaryColor = Colors.White;
+        private Color secondaryColor = Colors.White;
 
-        private Selection _selection;
+        private Selection selection;
 
-        private Cursor _toolCursor;
+        private Cursor toolCursor;
 
-        private LayerChange[] _undoChanges;
+        private LayerChange[] undoChanges;
 
-        private bool _unsavedDocumentModified;
+        private bool unsavedDocumentModified;
 
         public Action CloseAction { get; set; }
 
         public static ViewModelMain Current { get; set; }
-        public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
+
+        public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching
+
         public RelayCommand OpenNewFilePopupCommand { get; set; } //Command that generates draw area
+
         public RelayCommand MouseMoveCommand { get; set; } //Command that is used to draw
+
         public RelayCommand MouseDownCommand { get; set; }
+
         public RelayCommand KeyDownCommand { get; set; }
+
         public RelayCommand KeyUpCommand { get; set; }
+
         public RelayCommand ExportFileCommand { get; set; } //Command that is used to save file
+
         public RelayCommand UndoCommand { get; set; }
+
         public RelayCommand RedoCommand { get; set; }
+
         public RelayCommand OpenFileCommand { get; set; }
+
         public RelayCommand SetActiveLayerCommand { get; set; }
+
         public RelayCommand NewLayerCommand { get; set; }
+
         public RelayCommand DeleteLayerCommand { get; set; }
+
         public RelayCommand RenameLayerCommand { get; set; }
+
         public RelayCommand MoveToBackCommand { get; set; }
+
         public RelayCommand MoveToFrontCommand { get; set; }
+
         public RelayCommand SwapColorsCommand { get; set; }
+
         public RelayCommand DeselectCommand { get; set; }
+
         public RelayCommand SelectAllCommand { get; set; }
+
         public RelayCommand CopyCommand { get; set; }
+
         public RelayCommand DuplicateCommand { get; set; }
+
         public RelayCommand CutCommand { get; set; }
+
         public RelayCommand PasteCommand { get; set; }
+
         public RelayCommand ClipCanvasCommand { get; set; }
+
         public RelayCommand DeletePixelsCommand { get; set; }
+
         public RelayCommand OpenResizePopupCommand { get; set; }
+
         public RelayCommand SelectColorCommand { get; set; }
+
         public RelayCommand RemoveSwatchCommand { get; set; }
+
         public RelayCommand SaveDocumentCommand { get; set; }
+
         public RelayCommand OnStartupCommand { get; set; }
+
         public RelayCommand CloseWindowCommand { get; set; }
+
         public RelayCommand CenterContentCommand { get; set; }
+
         public RelayCommand OpenHyperlinkCommand { get; set; }
+
         public RelayCommand ZoomCommand { get; set; }
+
         public RelayCommand ChangeToolSizeCommand { get; set; }
+
         public RelayCommand RestartApplicationCommand { get; set; }
 
+        private double mouseXonCanvas;
 
-        private double _mouseXonCanvas;
-
-        private double _mouseYonCanvas;
+        private double mouseYonCanvas;
 
         public double MouseXOnCanvas //Mouse X coordinate relative to canvas
         {
-            get => _mouseXonCanvas;
+            get => mouseXonCanvas;
             set
             {
-                _mouseXonCanvas = value;
+                mouseXonCanvas = value;
                 RaisePropertyChanged("MouseXOnCanvas");
             }
         }
 
         public double MouseYOnCanvas //Mouse Y coordinate relative to canvas
         {
-            get => _mouseYonCanvas;
+            get => mouseYonCanvas;
             set
             {
-                _mouseYonCanvas = value;
+                mouseYonCanvas = value;
                 RaisePropertyChanged("MouseYOnCanvas");
             }
         }
 
-        private string _versionText;
+        private string versionText;
 
         public string VersionText
         {
-            get => _versionText;
+            get => versionText;
             set
             {
-                _versionText = value;
+                versionText = value;
                 RaisePropertyChanged(nameof(VersionText));
             }
         }
 
-
         public bool RecenterZoombox
         {
-            get => _recenterZoombox;
+            get => recenterZoombox;
             set
             {
-                _recenterZoombox = value;
+                recenterZoombox = value;
                 RaisePropertyChanged("RecenterZoombox");
             }
         }
 
         public Color PrimaryColor //Primary color, hooked with left mouse button
         {
-            get => _primaryColor;
+            get => primaryColor;
             set
             {
-                if (_primaryColor != value)
+                if (primaryColor != value)
                 {
-                    _primaryColor = value;
+                    primaryColor = value;
                     BitmapManager.PrimaryColor = value;
                     RaisePropertyChanged("PrimaryColor");
                 }
@@ -150,12 +184,12 @@ namespace PixiEditor.ViewModels
 
         public Color SecondaryColor
         {
-            get => _secondaryColor;
+            get => secondaryColor;
             set
             {
-                if (_secondaryColor != value)
+                if (secondaryColor != value)
                 {
-                    _secondaryColor = value;
+                    secondaryColor = value;
                     RaisePropertyChanged("SecondaryColor");
                 }
             }
@@ -165,78 +199,85 @@ namespace PixiEditor.ViewModels
 
         public LayerChange[] UndoChanges //This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
         {
-            get => _undoChanges;
+            get => undoChanges;
             set
             {
-                _undoChanges = value;
+                undoChanges = value;
                 for (int i = 0; i < value.Length; i++)
+                {
                     BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].SetPixels(value[i].PixelChanges);
+                }
             }
         }
 
         public Cursor ToolCursor
         {
-            get => _toolCursor;
+            get => toolCursor;
             set
             {
-                _toolCursor = value;
+                toolCursor = value;
                 RaisePropertyChanged("ToolCursor");
             }
         }
 
-        private double _zoomPercentage = 100;
+        private double zoomPercentage = 100;
 
         public double ZoomPercentage
         {
-            get { return _zoomPercentage; }
-            set 
+            get
             {
-                _zoomPercentage = value;
+                return zoomPercentage;
+            }
+
+            set
+            {
+                zoomPercentage = value;
                 RaisePropertyChanged(nameof(ZoomPercentage));
             }
         }
 
-        private Point _viewPortPosition;
+        private Point viewPortPosition;
 
         public Point ViewportPosition
         {
-            get => _viewPortPosition;
-            set 
+            get => viewPortPosition;
+            set
             {
-                _viewPortPosition = value;
+                viewPortPosition = value;
                 RaisePropertyChanged(nameof(ViewportPosition));
             }
         }
 
-
-        private bool _updateReadyToInstall = false;
+        private bool updateReadyToInstall = false;
 
         public bool UpdateReadyToInstall
         {
-            get => _updateReadyToInstall;
+            get => updateReadyToInstall;
             set
             {
-                _updateReadyToInstall = value;
+                updateReadyToInstall = value;
                 RaisePropertyChanged(nameof(UpdateReadyToInstall));
             }
         }
 
         public BitmapManager BitmapManager { get; set; }
+
         public PixelChangesController ChangesController { get; set; }
 
         public ShortcutController ShortcutController { get; set; }
 
         public Selection ActiveSelection
         {
-            get => _selection;
+            get => selection;
             set
             {
-                _selection = value;
+                selection = value;
                 RaisePropertyChanged("ActiveSelection");
             }
         }
 
-        private bool _restoreToolOnKeyUp = false;
+        private bool restoreToolOnKeyUp = false;
+
         public Tool LastActionTool { get; private set; }
 
         public UpdateChecker UpdateChecker { get; set; }
@@ -287,7 +328,7 @@ namespace PixiEditor.ViewModels
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(), 
+                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(),
                 new ZoomTool()
             };
             ShortcutController = new ShortcutController
@@ -371,6 +412,7 @@ namespace PixiEditor.ViewModels
                     UpdateReadyToInstall = true;
                     return true;
                 }
+
                 return false;
             });
         }
@@ -402,8 +444,12 @@ namespace PixiEditor.ViewModels
 
         private void OpenHyperlink(object parameter)
         {
-            if (parameter == null) return;
-            string url = (string) parameter;
+            if (parameter == null)
+            {
+                return;
+            }
+
+            string url = (string)parameter;
             var processInfo = new ProcessStartInfo()
             {
                 FileName = url,
@@ -419,18 +465,26 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object property)
         {
-            if (!(property is CancelEventArgs)) throw new ArgumentException();
-
-            ((CancelEventArgs) property).Cancel = true;
+            if (!(property is CancelEventArgs))
+            {
+                throw new ArgumentException();
+            }
+((CancelEventArgs)property).Cancel = true;
 
             ConfirmationType result = ConfirmationType.No;
-            if (_unsavedDocumentModified)
+            if (unsavedDocumentModified)
             {
                 result = ConfirmationDialog.Show(ConfirmationDialogMessage);
-                if (result == ConfirmationType.Yes) SaveDocument(null);
+                if (result == ConfirmationType.Yes)
+                {
+                    SaveDocument(null);
+                }
             }
 
-            if (result != ConfirmationType.Canceled) ((CancelEventArgs) property).Cancel = false;
+            if (result != ConfirmationType.Canceled)
+            {
+                ((CancelEventArgs)property).Cancel = false;
+            }
         }
 
         private async void OnStartup(object parameter)
@@ -444,6 +498,7 @@ namespace PixiEditor.ViewModels
             {
                 OpenNewFilePopup(null);
             }
+
             await CheckForUpdate();
         }
 
@@ -459,17 +514,20 @@ namespace PixiEditor.ViewModels
                 Filter = "All Files|*.*|PixiEditor Files | *.pixi|PNG Files|*.png",
                 DefaultExt = "pixi"
             };
-            if ((bool) dialog.ShowDialog())
+            if ((bool)dialog.ShowDialog())
             {
                 if (Importer.IsSupportedFile(dialog.FileName))
+                {
                     Open(dialog.FileName);
+                }
+
                 RecenterZoombox = !RecenterZoombox;
             }
         }
 
         private void Open(string path)
         {
-            if (_unsavedDocumentModified)
+            if (unsavedDocumentModified)
             {
                 var result = ConfirmationDialog.Show(ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes)
@@ -484,16 +542,20 @@ namespace PixiEditor.ViewModels
 
             ResetProgramStateValues();
             if (path.EndsWith(".pixi"))
+            {
                 OpenDocument(path);
+            }
             else
+            {
                 OpenFile(path);
+            }
         }
 
         private void OpenDocument(string path)
         {
             BitmapManager.ActiveDocument = Importer.ImportDocument(path);
             Exporter.SaveDocumentPath = path;
-            _unsavedDocumentModified = false;
+            unsavedDocumentModified = false;
         }
 
         private void SaveDocument(object parameter)
@@ -502,21 +564,27 @@ namespace PixiEditor.ViewModels
             if (paramIsAsNew || Exporter.SaveDocumentPath == null)
             {
                 var saved = Exporter.SaveAsEditableFileWithDialog(BitmapManager.ActiveDocument, !paramIsAsNew);
-                _unsavedDocumentModified = _unsavedDocumentModified && !saved;
+                unsavedDocumentModified = unsavedDocumentModified && !saved;
             }
             else
             {
                 Exporter.SaveAsEditableFile(BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
-                _unsavedDocumentModified = false;
+                unsavedDocumentModified = false;
             }
         }
 
         private void RemoveSwatch(object parameter)
         {
-            if (!(parameter is Color)) throw new ArgumentException();
-            Color color = (Color) parameter;
+            if (!(parameter is Color))
+            {
+                throw new ArgumentException();
+            }
+
+            Color color = (Color)parameter;
             if (BitmapManager.ActiveDocument.Swatches.Contains(color))
+            {
                 BitmapManager.ActiveDocument.Swatches.Remove(color);
+            }
         }
 
         private void SelectColor(object parameter)
@@ -528,32 +596,38 @@ namespace PixiEditor.ViewModels
         {
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             RecenterZoombox = !RecenterZoombox;
-            _unsavedDocumentModified = true;
+            unsavedDocumentModified = true;
         }
 
         public void AddSwatch(Color color)
         {
             if (!BitmapManager.ActiveDocument.Swatches.Contains(color))
+            {
                 BitmapManager.ActiveDocument.Swatches.Add(color);
+            }
         }
 
         private void OpenResizePopup(object parameter)
         {
-            bool isCanvasDialog = (string) parameter == "canvas";
+            bool isCanvasDialog = (string)parameter == "canvas";
             ResizeDocumentDialog dialog = new ResizeDocumentDialog(BitmapManager.ActiveDocument.Width,
                 BitmapManager.ActiveDocument.Height, isCanvasDialog);
             if (dialog.ShowDialog())
             {
                 if (isCanvasDialog)
+                {
                     BitmapManager.ActiveDocument.ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
+                }
                 else
+                {
                     BitmapManager.ActiveDocument.Resize(dialog.Width, dialog.Height);
+                }
             }
         }
 
         private void DeletePixels(object parameter)
         {
-            BitmapManager.BitmapOperations.DeletePixels(new[] {BitmapManager.ActiveLayer},
+            BitmapManager.BitmapOperations.DeletePixels(new[] { BitmapManager.ActiveLayer },
                 ActiveSelection.SelectedPoints.ToArray());
         }
 
@@ -620,20 +694,20 @@ namespace PixiEditor.ViewModels
 
         public void SetTool(object parameter)
         {
-            SetActiveTool((ToolType) parameter);
+            SetActiveTool((ToolType)parameter);
         }
 
         public void RenameLayer(object parameter)
         {
-            BitmapManager.ActiveDocument.Layers[(int) parameter].IsRenaming = true;
+            BitmapManager.ActiveDocument.Layers[(int)parameter].IsRenaming = true;
         }
 
         private void KeyUp(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            if (_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.ShortcutKey == args.Key)
+            if (restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.ShortcutKey == args.Key)
             {
-                _restoreToolOnKeyUp = false;
+                restoreToolOnKeyUp = false;
                 SetActiveTool(LastActionTool);
                 ShortcutController.BlockShortcutExecution = false;
             }
@@ -642,23 +716,24 @@ namespace PixiEditor.ViewModels
         public void KeyDown(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            if (args.IsRepeat && !_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.Command == SelectToolCommand)
+            if (args.IsRepeat && !restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.Command == SelectToolCommand)
             {
-                _restoreToolOnKeyUp = true;
+                restoreToolOnKeyUp = true;
                 ShortcutController.BlockShortcutExecution = true;
             }
+
             ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-           TriggerNewUndoChange(BitmapManager.SelectedTool);
+            TriggerNewUndoChange(BitmapManager.SelectedTool);
         }
 
         public void TriggerNewUndoChange(Tool toolUsed)
         {
             if (BitmapManager.IsOperationTool(toolUsed)
-                && ((BitmapOperationTool) toolUsed).UseDefaultUndoMethod)
+                && ((BitmapOperationTool)toolUsed).UseDefaultUndoMethod)
             {
                 Tuple<LayerChange, LayerChange>[] changes = ChangesController.PopChanges();
                 if (changes != null && changes.Length > 0)
@@ -675,9 +750,11 @@ namespace PixiEditor.ViewModels
         {
             ChangesController.AddChanges(new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
-            _unsavedDocumentModified = true;
+            unsavedDocumentModified = true;
             if (BitmapManager.IsOperationTool())
+            {
                 AddSwatch(PrimaryColor);
+            }
         }
 
         public void SwapColors(object parameter)
@@ -689,36 +766,42 @@ namespace PixiEditor.ViewModels
 
         public void MoveLayerToFront(object parameter)
         {
-            int oldIndex = (int) parameter;
+            int oldIndex = (int)parameter;
             BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex + 1);
-            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex) BitmapManager.SetActiveLayer(oldIndex + 1);
+            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
+            {
+                BitmapManager.SetActiveLayer(oldIndex + 1);
+            }
         }
 
         public void MoveLayerToBack(object parameter)
         {
-            int oldIndex = (int) parameter;
+            int oldIndex = (int)parameter;
             BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex - 1);
-            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex) BitmapManager.SetActiveLayer(oldIndex - 1);
+            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
+            {
+                BitmapManager.SetActiveLayer(oldIndex - 1);
+            }
         }
 
         public bool CanMoveToFront(object property)
         {
-            return DocumentIsNotNull(null) && BitmapManager.ActiveDocument.Layers.Count - 1 > (int) property;
+            return DocumentIsNotNull(null) && BitmapManager.ActiveDocument.Layers.Count - 1 > (int)property;
         }
 
         public bool CanMoveToBack(object property)
         {
-            return (int) property > 0;
+            return (int)property > 0;
         }
 
         public void SetActiveLayer(object parameter)
         {
-            BitmapManager.SetActiveLayer((int) parameter);
+            BitmapManager.SetActiveLayer((int)parameter);
         }
 
         public void DeleteLayer(object parameter)
         {
-            BitmapManager.RemoveLayer((int) parameter);
+            BitmapManager.RemoveLayer((int)parameter);
         }
 
         public bool CanDeleteLayer(object property)
@@ -735,7 +818,10 @@ namespace PixiEditor.ViewModels
         public void SetActiveTool(Tool tool)
         {
             Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
-            if (activeTool != null) activeTool.IsActive = false;
+            if (activeTool != null)
+            {
+                activeTool.IsActive = false;
+            }
 
             tool.IsActive = true;
             LastActionTool = BitmapManager.SelectedTool;
@@ -743,17 +829,25 @@ namespace PixiEditor.ViewModels
             SetToolCursor(tool.ToolType);
         }
 
-            private void SetToolCursor(ToolType tool)
+        private void SetToolCursor(ToolType tool)
         {
             if (tool != ToolType.None)
+            {
                 ToolCursor = BitmapManager.SelectedTool.Cursor;
+            }
             else
+            {
                 ToolCursor = Cursors.Arrow;
+            }
         }
 
         private void MouseDown(object parameter)
         {
-            if (BitmapManager.ActiveDocument.Layers.Count == 0) return;
+            if (BitmapManager.ActiveDocument.Layers.Count == 0)
+            {
+                return;
+            }
+
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
                 if (!BitmapManager.MouseController.IsRecordingChanges)
@@ -764,6 +858,7 @@ namespace PixiEditor.ViewModels
                     BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }
+
             BitmapManager.MouseController.MouseDown(new MouseEventArgs(Mouse.PrimaryDevice,
                 (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
 
@@ -781,12 +876,13 @@ namespace PixiEditor.ViewModels
             {
                 BitmapManager.MouseController.StopRecordingMouseMovementChanges();
             }
-            BitmapManager.MouseController.MouseUp(new MouseEventArgs(Mouse.PrimaryDevice, 
+
+            BitmapManager.MouseController.MouseUp(new MouseEventArgs(Mouse.PrimaryDevice,
                 (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
         }
 
         /// <summary>
-        ///     Method connected with command, it executes tool "activity"
+        ///     Method connected with command, it executes tool "activity".
         /// </summary>
         /// <param name="parameter"></param>
         private void MouseMove(object parameter)
@@ -794,47 +890,53 @@ namespace PixiEditor.ViewModels
             Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
-
             if (BitmapManager.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
             {
                 BitmapManager.MouseController.RecordMouseMovementChange(cords);
             }
-                BitmapManager.MouseController.MouseMoved(cords);
+
+            BitmapManager.MouseController.MouseMoved(cords);
         }
 
         /// <summary>
-        ///     Generates new Layer and sets it as active one
+        ///     Generates new Layer and sets it as active one.
         /// </summary>
-        /// <param name="parameter"></param>
         public void OpenNewFilePopup(object parameter)
         {
             NewFileDialog newFile = new NewFileDialog();
-            if (newFile.ShowDialog()) NewDocument(newFile.Width, newFile.Height);
+            if (newFile.ShowDialog())
+            {
+                NewDocument(newFile.Width, newFile.Height);
+            }
         }
 
         /// <summary>
         ///     Opens file from path.
         /// </summary>
-        /// <param name="path"></param>
         public void OpenFile(string path)
         {
             ImportFileDialog dialog = new ImportFileDialog();
 
             if (path != null && File.Exists(path))
+            {
                 dialog.FilePath = path;
+            }
 
             if (dialog.ShowDialog())
             {
                 NewDocument(dialog.FileWidth, dialog.FileHeight, false);
-                BitmapManager.AddNewLayer("Image",Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
+                BitmapManager.AddNewLayer("Image", Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
             }
         }
 
         public void NewDocument(int width, int height, bool addBaseLayer = true)
         {
             BitmapManager.ActiveDocument = new Document(width, height);
-            if(addBaseLayer)
+            if (addBaseLayer)
+            {
                 BitmapManager.AddNewLayer("Base Layer");
+            }
+
             ResetProgramStateValues();
         }
 
@@ -849,7 +951,7 @@ namespace PixiEditor.ViewModels
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             RecenterZoombox = !RecenterZoombox;
             Exporter.SaveDocumentPath = null;
-            _unsavedDocumentModified = false;
+            unsavedDocumentModified = false;
         }
 
         public void NewLayer(object parameter)
@@ -862,10 +964,8 @@ namespace PixiEditor.ViewModels
             return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 0;
         }
 
-        #region Undo/Redo
-
         /// <summary>
-        ///     Undo last action
+        ///     Undo last action.
         /// </summary>
         /// <param name="parameter"></param>
         public void Undo(object parameter)
@@ -885,7 +985,7 @@ namespace PixiEditor.ViewModels
         }
 
         /// <summary>
-        ///     Redo last action
+        ///     Redo last action.
         /// </summary>
         /// <param name="parameter"></param>
         public void Redo(object parameter)
@@ -902,10 +1002,6 @@ namespace PixiEditor.ViewModels
         {
             return UndoManager.CanRedo;
         }
-
-        #endregion
-
-        #region SaveFile
 
         /// <summary>
         ///     Generates export dialog or saves directly if save data is known.
@@ -926,7 +1022,5 @@ namespace PixiEditor.ViewModels
         {
             return BitmapManager.ActiveDocument != null;
         }
-
-        #endregion
     }
 }

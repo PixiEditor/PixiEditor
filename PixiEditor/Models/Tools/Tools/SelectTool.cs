@@ -16,7 +16,8 @@ namespace PixiEditor.Models.Tools.Tools
     public class SelectTool : ReadonlyTool
     {
         public override ToolType ToolType => ToolType.Select;
-        private Selection _oldSelection;
+
+        private Selection oldSelection;
         public SelectionType SelectionType = SelectionType.Add;
 
         public SelectTool()
@@ -29,10 +30,12 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType);
 
-            _oldSelection = null;
+            oldSelection = null;
             if (ViewModelMain.Current.ActiveSelection != null &&
                 ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
-                _oldSelection = ViewModelMain.Current.ActiveSelection;
+            {
+                oldSelection = ViewModelMain.Current.ActiveSelection;
+            }
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
@@ -43,7 +46,7 @@ namespace PixiEditor.Models.Tools.Tools
                 ViewModelMain.Current.ActiveSelection.Clear();
             }
 
-            UndoManager.AddUndoChange(new Change("ActiveSelection", _oldSelection,
+            UndoManager.AddUndoChange(new Change("ActiveSelection", oldSelection,
                 ViewModelMain.Current.ActiveSelection, "Select pixels"));
         }
 
@@ -67,19 +70,18 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         /// <summary>
-        ///     Gets coordinates of every pixel in root layer
+        ///     Gets coordinates of every pixel in root layer.
         /// </summary>
-        /// <returns>Coordinates array of pixels</returns>
+        /// <returns>Coordinates array of pixels.</returns>
         public IEnumerable<Coordinates> GetAllSelection()
         {
             return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument);
         }
 
         /// <summary>
-        ///     Gets coordinates of every pixel in chosen document
+        ///     Gets coordinates of every pixel in chosen document.
         /// </summary>
-        /// <param name="document"></param>
-        /// <returns>Coordinates array of pixels</returns>
+        /// <returns>Coordinates array of pixels.</returns>
         public IEnumerable<Coordinates> GetAllSelection(Document document)
         {
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));

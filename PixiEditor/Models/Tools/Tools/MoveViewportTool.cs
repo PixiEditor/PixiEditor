@@ -1,14 +1,15 @@
-﻿using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Input;
+using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class MoveViewportTool : ReadonlyTool
     {
         public override ToolType ToolType => ToolType.MoveViewport;
-        private Point _clickPoint;
+
+        private Point clickPoint;
 
         public MoveViewportTool()
         {
@@ -21,7 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
-                _clickPoint = MousePositionConverter.GetCursorPosition();
+                clickPoint = MousePositionConverter.GetCursorPosition();
             }
         }
 
@@ -30,8 +31,8 @@ namespace PixiEditor.Models.Tools.Tools
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
                 var point = MousePositionConverter.GetCursorPosition();
-                ViewModelMain.Current.ViewportPosition = new System.Windows.Point(point.X - _clickPoint.X, 
-                    point.Y - _clickPoint.Y);
+                ViewModelMain.Current.ViewportPosition = new System.Windows.Point(point.X - clickPoint.X,
+                    point.Y - clickPoint.Y);
             }
         }
 

@@ -1,18 +1,16 @@
-﻿using PixiEditor.ViewModels;
-using System;
+﻿using System;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.ViewModels;
 using Xceed.Wpf.Toolkit.Core.Input;
 using Xceed.Wpf.Toolkit.Zoombox;
-using PixiEditor.Models.Position;
 
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for MainDrawingPanel.xaml
+    ///     Interaction logic for MainDrawingPanel.xaml.
     /// </summary>
     public partial class MainDrawingPanel : UserControl
     {
@@ -47,7 +45,6 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty IsUsingZoomToolProperty =
             DependencyProperty.Register("IsUsingZoomTool", typeof(bool), typeof(MainDrawingPanel), new PropertyMetadata(false));
 
-
         public double ZoomPercentage
         {
             get { return (double)GetValue(ZoomPercentageProperty); }
@@ -57,8 +54,6 @@ namespace PixiEditor.Views
         // Using a DependencyProperty as the backing store for ZoomPercentage.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ZoomPercentageProperty =
             DependencyProperty.Register("ZoomPercentage", typeof(double), typeof(MainDrawingPanel), new PropertyMetadata(0.0, ZoomPercentegeChanged));
-
-
 
         public Point ViewportPosition
         {
@@ -73,36 +68,33 @@ namespace PixiEditor.Views
 
         public bool Center
         {
-            get => (bool) GetValue(CenterProperty);
+            get => (bool)GetValue(CenterProperty);
             set => SetValue(CenterProperty, value);
         }
 
         public double MouseX
         {
-            get => (double) GetValue(MouseXProperty);
+            get => (double)GetValue(MouseXProperty);
             set => SetValue(MouseXProperty, value);
         }
 
         public double MouseY
         {
-            get => (double) GetValue(MouseYProperty);
+            get => (double)GetValue(MouseYProperty);
             set => SetValue(MouseYProperty, value);
         }
 
-
         public ICommand MouseMoveCommand
         {
-            get => (ICommand) GetValue(MouseMoveCommandProperty);
+            get => (ICommand)GetValue(MouseMoveCommandProperty);
             set => SetValue(MouseMoveCommandProperty, value);
         }
 
-
         public bool CenterOnStart
         {
-            get => (bool) GetValue(CenterOnStartProperty);
+            get => (bool)GetValue(CenterOnStartProperty);
             set => SetValue(CenterOnStartProperty, value);
         }
-
 
         public object Item
         {
@@ -112,7 +104,7 @@ namespace PixiEditor.Views
 
         public bool IsUsingZoomTool
         {
-            get => (bool) GetValue(IsUsingZoomToolProperty);
+            get => (bool)GetValue(IsUsingZoomToolProperty);
             set => SetValue(IsUsingZoomToolProperty, value);
         }
 
@@ -126,8 +118,6 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
             DependencyProperty.Register("MiddleMouseClickedCommand", typeof(ICommand), typeof(MainDrawingPanel), new PropertyMetadata(default(ICommand)));
 
-
-
         public object MiddleMouseClickedCommandParameter
         {
             get { return (object)GetValue(MiddleMouseClickedCommandParameterProperty); }
@@ -136,24 +126,23 @@ namespace PixiEditor.Views
 
         // Using a DependencyProperty as the backing store for MiddleMouseClickedCommandParameter.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MiddleMouseClickedCommandParameterProperty =
-            DependencyProperty.Register("MiddleMouseClickedCommandParameter", typeof(object), typeof(MainDrawingPanel), 
+            DependencyProperty.Register("MiddleMouseClickedCommandParameter", typeof(object), typeof(MainDrawingPanel),
                 new PropertyMetadata(default(object)));
-
-
 
         private static void ZoomPercentegeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MainDrawingPanel panel = (MainDrawingPanel)d;
             double percentage = (double)e.NewValue;
-            if(percentage == 100)
+            if (percentage == 100)
             {
                 panel.SetClickValues();
             }
+
             panel.Zoombox.ZoomTo(panel.ClickScale * ((double)e.NewValue / 100.0));
         }
 
-        public double ClickScale;
-        public Point ClickPosition;
+        public double ClickScale { get; set; }
+        public Point ClickPosition { get; set; }
 
         public MainDrawingPanel()
         {
@@ -168,7 +157,8 @@ namespace PixiEditor.Views
             {
                 panel.Zoombox.Position = default;
                 return;
-            }           
+            }
+
             TranslateZoombox(panel, (Point)e.NewValue);
         }
 
@@ -195,7 +185,11 @@ namespace PixiEditor.Views
 
         private void SetClickValues()
         {
-            if (!IsUsingZoomTool) return;
+            if (!IsUsingZoomTool)
+            {
+                return;
+            }
+
             ClickScale = Zoombox.Scale;
             SetZoomOrigin();
         }
@@ -203,21 +197,28 @@ namespace PixiEditor.Views
         private void SetZoomOrigin()
         {
             var item = (FrameworkElement)Item;
-            if (item == null) return;
+            if (item == null)
+            {
+                return;
+            }
+
             var mousePos = Mouse.GetPosition(item);
             Zoombox.ZoomOrigin = new Point(Math.Clamp(mousePos.X / item.Width, 0, 1), Math.Clamp(mousePos.Y / item.Height, 0, 1));
         }
 
         private static void OnCenterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            MainDrawingPanel panel = (MainDrawingPanel) d;
+            MainDrawingPanel panel = (MainDrawingPanel)d;
             panel.Zoombox.CenterContent();
         }
 
-
         private void Zoombox_Loaded(object sender, RoutedEventArgs e)
         {
-            if (CenterOnStart) ((Zoombox) sender).CenterContent();
+            if (CenterOnStart)
+            {
+                ((Zoombox)sender).CenterContent();
+            }
+
             ClickScale = Zoombox.Scale;
         }
 
@@ -241,7 +242,7 @@ namespace PixiEditor.Views
 
         private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.MiddleButton == MouseButtonState.Pressed && 
+            if (e.MiddleButton == MouseButtonState.Pressed &&
                 MiddleMouseClickedCommand.CanExecute(MiddleMouseClickedCommandParameter))
             {
                 MiddleMouseClickedCommand.Execute(MiddleMouseClickedCommandParameter);

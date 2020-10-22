@@ -11,17 +11,21 @@ namespace PixiEditor.UpdateModule
         public static string UpdateFilesPath = Path.Join(UpdateDownloader.DownloadLocation, TargetDirectoryName);
 
         public event EventHandler<UpdateProgressChangedEventArgs> ProgressChanged;
-        private float _progress = 0;
-        public float Progress 
+
+        private float progress = 0;
+
+        public float Progress
         {
-            get => _progress;
+            get => progress;
             set
             {
-                _progress = value;
+                progress = value;
                 ProgressChanged?.Invoke(this, new UpdateProgressChangedEventArgs(value));
             }
         }
+
         public string ArchiveFileName { get; set; }
+
         public string TargetDirectory { get; set; }
 
         public UpdateInstaller(string archiveFileName, string targetDirectory)
@@ -37,6 +41,7 @@ namespace PixiEditor.UpdateModule
             {
                 processes[0].WaitForExit();
             }
+
             ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
             Progress = 25; //25% for unzip
             string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];

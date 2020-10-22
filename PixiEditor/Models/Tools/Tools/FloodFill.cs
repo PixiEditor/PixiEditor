@@ -40,17 +40,32 @@ namespace PixiEditor.Models.Tools.Tools
                 var cords = stack.Pop();
                 var relativeCords = layer.GetRelativePosition(cords);
 
-                if (cords.X < 0 || cords.X > width - 1) continue;
-                if (cords.Y < 0 || cords.Y > height - 1) continue;
-                if (visited[cords.X, cords.Y]) continue;
-                if (layer.GetPixel(relativeCords.X, relativeCords.Y) == newColor) continue;
+                if (cords.X < 0 || cords.X > width - 1)
+                {
+                    continue;
+                }
+
+                if (cords.Y < 0 || cords.Y > height - 1)
+                {
+                    continue;
+                }
+
+                if (visited[cords.X, cords.Y])
+                {
+                    continue;
+                }
+
+                if (layer.GetPixel(relativeCords.X, relativeCords.Y) == newColor)
+                {
+                    continue;
+                }
 
                 if (layer.GetPixel(relativeCords.X, relativeCords.Y) == colorToReplace)
                 {
                     changedCoords.Add(new Coordinates(cords.X, cords.Y));
                     visited[cords.X, cords.Y] = true;
-                    stack.Push(new Coordinates(cords.X, cords.Y - 1));                    
-                    stack.Push(new Coordinates(cords.X, cords.Y + 1));                    
+                    stack.Push(new Coordinates(cords.X, cords.Y - 1));
+                    stack.Push(new Coordinates(cords.X, cords.Y + 1));
                     stack.Push(new Coordinates(cords.X - 1, cords.Y));
                     stack.Push(new Coordinates(cords.X + 1, cords.Y));
                 }

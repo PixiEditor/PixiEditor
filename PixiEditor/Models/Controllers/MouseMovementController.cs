@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Input;
-using Accessibility;
 using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Controllers
@@ -9,12 +8,19 @@ namespace PixiEditor.Models.Controllers
     public class MouseMovementController
     {
         public List<Coordinates> LastMouseMoveCoordinates { get; } = new List<Coordinates>();
+
         public bool IsRecordingChanges { get; private set; }
+
         public bool ClickedOnCanvas { get; set; }
+
         public event EventHandler StartedRecordingChanges;
+
         public event EventHandler<MouseEventArgs> OnMouseDown;
+
         public event EventHandler<MouseEventArgs> OnMouseUp;
+
         public event EventHandler<MouseMovementEventArgs> MousePositionChanged;
+
         public event EventHandler StoppedRecordingChanges;
 
         public void StartRecordingMouseMovementChanges(bool clickedOnCanvas)
@@ -39,7 +45,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Plain mouse move, does not affect mouse drag recordings
+        ///     Plain mouse move, does not affect mouse drag recordings.
         /// </summary>
         /// <param name="mouseCoordinates"></param>
         public void MouseMoved(Coordinates mouseCoordinates)
@@ -48,7 +54,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        /// Plain mouse down, does not affect mouse recordings
+        /// Plain mouse down, does not affect mouse recordings.
         /// </summary>
         public void MouseDown(MouseEventArgs args)
         {
@@ -56,7 +62,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        /// Plain mouse up, does not affect mouse recordings
+        /// Plain mouse up, does not affect mouse recordings.
         /// </summary>
         public void MouseUp(MouseEventArgs args)
         {

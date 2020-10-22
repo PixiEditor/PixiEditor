@@ -13,10 +13,12 @@ namespace PixiEditor.Helpers
     public static class GlobalMouseHook
     {
         private delegate int HookProc(int nCode, int wParam, IntPtr lParam);
-        private static int _mouseHookHandle;
-        private static HookProc _mouseDelegate;
+
+        private static int mouseHookHandle;
+        private static HookProc mouseDelegate;
 
         private static event MouseUpEventHandler MouseUp;
+
         public static event MouseUpEventHandler OnMouseUp
         {
             add
@@ -24,6 +26,7 @@ namespace PixiEditor.Helpers
                 Subscribe();
                 MouseUp += value;
             }
+
             remove
             {
                 MouseUp -= value;
@@ -38,11 +41,11 @@ namespace PixiEditor.Helpers
 
         private static void Unsubscribe()
         {
-            if (_mouseHookHandle != 0)
+            if (mouseHookHandle != 0)
             {
-                int result = UnhookWindowsHookEx(_mouseHookHandle);
-                _mouseHookHandle = 0;
-                _mouseDelegate = null;
+                int result = UnhookWindowsHookEx(mouseHookHandle);
+                mouseHookHandle = 0;
+                mouseDelegate = null;
                 if (result == 0)
                 {
                     int errorCode = Marshal.GetLastWin32Error();
@@ -53,15 +56,15 @@ namespace PixiEditor.Helpers
 
         private static void Subscribe()
         {
-            if (_mouseHookHandle == 0)
+            if (mouseHookHandle == 0)
             {
-                _mouseDelegate = MouseHookProc;
-                _mouseHookHandle = SetWindowsHookEx(
+                mouseDelegate = MouseHookProc;
+                mouseHookHandle = SetWindowsHookEx(
                     WH_MOUSE_LL,
-                    _mouseDelegate,
+                    mouseDelegate,
                     GetModuleHandle(Process.GetCurrentProcess().MainModule.ModuleName),
                     0);
-                if (_mouseHookHandle == 0)
+                if (mouseHookHandle == 0)
                 {
                     int errorCode = Marshal.GetLastWin32Error();
                     throw new Win32Exception(errorCode);
@@ -80,11 +83,12 @@ namespace PixiEditor.Helpers
                     {
                         MouseButton button = wParam == WM_LBUTTONUP ? MouseButton.Left
                             : wParam == WM_MBUTTONUP ? MouseButton.Middle : MouseButton.Right;
-                        MouseUp.Invoke(null, new Point(mouseHookStruct.pt.x, mouseHookStruct.pt.y), button);
+                        MouseUp.Invoke(null, new Point(mouseHookStruct.Pt.X, mouseHookStruct.Pt.Y), button);
                     }
                 }
             }
-            return CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+
+            return CallNextHookEx(mouseHookHandle, nCode, wParam, lParam);
         }
 
         private const int WH_MOUSE_LL = 14;
@@ -95,23 +99,23 @@ namespace PixiEditor.Helpers
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
         {
-            public int x;
-            public int y;
+            public int X;
+            public int Y;
         }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct MSLLHOOKSTRUCT
         {
-            public POINT pt;
-            public uint mouseData;
-            public uint flags;
-            public uint time;
-            public IntPtr dwExtraInfo;
+            public POINT Pt;
+            public uint MouseData;
+            public uint Flags;
+            public uint Time;
+            public IntPtr DwExtraInfo;
         }
 
-        [DllImport("user32.dll", 
+        [DllImport("user32.dll",
             CharSet = CharSet.Auto,
-            CallingConvention = CallingConvention.StdCall, 
+            CallingConvention = CallingConvention.StdCall,
             SetLastError = true)]
         private static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, int dwThreadId);
 
@@ -123,7 +127,7 @@ namespace PixiEditor.Helpers
         private static extern int UnhookWindowsHookEx(int idHook);
 
         [DllImport(
-            "user32.dll", 
+            "user32.dll",
             CharSet = CharSet.Auto,
             CallingConvention = CallingConvention.StdCall)]
         private static extern int CallNextHookEx(int idHook, int nCode, int wParam, IntPtr lParam);

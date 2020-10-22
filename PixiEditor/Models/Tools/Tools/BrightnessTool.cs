@@ -18,9 +18,10 @@ namespace PixiEditor.Models.Tools.Tools
         private const float CorrectionFactor = 5f; //Initial correction factor
 
         public override ToolType ToolType => ToolType.Brightness;
+
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 
-        private List<Coordinates> _pixelsVisited = new List<Coordinates>();
+        private List<Coordinates> pixelsVisited = new List<Coordinates>();
 
         public BrightnessTool()
         {
@@ -30,7 +31,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
-            _pixelsVisited.Clear();
+            pixelsVisited.Clear();
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
@@ -63,9 +64,12 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 if (Mode == BrightnessMode.Default)
                 {
-                    if(_pixelsVisited.Contains(rectangleCoordinates[i]))
+                    if (pixelsVisited.Contains(rectangleCoordinates[i]))
+                    {
                         continue;
-                    _pixelsVisited.Add(rectangleCoordinates[i]);
+                    }
+
+                    pixelsVisited.Add(rectangleCoordinates[i]);
                 }
 
                 Color pixel = layer.GetPixelWithOffset(rectangleCoordinates[i].X, rectangleCoordinates[i].Y);
