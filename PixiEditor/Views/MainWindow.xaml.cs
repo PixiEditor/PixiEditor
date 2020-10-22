@@ -1,19 +1,22 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.Processes;
+using PixiEditor.UpdateModule;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor
 {
     /// <summary>
-    ///     Interaction logic for MainWindow.xaml.
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly ViewModelMain viewModel;
-
+        ViewModelMain viewModel;
         public MainWindow()
         {
             InitializeComponent();
@@ -28,15 +31,18 @@ namespace PixiEditor
             e.CanExecute = true;
         }
 
+
         private void CommandBinding_Executed_Minimize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MinimizeWindow(this);
         }
 
+
         private void CommandBinding_Executed_Maximize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MaximizeWindow(this);
         }
+
 
         private void CommandBinding_Executed_Restore(object sender, ExecutedRoutedEventArgs e)
         {
@@ -47,6 +53,7 @@ namespace PixiEditor
         {
             SystemCommands.CloseWindow(this);
         }
+
 
         private void MainWindowStateChangeRaised(object sender, EventArgs e)
         {
@@ -62,15 +69,24 @@ namespace PixiEditor
             }
         }
 
-        private void MainWindow_Initialized(object sender, EventArgs e)
+        private void mainWindow_Initialized(object sender, EventArgs e)
         {
             string dir = AppDomain.CurrentDomain.BaseDirectory;
-            bool updateFileExists = Directory.GetFiles(dir, "update-*.zip").Length > 0;
+            UpdateDownloader.CreateTempDirectory();
+            bool updateFileExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
             string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
             if (updateFileExists && File.Exists(updaterPath))
             {
-                Process.Start(updaterPath);
-                Close();
+                try
+                {
+                    ProcessHelper.RunAsAdmin(updaterPath);
+                    Close();
+                }
+                catch(Win32Exception)
+                {
+                    MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions", 
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

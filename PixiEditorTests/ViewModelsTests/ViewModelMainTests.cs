@@ -88,7 +88,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.True(viewModel.BitmapManager.MouseController.IsRecordingChanges);
 
-            viewModel.MouseHook_OnMouseUp(default, default);
+            viewModel.MouseHook_OnMouseUp(default, default, default);
 
             Assert.False(viewModel.BitmapManager.MouseController.IsRecordingChanges);
         }

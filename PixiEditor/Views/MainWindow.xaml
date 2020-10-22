@@ -5,14 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
+        xmlns:tools="clr-namespace:PixiEditor.Models.Tools"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
-        xmlns:cmd="http://www.galasoft.ch/mvvmlight"
+        xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
-        mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
+        mc:Ignorable="d" WindowStyle="None" Initialized="mainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
     <WindowChrome.WindowChrome>
@@ -25,7 +26,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
         <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
-        <converters:DoubleToIntConverter x:Key="DoubleToIntConverter" />
+        <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
     </Window.Resources>
 
     <Window.CommandBindings>
@@ -44,7 +45,7 @@
             <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
         <i:EventTrigger EventName="KeyUp">
-            <cmd:EventToCommand Command="{Binding KeyUpCommand}" PassEventArgsToCommand="True" />
+            <cmd:EventToCommand Command="{Binding KeyUpCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="ContentRendered">
             <i:InvokeCommandAction Command="{Binding OnStartupCommand}" />
@@ -106,21 +107,21 @@
                     <MenuItem Header="Resize Canvas..." Command="{Binding OpenResizePopupCommand}"
                               CommandParameter="canvas" InputGestureText="Ctrl+Shift+C" />
                     <MenuItem Header="Clip Canvas" Command="{Binding ClipCanvasCommand}" />
-                    <Separator />
+                    <Separator/>
                     <MenuItem Header="Center Content" Command="{Binding CenterContentCommand}" />
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="Documentation" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki" />
+                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki"/>
                     <MenuItem Header="Repository" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor" />
+                              CommandParameter="https://github.com/flabbet/PixiEditor"/>
                     <MenuItem Header="Shortcuts" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki/Shortcuts" />
-                    <Separator />
+                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki/Shortcuts"/>
+                    <Separator/>
                     <MenuItem Header="License" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/blob/master/LICENSE" />
+                              CommandParameter="https://github.com/flabbet/PixiEditor/blob/master/LICENSE"/>
                     <MenuItem Header="Third Party Licenses" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki/Third-party-licenses" />
+                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"
@@ -162,7 +163,10 @@
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
                 <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay}" Center="{Binding RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
-                                      CenterOnStart="True" Cursor="{Binding ToolCursor}">
+                                      CenterOnStart="True" Cursor="{Binding ToolCursor}" 
+                                      MiddleMouseClickedCommand="{Binding SelectToolCommand}" 
+                                      MiddleMouseClickedCommandParameter="{x:Static tools:ToolType.MoveViewport}"
+                                      ViewportPosition="{Binding ViewportPosition, Mode=TwoWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseMove">
                             <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" />
@@ -171,7 +175,7 @@
                             <i:InvokeCommandAction Command="{Binding MouseUpCommand}" />
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseDown">
-                            <i:InvokeCommandAction Command="{Binding MouseDownCommand}" />
+                            <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <i:Interaction.Behaviors>
@@ -190,8 +194,8 @@
                             <Image Source="{Binding BitmapManager.PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                    Width="{Binding BitmapManager.PreviewLayer.Width}"
-                                   Height="{Binding BitmapManager.PreviewLayer.Height}"
-                                   Margin="{Binding BitmapManager.PreviewLayer.Offset}" />
+                                   Height="{Binding BitmapManager.PreviewLayer.Height}" 
+                                   Margin="{Binding BitmapManager.PreviewLayer.Offset}"/>
                             <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -211,7 +215,7 @@
                             <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding ActiveSelection.SelectionLayer.LayerBitmap}"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                    Width="{Binding ActiveSelection.SelectionLayer.Width}"
-                                   Height="{Binding ActiveSelection.SelectionLayer.Height}"
+                                   Height="{Binding ActiveSelection.SelectionLayer.Height}" 
                                    Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
                         </Canvas>
                     </vws:MainDrawingPanel.Item>
@@ -246,9 +250,10 @@
                 <RowDefinition Height="250*" />
                 <RowDefinition Height="209*" />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="2" Orientation="Vertical" ZIndex="15" />
+            <StackPanel Grid.Row="2" Orientation="Vertical" ZIndex="15">
+            </StackPanel>
             <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"
-                                             SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}" />
+                             SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}" />
             <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0"
                                        Grid.Row="1">
                 <avalondock:LayoutRoot x:Name="LayoutRoot">
@@ -262,13 +267,13 @@
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
                                     <StackPanel Orientation="Horizontal" Margin="10,0">
-                                        <Label Content="Opacity" Foreground="White" VerticalAlignment="Center" />
+                                        <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
                                         <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
                                                          Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
                                             Converter={StaticResource FloatNormalizeConverter}}" />
-                                        <Label Content="%" Foreground="White" VerticalAlignment="Center" />
+                                        <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                    <Separator Background="{StaticResource BrighterAccentColor}" Margin="0,10,0,10" />
+                                    <Separator Background="{StaticResource BrighterAccentColor}" Margin="0,10,0,10"/>
                                     <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
                                                   x:Name="layersItemsControl" AlternationCount="9999">
                                         <ItemsControl.ItemsPanel>
@@ -278,31 +283,29 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <vws:LayerItem
-                                                    LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}"
-                                                    SetActiveLayerCommand="{Binding Path=DataContext.SetActiveLayerCommand, ElementName=mainWindow}"
-                                                    LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
-                                                    IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                                    MoveToBackCommand="{Binding DataContext.MoveToBackCommand, ElementName=mainWindow}"
-                                                    MoveToFrontCommand="{Binding DataContext.MoveToFrontCommand, ElementName=mainWindow}">
+                                                <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                            Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.SetActiveLayerCommand, ElementName=mainWindow}"
+                                                               LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
+                                                               IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
+                                                               MoveToBackCommand="{Binding DataContext.MoveToBackCommand, ElementName=mainWindow}"
+                                                               MoveToFrontCommand="{Binding DataContext.MoveToFrontCommand, ElementName=mainWindow}">
                                                     <vws:LayerItem.ContextMenu>
                                                         <ContextMenu>
                                                             <MenuItem Header="Delete"
-                                                                      Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
-                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                                                              Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                             <MenuItem Header="Rename"
-                                                                      Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}"
-                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                                                              Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                             <MenuItem Header="Move to front"
-                                                                      Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
-                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                                                              Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                             <MenuItem Header="Move to back"
-                                                                      Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}"
-                                                                      CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                                                              Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}"
+                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                         </ContextMenu>
                                                     </vws:LayerItem.ContextMenu>
@@ -385,20 +388,18 @@
         </Grid>
         <DockPanel Grid.Row="3" Grid.Column="1">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <TextBlock Text="X:" Foreground="White" FontSize="16" />
-                <TextBlock Margin="4,0,10,0" Text="{Binding MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16" />
-                <TextBlock Text="Y:" Foreground="White" FontSize="16" />
-                <TextBlock Margin="4,0,10,0" Text="{Binding MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16" />
+                <TextBlock Text="X:" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                <TextBlock Text="Y:" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
             </StackPanel>
         </DockPanel>
         <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Grid.Row="3"
-                    Grid.Column="3" Orientation="Horizontal">
-            <Button Style="{StaticResource BaseDarkButton}"
-                    Visibility="{Binding UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}}" FontSize="14" Height="20" Command="{Binding RestartApplicationCommand}">
-                Restart
-            </Button>
+                       Grid.Column="3" Orientation="Horizontal">
+            <Button Style="{StaticResource BaseDarkButton}" 
+                    Visibility="{Binding UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}}" FontSize="14" Height="20" Command="{Binding RestartApplicationCommand}">Restart</Button>
             <TextBlock VerticalAlignment="Center" Padding="10" HorizontalAlignment="Right"
-                       Foreground="White" FontSize="14" Text="{Binding VersionText}" />
+                       Foreground="White" FontSize="14"  Text="{Binding VersionText}" />
         </StackPanel>
     </Grid>
 </Window>

@@ -1,18 +1,21 @@
 ﻿using System;
 using PixiEditor.Models.DataHolders;
 
-public class BitmapChangedEventArgs : EventArgs
+namespace PixiEditor.Models.Controllers
 {
-    public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, BitmapPixelChanges oldPixelsValues, int changedLayerIndex)
+    public class BitmapChangedEventArgs : EventArgs
     {
-        PixelsChanged = pixelsChanged;
-        OldPixelsValues = oldPixelsValues;
-        ChangedLayerIndex = changedLayerIndex;
+        public BitmapChangedEventArgs(BitmapPixelChanges pixelsChanged, BitmapPixelChanges oldPixelsValues, int changedLayerIndex)
+        {
+            PixelsChanged = pixelsChanged;
+            OldPixelsValues = oldPixelsValues;
+            ChangedLayerIndex = changedLayerIndex;
+        }
+
+        public BitmapPixelChanges PixelsChanged { get; set; }
+
+        public BitmapPixelChanges OldPixelsValues { get; set; }
+
+        public int ChangedLayerIndex { get; set; }
     }
-
-    public BitmapPixelChanges PixelsChanged { get; set; }
-
-    public BitmapPixelChanges OldPixelsValues { get; set; }
-
-    public int ChangedLayerIndex { get; set; }
 }

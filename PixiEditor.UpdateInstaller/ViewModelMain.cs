@@ -1,12 +1,34 @@
-﻿using System;
+﻿using PixiEditor.UpdateModule;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using PixiEditor.UpdateModule;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace PixiEditor.UpdateInstaller
 {
     public class ViewModelMain : ViewModelBase
     {
-        private float progressValue;
+        public ViewModelMain Current { get; private set; }
+        public UpdateModule.UpdateInstaller Installer { get; set; }
+
+        public string UpdateDirectory { get; private set; }
+
+        private float _progressValue;
+
+        public float ProgressValue
+        {
+            get => _progressValue;
+            set 
+            { 
+                _progressValue = value;
+                RaisePropertyChanged(nameof(ProgressValue));
+            }
+        }
 
         public ViewModelMain()
         {
@@ -20,29 +42,13 @@ namespace PixiEditor.UpdateInstaller
             UpdateDirectory = updateDirectory;
         }
 
-        public ViewModelMain Current { get; }
-
-        public UpdateModule.UpdateInstaller Installer { get; set; }
-
-        public string UpdateDirectory { get; }
-
-        public float ProgressValue
-        {
-            get => progressValue;
-            set
-            {
-                progressValue = value;
-                RaisePropertyChanged(nameof(ProgressValue));
-            }
-        }
-
         public void InstallUpdate()
         {
-            string[] files = Directory.GetFiles(UpdateDirectory, "update-*.zip");
+            string[] files = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip");
 
             if (files.Length > 0)
             {
-                Installer = new UpdateModule.UpdateInstaller(files[0]);
+                Installer = new UpdateModule.UpdateInstaller(files[0], UpdateDirectory);
                 Installer.ProgressChanged += Installer_ProgressChanged;
                 Installer.Install();
             }

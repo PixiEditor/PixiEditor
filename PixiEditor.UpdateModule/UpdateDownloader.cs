@@ -9,8 +9,7 @@ namespace PixiEditor.UpdateModule
 {
     public static class UpdateDownloader
     {
-        public static readonly string DownloadLocation = AppDomain.CurrentDomain.BaseDirectory;
-
+        public static string DownloadLocation = Path.Join(Path.GetTempPath(), "PixiEditor");
         public static async Task DownloadReleaseZip(ReleaseInfo release)
         {
             Asset matchingAsset = GetMatchingAsset(release);
@@ -19,20 +18,29 @@ namespace PixiEditor.UpdateModule
             {
                 client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
                 client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-                HttpResponseMessage response = await client.GetAsync(matchingAsset.Url);
+                var response = await client.GetAsync(matchingAsset.Url);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                    CreateTempDirectory();
                     File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
                 }
+            }
+        }
+
+        public static void CreateTempDirectory()
+        {
+            if (!Directory.Exists(DownloadLocation))
+            {
+                Directory.CreateDirectory(DownloadLocation);
             }
         }
 
         private static Asset GetMatchingAsset(ReleaseInfo release)
         {
             string arch = IntPtr.Size == 8 ? "x64" : "x86";
-            return release.Assets.First(x => x.ContentType == "application/x-zip-compressed"
-                                             && x.Name.Contains(arch));
+            return release.Assets.First(x => x.ContentType.Contains("zip")
+            && x.Name.Contains(arch));
         }
     }
 }

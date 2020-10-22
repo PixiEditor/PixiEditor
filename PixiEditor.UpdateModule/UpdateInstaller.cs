@@ -8,38 +8,38 @@ namespace PixiEditor.UpdateModule
     public class UpdateInstaller
     {
         public const string TargetDirectoryName = "UpdateFiles";
-        private float progress;
-
-        public UpdateInstaller(string archiveFileName)
-        {
-            ArchiveFileName = archiveFileName;
-        }
+        public static string UpdateFilesPath = Path.Join(UpdateDownloader.DownloadLocation, TargetDirectoryName);
 
         public event EventHandler<UpdateProgressChangedEventArgs> ProgressChanged;
-
-        public float Progress
+        private float _progress = 0;
+        public float Progress 
         {
-            get => progress;
+            get => _progress;
             set
             {
-                progress = value;
+                _progress = value;
                 ProgressChanged?.Invoke(this, new UpdateProgressChangedEventArgs(value));
             }
         }
-
         public string ArchiveFileName { get; set; }
+        public string TargetDirectory { get; set; }
+
+        public UpdateInstaller(string archiveFileName, string targetDirectory)
+        {
+            ArchiveFileName = archiveFileName;
+            TargetDirectory = targetDirectory;
+        }
 
         public void Install()
         {
-            Process[] processes = Process.GetProcessesByName("PixiEditor");
+            var processes = Process.GetProcessesByName("PixiEditor");
             if (processes.Length > 0)
             {
                 processes[0].WaitForExit();
             }
-
-            ZipFile.ExtractToDirectory(ArchiveFileName, TargetDirectoryName, true);
-            Progress = 25; // 25% for unzip
-            string dirWithFiles = Directory.GetDirectories(TargetDirectoryName)[0];
+            ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
+            Progress = 25; //25% for unzip
+            string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
             string[] files = Directory.GetFiles(dirWithFiles);
             CopyFilesToDestination(files);
             DeleteArchive();
@@ -49,12 +49,13 @@ namespace PixiEditor.UpdateModule
         private void DeleteArchive()
         {
             File.Delete(ArchiveFileName);
+            Directory.Delete(UpdateFilesPath, true);
         }
 
         private void CopyFilesToDestination(string[] files)
         {
-            float fileCopiedVal = 74f / files.Length; // 74% is reserved for copying
-            string destinationDir = Path.GetDirectoryName(ArchiveFileName);
+            float fileCopiedVal = 74f / files.Length; //74% is reserved for copying
+            string destinationDir = TargetDirectory;
             foreach (string file in files)
             {
                 string targetFileName = Path.GetFileName(file);
