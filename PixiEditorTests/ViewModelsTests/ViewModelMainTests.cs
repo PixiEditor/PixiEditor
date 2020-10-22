@@ -46,7 +46,7 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = new ViewModelMain();
 
-            viewModel.NewDocument(5,5);
+            viewModel.IoSubViewModel.NewDocument(5,5);
 
             Assert.NotNull(viewModel.BitmapManager.ActiveDocument);
             Assert.Single(viewModel.BitmapManager.ActiveDocument.Layers);
@@ -117,7 +117,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Exporter.SaveDocumentPath = fileName;
 
-            viewModel.SaveDocumentCommand.Execute(null);
+            viewModel.IoSubViewModel.SaveDocumentCommand.Execute(null);
 
             Assert.True(File.Exists(fileName));
 

@@ -76,12 +76,12 @@
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}" />
                 </Menu.Resources>
                 <MenuItem Header="_File">
-                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding OpenNewFilePopupCommand}" />
-                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}" />
-                    <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding SaveDocumentCommand}" />
+                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding IoSubViewModel.OpenNewFilePopupCommand}" />
+                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding IoSubViewModel.OpenFileCommand}" />
+                    <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding IoSubViewModel.SaveDocumentCommand}" />
                     <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S"
-                              Command="{Binding SaveDocumentCommand}" CommandParameter="AsNew" />
-                    <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding ExportFileCommand}" />
+                              Command="{Binding IoSubViewModel.SaveDocumentCommand}" CommandParameter="AsNew" />
+                    <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding IoSubViewModel.ExportFileCommand}" />
                     <Separator />
                     <MenuItem Header="_Exit" Command="{x:Static SystemCommands.CloseWindowCommand}" />
                 </MenuItem>
@@ -112,16 +112,16 @@
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="Documentation" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki"/>
+                              CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki"/>
                     <MenuItem Header="Repository" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor"/>
+                              CommandParameter="https://github.com/PixiEditor/PixiEditor"/>
                     <MenuItem Header="Shortcuts" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki/Shortcuts"/>
+                              CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Shortcuts"/>
                     <Separator/>
                     <MenuItem Header="License" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/blob/master/LICENSE"/>
+                              CommandParameter="https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE"/>
                     <MenuItem Header="Third Party Licenses" Command="{Binding OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/flabbet/PixiEditor/wiki/Third-party-licenses"/>
+                              CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"
@@ -397,9 +397,10 @@
         <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Grid.Row="3"
                        Grid.Column="3" Orientation="Horizontal">
             <Button Style="{StaticResource BaseDarkButton}" 
-                    Visibility="{Binding UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}}" FontSize="14" Height="20" Command="{Binding RestartApplicationCommand}">Restart</Button>
+                    Visibility="{Binding UpdateSubViewModel.UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}}" FontSize="14" Height="20" 
+                    Command="{Binding UpdateSubViewModel.RestartApplicationCommand}">Restart</Button>
             <TextBlock VerticalAlignment="Center" Padding="10" HorizontalAlignment="Right"
-                       Foreground="White" FontSize="14"  Text="{Binding VersionText}" />
+                       Foreground="White" FontSize="14"  Text="{Binding UpdateSubViewModel.VersionText}" />
         </StackPanel>
     </Grid>
 </Window>
