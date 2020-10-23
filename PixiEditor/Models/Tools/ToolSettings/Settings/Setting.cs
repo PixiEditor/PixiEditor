@@ -9,19 +9,17 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         Justification = "Same class with generic value")]
     public abstract class Setting<T> : Setting
     {
-        private T value;
-
         protected Setting(string name)
             : base(name)
         {
         }
 
-        public T Value
+        public new T Value
         {
-            get => value;
+            get => (T)base.Value;
             set
             {
-                this.value = value;
+                base.Value = value;
                 RaisePropertyChanged("Value");
             }
         }
@@ -33,6 +31,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
             Name = name;
         }
+
+        public object Value { get; set; }
 
         public string Name { get; }
 
