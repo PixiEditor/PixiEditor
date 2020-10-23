@@ -9,7 +9,8 @@ namespace PixiEditor.UpdateModule
 {
     public static class UpdateDownloader
     {
-        public static string DownloadLocation = Path.Join(Path.GetTempPath(), "PixiEditor");
+        public static string DownloadLocation { get; } = Path.Join(Path.GetTempPath(), "PixiEditor");
+
         public static async Task DownloadReleaseZip(ReleaseInfo release)
         {
             Asset matchingAsset = GetMatchingAsset(release);

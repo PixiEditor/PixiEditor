@@ -5,14 +5,8 @@ namespace PixiEditor.Helpers
 {
     public class RelayCommand : ICommand
     {
-        #region Fields
-
-        private readonly Action<object> _execute;
-        private readonly Predicate<object> _canExecute;
-
-        #endregion // Fields
-
-        #region Constructors
+        private readonly Action<object> execute;
+        private readonly Predicate<object> canExecute;
 
         public RelayCommand(Action<object> execute)
             : this(execute, null)
@@ -22,19 +16,12 @@ namespace PixiEditor.Helpers
         public RelayCommand(Action<object> execute, Predicate<object> canExecute)
         {
             if (execute == null)
+            {
                 throw new ArgumentNullException("execute");
+            }
 
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        #endregion // Constructors
-
-        #region ICommand Members
-
-        public bool CanExecute(object parameter)
-        {
-            return _canExecute == null ? true : _canExecute(parameter);
+            this.execute = execute;
+            this.canExecute = canExecute;
         }
 
         public event EventHandler CanExecuteChanged
@@ -43,11 +30,14 @@ namespace PixiEditor.Helpers
             remove => CommandManager.RequerySuggested -= value;
         }
 
-        public void Execute(object parameter)
+        public bool CanExecute(object parameter)
         {
-            _execute(parameter);
+            return canExecute == null ? true : canExecute(parameter);
         }
 
-        #endregion // ICommand Members
+        public void Execute(object parameter)
+        {
+            execute(parameter);
+        }
     }
 }

@@ -6,7 +6,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class ColorSetting : Setting<Color>
     {
-        public ColorSetting(string name, string label = "") : base(name)
+        public ColorSetting(string name, string label = "")
+            : base(name)
         {
             Label = label;
             SettingControl = GenerateColorPicker();

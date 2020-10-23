@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Models.Processes;
@@ -12,11 +10,12 @@ using PixiEditor.ViewModels;
 namespace PixiEditor
 {
     /// <summary>
-    ///     Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml.
     /// </summary>
     public partial class MainWindow : Window
     {
-        ViewModelMain viewModel;
+        private ViewModelMain viewModel;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -31,18 +30,15 @@ namespace PixiEditor
             e.CanExecute = true;
         }
 
-
         private void CommandBinding_Executed_Minimize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MinimizeWindow(this);
         }
 
-
         private void CommandBinding_Executed_Maximize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MaximizeWindow(this);
         }
-
 
         private void CommandBinding_Executed_Restore(object sender, ExecutedRoutedEventArgs e)
         {
@@ -53,7 +49,6 @@ namespace PixiEditor
         {
             SystemCommands.CloseWindow(this);
         }
-
 
         private void MainWindowStateChangeRaised(object sender, EventArgs e)
         {
@@ -69,7 +64,7 @@ namespace PixiEditor
             }
         }
 
-        private void mainWindow_Initialized(object sender, EventArgs e)
+        private void MainWindow_Initialized(object sender, EventArgs e)
         {
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             UpdateDownloader.CreateTempDirectory();
@@ -82,10 +77,9 @@ namespace PixiEditor
                     ProcessHelper.RunAsAdmin(updaterPath);
                     Close();
                 }
-                catch(Win32Exception)
+                catch (Win32Exception)
                 {
-                    MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions", 
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

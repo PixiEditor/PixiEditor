@@ -10,26 +10,19 @@ namespace PixiEditor.Helpers.Behaviours
     {
         // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FillSizeProperty =
-            DependencyProperty.Register("FillSize", typeof(bool), typeof(TextBoxFocusBehavior),
+            DependencyProperty.Register(
+                "FillSize",
+                typeof(bool),
+                typeof(TextBoxFocusBehavior),
                 new PropertyMetadata(false));
 
-
-        private string _oldText; //Value of textbox before editing
-        private bool _valueConverted; //This bool is used to avoid double convertion if enter is hitted
+        private string oldText; // Value of textbox before editing
+        private bool valueConverted; // This bool is used to avoid double convertion if enter is hitted
 
         public bool FillSize
         {
-            get => (bool) GetValue(FillSizeProperty);
+            get => (bool)GetValue(FillSizeProperty);
             set => SetValue(FillSizeProperty, value);
-        }
-
-        //Converts number to proper format if enter is clicked and moves focus to next object
-        private void AssociatedObject_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Enter) return;
-
-            ConvertValue();
-            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
         }
 
         protected override void OnAttached()
@@ -52,18 +45,32 @@ namespace PixiEditor.Helpers.Behaviours
             AssociatedObject.KeyUp -= AssociatedObject_KeyUp;
         }
 
-        private void AssociatedObjectGotKeyboardFocus(object sender,
+        // Converts number to proper format if enter is clicked and moves focus to next object
+        private void AssociatedObject_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter)
+            {
+                return;
+            }
+
+            ConvertValue();
+            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
+        }
+
+        private void AssociatedObjectGotKeyboardFocus(
+            object sender,
             KeyboardFocusChangedEventArgs e)
         {
             AssociatedObject.SelectAll();
             if (FillSize)
             {
-                _valueConverted = false;
-                _oldText = AssociatedObject.Text; //Sets old value when keyboard is focused on object
+                valueConverted = false;
+                oldText = AssociatedObject.Text; // Sets old value when keyboard is focused on object
             }
         }
 
-        private void AssociatedObjectGotMouseCapture(object sender,
+        private void AssociatedObjectGotMouseCapture(
+            object sender,
             MouseEventArgs e)
         {
             AssociatedObject.SelectAll();
@@ -84,17 +91,27 @@ namespace PixiEditor.Helpers.Behaviours
         }
 
         /// <summary>
-        ///     Converts number from textbox to format "number px" ex. "15 px"
+        ///     Converts number from textbox to format "number px" ex. "15 px".
         /// </summary>
         private void ConvertValue()
         {
-            if (_valueConverted || FillSize == false) return;
+            if (valueConverted || FillSize == false)
+            {
+                return;
+            }
 
-            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", ""), out int result) && result > 0)
+            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", string.Empty), out int result) && result > 0)
+            {
                 AssociatedObject.Text = $"{AssociatedObject.Text} px";
-            else //If text in textbox isn't number, set it to old value
-                AssociatedObject.Text = _oldText;
-            _valueConverted = true;
+            }
+
+            // If text in textbox isn't number, set it to old value
+            else
+            {
+                AssociatedObject.Text = oldText;
+            }
+
+            valueConverted = true;
         }
     }
 }

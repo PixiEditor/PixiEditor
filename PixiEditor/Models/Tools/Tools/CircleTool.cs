@@ -12,12 +12,12 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class CircleTool : ShapeTool
     {
-        public override ToolType ToolType => ToolType.Circle;
-
         public CircleTool()
         {
             Tooltip = "Draws circle on canvas (C). Hold Shift to draw even circle.";
         }
+
+        public override ToolType ToolType => ToolType.Circle;
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
@@ -33,19 +33,18 @@ namespace PixiEditor.Models.Tools.Tools
                         .ChangedPixels);
             }
 
-            return new[] {new LayerChange(pixels, layer)};
+            return new[] { new LayerChange(pixels, layer) };
         }
 
         /// <summary>
         ///     Calculates ellipse points for specified coordinates and thickness.
         /// </summary>
-        /// <param name="startCoordinates">Top left coordinate of ellipse</param>
-        /// <param name="endCoordinates">Bottom right coordinate of ellipse</param>
-        /// <param name="thickness">Thickness of ellipse</param>
-        /// <param name="filled">Should ellipse be filled</param>
-        /// <returns>Coordinates for ellipse</returns>
-        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness,
-            bool filled)
+        /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
+        /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
+        /// <param name="thickness">Thickness of ellipse.</param>
+        /// <param name="filled">Should ellipse be filled.</param>
+        /// <returns>Coordinates for ellipse.</returns>
+        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness, bool filled)
         {
             List<Coordinates> output = new List<Coordinates>();
             IEnumerable<Coordinates> outline = CreateEllipse(startCoordinates, endCoordinates, thickness);
@@ -58,14 +57,14 @@ namespace PixiEditor.Models.Tools.Tools
 
             return output;
         }
+
         /// <summary>
         ///     Calculates ellipse points for specified coordinates and thickness.
         /// </summary>
-        /// <param name="startCoordinates">Top left coordinate of ellipse</param>
-        /// <param name="endCoordinates">Bottom right coordinate of ellipse</param>
-        /// <param name="thickness">Thickness of ellipse</param>
-        /// <returns>Coordinates for ellipse</returns>
-        
+        /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
+        /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
+        /// <param name="thickness">Thickness of ellipse.</param>
+        /// <returns>Coordinates for ellipse.</returns>
         public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
             double radiusX = (endCoordinates.X - startCoordinates.X) / 2.0;
@@ -76,20 +75,27 @@ namespace PixiEditor.Models.Tools.Tools
             List<Coordinates> output = new List<Coordinates>();
             IEnumerable<Coordinates> ellipse = MidpointEllipse(radiusX, radiusY, centerX, centerY);
             if (thickness == 1)
+            {
                 output.AddRange(ellipse);
+            }
             else
+            {
                 output.AddRange(GetThickShape(ellipse, thickness));
+            }
+
             return output.Distinct();
         }
 
         public IEnumerable<Coordinates> MidpointEllipse(double halfWidth, double halfHeight, double centerX, double centerY)
         {
             if (halfWidth < 1 || halfHeight < 1)
+            {
                 return FallbackRectangle(halfWidth, halfHeight, centerX, centerY);
+            }
 
-            //ellipse formula: halfHeight^2 * x^2 + halfWidth^2 * y^2 - halfHeight^2 * halfWidth^2 = 0
+            // ellipse formula: halfHeight^2 * x^2 + halfWidth^2 * y^2 - halfHeight^2 * halfWidth^2 = 0
 
-            //Make sure we are always at the center of a pixel
+            // Make sure we are always at the center of a pixel
             double currentX = Math.Ceiling(centerX - 0.5) + 0.5;
             double currentY = centerY + halfHeight;
 
@@ -97,37 +103,37 @@ namespace PixiEditor.Models.Tools.Tools
 
             double currentSlope;
 
-            //from PI/2 to middle
+            // from PI/2 to middle
             do
             {
                 outputCoordinates.AddRange(GetRegionPoints(currentX, centerX, currentY, centerY));
 
-                //calculate next pixel coords
+                // calculate next pixel coords
                 currentX++;
 
-                if (Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX, 2) +
-                    Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY - 0.5, 2) -
-                    Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2) >= 0)
+                if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX, 2)) +
+                    (Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY - 0.5, 2)) -
+                    (Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2)) >= 0)
                 {
                     currentY--;
                 }
 
-                //calculate how far we've advanced
+                // calculate how far we've advanced
                 double derivativeX = 2 * Math.Pow(halfHeight, 2) * (currentX - centerX);
                 double derivativeY = 2 * Math.Pow(halfWidth, 2) * (currentY - centerY);
                 currentSlope = -(derivativeX / derivativeY);
+            }
+            while (currentSlope > -1 && currentY - centerY > 0.5);
 
-            } while (currentSlope > -1 && currentY - centerY > 0.5);
-
-            //from middle to 0
+            // from middle to 0
             while (currentY - centerY >= 0)
             {
                 outputCoordinates.AddRange(GetRegionPoints(currentX, centerX, currentY, centerY));
 
                 currentY--;
-                if (Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2) +
-                    Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY, 2) -
-                    Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2) < 0)
+                if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2)) +
+                    (Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY, 2)) -
+                    (Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2)) < 0)
                 {
                     currentX++;
                 }
@@ -144,11 +150,13 @@ namespace PixiEditor.Models.Tools.Tools
                 coordinates.Add(new Coordinates((int)x, (int)(centerY - halfHeight)));
                 coordinates.Add(new Coordinates((int)x, (int)(centerY + halfHeight)));
             }
+
             for (double y = centerY - halfHeight + 1; y <= centerY + halfHeight - 1; y++)
             {
                 coordinates.Add(new Coordinates((int)(centerX - halfWidth), (int)y));
                 coordinates.Add(new Coordinates((int)(centerX + halfWidth), (int)y));
             }
+
             return coordinates.ToArray();
         }
 
@@ -159,21 +167,25 @@ namespace PixiEditor.Models.Tools.Tools
             int top = outlineCoordinates.Min(x => x.Y);
             for (int i = top + 1; i < bottom; i++)
             {
-                var rowCords = outlineCoordinates.Where(x => x.Y == i);
+                IEnumerable<Coordinates> rowCords = outlineCoordinates.Where(x => x.Y == i);
                 int right = rowCords.Max(x => x.X);
                 int left = rowCords.Min(x => x.X);
-                for (int j = left + 1; j < right; j++) finalCoordinates.Add(new Coordinates(j, i));
+                for (int j = left + 1; j < right; j++)
+                {
+                    finalCoordinates.Add(new Coordinates(j, i));
+                }
             }
 
             return finalCoordinates;
         }
+
         private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)
         {
             Coordinates[] outputCoordinates = new Coordinates[4];
-            outputCoordinates[0] = new Coordinates((int)Math.Floor(x),                  (int)Math.Floor(y));
-            outputCoordinates[1] = new Coordinates((int)Math.Floor((-(x - xc) + xc)),   (int)Math.Floor(y));
-            outputCoordinates[2] = new Coordinates((int)Math.Floor(x),                  (int)Math.Floor((-(y - yc) + yc)));
-            outputCoordinates[3] = new Coordinates((int)Math.Floor((-(x - xc) + xc)),   (int)Math.Floor((-(y - yc) + yc)));
+            outputCoordinates[0] = new Coordinates((int)Math.Floor(x), (int)Math.Floor(y));
+            outputCoordinates[1] = new Coordinates((int)Math.Floor(-(x - xc) + xc), (int)Math.Floor(y));
+            outputCoordinates[2] = new Coordinates((int)Math.Floor(x), (int)Math.Floor(-(y - yc) + yc));
+            outputCoordinates[3] = new Coordinates((int)Math.Floor(-(x - xc) + xc), (int)Math.Floor(-(y - yc) + yc));
             return outputCoordinates;
         }
     }

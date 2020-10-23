@@ -9,7 +9,11 @@ namespace PixiEditor.Helpers.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value.ToString().ToLower() == "visible") return Visibility.Hidden;
+            if (value.ToString().ToLower() == "visible")
+            {
+                return Visibility.Hidden;
+            }
+
             return Visibility.Visible;
         }
 
@@ -17,8 +21,11 @@ namespace PixiEditor.Helpers.Converters
         {
             if (value is Visibility)
             {
-                if ((Visibility) value == Visibility.Visible)
+                if ((Visibility)value == Visibility.Visible)
+                {
                     return "Hidden";
+                }
+
                 return "Visible";
             }
 

@@ -16,7 +16,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
             Setting setting = toolbar.GetSetting(settingName);
 
             Assert.NotNull(setting);
-            Assert.Equal(settingName,setting.Name);
+            Assert.Equal(settingName, setting.Name);
         }
 
         [StaFact]

@@ -6,15 +6,12 @@
         xmlns:local="clr-namespace:PixiEditor.Views"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours"
-        xmlns:converters="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450"
         DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize" Height="600" Width="450" Name="newFilePopup">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
-        <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
         <Grid Background="{StaticResource AccentColor}">

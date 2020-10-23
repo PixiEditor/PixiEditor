@@ -4,7 +4,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for ImportFilePopup.xaml
+    ///     Interaction logic for ImportFilePopup.xaml.
     /// </summary>
     public partial class ImportFilePopup : Window
     {
@@ -16,20 +16,17 @@ namespace PixiEditor.Views
             DataContext = dc;
         }
 
-
         public int ImportHeight
         {
             get => dc.ImportHeight;
             set => dc.ImportWidth = value;
         }
 
-
         public int ImportWidth
         {
             get => dc.ImportWidth;
             set => dc.ImportWidth = value;
         }
-
 
         public string FilePath
         {

@@ -19,6 +19,7 @@ namespace PixiEditor.Models.Processes
             {
                 throw ex;
             }
+
             return proc;
         }
     }

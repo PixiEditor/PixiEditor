@@ -17,7 +17,7 @@
                  LostFocus="TextBox_LostFocus"
                  Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
                  KeyDown="TextBox_KeyDown"
-                 LostKeyboardFocus="textBox_LostKeyboardFocus"
+                 LostKeyboardFocus="TextBox_LostKeyboardFocus"
                  Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, 
             Converter={StaticResource OppositeVisibilityConverter}}"
                  Name="textBox" />

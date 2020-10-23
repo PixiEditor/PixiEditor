@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
@@ -12,14 +10,13 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 {
     public class SerializableDocumentTests
     {
-
         [Fact]
         public void TestThatSerializableDocumentCreatesCorrectly()
         {
             Document document = GenerateSampleDocument();
             SerializableDocument doc = new SerializableDocument(document);
 
-            var swatch = document.Swatches.First();
+            Color swatch = document.Swatches.First();
             Tuple<byte, byte, byte, byte> color = Tuple.Create(swatch.A, swatch.R, swatch.G, swatch.B);
 
             Assert.Equal(document.Width, doc.Width);
@@ -50,8 +47,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             Assert.Equal(document.Height, convertedDocument.Height);
             Assert.Equal(document.Width, convertedDocument.Width);
             Assert.Equal(document.Swatches, convertedDocument.Swatches);
-            Assert.Equal(document.Layers.Select(x=> x.LayerBitmap.ToByteArray()),
-                convertedDocument.Layers.Select(x=> x.LayerBitmap.ToByteArray()));
+            Assert.Equal(
+                document.Layers.Select(x => x.LayerBitmap.ToByteArray()),
+                convertedDocument.Layers.Select(x => x.LayerBitmap.ToByteArray()));
         }
 
         [Fact]
@@ -60,7 +58,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             Document document = GenerateSampleDocument();
             SerializableDocument doc = new SerializableDocument(document);
 
-            var layers = doc.ToLayers();
+            System.Collections.ObjectModel.ObservableCollection<Layer> layers = doc.ToLayers();
             for (int i = 0; i < layers.Count; i++)
             {
                 Assert.Equal(document.Layers[i].LayerBitmap.ToByteArray(), layers[i].ConvertBitmapToBytes());

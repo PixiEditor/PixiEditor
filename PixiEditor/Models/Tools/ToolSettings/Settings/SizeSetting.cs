@@ -9,7 +9,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class SizeSetting : Setting<int>
     {
-        public SizeSetting(string name, string label = null) : base(name)
+        public SizeSetting(string name, string label = null)
+            : base(name)
         {
             Value = 1;
             SettingControl = GenerateTextBox();

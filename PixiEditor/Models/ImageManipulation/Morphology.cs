@@ -11,7 +11,7 @@ namespace PixiEditor.Models.ImageManipulation
         {
             int kernelDim = kernelSize;
 
-            //This is the offset of center pixel from border of the kernel
+            // This is the offset of center pixel from border of the kernel
             int kernelOffset = (kernelDim - 1) / 2;
             int margin = kernelDim;
 
@@ -22,19 +22,30 @@ namespace PixiEditor.Models.ImageManipulation
             int width = byteImg.GetLength(0);
             int height = byteImg.GetLength(1);
             for (int y = kernelOffset; y < height - kernelOffset; y++)
-            for (int x = kernelOffset; x < width - kernelOffset; x++)
             {
-                byte value = 0;
+                for (int x = kernelOffset; x < width - kernelOffset; x++)
+                {
+                    byte value = 0;
 
-                //Apply dilation
-                for (int ykernel = -kernelOffset; ykernel <= kernelOffset; ykernel++)
-                for (int xkernel = -kernelOffset; xkernel <= kernelOffset; xkernel++)
-                    if (mask[xkernel + kernelOffset, ykernel + kernelOffset] == 1)
-                        value = Math.Max(value, byteImg[x + xkernel, y + ykernel]);
-                    else
-                        continue;
-                //Write processed data into the second array
-                outputArray[x, y] = value;
+                    // Apply dilation
+                    for (int ykernel = -kernelOffset; ykernel <= kernelOffset; ykernel++)
+                    {
+                        for (int xkernel = -kernelOffset; xkernel <= kernelOffset; xkernel++)
+                        {
+                            if (mask[xkernel + kernelOffset, ykernel + kernelOffset] == 1)
+                            {
+                                value = Math.Max(value, byteImg[x + xkernel, y + ykernel]);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
+                    // Write processed data into the second array
+                    outputArray[x, y] = value;
+                }
             }
 
             return ToCoordinates(outputArray, offset).Distinct();
@@ -46,9 +57,16 @@ namespace PixiEditor.Models.ImageManipulation
             int width = byteArray.GetLength(0);
 
             for (int y = 0; y < byteArray.GetLength(1); y++)
-            for (int x = 0; x < width; x++)
-                if (byteArray[x, y] == 1)
-                    output.Add(new Coordinates(x + offset.X, y + offset.Y));
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (byteArray[x, y] == 1)
+                    {
+                        output.Add(new Coordinates(x + offset.X, y + offset.Y));
+                    }
+                }
+            }
+
             return output;
         }
 
@@ -57,14 +75,17 @@ namespace PixiEditor.Models.ImageManipulation
             Tuple<int, int> dimensions = GetDimensionsForPoints(points);
             int minX = points.Min(x => x.X);
             int minY = points.Min(x => x.Y);
-            byte[,] array = new byte[dimensions.Item1 + margin * 2, dimensions.Item2 + margin * 2];
+            byte[,] array = new byte[dimensions.Item1 + (margin * 2), dimensions.Item2 + (margin * 2)];
 
             for (int y = 0; y < dimensions.Item2 + margin; y++)
-            for (int x = 0; x < dimensions.Item1 + margin; x++)
             {
-                Coordinates cords = new Coordinates(x + minX, y + minY);
-                array[x + margin, y + margin] = points.Contains(cords) ? (byte) 1 : (byte) 0;
+                for (int x = 0; x < dimensions.Item1 + margin; x++)
+                {
+                    Coordinates cords = new Coordinates(x + minX, y + minY);
+                    array[x + margin, y + margin] = points.Contains(cords) ? (byte)1 : (byte)0;
+                }
             }
+
             return array;
         }
 

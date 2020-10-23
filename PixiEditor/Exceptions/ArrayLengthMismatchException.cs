@@ -6,11 +6,13 @@ namespace PixiEditor.Exceptions
     {
         public const string DefaultMessage = "First array length doesn't match second array length";
 
-        public ArrayLengthMismatchException() : base(DefaultMessage)
+        public ArrayLengthMismatchException()
+            : base(DefaultMessage)
         {
         }
 
-        public ArrayLengthMismatchException(string message) : base(message)
+        public ArrayLengthMismatchException(string message)
+            : base(message)
         {
         }
     }

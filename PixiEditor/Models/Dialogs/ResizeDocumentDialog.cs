@@ -5,17 +5,28 @@ namespace PixiEditor.Models.Dialogs
 {
     public class ResizeDocumentDialog : CustomDialog
     {
+        private int height;
+        private int width;
+
+        public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
+        {
+            Width = currentWidth;
+            Height = currentHeight;
+            OpenResizeCanvas = openResizeCanvas;
+        }
+
         public bool OpenResizeCanvas { get; set; }
+
         public AnchorPoint ResizeAnchor { get; set; }
 
         public int Width
         {
-            get => _width;
+            get => width;
             set
             {
-                if (_width != value)
+                if (width != value)
                 {
-                    _width = value;
+                    width = value;
                     RaisePropertyChanged("Width");
                 }
             }
@@ -23,25 +34,15 @@ namespace PixiEditor.Models.Dialogs
 
         public int Height
         {
-            get => _height;
+            get => height;
             set
             {
-                if (_height != value)
+                if (height != value)
                 {
-                    _height = value;
+                    height = value;
                     RaisePropertyChanged("Height");
                 }
             }
-        }
-
-        private int _height;
-        private int _width;
-
-        public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
-        {
-            Width = currentWidth;
-            Height = currentHeight;
-            OpenResizeCanvas = openResizeCanvas;
         }
 
         public override bool ShowDialog()
@@ -64,7 +65,7 @@ namespace PixiEditor.Models.Dialogs
                 Height = popup.NewHeight;
             }
 
-            return (bool) popup.DialogResult;
+            return (bool)popup.DialogResult;
         }
 
         private bool ShowResizeCanvasDialog()
@@ -83,7 +84,7 @@ namespace PixiEditor.Models.Dialogs
                 ResizeAnchor = popup.SelectedAnchorPoint;
             }
 
-            return (bool) popup.DialogResult;
+            return (bool)popup.DialogResult;
         }
     }
 }

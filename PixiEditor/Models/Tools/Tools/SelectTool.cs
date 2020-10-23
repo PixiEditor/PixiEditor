@@ -15,9 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
-        public override ToolType ToolType => ToolType.Select;
-        private Selection _oldSelection;
-        public SelectionType SelectionType = SelectionType.Add;
+        private Selection oldSelection;
 
         public SelectTool()
         {
@@ -25,14 +23,21 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new SelectToolToolbar();
         }
 
+        public SelectionType SelectionType { get; set; } = SelectionType.Add;
+
+        public override ToolType ToolType => ToolType.Select;
+
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
-            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType);
+            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType selectionType);
+            SelectionType = selectionType;
 
-            _oldSelection = null;
+            oldSelection = null;
             if (ViewModelMain.Current.ActiveSelection != null &&
                 ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
-                _oldSelection = ViewModelMain.Current.ActiveSelection;
+            {
+                oldSelection = ViewModelMain.Current.ActiveSelection;
+            }
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
@@ -43,19 +48,12 @@ namespace PixiEditor.Models.Tools.Tools
                 ViewModelMain.Current.ActiveSelection.Clear();
             }
 
-            UndoManager.AddUndoChange(new Change("ActiveSelection", _oldSelection,
-                ViewModelMain.Current.ActiveSelection, "Select pixels"));
+            UndoManager.AddUndoChange(new Change("ActiveSelection", oldSelection, ViewModelMain.Current.ActiveSelection, "Select pixels"));
         }
 
         public override void Use(Coordinates[] pixels)
         {
             Select(pixels);
-        }
-
-        private void Select(Coordinates[] pixels)
-        {
-            IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            ViewModelMain.Current.ActiveSelection.SetSelection(selection, SelectionType);
         }
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
@@ -67,22 +65,27 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         /// <summary>
-        ///     Gets coordinates of every pixel in root layer
+        ///     Gets coordinates of every pixel in root layer.
         /// </summary>
-        /// <returns>Coordinates array of pixels</returns>
+        /// <returns>Coordinates array of pixels.</returns>
         public IEnumerable<Coordinates> GetAllSelection()
         {
             return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument);
         }
 
         /// <summary>
-        ///     Gets coordinates of every pixel in chosen document
+        ///     Gets coordinates of every pixel in chosen document.
         /// </summary>
-        /// <param name="document"></param>
-        /// <returns>Coordinates array of pixels</returns>
+        /// <returns>Coordinates array of pixels.</returns>
         public IEnumerable<Coordinates> GetAllSelection(Document document)
         {
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
+        }
+
+        private void Select(Coordinates[] pixels)
+        {
+            IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
+            ViewModelMain.Current.ActiveSelection.SetSelection(selection, SelectionType);
         }
     }
 }
