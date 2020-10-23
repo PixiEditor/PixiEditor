@@ -8,27 +8,32 @@ namespace PixiEditor.UpdateModule
     public class UpdateInstaller
     {
         public const string TargetDirectoryName = "UpdateFiles";
-        public static string UpdateFilesPath = Path.Join(UpdateDownloader.DownloadLocation, TargetDirectoryName);
 
-        public event EventHandler<UpdateProgressChangedEventArgs> ProgressChanged;
-        private float _progress = 0;
-        public float Progress 
-        {
-            get => _progress;
-            set
-            {
-                _progress = value;
-                ProgressChanged?.Invoke(this, new UpdateProgressChangedEventArgs(value));
-            }
-        }
-        public string ArchiveFileName { get; set; }
-        public string TargetDirectory { get; set; }
+        private float progress = 0;
 
         public UpdateInstaller(string archiveFileName, string targetDirectory)
         {
             ArchiveFileName = archiveFileName;
             TargetDirectory = targetDirectory;
         }
+
+        public event EventHandler<UpdateProgressChangedEventArgs> ProgressChanged;
+
+        public static string UpdateFilesPath { get; set; } = Path.Join(UpdateDownloader.DownloadLocation, TargetDirectoryName);
+
+        public float Progress
+        {
+            get => progress;
+            set
+            {
+                progress = value;
+                ProgressChanged?.Invoke(this, new UpdateProgressChangedEventArgs(value));
+            }
+        }
+
+        public string ArchiveFileName { get; set; }
+
+        public string TargetDirectory { get; set; }
 
         public void Install()
         {
@@ -37,8 +42,9 @@ namespace PixiEditor.UpdateModule
             {
                 processes[0].WaitForExit();
             }
+
             ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
-            Progress = 25; //25% for unzip
+            Progress = 25; // 25% for unzip
             string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
             string[] files = Directory.GetFiles(dirWithFiles);
             CopyFilesToDestination(files);
@@ -54,7 +60,7 @@ namespace PixiEditor.UpdateModule
 
         private void CopyFilesToDestination(string[] files)
         {
-            float fileCopiedVal = 74f / files.Length; //74% is reserved for copying
+            float fileCopiedVal = 74f / files.Length; // 74% is reserved for copying
             string destinationDir = TargetDirectory;
             foreach (string file in files)
             {

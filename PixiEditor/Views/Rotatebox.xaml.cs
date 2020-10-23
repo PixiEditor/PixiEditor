@@ -1,25 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixiEditor.Views
 {
     /// <summary>
-    /// Interaction logic for Rotatebox.xaml
+    ///     Interaction logic for Rotatebox.xaml.
     /// </summary>
     public partial class Rotatebox : UserControl
     {
-        private double _height = 0, _width = 0;
-        private float _offset = 90;
+        // Using a DependencyProperty backing store for Angle.
+        public static readonly DependencyProperty AngleProperty =
+            DependencyProperty.Register("Angle", typeof(double), typeof(Rotatebox), new UIPropertyMetadata(0.0));
+
+        private readonly float offset = 90;
+
+        private double height;
+        private double width;
 
         public Rotatebox()
         {
@@ -29,22 +27,17 @@ namespace PixiEditor.Views
             MouseMove += OnMouseMove;
         }
 
-        // Using a DependencyProperty backing store for Angle.
-        public static readonly DependencyProperty AngleProperty =
-            DependencyProperty.Register("Angle", typeof(double), typeof(Rotatebox), new UIPropertyMetadata(0.0));
-
         public double Angle
         {
-            get { return (double)GetValue(AngleProperty); }
-            set { SetValue(AngleProperty, value); }
+            get => (double)GetValue(AngleProperty);
+            set => SetValue(AngleProperty, value);
         }
-
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Mouse.Capture(this);
-            _width = ActualWidth;
-            _height = ActualHeight;
+            width = ActualWidth;
+            height = ActualHeight;
         }
 
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -60,12 +53,12 @@ namespace PixiEditor.Views
                 Point currentLocation = Mouse.GetPosition(this);
 
                 // We want to rotate around the center of the knob, not the top corner
-                Point knobCenter = new Point(_width / 2, _height/ 2);
+                Point knobCenter = new Point(width / 2, height / 2);
 
                 // Calculate an angle
                 double radians = Math.Atan((currentLocation.Y - knobCenter.Y) /
-                                           (currentLocation.X - knobCenter.X));
-                Angle = radians * 180 / Math.PI + _offset;
+                                        (currentLocation.X - knobCenter.X));
+                Angle = (radians * 180 / Math.PI) + offset;
 
                 // Apply a 180 degree shift when X is negative so that we can rotate
                 // all of the way around

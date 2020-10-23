@@ -4,15 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
-        xmlns:converters="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" Name="window"
         Title="ResizeCanvasPopup" Topmost="True" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
         Height="390" Width="400" WindowStyle="None">
 
     <Window.Resources>
-        <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
 
     <WindowChrome.WindowChrome>

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
 using Xunit;
 
@@ -28,10 +25,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             MouseMovementController controller = new MouseMovementController();
             controller.StartRecordingMouseMovementChanges(false);
-            controller.RecordMouseMovementChange(new Coordinates(5,5));
+            controller.RecordMouseMovementChange(new Coordinates(5, 5));
 
             Assert.NotEmpty(controller.LastMouseMoveCoordinates);
-            Assert.Equal(new Coordinates(5,5),controller.LastMouseMoveCoordinates[0]);
+            Assert.Equal(new Coordinates(5, 5), controller.LastMouseMoveCoordinates[0]);
             Assert.True(controller.IsRecordingChanges);
         }
 
@@ -39,8 +36,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatMouseMovedRaisesEvent()
         {
             bool eventRaised = false;
-            Coordinates position = new Coordinates(5,5);
-            MouseMovementEventArgs args = new MouseMovementEventArgs(new Coordinates());
+            Coordinates position = new Coordinates(5, 5);
+            MouseMovementEventArgs args = new MouseMovementEventArgs(default(Coordinates));
 
             MouseMovementController controller = new MouseMovementController();
             controller.MousePositionChanged += (s, e) =>
@@ -71,7 +68,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatRecordChangesNotRecords()
         {
             MouseMovementController controller = new MouseMovementController();
-            controller.RecordMouseMovementChange(new Coordinates(5,10));
+            controller.RecordMouseMovementChange(new Coordinates(5, 10));
 
             Assert.False(controller.IsRecordingChanges);
             Assert.Empty(controller.LastMouseMoveCoordinates);

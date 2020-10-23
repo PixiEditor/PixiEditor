@@ -29,6 +29,7 @@
   <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\MoveImage.png" />
+    <None Remove="Images\MoveViewportImage.png" />
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\SelectImage.png" />
     <None Remove="Images\ZoomImage.png" />
@@ -62,6 +63,7 @@
     <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\MoveImage.png" />
+    <Resource Include="Images\MoveViewportImage.png" />
     <Resource Include="Images\PenImage.png" />
     <Resource Include="Images\ColorPickerImage.png" />
     <Resource Include="Images\PixiEditorLogo.png" />

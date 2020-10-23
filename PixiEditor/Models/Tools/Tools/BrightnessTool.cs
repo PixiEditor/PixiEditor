@@ -15,12 +15,9 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class BrightnessTool : BitmapOperationTool
     {
-        private const float CorrectionFactor = 5f; //Initial correction factor
+        private const float CorrectionFactor = 5f; // Initial correction factor
 
-        public override ToolType ToolType => ToolType.Brightness;
-        public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
-
-        private List<Coordinates> _pixelsVisited = new List<Coordinates>();
+        private List<Coordinates> pixelsVisited = new List<Coordinates>();
 
         public BrightnessTool()
         {
@@ -28,9 +25,13 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-        public override void OnMouseDown(MouseEventArgs e)
+        public override ToolType ToolType => ToolType.Brightness;
+
+        public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
+
+        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
-            _pixelsVisited.Clear();
+            pixelsVisited.Clear();
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
@@ -42,36 +43,45 @@ namespace PixiEditor.Models.Tools.Tools
 
             LayerChange[] layersChanges = new LayerChange[1];
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
-                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor),
-                    layer);
+            {
+                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor), layer);
+            }
             else
-                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor),
-                    layer);
+            {
+                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor), layer);
+            }
+
             return layersChanges;
         }
 
-        public BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize,
-            float correctionFactor)
+        public BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
         {
             DoubleCords centeredCoords = CoordinatesCalculator.CalculateThicknessCenter(coordinates, toolSize);
-            Coordinates[] rectangleCoordinates = CoordinatesCalculator.RectangleToCoordinates(centeredCoords.Coords1.X,
+            Coordinates[] rectangleCoordinates = CoordinatesCalculator.RectangleToCoordinates(
+                centeredCoords.Coords1.X,
                 centeredCoords.Coords1.Y,
-                centeredCoords.Coords2.X, centeredCoords.Coords2.Y);
+                centeredCoords.Coords2.X,
+                centeredCoords.Coords2.Y);
             BitmapPixelChanges changes = new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
 
             for (int i = 0; i < rectangleCoordinates.Length; i++)
             {
                 if (Mode == BrightnessMode.Default)
                 {
-                    if(_pixelsVisited.Contains(rectangleCoordinates[i]))
+                    if (pixelsVisited.Contains(rectangleCoordinates[i]))
+                    {
                         continue;
-                    _pixelsVisited.Add(rectangleCoordinates[i]);
+                    }
+
+                    pixelsVisited.Add(rectangleCoordinates[i]);
                 }
 
                 Color pixel = layer.GetPixelWithOffset(rectangleCoordinates[i].X, rectangleCoordinates[i].Y);
-                Color newColor = ExColor.ChangeColorBrightness(Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
+                Color newColor = ExColor.ChangeColorBrightness(
+                    Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
                     correctionFactor);
-                changes.ChangedPixels.Add(new Coordinates(rectangleCoordinates[i].X, rectangleCoordinates[i].Y),
+                changes.ChangedPixels.Add(
+                    new Coordinates(rectangleCoordinates[i].X, rectangleCoordinates[i].Y),
                     newColor);
             }
 

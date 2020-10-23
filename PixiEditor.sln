@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor", "PixiEditor\PixiEditor.csproj", "{2CCDDE79-06CB-4771-AF85-7B25313EBA30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.UpdateInstaller", "PixiEditor.UpdateInstaller\PixiEditor.UpdateInstaller.csproj", "{41B40602-2E8C-4B76-9BDB-B9FDE686ACCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.UpdateModule", "PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj", "{80BB2920-3DC0-406C-9E2B-30B08D5CC7A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditorTests", "PixiEditorTests\PixiEditorTests.csproj", "{5193C1C1-8362-40FD-802B-E097E8C88082}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildConfiguration", "BuildConfiguration", "{9337E60D-8425-4E87-950C-F07A09518081}"
+ProjectSection(SolutionItems) = preProject
+	stylecop.json = stylecop.json
+	Custom.ruleset = Custom.ruleset
+	Directory.Build.props = Directory.Build.props
+EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CCDDE79-06CB-4771-AF85-7B25313EBA30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CCDDE79-06CB-4771-AF85-7B25313EBA30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CCDDE79-06CB-4771-AF85-7B25313EBA30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CCDDE79-06CB-4771-AF85-7B25313EBA30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41B40602-2E8C-4B76-9BDB-B9FDE686ACCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41B40602-2E8C-4B76-9BDB-B9FDE686ACCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41B40602-2E8C-4B76-9BDB-B9FDE686ACCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41B40602-2E8C-4B76-9BDB-B9FDE686ACCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80BB2920-3DC0-406C-9E2B-30B08D5CC7A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80BB2920-3DC0-406C-9E2B-30B08D5CC7A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80BB2920-3DC0-406C-9E2B-30B08D5CC7A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80BB2920-3DC0-406C-9E2B-30B08D5CC7A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5193C1C1-8362-40FD-802B-E097E8C88082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5193C1C1-8362-40FD-802B-E097E8C88082}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5193C1C1-8362-40FD-802B-E097E8C88082}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5193C1C1-8362-40FD-802B-E097E8C88082}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D04B4AB0-CA33-42FD-A909-79966F9255C5}
+	EndGlobalSection
+EndGlobal

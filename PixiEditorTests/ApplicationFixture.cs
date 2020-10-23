@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using PixiEditor;
 
@@ -14,7 +11,7 @@ namespace PixiEditorTests
         {
             if (Application.Current == null)
             {
-                var app = new App();
+                App app = new App();
                 app.InitializeComponent();
             }
         }

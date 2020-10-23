@@ -3,10 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-             xmlns:helpers="clr-namespace:PixiEditor.Helpers"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d"
              d:DesignHeight="40" d:DesignWidth="80" x:Name="menuButton"
              DataContext="{DynamicResource MenuButtonViewModel}">

@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace PixiEditor.UpdateInstaller
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml.
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
@@ -20,14 +19,14 @@ namespace PixiEditor.UpdateInstaller
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModelMain vmm = ((ViewModelMain)DataContext);
+            ViewModelMain vmm = (ViewModelMain)DataContext;
             await Task.Run(() =>
             {
                 try
                 {
                     vmm.InstallUpdate();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Update error", MessageBoxButton.OK, MessageBoxImage.Error);
                     File.AppendAllText("ErrorLog.txt", $"Error PixiEditor.UpdateInstaller: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");

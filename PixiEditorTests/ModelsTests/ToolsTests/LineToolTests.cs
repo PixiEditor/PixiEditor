@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.Layers;
+﻿using System.Linq;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
 using Xunit;
@@ -22,13 +16,13 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         {
             LineTool lineTool = new LineTool();
 
-            var line = lineTool.CreateLine(new Coordinates(0,0), new Coordinates(length - 1, length - 1), 1);
+            System.Collections.Generic.IEnumerable<Coordinates> line = lineTool.CreateLine(new Coordinates(0, 0), new Coordinates(length - 1, length - 1), 1);
 
             Assert.Equal(length, line.Count());
 
             for (int i = 0; i < length; i++)
             {
-                Assert.Contains(new Coordinates(i,i), line);
+                Assert.Contains(new Coordinates(i, i), line);
             }
         }
     }

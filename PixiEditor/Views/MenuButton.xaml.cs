@@ -5,13 +5,12 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for MenuButton.xaml
+    ///     Interaction logic for MenuButton.xaml.
     /// </summary>
     public partial class MenuButton : UserControl
     {
         public static readonly DependencyProperty MenuButtonTextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(MenuButton),
-                new UIPropertyMetadata(string.Empty));
+            DependencyProperty.Register("Text", typeof(string), typeof(MenuButton), new UIPropertyMetadata(string.Empty));
 
         // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemProperty =
@@ -27,10 +26,9 @@ namespace PixiEditor.Views
 
         public string Text
         {
-            get => (string) GetValue(MenuButtonTextProperty);
+            get => (string)GetValue(MenuButtonTextProperty);
             set => SetValue(MenuButtonTextProperty, value);
         }
-
 
         public object Item
         {

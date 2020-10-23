@@ -9,7 +9,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         public BrightnessToolToolbar(float initialValue)
         {
             Settings.Add(new FloatSetting("CorrectionFactor", initialValue, "Strength:", 0f, 100f));
-            Settings.Add(new DropdownSetting("Mode", Enum.GetNames(typeof(BrightnessMode)), "Mode"));
+            Settings.Add(new DropdownSetting("BrightnessMode", Enum.GetNames(typeof(BrightnessMode)), "Mode"));
         }
     }
 }

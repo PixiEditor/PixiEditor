@@ -7,14 +7,16 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class BoolSetting : Setting<bool>
     {
-        public BoolSetting(string name, string label = "") : base(name)
+        public BoolSetting(string name, string label = "")
+            : base(name)
         {
             Label = label;
             Value = false;
             SettingControl = GenerateCheckBox();
         }
 
-        public BoolSetting(string name, bool isChecked, string label = "") : base(name)
+        public BoolSetting(string name, bool isChecked, string label = "")
+            : base(name)
         {
             Label = label;
             Value = isChecked;

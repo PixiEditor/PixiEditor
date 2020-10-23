@@ -3,15 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:local="clr-namespace:PixiEditor.Views" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
-        xmlns:converters="clr-namespace:PixiEditor.Helpers"
+        xmlns:local="clr-namespace:PixiEditor.Views"
         mc:Ignorable="d" Name="window"
         Title="ResizeDocumentPopup" Topmost="True" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
         Height="300" Width="400" WindowStyle="None">
 
     <Window.Resources>
-        <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
 
     <WindowChrome.WindowChrome>

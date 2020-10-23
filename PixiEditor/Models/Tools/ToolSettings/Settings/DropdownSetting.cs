@@ -5,18 +5,18 @@ using System.Windows.Data;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    public class DropdownSetting : Setting<object>
+    public class DropdownSetting : Setting<ComboBoxItem>
     {
-        public string[] Values { get; set; }
-
-        public DropdownSetting(string name, string[] values, string label) : base(name)
+        public DropdownSetting(string name, string[] values, string label)
+            : base(name)
         {
             Values = values;
             SettingControl = GenerateDropdown();
-            Value = ((ComboBox) SettingControl).Items[0];
+            Value = (ComboBoxItem)((ComboBox)SettingControl).Items[0];
             Label = label;
         }
 
+        public string[] Values { get; set; }
 
         private ComboBox GenerateDropdown()
         {

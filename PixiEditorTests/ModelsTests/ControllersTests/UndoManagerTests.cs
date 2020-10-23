@@ -1,5 +1,4 @@
-﻿using System;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using Xunit;
 
@@ -7,13 +6,14 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class UndoManagerTests
     {
-        public int ExampleProperty { get; set; } = 1;
-        public TestPropertyClass TestPropClass { get; set; } = new TestPropertyClass();
-
         public UndoManagerTests()
         {
             PrepareUndoManagerForTest();
         }
+
+        public int ExampleProperty { get; set; } = 1;
+
+        public TestPropertyClass TestPropClass { get; set; } = new TestPropertyClass();
 
         [Fact]
         public void TestSetRoot()
@@ -52,7 +52,6 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.True((int)UndoManager.RedoStack.Peek().OldValue == ExampleProperty);
         }
 
-
         [Fact]
         public void TestThatRedoAddsToUndoStack()
         {
@@ -83,7 +82,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             testProp.IntProperty = newVal;
             UndoManager.AddUndoChange(new Change("IntProperty", 0, newVal, root: testProp));
             Assert.Equal(newVal, testProp.IntProperty);
-            
+
             UndoManager.Undo();
 
             Assert.Equal(0, testProp.IntProperty);
@@ -98,14 +97,13 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             PrepareUndoManagerForTest();
 
-
             int newVal = 5;
 
-
             UndoManager.AddUndoChange(
-                new Change("ExampleProperty",
+                new Change(
+                    "ExampleProperty",
                     ReverseProcess,
-                    new object[]{ExampleProperty},
+                    new object[] { ExampleProperty },
                     newVal));
 
             ExampleProperty = newVal;
@@ -126,8 +124,11 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             PrepareUndoManagerForTest();
             int newVal = 5;
-            UndoManager.AddUndoChange(new Change(ReverseProcess, new object[]{ExampleProperty}, ReverseProcess, 
-                new object[]{newVal}));
+            UndoManager.AddUndoChange(new Change(
+                ReverseProcess,
+                new object[] { ExampleProperty },
+                ReverseProcess,
+                new object[] { newVal }));
 
             ExampleProperty = newVal;
 
@@ -148,8 +149,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             PrepareUndoManagerForTest();
             int newVal = 5;
 
-            UndoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty, 
-                newVal));
+            UndoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty, newVal));
 
             TestPropClass.IntProperty = newVal;
 
@@ -175,12 +175,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();
             ExampleProperty = 1;
-            TestPropClass = new TestPropertyClass {IntProperty = 0};
+            TestPropClass = new TestPropertyClass { IntProperty = 0 };
         }
-    }
-
-    public class TestPropertyClass
-    {
-        public int IntProperty { get; set; } = 0;
     }
 }

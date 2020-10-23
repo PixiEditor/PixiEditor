@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using System.Globalization;
 using PixiEditor.Helpers.Converters;
 using Xunit;
 
@@ -14,7 +11,7 @@ namespace PixiEditorTests.HelpersTests.ConvertersTests
         {
             DoubleToIntConverter converter = new DoubleToIntConverter();
 
-            var value = converter.Convert(5.123, typeof(int), null, CultureInfo.CurrentCulture);
+            object value = converter.Convert(5.123, typeof(int), null, CultureInfo.CurrentCulture);
 
             Assert.IsType<int>(value);
             Assert.Equal(5, (int)value);
