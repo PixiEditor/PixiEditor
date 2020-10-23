@@ -45,9 +45,16 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void SaveToolbarSettings()
         {
-            foreach (Setting setting in Settings)
+            for (int i = 0; i < Settings.Count; i++)
             {
-                AddSettingToCollection(SharedSettings, setting);
+                if (SharedSettings.Any(x => x.Name == Settings[i].Name))
+                {
+                    SharedSettings.First(x => x.Name == Settings[i].Name).Value = Settings[i].Value;
+                }
+                else
+                {
+                    SharedSettings.Add(Settings[i]);
+                }
             }
         }
 
@@ -56,21 +63,13 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void LoadSharedSettings()
         {
-            foreach (Setting sharedSetting in SharedSettings)
+            for (int i = 0; i < SharedSettings.Count; i++)
             {
-                AddSettingToCollection(Settings, sharedSetting);
+                if (Settings.Any(x => x.Name == SharedSettings[i].Name))
+                {
+                    Settings.First(x => x.Name == SharedSettings[i].Name).Value = SharedSettings[i].Value;
+                }
             }
-        }
-
-        private static void AddSettingToCollection(ICollection<Setting> collection, Setting setting)
-        {
-            Setting storedSetting = collection.FirstOrDefault(currentSetting => currentSetting.Name == setting.Name);
-            if (storedSetting != null)
-            {
-                collection.Remove(storedSetting);
-            }
-
-            collection.Add(setting);
         }
     }
 }
