@@ -38,7 +38,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
-            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out BrightnessMode mode);
+            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("BrightnessMode")?.Value as ComboBoxItem)?.Content as string, out BrightnessMode mode);
             Mode = mode;
 
             LayerChange[] layersChanges = new LayerChange[1];
