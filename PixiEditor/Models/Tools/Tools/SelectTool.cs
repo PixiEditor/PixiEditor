@@ -29,7 +29,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
-            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType selectionType);
+            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("SelectMode")?.Value as ComboBoxItem)?.Content as string, out SelectionType selectionType);
             SelectionType = selectionType;
 
             oldSelection = null;
