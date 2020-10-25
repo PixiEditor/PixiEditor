@@ -39,7 +39,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (e.MiddleButton == MouseButtonState.Pressed)
             {
-                ViewModelMain.Current.SetActiveTool(ViewModelMain.Current.LastActionTool);
+                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool(ViewModelMain.Current.ToolsSubViewModel.LastActionTool);
             }
         }
 

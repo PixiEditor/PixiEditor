@@ -36,16 +36,13 @@ namespace PixiEditor.ViewModels
 
         private Selection _selection;
 
-        private Cursor _toolCursor;
-
         private LayerChange[] _undoChanges;
 
         public bool UnsavedDocumentModified { get; set; }
 
         public Action CloseAction { get; set; }
 
-        public static ViewModelMain Current { get; set; }
-        public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
+        public static ViewModelMain Current { get; set; }        
         public RelayCommand MouseMoveCommand { get; set; }
         public RelayCommand MouseDownCommand { get; set; }
         public RelayCommand KeyDownCommand { get; set; }
@@ -79,6 +76,7 @@ namespace PixiEditor.ViewModels
         
         public IoViewModel IoSubViewModel { get; set; }
         public UpdateViewModel UpdateSubViewModel { get; set; }
+        public ToolsViewModel ToolsSubViewModel { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -142,8 +140,6 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        public ObservableCollection<Tool> ToolSet { get; set; }
-
         public LayerChange[] UndoChanges //This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
         {
             get => _undoChanges;
@@ -152,16 +148,6 @@ namespace PixiEditor.ViewModels
                 _undoChanges = value;
                 for (int i = 0; i < value.Length; i++)
                     BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].SetPixels(value[i].PixelChanges);
-            }
-        }
-
-        public Cursor ToolCursor
-        {
-            get => _toolCursor;
-            set
-            {
-                _toolCursor = value;
-                RaisePropertyChanged("ToolCursor");
             }
         }
 
@@ -205,7 +191,6 @@ namespace PixiEditor.ViewModels
         }
 
         private bool _restoreToolOnKeyUp = false;
-        public Tool LastActionTool { get; private set; }
 
         public ViewModelMain()
         {
@@ -214,7 +199,6 @@ namespace PixiEditor.ViewModels
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
             ChangesController = new PixelChangesController();
-            SelectToolCommand = new RelayCommand(SetTool, DocumentIsNotNull);
             MouseMoveCommand = new RelayCommand(MouseMove);
             MouseDownCommand = new RelayCommand(MouseDown);
             UndoCommand = new RelayCommand(Undo, CanUndo);
@@ -248,30 +232,25 @@ namespace PixiEditor.ViewModels
 
             IoSubViewModel = new IoViewModel(this);
             UpdateSubViewModel = new UpdateViewModel(this);
-
-            ToolSet = new ObservableCollection<Tool>
-            {
-                new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(), 
-                new ZoomTool()
-            };
+            ToolsSubViewModel = new ToolsViewModel(this);
+           
             ShortcutController = new ShortcutController
             {
                 Shortcuts = new List<Shortcut>
                 {
                     //Tools
-                    new Shortcut(Key.B, SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.E, SelectToolCommand, ToolType.Eraser),
-                    new Shortcut(Key.O, SelectToolCommand, ToolType.ColorPicker),
-                    new Shortcut(Key.R, SelectToolCommand, ToolType.Rectangle),
-                    new Shortcut(Key.C, SelectToolCommand, ToolType.Circle),
-                    new Shortcut(Key.L, SelectToolCommand, ToolType.Line),
-                    new Shortcut(Key.G, SelectToolCommand, ToolType.Bucket),
-                    new Shortcut(Key.U, SelectToolCommand, ToolType.Brightness),
-                    new Shortcut(Key.V, SelectToolCommand, ToolType.Move),
-                    new Shortcut(Key.M, SelectToolCommand, ToolType.Select),
-                    new Shortcut(Key.Z, SelectToolCommand, ToolType.Zoom),
-                    new Shortcut(Key.H, SelectToolCommand, ToolType.MoveViewport),
+                    new Shortcut(Key.B, ToolsSubViewModel.SelectToolCommand, ToolType.Pen),
+                    new Shortcut(Key.E, ToolsSubViewModel.SelectToolCommand, ToolType.Eraser),
+                    new Shortcut(Key.O, ToolsSubViewModel.SelectToolCommand, ToolType.ColorPicker),
+                    new Shortcut(Key.R, ToolsSubViewModel.SelectToolCommand, ToolType.Rectangle),
+                    new Shortcut(Key.C, ToolsSubViewModel.SelectToolCommand, ToolType.Circle),
+                    new Shortcut(Key.L, ToolsSubViewModel.SelectToolCommand, ToolType.Line),
+                    new Shortcut(Key.G, ToolsSubViewModel.SelectToolCommand, ToolType.Bucket),
+                    new Shortcut(Key.U, ToolsSubViewModel.SelectToolCommand, ToolType.Brightness),
+                    new Shortcut(Key.V, ToolsSubViewModel.SelectToolCommand, ToolType.Move),
+                    new Shortcut(Key.M, ToolsSubViewModel.SelectToolCommand, ToolType.Select),
+                    new Shortcut(Key.Z, ToolsSubViewModel.SelectToolCommand, ToolType.Zoom),
+                    new Shortcut(Key.H, ToolsSubViewModel.SelectToolCommand, ToolType.MoveViewport),
                     new Shortcut(Key.OemPlus, ZoomCommand, 115),
                     new Shortcut(Key.OemMinus, ZoomCommand, 85),
                     new Shortcut(Key.OemOpenBrackets, ChangeToolSizeCommand, -1),
@@ -300,7 +279,6 @@ namespace PixiEditor.ViewModels
                 }
             };
             UndoManager.SetMainRoot(this);
-            SetActiveTool(ToolType.Move);
             BitmapManager.PrimaryColor = PrimaryColor;
             ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
@@ -477,11 +455,6 @@ namespace PixiEditor.ViewModels
             return ActiveSelection?.SelectedPoints != null && ActiveSelection.SelectedPoints.Count > 0;
         }
 
-        public void SetTool(object parameter)
-        {
-            SetActiveTool((ToolType) parameter);
-        }
-
         public void RenameLayer(object parameter)
         {
             BitmapManager.ActiveDocument.Layers[(int) parameter].IsRenaming = true;
@@ -493,7 +466,7 @@ namespace PixiEditor.ViewModels
             if (_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.ShortcutKey == args.Key)
             {
                 _restoreToolOnKeyUp = false;
-                SetActiveTool(LastActionTool);
+                ToolsSubViewModel.SetActiveTool(ToolsSubViewModel.LastActionTool);
                 ShortcutController.BlockShortcutExecution = false;
             }
         }
@@ -501,7 +474,8 @@ namespace PixiEditor.ViewModels
         public void KeyDown(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            if (args.IsRepeat && !_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.Command == SelectToolCommand)
+            if (args.IsRepeat && !_restoreToolOnKeyUp && ShortcutController.LastShortcut != null &&
+                ShortcutController.LastShortcut.Command == ToolsSubViewModel.SelectToolCommand)
             {
                 _restoreToolOnKeyUp = true;
                 ShortcutController.BlockShortcutExecution = true;
@@ -583,31 +557,6 @@ namespace PixiEditor.ViewModels
         public bool CanDeleteLayer(object property)
         {
             return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 1;
-        }
-
-        public void SetActiveTool(ToolType tool)
-        {
-            Tool foundTool = ToolSet.First(x => x.ToolType == tool);
-            SetActiveTool(foundTool);
-        }
-
-        public void SetActiveTool(Tool tool)
-        {
-            Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
-            if (activeTool != null) activeTool.IsActive = false;
-
-            tool.IsActive = true;
-            LastActionTool = BitmapManager.SelectedTool;
-            BitmapManager.SetActiveTool(tool);
-            SetToolCursor(tool.ToolType);
-        }
-
-            private void SetToolCursor(ToolType tool)
-        {
-            if (tool != ToolType.None)
-                ToolCursor = BitmapManager.SelectedTool.Cursor;
-            else
-                ToolCursor = Cursors.Arrow;
         }
 
         private void MouseDown(object parameter)
