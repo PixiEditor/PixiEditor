@@ -42,14 +42,17 @@ namespace PixiEditor.Models.ImageManipulation
                         for (int x = 0; x < finalBitmap.Width; x++)
                         {
                             Color color = layers[i].GetPixelWithOffset(x, y);
-                            if (i > 0 && color.A < 255)
+                            float layerOpacity = layers[i].Opacity;
+                            if (i > 0 && ((color.A < 255 && color.A > 0) || (layerOpacity < 1f && layerOpacity > 0)))
                             {
-                                var lastLayerPixel = layers[i - 1].GetPixelWithOffset(x, y);
-                                byte r = (byte)((color.R * color.A / 255) + (lastLayerPixel.R * lastLayerPixel.A * (255 - color.A) / (255 * 255)));
-                                byte g = (byte)((color.G * color.A / 255) + (lastLayerPixel.G * lastLayerPixel.A * (255 - color.A) / (255 * 255)));
-                                byte b = (byte)((color.B * color.A / 255) + (lastLayerPixel.B * lastLayerPixel.A * (255 - color.A) / (255 * 255)));
-                                byte a = (byte)(color.A + (lastLayerPixel.A * (255 - color.A) / 255));
-                                color = Color.FromArgb((byte)(a * layers[i].Opacity), r, g, b);
+                                var lastLayerPixel = finalBitmap.GetPixel(x, y);
+                                byte lastPixelA = (byte)(lastLayerPixel.A * layers[i - 1].Opacity);
+                                byte pixelA = (byte)(color.A * layerOpacity);
+                                byte r = (byte)((color.R * pixelA / 255) + (lastLayerPixel.R * lastPixelA * (255 - pixelA) / (255 * 255)));
+                                byte g = (byte)((color.G * pixelA / 255) + (lastLayerPixel.G * lastPixelA * (255 - pixelA) / (255 * 255)));
+                                byte b = (byte)((color.B * pixelA / 255) + (lastLayerPixel.B * lastPixelA * (255 - pixelA) / (255 * 255)));
+                                byte a = (byte)(pixelA + (lastPixelA * (255 - pixelA) / 255));
+                                color = Color.FromArgb(a, r, g, b);
                             }
                             else
                             {
