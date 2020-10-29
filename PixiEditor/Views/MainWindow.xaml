@@ -262,58 +262,61 @@
                             <avalondock:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="False" CanFloat="True">
-                                <StackPanel Orientation="Vertical">
+                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <StackPanel Orientation="Vertical">
                                     <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
                                     <StackPanel Orientation="Horizontal" Margin="10,0">
-                                        <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
-                                        <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
+                                            <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
+                                            <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
                                                          Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
                                             Converter={StaticResource FloatNormalizeConverter}}" />
-                                        <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                    <Separator Background="{StaticResource BrighterAccentColor}" Margin="0,10,0,10"/>
-                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
+                                            <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <Separator Background="{StaticResource BrighterAccentColor}" Margin="0,10,0,10"/>
+                                        <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
                                                   x:Name="layersItemsControl" AlternationCount="9999">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <ui:ReversedOrderStackPanel Orientation="Vertical" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ui:ReversedOrderStackPanel Orientation="Vertical" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.SetActiveLayerCommand, ElementName=mainWindow}"
                                                                LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
                                                                IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
                                                                MoveToBackCommand="{Binding DataContext.MoveToBackCommand, ElementName=mainWindow}"
                                                                MoveToFrontCommand="{Binding DataContext.MoveToFrontCommand, ElementName=mainWindow}">
-                                                    <vws:LayerItem.ContextMenu>
-                                                        <ContextMenu>
-                                                            <MenuItem Header="Delete"
+                                                        <vws:LayerItem.ContextMenu>
+                                                            <ContextMenu>
+                                                                <MenuItem Header="Delete"
                                                                               Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                            <MenuItem Header="Rename"
+                                                                <MenuItem Header="Rename"
                                                                               Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                            <MenuItem Header="Move to front"
+                                                                <MenuItem Header="Move to front"
                                                                               Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                            <MenuItem Header="Move to back"
+                                                                <MenuItem Header="Move to back"
                                                                               Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
-                                                        </ContextMenu>
-                                                    </vws:LayerItem.ContextMenu>
-                                                </vws:LayerItem>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                                            </ContextMenu>
+                                                        </vws:LayerItem.ContextMenu>
+                                                    </vws:LayerItem>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
                                 </StackPanel>
+                                </ScrollViewer>
                             </avalondock:LayoutAnchorable>
                         </avalondock:LayoutAnchorablePane>
                     </avalondock:LayoutPanel>
