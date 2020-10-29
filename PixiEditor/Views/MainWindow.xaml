@@ -42,10 +42,10 @@
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="KeyDown">
-            <cmd:EventToCommand Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True" />
+            <cmd:EventToCommand Command="{Binding IoSubViewModel.KeyDownCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
         <i:EventTrigger EventName="KeyUp">
-            <cmd:EventToCommand Command="{Binding KeyUpCommand}" PassEventArgsToCommand="True"/>
+            <cmd:EventToCommand Command="{Binding IoSubViewModel.KeyUpCommand}" PassEventArgsToCommand="True"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="ContentRendered">
             <i:InvokeCommandAction Command="{Binding OnStartupCommand}" />
@@ -76,12 +76,12 @@
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}" />
                 </Menu.Resources>
                 <MenuItem Header="_File">
-                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding IoSubViewModel.OpenNewFilePopupCommand}" />
-                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding IoSubViewModel.OpenFileCommand}" />
-                    <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding IoSubViewModel.SaveDocumentCommand}" />
+                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding FileSubViewModel.OpenNewFilePopupCommand}" />
+                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding FileSubViewModel.OpenFileCommand}" />
+                    <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding FileSubViewModel.SaveDocumentCommand}" />
                     <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S"
-                              Command="{Binding IoSubViewModel.SaveDocumentCommand}" CommandParameter="AsNew" />
-                    <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding IoSubViewModel.ExportFileCommand}" />
+                              Command="{Binding FileSubViewModel.SaveDocumentCommand}" CommandParameter="AsNew" />
+                    <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding FileSubViewModel.ExportFileCommand}" />
                     <Separator />
                     <MenuItem Header="_Exit" Command="{x:Static SystemCommands.CloseWindowCommand}" />
                 </MenuItem>
@@ -169,13 +169,10 @@
                                       ViewportPosition="{Binding ViewportPosition, Mode=TwoWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseMove">
-                            <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" />
-                        </i:EventTrigger>
-                        <i:EventTrigger EventName="MouseUp">
-                            <i:InvokeCommandAction Command="{Binding MouseUpCommand}" />
+                            <i:InvokeCommandAction Command="{Binding IoSubViewModel.MouseMoveCommand}" />
                         </i:EventTrigger>
                         <i:EventTrigger EventName="MouseDown">
-                            <i:InvokeCommandAction Command="{Binding MouseDownCommand}"/>
+                            <i:InvokeCommandAction Command="{Binding IoSubViewModel.MouseDownCommand}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <i:Interaction.Behaviors>

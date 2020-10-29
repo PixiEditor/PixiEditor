@@ -42,11 +42,7 @@ namespace PixiEditor.ViewModels
 
         public Action CloseAction { get; set; }
 
-        public static ViewModelMain Current { get; set; }        
-        public RelayCommand MouseMoveCommand { get; set; }
-        public RelayCommand MouseDownCommand { get; set; }
-        public RelayCommand KeyDownCommand { get; set; }
-        public RelayCommand KeyUpCommand { get; set; }
+        public static ViewModelMain Current { get; set; }                
         public RelayCommand UndoCommand { get; set; }
         public RelayCommand RedoCommand { get; set; }
         public RelayCommand SetActiveLayerCommand { get; set; }
@@ -74,9 +70,10 @@ namespace PixiEditor.ViewModels
         public RelayCommand ZoomCommand { get; set; }
         public RelayCommand ChangeToolSizeCommand { get; set; }
         
-        public IoViewModel IoSubViewModel { get; set; }
+        public FileViewModel FileSubViewModel { get; set; }
         public UpdateViewModel UpdateSubViewModel { get; set; }
         public ToolsViewModel ToolsSubViewModel { get; set; }
+        public IoViewModel IoSubViewModel { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -190,8 +187,6 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private bool _restoreToolOnKeyUp = false;
-
         public ViewModelMain()
         {
             BitmapManager = new BitmapManager();
@@ -199,8 +194,6 @@ namespace PixiEditor.ViewModels
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
             ChangesController = new PixelChangesController();
-            MouseMoveCommand = new RelayCommand(MouseMove);
-            MouseDownCommand = new RelayCommand(MouseDown);
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
@@ -209,8 +202,6 @@ namespace PixiEditor.ViewModels
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             SwapColorsCommand = new RelayCommand(SwapColors);
-            KeyDownCommand = new RelayCommand(KeyDown);
-            KeyUpCommand = new RelayCommand(KeyUp);
             RenameLayerCommand = new RelayCommand(RenameLayer);
             DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
             SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
@@ -230,9 +221,10 @@ namespace PixiEditor.ViewModels
             ZoomCommand = new RelayCommand(ZoomViewport);
             ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
 
-            IoSubViewModel = new IoViewModel(this);
+            FileSubViewModel = new FileViewModel(this);
             UpdateSubViewModel = new UpdateViewModel(this);
             ToolsSubViewModel = new ToolsViewModel(this);
+            IoSubViewModel = new IoViewModel(this);
            
             ShortcutController = new ShortcutController
             {
@@ -270,12 +262,12 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.F11, SystemCommands.MaximizeWindowCommand),
                     //File
-                    new Shortcut(Key.O, IoSubViewModel.OpenFileCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, IoSubViewModel.ExportFileCommand,
+                    new Shortcut(Key.O, FileSubViewModel.OpenFileCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, FileSubViewModel.ExportFileCommand,
                         modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
-                    new Shortcut(Key.S, IoSubViewModel.SaveDocumentCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.S, IoSubViewModel.SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.N, IoSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
                 }
             };
             UndoManager.SetMainRoot(this);
@@ -330,7 +322,7 @@ namespace PixiEditor.ViewModels
                 result = ConfirmationDialog.Show(ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes) 
                 {
-                    IoSubViewModel.SaveDocument(false); 
+                    FileSubViewModel.SaveDocument(false); 
                 }
             }
 
@@ -460,29 +452,6 @@ namespace PixiEditor.ViewModels
             BitmapManager.ActiveDocument.Layers[(int) parameter].IsRenaming = true;
         }
 
-        private void KeyUp(object parameter)
-        {
-            KeyEventArgs args = (KeyEventArgs)parameter;
-            if (_restoreToolOnKeyUp && ShortcutController.LastShortcut != null && ShortcutController.LastShortcut.ShortcutKey == args.Key)
-            {
-                _restoreToolOnKeyUp = false;
-                ToolsSubViewModel.SetActiveTool(ToolsSubViewModel.LastActionTool);
-                ShortcutController.BlockShortcutExecution = false;
-            }
-        }
-
-        public void KeyDown(object parameter)
-        {
-            KeyEventArgs args = (KeyEventArgs)parameter;
-            if (args.IsRepeat && !_restoreToolOnKeyUp && ShortcutController.LastShortcut != null &&
-                ShortcutController.LastShortcut.Command == ToolsSubViewModel.SelectToolCommand)
-            {
-                _restoreToolOnKeyUp = true;
-                ShortcutController.BlockShortcutExecution = true;
-            }
-            ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
-        }
-
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
            TriggerNewUndoChange(BitmapManager.SelectedTool);
@@ -558,57 +527,7 @@ namespace PixiEditor.ViewModels
         {
             return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 1;
         }
-
-        private void MouseDown(object parameter)
-        {
-            if (BitmapManager.ActiveDocument.Layers.Count == 0) return;
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
-            {
-                if (!BitmapManager.MouseController.IsRecordingChanges)
-                {
-                    bool clickedOnCanvas = MouseXOnCanvas >= 0 && MouseXOnCanvas <= BitmapManager.ActiveDocument.Width &&
-                        MouseYOnCanvas >= 0 && MouseYOnCanvas <= BitmapManager.ActiveDocument.Height;
-                    BitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
-                    BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
-                }
-            }
-            BitmapManager.MouseController.MouseDown(new MouseEventArgs(Mouse.PrimaryDevice,
-                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-
-            // Mouse down is guaranteed to only be raised from within this application, so by subscribing here we
-            // only listen for mouse up events that occurred as a result of a mouse down within this application.
-            // This seems better than maintaining a global listener indefinitely.
-            GlobalMouseHook.OnMouseUp += MouseHook_OnMouseUp;
-        }
-
-        // this is public for testing.
-        public void MouseHook_OnMouseUp(object sender, Point p, MouseButton button)
-        {
-            GlobalMouseHook.OnMouseUp -= MouseHook_OnMouseUp;
-            if (button == MouseButton.Left)
-            {
-                BitmapManager.MouseController.StopRecordingMouseMovementChanges();
-            }
-            BitmapManager.MouseController.MouseUp(new MouseEventArgs(Mouse.PrimaryDevice, 
-                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-        }
-
-        /// <summary>
-        ///     Method connected with command, it executes tool "activity"
-        /// </summary>
-        /// <param name="parameter"></param>
-        private void MouseMove(object parameter)
-        {
-            Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
-            MousePositionConverter.CurrentCoordinates = cords;
-
-
-            if (BitmapManager.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
-            {
-                BitmapManager.MouseController.RecordMouseMovementChange(cords);
-            }
-                BitmapManager.MouseController.MouseMoved(cords);
-        }
+          
 
         /// <summary>
         ///     Resets most variables and controller, so new documents can be handled.
