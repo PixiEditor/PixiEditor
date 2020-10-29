@@ -44,20 +44,10 @@ namespace PixiEditor.ViewModels
 
         public static ViewModelMain Current { get; set; }                
         public RelayCommand UndoCommand { get; set; }
-        public RelayCommand RedoCommand { get; set; }
-        public RelayCommand SetActiveLayerCommand { get; set; }
-        public RelayCommand NewLayerCommand { get; set; }
-        public RelayCommand DeleteLayerCommand { get; set; }
-        public RelayCommand RenameLayerCommand { get; set; }
-        public RelayCommand MoveToBackCommand { get; set; }
-        public RelayCommand MoveToFrontCommand { get; set; }
+        public RelayCommand RedoCommand { get; set; }       
         public RelayCommand SwapColorsCommand { get; set; }
         public RelayCommand DeselectCommand { get; set; }
-        public RelayCommand SelectAllCommand { get; set; }
-        public RelayCommand CopyCommand { get; set; }
-        public RelayCommand DuplicateCommand { get; set; }
-        public RelayCommand CutCommand { get; set; }
-        public RelayCommand PasteCommand { get; set; }
+        public RelayCommand SelectAllCommand { get; set; }        
         public RelayCommand ClipCanvasCommand { get; set; }
         public RelayCommand DeletePixelsCommand { get; set; }
         public RelayCommand OpenResizePopupCommand { get; set; }
@@ -68,12 +58,13 @@ namespace PixiEditor.ViewModels
         public RelayCommand CenterContentCommand { get; set; }
         public RelayCommand OpenHyperlinkCommand { get; set; }
         public RelayCommand ZoomCommand { get; set; }
-        public RelayCommand ChangeToolSizeCommand { get; set; }
         
         public FileViewModel FileSubViewModel { get; set; }
         public UpdateViewModel UpdateSubViewModel { get; set; }
         public ToolsViewModel ToolsSubViewModel { get; set; }
         public IoViewModel IoSubViewModel { get; set; }
+        public LayersViewModel LayersSubViewModel { get; set; }
+        public ClipboardViewModel ClipboardSubViewModel { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -196,19 +187,9 @@ namespace PixiEditor.ViewModels
             ChangesController = new PixelChangesController();
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
-            SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
-            NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
-            MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
-            MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             SwapColorsCommand = new RelayCommand(SwapColors);
-            RenameLayerCommand = new RelayCommand(RenameLayer);
             DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
-            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
-            CopyCommand = new RelayCommand(Copy, SelectionIsNotEmpty);
-            DuplicateCommand = new RelayCommand(Duplicate, SelectionIsNotEmpty);
-            CutCommand = new RelayCommand(Cut, SelectionIsNotEmpty);
-            PasteCommand = new RelayCommand(Paste, CanPaste);
+            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);            
             ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
             DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
@@ -219,12 +200,13 @@ namespace PixiEditor.ViewModels
             CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
             OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
             ZoomCommand = new RelayCommand(ZoomViewport);
-            ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
 
             FileSubViewModel = new FileViewModel(this);
             UpdateSubViewModel = new UpdateViewModel(this);
             ToolsSubViewModel = new ToolsViewModel(this);
             IoSubViewModel = new IoViewModel(this);
+            LayersSubViewModel = new LayersViewModel(this);
+            ClipboardSubViewModel = new ClipboardViewModel(this);
            
             ShortcutController = new ShortcutController
             {
@@ -245,18 +227,18 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.H, ToolsSubViewModel.SelectToolCommand, ToolType.MoveViewport),
                     new Shortcut(Key.OemPlus, ZoomCommand, 115),
                     new Shortcut(Key.OemMinus, ZoomCommand, 85),
-                    new Shortcut(Key.OemOpenBrackets, ChangeToolSizeCommand, -1),
-                    new Shortcut(Key.OemCloseBrackets, ChangeToolSizeCommand, 1),
+                    new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, -1),
+                    new Shortcut(Key.OemCloseBrackets, ToolsSubViewModel.ChangeToolSizeCommand, 1),
                     //Editor
                     new Shortcut(Key.X, SwapColorsCommand),
                     new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.C, CopyCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.V, PasteCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.J, DuplicateCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.X, CutCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.C, ClipboardSubViewModel.CopyCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.V, ClipboardSubViewModel.PasteCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.J, ClipboardSubViewModel.DuplicateCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.X, ClipboardSubViewModel.CutCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Delete, DeletePixelsCommand),
                     new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
@@ -281,16 +263,6 @@ namespace PixiEditor.ViewModels
             double zoom = (int)parameter;
             ZoomPercentage = zoom;
             ZoomPercentage = 100;
-        }
-
-        private void ChangeToolSize(object parameter)
-        {
-            int increment = (int)parameter;
-            int newSize = BitmapManager.ToolSize + increment;
-            if (newSize > 0)
-            {
-                BitmapManager.ToolSize = newSize;
-            }
         }
 
         private void OpenHyperlink(object parameter)
@@ -391,36 +363,6 @@ namespace PixiEditor.ViewModels
             BitmapManager.ActiveDocument?.ClipCanvas();
         }
 
-        public void Duplicate(object parameter)
-        {
-            Copy(null);
-            Paste(null);
-        }
-
-        public void Cut(object parameter)
-        {
-            Copy(null);
-            BitmapManager.ActiveLayer.SetPixels(
-                BitmapPixelChanges.FromSingleColoredArray(ActiveSelection.SelectedPoints.ToArray(),
-                    Colors.Transparent));
-        }
-
-        public void Paste(object parameter)
-        {
-            ClipboardController.PasteFromClipboard();
-        }
-
-        private bool CanPaste(object property)
-        {
-            return DocumentIsNotNull(null) && ClipboardController.IsImageInClipboard();
-        }
-
-        private void Copy(object parameter)
-        {
-            ClipboardController.CopyToClipboard(BitmapManager.ActiveDocument.Layers.ToArray(),
-                ActiveSelection.SelectedPoints.ToArray(), BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height);
-        }
-
         public void SelectAll(object parameter)
         {
             SelectTool select = new SelectTool();
@@ -442,15 +384,12 @@ namespace PixiEditor.ViewModels
             ActiveSelection?.Clear();
         }
 
-        private bool SelectionIsNotEmpty(object property)
+        public bool SelectionIsNotEmpty(object property)
         {
             return ActiveSelection?.SelectedPoints != null && ActiveSelection.SelectedPoints.Count > 0;
         }
 
-        public void RenameLayer(object parameter)
-        {
-            BitmapManager.ActiveDocument.Layers[(int) parameter].IsRenaming = true;
-        }
+        
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
@@ -487,47 +426,7 @@ namespace PixiEditor.ViewModels
             var tmp = PrimaryColor;
             PrimaryColor = SecondaryColor;
             SecondaryColor = tmp;
-        }
-
-        public void MoveLayerToFront(object parameter)
-        {
-            int oldIndex = (int) parameter;
-            BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex + 1);
-            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex) BitmapManager.SetActiveLayer(oldIndex + 1);
-        }
-
-        public void MoveLayerToBack(object parameter)
-        {
-            int oldIndex = (int) parameter;
-            BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex - 1);
-            if (BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex) BitmapManager.SetActiveLayer(oldIndex - 1);
-        }
-
-        public bool CanMoveToFront(object property)
-        {
-            return DocumentIsNotNull(null) && BitmapManager.ActiveDocument.Layers.Count - 1 > (int) property;
-        }
-
-        public bool CanMoveToBack(object property)
-        {
-            return (int) property > 0;
-        }
-
-        public void SetActiveLayer(object parameter)
-        {
-            BitmapManager.SetActiveLayer((int) parameter);
-        }
-
-        public void DeleteLayer(object parameter)
-        {
-            BitmapManager.RemoveLayer((int) parameter);
-        }
-
-        public bool CanDeleteLayer(object property)
-        {
-            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 1;
-        }
-          
+        }             
 
         /// <summary>
         ///     Resets most variables and controller, so new documents can be handled.
@@ -541,16 +440,6 @@ namespace PixiEditor.ViewModels
             RecenterZoombox = !RecenterZoombox;
             Exporter.SaveDocumentPath = null;
             UnsavedDocumentModified = false;
-        }
-
-        public void NewLayer(object parameter)
-        {
-            BitmapManager.AddNewLayer($"New Layer {BitmapManager.ActiveDocument.Layers.Count}");
-        }
-
-        public bool CanCreateNewLayer(object parameter)
-        {
-            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 0;
         }
 
         #region Undo/Redo

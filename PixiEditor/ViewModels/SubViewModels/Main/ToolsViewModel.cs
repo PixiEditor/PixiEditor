@@ -11,6 +11,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
     {
         private Cursor _toolCursor;
         public RelayCommand SelectToolCommand { get; set; } //Command that handles tool switching 
+        public RelayCommand ChangeToolSizeCommand { get; set; }
+
         public Tool LastActionTool { get; private set; }
         public ObservableCollection<Tool> ToolSet { get; set; }
 
@@ -28,6 +30,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public ToolsViewModel(ViewModelMain owner) : base(owner)
         {
             SelectToolCommand = new RelayCommand(SetTool, Owner.DocumentIsNotNull);
+            ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
+
             ToolSet = new ObservableCollection<Tool>
             {
                 new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
@@ -37,6 +41,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SetActiveTool(ToolType.Move);
         }
 
+        private void ChangeToolSize(object parameter)
+        {
+            int increment = (int)parameter;
+            int newSize = Owner.BitmapManager.ToolSize + increment;
+            if (newSize > 0)
+            {
+                Owner.BitmapManager.ToolSize = newSize;
+            }
+        }
 
         public void SetActiveTool(ToolType tool)
         {

@@ -89,10 +89,10 @@
                     <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}" />
                     <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}" />
                     <Separator />
-                    <MenuItem Header="_Cut" Command="{Binding CutCommand}" InputGestureText="Ctrl+X" />
-                    <MenuItem Header="_Copy" Command="{Binding CopyCommand}" InputGestureText="Ctrl+C" />
-                    <MenuItem Header="_Paste" Command="{Binding PasteCommand}" InputGestureText="Ctrl+V" />
-                    <MenuItem Header="_Duplicate" Command="{Binding DuplicateCommand}" InputGestureText="Ctrl+D" />
+                    <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
+                    <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
+                    <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
+                    <MenuItem Header="_Duplicate" Command="{Binding ClipboardSubViewModel.DuplicateCommand}" InputGestureText="Ctrl+J" />
                     <Separator />
                     <MenuItem Header="_Delete Selected" Command="{Binding DeletePixelsCommand}"
                               InputGestureText="Delete" />
@@ -260,7 +260,7 @@
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="False" CanFloat="True">
                                 <StackPanel Orientation="Vertical">
-                                    <Button Command="{Binding NewLayerCommand}" Height="30" Content="New Layer"
+                                    <Button Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
                                     <StackPanel Orientation="Horizontal" Margin="10,0">
@@ -281,27 +281,27 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.SetActiveLayerCommand, ElementName=mainWindow}"
+                            Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
                                                                LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
                                                                IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                                               MoveToBackCommand="{Binding DataContext.MoveToBackCommand, ElementName=mainWindow}"
-                                                               MoveToFrontCommand="{Binding DataContext.MoveToFrontCommand, ElementName=mainWindow}">
+                                                               MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
+                                                               MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
                                                     <vws:LayerItem.ContextMenu>
                                                         <ContextMenu>
                                                             <MenuItem Header="Delete"
-                                                                              Command="{Binding DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                              Command="{Binding LayersSubViewModel.DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                             <MenuItem Header="Rename"
-                                                                              Command="{Binding RenameLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                              Command="{Binding LayersSubViewModel.RenameLayerCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                             <MenuItem Header="Move to front"
-                                                                              Command="{Binding MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
+                                                                              Command="{Binding LayersSubViewModel.MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                             <MenuItem Header="Move to back"
-                                                                              Command="{Binding MoveToBackCommand, Source={StaticResource ViewModelMain}}"
+                                                                              Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
                                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                             Path=(ItemsControl.AlternationIndex)}" />
                                                         </ContextMenu>
