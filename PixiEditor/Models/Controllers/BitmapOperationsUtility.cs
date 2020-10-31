@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Controllers
                 layers[i].SetPixels(changes);
             }
 
-            UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
+            UndoManager.AddUndoChange(new Change("UndoSubViewModel.UndoChanges", old, newChange, "Deleted pixels"));
         }
 
         /// <summary>

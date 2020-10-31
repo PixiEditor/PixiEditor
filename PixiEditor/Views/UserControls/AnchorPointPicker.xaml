@@ -20,63 +20,63 @@
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" ToolTip="Top left" Grid.Row="0"
                       Grid.Column="0" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="0" ToolTip="Top center"
                       Grid.Column="1" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" ToolTip="Top right" Grid.Row="0"
                       Grid.Column="2" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="1" ToolTip="Middle left"
                       Grid.Column="0" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="1" Grid.Column="1"
                       ToolTip="Middle center" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="1" Grid.Column="2"
                       ToolTip="Middle right" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="2" Grid.Column="0"
                       ToolTip="Bottom left" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="2" Grid.Column="1"
                       ToolTip="Bottom center" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
         <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="2" Grid.Column="2"
                       ToolTip="Bottom right" BorderBrush="Black">
             <ToggleButton.Background>
-                <ImageBrush ImageSource="../Images/AnchorDot.png" />
+                <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
     </Grid>

@@ -4,6 +4,6 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class ReadonlyTool : Tool
     {
-        public abstract void Use(Coordinates[] pixels);
+        public virtual void Use(Coordinates[] pixels) { }
     }
 }

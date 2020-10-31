@@ -86,8 +86,8 @@
                     <MenuItem Header="_Exit" Command="{x:Static SystemCommands.CloseWindowCommand}" />
                 </MenuItem>
                 <MenuItem Header="_Edit">
-                    <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}" />
-                    <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}" />
+                    <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoSubViewModel.UndoCommand}" />
+                    <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding UndoSubViewModel.RedoCommand}" />
                     <Separator />
                     <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
                     <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
@@ -98,8 +98,8 @@
                               InputGestureText="Delete" />
                 </MenuItem>
                 <MenuItem Header="_Select">
-                    <MenuItem Header="_Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A" />
-                    <MenuItem Header="_Deselect" Command="{Binding DeselectCommand}" InputGestureText="Ctrl+D" />
+                    <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
+                    <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
                 </MenuItem>
                 <MenuItem Header="_Document">
                     <MenuItem Header="Resize Document..." Command="{Binding OpenResizePopupCommand}"
@@ -162,11 +162,11 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
-                <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay}" Center="{Binding RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
+                <vws:MainDrawingPanel ZoomPercentage="{Binding ViewportSubViewModel.ZoomPercentage, Mode=TwoWay}" Center="{Binding ViewportSubViewModel.RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
                                       CenterOnStart="True" Cursor="{Binding ToolsSubViewModel.ToolCursor}" 
                                       MiddleMouseClickedCommand="{Binding ToolsSubViewModel.SelectToolCommand}" 
                                       MiddleMouseClickedCommandParameter="{x:Static tools:ToolType.MoveViewport}"
-                                      ViewportPosition="{Binding ViewportPosition, Mode=TwoWay}">
+                                      ViewportPosition="{Binding ViewportSubViewModel.ViewportPosition, Mode=TwoWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseMove">
                             <i:InvokeCommandAction Command="{Binding IoSubViewModel.MouseMoveCommand}" />
@@ -209,11 +209,11 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding ActiveSelection.SelectionLayer.LayerBitmap}"
+                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.LayerBitmap}"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding ActiveSelection.SelectionLayer.Width}"
-                                   Height="{Binding ActiveSelection.SelectionLayer.Height}" 
-                                   Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
+                                   Width="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Width}"
+                                   Height="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Height}" 
+                                   Margin="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Offset}" />
                         </Canvas>
                     </vws:MainDrawingPanel.Item>
                 </vws:MainDrawingPanel>

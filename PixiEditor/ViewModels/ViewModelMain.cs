@@ -30,24 +30,14 @@ namespace PixiEditor.ViewModels
 
         private Color _primaryColor = Colors.Black;
 
-        private bool _recenterZoombox;
-
         private Color _secondaryColor = Colors.White;
-
-        private Selection _selection;
-
-        private LayerChange[] _undoChanges;
 
         public bool UnsavedDocumentModified { get; set; }
 
         public Action CloseAction { get; set; }
 
-        public static ViewModelMain Current { get; set; }                
-        public RelayCommand UndoCommand { get; set; }
-        public RelayCommand RedoCommand { get; set; }       
-        public RelayCommand SwapColorsCommand { get; set; }
-        public RelayCommand DeselectCommand { get; set; }
-        public RelayCommand SelectAllCommand { get; set; }        
+        public static ViewModelMain Current { get; set; }                         
+        public RelayCommand SwapColorsCommand { get; set; }    
         public RelayCommand ClipCanvasCommand { get; set; }
         public RelayCommand DeletePixelsCommand { get; set; }
         public RelayCommand OpenResizePopupCommand { get; set; }
@@ -56,15 +46,17 @@ namespace PixiEditor.ViewModels
         public RelayCommand OnStartupCommand { get; set; }
         public RelayCommand CloseWindowCommand { get; set; }
         public RelayCommand CenterContentCommand { get; set; }
-        public RelayCommand OpenHyperlinkCommand { get; set; }
-        public RelayCommand ZoomCommand { get; set; }
-        
+        public RelayCommand OpenHyperlinkCommand { get; set; } 
+
         public FileViewModel FileSubViewModel { get; set; }
         public UpdateViewModel UpdateSubViewModel { get; set; }
         public ToolsViewModel ToolsSubViewModel { get; set; }
         public IoViewModel IoSubViewModel { get; set; }
         public LayersViewModel LayersSubViewModel { get; set; }
         public ClipboardViewModel ClipboardSubViewModel { get; set; }
+        public UndoViewModel UndoSubViewModel { get; set; }
+        public SelectionViewModel SelectionSubViewModel { get; set; }
+        public ViewportViewModel ViewportSubViewModel { get; set; }
 
 
         private double _mouseXonCanvas;
@@ -77,7 +69,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _mouseXonCanvas = value;
-                RaisePropertyChanged("MouseXOnCanvas");
+                RaisePropertyChanged(nameof(MouseXOnCanvas));
             }
         }
 
@@ -87,17 +79,7 @@ namespace PixiEditor.ViewModels
             set
             {
                 _mouseYonCanvas = value;
-                RaisePropertyChanged("MouseYOnCanvas");
-            }
-        }
-
-        public bool RecenterZoombox
-        {
-            get => _recenterZoombox;
-            set
-            {
-                _recenterZoombox = value;
-                RaisePropertyChanged("RecenterZoombox");
+                RaisePropertyChanged(nameof(MouseYOnCanvas));
             }
         }
 
@@ -128,55 +110,10 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        public LayerChange[] UndoChanges //This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
-        {
-            get => _undoChanges;
-            set
-            {
-                _undoChanges = value;
-                for (int i = 0; i < value.Length; i++)
-                    BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].SetPixels(value[i].PixelChanges);
-            }
-        }
-
-        private double _zoomPercentage = 100;
-
-        public double ZoomPercentage
-        {
-            get { return _zoomPercentage; }
-            set 
-            {
-                _zoomPercentage = value;
-                RaisePropertyChanged(nameof(ZoomPercentage));
-            }
-        }
-
-        private Point _viewPortPosition;
-
-        public Point ViewportPosition
-        {
-            get => _viewPortPosition;
-            set 
-            {
-                _viewPortPosition = value;
-                RaisePropertyChanged(nameof(ViewportPosition));
-            }
-        }
-
         public BitmapManager BitmapManager { get; set; }
         public PixelChangesController ChangesController { get; set; }
 
         public ShortcutController ShortcutController { get; set; }
-
-        public Selection ActiveSelection
-        {
-            get => _selection;
-            set
-            {
-                _selection = value;
-                RaisePropertyChanged("ActiveSelection");
-            }
-        }
 
         public ViewModelMain()
         {
@@ -184,14 +121,13 @@ namespace PixiEditor.ViewModels
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+
+            SelectionSubViewModel = new SelectionViewModel(this);
+
             ChangesController = new PixelChangesController();
-            UndoCommand = new RelayCommand(Undo, CanUndo);
-            RedoCommand = new RelayCommand(Redo, CanRedo);
-            SwapColorsCommand = new RelayCommand(SwapColors);
-            DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
-            SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);            
+            SwapColorsCommand = new RelayCommand(SwapColors);           
             ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
-            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionIsNotEmpty);
+            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionSubViewModel.SelectionIsNotEmpty);
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
             SelectColorCommand = new RelayCommand(SelectColor);
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
@@ -199,7 +135,6 @@ namespace PixiEditor.ViewModels
             CloseWindowCommand = new RelayCommand(CloseWindow);
             CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
             OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
-            ZoomCommand = new RelayCommand(ZoomViewport);
 
             FileSubViewModel = new FileViewModel(this);
             UpdateSubViewModel = new UpdateViewModel(this);
@@ -207,7 +142,10 @@ namespace PixiEditor.ViewModels
             IoSubViewModel = new IoViewModel(this);
             LayersSubViewModel = new LayersViewModel(this);
             ClipboardSubViewModel = new ClipboardViewModel(this);
-           
+            UndoSubViewModel = new UndoViewModel(this);
+            ViewportSubViewModel = new ViewportViewModel(this);
+
+
             ShortcutController = new ShortcutController
             {
                 Shortcuts = new List<Shortcut>
@@ -225,16 +163,16 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.M, ToolsSubViewModel.SelectToolCommand, ToolType.Select),
                     new Shortcut(Key.Z, ToolsSubViewModel.SelectToolCommand, ToolType.Zoom),
                     new Shortcut(Key.H, ToolsSubViewModel.SelectToolCommand, ToolType.MoveViewport),
-                    new Shortcut(Key.OemPlus, ZoomCommand, 115),
-                    new Shortcut(Key.OemMinus, ZoomCommand, 85),
+                    new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, 115),
+                    new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, 85),
                     new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, -1),
                     new Shortcut(Key.OemCloseBrackets, ToolsSubViewModel.ChangeToolSizeCommand, 1),
                     //Editor
                     new Shortcut(Key.X, SwapColorsCommand),
-                    new Shortcut(Key.Y, RedoCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.Z, UndoCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.D, DeselectCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.A, SelectAllCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Y, UndoSubViewModel.RedoCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.Z,  UndoSubViewModel.UndoCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.D, SelectionSubViewModel.DeselectCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.A, SelectionSubViewModel.SelectAllCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.C, ClipboardSubViewModel.CopyCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.V, ClipboardSubViewModel.PasteCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.J, ClipboardSubViewModel.DuplicateCommand, modifier: ModifierKeys.Control),
@@ -254,16 +192,8 @@ namespace PixiEditor.ViewModels
             };
             UndoManager.SetMainRoot(this);
             BitmapManager.PrimaryColor = PrimaryColor;
-            ActiveSelection = new Selection(Array.Empty<Coordinates>());
             Current = this;
         }        
-
-        private void ZoomViewport(object parameter)
-        {
-            double zoom = (int)parameter;
-            ZoomPercentage = zoom;
-            ZoomPercentage = 100;
-        }
 
         private void OpenHyperlink(object parameter)
         {
@@ -327,8 +257,8 @@ namespace PixiEditor.ViewModels
 
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
-            ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            RecenterZoombox = !RecenterZoombox;
+            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            ViewportSubViewModel.CenterViewport();
             UnsavedDocumentModified = true;
         }
 
@@ -355,41 +285,18 @@ namespace PixiEditor.ViewModels
         private void DeletePixels(object parameter)
         {
             BitmapManager.BitmapOperations.DeletePixels(new[] {BitmapManager.ActiveLayer},
-                ActiveSelection.SelectedPoints.ToArray());
+                SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray());
         }
 
         public void ClipCanvas(object parameter)
         {
             BitmapManager.ActiveDocument?.ClipCanvas();
-        }
-
-        public void SelectAll(object parameter)
-        {
-            SelectTool select = new SelectTool();
-            ActiveSelection.SetSelection(select.GetAllSelection(), SelectionType.New);
-        }
-
-        private bool CanSelectAll(object property)
-        {
-            return BitmapManager.ActiveDocument != null && BitmapManager.ActiveDocument.Layers.Count > 0;
-        }
+        }        
 
         public bool DocumentIsNotNull(object property)
         {
             return BitmapManager.ActiveDocument != null;
-        }
-
-        public void Deselect(object parameter)
-        {
-            ActiveSelection?.Clear();
-        }
-
-        public bool SelectionIsNotEmpty(object property)
-        {
-            return ActiveSelection?.SelectedPoints != null && ActiveSelection.SelectedPoints.Count > 0;
-        }
-
-        
+        }            
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
@@ -406,7 +313,7 @@ namespace PixiEditor.ViewModels
                 {
                     LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
                     LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
-                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues));
+                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues, root: UndoSubViewModel));
                     toolUsed.AfterAddedUndo();
                 }
             }
@@ -436,53 +343,10 @@ namespace PixiEditor.ViewModels
             BitmapManager.PreviewLayer = null;
             UndoManager.UndoStack.Clear();
             UndoManager.RedoStack.Clear();
-            ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            RecenterZoombox = !RecenterZoombox;
+            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            ViewportSubViewModel.CenterViewport();
             Exporter.SaveDocumentPath = null;
             UnsavedDocumentModified = false;
         }
-
-        #region Undo/Redo
-
-        /// <summary>
-        ///     Undo last action
-        /// </summary>
-        /// <param name="parameter"></param>
-        public void Undo(object parameter)
-        {
-            Deselect(null);
-            UndoManager.Undo();
-        }
-
-        /// <summary>
-        ///     Returns true if undo can be done.
-        /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
-        private bool CanUndo(object property)
-        {
-            return UndoManager.CanUndo;
-        }
-
-        /// <summary>
-        ///     Redo last action
-        /// </summary>
-        /// <param name="parameter"></param>
-        public void Redo(object parameter)
-        {
-            UndoManager.Redo();
-        }
-
-        /// <summary>
-        ///     Returns true if redo can be done.
-        /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
-        private bool CanRedo(object property)
-        {
-            return UndoManager.CanRedo;
-        }
-
-        #endregion
     }
 }

@@ -86,9 +86,9 @@ namespace PixiEditor.Models.Tools.Tools
             if (_lastStartMousePos != start) //I am aware that this could be moved to OnMouseDown, but it is executed before Use, so I didn't want to complicate for now
             {
                 ResetSelectionValues(start);
-                if (ViewModelMain.Current.ActiveSelection != null && ViewModelMain.Current.ActiveSelection.SelectedPoints.Count > 0) //Move offset if no selection
+                if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection != null && ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count > 0) //Move offset if no selection
                 {
-                    _currentSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
+                    _currentSelection = ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray();
                 }
                 else
                 {
@@ -153,7 +153,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             _currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
             if (_updateViewModelSelection)
-                ViewModelMain.Current.ActiveSelection.SetSelection(_currentSelection, SelectionType.New);
+                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SetSelection(_currentSelection, SelectionType.New);
             ClearSelectedPixels(layer, previousSelection);
 
 

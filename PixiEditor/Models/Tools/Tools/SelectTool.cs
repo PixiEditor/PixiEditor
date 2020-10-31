@@ -30,21 +30,21 @@ namespace PixiEditor.Models.Tools.Tools
             Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("Mode")?.Value as ComboBoxItem)?.Content as string, out SelectionType);
 
             _oldSelection = null;
-            if (ViewModelMain.Current.ActiveSelection != null &&
-                ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
-                _oldSelection = ViewModelMain.Current.ActiveSelection;
+            if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection != null &&
+                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints != null)
+                _oldSelection = ViewModelMain.Current.SelectionSubViewModel.ActiveSelection;
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
         {
-            if (ViewModelMain.Current.ActiveSelection.SelectedPoints.Count() <= 1)
+            if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count() <= 1)
             {
                 // If we have not selected multiple points, clear the selection
-                ViewModelMain.Current.ActiveSelection.Clear();
+                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.Clear();
             }
 
-            UndoManager.AddUndoChange(new Change("ActiveSelection", _oldSelection,
-                ViewModelMain.Current.ActiveSelection, "Select pixels"));
+            UndoManager.AddUndoChange(new Change("SelectionSubViewModel.ActiveSelection", _oldSelection,
+                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection, "Select pixels"));
         }
 
         public override void Use(Coordinates[] pixels)
@@ -55,7 +55,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void Select(Coordinates[] pixels)
         {
             IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            ViewModelMain.Current.ActiveSelection.SetSelection(selection, SelectionType);
+            ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SetSelection(selection, SelectionType);
         }
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)

@@ -18,9 +18,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public ClipboardViewModel(ViewModelMain owner) : base(owner)
         {
-            CopyCommand = new RelayCommand(Copy, Owner.SelectionIsNotEmpty);
-            DuplicateCommand = new RelayCommand(Duplicate, Owner.SelectionIsNotEmpty);
-            CutCommand = new RelayCommand(Cut, Owner.SelectionIsNotEmpty);
+            CopyCommand = new RelayCommand(Copy, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
+            DuplicateCommand = new RelayCommand(Duplicate, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
+            CutCommand = new RelayCommand(Cut, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
             PasteCommand = new RelayCommand(Paste, CanPaste);
         }
 
@@ -34,7 +34,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             Copy(null);
             Owner.BitmapManager.ActiveLayer.SetPixels(
-                BitmapPixelChanges.FromSingleColoredArray(Owner.ActiveSelection.SelectedPoints.ToArray(),
+                BitmapPixelChanges.FromSingleColoredArray(Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray(),
                     Colors.Transparent));
         }
 
@@ -51,7 +51,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void Copy(object parameter)
         {
             ClipboardController.CopyToClipboard(Owner.BitmapManager.ActiveDocument.Layers.ToArray(),
-                Owner.ActiveSelection.SelectedPoints.ToArray(),
+                Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray(),
                 Owner.BitmapManager.ActiveDocument.Width,
                 Owner.BitmapManager.ActiveDocument.Height);
         }

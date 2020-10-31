@@ -116,7 +116,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 if (Importer.IsSupportedFile(dialog.FileName))
                     Open(dialog.FileName);
-                Owner.RecenterZoombox = !Owner.RecenterZoombox;
+                Owner.ViewportSubViewModel.CenterViewport();
             }
         }
 
