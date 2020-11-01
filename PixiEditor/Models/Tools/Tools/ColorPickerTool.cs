@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Coordinates[] coordinates)
         {
-            ViewModelMain.Current.PrimaryColor = GetColorUnderMouse();
+            ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();
         }
 
         public Color GetColorUnderMouse()

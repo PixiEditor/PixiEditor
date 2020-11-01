@@ -31,7 +31,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
                 var point = MousePositionConverter.GetCursorPosition();
-                ViewModelMain.Current.ViewportPosition = new System.Windows.Point(
+                ViewModelMain.Current.ViewportSubViewModel.ViewportPosition = new System.Windows.Point(
                     point.X - clickPoint.X,
                     point.Y - clickPoint.Y);
             }
@@ -41,7 +41,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (e.MiddleButton == MouseButtonState.Pressed)
             {
-                ViewModelMain.Current.SetActiveTool(ViewModelMain.Current.LastActionTool);
+                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool(ViewModelMain.Current.ToolsSubViewModel.LastActionTool);
             }
         }
 

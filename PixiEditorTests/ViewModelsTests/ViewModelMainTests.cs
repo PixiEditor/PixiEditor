@@ -29,16 +29,15 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatSwapColorsCommandSwapsColors()
         {
-            ViewModelMain viewModel = new ViewModelMain
-            {
-                PrimaryColor = Colors.Black,
-                SecondaryColor = Colors.White
-            };
+            ViewModelMain viewModel = new ViewModelMain();
 
-            viewModel.SwapColorsCommand.Execute(null);
+            viewModel.ColorsSubViewModel.PrimaryColor = Colors.Black;
+            viewModel.ColorsSubViewModel.SecondaryColor = Colors.White;
 
-            Assert.Equal(Colors.White, viewModel.PrimaryColor);
-            Assert.Equal(Colors.Black, viewModel.SecondaryColor);
+            viewModel.ColorsSubViewModel.SwapColorsCommand.Execute(null);
+
+            Assert.Equal(Colors.White, viewModel.ColorsSubViewModel.PrimaryColor);
+            Assert.Equal(Colors.Black, viewModel.ColorsSubViewModel.SecondaryColor);
         }
 
         [StaFact]
@@ -46,7 +45,7 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = new ViewModelMain();
 
-            viewModel.NewDocument(5, 5);
+            viewModel.FileSubViewModel.NewDocument(5, 5);
 
             Assert.NotNull(viewModel.BitmapManager.ActiveDocument);
             Assert.Single(viewModel.BitmapManager.ActiveDocument.Layers);
@@ -59,10 +58,10 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.Equal(new Coordinates(0, 0), MousePositionConverter.CurrentCoordinates);
 
-            viewModel.MouseXOnCanvas = 5;
-            viewModel.MouseYOnCanvas = 5;
+            viewModel.IoSubViewModel.MouseXOnCanvas = 5;
+            viewModel.IoSubViewModel.MouseYOnCanvas = 5;
 
-            viewModel.MouseMoveCommand.Execute(null);
+            viewModel.IoSubViewModel.MouseMoveCommand.Execute(null);
 
             Assert.Equal(new Coordinates(5, 5), MousePositionConverter.CurrentCoordinates);
         }
@@ -74,7 +73,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.Equal(ToolType.Move, viewModel.BitmapManager.SelectedTool.ToolType);
 
-            viewModel.SelectToolCommand.Execute(ToolType.Line);
+            viewModel.ToolsSubViewModel.SelectToolCommand.Execute(ToolType.Line);
 
             Assert.Equal(ToolType.Line, viewModel.BitmapManager.SelectedTool.ToolType);
         }
@@ -88,7 +87,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.True(viewModel.BitmapManager.MouseController.IsRecordingChanges);
 
-            viewModel.MouseHook_OnMouseUp(default, default, default);
+            viewModel.IoSubViewModel.MouseHook_OnMouseUp(default, default, default);
 
             Assert.False(viewModel.BitmapManager.MouseController.IsRecordingChanges);
         }
@@ -102,7 +101,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.Empty(viewModel.BitmapManager.ActiveDocument.Layers);
 
-            viewModel.NewLayerCommand.Execute(null);
+            viewModel.LayersSubViewModel.NewLayerCommand.Execute(null);
 
             Assert.Single(viewModel.BitmapManager.ActiveDocument.Layers);
         }
@@ -117,7 +116,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Exporter.SaveDocumentPath = fileName;
 
-            viewModel.SaveDocumentCommand.Execute(null);
+            viewModel.FileSubViewModel.SaveDocumentCommand.Execute(null);
 
             Assert.True(File.Exists(fileName));
 
@@ -130,8 +129,8 @@ namespace PixiEditorTests.ViewModelsTests
             ViewModelMain viewModel = new ViewModelMain();
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
-            viewModel.AddSwatch(Colors.Green);
-            viewModel.AddSwatch(Colors.Green);
+            viewModel.ColorsSubViewModel.AddSwatch(Colors.Green);
+            viewModel.ColorsSubViewModel.AddSwatch(Colors.Green);
 
             Assert.Single(viewModel.BitmapManager.ActiveDocument.Swatches);
             Assert.Equal(Colors.Green, viewModel.BitmapManager.ActiveDocument.Swatches[0]);
@@ -153,11 +152,11 @@ namespace PixiEditorTests.ViewModelsTests
             };
             viewModel.BitmapManager.AddNewLayer("layer");
 
-            viewModel.SelectAllCommand.Execute(null);
+            viewModel.SelectionSubViewModel.SelectAllCommand.Execute(null);
 
             Assert.Equal(
                 viewModel.BitmapManager.ActiveDocument.Width * viewModel.BitmapManager.ActiveDocument.Height,
-                viewModel.ActiveSelection.SelectedPoints.Count);
+                viewModel.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count);
         }
 
         [StaFact]

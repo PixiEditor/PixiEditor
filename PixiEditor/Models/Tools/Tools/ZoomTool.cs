@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Tools.Tools
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             startingX = MousePositionConverter.GetCursorPosition().X;
-            ViewModelMain.Current.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
+            ViewModelMain.Current.ViewportSubViewModel.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
         }
 
         public override void OnMouseMove(MouseEventArgs e)
@@ -61,7 +61,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public void Zoom(double percentage)
         {
-            ViewModelMain.Current.ZoomPercentage = percentage;
+            ViewModelMain.Current.ViewportSubViewModel.ZoomPercentage = percentage;
         }
 
         public override void Use(Coordinates[] pixels)

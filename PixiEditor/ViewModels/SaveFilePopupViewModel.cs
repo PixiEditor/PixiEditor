@@ -6,11 +6,13 @@ namespace PixiEditor.ViewModels
 {
     internal class SaveFilePopupViewModel : ViewModelBase
     {
-        private string filePath;
+        private string _filePath;
 
-        private string pathButtonBorder = "#f08080";
 
-        private bool pathIsCorrect;
+        private string _pathButtonBorder = "#f08080";
+
+
+        private bool _pathIsCorrect;
 
         public SaveFilePopupViewModel()
         {
@@ -21,21 +23,18 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
-
         public RelayCommand DragMoveCommand { get; set; }
-
         public RelayCommand ChoosePathCommand { get; set; }
-
         public RelayCommand OkCommand { get; set; }
 
         public string PathButtonBorder
         {
-            get => pathButtonBorder;
+            get => _pathButtonBorder;
             set
             {
-                if (pathButtonBorder != value)
+                if (_pathButtonBorder != value)
                 {
-                    pathButtonBorder = value;
+                    _pathButtonBorder = value;
                     RaisePropertyChanged("PathButtonBorder");
                 }
             }
@@ -43,12 +42,12 @@ namespace PixiEditor.ViewModels
 
         public bool PathIsCorrect
         {
-            get => pathIsCorrect;
+            get => _pathIsCorrect;
             set
             {
-                if (pathIsCorrect != value)
+                if (_pathIsCorrect != value)
                 {
-                    pathIsCorrect = value;
+                    _pathIsCorrect = value;
                     RaisePropertyChanged("PathIsCorrect");
                 }
             }
@@ -56,19 +55,19 @@ namespace PixiEditor.ViewModels
 
         public string FilePath
         {
-            get => filePath;
+            get => _filePath;
             set
             {
-                if (filePath != value)
+                if (_filePath != value)
                 {
-                    filePath = value;
+                    _filePath = value;
                     RaisePropertyChanged("FilePath");
                 }
             }
         }
 
         /// <summary>
-        ///     Command that handles Path choosing to save file.
+        ///     Command that handles Path choosing to save file
         /// </summary>
         /// <param name="parameter"></param>
         private void ChoosePath(object parameter)
@@ -98,7 +97,7 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window)parameter).DialogResult = false;
+            ((Window) parameter).DialogResult = false;
             CloseButton(parameter);
         }
 
@@ -109,7 +108,7 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
-            ((Window)parameter).DialogResult = true;
+            ((Window) parameter).DialogResult = true;
             CloseButton(parameter);
         }
 
