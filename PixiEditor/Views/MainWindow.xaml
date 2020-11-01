@@ -94,7 +94,7 @@
                     <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
                     <MenuItem Header="_Duplicate" Command="{Binding ClipboardSubViewModel.DuplicateCommand}" InputGestureText="Ctrl+J" />
                     <Separator />
-                    <MenuItem Header="_Delete Selected" Command="{Binding DeletePixelsCommand}"
+                    <MenuItem Header="_Delete Selected" Command="{Binding DocumentSubViewModel.DeletePixelsCommand}"
                               InputGestureText="Delete" />
                 </MenuItem>
                 <MenuItem Header="_Select">
@@ -102,13 +102,13 @@
                     <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
                 </MenuItem>
                 <MenuItem Header="_Document">
-                    <MenuItem Header="Resize Document..." Command="{Binding OpenResizePopupCommand}"
+                    <MenuItem Header="Resize Document..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
                               InputGestureText="Ctrl+Shift+I" />
-                    <MenuItem Header="Resize Canvas..." Command="{Binding OpenResizePopupCommand}"
+                    <MenuItem Header="Resize Canvas..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
                               CommandParameter="canvas" InputGestureText="Ctrl+Shift+C" />
-                    <MenuItem Header="Clip Canvas" Command="{Binding ClipCanvasCommand}" />
+                    <MenuItem Header="Clip Canvas" Command="{Binding DocumentSubViewModel.ClipCanvasCommand}" />
                     <Separator/>
-                    <MenuItem Header="Center Content" Command="{Binding CenterContentCommand}" />
+                    <MenuItem Header="Center Content" Command="{Binding DocumentSubViewModel.CenterContentCommand}" />
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="Documentation" Command="{Binding OpenHyperlinkCommand}"
@@ -177,8 +177,8 @@
                     </i:Interaction.Triggers>
                     <i:Interaction.Behaviors>
                         <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
-                                                  MouseX="{Binding MouseXOnCanvas, Mode=OneWayToSource}"
-                                                  MouseY="{Binding MouseYOnCanvas, Mode=OneWayToSource}" />
+                                                  MouseX="{Binding IoSubViewModel.MouseXOnCanvas, Mode=OneWayToSource}"
+                                                  MouseY="{Binding IoSubViewModel.MouseYOnCanvas, Mode=OneWayToSource}" />
                     </i:Interaction.Behaviors>
                     <vws:MainDrawingPanel.Item>
                         <Canvas Width="{Binding BitmapManager.ActiveDocument.Width}"
@@ -249,8 +249,8 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="2" Orientation="Vertical" ZIndex="15">
             </StackPanel>
-            <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding PrimaryColor, Mode=TwoWay}"
-                             SecondaryColor="{Binding SecondaryColor, Mode=TwoWay}" />
+            <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
+                             SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" />
             <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0"
                                        Grid.Row="1">
                 <avalondock:LayoutRoot x:Name="LayoutRoot">
@@ -358,14 +358,14 @@
                                                         <i:EventTrigger EventName="MouseDown">
                                                             <i:InvokeCommandAction
                                                                 Command="{Binding
-                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectColorCommand}"
+                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ColorsSubViewModel.SelectColorCommand}"
                                                                 CommandParameter="{Binding}" />
                                                         </i:EventTrigger>
                                                     </i:Interaction.Triggers>
                                                     <Grid.ContextMenu>
                                                         <ContextMenu>
                                                             <MenuItem Header="Remove" Foreground="White"
-                                                                      Command="{Binding RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
+                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
                                                                       CommandParameter="{Binding}" />
                                                         </ContextMenu>
                                                     </Grid.ContextMenu>
@@ -386,9 +386,9 @@
         <DockPanel Grid.Row="3" Grid.Column="1">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="X:" Foreground="White" FontSize="16"/>
-                <TextBlock Margin="4,0,10,0" Text="{Binding MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding IoSubViewModel.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
                 <TextBlock Text="Y:" Foreground="White" FontSize="16"/>
-                <TextBlock Margin="4,0,10,0" Text="{Binding MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding IoSubViewModel.MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
             </StackPanel>
         </DockPanel>
         <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Grid.Row="3"

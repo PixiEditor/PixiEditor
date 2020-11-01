@@ -14,6 +14,30 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand KeyDownCommand { get; set; }
         public RelayCommand KeyUpCommand { get; set; }
 
+        private double _mouseXonCanvas;
+
+        private double _mouseYonCanvas;
+
+        public double MouseXOnCanvas //Mouse X coordinate relative to canvas
+        {
+            get => _mouseXonCanvas;
+            set
+            {
+                _mouseXonCanvas = value;
+                RaisePropertyChanged(nameof(MouseXOnCanvas));
+            }
+        }
+
+        public double MouseYOnCanvas //Mouse Y coordinate relative to canvas
+        {
+            get => _mouseYonCanvas;
+            set
+            {
+                _mouseYonCanvas = value;
+                RaisePropertyChanged(nameof(MouseYOnCanvas));
+            }
+        }
+
         private bool _restoreToolOnKeyUp = false;
 
         public IoViewModel(ViewModelMain owner) : base(owner)
@@ -42,10 +66,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 if (!Owner.BitmapManager.MouseController.IsRecordingChanges)
                 {
-                    bool clickedOnCanvas = Owner.MouseXOnCanvas >= 0 &&
-                        Owner.MouseXOnCanvas <= Owner.BitmapManager.ActiveDocument.Width &&
-                        Owner.MouseYOnCanvas >= 0 && 
-                        Owner.MouseYOnCanvas <= Owner.BitmapManager.ActiveDocument.Height;
+                    bool clickedOnCanvas = MouseXOnCanvas >= 0 &&
+                        MouseXOnCanvas <= Owner.BitmapManager.ActiveDocument.Width &&
+                        MouseYOnCanvas >= 0 && 
+                        MouseYOnCanvas <= Owner.BitmapManager.ActiveDocument.Height;
                     Owner.BitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
                     Owner.BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
@@ -65,7 +89,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter"></param>
         private void MouseMove(object parameter)
         {
-            Coordinates cords = new Coordinates((int)Owner.MouseXOnCanvas, (int)Owner.MouseYOnCanvas);
+            Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
 

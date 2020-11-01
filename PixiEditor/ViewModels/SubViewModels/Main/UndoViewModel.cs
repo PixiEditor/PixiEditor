@@ -1,6 +1,9 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Tools;
+using System;
+using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -25,6 +28,22 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
+        }
+
+        public void TriggerNewUndoChange(Tool toolUsed)
+        {
+            if (BitmapManager.IsOperationTool(toolUsed)
+                && ((BitmapOperationTool)toolUsed).UseDefaultUndoMethod)
+            {
+                Tuple<LayerChange, LayerChange>[] changes = Owner.ChangesController.PopChanges();
+                if (changes != null && changes.Length > 0)
+                {
+                    LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
+                    LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
+                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues, root: this));
+                    toolUsed.AfterAddedUndo();
+                }
+            }
         }
 
         /// <summary>

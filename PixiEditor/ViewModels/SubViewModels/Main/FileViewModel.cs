@@ -85,9 +85,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void Open(string path)
         {
-            if (Owner.UnsavedDocumentModified)
+            if (Owner.DocumentSubViewModel.UnsavedDocumentModified)
             {
-                var result = ConfirmationDialog.Show(ViewModelMain.ConfirmationDialogMessage);
+                var result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes)
                 {
                     SaveDocument(null);
@@ -124,7 +124,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             Owner.BitmapManager.ActiveDocument = Importer.ImportDocument(path);
             Exporter.SaveDocumentPath = path;
-            Owner.UnsavedDocumentModified = false;
+            Owner.DocumentSubViewModel.UnsavedDocumentModified = false;
         }
 
         public void SaveDocument(bool asNew)
@@ -138,12 +138,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (paramIsAsNew || Exporter.SaveDocumentPath == null)
             {
                 var saved = Exporter.SaveAsEditableFileWithDialog(Owner.BitmapManager.ActiveDocument, !paramIsAsNew);
-                Owner.UnsavedDocumentModified = Owner.UnsavedDocumentModified && !saved;
+                Owner.DocumentSubViewModel.UnsavedDocumentModified = Owner.DocumentSubViewModel.UnsavedDocumentModified && !saved;
             }
             else
             {
                 Exporter.SaveAsEditableFile(Owner.BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
-                Owner.UnsavedDocumentModified = false;
+                Owner.DocumentSubViewModel.UnsavedDocumentModified = false;
             }
         }
 

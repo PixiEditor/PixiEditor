@@ -24,28 +24,14 @@ namespace PixiEditor.ViewModels
 {
     public class ViewModelMain : ViewModelBase
     {
-        public const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
 
         public event EventHandler OnStartupEvent;
-
-        private Color _primaryColor = Colors.Black;
-
-        private Color _secondaryColor = Colors.White;
-
-        public bool UnsavedDocumentModified { get; set; }
 
         public Action CloseAction { get; set; }
 
         public static ViewModelMain Current { get; set; }                         
-        public RelayCommand SwapColorsCommand { get; set; }    
-        public RelayCommand ClipCanvasCommand { get; set; }
-        public RelayCommand DeletePixelsCommand { get; set; }
-        public RelayCommand OpenResizePopupCommand { get; set; }
-        public RelayCommand SelectColorCommand { get; set; }
-        public RelayCommand RemoveSwatchCommand { get; set; }
         public RelayCommand OnStartupCommand { get; set; }
         public RelayCommand CloseWindowCommand { get; set; }
-        public RelayCommand CenterContentCommand { get; set; }
         public RelayCommand OpenHyperlinkCommand { get; set; } 
 
         public FileViewModel FileSubViewModel { get; set; }
@@ -57,58 +43,9 @@ namespace PixiEditor.ViewModels
         public UndoViewModel UndoSubViewModel { get; set; }
         public SelectionViewModel SelectionSubViewModel { get; set; }
         public ViewportViewModel ViewportSubViewModel { get; set; }
-
-
-        private double _mouseXonCanvas;
-
-        private double _mouseYonCanvas;
-
-        public double MouseXOnCanvas //Mouse X coordinate relative to canvas
-        {
-            get => _mouseXonCanvas;
-            set
-            {
-                _mouseXonCanvas = value;
-                RaisePropertyChanged(nameof(MouseXOnCanvas));
-            }
-        }
-
-        public double MouseYOnCanvas //Mouse Y coordinate relative to canvas
-        {
-            get => _mouseYonCanvas;
-            set
-            {
-                _mouseYonCanvas = value;
-                RaisePropertyChanged(nameof(MouseYOnCanvas));
-            }
-        }
-
-        public Color PrimaryColor //Primary color, hooked with left mouse button
-        {
-            get => _primaryColor;
-            set
-            {
-                if (_primaryColor != value)
-                {
-                    _primaryColor = value;
-                    BitmapManager.PrimaryColor = value;
-                    RaisePropertyChanged("PrimaryColor");
-                }
-            }
-        }
-
-        public Color SecondaryColor
-        {
-            get => _secondaryColor;
-            set
-            {
-                if (_secondaryColor != value)
-                {
-                    _secondaryColor = value;
-                    RaisePropertyChanged("SecondaryColor");
-                }
-            }
-        }
+        public ColorsViewModel ColorsSubViewModel { get; set; }
+        public DocumentViewModel DocumentSubViewModel { get; set; }
+       
 
         public BitmapManager BitmapManager { get; set; }
         public PixelChangesController ChangesController { get; set; }
@@ -125,15 +62,8 @@ namespace PixiEditor.ViewModels
             SelectionSubViewModel = new SelectionViewModel(this);
 
             ChangesController = new PixelChangesController();
-            SwapColorsCommand = new RelayCommand(SwapColors);           
-            ClipCanvasCommand = new RelayCommand(ClipCanvas, DocumentIsNotNull);
-            DeletePixelsCommand = new RelayCommand(DeletePixels, SelectionSubViewModel.SelectionIsNotEmpty);
-            OpenResizePopupCommand = new RelayCommand(OpenResizePopup, DocumentIsNotNull);
-            SelectColorCommand = new RelayCommand(SelectColor);
-            RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
-            CenterContentCommand = new RelayCommand(CenterContent, DocumentIsNotNull);
             OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
 
             FileSubViewModel = new FileViewModel(this);
@@ -144,6 +74,8 @@ namespace PixiEditor.ViewModels
             ClipboardSubViewModel = new ClipboardViewModel(this);
             UndoSubViewModel = new UndoViewModel(this);
             ViewportSubViewModel = new ViewportViewModel(this);
+            ColorsSubViewModel = new ColorsViewModel(this);
+            DocumentSubViewModel = new DocumentViewModel(this);
 
 
             ShortcutController = new ShortcutController
@@ -168,7 +100,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, -1),
                     new Shortcut(Key.OemCloseBrackets, ToolsSubViewModel.ChangeToolSizeCommand, 1),
                     //Editor
-                    new Shortcut(Key.X, SwapColorsCommand),
+                    new Shortcut(Key.X, ColorsSubViewModel.SwapColorsCommand),
                     new Shortcut(Key.Y, UndoSubViewModel.RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z,  UndoSubViewModel.UndoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.D, SelectionSubViewModel.DeselectCommand, modifier: ModifierKeys.Control),
@@ -177,9 +109,9 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.V, ClipboardSubViewModel.PasteCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.J, ClipboardSubViewModel.DuplicateCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.X, ClipboardSubViewModel.CutCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.Delete, DeletePixelsCommand),
-                    new Shortcut(Key.I, OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.C, OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.Delete, DocumentSubViewModel.DeletePixelsCommand),
+                    new Shortcut(Key.I, DocumentSubViewModel.OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.C, DocumentSubViewModel.OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.F11, SystemCommands.MaximizeWindowCommand),
                     //File
                     new Shortcut(Key.O, FileSubViewModel.OpenFileCommand, modifier: ModifierKeys.Control),
@@ -191,7 +123,7 @@ namespace PixiEditor.ViewModels
                 }
             };
             UndoManager.SetMainRoot(this);
-            BitmapManager.PrimaryColor = PrimaryColor;
+            BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
             Current = this;
         }        
 
@@ -207,11 +139,6 @@ namespace PixiEditor.ViewModels
             Process.Start(processInfo);
         }
 
-        private void CenterContent(object property)
-        {
-            BitmapManager.ActiveDocument.CenterContent();
-        }
-
         private void CloseWindow(object property)
         {
             if (!(property is CancelEventArgs)) throw new ArgumentException();
@@ -219,16 +146,19 @@ namespace PixiEditor.ViewModels
             ((CancelEventArgs) property).Cancel = true;
 
             ConfirmationType result = ConfirmationType.No;
-            if (UnsavedDocumentModified)
+            if (DocumentSubViewModel.UnsavedDocumentModified)
             {
-                result = ConfirmationDialog.Show(ConfirmationDialogMessage);
+                result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes) 
                 {
                     FileSubViewModel.SaveDocument(false); 
                 }
             }
 
-            if (result != ConfirmationType.Canceled) ((CancelEventArgs) property).Cancel = false;
+            if (result != ConfirmationType.Canceled)
+            {
+                ((CancelEventArgs)property).Cancel = false;
+            }
         }
 
         private void OnStartup(object parameter)
@@ -239,59 +169,15 @@ namespace PixiEditor.ViewModels
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
             e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
-        }
-    
-
-        private void RemoveSwatch(object parameter)
-        {
-            if (!(parameter is Color)) throw new ArgumentException();
-            Color color = (Color) parameter;
-            if (BitmapManager.ActiveDocument.Swatches.Contains(color))
-                BitmapManager.ActiveDocument.Swatches.Remove(color);
-        }
-
-        private void SelectColor(object parameter)
-        {
-            PrimaryColor = parameter as Color? ?? throw new ArgumentException();
-        }
+        }           
 
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
             SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
             ViewportSubViewModel.CenterViewport();
-            UnsavedDocumentModified = true;
-        }
-
-        public void AddSwatch(Color color)
-        {
-            if (!BitmapManager.ActiveDocument.Swatches.Contains(color))
-                BitmapManager.ActiveDocument.Swatches.Add(color);
-        }
-
-        private void OpenResizePopup(object parameter)
-        {
-            bool isCanvasDialog = (string) parameter == "canvas";
-            ResizeDocumentDialog dialog = new ResizeDocumentDialog(BitmapManager.ActiveDocument.Width,
-                BitmapManager.ActiveDocument.Height, isCanvasDialog);
-            if (dialog.ShowDialog())
-            {
-                if (isCanvasDialog)
-                    BitmapManager.ActiveDocument.ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
-                else
-                    BitmapManager.ActiveDocument.Resize(dialog.Width, dialog.Height);
-            }
-        }
-
-        private void DeletePixels(object parameter)
-        {
-            BitmapManager.BitmapOperations.DeletePixels(new[] {BitmapManager.ActiveLayer},
-                SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray());
-        }
-
-        public void ClipCanvas(object parameter)
-        {
-            BitmapManager.ActiveDocument?.ClipCanvas();
+            DocumentSubViewModel.UnsavedDocumentModified = true;
         }        
+              
 
         public bool DocumentIsNotNull(object property)
         {
@@ -300,40 +186,19 @@ namespace PixiEditor.ViewModels
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-           TriggerNewUndoChange(BitmapManager.SelectedTool);
-        }
-
-        public void TriggerNewUndoChange(Tool toolUsed)
-        {
-            if (BitmapManager.IsOperationTool(toolUsed)
-                && ((BitmapOperationTool) toolUsed).UseDefaultUndoMethod)
-            {
-                Tuple<LayerChange, LayerChange>[] changes = ChangesController.PopChanges();
-                if (changes != null && changes.Length > 0)
-                {
-                    LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
-                    LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
-                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues, root: UndoSubViewModel));
-                    toolUsed.AfterAddedUndo();
-                }
-            }
+           UndoSubViewModel.TriggerNewUndoChange(BitmapManager.SelectedTool);
         }
 
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
             ChangesController.AddChanges(new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
-            UnsavedDocumentModified = true;
+            DocumentSubViewModel.UnsavedDocumentModified = true;
             if (BitmapManager.IsOperationTool())
-                AddSwatch(PrimaryColor);
-        }
-
-        public void SwapColors(object parameter)
-        {
-            var tmp = PrimaryColor;
-            PrimaryColor = SecondaryColor;
-            SecondaryColor = tmp;
-        }             
+            {
+                ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);
+            }
+        }            
 
         /// <summary>
         ///     Resets most variables and controller, so new documents can be handled.
@@ -346,7 +211,7 @@ namespace PixiEditor.ViewModels
             SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
             ViewportSubViewModel.CenterViewport();
             Exporter.SaveDocumentPath = null;
-            UnsavedDocumentModified = false;
+            DocumentSubViewModel.UnsavedDocumentModified = false;
         }
     }
 }
