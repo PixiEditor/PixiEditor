@@ -13,11 +13,12 @@ using PixiEditor.ViewModels;
 namespace PixiEditor
 {
     /// <summary>
-    ///     Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml.
     /// </summary>
     public partial class MainWindow : Window
     {
-        ViewModelMain viewModel;
+        private readonly ViewModelMain viewModel;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,18 +33,15 @@ namespace PixiEditor
             e.CanExecute = true;
         }
 
-
         private void CommandBinding_Executed_Minimize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MinimizeWindow(this);
         }
 
-
         private void CommandBinding_Executed_Maximize(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MaximizeWindow(this);
         }
-
 
         private void CommandBinding_Executed_Restore(object sender, ExecutedRoutedEventArgs e)
         {
@@ -54,7 +52,6 @@ namespace PixiEditor
         {
             SystemCommands.CloseWindow(this);
         }
-
 
         private void MainWindowStateChangeRaised(object sender, EventArgs e)
         {
@@ -81,33 +78,43 @@ namespace PixiEditor
             string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
             if (updateZipExists && File.Exists(updaterPath))
             {
-                try
-                {
-                    ProcessHelper.RunAsAdmin(updaterPath);
-                    Close();
-                }
-                catch (Win32Exception)
-                {
-                    MessageBox.Show(
-                        "Couldn't update without administrator rights.",
-                        "Insufficient permissions",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
+                InstallHeadless(updaterPath);
             }
             else if (updateExeExists)
             {
-                bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
-                    updateExeFiles[0].Split('-')[1].Split(".exe")[0];
-                if (!alreadyUpdated)
-                {
-                    Process.Start(updateExeFiles[0]);
-                    Close();
-                }
-                else
-                {
-                    File.Delete(updateExeFiles[0]);
-                }
+                OpenExeInstaller(updateExeFiles[0]);
+            }
+        }
+
+        private void InstallHeadless(string updaterPath)
+        {
+            try
+            {
+                ProcessHelper.RunAsAdmin(updaterPath);
+                Close();
+            }
+            catch (Win32Exception)
+            {
+                MessageBox.Show(
+                    "Couldn't update without administrator rights.",
+                    "Insufficient permissions",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private void OpenExeInstaller(string updateExeFile)
+        {
+            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
+                    updateExeFile.Split('-')[1].Split(".exe")[0];
+            if (!alreadyUpdated)
+            {
+                Process.Start(updateExeFile);
+                Close();
+            }
+            else
+            {
+                File.Delete(updateExeFile);
             }
         }
     }

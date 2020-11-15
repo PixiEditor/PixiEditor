@@ -54,13 +54,18 @@ namespace PixiEditor.UpdateModule
             return latestRelease.WasDataFetchSuccessful && VersionBigger(CurrentVersionTag, latestRelease.TagName);
         }
 
+        public bool IsUpdateCompatible(string[] incompatibleVersions)
+        {
+            return !incompatibleVersions.Select(x => x.Trim()).Contains(CurrentVersionTag.Trim());
+        }
+
         public async Task<bool> IsUpdateCompatible()
         {
             string[] incompatibleVersions = await GetUpdateIncompatibleVersionsAsync(LatestReleaseInfo.TargetCommitish);
-            return !incompatibleVersions.Contains(CurrentVersionTag);
+            return IsUpdateCompatible(incompatibleVersions);
         }
 
-        private async Task<string[]> GetUpdateIncompatibleVersionsAsync(string targetCommitish)
+        public async Task<string[]> GetUpdateIncompatibleVersionsAsync(string targetCommitish)
         {
             using (HttpClient client = new HttpClient())
             {
