@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Processes;
 using PixiEditor.UpdateModule;
 using PixiEditor.ViewModels;
@@ -69,23 +70,43 @@ namespace PixiEditor
             }
         }
 
-        private void mainWindow_Initialized(object sender, EventArgs e)
+        private void MainWindow_Initialized(object sender, EventArgs e)
         {
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             UpdateDownloader.CreateTempDirectory();
-            bool updateFileExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
+            bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
+            string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
+            bool updateExeExists = updateExeFiles.Length > 0;
+
             string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
-            if (updateFileExists && File.Exists(updaterPath))
+            if (updateZipExists && File.Exists(updaterPath))
             {
                 try
                 {
                     ProcessHelper.RunAsAdmin(updaterPath);
                     Close();
                 }
-                catch(Win32Exception)
+                catch (Win32Exception)
                 {
-                    MessageBox.Show("Couldn't update without administrator rights.", "Insufficient permissions", 
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(
+                        "Couldn't update without administrator rights.",
+                        "Insufficient permissions",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+            else if (updateExeExists)
+            {
+                bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
+                    updateExeFiles[0].Split('-')[1].Split(".exe")[0];
+                if (!alreadyUpdated)
+                {
+                    Process.Start(updateExeFiles[0]);
+                    Close();
+                }
+                else
+                {
+                    File.Delete(updateExeFiles[0]);
                 }
             }
         }

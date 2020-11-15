@@ -54,12 +54,21 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             return await Task.Run(async () =>
             {
                 bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
+                bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
                 bool updateFileDoesNotExists = !File.Exists(
                     Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
                 if (updateAvailable && updateFileDoesNotExists)
                 {
                     VersionText = "Downloading update...";
-                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                    if (!updateCompatible)
+                    {
+                        await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                    }
+                    else
+                    {
+                        await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
+                    }
+
                     VersionText = "to install update"; // Button shows "Restart" before this text
                     UpdateReadyToInstall = true;
                     return true;
@@ -93,10 +102,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void InitUpdateChecker()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
-            UpdateChecker = new UpdateChecker(info.FileVersion);
-            VersionText = $"Version {info.FileVersion}";
+            string version = AssemblyHelper.GetCurrentAssemblyVersion();
+            UpdateChecker = new UpdateChecker(version);
+            VersionText = $"Version {version}";
         }
     }
 }

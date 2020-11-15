@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -9,6 +11,7 @@ namespace PixiEditor.UpdateModule
     public class UpdateChecker
     {
         private const string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/releases/latest";
+        private const string IncompatibleFileApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/contents/incompatible.json";
 
         public UpdateChecker(string currentVersionTag)
         {
@@ -22,9 +25,9 @@ namespace PixiEditor.UpdateModule
         /// <summary>
         ///     Compares version strings and returns true if newVer > originalVer.
         /// </summary>
-        /// <param name="originalVer" />
-        /// <param name="newVer"></param>
-        /// <returns></returns>
+        /// <param name="originalVer">Version to compare</param>
+        /// <param name="newVer">Version to compare with</param>
+        /// <returns>True if semantic version is higher</returns>
         public static bool VersionBigger(string originalVer, string newVer)
         {
             if (!ParseVersionString(originalVer, out float ver1))
@@ -42,7 +45,7 @@ namespace PixiEditor.UpdateModule
 
         public async Task<bool> CheckUpdateAvailable()
         {
-            LatestReleaseInfo = await GetLatestReleaseInfo_Async();
+            LatestReleaseInfo = await GetLatestReleaseInfoAsync();
             return CheckUpdateAvailable(LatestReleaseInfo);
         }
 
@@ -51,7 +54,29 @@ namespace PixiEditor.UpdateModule
             return latestRelease.WasDataFetchSuccessful && VersionBigger(CurrentVersionTag, latestRelease.TagName);
         }
 
-        private static async Task<ReleaseInfo> GetLatestReleaseInfo_Async()
+        public async Task<bool> IsUpdateCompatible()
+        {
+            string[] incompatibleVersions = await GetUpdateIncompatibleVersionsAsync(LatestReleaseInfo.TargetCommitish);
+            return !incompatibleVersions.Contains(CurrentVersionTag);
+        }
+
+        private async Task<string[]> GetUpdateIncompatibleVersionsAsync(string targetCommitish)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+                HttpResponseMessage response = await client.GetAsync(IncompatibleFileApiUrl + $"?ref={targetCommitish}");
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<string[]>(content);
+                }
+            }
+
+            return Array.Empty<string>();
+        }
+
+        private static async Task<ReleaseInfo> GetLatestReleaseInfoAsync()
         {
             using (HttpClient client = new HttpClient())
             {
