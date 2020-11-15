@@ -10,8 +10,8 @@ namespace PixiEditor.UpdateModule
 {
     public class UpdateChecker
     {
-        private const string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/releases/latest";
-        private const string IncompatibleFileApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/contents/incompatible.json";
+        private const string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/autoupdate-prod-test/releases/latest";
+        private const string IncompatibleFileApiUrl = "https://raw.githubusercontent.com/PixiEditor/autoupdate-prod-test/{0}/incompatible.json";
 
         public UpdateChecker(string currentVersionTag)
         {
@@ -61,16 +61,16 @@ namespace PixiEditor.UpdateModule
 
         public async Task<bool> IsUpdateCompatible()
         {
-            string[] incompatibleVersions = await GetUpdateIncompatibleVersionsAsync(LatestReleaseInfo.TargetCommitish);
+            string[] incompatibleVersions = await GetUpdateIncompatibleVersionsAsync(LatestReleaseInfo.TagName);
             return IsUpdateCompatible(incompatibleVersions);
         }
 
-        public async Task<string[]> GetUpdateIncompatibleVersionsAsync(string targetCommitish)
+        public async Task<string[]> GetUpdateIncompatibleVersionsAsync(string tag)
         {
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-                HttpResponseMessage response = await client.GetAsync(IncompatibleFileApiUrl + $"?ref={targetCommitish}");
+                HttpResponseMessage response = await client.GetAsync(string.Format(IncompatibleFileApiUrl, tag));
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     string content = await response.Content.ReadAsStringAsync();

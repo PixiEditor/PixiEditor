@@ -24,8 +24,6 @@ namespace PixiEditor.UpdateModule
 
         [JsonPropertyName("assets")]
         public Asset[] Assets { get; set; }
-        [JsonPropertyName("target_commitish")]
-        public string TargetCommitish { get; set; }
 
         public bool WasDataFetchSuccessful { get; set; } = true;
     }

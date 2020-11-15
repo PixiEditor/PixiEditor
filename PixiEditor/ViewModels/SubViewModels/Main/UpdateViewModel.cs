@@ -60,7 +60,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (updateAvailable && updateFileDoesNotExists)
                 {
                     VersionText = "Downloading update...";
-                    if (!updateCompatible)
+                    if (updateCompatible)
                     {
                         await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
                     }
