@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Processes;
 using PixiEditor.UpdateModule;
 using PixiEditor.ViewModels;
@@ -107,15 +108,38 @@ namespace PixiEditor
         {
             bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
                     updateExeFile.Split('-')[1].Split(".exe")[0];
+            string triedInstallFilePath = Path.Join(
+                UpdateDownloader.DownloadLocation,
+                Path.GetFileNameWithoutExtension(updateExeFile) + "restartedToUpdate.txt");
+
             if (!alreadyUpdated)
             {
-                Process.Start(updateExeFile);
-                Close();
+                if (!File.Exists(triedInstallFilePath))
+                {
+                    RestartToUpdate(updateExeFile);
+                    File.Create(triedInstallFilePath);
+                }
+                else
+                {
+                   var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
+
+                   if (result == Models.Enums.ConfirmationType.Yes)
+                   {
+                        RestartToUpdate(updateExeFile);
+                   }
+                }
             }
             else
             {
                 File.Delete(updateExeFile);
+                File.Delete(triedInstallFilePath);
             }
+        }
+
+        private void RestartToUpdate(string updateExeFile)
+        {
+            Process.Start(updateExeFile);
+            Close();
         }
     }
 }

@@ -57,7 +57,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
                 bool updateFileDoesNotExists = !File.Exists(
                     Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
-                if (updateAvailable && updateFileDoesNotExists)
+                bool updateExeDoesNotExists = !File.Exists(
+                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
+                if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
                 {
                     VersionText = "Downloading update...";
                     if (updateCompatible)

@@ -25,9 +25,9 @@ namespace PixiEditor.UpdateModule
         /// <summary>
         ///     Compares version strings and returns true if newVer > originalVer.
         /// </summary>
-        /// <param name="originalVer">Version to compare</param>
-        /// <param name="newVer">Version to compare with</param>
-        /// <returns>True if semantic version is higher</returns>
+        /// <param name="originalVer">Version to compare.</param>
+        /// <param name="newVer">Version to compare with.</param>
+        /// <returns>True if semantic version is higher.</returns>
         public static bool VersionBigger(string originalVer, string newVer)
         {
             if (!ParseVersionString(originalVer, out float ver1))
