@@ -10,8 +10,8 @@ namespace PixiEditor.UpdateModule
 {
     public class UpdateChecker
     {
-        private const string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/autoupdate-prod-test/releases/latest";
-        private const string IncompatibleFileApiUrl = "https://raw.githubusercontent.com/PixiEditor/autoupdate-prod-test/{0}/incompatible.json";
+        private const string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/releases/latest";
+        private const string IncompatibleFileApiUrl = "https://raw.githubusercontent.com/PixiEditor/PixiEditor/{0}/incompatible.json";
 
         public UpdateChecker(string currentVersionTag)
         {
