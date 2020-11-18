@@ -20,7 +20,7 @@ namespace PixiEditor.UpdateModule
 
         public ReleaseInfo LatestReleaseInfo { get; private set; }
 
-        private string CurrentVersionTag { get; }
+        public string CurrentVersionTag { get; }
 
         /// <summary>
         ///     Compares version strings and returns true if newVer > originalVer.

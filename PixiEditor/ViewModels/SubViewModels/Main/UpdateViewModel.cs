@@ -38,6 +38,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 updateReadyToInstall = value;
                 RaisePropertyChanged(nameof(UpdateReadyToInstall));
+                if (value)
+                {
+                    VersionText = $"to install update (current {UpdateChecker.CurrentVersionTag})"; // Button shows "Restart" before this text
+                }
             }
         }
 
@@ -70,8 +74,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                     {
                         await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
                     }
-
-                    VersionText = "to install update"; // Button shows "Restart" before this text
+                    
                     UpdateReadyToInstall = true;
                     return true;
                 }

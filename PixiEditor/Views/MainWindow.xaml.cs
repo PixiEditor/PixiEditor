@@ -77,13 +77,22 @@ namespace PixiEditor
             bool updateExeExists = updateExeFiles.Length > 0;
 
             string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
-            if (updateZipExists && File.Exists(updaterPath))
+
+            if (updateZipExists || updateExeExists)
             {
-                InstallHeadless(updaterPath);
-            }
-            else if (updateExeExists)
-            {
-                OpenExeInstaller(updateExeFiles[0]);
+                ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
+                var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
+                if (result == Models.Enums.ConfirmationType.Yes)
+                {
+                    if (updateZipExists && File.Exists(updaterPath))
+                    {
+                        InstallHeadless(updaterPath);
+                    }
+                    else if (updateExeExists)
+                    {
+                        OpenExeInstaller(updateExeFiles[0]);
+                    }
+                }
             }
         }
 
@@ -108,31 +117,14 @@ namespace PixiEditor
         {
             bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
                     updateExeFile.Split('-')[1].Split(".exe")[0];
-            string triedInstallFilePath = Path.Join(
-                UpdateDownloader.DownloadLocation,
-                Path.GetFileNameWithoutExtension(updateExeFile) + "restartedToUpdate.txt");
 
             if (!alreadyUpdated)
             {
-                if (!File.Exists(triedInstallFilePath))
-                {
-                    RestartToUpdate(updateExeFile);
-                    File.Create(triedInstallFilePath);
-                }
-                else
-                {
-                   var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
-
-                   if (result == Models.Enums.ConfirmationType.Yes)
-                   {
-                        RestartToUpdate(updateExeFile);
-                   }
-                }
+                RestartToUpdate(updateExeFile);
             }
             else
             {
                 File.Delete(updateExeFile);
-                File.Delete(triedInstallFilePath);
             }
         }
 
