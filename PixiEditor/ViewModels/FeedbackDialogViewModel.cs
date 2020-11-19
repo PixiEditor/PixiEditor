@@ -5,9 +5,10 @@ namespace PixiEditor.ViewModels
 {
     internal class FeedbackDialogViewModel : ViewModelBase
     {
-        private string emailBody;
+        private string _emailBody;
 
-        private string mailFrom;
+
+        private string _mailFrom;
 
         public FeedbackDialogViewModel()
         {
@@ -16,17 +17,16 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
-
         public RelayCommand SendButtonCommand { get; set; }
 
         public string MailFrom
         {
-            get => mailFrom;
+            get => _mailFrom;
             set
             {
-                if (mailFrom != value)
+                if (_mailFrom != value)
                 {
-                    mailFrom = value;
+                    _mailFrom = value;
                     RaisePropertyChanged("MailFrom");
                 }
             }
@@ -34,12 +34,12 @@ namespace PixiEditor.ViewModels
 
         public string EmailBody
         {
-            get => emailBody;
+            get => _emailBody;
             set
             {
-                if (emailBody != value)
+                if (_emailBody != value)
                 {
-                    emailBody = value;
+                    _emailBody = value;
                     RaisePropertyChanged("EmailBody");
                 }
             }
@@ -47,7 +47,7 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window)parameter).DialogResult = false;
+            ((Window) parameter).DialogResult = false;
             CloseButton(parameter);
         }
 

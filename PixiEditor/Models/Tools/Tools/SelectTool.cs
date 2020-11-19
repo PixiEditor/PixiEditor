@@ -33,22 +33,22 @@ namespace PixiEditor.Models.Tools.Tools
             SelectionType = selectionType;
 
             oldSelection = null;
-            if (ViewModelMain.Current.ActiveSelection != null &&
-                ViewModelMain.Current.ActiveSelection.SelectedPoints != null)
+            if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection != null &&
+                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints != null)
             {
-                oldSelection = ViewModelMain.Current.ActiveSelection;
+                oldSelection = ViewModelMain.Current.SelectionSubViewModel.ActiveSelection;
             }
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
         {
-            if (ViewModelMain.Current.ActiveSelection.SelectedPoints.Count() <= 1)
+            if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count() <= 1)
             {
                 // If we have not selected multiple points, clear the selection
-                ViewModelMain.Current.ActiveSelection.Clear();
+                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.Clear();
             }
 
-            UndoManager.AddUndoChange(new Change("ActiveSelection", oldSelection, ViewModelMain.Current.ActiveSelection, "Select pixels"));
+            UndoManager.AddUndoChange(new Change("ActiveSelection", oldSelection, ViewModelMain.Current.SelectionSubViewModel.ActiveSelection, "Select pixels"));
         }
 
         public override void Use(Coordinates[] pixels)
@@ -85,7 +85,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void Select(Coordinates[] pixels)
         {
             IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            ViewModelMain.Current.ActiveSelection.SetSelection(selection, SelectionType);
+            ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SetSelection(selection, SelectionType);
         }
     }
 }

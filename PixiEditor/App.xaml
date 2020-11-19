@@ -12,6 +12,8 @@
                 <ResourceDictionary Source="Styles/ComboBoxDarkStyle.xaml" />
                 <ResourceDictionary Source="Styles/AnchorPointToggleButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/DockingManagerStyle.xaml" />
+                <ResourceDictionary Source="Styles/DarkScrollBarStyle.xaml" />
+                <ResourceDictionary Source="Styles/ImageCheckBoxStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

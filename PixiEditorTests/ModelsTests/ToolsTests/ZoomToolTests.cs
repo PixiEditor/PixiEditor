@@ -14,7 +14,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
             ZoomTool zoomTool = new ZoomTool();
             double zoom = 110;
             zoomTool.Zoom(zoom);
-            Assert.Equal(zoom, vm.ZoomPercentage);
+            Assert.Equal(zoom, vm.ViewportSubViewModel.ZoomPercentage);
         }
     }
 }

@@ -29,6 +29,24 @@ namespace PixiEditor.UpdateModule
             }
         }
 
+        public static async Task DownloadInstaller(ReleaseInfo info)
+        {
+            Asset matchingAsset = GetMatchingAsset(info, "application/x-msdownload");
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+                client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
+                var response = await client.GetAsync(matchingAsset.Url);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                    CreateTempDirectory();
+                    File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{info.TagName}.exe"), bytes);
+                }
+            }
+        }
+
         public static void CreateTempDirectory()
         {
             if (!Directory.Exists(DownloadLocation))
@@ -37,10 +55,10 @@ namespace PixiEditor.UpdateModule
             }
         }
 
-        private static Asset GetMatchingAsset(ReleaseInfo release)
+        private static Asset GetMatchingAsset(ReleaseInfo release, string assetType = "zip")
         {
             string arch = IntPtr.Size == 8 ? "x64" : "x86";
-            return release.Assets.First(x => x.ContentType.Contains("zip")
+            return release.Assets.First(x => x.ContentType.Contains(assetType)
             && x.Name.Contains(arch));
         }
     }

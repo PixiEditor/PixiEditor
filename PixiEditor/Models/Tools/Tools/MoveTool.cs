@@ -88,9 +88,10 @@ namespace PixiEditor.Models.Tools.Tools
                 ResetSelectionValues(start);
 
                 // Move offset if no selection
-                if (ViewModelMain.Current.ActiveSelection != null && ViewModelMain.Current.ActiveSelection.SelectedPoints.Count > 0)
+                if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection != null && 
+                    ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count > 0)
                 {
-                    currentSelection = ViewModelMain.Current.ActiveSelection.SelectedPoints.ToArray();
+                    currentSelection = ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray();
                 }
                 else
                 {
@@ -143,7 +144,7 @@ namespace PixiEditor.Models.Tools.Tools
             currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
             if (updateViewModelSelection)
             {
-                ViewModelMain.Current.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
+                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
             }
 
             ClearSelectedPixels(layer, previousSelection);

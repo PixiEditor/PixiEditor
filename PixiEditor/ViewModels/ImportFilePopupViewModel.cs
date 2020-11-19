@@ -9,15 +9,19 @@ namespace PixiEditor.ViewModels
 {
     internal class ImportFilePopupViewModel : ViewModelBase
     {
-        private string filePath;
+        private string _filePath;
 
-        private int importHeight = 16;
 
-        private int importWidth = 16;
+        private int _importHeight = 16;
 
-        private string pathButtonBorder = "#f08080";
 
-        private bool pathIsCorrect;
+        private int _importWidth = 16;
+
+
+        private string _pathButtonBorder = "#f08080";
+
+
+        private bool _pathIsCorrect;
 
         public ImportFilePopupViewModel()
         {
@@ -28,21 +32,18 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
-
         public RelayCommand DragMoveCommand { get; set; }
-
         public RelayCommand ChoosePathCommand { get; set; }
-
         public RelayCommand OkCommand { get; set; }
 
         public string PathButtonBorder
         {
-            get => pathButtonBorder;
+            get => _pathButtonBorder;
             set
             {
-                if (pathButtonBorder != value)
+                if (_pathButtonBorder != value)
                 {
-                    pathButtonBorder = value;
+                    _pathButtonBorder = value;
                     RaisePropertyChanged("PathButtonBorder");
                 }
             }
@@ -50,12 +51,12 @@ namespace PixiEditor.ViewModels
 
         public bool PathIsCorrect
         {
-            get => pathIsCorrect;
+            get => _pathIsCorrect;
             set
             {
-                if (pathIsCorrect != value)
+                if (_pathIsCorrect != value)
                 {
-                    pathIsCorrect = value;
+                    _pathIsCorrect = value;
                     RaisePropertyChanged("PathIsCorrect");
                 }
             }
@@ -63,12 +64,12 @@ namespace PixiEditor.ViewModels
 
         public string FilePath
         {
-            get => filePath;
+            get => _filePath;
             set
             {
-                if (filePath != value)
+                if (_filePath != value)
                 {
-                    filePath = value;
+                    _filePath = value;
                     CheckForPath(value);
                     RaisePropertyChanged("FilePath");
                 }
@@ -77,12 +78,12 @@ namespace PixiEditor.ViewModels
 
         public int ImportWidth
         {
-            get => importWidth;
+            get => _importWidth;
             set
             {
-                if (importWidth != value)
+                if (_importWidth != value)
                 {
-                    importWidth = value;
+                    _importWidth = value;
                     RaisePropertyChanged("ImportWidth");
                 }
             }
@@ -90,19 +91,19 @@ namespace PixiEditor.ViewModels
 
         public int ImportHeight
         {
-            get => importHeight;
+            get => _importHeight;
             set
             {
-                if (importHeight != value)
+                if (_importHeight != value)
                 {
-                    importHeight = value;
+                    _importHeight = value;
                     RaisePropertyChanged("ImportHeight");
                 }
             }
         }
 
         /// <summary>
-        ///     Command that handles Path choosing to save file.
+        ///     Command that handles Path choosing to save file
         /// </summary>
         /// <param name="parameter"></param>
         private void ChoosePath(object parameter)
@@ -133,7 +134,7 @@ namespace PixiEditor.ViewModels
             {
                 PathButtonBorder = "#b8f080";
                 PathIsCorrect = true;
-                filePath = path;
+                _filePath = path;
                 BitmapImage bitmap = new BitmapImage(new Uri(path));
                 ImportHeight = bitmap.PixelHeight;
                 ImportWidth = bitmap.PixelWidth;
@@ -142,7 +143,7 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window)parameter).DialogResult = false;
+            ((Window) parameter).DialogResult = false;
             CloseButton(parameter);
         }
 
@@ -153,7 +154,7 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
-            ((Window)parameter).DialogResult = true;
+            ((Window) parameter).DialogResult = true;
             CloseButton(parameter);
         }
 

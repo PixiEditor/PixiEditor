@@ -1,0 +1,50 @@
+﻿<Window x:Class="PixiEditor.Views.NewFilePopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:PixiEditor.Views"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:vm="clr-namespace:PixiEditor.ViewModels"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers"
+        mc:Ignorable="d"
+        d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450"
+        DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize" Height="600" Width="450" Name="newFilePopup">
+    <Window.Resources>
+        <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
+        <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
+    </Window.Resources>
+    <Border BorderBrush="Black" BorderThickness="1">
+        <Grid Background="{StaticResource AccentColor}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32*" />
+                <RowDefinition Height="577*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Background="{StaticResource MainColor}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding DragMoveCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                        Command="{Binding CloseCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
+            </Grid>
+            <Label Content="New File" Grid.Row="1" Margin="0,10,0,0" HorizontalAlignment="Center"
+                   VerticalAlignment="Top" Foreground="White" FontSize="24" />
+            <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Background="{StaticResource MainColor}"
+                        VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
+                <local:SizePicker Margin="0,20" HorizontalAlignment="Center" Height="110"
+                                  ChosenHeight="{Binding FileHeight,Mode=TwoWay, ElementName=newFilePopup}"
+                                  ChosenWidth="{Binding FileWidth,Mode=TwoWay, ElementName=newFilePopup}" />
+            </StackPanel>
+            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="60"
+                    Style="{StaticResource DarkRoundButton}" Content="OK" Margin="0,0,10,10" Grid.Row="1"
+                    Command="{Binding OkCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
+        </Grid>
+    </Border>
+</Window>
