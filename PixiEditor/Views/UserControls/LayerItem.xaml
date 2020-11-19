@@ -26,7 +26,7 @@
                 <ColumnDefinition Width="199*"/>
                 <ColumnDefinition Width="35"/>
             </Grid.ColumnDefinitions>
-            <CheckBox VerticalAlignment="Center"
+            <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center"
                       IsChecked="{Binding Path=IsVisible, Mode=TwoWay}" Grid.Column="0" Height="16" />
             <local:EditableTextBlock
