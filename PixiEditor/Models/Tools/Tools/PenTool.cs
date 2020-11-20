@@ -11,6 +11,7 @@ namespace PixiEditor.Models.Tools.Tools
     public class PenTool : BitmapOperationTool
     {
         private readonly SizeSetting toolSizeSetting;
+        private readonly LineTool lineTool;
 
         public PenTool()
         {
@@ -18,6 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Standard brush (B)";
             Toolbar = new BasicToolbar();
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
+            lineTool = new LineTool();
         }
 
         public override ToolType ToolType => ToolType.Pen;
@@ -31,9 +33,8 @@ namespace PixiEditor.Models.Tools.Tools
 
         public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize)
         {
-            LineTool line = new LineTool();
             return BitmapPixelChanges.FromSingleColoredArray(
-                line.CreateLine(startingCoords, latestCords, toolSize), color);
+                lineTool.CreateLine(startingCoords, latestCords, toolSize), color);
         }
     }
 }
