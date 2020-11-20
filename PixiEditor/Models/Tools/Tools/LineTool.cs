@@ -12,10 +12,13 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class LineTool : ShapeTool
     {
+        private readonly CircleTool circleTool;
+
         public LineTool()
         {
             Tooltip = "Draws line on canvas (L). Hold Shift to draw even line.";
             Toolbar = new BasicToolbar();
+            circleTool = new CircleTool();
         }
 
         public override ToolType ToolType => ToolType.Line;
@@ -34,7 +37,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness)
         {
-            return CreateLine(new[] { end, start }, thickness, CapType.Square, CapType.Square);
+            return CreateLineFastest(start, end, thickness);
         }
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
@@ -54,6 +57,17 @@ namespace PixiEditor.Models.Tools.Tools
             return GetLinePoints(startingCoordinates, latestCoordinates, thickness, startCap, endCap);
         }
 
+        private IEnumerable<Coordinates> CreateLineFastest(Coordinates start, Coordinates end, int thickness)
+        {
+            IEnumerable<Coordinates> line = BresenhamLine(start.X, start.Y, end.X, end.Y);
+            if (thickness == 1)
+            {
+                return line;
+            }
+
+            return GetThickShape(line, thickness);
+        }
+
         private IEnumerable<Coordinates> GetLinePoints(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
             IEnumerable<Coordinates> startingCap = GetCapCoordinates(startCap, start, thickness);
@@ -69,7 +83,7 @@ namespace PixiEditor.Models.Tools.Tools
             output.AddRange(GetCapCoordinates(endCap, end, thickness));
             if (line.Count() > 2)
             {
-                output.AddRange(GetThickShape(line.Except(new[] { start, end }).ToArray(), thickness));
+                output.AddRange(GetThickShape(line.Except(new[] { start, end }), thickness));
             }
 
             return output.Distinct();
@@ -96,10 +110,9 @@ namespace PixiEditor.Models.Tools.Tools
         /// <param name="thickness">Thickness of cap.</param>
         private IEnumerable<Coordinates> GetRoundCap(Coordinates position, int thickness)
         {
-            CircleTool circle = new CircleTool();
-            Coordinates[] rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
+            IEnumerable<Coordinates> rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
-            return circle.CreateEllipse(rectangleCords[0], rectangleCords[^1], 1, true);
+            return circleTool.CreateEllipse(rectangleCords.First(), rectangleCords.Last(), 1, true);
         }
 
         private IEnumerable<Coordinates> BresenhamLine(int x1, int y1, int x2, int y2)

@@ -47,7 +47,7 @@ namespace PixiEditor.Models.Position
         /// <param name="y1">Top left y position.</param>
         /// <param name="x2">Bottom right x position.</param>
         /// <param name="y2">Bottom right Y position.</param>
-        public static Coordinates[] RectangleToCoordinates(int x1, int y1, int x2, int y2)
+        public static IEnumerable<Coordinates> RectangleToCoordinates(int x1, int y1, int x2, int y2)
         {
             x2++;
             y2++;
@@ -60,10 +60,10 @@ namespace PixiEditor.Models.Position
                 }
             }
 
-            return coordinates.ToArray();
+            return coordinates;
         }
 
-        public static Coordinates[] RectangleToCoordinates(DoubleCords coordinates)
+        public static IEnumerable<Coordinates> RectangleToCoordinates(DoubleCords coordinates)
         {
             return RectangleToCoordinates(coordinates.Coords1.X, coordinates.Coords1.Y, coordinates.Coords2.X, coordinates.Coords2.Y);
         }

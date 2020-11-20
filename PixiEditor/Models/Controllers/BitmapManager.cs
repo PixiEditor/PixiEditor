@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -258,11 +259,12 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            Coordinates[] highlightArea = CoordinatesCalculator.RectangleToCoordinates(
+            IEnumerable<Coordinates> highlightArea = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
             if (CanChangeHighlightOffset(highlightArea))
             {
-                PreviewLayer.Offset = new Thickness(highlightArea[0].X, highlightArea[0].Y, 0, 0);
+                Coordinates start = highlightArea.First();
+                PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
             }
             else if (!IsInsideBounds(highlightArea))
             {
@@ -276,17 +278,20 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        private bool CanChangeHighlightOffset(Coordinates[] highlightArea)
+        private bool CanChangeHighlightOffset(IEnumerable<Coordinates> highlightArea)
         {
-            return highlightArea.Length > 0 && PreviewLayer != null &&
-                   IsInsideBounds(highlightArea) && highlightArea.Length == PreviewLayer.Width * PreviewLayer.Height;
+            int count = highlightArea.Count();
+            return count > 0 && PreviewLayer != null &&
+                   IsInsideBounds(highlightArea) && count == PreviewLayer.Width * PreviewLayer.Height;
         }
 
-        private bool IsInsideBounds(Coordinates[] highlightArea)
+        private bool IsInsideBounds(IEnumerable<Coordinates> highlightArea)
         {
-            return highlightArea[0].X <= ActiveDocument.Width - 1 &&
-                    highlightArea[0].Y <= ActiveDocument.Height - 1 &&
-                   highlightArea[^1].X >= 0 && highlightArea[^1].Y >= 0;
+            Coordinates start = highlightArea.First();
+            Coordinates end = highlightArea.Last();
+            return start.X <= ActiveDocument.Width - 1 &&
+                    start.Y <= ActiveDocument.Height - 1 &&
+                   end.X >= 0 && end.Y >= 0;
         }
     }
 }
