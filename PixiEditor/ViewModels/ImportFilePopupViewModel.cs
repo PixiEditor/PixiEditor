@@ -3,25 +3,22 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels
 {
     internal class ImportFilePopupViewModel : ViewModelBase
     {
-        private string _filePath;
+        private string filePath;
 
+        private int importHeight = 16;
 
-        private int _importHeight = 16;
+        private int importWidth = 16;
 
+        private string pathButtonBorder = "#f08080";
 
-        private int _importWidth = 16;
-
-
-        private string _pathButtonBorder = "#f08080";
-
-
-        private bool _pathIsCorrect;
+        private bool pathIsCorrect;
 
         public ImportFilePopupViewModel()
         {
@@ -32,18 +29,21 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
+
         public RelayCommand DragMoveCommand { get; set; }
+
         public RelayCommand ChoosePathCommand { get; set; }
+
         public RelayCommand OkCommand { get; set; }
 
         public string PathButtonBorder
         {
-            get => _pathButtonBorder;
+            get => pathButtonBorder;
             set
             {
-                if (_pathButtonBorder != value)
+                if (pathButtonBorder != value)
                 {
-                    _pathButtonBorder = value;
+                    pathButtonBorder = value;
                     RaisePropertyChanged("PathButtonBorder");
                 }
             }
@@ -51,12 +51,12 @@ namespace PixiEditor.ViewModels
 
         public bool PathIsCorrect
         {
-            get => _pathIsCorrect;
+            get => pathIsCorrect;
             set
             {
-                if (_pathIsCorrect != value)
+                if (pathIsCorrect != value)
                 {
-                    _pathIsCorrect = value;
+                    pathIsCorrect = value;
                     RaisePropertyChanged("PathIsCorrect");
                 }
             }
@@ -64,12 +64,12 @@ namespace PixiEditor.ViewModels
 
         public string FilePath
         {
-            get => _filePath;
+            get => filePath;
             set
             {
-                if (_filePath != value)
+                if (filePath != value)
                 {
-                    _filePath = value;
+                    filePath = value;
                     CheckForPath(value);
                     RaisePropertyChanged("FilePath");
                 }
@@ -78,12 +78,12 @@ namespace PixiEditor.ViewModels
 
         public int ImportWidth
         {
-            get => _importWidth;
+            get => importWidth;
             set
             {
-                if (_importWidth != value)
+                if (importWidth != value)
                 {
-                    _importWidth = value;
+                    importWidth = value;
                     RaisePropertyChanged("ImportWidth");
                 }
             }
@@ -91,12 +91,12 @@ namespace PixiEditor.ViewModels
 
         public int ImportHeight
         {
-            get => _importHeight;
+            get => importHeight;
             set
             {
-                if (_importHeight != value)
+                if (importHeight != value)
                 {
-                    _importHeight = value;
+                    importHeight = value;
                     RaisePropertyChanged("ImportHeight");
                 }
             }
@@ -132,12 +132,19 @@ namespace PixiEditor.ViewModels
         {
             if (File.Exists(path) && (path.EndsWith(".png") || path.EndsWith(".jpeg") || path.EndsWith(".jpg")))
             {
-                PathButtonBorder = "#b8f080";
-                PathIsCorrect = true;
-                _filePath = path;
-                BitmapImage bitmap = new BitmapImage(new Uri(path));
-                ImportHeight = bitmap.PixelHeight;
-                ImportWidth = bitmap.PixelWidth;
+                try
+                {
+                    PathButtonBorder = "#b8f080";
+                    PathIsCorrect = true;
+                    filePath = path;
+                    BitmapImage bitmap = new BitmapImage(new Uri(path));
+                    ImportHeight = bitmap.PixelHeight;
+                    ImportWidth = bitmap.PixelWidth;
+                }
+                catch (NotSupportedException)
+                {
+                    throw new CorruptedFileException();
+                }
             }
         }
 

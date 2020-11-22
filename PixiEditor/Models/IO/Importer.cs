@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Windows.Media.Imaging;
+using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 
@@ -13,7 +15,7 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path of image.</param>
         /// <param name="width">New width of image.</param>
         /// <param name="height">New height of image.</param>
-        /// <returns></returns>
+        /// <returns>WriteableBitmap of improted image.</returns>
         public static WriteableBitmap ImportImage(string path, int width, int height)
         {
             WriteableBitmap wbmp = ImportImage(path);
@@ -31,18 +33,32 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path of image.</param>
         public static WriteableBitmap ImportImage(string path)
         {
-            Uri uri = new Uri(path);
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = uri;
-            bitmap.EndInit();
+            try
+            {
+                Uri uri = new Uri(path);
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = uri;
+                bitmap.EndInit();
 
-            return BitmapFactory.ConvertToPbgra32Format(bitmap);
+                return BitmapFactory.ConvertToPbgra32Format(bitmap);
+            }
+            catch (NotSupportedException)
+            {
+                throw new CorruptedFileException();
+            }
         }
 
         public static Document ImportDocument(string path)
         {
-            return BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
+            try
+            {
+                return BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
+            }
+            catch (SerializationException)
+            {
+                throw new CorruptedFileException();
+            }
         }
 
         public static bool IsSupportedFile(string path)

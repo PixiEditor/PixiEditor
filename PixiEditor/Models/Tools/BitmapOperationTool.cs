@@ -11,20 +11,20 @@ namespace PixiEditor.Models.Tools
 
         public bool UseDefaultUndoMethod { get; set; } = true;
 
-        private LayerChange[] _onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, 0) };
+        private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, 0) };
 
         public abstract LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color);
 
         protected LayerChange[] Only(BitmapPixelChanges changes, Layer layer)
         {
-            _onlyLayerArr[0] = new LayerChange(changes, layer);
-            return _onlyLayerArr;
+            onlyLayerArr[0] = new LayerChange(changes, layer);
+            return onlyLayerArr;
         }
 
         protected LayerChange[] Only(BitmapPixelChanges changes, int layerIndex)
         {
-            _onlyLayerArr[0] = new LayerChange(changes, layerIndex);
-            return _onlyLayerArr;
+            onlyLayerArr[0] = new LayerChange(changes, layerIndex);
+            return onlyLayerArr;
         }
     }
 }

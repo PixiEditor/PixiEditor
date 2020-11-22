@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -109,14 +110,21 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
             }
 
-            Owner.ResetProgramStateValues();
-            if (path.EndsWith(".pixi"))
+            try
             {
-                OpenDocument(path);
+                Owner.ResetProgramStateValues();
+                if (path.EndsWith(".pixi"))
+                {
+                    OpenDocument(path);
+                }
+                else
+                {
+                    OpenFile(path);
+                }
             }
-            else
+            catch (CorruptedFileException ex)
             {
-                OpenFile(path);
+                MessageBox.Show(ex.Message, "Failed to open file.", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
