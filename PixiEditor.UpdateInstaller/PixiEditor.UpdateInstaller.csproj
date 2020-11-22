@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tools.InnoSetup" Version="6.0.5" />
+    <PackageReference Include="Tools.InnoSetup" Version="6.1.2" />
   </ItemGroup>
 
   <ItemGroup>

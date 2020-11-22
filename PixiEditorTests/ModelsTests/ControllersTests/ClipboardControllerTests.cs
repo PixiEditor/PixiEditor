@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -35,7 +36,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatClipboardControllerSavesImageToClipboard()
         {
             Layer testLayer = new Layer("test layer", 10, 10);
-            ClipboardController.CopyToClipboard(new[] { testLayer }, CoordinatesCalculator.RectangleToCoordinates(0, 0, 9, 9), 10, 10);
+            ClipboardController.CopyToClipboard(new[] { testLayer }, CoordinatesCalculator.RectangleToCoordinates(0, 0, 9, 9).ToArray(), 10, 10);
             Assert.True(ClipboardController.IsImageInClipboard());
         }
 
