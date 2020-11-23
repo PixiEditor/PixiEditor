@@ -59,6 +59,11 @@ namespace PixiEditor.Models.DataHolders
             return output;
         }
 
+        public static BitmapPixelChanges CombineOverride(BitmapPixelChanges changes1, BitmapPixelChanges changes2)
+        {
+            return CombineOverride(new[] { changes1, changes2 });
+        }
+
         /// <summary>
         ///     Builds BitmapPixelChanges using 2 same-length enumerables of coordinates and colors.
         /// </summary>
