@@ -25,7 +25,7 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 ### Light weighted
 
-Program weights only 3.3 MB! Already have .NET Core 3.1 installed? Download light version and enjoy saved space.
+Program weights only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
 
 ### Active development
 
