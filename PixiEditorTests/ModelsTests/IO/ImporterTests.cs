@@ -54,6 +54,7 @@ namespace PixiEditorTests.ModelsTests.IO
 
         [Theory]
         [InlineData("CorruptedPNG.png")]
+        [InlineData("CorruptedPNG2.png")]
         [InlineData("CorruptedJpg.jpg")]
         public void TestThatImporterThrowsCorruptedFileExceptionOnWrongImageFileWithSupportedExtension(string fileName)
         {

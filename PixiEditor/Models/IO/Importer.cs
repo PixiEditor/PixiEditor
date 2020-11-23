@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Windows.Media.Imaging;
 using PixiEditor.Exceptions;
@@ -44,6 +45,10 @@ namespace PixiEditor.Models.IO
                 return BitmapFactory.ConvertToPbgra32Format(bitmap);
             }
             catch (NotSupportedException)
+            {
+                throw new CorruptedFileException();
+            }
+            catch (FileFormatException)
             {
                 throw new CorruptedFileException();
             }

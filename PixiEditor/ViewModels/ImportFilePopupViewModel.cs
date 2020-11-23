@@ -145,6 +145,10 @@ namespace PixiEditor.ViewModels
                 {
                     throw new CorruptedFileException();
                 }
+                catch (FileFormatException)
+                {
+                    throw new CorruptedFileException();
+                }
             }
         }
 
