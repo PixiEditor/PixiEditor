@@ -80,7 +80,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void MouseDown(object parameter)
         {
-            if (Owner.BitmapManager.ActiveDocument.Layers.Count == 0)
+            if (Owner.BitmapManager.ActiveDocument == null || Owner.BitmapManager.ActiveDocument.Layers.Count == 0)
             {
                 return;
             }
