@@ -10,6 +10,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -91,7 +92,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else
             {
-                OpenNewFilePopup(null);
+                if (PreferencesSettings.GetPreference<bool>("ShowNewFilePopupOnStartup"))
+                {
+                    OpenNewFilePopup(null);
+                }
             }
         }
 

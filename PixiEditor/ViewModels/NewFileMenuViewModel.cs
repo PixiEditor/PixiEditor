@@ -13,7 +13,9 @@ namespace PixiEditor.ViewModels
         }
 
         public RelayCommand OkCommand { get; set; }
+
         public RelayCommand CloseCommand { get; set; }
+
         public RelayCommand DragMoveCommand { get; set; }
 
         private void OkButton(object parameter)

@@ -22,17 +22,5 @@ namespace PixiEditor.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool ShowNewFilePopupOnStartup {
-            get {
-                return ((bool)(this["ShowNewFilePopupOnStartup"]));
-            }
-            set {
-                this["ShowNewFilePopupOnStartup"] = value;
-            }
-        }
     }
 }
