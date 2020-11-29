@@ -30,8 +30,6 @@ namespace PixiEditor.ViewModels
 
         public RelayCommand CloseWindowCommand { get; set; }
 
-        public RelayCommand OpenHyperlinkCommand { get; set; }
-
         public FileViewModel FileSubViewModel { get; set; }
 
         public UpdateViewModel UpdateSubViewModel { get; set; }
@@ -53,6 +51,7 @@ namespace PixiEditor.ViewModels
         public ColorsViewModel ColorsSubViewModel { get; set; }
 
         public DocumentViewModel DocumentSubViewModel { get; set; }
+        public MiscViewModel MiscSubViewModel { get; set; }
 
         public BitmapManager BitmapManager { get; set; }
 
@@ -72,7 +71,6 @@ namespace PixiEditor.ViewModels
             ChangesController = new PixelChangesController();
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
-            OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
 
             FileSubViewModel = new FileViewModel(this);
             UpdateSubViewModel = new UpdateViewModel(this);
@@ -84,6 +82,7 @@ namespace PixiEditor.ViewModels
             ViewportSubViewModel = new ViewportViewModel(this);
             ColorsSubViewModel = new ColorsViewModel(this);
             DocumentSubViewModel = new DocumentViewModel(this);
+            MiscSubViewModel = new MiscViewModel(this);
 
             ShortcutController = new ShortcutController
             {
@@ -152,23 +151,7 @@ namespace PixiEditor.ViewModels
         public bool DocumentIsNotNull(object property)
         {
             return BitmapManager.ActiveDocument != null;
-        }
-
-        private void OpenHyperlink(object parameter)
-        {
-            if (parameter == null)
-            {
-                return;
-            }
-
-            var url = (string)parameter;
-            var processInfo = new ProcessStartInfo()
-            {
-                FileName = url,
-                UseShellExecute = true
-            };
-            Process.Start(processInfo);
-        }
+        }        
 
         private void CloseWindow(object property)
         {
