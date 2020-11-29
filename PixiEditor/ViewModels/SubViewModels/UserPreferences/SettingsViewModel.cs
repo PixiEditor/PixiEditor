@@ -20,6 +20,21 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
             }
         }
 
+        private bool checkUpdatesOnStartup = PreferencesSettings.GetPreference("CheckUpdatesOnStartup", true);
+
+        public bool CheckUpdatesOnStartup
+        {
+            get => checkUpdatesOnStartup;
+            set
+            {
+                checkUpdatesOnStartup = value;
+                string name = nameof(CheckUpdatesOnStartup);
+                RaisePropertyChanged(name);
+                PreferencesSettings.UpdatePreference(name, value);
+            }
+        }
+
+
         public SettingsViewModel(SettingsWindowViewModel owner)
             : base(owner)
         {

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         mc:Ignorable="d"
-        Title="SettingsWindow" Name="window" 
+        Title="Settings" Name="window" 
         Height="450" Width="800" WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
         BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
@@ -33,7 +33,7 @@
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource MainColor}">
-            <Label Foreground="White" FontSize="16">User preferences</Label>
+            <Label Foreground="White" FontSize="16">Settings</Label>
             <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
@@ -56,6 +56,12 @@
             </Grid>
             <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
             ConverterParameter='Updates'}">
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource Header1}" Content="Auto-updates"/>
+                    <StackPanel Orientation="Vertical" Margin="50 0 50 0">
+                        <CheckBox IsChecked="{Binding SettingsSubViewModel.CheckUpdatesOnStartup}" Content="Check updates on startup"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

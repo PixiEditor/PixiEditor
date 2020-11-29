@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Processes;
+using PixiEditor.Models.UserPreferences;
 using PixiEditor.UpdateModule;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -74,7 +75,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                     {
                         await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
                     }
-                    
+
                     UpdateReadyToInstall = true;
                     return true;
                 }
@@ -85,7 +86,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private async void Owner_OnStartupEvent(object sender, EventArgs e)
         {
-            await CheckForUpdate();
+            if (PreferencesSettings.GetPreference<bool>("CheckUpdatesOnStartup"))
+            {
+                await CheckForUpdate();
+            }
         }
 
         private void RestartApplication(object parameter)
