@@ -14,7 +14,7 @@ namespace PixiEditor.Models.Tools.Tools
         public EraserTool()
         {
             ActionDisplay = "Draw to remove color from a pixel.";
-            Tooltip = "Erasers color from pixel (E)";
+            Tooltip = "Erasers color from pixel. (E)";
             Toolbar = new BasicToolbar();
         }
 
