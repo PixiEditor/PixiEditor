@@ -41,6 +41,14 @@ namespace PixiEditor.Models.Tools
         {
         }
 
+        public virtual void OnKeyDown(KeyEventArgs e)
+        {
+        }
+
+        public virtual void OnKeyUp(KeyEventArgs e)
+        {
+        }
+
         public virtual void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
         }
