@@ -22,7 +22,7 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource AccentColor}">
+    <Grid Background="{StaticResource MainColor}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="147*"/>
@@ -39,12 +39,12 @@
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
         </DockPanel>
         <StackPanel Grid.Row="1" Grid.Column="0">
-            <Button Style="{StaticResource DarkRoundButton}" Margin="10 5 10 5"
+            <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5"
                     Command="{Binding SelectCategoryCommand}" CommandParameter="General">General</Button>
-            <Button Style="{StaticResource DarkRoundButton}" Margin="10 5 10 5" 
+            <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
                     Command="{Binding SelectCategoryCommand}" CommandParameter="Updates">Updates</Button>
         </StackPanel>
-        <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource MainColor}">
+        <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource AccentColor}">
             <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
             ConverterParameter='General'}">
                 <StackPanel Orientation="Vertical">
