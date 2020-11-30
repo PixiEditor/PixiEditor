@@ -16,6 +16,7 @@ namespace PixiEditor.Models.Tools.Tools
         public PenTool()
         {
             Cursor = Cursors.Pen;
+            ActionDisplay = "Click and move to draw";
             Tooltip = "Standard brush (B)";
             Toolbar = new BasicToolbar();
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");

@@ -11,6 +11,7 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public FloodFill()
         {
+            ActionDisplay = "Press on a area to fill it";
             Tooltip = "Fills area with color (G)";
         }
 

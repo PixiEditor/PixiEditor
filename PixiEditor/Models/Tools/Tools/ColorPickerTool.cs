@@ -10,6 +10,7 @@ namespace PixiEditor.Models.Tools.Tools
         public ColorPickerTool()
         {
             HideHighlight = true;
+            ActionDisplay = "Press on pixel to make it the primary color.";
             Tooltip = "Swaps primary color with selected on canvas. (O)";
         }
 

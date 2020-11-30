@@ -19,6 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public SelectTool()
         {
+            ActionDisplay = "Click and move to select an area";
             Tooltip = "Selects area. (M)";
             Toolbar = new SelectToolToolbar();
         }
