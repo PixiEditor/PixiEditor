@@ -15,8 +15,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
             {
                 showNewFilePopupOnStartup = value;
                 string name = nameof(ShowNewFilePopupOnStartup);
-                RaisePropertyChanged(name);
-                PreferencesSettings.UpdatePreference(name, value);
+                RaiseAndUpdatePreference(name, value);
             }
         }
 
@@ -29,11 +28,41 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
             {
                 checkUpdatesOnStartup = value;
                 string name = nameof(CheckUpdatesOnStartup);
-                RaisePropertyChanged(name);
-                PreferencesSettings.UpdatePreference(name, value);
+                RaiseAndUpdatePreference(name, value);
             }
         }
 
+        private long defaultNewFileWidth = (int)PreferencesSettings.GetPreference("DefaultNewFileWidth", 16L);
+
+        public long DefaultNewFileWidth
+        {
+            get => defaultNewFileWidth;
+            set
+            {
+                defaultNewFileWidth = value;
+                string name = nameof(DefaultNewFileWidth);
+                RaiseAndUpdatePreference(name, value);
+            }
+        }
+
+        private long defaultNewFileHeight = (int)PreferencesSettings.GetPreference("DefaultNewFileHeight", 16L);
+
+        public long DefaultNewFileHeight
+        {
+            get => defaultNewFileHeight;
+            set
+            {
+                defaultNewFileHeight = value;
+                string name = nameof(DefaultNewFileHeight);
+                RaiseAndUpdatePreference(name, value);
+            }
+        }
+
+        public void RaiseAndUpdatePreference<T>(string name, T value)
+        {
+            RaisePropertyChanged(name);
+            PreferencesSettings.UpdatePreference(name, value);
+        }
 
         public SettingsViewModel(SettingsWindowViewModel owner)
             : base(owner)

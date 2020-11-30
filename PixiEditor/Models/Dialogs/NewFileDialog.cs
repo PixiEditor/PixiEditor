@@ -1,13 +1,15 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views;
 
 namespace PixiEditor.Models.Dialogs
 {
     public class NewFileDialog : CustomDialog
     {
-        private int height;
+        private int height = (int)PreferencesSettings.GetPreference("DefaultNewFileHeight", 16L);
 
-        private int width;
+        private int width = (int)PreferencesSettings.GetPreference("DefaultNewFileWidth", 16L);
 
         public int Width
         {
@@ -37,7 +39,11 @@ namespace PixiEditor.Models.Dialogs
 
         public override bool ShowDialog()
         {
-            Window popup = new NewFilePopup();
+            Window popup = new NewFilePopup()
+            {
+                FileWidth = Width,
+                FileHeight = Height
+            };
             popup.ShowDialog();
             Height = (popup as NewFilePopup).FileHeight;
             Width = (popup as NewFilePopup).FileWidth;

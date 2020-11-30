@@ -20,13 +20,13 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
-            ((Window) parameter).DialogResult = true;
-            ((Window) parameter).Close();
+            ((Window)parameter).DialogResult = true;
+            ((Window)parameter).Close();
         }
 
         private void CloseWindow(object parameter)
         {
-            ((Window) parameter).DialogResult = false;
+            ((Window)parameter).DialogResult = false;
             CloseButton(parameter);
         }
 

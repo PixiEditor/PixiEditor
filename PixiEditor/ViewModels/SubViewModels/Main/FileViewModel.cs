@@ -92,7 +92,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else
             {
-                if (PreferencesSettings.GetPreference<bool>("ShowNewFilePopupOnStartup"))
+                if (PreferencesSettings.GetPreference("ShowNewFilePopupOnStartup", true))
                 {
                     OpenNewFilePopup(null);
                 }

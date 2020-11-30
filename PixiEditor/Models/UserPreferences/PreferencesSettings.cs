@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
-using System.Reflection.Metadata;
 using Newtonsoft.Json;
 
 namespace PixiEditor.Models.UserPreferences
@@ -11,7 +9,7 @@ namespace PixiEditor.Models.UserPreferences
     {
         public static bool IsLoaded { get; private set; } = false;
 
-        public static string PathToUserPreferences { get; } = Path.Join(
+        public static string PathToUserPreferences { get; private set; } = Path.Join(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "PixiEditor",
             "user_preferences.json");
@@ -20,21 +18,27 @@ namespace PixiEditor.Models.UserPreferences
 
         public static void Init()
         {
+            Init(PathToUserPreferences);
+        }
+
+        public static void Init(string path)
+        {
+            PathToUserPreferences = path;
             if (IsLoaded == false)
             {
-                string dir = Path.GetDirectoryName(PathToUserPreferences);
+                string dir = Path.GetDirectoryName(path);
                 if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
                 }
 
-                if (!File.Exists(PathToUserPreferences))
+                if (!File.Exists(path))
                 {
-                    File.WriteAllText(PathToUserPreferences, "{\n}");
+                    File.WriteAllText(path, "{\n}");
                 }
                 else
                 {
-                    string json = File.ReadAllText(PathToUserPreferences);
+                    string json = File.ReadAllText(path);
                     Preferences = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
                 }
 
@@ -42,7 +46,7 @@ namespace PixiEditor.Models.UserPreferences
             }
         }
 
-        public static void UpdatePreference(string name, object value)
+        public static void UpdatePreference<T>(string name, T value)
         {
             if (IsLoaded == false)
             {

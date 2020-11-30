@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:views="clr-namespace:PixiEditor.Views"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
         Height="450" Width="800" WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
@@ -50,7 +50,15 @@
                 <StackPanel Orientation="Vertical">
                     <Label Content="File" Style="{StaticResource Header1}"/>
                     <StackPanel Orientation="Vertical" Margin="50 0 50 0">
-                        <CheckBox Content="Show New File dialog on startup" IsChecked="{Binding SettingsSubViewModel.ShowNewFilePopupOnStartup}"/>
+                        <CheckBox Content="Show New File dialog on startup" 
+                                  IsChecked="{Binding SettingsSubViewModel.ShowNewFilePopupOnStartup}"/>
+                        <Label Content="Default new file size:" Style="{StaticResource Header2}" Margin="0 20 0 20"/>
+                        <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
+                            <Label Content="Width:" Style="{StaticResource BaseLabel}"/>
+                            <views:SizeInput Size="{Binding SettingsSubViewModel.DefaultNewFileWidth, Mode=TwoWay}" Width="60" Height="25"/>
+                            <Label Content="Height:" Style="{StaticResource BaseLabel}"/>
+                            <views:SizeInput Size="{Binding SettingsSubViewModel.DefaultNewFileHeight, Mode=TwoWay}" Width="60" Height="25"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>
