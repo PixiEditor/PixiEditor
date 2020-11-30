@@ -30,7 +30,8 @@ namespace PixiEditor.Models.Tools.Tools
 
         public MoveTool()
         {
-            Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers";
+            ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+            Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers.";
             Cursor = Cursors.Arrow;
             HideHighlight = true;
             RequiresPreviewLayer = true;
@@ -40,6 +41,22 @@ namespace PixiEditor.Models.Tools.Tools
         public bool MoveAll { get; set; } = false;
 
         public override ToolType ToolType => ToolType.Move;
+
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                ActionDisplay = "Hold mouse to move all selected layers.";
+            }
+        }
+
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+            }
+        }
 
         public override void AfterAddedUndo()
         {

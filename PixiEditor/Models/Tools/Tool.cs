@@ -8,6 +8,7 @@ namespace PixiEditor.Models.Tools
     public abstract class Tool : NotifyableObject
     {
         private bool isActive;
+        private string actionDisplay = "";
 
         public abstract ToolType ToolType { get; }
 
@@ -16,6 +17,16 @@ namespace PixiEditor.Models.Tools
         public bool HideHighlight { get; set; } = false;
 
         public string Tooltip { get; set; }
+
+        public string ActionDisplay
+        {
+            get => actionDisplay;
+            set
+            {
+                actionDisplay = value;
+                RaisePropertyChanged("ActionDisplay");
+            }
+        }
 
         public bool IsActive
         {
@@ -38,6 +49,14 @@ namespace PixiEditor.Models.Tools
         }
 
         public virtual void OnMouseUp(MouseEventArgs e)
+        {
+        }
+
+        public virtual void OnKeyDown(KeyEventArgs e)
+        {
+        }
+
+        public virtual void OnKeyUp(KeyEventArgs e)
         {
         }
 

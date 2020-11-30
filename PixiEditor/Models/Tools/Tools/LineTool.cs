@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -16,12 +17,29 @@ namespace PixiEditor.Models.Tools.Tools
 
         public LineTool()
         {
+            ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
             Tooltip = "Draws line on canvas (L). Hold Shift to draw even line.";
             Toolbar = new BasicToolbar();
             circleTool = new CircleTool();
         }
 
         public override ToolType ToolType => ToolType.Line;
+
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftShift)
+            {
+                ActionDisplay = "Click and move mouse to draw an even line.";
+            }
+        }
+
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftShift)
+            {
+                ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+            }
+        }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

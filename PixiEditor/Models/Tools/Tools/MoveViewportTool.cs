@@ -13,6 +13,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             HideHighlight = true;
             Cursor = Cursors.SizeAll;
+            ActionDisplay = "Click and move to pan viewport.";
             Tooltip = "Move viewport. (H)";
         }
 

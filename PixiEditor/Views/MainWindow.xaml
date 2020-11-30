@@ -386,6 +386,7 @@
             </avalondock:DockingManager>
         </Grid>
         <DockPanel Grid.Row="3" Grid.Column="1">
+            <TextBlock Text="{Binding BitmapManager.SelectedTool.ActionDisplay}" Foreground="White" FontSize="16"  VerticalAlignment="Center"/>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="X:" Foreground="White" FontSize="16"/>
                 <TextBlock Margin="4,0,10,0" Text="{Binding IoSubViewModel.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>

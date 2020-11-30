@@ -19,11 +19,28 @@ namespace PixiEditor.Models.Tools.Tools
         {
             HideHighlight = true;
             CanStartOutsideCanvas = true;
+            ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
             Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
             pixelsPerZoomMultiplier = workAreaWidth / ZoomSensitivityMultiplier;
         }
 
         public override ToolType ToolType => ToolType.Zoom;
+
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftAlt)
+            {
+                ActionDisplay = "Click and move to zoom. Click to zoom out, release alt and click to zoom in.";
+            }
+        }
+
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftAlt)
+            {
+                ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
+            }
+        }
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {

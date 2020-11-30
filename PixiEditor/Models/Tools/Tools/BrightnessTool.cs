@@ -21,6 +21,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public BrightnessTool()
         {
+            ActionDisplay = "Draw on pixel to make it brighter. Hold Ctrl to darken.";
             Tooltip = "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
@@ -32,6 +33,22 @@ namespace PixiEditor.Models.Tools.Tools
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             pixelsVisited.Clear();
+        }
+
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                ActionDisplay = "Draw on pixel to make it darker. Release Ctrl to brighten.";
+            }
+        }
+
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                ActionDisplay = "Draw on pixel to make it brighter. Hold Ctrl to darken.";
+            }
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)

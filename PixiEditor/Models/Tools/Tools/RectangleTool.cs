@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
@@ -14,12 +15,29 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public RectangleTool()
         {
+            ActionDisplay = "Click and move to draw a rectangle.  Hold Shift to draw square.";
             Tooltip = "Draws rectangle on canvas (R). Hold Shift to draw square.";
         }
 
         public override ToolType ToolType => ToolType.Rectangle;
 
         public bool Filled { get; set; } = false;
+
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftShift)
+            {
+                ActionDisplay = "Click and move to draw a square.";
+            }
+        }
+
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftShift)
+            {
+                ActionDisplay = "Click and move to draw a rectangle.  Hold Shift to draw square.";
+            }
+        }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {

@@ -11,7 +11,8 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public FloodFill()
         {
-            Tooltip = "Fills area with color (G)";
+            ActionDisplay = "Press on a area to fill it.";
+            Tooltip = "Fills area with color. (G)";
         }
 
         public override ToolType ToolType => ToolType.Bucket;
