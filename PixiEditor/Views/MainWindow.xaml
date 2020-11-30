@@ -96,6 +96,8 @@
                     <Separator />
                     <MenuItem Header="_Delete Selected" Command="{Binding DocumentSubViewModel.DeletePixelsCommand}"
                               InputGestureText="Delete" />
+                    <Separator />
+                    <MenuItem Header="_Settings" Command="{Binding MiscSubViewModel.OpenSettingsWindowCommand}" />
                 </MenuItem>
                 <MenuItem Header="_Select">
                     <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
@@ -111,16 +113,16 @@
                     <MenuItem Header="Center Content" Command="{Binding DocumentSubViewModel.CenterContentCommand}" />
                 </MenuItem>
                 <MenuItem Header="_Help">
-                    <MenuItem Header="Documentation" Command="{Binding OpenHyperlinkCommand}"
+                    <MenuItem Header="Documentation" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki"/>
-                    <MenuItem Header="Repository" Command="{Binding OpenHyperlinkCommand}"
+                    <MenuItem Header="Repository" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor"/>
-                    <MenuItem Header="Shortcuts" Command="{Binding OpenHyperlinkCommand}"
+                    <MenuItem Header="Shortcuts" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Shortcuts"/>
                     <Separator/>
-                    <MenuItem Header="License" Command="{Binding OpenHyperlinkCommand}"
+                    <MenuItem Header="License" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE"/>
-                    <MenuItem Header="Third Party Licenses" Command="{Binding OpenHyperlinkCommand}"
+                    <MenuItem Header="Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
             </Menu>

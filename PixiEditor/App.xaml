@@ -14,6 +14,8 @@
                 <ResourceDictionary Source="Styles/DockingManagerStyle.xaml" />
                 <ResourceDictionary Source="Styles/DarkScrollBarStyle.xaml" />
                 <ResourceDictionary Source="Styles/ImageCheckBoxStyle.xaml" />
+                <ResourceDictionary Source="Styles/DarkCheckboxStyle.xaml" />
+                <ResourceDictionary Source="Styles/LabelStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

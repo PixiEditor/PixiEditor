@@ -3,7 +3,7 @@
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for NewFilePopup.xaml
+    ///     Interaction logic for NewFilePopup.xaml.
     /// </summary>
     public partial class NewFilePopup : Window
     {
@@ -20,17 +20,15 @@ namespace PixiEditor.Views
             InitializeComponent();
         }
 
-
         public int FileHeight
         {
-            get => (int) GetValue(FileHeightProperty);
+            get => (int)GetValue(FileHeightProperty);
             set => SetValue(FileHeightProperty, value);
         }
 
-
         public int FileWidth
         {
-            get => (int) GetValue(FileWidthProperty);
+            get => (int)GetValue(FileWidthProperty);
             set => SetValue(FileWidthProperty, value);
         }
     }

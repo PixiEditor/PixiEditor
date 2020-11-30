@@ -14,6 +14,7 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.ViewModels
@@ -29,8 +30,6 @@ namespace PixiEditor.ViewModels
         public RelayCommand OnStartupCommand { get; set; }
 
         public RelayCommand CloseWindowCommand { get; set; }
-
-        public RelayCommand OpenHyperlinkCommand { get; set; }
 
         public FileViewModel FileSubViewModel { get; set; }
 
@@ -54,6 +53,8 @@ namespace PixiEditor.ViewModels
 
         public DocumentViewModel DocumentSubViewModel { get; set; }
 
+        public MiscViewModel MiscSubViewModel { get; set; }
+
         public BitmapManager BitmapManager { get; set; }
 
         public PixelChangesController ChangesController { get; set; }
@@ -62,6 +63,8 @@ namespace PixiEditor.ViewModels
 
         public ViewModelMain()
         {
+            PreferencesSettings.Init();
+
             BitmapManager = new BitmapManager();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
@@ -72,7 +75,6 @@ namespace PixiEditor.ViewModels
             ChangesController = new PixelChangesController();
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
-            OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
 
             FileSubViewModel = new FileViewModel(this);
             UpdateSubViewModel = new UpdateViewModel(this);
@@ -84,6 +86,7 @@ namespace PixiEditor.ViewModels
             ViewportSubViewModel = new ViewportViewModel(this);
             ColorsSubViewModel = new ColorsViewModel(this);
             DocumentSubViewModel = new DocumentViewModel(this);
+            MiscSubViewModel = new MiscViewModel(this);
 
             ShortcutController = new ShortcutController
             {
@@ -152,22 +155,6 @@ namespace PixiEditor.ViewModels
         public bool DocumentIsNotNull(object property)
         {
             return BitmapManager.ActiveDocument != null;
-        }
-
-        private void OpenHyperlink(object parameter)
-        {
-            if (parameter == null)
-            {
-                return;
-            }
-
-            var url = (string)parameter;
-            var processInfo = new ProcessStartInfo()
-            {
-                FileName = url,
-                UseShellExecute = true
-            };
-            Process.Start(processInfo);
         }
 
         private void CloseWindow(object property)
