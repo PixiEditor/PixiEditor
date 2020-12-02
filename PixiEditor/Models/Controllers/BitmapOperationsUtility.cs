@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Applies pixels from preview layer to selected layer.
         /// </summary>
-        public void StopAction()
+        public void ApplyPreviewLayer()
         {
             if (lastModifiedLayers == null)
             {

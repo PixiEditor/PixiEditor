@@ -37,10 +37,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void Cut(object parameter)
         {
             Copy(null);
-            Owner.BitmapManager.ActiveLayer.SetPixels(
+            Owner.BitmapManager.ActiveDocument.ActiveLayer.SetPixels(
                 BitmapPixelChanges.FromSingleColoredArray(
                     Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray(),
                     Colors.Transparent));
+            LayerChange[] oldValues = new 
+            UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues, description: "Cut selection"));
         }
 
         public void Paste(object parameter)

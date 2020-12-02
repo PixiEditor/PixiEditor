@@ -5,6 +5,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
 {

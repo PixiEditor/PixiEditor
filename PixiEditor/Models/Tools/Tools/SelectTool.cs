@@ -49,7 +49,8 @@ namespace PixiEditor.Models.Tools.Tools
                 ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.Clear();
             }
 
-            UndoManager.AddUndoChange(new Change("ActiveSelection", oldSelection, ViewModelMain.Current.SelectionSubViewModel.ActiveSelection, "Select pixels"));
+            UndoManager.AddUndoChange(
+                new Change("ActiveSelection", oldSelection, ViewModelMain.Current.SelectionSubViewModel.ActiveSelection, "Select pixels", ViewModelMain.Current.SelectionSubViewModel));
         }
 
         public override void Use(Coordinates[] pixels)
