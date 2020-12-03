@@ -41,26 +41,6 @@ namespace PixiEditor.Models.DataHolders
         }
 
         /// <summary>
-        ///     Builds BitmapPixelChanges from coordinates in layer.
-        /// </summary>
-        /// <param name="selectedPoints">Pixels coordinates in layer.</param>
-        /// <param name="activeLayer">Layer from pixels are taken.</param>
-        /// <returns>BitmapPixelChanges.</returns>
-        public static BitmapPixelChanges FromSelection(IEnumerable<Coordinates> selectedPoints, Layer activeLayer)
-        {
-            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
-            using (var ctx = activeLayer.LayerBitmap.GetBitmapContext())
-            {
-                foreach (var point in selectedPoints)
-                {
-                    dict.Add(point, ctx.WriteableBitmap.GetPixel(point.X, point.Y));
-                }
-            }
-
-            return new BitmapPixelChanges(dict);
-        }
-
-        /// <summary>
         ///     Combines pixel changes array with overriding values.
         /// </summary>
         /// <param name="changes">BitmapPixelChanges to combine.</param>
