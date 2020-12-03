@@ -248,7 +248,7 @@ namespace PixiEditor.Models.Controllers
             SelectedTool.OnStoppedRecordingMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (IsOperationTool(SelectedTool) && ((BitmapOperationTool)SelectedTool).RequiresPreviewLayer)
             {
-                BitmapOperations.StopAction();
+                BitmapOperations.ApplyPreviewLayer();
             }
         }
 

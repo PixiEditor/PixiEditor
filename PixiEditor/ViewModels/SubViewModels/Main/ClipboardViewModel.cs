@@ -6,6 +6,7 @@ using System.Windows.Media;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Position;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -37,10 +38,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void Cut(object parameter)
         {
             Copy(null);
-            Owner.BitmapManager.ActiveLayer.SetPixels(
-                BitmapPixelChanges.FromSingleColoredArray(
-                    Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray(),
-                    Colors.Transparent));
+            Owner.BitmapManager.BitmapOperations.DeletePixels(
+                new[] { Owner.BitmapManager.ActiveDocument.ActiveLayer },
+                Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray());
         }
 
         public void Paste(object parameter)
@@ -56,7 +56,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void Copy(object parameter)
         {
             ClipboardController.CopyToClipboard(
-                Owner.BitmapManager.ActiveDocument.Layers.ToArray(),
+                new[] { Owner.BitmapManager.ActiveDocument.ActiveLayer },
                 Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray(),
                 Owner.BitmapManager.ActiveDocument.Width,
                 Owner.BitmapManager.ActiveDocument.Height);

@@ -32,13 +32,14 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void AddUndoChange(Change change)
         {
-            // Clears RedoStack if las move wasn't redo or undo and if redo stack is greater than 0
+            lastChangeWasUndo = false;
+
+            // Clears RedoStack if last move wasn't redo or undo and if redo stack is greater than 0.
             if (lastChangeWasUndo == false && RedoStack.Count > 0)
             {
                 RedoStack.Clear();
             }
 
-            lastChangeWasUndo = false;
             change.Root ??= MainRoot;
             UndoStack.Push(change);
         }

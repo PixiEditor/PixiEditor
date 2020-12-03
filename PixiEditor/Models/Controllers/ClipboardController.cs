@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -44,7 +45,30 @@ namespace PixiEditor.Models.Controllers
             if (image != null)
             {
                 AddImageToLayers(image);
+                int latestLayerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Count - 1;
+                UndoManager.AddUndoChange(
+                    new Change(RemoveLayerProcess, new object[] { latestLayerIndex }, AddLayerProcess, new object[] { image }));
             }
+        }
+
+        private static void RemoveLayerProcess(object[] parameters)
+        {
+            if (parameters.Length == 0 || !(parameters[0] is int))
+            {
+                return;
+            }
+
+            ViewModelMain.Current.BitmapManager.RemoveLayer((int)parameters[0]);
+        }
+
+        private static void AddLayerProcess(object[] parameters)
+        {
+            if (parameters.Length == 0 || !(parameters[0] is WriteableBitmap))
+            {
+                return;
+            }
+
+            AddImageToLayers((WriteableBitmap)parameters[0]);
         }
 
         /// <summary>

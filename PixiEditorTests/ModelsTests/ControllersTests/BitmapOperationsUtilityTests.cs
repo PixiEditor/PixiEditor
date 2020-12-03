@@ -14,6 +14,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatBitmapOperationsUtilityDeletesPixels()
         {
             BitmapOperationsUtility util = new BitmapOperationsUtility(new BitmapManager());
+            util.Manager.ActiveDocument = new Document(10, 10);
 
             Layer testLayer = new Layer("test layer", 10, 10);
             Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };

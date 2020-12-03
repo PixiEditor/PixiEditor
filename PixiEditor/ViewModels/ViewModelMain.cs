@@ -133,7 +133,6 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control)
                 }
             };
-            UndoManager.SetMainRoot(this);
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
             Current = this;
         }

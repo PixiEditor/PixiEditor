@@ -29,15 +29,21 @@ namespace PixiEditor.Models.Controllers
 
         public void DeletePixels(Layer[] layers, Coordinates[] pixels)
         {
+            if (Manager.ActiveDocument == null)
+            {
+                return;
+            }
+
             BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, Color.FromArgb(0, 0, 0, 0));
             Dictionary<Layer, Color[]> oldValues = BitmapUtils.GetPixelsForSelection(layers, pixels);
             LayerChange[] old = new LayerChange[layers.Length];
             LayerChange[] newChange = new LayerChange[layers.Length];
             for (int i = 0; i < layers.Length; i++)
             {
+                int indexOfLayer = Manager.ActiveDocument.Layers.IndexOf(layers[i]);
                 old[i] = new LayerChange(
-                    BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i]]), i);
-                newChange[i] = new LayerChange(changes, i);
+                    BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i]]), indexOfLayer);
+                newChange[i] = new LayerChange(changes, indexOfLayer);
                 layers[i].SetPixels(changes);
             }
 
@@ -69,7 +75,7 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Applies pixels from preview layer to selected layer.
         /// </summary>
-        public void StopAction()
+        public void ApplyPreviewLayer()
         {
             if (lastModifiedLayers == null)
             {

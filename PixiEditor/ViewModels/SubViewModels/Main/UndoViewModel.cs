@@ -33,6 +33,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
+            UndoManager.SetMainRoot(this);
         }
 
         public void TriggerNewUndoChange(Tool toolUsed)
