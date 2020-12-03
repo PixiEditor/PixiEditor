@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.DataHolders
@@ -35,6 +38,26 @@ namespace PixiEditor.Models.DataHolders
             }
 
             return new BitmapPixelChanges(dict) { WasBuiltAsSingleColored = true };
+        }
+
+        /// <summary>
+        ///     Builds BitmapPixelChanges from coordinates in layer.
+        /// </summary>
+        /// <param name="selectedPoints">Pixels coordinates in layer.</param>
+        /// <param name="activeLayer">Layer from pixels are taken.</param>
+        /// <returns>BitmapPixelChanges.</returns>
+        public static BitmapPixelChanges FromSelection(IEnumerable<Coordinates> selectedPoints, Layer activeLayer)
+        {
+            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
+            using (var ctx = activeLayer.LayerBitmap.GetBitmapContext())
+            {
+                foreach (var point in selectedPoints)
+                {
+                    dict.Add(point, ctx.WriteableBitmap.GetPixel(point.X, point.Y));
+                }
+            }
+
+            return new BitmapPixelChanges(dict);
         }
 
         /// <summary>

@@ -35,9 +35,10 @@ namespace PixiEditor.Models.Controllers
             LayerChange[] newChange = new LayerChange[layers.Length];
             for (int i = 0; i < layers.Length; i++)
             {
+                int indexOfLayer = Manager.ActiveDocument.Layers.IndexOf(layers[i]);
                 old[i] = new LayerChange(
-                    BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i]]), i);
-                newChange[i] = new LayerChange(changes, i);
+                    BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i]]), indexOfLayer);
+                newChange[i] = new LayerChange(changes, indexOfLayer);
                 layers[i].SetPixels(changes);
             }
 
