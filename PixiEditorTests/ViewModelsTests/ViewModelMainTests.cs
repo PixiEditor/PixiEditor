@@ -18,7 +18,7 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = new ViewModelMain();
 
-            Assert.Equal(viewModel, UndoManager.MainRoot);
+            Assert.Equal(viewModel.UndoSubViewModel, UndoManager.MainRoot);
             Assert.NotNull(viewModel.ChangesController);
             Assert.NotNull(viewModel.ShortcutController);
             Assert.NotEmpty(viewModel.ShortcutController.Shortcuts);

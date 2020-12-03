@@ -29,6 +29,11 @@ namespace PixiEditor.Models.Controllers
 
         public void DeletePixels(Layer[] layers, Coordinates[] pixels)
         {
+            if (Manager.ActiveDocument == null)
+            {
+                return;
+            }
+
             BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, Color.FromArgb(0, 0, 0, 0));
             Dictionary<Layer, Color[]> oldValues = BitmapUtils.GetPixelsForSelection(layers, pixels);
             LayerChange[] old = new LayerChange[layers.Length];
