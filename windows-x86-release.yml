@@ -28,11 +28,6 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: PowerShell@2
-  displayName: "Set tag version"
-  inputs:
-    filePath: 'assemblyVerReader.ps1'
-
 - task: DotNetCoreCLI@2
   displayName: "Build release PixiEditor.UpdateInstaller"
   inputs:
@@ -41,6 +36,12 @@ steps:
     projects: '**/PixiEditor.UpdateInstaller.csproj'
     arguments: '-o "UpdateInstaller" -r "win-x86" --self-contained=false -p:PublishSingleFile=true -c Release'
     zipAfterPublish: false
+
+
+- task: PowerShell@2
+  displayName: "Set tag version"
+  inputs:
+    filePath: 'assemblyVerReader.ps1'
 
 - task: DotNetCoreCLI@2
   displayName: "Build release PixiEditor x86 light"
