@@ -12,7 +12,7 @@
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
@@ -164,61 +164,33 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
-                <vws:MainDrawingPanel ZoomPercentage="{Binding ViewportSubViewModel.ZoomPercentage, Mode=TwoWay}" Center="{Binding ViewportSubViewModel.RecenterZoombox, Mode=TwoWay}" x:Name="DrawingPanel"
-                                      CenterOnStart="True" Cursor="{Binding ToolsSubViewModel.ToolCursor}" 
-                                      MiddleMouseClickedCommand="{Binding ToolsSubViewModel.SelectToolCommand}" 
-                                      MiddleMouseClickedCommandParameter="{x:Static tools:ToolType.MoveViewport}"
-                                      ViewportPosition="{Binding ViewportSubViewModel.ViewportPosition, Mode=TwoWay}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseMove">
-                            <i:InvokeCommandAction Command="{Binding IoSubViewModel.MouseMoveCommand}" />
-                        </i:EventTrigger>
-                        <i:EventTrigger EventName="MouseDown">
-                            <i:InvokeCommandAction Command="{Binding IoSubViewModel.MouseDownCommand}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    <i:Interaction.Behaviors>
-                        <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
-                                                  MouseX="{Binding IoSubViewModel.MouseXOnCanvas, Mode=OneWayToSource}"
-                                                  MouseY="{Binding IoSubViewModel.MouseYOnCanvas, Mode=OneWayToSource}" />
-                    </i:Interaction.Behaviors>
-                    <vws:MainDrawingPanel.Item>
-                        <Canvas Width="{Binding BitmapManager.ActiveDocument.Width}"
-                                Height="{Binding BitmapManager.ActiveDocument.Height}" VerticalAlignment="Center"
-                                HorizontalAlignment="Center">
-                            <Image Source="/Images/transparentbg.png"
-                                   Height="{Binding BitmapManager.ActiveDocument.Height}"
-                                   Width="{Binding BitmapManager.ActiveDocument.Width}" Opacity="0.9"
-                                   Stretch="UniformToFill" />
-                            <Image Source="{Binding BitmapManager.PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding BitmapManager.PreviewLayer.Width}"
-                                   Height="{Binding BitmapManager.PreviewLayer.Height}" 
-                                   Margin="{Binding BitmapManager.PreviewLayer.Offset}"/>
-                            <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Grid />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
-                                               Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
-                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                               Opacity="{Binding Opacity}"
-                                               Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.LayerBitmap}"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Width}"
-                                   Height="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Height}" 
-                                   Margin="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Offset}" />
-                        </Canvas>
-                    </vws:MainDrawingPanel.Item>
-                </vws:MainDrawingPanel>
+                <avalondock:DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" DocumentsSource="{Binding BitmapManager.Documents}">
+                    <avalondock:DockingManager.Theme>
+                        <avalondock:Vs2013DarkTheme/>
+                    </avalondock:DockingManager.Theme>
+                    <avalondock:DockingManager.LayoutItemContainerStyle>
+                        <Style TargetType="{x:Type avalondock:LayoutItem}">
+                            <Setter Property="Title" Value="{Binding Model.Name}" />
+                            <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                            <Setter Property="CanClose" Value="{Binding Model.CanClose}" />
+                        </Style>
+                    </avalondock:DockingManager.LayoutItemContainerStyle>
+                    <avalondock:DockingManager.LayoutItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:ViewModelMain}">
+                            <usercontrols:DrawingViewPort DataContext="{Binding Path=DataContext, 
+                                RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                        ZoomPercentage="{Binding ViewportSubViewModel.ZoomPercentage}"
+                                        RecenterZoombox="{Binding ViewportSubViewModel.RecenterZoombox}"
+                                        Cursor="{Binding ToolsSubViewModel.ToolCursor}"
+                                        MiddleMouseClickedCommand="{Binding ToolsSubViewModel.SelectToolCommand}"
+                                        ViewportPosition="{Binding ViewportSubViewModel.ViewportPosition}"
+                                        MouseMoveCommand="{Binding IoSubViewModel.MouseMoveCommand}"
+                                        MouseDownCommand="{Binding IoSubViewModel.MouseDownCommand}"
+                                        MouseXOnCanvas="{Binding IoSubViewModel.MouseXOnCanvas, Mode=TwoWay}"
+                                        MouseYOnCanvas="{Binding IoSubViewModel.MouseYOnCanvas, Mode=TwoWay}"/>
+                        </DataTemplate>
+                    </avalondock:DockingManager.LayoutItemTemplate>
+                </avalondock:DockingManager>
             </Grid>
         </Grid>
 
@@ -386,7 +358,7 @@
             </avalondock:DockingManager>
         </Grid>
         <DockPanel Grid.Row="3" Grid.Column="1">
-            <TextBlock Text="{Binding BitmapManager.SelectedTool.ActionDisplay}" Foreground="White" FontSize="16"  VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding BitmapManager.SelectedTool.ActionDisplay}" Foreground="White" FontSize="15"  VerticalAlignment="Center"/>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="X:" Foreground="White" FontSize="16"/>
                 <TextBlock Margin="4,0,10,0" Text="{Binding IoSubViewModel.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>

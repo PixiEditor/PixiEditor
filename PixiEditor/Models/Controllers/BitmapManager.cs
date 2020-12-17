@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -7,7 +8,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
@@ -35,8 +35,6 @@ namespace PixiEditor.Models.Controllers
             BitmapOperations = new BitmapOperationsUtility(this);
             ReadonlyToolUtility = new ReadonlyToolUtility();
         }
-
-        public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
 
@@ -96,77 +94,14 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
+
         /// <summary>
         ///     Returns if tool is BitmapOperationTool.
         /// </summary>
         public static bool IsOperationTool(Tool tool)
         {
             return tool is BitmapOperationTool;
-        }
-
-        public void SetActiveTool(Tool tool)
-        {
-            PreviewLayer = null;
-            SelectedTool?.Toolbar.SaveToolbarSettings();
-            SelectedTool = tool;
-            SelectedTool.Toolbar.LoadSharedSettings();
-        }
-
-        public void SetActiveLayer(int index)
-        {
-            if (ActiveDocument.ActiveLayerIndex <= ActiveDocument.Layers.Count - 1)
-            {
-                ActiveDocument.ActiveLayer.IsActive = false;
-            }
-
-            ActiveDocument.ActiveLayerIndex = index;
-            ActiveDocument.ActiveLayer.IsActive = true;
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
-        }
-
-        public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
-        {
-            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
-            ActiveDocument.Layers.Last().LayerBitmap = bitmap;
-        }
-
-        public void AddNewLayer(string name, bool setAsActive = true)
-        {
-            AddNewLayer(name, 0, 0, setAsActive);
-        }
-
-        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
-        {
-            ActiveDocument.Layers.Add(new Layer(name, width, height)
-            {
-                MaxHeight = ActiveDocument.Height,
-                MaxWidth = ActiveDocument.Width
-            });
-            if (setAsActive)
-            {
-                SetActiveLayer(ActiveDocument.Layers.Count - 1);
-            }
-
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
-        }
-
-        public void RemoveLayer(int layerIndex)
-        {
-            if (ActiveDocument.Layers.Count == 0)
-            {
-                return;
-            }
-
-            bool wasActive = ActiveDocument.Layers[layerIndex].IsActive;
-            ActiveDocument.Layers.RemoveAt(layerIndex);
-            if (wasActive)
-            {
-                SetActiveLayer(0);
-            }
-            else if (ActiveDocument.ActiveLayerIndex > ActiveDocument.Layers.Count - 1)
-            {
-                SetActiveLayer(ActiveDocument.Layers.Count - 1);
-            }
         }
 
         public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
@@ -207,6 +142,14 @@ namespace PixiEditor.Models.Controllers
         public bool IsOperationTool()
         {
             return IsOperationTool(SelectedTool);
+        }
+
+        public void SetActiveTool(Tool tool)
+        {
+            PreviewLayer = null;
+            SelectedTool?.Toolbar.SaveToolbarSettings();
+            SelectedTool = tool;
+            SelectedTool.Toolbar.LoadSharedSettings();
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)

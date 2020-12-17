@@ -29,7 +29,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewLayer(object parameter)
         {
-            Owner.BitmapManager.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+            //TODO: Implement AddNewLayer to Document, not BitmapManager
+            Owner.BitmapManager.ActiveDocument.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
         }
 
         public bool CanCreateNewLayer(object parameter)
@@ -39,12 +40,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetActiveLayer(object parameter)
         {
-            Owner.BitmapManager.SetActiveLayer((int)parameter);
+            Owner.BitmapManager.ActiveDocument.SetActiveLayer((int)parameter);
         }
 
         public void DeleteLayer(object parameter)
         {
-            Owner.BitmapManager.RemoveLayer((int)parameter);
+            Owner.BitmapManager.ActiveDocument.RemoveLayer((int)parameter);
         }
 
         public bool CanDeleteLayer(object property)
@@ -63,7 +64,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex + 1);
             if (Owner.BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
             {
-                Owner.BitmapManager.SetActiveLayer(oldIndex + 1);
+                Owner.BitmapManager.ActiveDocument.SetActiveLayer(oldIndex + 1);
             }
         }
 
@@ -73,7 +74,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex - 1);
             if (Owner.BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
             {
-                Owner.BitmapManager.SetActiveLayer(oldIndex - 1);
+                Owner.BitmapManager.ActiveDocument.SetActiveLayer(oldIndex - 1);
             }
         }
 

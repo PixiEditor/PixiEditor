@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
@@ -49,10 +50,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewDocument(int width, int height, bool addBaseLayer = true)
         {
-            Owner.BitmapManager.ActiveDocument = new Document(width, height);
+            Owner.BitmapManager.Documents.Add(new Document(width, height));
+            Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents[^1];
             if (addBaseLayer)
             {
-                Owner.BitmapManager.AddNewLayer("Base Layer");
+                Owner.BitmapManager.ActiveDocument.AddNewLayer("Base Layer");
             }
 
             Owner.ResetProgramStateValues();
@@ -74,7 +76,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (dialog.ShowDialog())
             {
                 NewDocument(dialog.FileWidth, dialog.FileHeight, false);
-                Owner.BitmapManager.AddNewLayer("Image", Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
+                Owner.BitmapManager.ActiveDocument.AddNewLayer(
+                    "Image",
+                    Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
             }
         }
 

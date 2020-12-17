@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
@@ -24,6 +25,20 @@ namespace PixiEditor.Models.DataHolders
         }
 
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
+
+        public event EventHandler<LayersChangedEventArgs> LayersChanged;
+
+        private string name = "Untitled";
+
+        public string Name
+        {
+            get => name;
+            set
+            {
+                name = value;
+                RaisePropertyChanged(nameof(Name));
+            }
+        }
 
         public int Width
         {
@@ -94,6 +109,63 @@ namespace PixiEditor.Models.DataHolders
                 processArgs,
                 "Resize canvas"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
+        }
+
+        public void SetActiveLayer(int index)
+        {
+            if (ActiveLayerIndex <= Layers.Count - 1)
+            {
+                ActiveLayer.IsActive = false;
+            }
+
+            ActiveLayerIndex = index;
+            ActiveLayer.IsActive = true;
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
+        }
+
+        public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
+        {
+            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
+            Layers.Last().LayerBitmap = bitmap;
+        }
+
+        public void AddNewLayer(string name, bool setAsActive = true)
+        {
+            AddNewLayer(name, 0, 0, setAsActive);
+        }
+
+        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
+        {
+            Layers.Add(new Layer(name, width, height)
+            {
+                MaxHeight = Height,
+                MaxWidth = Width
+            });
+            if (setAsActive)
+            {
+                SetActiveLayer(Layers.Count - 1);
+            }
+
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
+        }
+
+        public void RemoveLayer(int layerIndex)
+        {
+            if (Layers.Count == 0)
+            {
+                return;
+            }
+
+            bool wasActive = Layers[layerIndex].IsActive;
+            Layers.RemoveAt(layerIndex);
+            if (wasActive)
+            {
+                SetActiveLayer(0);
+            }
+            else if (ActiveLayerIndex > Layers.Count - 1)
+            {
+                SetActiveLayer(Layers.Count - 1);
+            }
         }
 
         /// <summary>
