@@ -105,7 +105,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void Open(string path)
         {
-            if (Owner.DocumentSubViewModel.UnsavedDocumentModified)
+            if (!Owner.BitmapManager.ActiveDocument.ChangesSaved)
             {
                 var result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes)
@@ -148,31 +148,33 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (Importer.IsSupportedFile(dialog.FileName))
                 {
                     Open(dialog.FileName);
+                    Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.Last();
                 }
-
-                Owner.ViewportSubViewModel.CenterViewport();
             }
         }
 
         private void OpenDocument(string path)
         {
-            Owner.BitmapManager.ActiveDocument = Importer.ImportDocument(path);
-            Exporter.SaveDocumentPath = path;
-            Owner.DocumentSubViewModel.UnsavedDocumentModified = false;
+            if (Owner.BitmapManager.Documents.Select(x => x.DocumentFilePath).All(y => y != path))
+            {
+                Owner.BitmapManager.Documents.Add(Importer.ImportDocument(path));
+            }
         }
 
         private void SaveDocument(object parameter)
         {
             bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
-            if (paramIsAsNew || Exporter.SaveDocumentPath == null)
+            if (paramIsAsNew || string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath))
             {
-                var saved = Exporter.SaveAsEditableFileWithDialog(Owner.BitmapManager.ActiveDocument, !paramIsAsNew);
-                Owner.DocumentSubViewModel.UnsavedDocumentModified = Owner.DocumentSubViewModel.UnsavedDocumentModified && !saved;
+                bool savedSuccessfully = Exporter.SaveAsEditableFileWithDialog(Owner.BitmapManager.ActiveDocument, out string path);
+                Owner.BitmapManager.ActiveDocument.DocumentFilePath = path;
+
+                Owner.BitmapManager.ActiveDocument.ChangesSaved = savedSuccessfully;
             }
             else
             {
-                Exporter.SaveAsEditableFile(Owner.BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
-                Owner.DocumentSubViewModel.UnsavedDocumentModified = false;
+                Exporter.SaveAsEditableFile(Owner.BitmapManager.ActiveDocument, Owner.BitmapManager.ActiveDocument.DocumentFilePath);
+                Owner.BitmapManager.ActiveDocument.ChangesSaved = true;
             }
         }
 

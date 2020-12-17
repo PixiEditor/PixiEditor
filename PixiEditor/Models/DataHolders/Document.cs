@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -22,22 +23,43 @@ namespace PixiEditor.Models.DataHolders
         {
             Width = width;
             Height = height;
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(0, 0, width, height));
         }
 
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
-        private string name = "Untitled";
+        private string documentFilePath = string.Empty;
+
+        public string DocumentFilePath
+        {
+            get => documentFilePath;
+            set
+            {
+                documentFilePath = value;
+                RaisePropertyChanged(nameof(DocumentFilePath));
+                RaisePropertyChanged(nameof(Name));
+            }
+        }
+
+        private bool changesSaved = true;
+
+        public bool ChangesSaved
+        {
+            get => changesSaved;
+            set
+            {
+                changesSaved = value;
+                RaisePropertyChanged(nameof(ChangesSaved));
+                RaisePropertyChanged(nameof(Name)); // This updates name so it shows asterisk if unsaved
+            }
+        }
 
         public string Name
         {
-            get => name;
-            set
-            {
-                name = value;
-                RaisePropertyChanged(nameof(Name));
-            }
+            get => (string.IsNullOrEmpty(DocumentFilePath) ? "Untitled" : Path.GetFileName(DocumentFilePath))
+                + (!ChangesSaved ? " *" : string.Empty);
         }
 
         public int Width

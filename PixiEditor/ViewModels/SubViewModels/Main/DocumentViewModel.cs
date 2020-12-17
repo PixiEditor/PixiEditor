@@ -8,8 +8,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
     {
         public const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
 
-        public bool UnsavedDocumentModified { get; set; }
-
         public RelayCommand CenterContentCommand { get; set; }
 
         public RelayCommand ClipCanvasCommand { get; set; }

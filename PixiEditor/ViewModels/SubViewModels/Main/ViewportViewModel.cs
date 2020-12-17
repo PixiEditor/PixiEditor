@@ -51,7 +51,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void CenterViewport()
         {
-            RecenterZoombox = !RecenterZoombox; // It's a trick to trigger change in UserControl
+            RecenterZoombox = false; // It's a trick to trigger change in UserControl
+            RecenterZoombox = true;
         }
 
         private void ZoomViewport(object parameter)
