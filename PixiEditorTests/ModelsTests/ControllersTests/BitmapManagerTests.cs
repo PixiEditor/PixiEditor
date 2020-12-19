@@ -25,7 +25,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             {
                 ActiveDocument = new Document(10, 10)
             };
-            bitmapManager.AddNewLayer(layerName);
+            bitmapManager.ActiveDocument.AddNewLayer(layerName);
             Assert.Single(bitmapManager.ActiveDocument.Layers);
             Assert.Equal(layerName, bitmapManager.ActiveDocument.ActiveLayer.Name);
             Assert.Equal(0, bitmapManager.ActiveDocument.ActiveLayer.Width + bitmapManager.ActiveDocument.ActiveLayer.Height);
@@ -38,10 +38,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             {
                 ActiveDocument = new Document(10, 10)
             };
-            bitmapManager.AddNewLayer("_");
-            bitmapManager.AddNewLayer("_1");
+            bitmapManager.ActiveDocument.AddNewLayer("_");
+            bitmapManager.ActiveDocument.AddNewLayer("_1");
             Assert.Equal(2, bitmapManager.ActiveDocument.Layers.Count);
-            bitmapManager.RemoveLayer(0);
+            bitmapManager.ActiveDocument.RemoveLayer(0);
             Assert.Single(bitmapManager.ActiveDocument.Layers);
         }
 
@@ -72,10 +72,15 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             BitmapManager bitmapManager = new BitmapManager
             {
-                ActiveDocument = new Document(5, 5)
+                Documents = new System.Collections.ObjectModel.ObservableCollection<Document>()
+                {
+                    new Document(5, 5)
+                }
             };
 
-            bitmapManager.AddNewLayer("Layer");
+            bitmapManager.ActiveDocument = bitmapManager.Documents[0];
+
+            bitmapManager.ActiveDocument.AddNewLayer("Layer");
             bitmapManager.SetActiveTool(new MockedSinglePixelPen());
             bitmapManager.PrimaryColor = Colors.Green;
 

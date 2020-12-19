@@ -21,16 +21,15 @@ namespace PixiEditor.Models.Controllers
 
         public UndoManager()
         {
-            SetMainRoot(ViewModelMain.Current.UndoSubViewModel);
+            if (ViewModelMain.Current != null && ViewModelMain.Current.UndoSubViewModel != null)
+            {
+                MainRoot = ViewModelMain.Current.UndoSubViewModel;
+            }
         }
 
-        /// <summary>
-        ///     Sets object(root) in which undo properties are stored.
-        /// </summary>
-        /// <param name="root">Parent object.</param>
-        public void SetMainRoot(object root)
+        public UndoManager(object mainRoot)
         {
-            MainRoot = root;
+            MainRoot = mainRoot;
         }
 
         /// <summary>

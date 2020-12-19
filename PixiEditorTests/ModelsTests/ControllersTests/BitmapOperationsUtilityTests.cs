@@ -35,7 +35,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
                 ActiveDocument = new Document(10, 10),
                 PrimaryColor = Colors.Black
             };
-            manager.AddNewLayer("Test layer", 10, 10);
+            manager.ActiveDocument.AddNewLayer("Test layer", 10, 10);
 
             BitmapOperationsUtility util = new BitmapOperationsUtility(manager);
 

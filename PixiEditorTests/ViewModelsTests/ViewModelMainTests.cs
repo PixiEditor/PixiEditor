@@ -18,7 +18,6 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = new ViewModelMain();
 
-            Assert.Equal(viewModel.UndoSubViewModel, UndoManager.MainRoot);
             Assert.NotNull(viewModel.ChangesController);
             Assert.NotNull(viewModel.ShortcutController);
             Assert.NotEmpty(viewModel.ShortcutController.Shortcuts);
@@ -112,9 +111,10 @@ namespace PixiEditorTests.ViewModelsTests
             ViewModelMain viewModel = new ViewModelMain();
             string fileName = "testFile.pixi";
 
-            viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
-
-            Exporter.SaveDocumentPath = fileName;
+            viewModel.BitmapManager.ActiveDocument = new Document(1, 1)
+            {
+                DocumentFilePath = fileName
+            };
 
             viewModel.FileSubViewModel.SaveDocumentCommand.Execute(null);
 
@@ -150,13 +150,13 @@ namespace PixiEditorTests.ViewModelsTests
             {
                 BitmapManager = { ActiveDocument = new Document(docWidth, docHeight) }
             };
-            viewModel.BitmapManager.AddNewLayer("layer");
+            viewModel.BitmapManager.ActiveDocument.AddNewLayer("layer");
 
             viewModel.SelectionSubViewModel.SelectAllCommand.Execute(null);
 
             Assert.Equal(
                 viewModel.BitmapManager.ActiveDocument.Width * viewModel.BitmapManager.ActiveDocument.Height,
-                viewModel.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count);
+                viewModel.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.Count);
         }
 
         [StaFact]
