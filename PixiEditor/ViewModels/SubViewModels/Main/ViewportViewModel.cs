@@ -53,6 +53,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             RecenterZoombox = false; // It's a trick to trigger change in UserControl
             RecenterZoombox = true;
+            ViewportPosition = default;
+            ZoomPercentage = default;
         }
 
         private void ZoomViewport(object parameter)

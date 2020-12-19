@@ -141,7 +141,7 @@
             </StackPanel>
         </DockPanel>
         <StackPanel Background="{StaticResource AccentColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
-                    Margin="0,30,146,0" Grid.Row="0" Grid.RowSpan="2">
+                     Grid.Row="1">
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -192,7 +192,7 @@
             </Grid>
         </Grid>
 
-        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0" Margin="0,7,5,0"
+        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0"
                     Background="{StaticResource AccentColor}" Grid.RowSpan="2">
 
             <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
@@ -213,24 +213,32 @@
             </ItemsControl>
         </StackPanel>
 
-        <Grid Grid.Column="2" Background="{StaticResource AccentColor}" Margin="0,30,0,0" Grid.RowSpan="3">
+        <Grid Grid.Column="2" Background="{StaticResource AccentColor}" Grid.Row="2" Grid.RowSpan="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="340" />
+                <RowDefinition Height="330" />
                 <RowDefinition Height="250*" />
                 <RowDefinition Height="209*" />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="2" Orientation="Vertical" ZIndex="15">
             </StackPanel>
-            <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
-                             SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" />
             <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0"
-                                       Grid.Row="1">
+                                       Grid.Row="0" Grid.RowSpan="3">
                 <avalondock:LayoutRoot x:Name="LayoutRoot">
                     <avalondock:LayoutPanel Orientation="Vertical">
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
+                                                         CanClose="False" CanAutoHide="False"
+                                                         CanDockAsTabbedDocument="True" CanFloat="True">
+                                <Grid Grid.Row="0">
+                                    <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
+                                 SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" />
+                                </Grid>
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
                         <avalondock:LayoutAnchorablePane>
                             <avalondock:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
-                                                         CanDockAsTabbedDocument="False" CanFloat="True">
+                                                         CanDockAsTabbedDocument="True" CanFloat="True">
                                 <StackPanel Orientation="Vertical">
                                     <Button Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
@@ -285,15 +293,6 @@
                                 </StackPanel>
                             </avalondock:LayoutAnchorable>
                         </avalondock:LayoutAnchorablePane>
-                    </avalondock:LayoutPanel>
-                </avalondock:LayoutRoot>
-                <avalondock:DockingManager.Theme>
-                    <avalondock:Vs2013DarkTheme />
-                </avalondock:DockingManager.Theme>
-            </avalondock:DockingManager>
-            <avalondock:DockingManager Grid.Row="2" Background="{StaticResource AccentColor}">
-                <avalondock:LayoutRoot>
-                    <avalondock:LayoutPanel>
                         <avalondock:LayoutAnchorablePane>
                             <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
