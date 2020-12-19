@@ -4,7 +4,9 @@ using System.Runtime.Serialization;
 using System.Windows.Media.Imaging;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Parser;
 
 namespace PixiEditor.Models.IO
 {
@@ -58,9 +60,23 @@ namespace PixiEditor.Models.IO
         {
             try
             {
-                Document doc = BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
+                Document doc = PixiParser.Deserialize(path).ToDocument();
                 doc.DocumentFilePath = path;
                 return doc;
+            }
+            catch (InvalidFileException)
+            {
+                throw new CorruptedFileException();
+            }
+        }
+
+        public static Document ImpostorOldDocument(string path)
+        {
+            try
+            {
+                using FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+                return PixiParser.DeserializeOld(stream).ToDocument();
             }
             catch (SerializationException)
             {

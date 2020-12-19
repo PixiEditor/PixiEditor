@@ -50,6 +50,7 @@
       <Version>1.0.2</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.2" />
+    <PackageReference Include="MessagePack" Version="2.2.85" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="1.0.1" />
@@ -85,6 +86,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PixiParser">
+      <HintPath>C:\Users\phili\source\repos\PixiParser\src\PixiParser\bin\Debug\netstandard2.1\PixiParser.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
