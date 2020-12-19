@@ -169,7 +169,7 @@
                     <avalondock:DockingManager.LayoutItemContainerStyle>
                         <Style TargetType="{x:Type avalondock:LayoutItem}">
                             <Setter Property="Title" Value="{Binding Model.Name}" />
-                            <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                            <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
                             <Setter Property="CanClose" Value="{Binding Model.CanClose}" />
                         </Style>
                     </avalondock:DockingManager.LayoutItemContainerStyle>

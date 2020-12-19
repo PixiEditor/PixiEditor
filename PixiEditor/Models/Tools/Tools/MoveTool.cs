@@ -58,7 +58,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override void AfterAddedUndo()
+        public override void AfterAddedUndo(UndoManager undoManager)
         {
             if (currentSelection != null && currentSelection.Length != 0)
             {
@@ -66,7 +66,7 @@ namespace PixiEditor.Models.Tools.Tools
                 foreach (var item in startPixelColors)
                 {
                     BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
-                    Change changes = UndoManager.UndoStack.Peek();
+                    Change changes = undoManager.UndoStack.Peek();
                     int layerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(item.Key);
 
                     ((LayerChange[])changes.OldValue).First(x => x.LayerIndex == layerIndex).PixelChanges.ChangedPixels
@@ -86,7 +86,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (currentSelection != null && currentSelection.Length == 0)
             {
-                UndoManager.AddUndoChange(new Change(
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(new Change(
                     ApplyOffsets,
                     new object[] { startingOffsets },
                     ApplyOffsets,
@@ -105,10 +105,10 @@ namespace PixiEditor.Models.Tools.Tools
                 ResetSelectionValues(start);
 
                 // Move offset if no selection
-                if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection != null && 
-                    ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count > 0)
+                Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
+                if (selection != null && selection.SelectedPoints.Count > 0)
                 {
-                    currentSelection = ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray();
+                    currentSelection = selection.SelectedPoints.ToArray();
                 }
                 else
                 {
@@ -161,7 +161,7 @@ namespace PixiEditor.Models.Tools.Tools
             currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
             if (updateViewModelSelection)
             {
-                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
+                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
             }
 
             ClearSelectedPixels(layer, previousSelection);

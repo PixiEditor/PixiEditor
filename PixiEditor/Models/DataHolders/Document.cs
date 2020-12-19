@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -8,8 +9,10 @@ using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -23,12 +26,16 @@ namespace PixiEditor.Models.DataHolders
         {
             Width = width;
             Height = height;
+            RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
+            UndoManager = new UndoManager();
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(0, 0, width, height));
         }
 
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
+
+        public RelayCommand RequestCloseDocumentCommand { get; set; }
 
         private string documentFilePath = string.Empty;
 
@@ -82,6 +89,20 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private Selection selection = new Selection(Array.Empty<Coordinates>());
+
+        public Selection ActiveSelection
+        {
+            get => selection;
+            set
+            {
+                selection = value;
+                RaisePropertyChanged("ActiveSelection");
+            }
+        }
+
+        public UndoManager UndoManager { get; set; }
+
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
@@ -95,6 +116,24 @@ namespace PixiEditor.Models.DataHolders
                 RaisePropertyChanged("ActiveLayerIndex");
                 RaisePropertyChanged("ActiveLayer");
             }
+        }
+
+        public void SaveWithDialog()
+        {
+            bool savedSuccessfully = Exporter.SaveAsEditableFileWithDialog(this, out string path);
+            DocumentFilePath = path;
+            ChangesSaved = savedSuccessfully;
+        }
+
+        public void Save()
+        {
+            Save(DocumentFilePath);
+        }
+
+        public void Save(string path)
+        {
+            DocumentFilePath = Exporter.SaveAsEditableFile(this, path);
+            ChangesSaved = true;
         }
 
         public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
@@ -247,6 +286,9 @@ namespace PixiEditor.Models.DataHolders
                 "Clip canvas"));
         }
 
+        /// <summary>
+        /// Centers content inside document.
+        /// </summary>
         public void CenterContent()
         {
             DoubleCords points = GetEdgePoints();
@@ -275,6 +317,11 @@ namespace PixiEditor.Models.DataHolders
                     MoveOffsetsProcess,
                     new object[] { moveVector },
                     "Center content"));
+        }
+
+        private void RequestCloseDocument(object parameter)
+        {
+            ViewModelMain.Current.DocumentSubViewModel.RequestCloseDocument(this);
         }
 
         private int GetOffsetXForAnchor(int srcWidth, int destWidth, AnchorPoint anchor)

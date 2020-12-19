@@ -46,7 +46,7 @@ namespace PixiEditor.Models.Controllers
             {
                 AddImageToLayers(image);
                 int latestLayerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Count - 1;
-                UndoManager.AddUndoChange(
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
                     new Change(RemoveLayerProcess, new object[] { latestLayerIndex }, AddLayerProcess, new object[] { image }));
             }
         }

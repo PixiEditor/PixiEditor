@@ -63,11 +63,12 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.LayerBitmap}"
+                    <Image VerticalAlignment="Top" HorizontalAlignment="Left" 
+                           Source="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.LayerBitmap}"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Width}"
-                                   Height="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Height}" 
-                                   Margin="{Binding SelectionSubViewModel.ActiveSelection.SelectionLayer.Offset}" />
+                                   Width="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.Width}"
+                                   Height="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.Height}" 
+                                   Margin="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.Offset}" />
                 </Canvas>
             </vws:MainDrawingPanel.Item>
         </vws:MainDrawingPanel>

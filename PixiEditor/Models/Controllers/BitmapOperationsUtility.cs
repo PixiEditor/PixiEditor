@@ -47,7 +47,7 @@ namespace PixiEditor.Models.Controllers
                 layers[i].SetPixels(changes);
             }
 
-            UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
+            Manager.ActiveDocument.UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
         }
 
         /// <summary>

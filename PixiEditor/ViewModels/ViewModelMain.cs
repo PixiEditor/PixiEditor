@@ -144,9 +144,6 @@ namespace PixiEditor.ViewModels
         public void ResetProgramStateValues()
         {
             BitmapManager.PreviewLayer = null;
-            UndoManager.UndoStack.Clear();
-            UndoManager.RedoStack.Clear();
-            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
             ViewportSubViewModel.CenterViewport();
         }
 
@@ -230,7 +227,7 @@ namespace PixiEditor.ViewModels
 
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
-            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
             ViewportSubViewModel.CenterViewport();
             BitmapManager.ActiveDocument.ChangesSaved = false;
         }

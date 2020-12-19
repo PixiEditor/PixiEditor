@@ -104,6 +104,19 @@ namespace PixiEditor.Models.Controllers
             return tool is BitmapOperationTool;
         }
 
+        public void CloseDocument(Document document)
+        {
+            int nextIndex = 0;
+            if (document == ActiveDocument)
+            {
+                nextIndex = Documents.Count > 1 ? Documents.IndexOf(document) : -1;
+                nextIndex += nextIndex > 0 ? -1 : 0;
+            }
+
+            Documents.Remove(document);
+            ActiveDocument = nextIndex >= 0 ? Documents[nextIndex] : null;
+        }
+
         public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
         {
             if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)

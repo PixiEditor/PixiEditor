@@ -33,7 +33,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
-            UndoManager.SetMainRoot(this);
         }
 
         public void TriggerNewUndoChange(Tool toolUsed)
@@ -46,8 +45,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 {
                     LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
                     LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
-                    UndoManager.AddUndoChange(new Change("UndoChanges", oldValues, newValues, root: this));
-                    toolUsed.AfterAddedUndo();
+                    Owner.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
+                        new Change("UndoChanges", oldValues, newValues, root: this));
+                    toolUsed.AfterAddedUndo(Owner.BitmapManager.ActiveDocument.UndoManager);
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandProperty.</param>
         public void Redo(object parameter)
         {
-            UndoManager.Redo();
+            Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void Undo(object parameter)
         {
             Owner.SelectionSubViewModel.Deselect(null);
-            UndoManager.Undo();
+            Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <returns>True if can undo.</returns>
         private bool CanUndo(object property)
         {
-            return UndoManager.CanUndo;
+            return Owner.BitmapManager.ActiveDocument.UndoManager.CanUndo;
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <returns>True if can redo.</returns>
         private bool CanRedo(object property)
         {
-            return UndoManager.CanRedo;
+            return Owner.BitmapManager.ActiveDocument.UndoManager.CanRedo;
         }
     }
 }
