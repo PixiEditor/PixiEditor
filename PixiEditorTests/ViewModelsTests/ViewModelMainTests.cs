@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -54,11 +55,12 @@ namespace PixiEditorTests.ViewModelsTests
         public void TestThatMouseMoveCommandUpdatesCurrentCoordinates()
         {
             ViewModelMain viewModel = new ViewModelMain();
+            viewModel.BitmapManager.ActiveDocument = new Document(10, 10);
 
             Assert.Equal(new Coordinates(0, 0), MousePositionConverter.CurrentCoordinates);
 
-            viewModel.IoSubViewModel.MouseXOnCanvas = 5;
-            viewModel.IoSubViewModel.MouseYOnCanvas = 5;
+            viewModel.BitmapManager.ActiveDocument.MouseXOnCanvas = 5;
+            viewModel.BitmapManager.ActiveDocument.MouseYOnCanvas = 5;
 
             viewModel.IoSubViewModel.MouseMoveCommand.Execute(null);
 
@@ -86,7 +88,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.True(viewModel.BitmapManager.MouseController.IsRecordingChanges);
 
-            viewModel.IoSubViewModel.MouseHook_OnMouseUp(default, default, default);
+            viewModel.IoSubViewModel.MouseHook_OnMouseUp(default, default, MouseButton.Left);
 
             Assert.False(viewModel.BitmapManager.MouseController.IsRecordingChanges);
         }

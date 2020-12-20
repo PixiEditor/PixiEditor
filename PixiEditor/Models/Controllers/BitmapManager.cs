@@ -176,7 +176,10 @@ namespace PixiEditor.Models.Controllers
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
             SelectedTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            ActiveDocument.PreviewLayer = null;
+            if (ActiveDocument != null)
+            {
+                ActiveDocument.PreviewLayer = null;
+            }
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)

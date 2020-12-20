@@ -52,12 +52,12 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             {
                 ActiveDocument = new Document(10, 10)
             };
-            bitmapManager.GeneratePreviewLayer();
-            Assert.NotNull(bitmapManager.PreviewLayer);
-            Assert.Equal(0, bitmapManager.PreviewLayer.Width + bitmapManager.PreviewLayer.Height); // Size is zero
-            Assert.Equal(0, bitmapManager.PreviewLayer.OffsetX + bitmapManager.PreviewLayer.OffsetY); // Offset is zero
-            Assert.Equal(bitmapManager.ActiveDocument.Width, bitmapManager.PreviewLayer.MaxWidth);
-            Assert.Equal(bitmapManager.ActiveDocument.Height, bitmapManager.PreviewLayer.MaxHeight);
+            bitmapManager.ActiveDocument.GeneratePreviewLayer();
+            Assert.NotNull(bitmapManager.ActiveDocument.PreviewLayer);
+            Assert.Equal(0, bitmapManager.ActiveDocument.PreviewLayer.Width + bitmapManager.ActiveDocument.PreviewLayer.Height); // Size is zero
+            Assert.Equal(0, bitmapManager.ActiveDocument.PreviewLayer.OffsetX + bitmapManager.ActiveDocument.PreviewLayer.OffsetY); // Offset is zero
+            Assert.Equal(bitmapManager.ActiveDocument.Width, bitmapManager.ActiveDocument.PreviewLayer.MaxWidth);
+            Assert.Equal(bitmapManager.ActiveDocument.Height, bitmapManager.ActiveDocument.PreviewLayer.MaxHeight);
         }
 
         [Fact]
