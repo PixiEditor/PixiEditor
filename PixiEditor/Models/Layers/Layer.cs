@@ -333,6 +333,7 @@ namespace PixiEditor.Models.Layers
         public void Clear()
         {
             LayerBitmap.Clear();
+            ClipCanvas();
         }
 
         /// <summary>

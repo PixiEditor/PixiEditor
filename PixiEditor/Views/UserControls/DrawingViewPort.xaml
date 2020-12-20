@@ -35,19 +35,19 @@
                                                   MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
             </i:Interaction.Behaviors>
             <vws:MainDrawingPanel.Item>
-                <Canvas Width="{Binding BitmapManager.ActiveDocument.Width}"
-                                Height="{Binding BitmapManager.ActiveDocument.Height}" VerticalAlignment="Center"
+                <Canvas Width="{Binding Width}"
+                                Height="{Binding Height}" VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
                     <Image Source="/Images/transparentbg.png"
-                                   Height="{Binding BitmapManager.ActiveDocument.Height}"
-                                   Width="{Binding BitmapManager.ActiveDocument.Width}" Opacity="0.9"
+                                   Height="{Binding Height}"
+                                   Width="{Binding Width}" Opacity="0.9"
                                    Stretch="UniformToFill" />
-                <Image Source="{Binding BitmapManager.PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
+                <Image Source="{Binding PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding BitmapManager.PreviewLayer.Width}"
-                                   Height="{Binding BitmapManager.PreviewLayer.Height}" 
-                                   Margin="{Binding BitmapManager.PreviewLayer.Offset}"/>
-                <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}">
+                                   Width="{Binding PreviewLayer.Width}"
+                                   Height="{Binding PreviewLayer.Height}" 
+                                   Margin="{Binding PreviewLayer.Offset}"/>
+                <ItemsControl ItemsSource="{Binding Layers}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Grid />
@@ -64,11 +64,11 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <Image VerticalAlignment="Top" HorizontalAlignment="Left" 
-                           Source="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.LayerBitmap}"
+                           Source="{Binding ActiveSelection.SelectionLayer.LayerBitmap}"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.Width}"
-                                   Height="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.Height}" 
-                                   Margin="{Binding BitmapManager.ActiveDocument.ActiveSelection.SelectionLayer.Offset}" />
+                                   Width="{Binding ActiveSelection.SelectionLayer.Width}"
+                                   Height="{Binding ActiveSelection.SelectionLayer.Height}" 
+                                   Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
                 </Canvas>
             </vws:MainDrawingPanel.Item>
         </vws:MainDrawingPanel>

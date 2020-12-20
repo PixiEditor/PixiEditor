@@ -28,6 +28,8 @@ namespace PixiEditor.Models.DataHolders
             Height = height;
             RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
             UndoManager = new UndoManager();
+            XamlAccesibleViewModel = ViewModelMain.Current ?? null;
+            GeneratePreviewLayer();
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(0, 0, width, height));
         }
 
@@ -36,6 +38,18 @@ namespace PixiEditor.Models.DataHolders
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
         public RelayCommand RequestCloseDocumentCommand { get; set; }
+
+        private ViewModelMain xamlAccesibleViewModel = null;
+
+        public ViewModelMain XamlAccesibleViewModel // Used to access ViewModelMain, without changing DataContext in XAML
+        {
+            get => xamlAccesibleViewModel;
+            set
+            {
+                xamlAccesibleViewModel = value;
+                RaisePropertyChanged(nameof(XamlAccesibleViewModel));
+            }
+        }
 
         private string documentFilePath = string.Empty;
 
@@ -101,6 +115,78 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private Layer previewLayer;
+
+        public Layer PreviewLayer
+        {
+            get => previewLayer;
+            set
+            {
+                previewLayer = value;
+                RaisePropertyChanged("PreviewLayer");
+            }
+        }
+
+        private double mouseXonCanvas;
+
+        private double mouseYonCanvas;
+
+        public double MouseXOnCanvas // Mouse X coordinate relative to canvas
+        {
+            get => mouseXonCanvas;
+            set
+            {
+                mouseXonCanvas = value;
+                RaisePropertyChanged(nameof(MouseXOnCanvas));
+            }
+        }
+
+        public double MouseYOnCanvas // Mouse Y coordinate relative to canvas
+        {
+            get => mouseYonCanvas;
+            set
+            {
+                mouseYonCanvas = value;
+                RaisePropertyChanged(nameof(MouseYOnCanvas));
+            }
+        }
+
+        private double zoomPercentage = 100;
+
+        public double ZoomPercentage
+        {
+            get => zoomPercentage;
+            set
+            {
+                zoomPercentage = value;
+                RaisePropertyChanged(nameof(ZoomPercentage));
+            }
+        }
+
+        private Point viewPortPosition;
+
+        public Point ViewportPosition
+        {
+            get => viewPortPosition;
+            set
+            {
+                viewPortPosition = value;
+                RaisePropertyChanged(nameof(ViewportPosition));
+            }
+        }
+
+        private bool recenterZoombox = true;
+
+        public bool RecenterZoombox
+        {
+            get => recenterZoombox;
+            set
+            {
+                recenterZoombox = value;
+                RaisePropertyChanged(nameof(RecenterZoombox));
+            }
+        }
+
         public UndoManager UndoManager { get; set; }
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
@@ -116,6 +202,23 @@ namespace PixiEditor.Models.DataHolders
                 RaisePropertyChanged("ActiveLayerIndex");
                 RaisePropertyChanged("ActiveLayer");
             }
+        }
+
+        public void GeneratePreviewLayer()
+        {
+            PreviewLayer = new Layer("_previewLayer")
+            {
+                MaxWidth = Width,
+                MaxHeight = Height
+            };
+        }
+
+        public void CenterViewport()
+        {
+            RecenterZoombox = false; // It's a trick to trigger change in UserControl
+            RecenterZoombox = true;
+            ViewportPosition = default;
+            ZoomPercentage = default;
         }
 
         public void SaveWithDialog()

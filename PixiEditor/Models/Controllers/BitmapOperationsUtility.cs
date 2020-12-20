@@ -92,7 +92,7 @@ namespace PixiEditor.Models.Controllers
                     lastModifiedLayers[i].PixelChanges,
                     oldValues,
                     lastModifiedLayers[i].LayerIndex));
-                Manager.PreviewLayer = null;
+                Manager.ActiveDocument.GeneratePreviewLayer();
             }
         }
 
@@ -184,13 +184,13 @@ namespace PixiEditor.Models.Controllers
             LayerChange[] modifiedLayers;
             if (mouseMove.Count > 0 && mouseMove[0] != lastMousePos)
             {
-                Manager.GeneratePreviewLayer();
+                Manager.ActiveDocument.GeneratePreviewLayer();
                 modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(
                     Manager.ActiveDocument.ActiveLayer,
                     mouseMove.ToArray(),
                     Manager.PrimaryColor);
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
-                Manager.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
+                Manager.ActiveDocument.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
                 lastModifiedLayers = modifiedLayers;
             }
         }

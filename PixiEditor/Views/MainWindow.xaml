@@ -162,7 +162,8 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
             <Grid>
-                <avalondock:DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" DocumentsSource="{Binding BitmapManager.Documents}">
+                <avalondock:DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
+                                           DocumentsSource="{Binding BitmapManager.Documents}">
                     <avalondock:DockingManager.Theme>
                         <avalondock:Vs2013DarkTheme/>
                     </avalondock:DockingManager.Theme>
@@ -170,22 +171,21 @@
                         <Style TargetType="{x:Type avalondock:LayoutItem}">
                             <Setter Property="Title" Value="{Binding Model.Name}" />
                             <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
-                            <Setter Property="CanClose" Value="{Binding Model.CanClose}" />
                         </Style>
                     </avalondock:DockingManager.LayoutItemContainerStyle>
                     <avalondock:DockingManager.LayoutItemTemplate>
                         <DataTemplate DataType="{x:Type vm:ViewModelMain}">
-                            <usercontrols:DrawingViewPort DataContext="{Binding Path=DataContext, 
-                                RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                        ZoomPercentage="{Binding ViewportSubViewModel.ZoomPercentage}"
-                                        RecenterZoombox="{Binding ViewportSubViewModel.RecenterZoombox}"
-                                        Cursor="{Binding ToolsSubViewModel.ToolCursor}"
-                                        MiddleMouseClickedCommand="{Binding ToolsSubViewModel.SelectToolCommand}"
-                                        ViewportPosition="{Binding ViewportSubViewModel.ViewportPosition}"
-                                        MouseMoveCommand="{Binding IoSubViewModel.MouseMoveCommand}"
-                                        MouseDownCommand="{Binding IoSubViewModel.MouseDownCommand}"
-                                        MouseXOnCanvas="{Binding IoSubViewModel.MouseXOnCanvas, Mode=TwoWay}"
-                                        MouseYOnCanvas="{Binding IoSubViewModel.MouseYOnCanvas, Mode=TwoWay}"/>
+                            <usercontrols:DrawingViewPort
+                                        ZoomPercentage="{Binding ZoomPercentage}"
+                                        RecenterZoombox="{Binding RecenterZoombox}"
+                                        Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
+                                        MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"
+                                        ViewportPosition="{Binding ViewportPosition}"
+                                        MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
+                                        MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
+                                        MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
+                                        MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}">
+                            </usercontrols:DrawingViewPort>
                         </DataTemplate>
                     </avalondock:DockingManager.LayoutItemTemplate>
                 </avalondock:DockingManager>
@@ -358,9 +358,9 @@
             <TextBlock Text="{Binding BitmapManager.SelectedTool.ActionDisplay}" Foreground="White" FontSize="15"  VerticalAlignment="Center"/>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="X:" Foreground="White" FontSize="16"/>
-                <TextBlock Margin="4,0,10,0" Text="{Binding IoSubViewModel.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
                 <TextBlock Text="Y:" Foreground="White" FontSize="16"/>
-                <TextBlock Margin="4,0,10,0" Text="{Binding IoSubViewModel.MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
             </StackPanel>
         </DockPanel>
         <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Grid.Row="3"

@@ -17,30 +17,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand KeyUpCommand { get; set; }
 
-        private double mouseXonCanvas;
-
-        private double mouseYonCanvas;
-
-        public double MouseXOnCanvas // Mouse X coordinate relative to canvas
-        {
-            get => mouseXonCanvas;
-            set
-            {
-                mouseXonCanvas = value;
-                RaisePropertyChanged(nameof(MouseXOnCanvas));
-            }
-        }
-
-        public double MouseYOnCanvas // Mouse Y coordinate relative to canvas
-        {
-            get => mouseYonCanvas;
-            set
-            {
-                mouseYonCanvas = value;
-                RaisePropertyChanged(nameof(MouseYOnCanvas));
-            }
-        }
-
         private bool restoreToolOnKeyUp = false;
 
         public IoViewModel(ViewModelMain owner)
@@ -90,10 +66,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 if (!Owner.BitmapManager.MouseController.IsRecordingChanges)
                 {
-                    bool clickedOnCanvas = MouseXOnCanvas >= 0 &&
-                        MouseXOnCanvas <= Owner.BitmapManager.ActiveDocument.Width &&
-                        MouseYOnCanvas >= 0 &&
-                        MouseYOnCanvas <= Owner.BitmapManager.ActiveDocument.Height;
+                    bool clickedOnCanvas = Owner.BitmapManager.ActiveDocument.MouseXOnCanvas >= 0 &&
+                        Owner.BitmapManager.ActiveDocument.MouseXOnCanvas <= Owner.BitmapManager.ActiveDocument.Width &&
+                        Owner.BitmapManager.ActiveDocument.MouseYOnCanvas >= 0 &&
+                        Owner.BitmapManager.ActiveDocument.MouseYOnCanvas <= Owner.BitmapManager.ActiveDocument.Height;
                     Owner.BitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
                     Owner.BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
@@ -115,7 +91,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandParameter.</param>
         private void MouseMove(object parameter)
         {
-            Coordinates cords = new Coordinates((int)MouseXOnCanvas, (int)MouseYOnCanvas);
+            Coordinates cords = new Coordinates(
+                (int)Owner.BitmapManager.ActiveDocument.MouseXOnCanvas,
+                (int)Owner.BitmapManager.ActiveDocument.MouseYOnCanvas);
             MousePositionConverter.CurrentCoordinates = cords;
 
             if (Owner.BitmapManager.MouseController.IsRecordingChanges && Mouse.LeftButton == MouseButtonState.Pressed)
