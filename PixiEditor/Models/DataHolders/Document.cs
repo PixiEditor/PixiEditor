@@ -27,6 +27,7 @@ namespace PixiEditor.Models.DataHolders
             Width = width;
             Height = height;
             RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
+            SetAsActiveOnClickCommand = new RelayCommand(SetAsActiveOnClick);
             UndoManager = new UndoManager();
             XamlAccesibleViewModel = ViewModelMain.Current ?? null;
             GeneratePreviewLayer();
@@ -38,6 +39,8 @@ namespace PixiEditor.Models.DataHolders
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
         public RelayCommand RequestCloseDocumentCommand { get; set; }
+
+        public RelayCommand SetAsActiveOnClickCommand { get; set; }
 
         private ViewModelMain xamlAccesibleViewModel = null;
 
@@ -420,6 +423,13 @@ namespace PixiEditor.Models.DataHolders
                     MoveOffsetsProcess,
                     new object[] { moveVector },
                     "Center content"));
+        }
+
+        private void SetAsActiveOnClick(object obj)
+        {
+            XamlAccesibleViewModel.BitmapManager.MouseController.StopRecordingMouseMovementChanges();
+            XamlAccesibleViewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
+            XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
         }
 
         private void RequestCloseDocument(object parameter)

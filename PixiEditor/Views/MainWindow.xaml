@@ -185,6 +185,11 @@
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
                             </usercontrols:DrawingViewPort>
                         </DataTemplate>
                     </avalondock:DockingManager.LayoutItemTemplate>
