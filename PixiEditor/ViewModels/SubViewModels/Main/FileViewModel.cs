@@ -165,7 +165,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (openOld)
             {
-                document = Importer.ImpostorOldDocument(path);
+                document = Importer.ImportOldDocument(path);
             }
             else
             {

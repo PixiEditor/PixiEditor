@@ -70,7 +70,7 @@ namespace PixiEditor.Models.IO
             }
         }
 
-        public static Document ImpostorOldDocument(string path)
+        public static Document ImportOldDocument(string path)
         {
             try
             {
