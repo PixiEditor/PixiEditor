@@ -114,15 +114,15 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.X, ColorsSubViewModel.SwapColorsCommand),
                     new Shortcut(Key.Y, UndoSubViewModel.RedoCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Z, UndoSubViewModel.UndoCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.D, SelectionSubViewModel.DeselectCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.A, SelectionSubViewModel.SelectAllCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.C, ClipboardSubViewModel.CopyCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.V, ClipboardSubViewModel.PasteCommand, modifier: ModifierKeys.Control),
-                    new Shortcut(Key.J, ClipboardSubViewModel.DuplicateCommand, modifier: ModifierKeys.Control),
+                    new Shortcut(Key.D, ClipboardSubViewModel.DuplicateCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.X, ClipboardSubViewModel.CutCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.Delete, DocumentSubViewModel.DeletePixelsCommand),
                     new Shortcut(Key.I, DocumentSubViewModel.OpenResizePopupCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.C, DocumentSubViewModel.OpenResizePopupCommand, "canvas", ModifierKeys.Control | ModifierKeys.Shift),
+                    new Shortcut(Key.A, SelectionSubViewModel.DeselectCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift),
                     new Shortcut(Key.F11, SystemCommands.MaximizeWindowCommand),
 
                     // File
