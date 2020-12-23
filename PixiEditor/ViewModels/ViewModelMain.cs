@@ -148,7 +148,7 @@ namespace PixiEditor.ViewModels
                 document.PreviewLayer = null;
             }
 
-            BitmapManager.ActiveDocument.CenterViewport();
+            BitmapManager.ActiveDocument?.CenterViewport();
         }
 
         public bool DocumentIsNotNull(object property)

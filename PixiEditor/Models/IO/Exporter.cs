@@ -3,8 +3,10 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Parser;
 
 namespace PixiEditor.Models.IO
 {
@@ -40,7 +42,7 @@ namespace PixiEditor.Models.IO
         /// <returns>Path.</returns>
         public static string SaveAsEditableFile(Document document, string path)
         {
-            BinarySerialization.WriteToBinaryFile(path, new SerializableDocument(document));
+            PixiParser.Serialize(document.ToSerializable(), path);
             return path;
         }
 

@@ -12,6 +12,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.Parser;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -123,6 +124,22 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 MessageBox.Show(ex.Message, "Failed to open file.", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch (OldFileFormatException)
+            {
+                MessageBoxResult result = MessageBox.Show("This pixi file uses the old file format and is insecure.\nOnly continue if you trust the source of the file", "Old file format", MessageBoxButton.OKCancel);
+
+                if (result == MessageBoxResult.OK)
+                {
+                    try
+                    {
+                        OpenDocument(path, true);
+                    }
+                    catch (CorruptedFileException ex)
+                    {
+                        MessageBox.Show(ex.Message, "Failed to open file.", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
         }
 
         private void Open(object property)
@@ -142,11 +159,23 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void OpenDocument(string path)
+        private void OpenDocument(string path, bool openOld = false)
         {
+            Document document;
+
+            if (openOld)
+            {
+                document = Importer.ImportOldDocument(path);
+            }
+            else
+            {
+                document = Importer.ImportDocument(path);
+            }
+
             if (Owner.BitmapManager.Documents.Select(x => x.DocumentFilePath).All(y => y != path))
             {
-                Owner.BitmapManager.Documents.Add(Importer.ImportDocument(path));
+                Owner.BitmapManager.Documents.Add(document);
+                Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.Last();
             }
             else
             {
