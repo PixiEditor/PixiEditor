@@ -44,30 +44,32 @@ namespace PixiEditor.Helpers.Extensions
 
         public static Parser.SerializableDocument ToSerializable(this Document document)
         {
-            Parser.SerializableDocument serializable = new Parser.SerializableDocument();
-
-            serializable.Width = document.Width;
-            serializable.Height = document.Height;
-            serializable.Layers = document.Layers.Select(x => x.ToSerializable()).ToArray();
-            serializable.Swatches = document.Swatches.Select(x => new Tuple<byte, byte, byte, byte>(x.A, x.R, x.G, x.B)).ToArray();
+            Parser.SerializableDocument serializable = new Parser.SerializableDocument
+            {
+                Width = document.Width,
+                Height = document.Height,
+                Layers = document.Layers.Select(x => x.ToSerializable()).ToArray(),
+                Swatches = document.Swatches.Select(x => new Tuple<byte, byte, byte, byte>(x.A, x.R, x.G, x.B)).ToArray()
+            };
 
             return serializable;
         }
 
         public static Parser.SerializableLayer ToSerializable(this Layer layer)
         {
-            Parser.SerializableLayer serializable = new Parser.SerializableLayer();
-
-            serializable.Name = layer.Name;
-            serializable.Width = layer.Width;
-            serializable.Height = layer.Height;
-            serializable.BitmapBytes = layer.ConvertBitmapToBytes();
-            serializable.IsVisible = layer.IsVisible;
-            serializable.OffsetX = (int)layer.Offset.Left;
-            serializable.OffsetY = (int)layer.Offset.Top;
-            serializable.Opacity = layer.Opacity;
-            serializable.MaxWidth = layer.MaxWidth;
-            serializable.MaxHeight = layer.MaxHeight;
+            Parser.SerializableLayer serializable = new Parser.SerializableLayer
+            {
+                Name = layer.Name,
+                Width = layer.Width,
+                Height = layer.Height,
+                BitmapBytes = layer.ConvertBitmapToBytes(),
+                IsVisible = layer.IsVisible,
+                OffsetX = (int)layer.Offset.Left,
+                OffsetY = (int)layer.Offset.Top,
+                Opacity = layer.Opacity,
+                MaxWidth = layer.MaxWidth,
+                MaxHeight = layer.MaxHeight
+            };
 
             return serializable;
         }
