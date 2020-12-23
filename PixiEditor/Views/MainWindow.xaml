@@ -92,7 +92,7 @@
                     <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
                     <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
                     <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
-                    <MenuItem Header="_Duplicate" Command="{Binding ClipboardSubViewModel.DuplicateCommand}" InputGestureText="Ctrl+J" />
+                    <MenuItem Header="_Duplicate" Command="{Binding ClipboardSubViewModel.DuplicateCommand}" InputGestureText="Ctrl+D" />
                     <Separator />
                     <MenuItem Header="_Delete Selected" Command="{Binding DocumentSubViewModel.DeletePixelsCommand}"
                               InputGestureText="Delete" />
@@ -101,7 +101,7 @@
                 </MenuItem>
                 <MenuItem Header="_Select">
                     <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
-                    <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
+                    <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+Shit+A" />
                 </MenuItem>
                 <MenuItem Header="_Document">
                     <MenuItem Header="Resize Document..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
