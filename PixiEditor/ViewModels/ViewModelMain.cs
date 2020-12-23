@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
@@ -142,13 +143,12 @@ namespace PixiEditor.ViewModels
         /// </summary>
         public void ResetProgramStateValues()
         {
-            BitmapManager.PreviewLayer = null;
-            UndoManager.UndoStack.Clear();
-            UndoManager.RedoStack.Clear();
-            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            ViewportSubViewModel.CenterViewport();
-            Exporter.SaveDocumentPath = null;
-            DocumentSubViewModel.UnsavedDocumentModified = false;
+            foreach (var document in BitmapManager.Documents)
+            {
+                document.PreviewLayer = null;
+            }
+
+            BitmapManager.ActiveDocument.CenterViewport();
         }
 
         public bool DocumentIsNotNull(object property)
@@ -163,10 +163,38 @@ namespace PixiEditor.ViewModels
                 throw new ArgumentException();
             }
 
-            ((CancelEventArgs)property).Cancel = true;
+            ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
+        }
 
-            var result = ConfirmationType.No;
-            if (DocumentSubViewModel.UnsavedDocumentModified)
+        /// <summary>
+        /// Removes documents with unsaved changes confirmation dialog.
+        /// </summary>
+        /// <returns>If documents was removed successfully.</returns>
+        private bool RemoveDocumentsWithSaveConfirmation()
+        {
+            int docCount = BitmapManager.Documents.Count;
+            for (int i = 0; i < docCount; i++)
+            {
+                BitmapManager.ActiveDocument = BitmapManager.Documents.First();
+                bool canceled = !RemoveDocumentWithSaveConfirmation();
+                if (canceled)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Removes document with unsaved changes confirmation dialog.
+        /// </summary>
+        /// <returns>If document was removed successfully.</returns>
+        private bool RemoveDocumentWithSaveConfirmation()
+        {
+            ConfirmationType result = ConfirmationType.No;
+
+            if (!BitmapManager.ActiveDocument.ChangesSaved)
             {
                 result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes)
@@ -177,8 +205,15 @@ namespace PixiEditor.ViewModels
 
             if (result != ConfirmationType.Canceled)
             {
-                ((CancelEventArgs)property).Cancel = false;
+                BitmapManager.Documents.Remove(BitmapManager.ActiveDocument);
+
+                return true;
             }
+            else
+            {
+                return false;
+            }
+
         }
 
         private void OnStartup(object parameter)
@@ -188,14 +223,17 @@ namespace PixiEditor.ViewModels
 
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
-            e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
+            if (e.NewDocument != null)
+            {
+                e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
+            }
         }
 
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
-            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            ViewportSubViewModel.CenterViewport();
-            DocumentSubViewModel.UnsavedDocumentModified = true;
+            BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            BitmapManager.ActiveDocument.CenterViewport();
+            BitmapManager.ActiveDocument.ChangesSaved = false;
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -208,7 +246,7 @@ namespace PixiEditor.ViewModels
             ChangesController.AddChanges(
                 new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
-            DocumentSubViewModel.UnsavedDocumentModified = true;
+            BitmapManager.ActiveDocument.ChangesSaved = false;
             if (BitmapManager.IsOperationTool())
             {
                 ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);

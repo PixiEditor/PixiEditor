@@ -1,36 +1,41 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Controllers
 {
-    public static class UndoManager
+    public class UndoManager
     {
-        private static bool lastChangeWasUndo;
+        private bool lastChangeWasUndo;
 
-        public static Stack<Change> UndoStack { get; set; } = new Stack<Change>();
+        public Stack<Change> UndoStack { get; set; } = new Stack<Change>();
 
-        public static Stack<Change> RedoStack { get; set; } = new Stack<Change>();
+        public Stack<Change> RedoStack { get; set; } = new Stack<Change>();
 
-        public static bool CanUndo => UndoStack.Count > 0;
+        public bool CanUndo => UndoStack.Count > 0;
 
-        public static bool CanRedo => RedoStack.Count > 0;
+        public bool CanRedo => RedoStack.Count > 0;
 
-        public static object MainRoot { get; set; }
+        public object MainRoot { get; set; }
 
-        /// <summary>
-        ///     Sets object(root) in which undo properties are stored.
-        /// </summary>
-        /// <param name="root">Parent object.</param>
-        public static void SetMainRoot(object root)
+        public UndoManager()
         {
-            MainRoot = root;
+            if (ViewModelMain.Current != null && ViewModelMain.Current.UndoSubViewModel != null)
+            {
+                MainRoot = ViewModelMain.Current.UndoSubViewModel;
+            }
+        }
+
+        public UndoManager(object mainRoot)
+        {
+            MainRoot = mainRoot;
         }
 
         /// <summary>
         ///     Adds property change to UndoStack.
         /// </summary>
-        public static void AddUndoChange(Change change)
+        public void AddUndoChange(Change change)
         {
             lastChangeWasUndo = false;
 
@@ -47,7 +52,7 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Sets top property in UndoStack to Old Value.
         /// </summary>
-        public static void Undo()
+        public void Undo()
         {
             lastChangeWasUndo = true;
             Change change = UndoStack.Pop();
@@ -66,7 +71,7 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Sets top property from RedoStack to old value.
         /// </summary>
-        public static void Redo()
+        public void Redo()
         {
             lastChangeWasUndo = true;
             Change change = RedoStack.Pop();
@@ -82,7 +87,7 @@ namespace PixiEditor.Models.Controllers
             UndoStack.Push(change);
         }
 
-        private static void SetPropertyValue(object target, string propName, object value)
+        private void SetPropertyValue(object target, string propName, object value)
         {
             string[] bits = propName.Split('.');
             for (int i = 0; i < bits.Length - 1; i++)

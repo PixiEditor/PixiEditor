@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -7,7 +8,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
@@ -21,7 +21,6 @@ namespace PixiEditor.Models.Controllers
     public class BitmapManager : NotifyableObject
     {
         private Document activeDocument;
-        private Layer previewLayer;
         private Tool selectedTool;
 
         public BitmapManager()
@@ -36,8 +35,6 @@ namespace PixiEditor.Models.Controllers
             ReadonlyToolUtility = new ReadonlyToolUtility();
         }
 
-        public event EventHandler<LayersChangedEventArgs> LayersChanged;
-
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
 
         public MouseMovementController MouseController { get; set; }
@@ -49,16 +46,6 @@ namespace PixiEditor.Models.Controllers
             {
                 selectedTool = value;
                 RaisePropertyChanged("SelectedTool");
-            }
-        }
-
-        public Layer PreviewLayer
-        {
-            get => previewLayer;
-            set
-            {
-                previewLayer = value;
-                RaisePropertyChanged("PreviewLayer");
             }
         }
 
@@ -96,6 +83,8 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
+
         /// <summary>
         ///     Returns if tool is BitmapOperationTool.
         /// </summary>
@@ -104,69 +93,17 @@ namespace PixiEditor.Models.Controllers
             return tool is BitmapOperationTool;
         }
 
-        public void SetActiveTool(Tool tool)
+        public void CloseDocument(Document document)
         {
-            PreviewLayer = null;
-            SelectedTool?.Toolbar.SaveToolbarSettings();
-            SelectedTool = tool;
-            SelectedTool.Toolbar.LoadSharedSettings();
-        }
-
-        public void SetActiveLayer(int index)
-        {
-            if (ActiveDocument.ActiveLayerIndex <= ActiveDocument.Layers.Count - 1)
+            int nextIndex = 0;
+            if (document == ActiveDocument)
             {
-                ActiveDocument.ActiveLayer.IsActive = false;
+                nextIndex = Documents.Count > 1 ? Documents.IndexOf(document) : -1;
+                nextIndex += nextIndex > 0 ? -1 : 0;
             }
 
-            ActiveDocument.ActiveLayerIndex = index;
-            ActiveDocument.ActiveLayer.IsActive = true;
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
-        }
-
-        public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
-        {
-            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
-            ActiveDocument.Layers.Last().LayerBitmap = bitmap;
-        }
-
-        public void AddNewLayer(string name, bool setAsActive = true)
-        {
-            AddNewLayer(name, 0, 0, setAsActive);
-        }
-
-        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
-        {
-            ActiveDocument.Layers.Add(new Layer(name, width, height)
-            {
-                MaxHeight = ActiveDocument.Height,
-                MaxWidth = ActiveDocument.Width
-            });
-            if (setAsActive)
-            {
-                SetActiveLayer(ActiveDocument.Layers.Count - 1);
-            }
-
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
-        }
-
-        public void RemoveLayer(int layerIndex)
-        {
-            if (ActiveDocument.Layers.Count == 0)
-            {
-                return;
-            }
-
-            bool wasActive = ActiveDocument.Layers[layerIndex].IsActive;
-            ActiveDocument.Layers.RemoveAt(layerIndex);
-            if (wasActive)
-            {
-                SetActiveLayer(0);
-            }
-            else if (ActiveDocument.ActiveLayerIndex > ActiveDocument.Layers.Count - 1)
-            {
-                SetActiveLayer(ActiveDocument.Layers.Count - 1);
-            }
+            Documents.Remove(document);
+            ActiveDocument = nextIndex >= 0 ? Documents[nextIndex] : null;
         }
 
         public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
@@ -184,18 +121,6 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        public void GeneratePreviewLayer()
-        {
-            if (ActiveDocument != null)
-            {
-                PreviewLayer = new Layer("_previewLayer")
-                {
-                    MaxWidth = ActiveDocument.Width,
-                    MaxHeight = ActiveDocument.Height
-                };
-            }
-        }
-
         public WriteableBitmap GetCombinedLayersBitmap()
         {
             return BitmapUtils.CombineLayers(ActiveDocument.Layers.Where(x => x.IsVisible).ToArray(), ActiveDocument.Width, ActiveDocument.Height);
@@ -207,6 +132,17 @@ namespace PixiEditor.Models.Controllers
         public bool IsOperationTool()
         {
             return IsOperationTool(SelectedTool);
+        }
+
+        public void SetActiveTool(Tool tool)
+        {
+            if (ActiveDocument != null)
+            {
+                ActiveDocument.PreviewLayer = null;
+            }
+            SelectedTool?.Toolbar.SaveToolbarSettings();
+            SelectedTool = tool;
+            SelectedTool.Toolbar.LoadSharedSettings();
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
@@ -240,7 +176,10 @@ namespace PixiEditor.Models.Controllers
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
             SelectedTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            PreviewLayer = null;
+            if (ActiveDocument != null)
+            {
+                ActiveDocument.PreviewLayer = null;
+            }
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -264,16 +203,16 @@ namespace PixiEditor.Models.Controllers
             if (CanChangeHighlightOffset(highlightArea))
             {
                 Coordinates start = highlightArea.First();
-                PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
+                ActiveDocument.PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
             }
             else if (!IsInsideBounds(highlightArea))
             {
-                PreviewLayer = null;
+                ActiveDocument.PreviewLayer = null;
             }
             else
             {
-                GeneratePreviewLayer();
-                PreviewLayer.SetPixels(
+                ActiveDocument.GeneratePreviewLayer();
+                ActiveDocument.PreviewLayer.SetPixels(
                     BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
             }
         }
@@ -281,8 +220,8 @@ namespace PixiEditor.Models.Controllers
         private bool CanChangeHighlightOffset(IEnumerable<Coordinates> highlightArea)
         {
             int count = highlightArea.Count();
-            return count > 0 && PreviewLayer != null &&
-                   IsInsideBounds(highlightArea) && count == PreviewLayer.Width * PreviewLayer.Height;
+            return count > 0 && ActiveDocument.PreviewLayer != null &&
+                   IsInsideBounds(highlightArea) && count == ActiveDocument.PreviewLayer.Width * ActiveDocument.PreviewLayer.Height;
         }
 
         private bool IsInsideBounds(IEnumerable<Coordinates> highlightArea)

@@ -10,16 +10,12 @@ namespace PixiEditor.Models.IO
 {
     public class Exporter
     {
-        public static Size FileDimensions { get; set; }
-
-        public static string SaveDocumentPath { get; set; }
-
         /// <summary>
         ///     Saves document as .pixi file that contains all document data.
         /// </summary>
         /// <param name="document">Document to save.</param>
-        /// <param name="updateWorkspacePath">Should editor remember dialog path for further saves.</param>
-        public static bool SaveAsEditableFileWithDialog(Document document, bool updateWorkspacePath = false)
+        /// <param name="path">Path where file was saved.</param>
+        public static bool SaveAsEditableFileWithDialog(Document document, out string path)
         {
             SaveFileDialog dialog = new SaveFileDialog
             {
@@ -28,21 +24,24 @@ namespace PixiEditor.Models.IO
             };
             if ((bool)dialog.ShowDialog())
             {
-                SaveAsEditableFile(document, dialog.FileName, updateWorkspacePath);
+                path = SaveAsEditableFile(document, dialog.FileName);
                 return true;
             }
 
+            path = string.Empty;
             return false;
         }
 
-        public static void SaveAsEditableFile(Document document, string path, bool updateWorkspacePath = false)
+        /// <summary>
+        /// Saves editable file to chosen path and returns it.
+        /// </summary>
+        /// <param name="document">Document to be saved.</param>
+        /// <param name="path">Path where to save file.</param>
+        /// <returns>Path.</returns>
+        public static string SaveAsEditableFile(Document document, string path)
         {
             BinarySerialization.WriteToBinaryFile(path, new SerializableDocument(document));
-
-            if (updateWorkspacePath)
-            {
-                SaveDocumentPath = path;
-            }
+            return path;
         }
 
         /// <summary>
@@ -64,7 +63,6 @@ namespace PixiEditor.Models.IO
                     return;
                 }
 
-                FileDimensions = new Size(info.FileWidth, info.FileHeight);
                 SaveAsPng(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
             }
         }

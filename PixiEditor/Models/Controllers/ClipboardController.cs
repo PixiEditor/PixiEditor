@@ -46,7 +46,7 @@ namespace PixiEditor.Models.Controllers
             {
                 AddImageToLayers(image);
                 int latestLayerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Count - 1;
-                UndoManager.AddUndoChange(
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
                     new Change(RemoveLayerProcess, new object[] { latestLayerIndex }, AddLayerProcess, new object[] { image }));
             }
         }
@@ -58,7 +58,7 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            ViewModelMain.Current.BitmapManager.RemoveLayer((int)parameters[0]);
+            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0]);
         }
 
         private static void AddLayerProcess(object[] parameters)
@@ -125,7 +125,7 @@ namespace PixiEditor.Models.Controllers
 
         private static void AddImageToLayers(WriteableBitmap image)
         {
-            ViewModelMain.Current.BitmapManager.AddNewLayer("Image", image);
+            ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer("Image", image);
         }
     }
 }

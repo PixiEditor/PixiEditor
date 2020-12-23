@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -21,9 +26,65 @@ namespace PixiEditor.Models.DataHolders
         {
             Width = width;
             Height = height;
+            RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
+            SetAsActiveOnClickCommand = new RelayCommand(SetAsActiveOnClick);
+            UndoManager = new UndoManager();
+            XamlAccesibleViewModel = ViewModelMain.Current ?? null;
+            GeneratePreviewLayer();
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(0, 0, width, height));
         }
 
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
+
+        public event EventHandler<LayersChangedEventArgs> LayersChanged;
+
+        public RelayCommand RequestCloseDocumentCommand { get; set; }
+
+        public RelayCommand SetAsActiveOnClickCommand { get; set; }
+
+        private ViewModelMain xamlAccesibleViewModel = null;
+
+        public ViewModelMain XamlAccesibleViewModel // Used to access ViewModelMain, without changing DataContext in XAML
+        {
+            get => xamlAccesibleViewModel;
+            set
+            {
+                xamlAccesibleViewModel = value;
+                RaisePropertyChanged(nameof(XamlAccesibleViewModel));
+            }
+        }
+
+        private string documentFilePath = string.Empty;
+
+        public string DocumentFilePath
+        {
+            get => documentFilePath;
+            set
+            {
+                documentFilePath = value;
+                RaisePropertyChanged(nameof(DocumentFilePath));
+                RaisePropertyChanged(nameof(Name));
+            }
+        }
+
+        private bool changesSaved = true;
+
+        public bool ChangesSaved
+        {
+            get => changesSaved;
+            set
+            {
+                changesSaved = value;
+                RaisePropertyChanged(nameof(ChangesSaved));
+                RaisePropertyChanged(nameof(Name)); // This updates name so it shows asterisk if unsaved
+            }
+        }
+
+        public string Name
+        {
+            get => (string.IsNullOrEmpty(DocumentFilePath) ? "Untitled" : Path.GetFileName(DocumentFilePath))
+                + (!ChangesSaved ? " *" : string.Empty);
+        }
 
         public int Width
         {
@@ -45,6 +106,92 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private Selection selection = new Selection(Array.Empty<Coordinates>());
+
+        public Selection ActiveSelection
+        {
+            get => selection;
+            set
+            {
+                selection = value;
+                RaisePropertyChanged("ActiveSelection");
+            }
+        }
+
+        private Layer previewLayer;
+
+        public Layer PreviewLayer
+        {
+            get => previewLayer;
+            set
+            {
+                previewLayer = value;
+                RaisePropertyChanged("PreviewLayer");
+            }
+        }
+
+        private double mouseXonCanvas;
+
+        private double mouseYonCanvas;
+
+        public double MouseXOnCanvas // Mouse X coordinate relative to canvas
+        {
+            get => mouseXonCanvas;
+            set
+            {
+                mouseXonCanvas = value;
+                RaisePropertyChanged(nameof(MouseXOnCanvas));
+            }
+        }
+
+        public double MouseYOnCanvas // Mouse Y coordinate relative to canvas
+        {
+            get => mouseYonCanvas;
+            set
+            {
+                mouseYonCanvas = value;
+                RaisePropertyChanged(nameof(MouseYOnCanvas));
+            }
+        }
+
+        private double zoomPercentage = 100;
+
+        public double ZoomPercentage
+        {
+            get => zoomPercentage;
+            set
+            {
+                zoomPercentage = value;
+                RaisePropertyChanged(nameof(ZoomPercentage));
+            }
+        }
+
+        private Point viewPortPosition;
+
+        public Point ViewportPosition
+        {
+            get => viewPortPosition;
+            set
+            {
+                viewPortPosition = value;
+                RaisePropertyChanged(nameof(ViewportPosition));
+            }
+        }
+
+        private bool recenterZoombox = true;
+
+        public bool RecenterZoombox
+        {
+            get => recenterZoombox;
+            set
+            {
+                recenterZoombox = value;
+                RaisePropertyChanged(nameof(RecenterZoombox));
+            }
+        }
+
+        public UndoManager UndoManager { get; set; }
+
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
@@ -58,6 +205,41 @@ namespace PixiEditor.Models.DataHolders
                 RaisePropertyChanged("ActiveLayerIndex");
                 RaisePropertyChanged("ActiveLayer");
             }
+        }
+
+        public void GeneratePreviewLayer()
+        {
+            PreviewLayer = new Layer("_previewLayer")
+            {
+                MaxWidth = Width,
+                MaxHeight = Height
+            };
+        }
+
+        public void CenterViewport()
+        {
+            RecenterZoombox = false; // It's a trick to trigger change in UserControl
+            RecenterZoombox = true;
+            ViewportPosition = default;
+            ZoomPercentage = default;
+        }
+
+        public void SaveWithDialog()
+        {
+            bool savedSuccessfully = Exporter.SaveAsEditableFileWithDialog(this, out string path);
+            DocumentFilePath = path;
+            ChangesSaved = savedSuccessfully;
+        }
+
+        public void Save()
+        {
+            Save(DocumentFilePath);
+        }
+
+        public void Save(string path)
+        {
+            DocumentFilePath = Exporter.SaveAsEditableFile(this, path);
+            ChangesSaved = true;
         }
 
         public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
@@ -94,6 +276,63 @@ namespace PixiEditor.Models.DataHolders
                 processArgs,
                 "Resize canvas"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
+        }
+
+        public void SetActiveLayer(int index)
+        {
+            if (ActiveLayerIndex <= Layers.Count - 1)
+            {
+                ActiveLayer.IsActive = false;
+            }
+
+            ActiveLayerIndex = index;
+            ActiveLayer.IsActive = true;
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
+        }
+
+        public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
+        {
+            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
+            Layers.Last().LayerBitmap = bitmap;
+        }
+
+        public void AddNewLayer(string name, bool setAsActive = true)
+        {
+            AddNewLayer(name, 0, 0, setAsActive);
+        }
+
+        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
+        {
+            Layers.Add(new Layer(name, width, height)
+            {
+                MaxHeight = Height,
+                MaxWidth = Width
+            });
+            if (setAsActive)
+            {
+                SetActiveLayer(Layers.Count - 1);
+            }
+
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
+        }
+
+        public void RemoveLayer(int layerIndex)
+        {
+            if (Layers.Count == 0)
+            {
+                return;
+            }
+
+            bool wasActive = Layers[layerIndex].IsActive;
+            Layers.RemoveAt(layerIndex);
+            if (wasActive)
+            {
+                SetActiveLayer(0);
+            }
+            else if (ActiveLayerIndex > Layers.Count - 1)
+            {
+                SetActiveLayer(Layers.Count - 1);
+            }
         }
 
         /// <summary>
@@ -153,6 +392,9 @@ namespace PixiEditor.Models.DataHolders
                 "Clip canvas"));
         }
 
+        /// <summary>
+        /// Centers content inside document.
+        /// </summary>
         public void CenterContent()
         {
             DoubleCords points = GetEdgePoints();
@@ -181,6 +423,18 @@ namespace PixiEditor.Models.DataHolders
                     MoveOffsetsProcess,
                     new object[] { moveVector },
                     "Center content"));
+        }
+
+        private void SetAsActiveOnClick(object obj)
+        {
+            XamlAccesibleViewModel.BitmapManager.MouseController.StopRecordingMouseMovementChanges();
+            XamlAccesibleViewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
+            XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
+        }
+
+        private void RequestCloseDocument(object parameter)
+        {
+            ViewModelMain.Current.DocumentSubViewModel.RequestCloseDocument(this);
         }
 
         private int GetOffsetXForAnchor(int srcWidth, int destWidth, AnchorPoint anchor)

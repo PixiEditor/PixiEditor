@@ -40,7 +40,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Copy(null);
             Owner.BitmapManager.BitmapOperations.DeletePixels(
                 new[] { Owner.BitmapManager.ActiveDocument.ActiveLayer },
-                Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray());
+                Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray());
         }
 
         public void Paste(object parameter)
@@ -57,7 +57,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             ClipboardController.CopyToClipboard(
                 new[] { Owner.BitmapManager.ActiveDocument.ActiveLayer },
-                Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray(),
+                Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray(),
                 Owner.BitmapManager.ActiveDocument.Width,
                 Owner.BitmapManager.ActiveDocument.Height);
         }

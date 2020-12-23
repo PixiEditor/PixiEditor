@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
@@ -72,7 +73,7 @@ namespace PixiEditor.Models.Tools
         {
         }
 
-        public virtual void AfterAddedUndo()
+        public virtual void AfterAddedUndo(UndoManager undoManager)
         {
         }
     }

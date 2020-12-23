@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
@@ -49,10 +50,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewDocument(int width, int height, bool addBaseLayer = true)
         {
-            Owner.BitmapManager.ActiveDocument = new Document(width, height);
+            Owner.BitmapManager.Documents.Add(new Document(width, height));
+            Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents[^1];
             if (addBaseLayer)
             {
-                Owner.BitmapManager.AddNewLayer("Base Layer");
+                Owner.BitmapManager.ActiveDocument.AddNewLayer("Base Layer");
             }
 
             Owner.ResetProgramStateValues();
@@ -74,7 +76,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (dialog.ShowDialog())
             {
                 NewDocument(dialog.FileWidth, dialog.FileHeight, false);
-                Owner.BitmapManager.AddNewLayer("Image", Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
+                Owner.BitmapManager.ActiveDocument.DocumentFilePath = path;
+                Owner.BitmapManager.ActiveDocument.AddNewLayer(
+                    "Image",
+                    Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
             }
         }
 
@@ -101,22 +106,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void Open(string path)
         {
-            if (Owner.DocumentSubViewModel.UnsavedDocumentModified)
-            {
-                var result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage);
-                if (result == ConfirmationType.Yes)
-                {
-                    SaveDocument(null);
-                }
-                else if (result == ConfirmationType.Canceled)
-                {
-                    return;
-                }
-            }
-
             try
             {
-                Owner.ResetProgramStateValues();
                 if (path.EndsWith(".pixi"))
                 {
                     OpenDocument(path);
@@ -125,6 +116,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 {
                     OpenFile(path);
                 }
+
+                Owner.ResetProgramStateValues();
             }
             catch (CorruptedFileException ex)
             {
@@ -144,31 +137,35 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (Importer.IsSupportedFile(dialog.FileName))
                 {
                     Open(dialog.FileName);
+                    Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.Last();
                 }
-
-                Owner.ViewportSubViewModel.CenterViewport();
             }
         }
 
         private void OpenDocument(string path)
         {
-            Owner.BitmapManager.ActiveDocument = Importer.ImportDocument(path);
-            Exporter.SaveDocumentPath = path;
-            Owner.DocumentSubViewModel.UnsavedDocumentModified = false;
+            if (Owner.BitmapManager.Documents.Select(x => x.DocumentFilePath).All(y => y != path))
+            {
+                Owner.BitmapManager.Documents.Add(Importer.ImportDocument(path));
+            }
+            else
+            {
+                Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.First(y => y.DocumentFilePath == path);
+            }
         }
 
         private void SaveDocument(object parameter)
         {
             bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
-            if (paramIsAsNew || Exporter.SaveDocumentPath == null)
+            if (paramIsAsNew ||
+                string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath) ||
+                !Owner.BitmapManager.ActiveDocument.DocumentFilePath.EndsWith(".pixi"))
             {
-                var saved = Exporter.SaveAsEditableFileWithDialog(Owner.BitmapManager.ActiveDocument, !paramIsAsNew);
-                Owner.DocumentSubViewModel.UnsavedDocumentModified = Owner.DocumentSubViewModel.UnsavedDocumentModified && !saved;
+                Owner.BitmapManager.ActiveDocument.SaveWithDialog();
             }
             else
             {
-                Exporter.SaveAsEditableFile(Owner.BitmapManager.ActiveDocument, Exporter.SaveDocumentPath);
-                Owner.DocumentSubViewModel.UnsavedDocumentModified = false;
+                Owner.BitmapManager.ActiveDocument.Save();
             }
         }
 

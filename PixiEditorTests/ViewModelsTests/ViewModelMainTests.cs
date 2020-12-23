@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -18,7 +19,6 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = new ViewModelMain();
 
-            Assert.Equal(viewModel.UndoSubViewModel, UndoManager.MainRoot);
             Assert.NotNull(viewModel.ChangesController);
             Assert.NotNull(viewModel.ShortcutController);
             Assert.NotEmpty(viewModel.ShortcutController.Shortcuts);
@@ -55,11 +55,12 @@ namespace PixiEditorTests.ViewModelsTests
         public void TestThatMouseMoveCommandUpdatesCurrentCoordinates()
         {
             ViewModelMain viewModel = new ViewModelMain();
+            viewModel.BitmapManager.ActiveDocument = new Document(10, 10);
 
             Assert.Equal(new Coordinates(0, 0), MousePositionConverter.CurrentCoordinates);
 
-            viewModel.IoSubViewModel.MouseXOnCanvas = 5;
-            viewModel.IoSubViewModel.MouseYOnCanvas = 5;
+            viewModel.BitmapManager.ActiveDocument.MouseXOnCanvas = 5;
+            viewModel.BitmapManager.ActiveDocument.MouseYOnCanvas = 5;
 
             viewModel.IoSubViewModel.MouseMoveCommand.Execute(null);
 
@@ -87,7 +88,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.True(viewModel.BitmapManager.MouseController.IsRecordingChanges);
 
-            viewModel.IoSubViewModel.MouseHook_OnMouseUp(default, default, default);
+            viewModel.IoSubViewModel.MouseHook_OnMouseUp(default, default, MouseButton.Left);
 
             Assert.False(viewModel.BitmapManager.MouseController.IsRecordingChanges);
         }
@@ -112,9 +113,10 @@ namespace PixiEditorTests.ViewModelsTests
             ViewModelMain viewModel = new ViewModelMain();
             string fileName = "testFile.pixi";
 
-            viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
-
-            Exporter.SaveDocumentPath = fileName;
+            viewModel.BitmapManager.ActiveDocument = new Document(1, 1)
+            {
+                DocumentFilePath = fileName
+            };
 
             viewModel.FileSubViewModel.SaveDocumentCommand.Execute(null);
 
@@ -150,13 +152,13 @@ namespace PixiEditorTests.ViewModelsTests
             {
                 BitmapManager = { ActiveDocument = new Document(docWidth, docHeight) }
             };
-            viewModel.BitmapManager.AddNewLayer("layer");
+            viewModel.BitmapManager.ActiveDocument.AddNewLayer("layer");
 
             viewModel.SelectionSubViewModel.SelectAllCommand.Execute(null);
 
             Assert.Equal(
                 viewModel.BitmapManager.ActiveDocument.Width * viewModel.BitmapManager.ActiveDocument.Height,
-                viewModel.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count);
+                viewModel.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.Count);
         }
 
         [StaFact]

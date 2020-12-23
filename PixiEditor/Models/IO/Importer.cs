@@ -58,7 +58,9 @@ namespace PixiEditor.Models.IO
         {
             try
             {
-                return BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
+                Document doc = BinarySerialization.ReadFromBinaryFile<SerializableDocument>(path).ToDocument();
+                doc.DocumentFilePath = path;
+                return doc;
             }
             catch (SerializationException)
             {
