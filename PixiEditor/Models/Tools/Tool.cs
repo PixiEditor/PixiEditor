@@ -12,7 +12,6 @@ namespace PixiEditor.Models.Tools
         protected string name;
         private bool isActive;
         private string actionDisplay = string.Empty;
-        
 
         public string ToolName
         {
