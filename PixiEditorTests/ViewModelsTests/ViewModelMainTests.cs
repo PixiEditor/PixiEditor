@@ -75,7 +75,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.Equal(typeof(MoveTool), viewModel.BitmapManager.SelectedTool.GetType());
 
-            viewModel.ToolsSubViewModel.SelectToolCommand.Execute(typeof(LineTool));
+            viewModel.ToolsSubViewModel.SelectToolCommand.Execute(new LineTool());
 
             Assert.Equal(typeof(LineTool), viewModel.BitmapManager.SelectedTool.GetType());
         }
