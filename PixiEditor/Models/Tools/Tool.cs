@@ -9,14 +9,25 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
+        protected string name;
         private bool isActive;
         private string actionDisplay = string.Empty;
+        
 
-        public string Name => GetType().Name.Replace("Tool", string.Empty);
+        public string ToolName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return GetType().Name.Replace("Tool", string.Empty);
+                }
 
-        public Type Type => GetType();
+                return name;
+            }
+        }
 
-        public string ImagePath => $"/Images/{Name}Image.png";
+        public string ImagePath => $"/Images/{ToolName}Image.png";
 
         public bool HideHighlight { get; set; } = false;
 

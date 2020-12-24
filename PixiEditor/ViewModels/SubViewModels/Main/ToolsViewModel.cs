@@ -45,15 +45,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SetActiveTool(typeof(MoveTool));
         }
 
-        public void SetActiveTool(Type toolType)
+        public void SetActiveTool<T>()
+            where T : Tool
         {
-            if (toolType == null)
-            {
-                return;
-            }
-
-            Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
-            SetActiveTool(foundTool);
+            SetActiveTool(typeof(T));
         }
 
         public void SetActiveTool(Tool tool)
@@ -72,7 +67,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetTool(object parameter)
         {
-            SetActiveTool((Type)parameter);
+            Tool tool = (Tool)parameter;
+            SetActiveTool(tool.GetType());
         }
 
         private void ChangeToolSize(object parameter)
@@ -83,6 +79,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 Owner.BitmapManager.ToolSize = newSize;
             }
+        }
+
+        private void SetActiveTool(Type toolType)
+        {
+            if (toolType == null)
+            {
+                return;
+            }
+
+            Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
+            SetActiveTool(foundTool);
         }
 
         private void SetToolCursor(Type tool)
