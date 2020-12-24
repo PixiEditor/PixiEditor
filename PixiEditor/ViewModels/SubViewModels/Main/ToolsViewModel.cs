@@ -67,6 +67,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetTool(object parameter)
         {
+            if (parameter is Type type)
+            {
+                SetActiveTool(type);
+                return;
+            }
+
             Tool tool = (Tool)parameter;
             SetActiveTool(tool.GetType());
         }
@@ -83,7 +89,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void SetActiveTool(Type toolType)
         {
-            if (toolType == null)
+            if (toolType == null && toolType.IsAssignableTo(typeof(Tool)))
             {
                 return;
             }
