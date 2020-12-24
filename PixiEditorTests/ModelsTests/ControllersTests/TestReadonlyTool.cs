@@ -13,8 +13,6 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
         public Action ToolAction { get; set; }
 
-        public override ToolType ToolType => ToolType.Select;
-
         public override void Use(Coordinates[] pixels)
         {
             ToolAction();

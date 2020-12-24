@@ -41,7 +41,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             List<Coordinates> mouseMove = new List<Coordinates>(new[] { new Coordinates(0, 0) });
 
-            util.ExecuteTool(new Coordinates(0, 0), mouseMove, new MockedSinglePixelPen());
+            util.ExecuteTool(new Coordinates(0, 0), mouseMove, new MockedSinglePixelPenTool());
             Assert.Equal(manager.ActiveLayer.GetPixel(0, 0), Colors.Black);
         }
     }
