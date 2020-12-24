@@ -23,8 +23,6 @@ namespace PixiEditor.Models.Tools.Tools
             circleTool = new CircleTool();
         }
 
-        public override ToolType ToolType => ToolType.Line;
-
         public override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Key == Key.LeftShift)

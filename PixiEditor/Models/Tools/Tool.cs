@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools.ToolSettings;
@@ -9,11 +10,13 @@ namespace PixiEditor.Models.Tools
     public abstract class Tool : NotifyableObject
     {
         private bool isActive;
-        private string actionDisplay = "";
+        private string actionDisplay = string.Empty;
 
-        public abstract ToolType ToolType { get; }
+        public string Name => GetType().Name.Replace("Tool", string.Empty);
 
-        public string ImagePath => $"/Images/{ToolType}Image.png";
+        public Type Type => GetType();
+
+        public string ImagePath => $"/Images/{Name}Image.png";
 
         public bool HideHighlight { get; set; } = false;
 

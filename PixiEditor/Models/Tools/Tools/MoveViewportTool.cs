@@ -17,8 +17,6 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Move viewport. (H)";
         }
 
-        public override ToolType ToolType => ToolType.MoveViewport;
-
         public override void OnMouseDown(MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)

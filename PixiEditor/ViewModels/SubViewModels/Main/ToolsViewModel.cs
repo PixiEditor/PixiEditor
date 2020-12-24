@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using PixiEditor.Helpers;
@@ -41,12 +42,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(),
                 new ZoomTool()
             };
-            SetActiveTool(ToolType.Move);
+            SetActiveTool(typeof(MoveTool));
         }
 
-        public void SetActiveTool(ToolType tool)
+        public void SetActiveTool(Type toolType)
         {
-            Tool foundTool = ToolSet.First(x => x.ToolType == tool);
+            if (toolType == null)
+            {
+                return;
+            }
+
+            Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
             SetActiveTool(foundTool);
         }
 
@@ -61,12 +67,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             tool.IsActive = true;
             LastActionTool = Owner.BitmapManager.SelectedTool;
             Owner.BitmapManager.SetActiveTool(tool);
-            SetToolCursor(tool.ToolType);
+            SetToolCursor(tool.GetType());
         }
 
         public void SetTool(object parameter)
         {
-            SetActiveTool((ToolType)parameter);
+            SetActiveTool((Type)parameter);
         }
 
         private void ChangeToolSize(object parameter)
@@ -79,9 +85,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void SetToolCursor(ToolType tool)
+        private void SetToolCursor(Type tool)
         {
-            if (tool != ToolType.None)
+            if (tool != null)
             {
                 ToolCursor = Owner.BitmapManager.SelectedTool.Cursor;
             }

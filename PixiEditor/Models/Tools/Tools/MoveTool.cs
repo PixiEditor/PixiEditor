@@ -40,8 +40,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         public bool MoveAll { get; set; } = false;
 
-        public override ToolType ToolType => ToolType.Move;
-
         public override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Key == Key.LeftCtrl)

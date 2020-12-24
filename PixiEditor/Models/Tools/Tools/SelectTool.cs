@@ -26,8 +26,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         public SelectionType SelectionType { get; set; } = SelectionType.Add;
 
-        public override ToolType ToolType => ToolType.Select;
-
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("SelectMode")?.Value as ComboBoxItem)?.Content as string, out SelectionType selectionType);

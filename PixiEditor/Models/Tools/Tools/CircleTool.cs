@@ -19,8 +19,6 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Draws circle on canvas (C). Hold Shift to draw even circle.";
         }
 
-        public override ToolType ToolType => ToolType.Circle;
-
         public override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Key == Key.LeftShift)
