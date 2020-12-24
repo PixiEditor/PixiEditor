@@ -15,8 +15,6 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Fills area with color. (G)";
         }
 
-        public override ToolType ToolType => ToolType.Bucket;
-
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             return Only(ForestFire(layer, coordinates[0], color), layer);

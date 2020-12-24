@@ -15,6 +15,7 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -94,18 +95,18 @@ namespace PixiEditor.ViewModels
                 Shortcuts = new List<Shortcut>
                 {
                     // Tools
-                    new Shortcut(Key.B, ToolsSubViewModel.SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.E, ToolsSubViewModel.SelectToolCommand, ToolType.Eraser),
-                    new Shortcut(Key.O, ToolsSubViewModel.SelectToolCommand, ToolType.ColorPicker),
-                    new Shortcut(Key.R, ToolsSubViewModel.SelectToolCommand, ToolType.Rectangle),
-                    new Shortcut(Key.C, ToolsSubViewModel.SelectToolCommand, ToolType.Circle),
-                    new Shortcut(Key.L, ToolsSubViewModel.SelectToolCommand, ToolType.Line),
-                    new Shortcut(Key.G, ToolsSubViewModel.SelectToolCommand, ToolType.Bucket),
-                    new Shortcut(Key.U, ToolsSubViewModel.SelectToolCommand, ToolType.Brightness),
-                    new Shortcut(Key.V, ToolsSubViewModel.SelectToolCommand, ToolType.Move),
-                    new Shortcut(Key.M, ToolsSubViewModel.SelectToolCommand, ToolType.Select),
-                    new Shortcut(Key.Z, ToolsSubViewModel.SelectToolCommand, ToolType.Zoom),
-                    new Shortcut(Key.H, ToolsSubViewModel.SelectToolCommand, ToolType.MoveViewport),
+                    CreateToolShortcut<PenTool>(Key.B),
+                    CreateToolShortcut<EraserTool>(Key.E),
+                    CreateToolShortcut<ColorPickerTool>(Key.O),
+                    CreateToolShortcut<RectangleTool>(Key.R),
+                    CreateToolShortcut<CircleTool>(Key.C),
+                    CreateToolShortcut<LineTool>(Key.L),
+                    CreateToolShortcut<FloodFill>(Key.G),
+                    CreateToolShortcut<BrightnessTool>(Key.U),
+                    CreateToolShortcut<MoveTool>(Key.V),
+                    CreateToolShortcut<SelectTool>(Key.M),
+                    CreateToolShortcut<ZoomTool>(Key.Z),
+                    CreateToolShortcut<MoveViewportTool>(Key.H),
                     new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, 115),
                     new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, 85),
                     new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, -1),
@@ -154,6 +155,12 @@ namespace PixiEditor.ViewModels
         public bool DocumentIsNotNull(object property)
         {
             return BitmapManager.ActiveDocument != null;
+        }
+
+        private Shortcut CreateToolShortcut<T>(Key key, ModifierKeys modifier = ModifierKeys.None)
+            where T : Tool
+        {
+            return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, typeof(T), modifier);
         }
 
         private void CloseWindow(object property)

@@ -18,8 +18,6 @@ namespace PixiEditor.Models.Tools
             Toolbar = new BasicShapeToolbar();
         }
 
-        public abstract override ToolType ToolType { get; }
-
         public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
 
         protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)

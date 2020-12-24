@@ -6,6 +6,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels;
 using Xunit;
 
@@ -72,11 +73,11 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = new ViewModelMain();
 
-            Assert.Equal(ToolType.Move, viewModel.BitmapManager.SelectedTool.ToolType);
+            Assert.Equal(typeof(MoveTool), viewModel.BitmapManager.SelectedTool.GetType());
 
-            viewModel.ToolsSubViewModel.SelectToolCommand.Execute(ToolType.Line);
+            viewModel.ToolsSubViewModel.SelectToolCommand.Execute(new LineTool());
 
-            Assert.Equal(ToolType.Line, viewModel.BitmapManager.SelectedTool.ToolType);
+            Assert.Equal(typeof(LineTool), viewModel.BitmapManager.SelectedTool.GetType());
         }
 
         [StaFact]

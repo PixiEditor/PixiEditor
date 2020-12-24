@@ -19,8 +19,6 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Draws rectangle on canvas (R). Hold Shift to draw square.";
         }
 
-        public override ToolType ToolType => ToolType.Rectangle;
-
         public bool Filled { get; set; } = false;
 
         public override void OnKeyDown(KeyEventArgs e)

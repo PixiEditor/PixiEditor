@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\AnchorDot.png" />
-    <Resource Include="Images\BucketImage.png" />
+    <Resource Include="Images\FloodFillImage.png" />
     <Resource Include="Images\CircleImage.png" />
     <Resource Include="Images\EraserImage.png" />
     <Resource Include="Images\BrightnessImage.png" />

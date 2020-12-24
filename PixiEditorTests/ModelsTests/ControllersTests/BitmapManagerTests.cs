@@ -13,8 +13,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatBitmapManagerSetsCorrectTool()
         {
             BitmapManager bitmapManager = new BitmapManager();
-            bitmapManager.SetActiveTool(new MockedSinglePixelPen());
-            Assert.Equal(ToolType.Pen, bitmapManager.SelectedTool.ToolType);
+            bitmapManager.SetActiveTool(new MockedSinglePixelPenTool());
+            Assert.Equal(typeof(MockedSinglePixelPenTool), bitmapManager.SelectedTool.GetType());
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatIsOperationToolWorks()
         {
-            MockedSinglePixelPen singlePixelPen = new MockedSinglePixelPen();
+            MockedSinglePixelPenTool singlePixelPen = new MockedSinglePixelPenTool();
             Assert.True(BitmapManager.IsOperationTool(singlePixelPen));
         }
 
@@ -81,7 +81,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             bitmapManager.ActiveDocument = bitmapManager.Documents[0];
 
             bitmapManager.ActiveDocument.AddNewLayer("Layer");
-            bitmapManager.SetActiveTool(new MockedSinglePixelPen());
+            bitmapManager.SetActiveTool(new MockedSinglePixelPenTool());
             bitmapManager.PrimaryColor = Colors.Green;
 
             bitmapManager.MouseController.StartRecordingMouseMovementChanges(true);

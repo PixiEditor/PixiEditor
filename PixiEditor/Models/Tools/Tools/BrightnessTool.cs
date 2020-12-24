@@ -26,8 +26,6 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-        public override ToolType ToolType => ToolType.Brightness;
-
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)

@@ -58,7 +58,7 @@ namespace PixiEditor.Models.Controllers
         /// <param name="tool">Tool to execute.</param>
         public void ExecuteTool(Coordinates newPos, List<Coordinates> mouseMove, BitmapOperationTool tool)
         {
-            if (Manager.ActiveDocument != null && tool != null && tool.ToolType != ToolType.None)
+            if (Manager.ActiveDocument != null && tool != null)
             {
                 if (Manager.ActiveDocument.Layers.Count == 0 || mouseMove.Count == 0)
                 {

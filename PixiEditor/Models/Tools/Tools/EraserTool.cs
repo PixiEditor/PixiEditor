@@ -18,8 +18,6 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
         }
 
-        public override ToolType ToolType => ToolType.Eraser;
-
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             return Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
