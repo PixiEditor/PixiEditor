@@ -213,7 +213,7 @@
                                 Style="{StaticResource ToolButtonStyle}"
                                 Command="{Binding Path=DataContext.ToolsSubViewModel.SelectToolCommand,
                             RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                CommandParameter="{Binding ToolType}" ToolTip="{Binding Tooltip}">
+                                CommandParameter="{Binding}" ToolTip="{Binding Tooltip}">
                             <Button.Background>
                                 <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
                             </Button.Background>

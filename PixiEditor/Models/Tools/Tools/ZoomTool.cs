@@ -24,8 +24,6 @@ namespace PixiEditor.Models.Tools.Tools
             pixelsPerZoomMultiplier = workAreaWidth / ZoomSensitivityMultiplier;
         }
 
-        public override ToolType ToolType => ToolType.Zoom;
-
         public override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Key == Key.LeftAlt)

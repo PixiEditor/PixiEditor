@@ -24,8 +24,6 @@ namespace PixiEditor.Models.Tools.Tools
             lineTool = new LineTool();
         }
 
-        public override ToolType ToolType => ToolType.Pen;
-
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];

@@ -14,8 +14,6 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Swaps primary color with selected on canvas. (O)";
         }
 
-        public override ToolType ToolType => ToolType.ColorPicker;
-
         public override void Use(Coordinates[] coordinates)
         {
             ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();

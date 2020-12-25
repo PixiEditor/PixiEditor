@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
-             xmlns:tools="clr-namespace:PixiEditor.Models.Tools"
+             xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
              xmlns:vws="clr-namespace:PixiEditor.Views" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -19,7 +19,7 @@
                           x:Name="DrawingPanel"
                           CenterOnStart="True" Cursor="{Binding Cursor, ElementName=uc}" 
                           MiddleMouseClickedCommand="{Binding MiddleMouseClickedCommand, ElementName=uc}" 
-                          MiddleMouseClickedCommandParameter="{x:Static tools:ToolType.MoveViewport}"
+                          MiddleMouseClickedCommandParameter="{x:Type tools:MoveViewportTool}"
                           ViewportPosition="{Binding ViewportPosition, ElementName=uc, Mode=TwoWay}">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseMove">
