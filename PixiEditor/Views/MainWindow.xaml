@@ -20,11 +20,16 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <vm:ViewModelMain x:Key="ViewModelMain" />
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
-        <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
-        <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
+        <ResourceDictionary>
+            <vm:ViewModelMain x:Key="ViewModelMain" />
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
+            <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
+            <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Window.CommandBindings>
@@ -219,26 +224,68 @@
         </StackPanel>
 
         <Grid Grid.Column="2" Background="{StaticResource AccentColor}" Grid.Row="2" Grid.RowSpan="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="330" />
-                <RowDefinition Height="250*" />
-                <RowDefinition Height="209*" />
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="2" Orientation="Vertical" ZIndex="15">
-            </StackPanel>
-            <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0"
-                                       Grid.Row="0" Grid.RowSpan="3">
+            <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0">
                 <avalondock:LayoutRoot x:Name="LayoutRoot">
                     <avalondock:LayoutPanel Orientation="Vertical">
-                        <LayoutAnchorablePane>
+                        <LayoutAnchorablePane DockHeight="1.3*" DockWidth="*">
                             <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
-                                                         CanClose="False" CanAutoHide="False"
-                                                         CanDockAsTabbedDocument="True" CanFloat="True">
-                                <Grid Grid.Row="0">
-                                    <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
-                                 SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" />
-                                </Grid>
+                                                             CanClose="False" CanAutoHide="False"
+                                                             CanDockAsTabbedDocument="True" CanFloat="True">
+                                <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
+                                     SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" Style="{StaticResource DefaultColorPickerStyle}" />
                             </LayoutAnchorable>
+                            <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
+                                                         CanClose="False" CanAutoHide="False"
+                                                         CanDockAsTabbedDocument="False" CanFloat="True">
+                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Margin="10,0,0,0" Orientation="Horizontal"
+                                                           VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Width="50" Height="50" Margin="2">
+                                                    <Border Width="48" Height="48">
+                                                        <Border.Background>
+                                                            <ImageBrush ImageSource="../Images/transparentbg.png"
+                                                                        Stretch="UniformToFill">
+                                                                <ImageBrush.RelativeTransform>
+                                                                    <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
+                                                                                    CenterY="0.5" />
+                                                                </ImageBrush.RelativeTransform>
+                                                            </ImageBrush>
+                                                        </Border.Background>
+                                                    </Border>
+                                                    <Border BorderThickness="0.25" Cursor="Hand" BorderBrush="White">
+                                                        <Border.Background>
+                                                            <SolidColorBrush Color="{Binding}" />
+                                                        </Border.Background>
+                                                    </Border>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="MouseDown">
+                                                            <i:InvokeCommandAction
+                                                                Command="{Binding
+                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ColorsSubViewModel.SelectColorCommand}"
+                                                                CommandParameter="{Binding}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <Grid.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Remove" Foreground="White"
+                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
+                                                                      CommandParameter="{Binding}" />
+                                                        </ContextMenu>
+                                                    </Grid.ContextMenu>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </avalondock:LayoutAnchorable>
                         </LayoutAnchorablePane>
                         <avalondock:LayoutAnchorablePane>
                             <avalondock:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
@@ -298,60 +345,7 @@
                                 </StackPanel>
                             </avalondock:LayoutAnchorable>
                         </avalondock:LayoutAnchorablePane>
-                        <avalondock:LayoutAnchorablePane>
-                            <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
-                                                         CanClose="False" CanAutoHide="False"
-                                                         CanDockAsTabbedDocument="False" CanFloat="True">
-                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                              VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Margin="10,0,0,0" Orientation="Horizontal"
-                                                           VerticalAlignment="Top" HorizontalAlignment="Left" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Width="50" Height="50" Margin="2">
-                                                    <Border Width="48" Height="48">
-                                                        <Border.Background>
-                                                            <ImageBrush ImageSource="../Images/transparentbg.png"
-                                                                        Stretch="UniformToFill">
-                                                                <ImageBrush.RelativeTransform>
-                                                                    <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
-                                                                                    CenterY="0.5" />
-                                                                </ImageBrush.RelativeTransform>
-                                                            </ImageBrush>
-                                                        </Border.Background>
-                                                    </Border>
-                                                    <Border BorderThickness="0.25" Cursor="Hand" BorderBrush="White">
-                                                        <Border.Background>
-                                                            <SolidColorBrush Color="{Binding}" />
-                                                        </Border.Background>
-                                                    </Border>
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="MouseDown">
-                                                            <i:InvokeCommandAction
-                                                                Command="{Binding
-                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ColorsSubViewModel.SelectColorCommand}"
-                                                                CommandParameter="{Binding}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <Grid.ContextMenu>
-                                                        <ContextMenu>
-                                                            <MenuItem Header="Remove" Foreground="White"
-                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
-                                                                      CommandParameter="{Binding}" />
-                                                        </ContextMenu>
-                                                    </Grid.ContextMenu>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                            </avalondock:LayoutAnchorable>
-                        </avalondock:LayoutAnchorablePane>
+                        
                     </avalondock:LayoutPanel>
                 </avalondock:LayoutRoot>
                 <avalondock:DockingManager.Theme>
