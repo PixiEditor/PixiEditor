@@ -78,7 +78,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <returns>True if can undo.</returns>
         private bool CanUndo(object property)
         {
-            return Owner.BitmapManager.ActiveDocument.UndoManager.CanUndo;
+            return Owner.BitmapManager.ActiveDocument?.UndoManager.CanUndo ?? false;
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <returns>True if can redo.</returns>
         private bool CanRedo(object property)
         {
-            return Owner.BitmapManager.ActiveDocument.UndoManager.CanRedo;
+            return Owner.BitmapManager.ActiveDocument?.UndoManager.CanRedo ?? false;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool SelectionIsNotEmpty(object property)
         {
-            var selectedPoints = Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints;
+            var selectedPoints = Owner.BitmapManager.ActiveDocument?.ActiveSelection.SelectedPoints;
             return selectedPoints != null && selectedPoints.Count > 0;
         }
 
