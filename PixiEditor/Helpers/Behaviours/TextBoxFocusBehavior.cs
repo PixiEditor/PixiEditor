@@ -54,7 +54,19 @@ namespace PixiEditor.Helpers.Behaviours
             }
 
             ConvertValue();
-            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
+            RemoveFocus();
+        }
+
+        private void RemoveFocus()
+        {
+            FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
+            while (parent != null && parent is IInputElement && !((IInputElement)parent).Focusable)
+            {
+                parent = (FrameworkElement)parent.Parent;
+            }
+
+            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
+            FocusManager.SetFocusedElement(scope, parent);
         }
 
         private void AssociatedObjectGotKeyboardFocus(
