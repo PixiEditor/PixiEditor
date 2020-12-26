@@ -60,7 +60,7 @@ namespace PixiEditor.Helpers.Behaviours
         private void RemoveFocus()
         {
             FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
-            while (parent != null && parent is IInputElement && !((IInputElement)parent).Focusable)
+            while (parent != null && parent is IInputElement element && !element.Focusable)
             {
                 parent = (FrameworkElement)parent.Parent;
             }
