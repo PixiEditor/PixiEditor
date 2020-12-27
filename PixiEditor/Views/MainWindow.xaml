@@ -10,7 +10,7 @@
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
@@ -57,7 +57,7 @@
             <cmd:EventToCommand Command="{Binding CloseWindowCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid Name="mainGrid" Margin="5">
+    <Grid Name="mainGrid" Margin="5" Focusable="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="45" />
             <ColumnDefinition Width="1*" />
@@ -69,7 +69,9 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
-
+        <i:Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource MainColor}">
             <Image DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top"
                    Source="/Images/PixiEditorLogo.png" Width="20" Height="20" Margin="5,5,0,0" />

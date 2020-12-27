@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d"
         Title="ConfirmationPopup" Name="popup" WindowStartupLocation="CenterScreen" Height="200" Width="500"
         WindowStyle="None">
@@ -13,12 +13,15 @@
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 
-    <Grid Background="{StaticResource AccentColor}">
+    <Grid Background="{StaticResource AccentColor}" Focusable="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition Height="34*" />
             <RowDefinition Height="21*" />
         </Grid.RowDefinitions>
+        <i:Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
         <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center"
                    VerticalAlignment="Center" FontSize="18" Foreground="White" />
         <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
