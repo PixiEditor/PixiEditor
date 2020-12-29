@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:views="clr-namespace:PixiEditor.Views" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
         Height="450" Width="800" WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
@@ -22,7 +22,7 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource MainColor}">
+    <Grid Background="{StaticResource MainColor}" Focusable="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="147*"/>
@@ -31,7 +31,10 @@
             <RowDefinition Height="35" />
             <RowDefinition />
         </Grid.RowDefinitions>
-
+        <i:Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
+        
         <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource MainColor}">
             <Label Foreground="White" FontSize="16">Settings</Label>
             <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"

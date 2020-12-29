@@ -16,6 +16,5 @@
                 <behaviours:TextBoxFocusBehavior />
             </i:Interaction.Behaviors>
         </TextBox>
-        <TextBox Width="0" Height="0" />
     </Grid>
 </UserControl>

@@ -24,12 +24,15 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource AccentColor}">
+    <Grid Background="{StaticResource AccentColor}" Focusable="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition />
         </Grid.RowDefinitions>
-
+        <i:Interaction.Behaviors>
+            <behaviors:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
+        
         <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
             <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
