@@ -9,6 +9,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -48,10 +49,12 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                new Change("ActiveSelection", 
-                oldSelection,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection,
-                "Select pixels", ViewModelMain.Current.SelectionSubViewModel));
+                new Change(
+                    "ActiveSelection",
+                    oldSelection,
+                    ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection,
+                    "Select pixels",
+                    ViewModelMain.Current.SelectionSubViewModel));
         }
 
         public override void Use(Coordinates[] pixels)

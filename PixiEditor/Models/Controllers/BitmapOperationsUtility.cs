@@ -9,6 +9,7 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Undo;
 
 namespace PixiEditor.Models.Controllers
 {

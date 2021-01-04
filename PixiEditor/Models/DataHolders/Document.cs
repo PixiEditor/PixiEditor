@@ -12,6 +12,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders

@@ -4,6 +4,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Undo;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {

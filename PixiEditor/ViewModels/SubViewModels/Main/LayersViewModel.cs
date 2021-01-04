@@ -29,7 +29,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewLayer(object parameter)
         {
-            //TODO: Implement AddNewLayer to Document, not BitmapManager
             Owner.BitmapManager.ActiveDocument.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
         }
 

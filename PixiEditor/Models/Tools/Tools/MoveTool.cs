@@ -11,6 +11,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 using Transform = PixiEditor.Models.ImageManipulation.Transform;
 
