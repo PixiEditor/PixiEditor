@@ -293,58 +293,66 @@
                             <avalondock:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
-                                <StackPanel Orientation="Vertical">
-                                    <Button Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40"/>
+                                        <RowDefinition Height="30"/>
+                                        <RowDefinition Height="15"/>
+                                        <RowDefinition Height="1*"/>
+                                    </Grid.RowDefinitions>
+                                    <Button Grid.Row="0" Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
-                                    <StackPanel Orientation="Horizontal" Margin="10,0">
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
                                         <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
                                         <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
                                                          Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
                                             Converter={StaticResource FloatNormalizeConverter}}" />
                                         <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                    <Separator Background="{StaticResource BrighterAccentColor}" Margin="0,10,0,10"/>
-                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
-                                                  x:Name="layersItemsControl" AlternationCount="9999">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <ui:ReversedOrderStackPanel Orientation="Vertical" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
-                                                               LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
-                                                               IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                                               MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
-                                                               MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
-                                                    <vws:LayerItem.ContextMenu>
-                                                        <ContextMenu>
-                                                            <MenuItem Header="Delete"
-                                                                              Command="{Binding LayersSubViewModel.DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
-                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}" />
-                                                            <MenuItem Header="Rename"
-                                                                              Command="{Binding LayersSubViewModel.RenameLayerCommand, Source={StaticResource ViewModelMain}}"
-                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}" />
-                                                            <MenuItem Header="Move to front"
-                                                                              Command="{Binding LayersSubViewModel.MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
-                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}" />
-                                                            <MenuItem Header="Move to back"
-                                                                              Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
-                                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                            Path=(ItemsControl.AlternationIndex)}" />
-                                                        </ContextMenu>
-                                                    </vws:LayerItem.ContextMenu>
-                                                </vws:LayerItem>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
+                                    <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
+                                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
+                                                      x:Name="layersItemsControl" AlternationCount="9999">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <ui:ReversedOrderStackPanel Orientation="Vertical" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
+                                                                   LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
+                                                                   IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
+                                                                   MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
+                                                                   MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
+                                                        <vws:LayerItem.ContextMenu>
+                                                            <ContextMenu>
+                                                                <MenuItem Header="Delete"
+                                                                                  Command="{Binding LayersSubViewModel.DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                <MenuItem Header="Rename"
+                                                                                  Command="{Binding LayersSubViewModel.RenameLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                <MenuItem Header="Move to front"
+                                                                                  Command="{Binding LayersSubViewModel.MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                <MenuItem Header="Move to back"
+                                                                                  Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                            </ContextMenu>
+                                                        </vws:LayerItem.ContextMenu>
+                                                    </vws:LayerItem>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Grid>
                             </avalondock:LayoutAnchorable>
                         </avalondock:LayoutAnchorablePane>
                         
