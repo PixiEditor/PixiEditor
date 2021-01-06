@@ -46,7 +46,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             {
                 ActiveDocument = document
             };
-            manager.AddNewLayer("test");
+            manager.ActiveDocument.AddNewLayer("test");
             manager.ActiveLayer.SetPixel(
                 new Coordinates(
                 (int)Math.Ceiling(initialWidth / 2f),
@@ -72,13 +72,13 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             {
                 ActiveDocument = document
             };
-            manager.AddNewLayer("test");
+            manager.ActiveDocument.AddNewLayer("test");
             manager.ActiveLayer.SetPixel(
                 new Coordinates(
                 (int)Math.Ceiling(initialWidth / 2f),
                 (int)Math.Ceiling(initialHeight / 2f)), Colors.Black); // Set pixel in center
 
-            manager.AddNewLayer("test2");
+            manager.ActiveDocument.AddNewLayer("test2");
 
             manager.ActiveLayer.SetPixel(new Coordinates(secondLayerPixelX, secondLayerPixelY), Colors.Black);
 
@@ -107,7 +107,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             {
                 ActiveDocument = doc
             };
-            manager.AddNewLayer("test");
+            manager.ActiveDocument.AddNewLayer("test");
 
             manager.ActiveLayer.SetPixel(new Coordinates(0, 0), Colors.Green);
 
@@ -128,10 +128,10 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             {
                 ActiveDocument = doc
             };
-            manager.AddNewLayer("test");
+            manager.ActiveDocument.AddNewLayer("test");
             manager.ActiveLayer.SetPixel(new Coordinates(0, 0), Colors.Green);
 
-            manager.AddNewLayer("test2");
+            manager.ActiveDocument.AddNewLayer("test2");
             manager.ActiveLayer.SetPixel(new Coordinates(1, 1), Colors.Green);
 
             doc.CenterContent();

@@ -2,18 +2,18 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <AssemblyName>PixiEditor</AssemblyName>
     <RootNamespace>PixiEditor</RootNamespace>
-    <RepositoryUrl>https://github.com/flabbet/PixiEditor</RepositoryUrl>
+    <RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>icon.ico</PackageIcon>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <Authors>Krzysztof Krysiński</Authors>
+    <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -45,21 +45,22 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.40.0" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.50.0" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.2" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="1.0.1" />
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="2.0.0" />
+    <PackageReference Include="PixiEditor.Parser" Version="1.0.1.1" />
     <PackageReference Include="WriteableBitmapEx">
       <Version>1.6.7</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\AnchorDot.png" />
-    <Resource Include="Images\BucketImage.png" />
+    <Resource Include="Images\FloodFillImage.png" />
     <Resource Include="Images\CircleImage.png" />
     <Resource Include="Images\EraserImage.png" />
     <Resource Include="Images\BrightnessImage.png" />

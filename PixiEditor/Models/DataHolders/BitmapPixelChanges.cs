@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.DataHolders
@@ -57,6 +60,11 @@ namespace PixiEditor.Models.DataHolders
             }
 
             return output;
+        }
+
+        public static BitmapPixelChanges CombineOverride(BitmapPixelChanges changes1, BitmapPixelChanges changes2)
+        {
+            return CombineOverride(new[] { changes1, changes2 });
         }
 
         /// <summary>

@@ -7,7 +7,7 @@ using System.Windows.Input;
 namespace PixiEditor.Views
 {
     /// <summary>
-    ///     Interaction logic for NumerInput.xaml
+    ///     Interaction logic for NumerInput.xaml.
     /// </summary>
     public partial class NumberInput : UserControl
     {
@@ -34,20 +34,20 @@ namespace PixiEditor.Views
 
         public float Value
         {
-            get => (float) GetValue(ValueProperty);
+            get => (float)GetValue(ValueProperty);
             set => SetValue(ValueProperty, value);
         }
 
         public float Min
         {
-            get => (float) GetValue(MinProperty);
+            get => (float)GetValue(MinProperty);
             set => SetValue(MinProperty, value);
         }
 
 
         public float Max
         {
-            get => (float) GetValue(MaxProperty);
+            get => (float)GetValue(MaxProperty);
             set => SetValue(MaxProperty, value);
         }
 

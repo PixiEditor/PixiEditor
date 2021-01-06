@@ -19,16 +19,31 @@ namespace PixiEditor.Models.Tools.Tools
         {
             HideHighlight = true;
             CanStartOutsideCanvas = true;
+            ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
             Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
             pixelsPerZoomMultiplier = workAreaWidth / ZoomSensitivityMultiplier;
         }
 
-        public override ToolType ToolType => ToolType.Zoom;
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftAlt)
+            {
+                ActionDisplay = "Click and move to zoom. Click to zoom out, release alt and click to zoom in.";
+            }
+        }
+
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftAlt)
+            {
+                ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
+            }
+        }
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             startingX = MousePositionConverter.GetCursorPosition().X;
-            ViewModelMain.Current.ViewportSubViewModel.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
+            ViewModelMain.Current.BitmapManager.ActiveDocument.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
         }
 
         public override void OnMouseMove(MouseEventArgs e)
@@ -61,7 +76,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public void Zoom(double percentage)
         {
-            ViewModelMain.Current.ViewportSubViewModel.ZoomPercentage = percentage;
+            ViewModelMain.Current.BitmapManager.ActiveDocument.ZoomPercentage = percentage;
         }
 
         public override void Use(Coordinates[] pixels)

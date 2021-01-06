@@ -1,14 +1,16 @@
+<img src="https://user-images.githubusercontent.com/25402427/102633463-c1d3bb80-4150-11eb-8262-535e568fa781.png" width="700">
+
+---
+
+**PixiEditor** is a Pixel art editing software. Create beautiful sprites for your games, animations (coming soon!) and edit images. All packed in eye-friendly dark theme.
+
 [![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/6/master)](https://dev.azure.com/flabbet/PixiEditor/_build?definitionId=6) 
 [![codecov](https://codecov.io/gh/PixiEditor/PixiEditor/branch/master/graph/badge.svg)](https://codecov.io/gh/PixiEditor/PixiEditor)
+[![CodeFactor](https://www.codefactor.io/repository/github/pixieditor/pixieditor/badge)](https://www.codefactor.io/repository/github/pixieditor/pixieditor)
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
 [![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
 [![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq) 
 [![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
-
-
-# PixiEditor
-
-A Pixel art editing software. Create beautiful sprites for your games, animations (coming soon!) and edit images. All packed in eye-friendly dark theme.
 
 ## About PixiEditor
 
@@ -24,7 +26,7 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 ### Light weighted
 
-Program weights only 3.3 MB! Already have .NET Core 3.1 installed? Download light version and enjoy saved space.
+Program weights only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
 
 ### Active development
 
@@ -57,7 +59,7 @@ Struggling with something? You can find support in a few places:
 
 ### Software Requirements
 
-* .NET Core 3.1
+* .NET 5
 
 * Visual Studio
 

@@ -13,10 +13,9 @@ namespace PixiEditor.Models.Tools.Tools
         {
             HideHighlight = true;
             Cursor = Cursors.SizeAll;
+            ActionDisplay = "Click and move to pan viewport.";
             Tooltip = "Move viewport. (H)";
         }
-
-        public override ToolType ToolType => ToolType.MoveViewport;
 
         public override void OnMouseDown(MouseEventArgs e)
         {
@@ -31,7 +30,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
                 var point = MousePositionConverter.GetCursorPosition();
-                ViewModelMain.Current.ViewportSubViewModel.ViewportPosition = new System.Windows.Point(
+                ViewModelMain.Current.BitmapManager.ActiveDocument.ViewportPosition = new System.Windows.Point(
                     point.X - clickPoint.X,
                     point.Y - clickPoint.Y);
             }

@@ -54,7 +54,19 @@ namespace PixiEditor.Helpers.Behaviours
             }
 
             ConvertValue();
-            AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Down));
+            RemoveFocus();
+        }
+
+        private void RemoveFocus()
+        {
+            FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
+            while (parent != null && parent is IInputElement element && !element.Focusable)
+            {
+                parent = (FrameworkElement)parent.Parent;
+            }
+
+            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
+            FocusManager.SetFocusedElement(scope, parent);
         }
 
         private void AssociatedObjectGotKeyboardFocus(
@@ -95,14 +107,14 @@ namespace PixiEditor.Helpers.Behaviours
         /// </summary>
         private void ConvertValue()
         {
-            if (valueConverted || FillSize == false)
+            if (valueConverted || FillSize == false || AssociatedObject.Text == oldText)
             {
                 return;
             }
 
-            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", string.Empty), out int result) && result > 0)
+            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", string.Empty).Trim(), out int result) && result > 0)
             {
-                AssociatedObject.Text = $"{AssociatedObject.Text} px";
+                AssociatedObject.Text = $"{result} px";
             }
 
             // If text in textbox isn't number, set it to old value

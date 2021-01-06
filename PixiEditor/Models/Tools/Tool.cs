@@ -1,5 +1,7 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
@@ -7,15 +9,38 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
+        protected string name;
         private bool isActive;
+        private string actionDisplay = string.Empty;
 
-        public abstract ToolType ToolType { get; }
+        public string ToolName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return GetType().Name.Replace("Tool", string.Empty);
+                }
 
-        public string ImagePath => $"/Images/{ToolType}Image.png";
+                return name;
+            }
+        }
+
+        public string ImagePath => $"/Images/{ToolName}Image.png";
 
         public bool HideHighlight { get; set; } = false;
 
         public string Tooltip { get; set; }
+
+        public string ActionDisplay
+        {
+            get => actionDisplay;
+            set
+            {
+                actionDisplay = value;
+                RaisePropertyChanged("ActionDisplay");
+            }
+        }
 
         public bool IsActive
         {
@@ -41,6 +66,14 @@ namespace PixiEditor.Models.Tools
         {
         }
 
+        public virtual void OnKeyDown(KeyEventArgs e)
+        {
+        }
+
+        public virtual void OnKeyUp(KeyEventArgs e)
+        {
+        }
+
         public virtual void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
         }
@@ -53,7 +86,7 @@ namespace PixiEditor.Models.Tools
         {
         }
 
-        public virtual void AfterAddedUndo()
+        public virtual void AfterAddedUndo(UndoManager undoManager)
         {
         }
     }

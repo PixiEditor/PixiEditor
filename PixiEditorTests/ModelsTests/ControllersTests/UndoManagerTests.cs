@@ -19,75 +19,86 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestSetRoot()
         {
             PrepareUndoManagerForTest();
-            UndoManager.SetMainRoot(null);
-            UndoManager.SetMainRoot(this);
-            Assert.Equal(this, UndoManager.MainRoot);
+            UndoManager undoManager = new UndoManager(this);
+            Assert.Equal(this, undoManager.MainRoot);
         }
 
         [Fact]
         public void TestAddToUndoStack()
         {
             PrepareUndoManagerForTest();
-            UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
-            Assert.True(UndoManager.UndoStack.Count == 1);
-            Assert.True((int)UndoManager.UndoStack.Peek().OldValue == ExampleProperty);
+            UndoManager undoManager = new UndoManager(this);
+
+            undoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
+            Assert.True(undoManager.UndoStack.Count == 1);
+            Assert.True((int)undoManager.UndoStack.Peek().OldValue == ExampleProperty);
         }
 
         [Fact]
         public void TestThatUndoAddsToRedoStack()
         {
             PrepareUndoManagerForTest();
-            UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
-            UndoManager.Undo();
-            Assert.True(UndoManager.RedoStack.Count == 1);
+            UndoManager undoManager = new UndoManager(this);
+
+            undoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
+            undoManager.Undo();
+            Assert.True(undoManager.RedoStack.Count == 1);
         }
 
         [Fact]
         public void TestUndo()
         {
             PrepareUndoManagerForTest();
-            UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, 55));
+            UndoManager undoManager = new UndoManager(this);
+
+            undoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, 55));
             ExampleProperty = 55;
-            UndoManager.Undo();
-            Assert.True((int)UndoManager.RedoStack.Peek().OldValue == ExampleProperty);
+            undoManager.Undo();
+            Assert.True((int)undoManager.RedoStack.Peek().OldValue == ExampleProperty);
         }
 
         [Fact]
         public void TestThatRedoAddsToUndoStack()
         {
             PrepareUndoManagerForTest();
-            UndoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
-            UndoManager.Undo();
-            UndoManager.Redo();
-            Assert.True(UndoManager.UndoStack.Count == 1);
+            UndoManager undoManager = new UndoManager(this);
+
+            undoManager.AddUndoChange(new Change("ExampleProperty", ExampleProperty, ExampleProperty));
+            undoManager.Undo();
+            undoManager.Redo();
+            Assert.True(undoManager.UndoStack.Count == 1);
         }
 
         [Fact]
         public void TestRedo()
         {
             PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
+
             ExampleProperty = 55;
-            UndoManager.AddUndoChange(new Change("ExampleProperty", 1, ExampleProperty));
-            UndoManager.Undo();
-            UndoManager.Redo();
-            Assert.True((int)UndoManager.UndoStack.Peek().NewValue == ExampleProperty);
+            undoManager.AddUndoChange(new Change("ExampleProperty", 1, ExampleProperty));
+            undoManager.Undo();
+            undoManager.Redo();
+            Assert.True((int)undoManager.UndoStack.Peek().NewValue == ExampleProperty);
         }
 
         [Fact]
         public void TestThatUndoManagerUndoAndRedoWithCustomRootCorrectly()
         {
             PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
+
             TestPropertyClass testProp = new TestPropertyClass();
             int newVal = 5;
             testProp.IntProperty = newVal;
-            UndoManager.AddUndoChange(new Change("IntProperty", 0, newVal, root: testProp));
+            undoManager.AddUndoChange(new Change("IntProperty", 0, newVal, root: testProp));
             Assert.Equal(newVal, testProp.IntProperty);
 
-            UndoManager.Undo();
+            undoManager.Undo();
 
             Assert.Equal(0, testProp.IntProperty);
 
-            UndoManager.Redo();
+            undoManager.Redo();
 
             Assert.Equal(newVal, testProp.IntProperty);
         }
@@ -96,10 +107,11 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatMixedProcessOfUndoAndRedoWorks()
         {
             PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
 
             int newVal = 5;
 
-            UndoManager.AddUndoChange(
+            undoManager.AddUndoChange(
                 new Change(
                     "ExampleProperty",
                     ReverseProcess,
@@ -110,11 +122,11 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             Assert.Equal(newVal, ExampleProperty);
 
-            UndoManager.Undo();
+            undoManager.Undo();
 
             Assert.Equal(1, ExampleProperty);
 
-            UndoManager.Redo();
+            undoManager.Redo();
 
             Assert.Equal(newVal, ExampleProperty);
         }
@@ -123,8 +135,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatProcessBasedUndoAndRedoWorks()
         {
             PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
+
             int newVal = 5;
-            UndoManager.AddUndoChange(new Change(
+            undoManager.AddUndoChange(new Change(
                 ReverseProcess,
                 new object[] { ExampleProperty },
                 ReverseProcess,
@@ -134,11 +148,11 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             Assert.Equal(newVal, ExampleProperty);
 
-            UndoManager.Undo();
+            undoManager.Undo();
 
             Assert.Equal(1, ExampleProperty);
 
-            UndoManager.Redo();
+            undoManager.Redo();
 
             Assert.Equal(newVal, ExampleProperty);
         }
@@ -147,19 +161,21 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatNestedPropertyUndoWorks()
         {
             PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
+
             int newVal = 5;
 
-            UndoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty, newVal));
+            undoManager.AddUndoChange(new Change("TestPropClass.IntProperty", TestPropClass.IntProperty, newVal));
 
             TestPropClass.IntProperty = newVal;
 
             Assert.Equal(newVal, TestPropClass.IntProperty);
 
-            UndoManager.Undo();
+            undoManager.Undo();
 
             Assert.Equal(0, TestPropClass.IntProperty);
 
-            UndoManager.Redo();
+            undoManager.Redo();
 
             Assert.Equal(newVal, TestPropClass.IntProperty);
         }
@@ -171,9 +187,6 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
         private void PrepareUndoManagerForTest()
         {
-            UndoManager.SetMainRoot(this);
-            UndoManager.UndoStack.Clear();
-            UndoManager.RedoStack.Clear();
             ExampleProperty = 1;
             TestPropClass = new TestPropertyClass { IntProperty = 0 };
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using PixiEditor.Helpers;
@@ -41,13 +42,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(),
                 new ZoomTool()
             };
-            SetActiveTool(ToolType.Move);
+            SetActiveTool(typeof(MoveTool));
         }
 
-        public void SetActiveTool(ToolType tool)
+        public void SetActiveTool<T>()
+            where T : Tool
         {
-            Tool foundTool = ToolSet.First(x => x.ToolType == tool);
-            SetActiveTool(foundTool);
+            SetActiveTool(typeof(T));
         }
 
         public void SetActiveTool(Tool tool)
@@ -61,12 +62,19 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             tool.IsActive = true;
             LastActionTool = Owner.BitmapManager.SelectedTool;
             Owner.BitmapManager.SetActiveTool(tool);
-            SetToolCursor(tool.ToolType);
+            SetToolCursor(tool.GetType());
         }
 
         public void SetTool(object parameter)
         {
-            SetActiveTool((ToolType)parameter);
+            if (parameter is Type type)
+            {
+                SetActiveTool(type);
+                return;
+            }
+
+            Tool tool = (Tool)parameter;
+            SetActiveTool(tool.GetType());
         }
 
         private void ChangeToolSize(object parameter)
@@ -79,9 +87,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void SetToolCursor(ToolType tool)
+        private void SetActiveTool(Type toolType)
         {
-            if (tool != ToolType.None)
+            if (toolType == null && toolType.IsAssignableTo(typeof(Tool)))
+            {
+                return;
+            }
+
+            Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
+            SetActiveTool(foundTool);
+        }
+
+        private void SetToolCursor(Type tool)
+        {
+            if (tool != null)
             {
                 ToolCursor = Owner.BitmapManager.SelectedTool.Cursor;
             }

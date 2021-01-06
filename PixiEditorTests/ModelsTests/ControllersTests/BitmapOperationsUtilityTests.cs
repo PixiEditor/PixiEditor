@@ -14,6 +14,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatBitmapOperationsUtilityDeletesPixels()
         {
             BitmapOperationsUtility util = new BitmapOperationsUtility(new BitmapManager());
+            util.Manager.ActiveDocument = new Document(10, 10);
 
             Layer testLayer = new Layer("test layer", 10, 10);
             Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };
@@ -34,13 +35,13 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
                 ActiveDocument = new Document(10, 10),
                 PrimaryColor = Colors.Black
             };
-            manager.AddNewLayer("Test layer", 10, 10);
+            manager.ActiveDocument.AddNewLayer("Test layer", 10, 10);
 
             BitmapOperationsUtility util = new BitmapOperationsUtility(manager);
 
             List<Coordinates> mouseMove = new List<Coordinates>(new[] { new Coordinates(0, 0) });
 
-            util.ExecuteTool(new Coordinates(0, 0), mouseMove, new MockedSinglePixelPen());
+            util.ExecuteTool(new Coordinates(0, 0), mouseMove, new MockedSinglePixelPenTool());
             Assert.Equal(manager.ActiveLayer.GetPixel(0, 0), Colors.Black);
         }
     }

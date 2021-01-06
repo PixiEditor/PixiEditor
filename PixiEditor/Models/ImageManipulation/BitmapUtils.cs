@@ -18,7 +18,10 @@ namespace PixiEditor.Models.ImageManipulation
         public static WriteableBitmap BytesToWriteableBitmap(int currentBitmapWidth, int currentBitmapHeight, byte[] byteArray)
         {
             WriteableBitmap bitmap = BitmapFactory.New(currentBitmapWidth, currentBitmapHeight);
-            bitmap.FromByteArray(byteArray);
+            if (byteArray != null)
+            {
+                bitmap.FromByteArray(byteArray);
+            }
             return bitmap;
         }
 
@@ -37,29 +40,28 @@ namespace PixiEditor.Models.ImageManipulation
             {
                 for (int i = 0; i < layers.Length; i++)
                 {
+                    float layerOpacity = layers[i].Opacity;
                     for (int y = 0; y < finalBitmap.Height; y++)
                     {
                         for (int x = 0; x < finalBitmap.Width; x++)
                         {
                             Color color = layers[i].GetPixelWithOffset(x, y);
-                            float layerOpacity = layers[i].Opacity;
-                            if (i > 0 && ((color.A < 255 && color.A > 0) || (layerOpacity < 1f && layerOpacity > 0)))
+                            if (i > 0 && ((color.A < 255 && color.A > 0) || (layerOpacity < 1f && layerOpacity > 0 && color.A > 0)))
                             {
                                 var lastLayerPixel = finalBitmap.GetPixel(x, y);
-                                byte lastPixelA = (byte)(lastLayerPixel.A * layers[i - 1].Opacity);
                                 byte pixelA = (byte)(color.A * layerOpacity);
-                                byte r = (byte)((color.R * pixelA / 255) + (lastLayerPixel.R * lastPixelA * (255 - pixelA) / (255 * 255)));
-                                byte g = (byte)((color.G * pixelA / 255) + (lastLayerPixel.G * lastPixelA * (255 - pixelA) / (255 * 255)));
-                                byte b = (byte)((color.B * pixelA / 255) + (lastLayerPixel.B * lastPixelA * (255 - pixelA) / (255 * 255)));
-                                byte a = (byte)(pixelA + (lastPixelA * (255 - pixelA) / 255));
+                                byte r = (byte)((color.R * pixelA / 255) + (lastLayerPixel.R * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
+                                byte g = (byte)((color.G * pixelA / 255) + (lastLayerPixel.G * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
+                                byte b = (byte)((color.B * pixelA / 255) + (lastLayerPixel.B * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
+                                byte a = (byte)(pixelA + (lastLayerPixel.A * (255 - pixelA) / 255));
                                 color = Color.FromArgb(a, r, g, b);
                             }
                             else
                             {
-                                color = Color.FromArgb((byte)(color.A * layers[i].Opacity), color.R, color.G, color.B);
+                                color = Color.FromArgb(color.A, color.R, color.G, color.B);
                             }
 
-                            if (color.A != 0 || color.R != 0 || color.B != 0 || color.G != 0)
+                            if (color.A > 0)
                             {
                                 finalBitmap.SetPixel(x, y, color);
                             }

@@ -30,7 +30,8 @@ namespace PixiEditor.Models.Tools.Tools
 
         public MoveTool()
         {
-            Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers";
+            ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+            Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers.";
             Cursor = Cursors.Arrow;
             HideHighlight = true;
             RequiresPreviewLayer = true;
@@ -39,9 +40,23 @@ namespace PixiEditor.Models.Tools.Tools
 
         public bool MoveAll { get; set; } = false;
 
-        public override ToolType ToolType => ToolType.Move;
+        public override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                ActionDisplay = "Hold mouse to move all selected layers.";
+            }
+        }
 
-        public override void AfterAddedUndo()
+        public override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+            }
+        }
+
+        public override void AfterAddedUndo(UndoManager undoManager)
         {
             if (currentSelection != null && currentSelection.Length != 0)
             {
@@ -49,7 +64,7 @@ namespace PixiEditor.Models.Tools.Tools
                 foreach (var item in startPixelColors)
                 {
                     BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
-                    Change changes = UndoManager.UndoStack.Peek();
+                    Change changes = undoManager.UndoStack.Peek();
                     int layerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(item.Key);
 
                     ((LayerChange[])changes.OldValue).First(x => x.LayerIndex == layerIndex).PixelChanges.ChangedPixels
@@ -69,7 +84,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (currentSelection != null && currentSelection.Length == 0)
             {
-                UndoManager.AddUndoChange(new Change(
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(new Change(
                     ApplyOffsets,
                     new object[] { startingOffsets },
                     ApplyOffsets,
@@ -88,10 +103,10 @@ namespace PixiEditor.Models.Tools.Tools
                 ResetSelectionValues(start);
 
                 // Move offset if no selection
-                if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection != null && 
-                    ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count > 0)
+                Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
+                if (selection != null && selection.SelectedPoints.Count > 0)
                 {
-                    currentSelection = ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray();
+                    currentSelection = selection.SelectedPoints.ToArray();
                 }
                 else
                 {
@@ -144,7 +159,7 @@ namespace PixiEditor.Models.Tools.Tools
             currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
             if (updateViewModelSelection)
             {
-                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
+                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
             }
 
             ClearSelectedPixels(layer, previousSelection);

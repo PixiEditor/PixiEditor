@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.Position;
+using System.Linq;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.PositionTests
@@ -10,7 +11,7 @@ namespace PixiEditorTests.ModelsTests.PositionTests
         [InlineData(0, 0, 10, 10, 121)]
         public void TestThatRectangleToCoordinatesReturnsSameAmount(int x1, int y1, int x2, int y2, int expectedResult)
         {
-            Assert.Equal(CoordinatesCalculator.RectangleToCoordinates(x1, y1, x2, y2).Length, expectedResult);
+            Assert.Equal(CoordinatesCalculator.RectangleToCoordinates(x1, y1, x2, y2).Count(), expectedResult);
         }
 
         [Fact]

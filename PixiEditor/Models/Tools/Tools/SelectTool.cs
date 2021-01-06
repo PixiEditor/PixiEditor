@@ -19,13 +19,12 @@ namespace PixiEditor.Models.Tools.Tools
 
         public SelectTool()
         {
+            ActionDisplay = "Click and move to select an area.";
             Tooltip = "Selects area. (M)";
             Toolbar = new SelectToolToolbar();
         }
 
         public SelectionType SelectionType { get; set; } = SelectionType.Add;
-
-        public override ToolType ToolType => ToolType.Select;
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
@@ -33,22 +32,26 @@ namespace PixiEditor.Models.Tools.Tools
             SelectionType = selectionType;
 
             oldSelection = null;
-            if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection != null &&
-                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints != null)
+            Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
+            if (selection != null && selection.SelectedPoints != null)
             {
-                oldSelection = ViewModelMain.Current.SelectionSubViewModel.ActiveSelection;
+                oldSelection = selection;
             }
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
         {
-            if (ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SelectedPoints.Count() <= 1)
+            if (ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.Count() <= 1)
             {
                 // If we have not selected multiple points, clear the selection
-                ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.Clear();
+                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.Clear();
             }
 
-            UndoManager.AddUndoChange(new Change("ActiveSelection", oldSelection, ViewModelMain.Current.SelectionSubViewModel.ActiveSelection, "Select pixels"));
+            ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
+                new Change("ActiveSelection", 
+                oldSelection,
+                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection,
+                "Select pixels", ViewModelMain.Current.SelectionSubViewModel));
         }
 
         public override void Use(Coordinates[] pixels)
@@ -85,7 +88,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void Select(Coordinates[] pixels)
         {
             IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            ViewModelMain.Current.SelectionSubViewModel.ActiveSelection.SetSelection(selection, SelectionType);
+            ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
         }
     }
 }

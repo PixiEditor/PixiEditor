@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
@@ -14,6 +15,8 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.ViewModels
@@ -29,8 +32,6 @@ namespace PixiEditor.ViewModels
         public RelayCommand OnStartupCommand { get; set; }
 
         public RelayCommand CloseWindowCommand { get; set; }
-
-        public RelayCommand OpenHyperlinkCommand { get; set; }
 
         public FileViewModel FileSubViewModel { get; set; }
 
@@ -54,6 +55,8 @@ namespace PixiEditor.ViewModels
 
         public DocumentViewModel DocumentSubViewModel { get; set; }
 
+        public MiscViewModel MiscSubViewModel { get; set; }
+
         public BitmapManager BitmapManager { get; set; }
 
         public PixelChangesController ChangesController { get; set; }
@@ -62,6 +65,8 @@ namespace PixiEditor.ViewModels
 
         public ViewModelMain()
         {
+            PreferencesSettings.Init();
+
             BitmapManager = new BitmapManager();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
@@ -72,7 +77,6 @@ namespace PixiEditor.ViewModels
             ChangesController = new PixelChangesController();
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
-            OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
 
             FileSubViewModel = new FileViewModel(this);
             UpdateSubViewModel = new UpdateViewModel(this);
@@ -84,24 +88,25 @@ namespace PixiEditor.ViewModels
             ViewportSubViewModel = new ViewportViewModel(this);
             ColorsSubViewModel = new ColorsViewModel(this);
             DocumentSubViewModel = new DocumentViewModel(this);
+            MiscSubViewModel = new MiscViewModel(this);
 
             ShortcutController = new ShortcutController
             {
                 Shortcuts = new List<Shortcut>
                 {
                     // Tools
-                    new Shortcut(Key.B, ToolsSubViewModel.SelectToolCommand, ToolType.Pen),
-                    new Shortcut(Key.E, ToolsSubViewModel.SelectToolCommand, ToolType.Eraser),
-                    new Shortcut(Key.O, ToolsSubViewModel.SelectToolCommand, ToolType.ColorPicker),
-                    new Shortcut(Key.R, ToolsSubViewModel.SelectToolCommand, ToolType.Rectangle),
-                    new Shortcut(Key.C, ToolsSubViewModel.SelectToolCommand, ToolType.Circle),
-                    new Shortcut(Key.L, ToolsSubViewModel.SelectToolCommand, ToolType.Line),
-                    new Shortcut(Key.G, ToolsSubViewModel.SelectToolCommand, ToolType.Bucket),
-                    new Shortcut(Key.U, ToolsSubViewModel.SelectToolCommand, ToolType.Brightness),
-                    new Shortcut(Key.V, ToolsSubViewModel.SelectToolCommand, ToolType.Move),
-                    new Shortcut(Key.M, ToolsSubViewModel.SelectToolCommand, ToolType.Select),
-                    new Shortcut(Key.Z, ToolsSubViewModel.SelectToolCommand, ToolType.Zoom),
-                    new Shortcut(Key.H, ToolsSubViewModel.SelectToolCommand, ToolType.MoveViewport),
+                    CreateToolShortcut<PenTool>(Key.B),
+                    CreateToolShortcut<EraserTool>(Key.E),
+                    CreateToolShortcut<ColorPickerTool>(Key.O),
+                    CreateToolShortcut<RectangleTool>(Key.R),
+                    CreateToolShortcut<CircleTool>(Key.C),
+                    CreateToolShortcut<LineTool>(Key.L),
+                    CreateToolShortcut<FloodFill>(Key.G),
+                    CreateToolShortcut<BrightnessTool>(Key.U),
+                    CreateToolShortcut<MoveTool>(Key.V),
+                    CreateToolShortcut<SelectTool>(Key.M),
+                    CreateToolShortcut<ZoomTool>(Key.Z),
+                    CreateToolShortcut<MoveViewportTool>(Key.H),
                     new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, 115),
                     new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, 85),
                     new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, -1),
@@ -130,7 +135,6 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control)
                 }
             };
-            UndoManager.SetMainRoot(this);
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
             Current = this;
         }
@@ -140,13 +144,12 @@ namespace PixiEditor.ViewModels
         /// </summary>
         public void ResetProgramStateValues()
         {
-            BitmapManager.PreviewLayer = null;
-            UndoManager.UndoStack.Clear();
-            UndoManager.RedoStack.Clear();
-            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            ViewportSubViewModel.CenterViewport();
-            Exporter.SaveDocumentPath = null;
-            DocumentSubViewModel.UnsavedDocumentModified = false;
+            foreach (var document in BitmapManager.Documents)
+            {
+                document.PreviewLayer = null;
+            }
+
+            BitmapManager.ActiveDocument?.CenterViewport();
         }
 
         public bool DocumentIsNotNull(object property)
@@ -154,20 +157,10 @@ namespace PixiEditor.ViewModels
             return BitmapManager.ActiveDocument != null;
         }
 
-        private void OpenHyperlink(object parameter)
+        private Shortcut CreateToolShortcut<T>(Key key, ModifierKeys modifier = ModifierKeys.None)
+            where T : Tool
         {
-            if (parameter == null)
-            {
-                return;
-            }
-
-            var url = (string)parameter;
-            var processInfo = new ProcessStartInfo()
-            {
-                FileName = url,
-                UseShellExecute = true
-            };
-            Process.Start(processInfo);
+            return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, typeof(T), modifier);
         }
 
         private void CloseWindow(object property)
@@ -177,10 +170,38 @@ namespace PixiEditor.ViewModels
                 throw new ArgumentException();
             }
 
-            ((CancelEventArgs)property).Cancel = true;
+            ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
+        }
 
-            var result = ConfirmationType.No;
-            if (DocumentSubViewModel.UnsavedDocumentModified)
+        /// <summary>
+        /// Removes documents with unsaved changes confirmation dialog.
+        /// </summary>
+        /// <returns>If documents was removed successfully.</returns>
+        private bool RemoveDocumentsWithSaveConfirmation()
+        {
+            int docCount = BitmapManager.Documents.Count;
+            for (int i = 0; i < docCount; i++)
+            {
+                BitmapManager.ActiveDocument = BitmapManager.Documents.First();
+                bool canceled = !RemoveDocumentWithSaveConfirmation();
+                if (canceled)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Removes document with unsaved changes confirmation dialog.
+        /// </summary>
+        /// <returns>If document was removed successfully.</returns>
+        private bool RemoveDocumentWithSaveConfirmation()
+        {
+            ConfirmationType result = ConfirmationType.No;
+
+            if (!BitmapManager.ActiveDocument.ChangesSaved)
             {
                 result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage);
                 if (result == ConfirmationType.Yes)
@@ -191,8 +212,15 @@ namespace PixiEditor.ViewModels
 
             if (result != ConfirmationType.Canceled)
             {
-                ((CancelEventArgs)property).Cancel = false;
+                BitmapManager.Documents.Remove(BitmapManager.ActiveDocument);
+
+                return true;
             }
+            else
+            {
+                return false;
+            }
+
         }
 
         private void OnStartup(object parameter)
@@ -202,14 +230,17 @@ namespace PixiEditor.ViewModels
 
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
-            e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
+            if (e.NewDocument != null)
+            {
+                e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
+            }
         }
 
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
-            SelectionSubViewModel.ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            ViewportSubViewModel.CenterViewport();
-            DocumentSubViewModel.UnsavedDocumentModified = true;
+            BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
+            BitmapManager.ActiveDocument.CenterViewport();
+            BitmapManager.ActiveDocument.ChangesSaved = false;
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
@@ -222,7 +253,7 @@ namespace PixiEditor.ViewModels
             ChangesController.AddChanges(
                 new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
                 new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
-            DocumentSubViewModel.UnsavedDocumentModified = true;
+            BitmapManager.ActiveDocument.ChangesSaved = false;
             if (BitmapManager.IsOperationTool())
             {
                 ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);

@@ -13,8 +13,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatBitmapManagerSetsCorrectTool()
         {
             BitmapManager bitmapManager = new BitmapManager();
-            bitmapManager.SetActiveTool(new MockedSinglePixelPen());
-            Assert.Equal(ToolType.Pen, bitmapManager.SelectedTool.ToolType);
+            bitmapManager.SetActiveTool(new MockedSinglePixelPenTool());
+            Assert.Equal(typeof(MockedSinglePixelPenTool), bitmapManager.SelectedTool.GetType());
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             {
                 ActiveDocument = new Document(10, 10)
             };
-            bitmapManager.AddNewLayer(layerName);
+            bitmapManager.ActiveDocument.AddNewLayer(layerName);
             Assert.Single(bitmapManager.ActiveDocument.Layers);
             Assert.Equal(layerName, bitmapManager.ActiveDocument.ActiveLayer.Name);
             Assert.Equal(0, bitmapManager.ActiveDocument.ActiveLayer.Width + bitmapManager.ActiveDocument.ActiveLayer.Height);
@@ -38,10 +38,10 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             {
                 ActiveDocument = new Document(10, 10)
             };
-            bitmapManager.AddNewLayer("_");
-            bitmapManager.AddNewLayer("_1");
+            bitmapManager.ActiveDocument.AddNewLayer("_");
+            bitmapManager.ActiveDocument.AddNewLayer("_1");
             Assert.Equal(2, bitmapManager.ActiveDocument.Layers.Count);
-            bitmapManager.RemoveLayer(0);
+            bitmapManager.ActiveDocument.RemoveLayer(0);
             Assert.Single(bitmapManager.ActiveDocument.Layers);
         }
 
@@ -52,18 +52,18 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             {
                 ActiveDocument = new Document(10, 10)
             };
-            bitmapManager.GeneratePreviewLayer();
-            Assert.NotNull(bitmapManager.PreviewLayer);
-            Assert.Equal(0, bitmapManager.PreviewLayer.Width + bitmapManager.PreviewLayer.Height); // Size is zero
-            Assert.Equal(0, bitmapManager.PreviewLayer.OffsetX + bitmapManager.PreviewLayer.OffsetY); // Offset is zero
-            Assert.Equal(bitmapManager.ActiveDocument.Width, bitmapManager.PreviewLayer.MaxWidth);
-            Assert.Equal(bitmapManager.ActiveDocument.Height, bitmapManager.PreviewLayer.MaxHeight);
+            bitmapManager.ActiveDocument.GeneratePreviewLayer();
+            Assert.NotNull(bitmapManager.ActiveDocument.PreviewLayer);
+            Assert.Equal(0, bitmapManager.ActiveDocument.PreviewLayer.Width + bitmapManager.ActiveDocument.PreviewLayer.Height); // Size is zero
+            Assert.Equal(0, bitmapManager.ActiveDocument.PreviewLayer.OffsetX + bitmapManager.ActiveDocument.PreviewLayer.OffsetY); // Offset is zero
+            Assert.Equal(bitmapManager.ActiveDocument.Width, bitmapManager.ActiveDocument.PreviewLayer.MaxWidth);
+            Assert.Equal(bitmapManager.ActiveDocument.Height, bitmapManager.ActiveDocument.PreviewLayer.MaxHeight);
         }
 
         [Fact]
         public void TestThatIsOperationToolWorks()
         {
-            MockedSinglePixelPen singlePixelPen = new MockedSinglePixelPen();
+            MockedSinglePixelPenTool singlePixelPen = new MockedSinglePixelPenTool();
             Assert.True(BitmapManager.IsOperationTool(singlePixelPen));
         }
 
@@ -72,11 +72,16 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             BitmapManager bitmapManager = new BitmapManager
             {
-                ActiveDocument = new Document(5, 5)
+                Documents = new System.Collections.ObjectModel.ObservableCollection<Document>()
+                {
+                    new Document(5, 5)
+                }
             };
 
-            bitmapManager.AddNewLayer("Layer");
-            bitmapManager.SetActiveTool(new MockedSinglePixelPen());
+            bitmapManager.ActiveDocument = bitmapManager.Documents[0];
+
+            bitmapManager.ActiveDocument.AddNewLayer("Layer");
+            bitmapManager.SetActiveTool(new MockedSinglePixelPenTool());
             bitmapManager.PrimaryColor = Colors.Green;
 
             bitmapManager.MouseController.StartRecordingMouseMovementChanges(true);

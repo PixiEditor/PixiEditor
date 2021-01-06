@@ -332,3 +332,6 @@ ASALocalRun/
 PixiEditor/Properties/
 
 .vscode/
+
+Builds/
+Installer/Assets

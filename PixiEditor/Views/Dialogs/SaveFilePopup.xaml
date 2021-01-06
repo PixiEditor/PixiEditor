@@ -14,11 +14,15 @@
         <helpers1:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
-        <Grid Background="{StaticResource AccentColor}">
+        <Grid Background="{StaticResource AccentColor}" Focusable="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="32" />
                 <RowDefinition Height="229*" />
             </Grid.RowDefinitions>
+            <i:Interaction.Behaviors>
+                <helpers:ClearFocusOnClickBehavior/>
+            </i:Interaction.Behaviors>
+            
             <Grid Grid.Row="0" Background="{StaticResource MainColor}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">

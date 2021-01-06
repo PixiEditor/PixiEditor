@@ -10,18 +10,20 @@
         <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Height="30" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <local:SizeInput IsEnabled="{Binding EditingEnabled, ElementName=uc}" Width="150" Height="30"
+            <local:SizeInput x:Name="WidthPicker" IsEnabled="{Binding EditingEnabled, ElementName=uc}" Width="150" Height="30"
                              PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}"
                              AspectRatioValue="{Binding Path=ChosenHeight, ElementName=uc}"
+                             AspectRatioControl="{Binding ElementName=HeightPicker}"
                              HorizontalAlignment="Left" Margin="10,0,0,0"
                              Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}" />
         </DockPanel>
         <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Height="30" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <local:SizeInput IsEnabled="{Binding EditingEnabled, ElementName=uc}" Margin="5,0,0,0"
+            <local:SizeInput x:Name="HeightPicker" IsEnabled="{Binding EditingEnabled, ElementName=uc}" Margin="5,0,0,0"
                              PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}"
                              AspectRatioValue="{Binding Path=ChosenWidth, ElementName=uc}"
+                             AspectRatioControl="{Binding ElementName=WidthPicker}"
                              HorizontalAlignment="Left" Width="150" Height="30"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}" />
         </DockPanel>

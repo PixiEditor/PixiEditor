@@ -8,13 +8,14 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
     public class ZoomToolTests
     {
         [StaFact]
-        public void TestThatZoomSetsViewModelsZoomPercentage()
+        public void TestThatZoomSetsActiveDocumentZoomPercentage()
         {
             ViewModelMain vm = new ViewModelMain();
+            vm.BitmapManager.ActiveDocument = new PixiEditor.Models.DataHolders.Document(10, 10);
             ZoomTool zoomTool = new ZoomTool();
             double zoom = 110;
             zoomTool.Zoom(zoom);
-            Assert.Equal(zoom, vm.ViewportSubViewModel.ZoomPercentage);
+            Assert.Equal(zoom, vm.BitmapManager.ActiveDocument.ZoomPercentage);
         }
     }
 }

@@ -1,14 +1,15 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class DocumentViewModel : SubViewModel<ViewModelMain>
     {
         public const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
-
-        public bool UnsavedDocumentModified { get; set; }
 
         public RelayCommand CenterContentCommand { get; set; }
 
@@ -32,11 +33,28 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.ActiveDocument?.ClipCanvas();
         }
 
+        public void RequestCloseDocument(Document document)
+        {
+            if (!document.ChangesSaved)
+            {
+                ConfirmationType result = ConfirmationDialog.Show(ConfirmationDialogMessage);
+                if (result == ConfirmationType.Yes)
+                {
+                    Owner.FileSubViewModel.SaveDocument(false);
+                }
+                else if (result == ConfirmationType.Canceled)
+                {
+                    return;
+                }
+            }
+            Owner.BitmapManager.CloseDocument(document);
+        }
+
         private void DeletePixels(object parameter)
         {
             Owner.BitmapManager.BitmapOperations.DeletePixels(
                 new[] { Owner.BitmapManager.ActiveLayer },
-                Owner.SelectionSubViewModel.ActiveSelection.SelectedPoints.ToArray());
+                Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray());
         }
 
         private void OpenResizePopup(object parameter)
