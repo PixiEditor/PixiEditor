@@ -154,7 +154,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (Importer.IsSupportedFile(dialog.FileName))
                 {
                     Open(dialog.FileName);
-                    Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.Last();
+
+                    if (Owner.BitmapManager.Documents.Count > 0)
+                    {
+                        Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.Last();
+                    }
                 }
             }
         }
