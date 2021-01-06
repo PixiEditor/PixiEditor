@@ -9,11 +9,11 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <AssemblyName>PixiEditor</AssemblyName>
     <RootNamespace>PixiEditor</RootNamespace>
-    <RepositoryUrl>https://github.com/flabbet/PixiEditor</RepositoryUrl>
+    <RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>icon.ico</PackageIcon>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <Authors>Krzysztof Krysiński</Authors>
+    <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

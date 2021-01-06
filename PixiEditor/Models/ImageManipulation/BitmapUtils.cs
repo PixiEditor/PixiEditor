@@ -18,7 +18,10 @@ namespace PixiEditor.Models.ImageManipulation
         public static WriteableBitmap BytesToWriteableBitmap(int currentBitmapWidth, int currentBitmapHeight, byte[] byteArray)
         {
             WriteableBitmap bitmap = BitmapFactory.New(currentBitmapWidth, currentBitmapHeight);
-            bitmap.FromByteArray(byteArray);
+            if (byteArray != null)
+            {
+                bitmap.FromByteArray(byteArray);
+            }
             return bitmap;
         }
 

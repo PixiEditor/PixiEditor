@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("PixiEditor")]
 [assembly: AssemblyProduct("PixiEditor")]
-[assembly: AssemblyCopyright("Copyright Krzysztof Krysiński © 2018 - 2020")]
+[assembly: AssemblyCopyright("Copyright PixiEditor © 2018 - 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -50,5 +50,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.3.7")]
-[assembly: AssemblyFileVersion("0.1.3.7")]
+[assembly: AssemblyVersion("0.1.4.0")]
+[assembly: AssemblyFileVersion("0.1.4.0")]

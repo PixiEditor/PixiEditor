@@ -76,7 +76,9 @@ namespace PixiEditor.Models.IO
             {
                 using FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
 
-                return PixiParser.DeserializeOld(stream).ToDocument();
+                Document doc = PixiParser.DeserializeOld(stream).ToDocument();
+                doc.DocumentFilePath = path;
+                return doc;
             }
             catch (SerializationException)
             {
