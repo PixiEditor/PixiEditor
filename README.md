@@ -79,6 +79,10 @@ Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/
 
 You can find [FAQ here](https://github.com/PixiEditor/PixiEditor/wiki/FAQ).
 
+## Gallery
+
+Check out some pixel arts made with PixiEditor [here](https://github.com/PixiEditor/PixiEditor/wiki/Gallery).
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/flabbet/PixiEditor/blob/master/LICENSE) - file for details
