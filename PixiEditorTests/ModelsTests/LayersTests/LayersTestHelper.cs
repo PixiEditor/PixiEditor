@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.LayersTests

@@ -286,9 +286,30 @@ namespace PixiEditor.Models.DataHolders
                 ActiveLayer.IsActive = false;
             }
 
+            if (Layers.Any(x => x.IsActive))
+            {
+                Layers.First(x => x.IsActive).IsActive = false;
+            }
+
             ActiveLayerIndex = index;
             ActiveLayer.IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
+        }
+
+        public void MoveLayerIndexBy(int layerIndex, int amount)
+        {
+            Layers.Move(layerIndex, layerIndex + amount);
+            if (ActiveLayerIndex == layerIndex)
+            {
+                SetActiveLayer(layerIndex + amount);
+            }
+
+            UndoManager.AddUndoChange(new Change(
+                MoveLayerProcess,
+                new object[] { layerIndex + amount, -amount },
+                MoveLayerProcess,
+                new object[] { layerIndex, amount }, 
+                "Move layer"));
         }
 
         public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
@@ -314,6 +335,18 @@ namespace PixiEditor.Models.DataHolders
                 SetActiveLayer(Layers.Count - 1);
             }
 
+            if (Layers.Count > 1)
+            {
+                StorageBasedChange storageChange = new StorageBasedChange(this, new[] { Layers[^1] });
+                UndoManager.AddUndoChange(
+                    storageChange.ToChange(
+                        RemoveLayerProcess,
+                        new object[] { Layers[^1].LayerGuid },
+                        RestoreLayerProcess,
+                        new object[] { new Layer[] { Layers[^1] }, storageChange.StoredLayers },
+                        "Add layer"));
+            }
+
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
 
@@ -332,7 +365,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void RemoveLayer(int layerIndex, bool addToUndo = true)
+        public void RemoveLayer(int layerIndex)
         {
             if (Layers.Count == 0)
             {
@@ -350,6 +383,18 @@ namespace PixiEditor.Models.DataHolders
             {
                 SetNextLayerAsActive(layerIndex);
             }
+        }
+
+        private void MoveLayerProcess(object[] parameter)
+        {
+            int layerIndex = (int)parameter[0];
+            int amount = (int)parameter[1];
+            MoveLayerIndexBy(layerIndex, amount);
+        }
+
+        private void RestoreLayerProcess(object[] parameters)
+        {
+            RestoreLayersProcess((Layer[])parameters[0], (UndoLayer[])parameters[1]);
         }
 
         private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)

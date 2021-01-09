@@ -140,6 +140,7 @@ namespace PixiEditor.Models.Controllers
             {
                 ActiveDocument.PreviewLayer = null;
             }
+
             SelectedTool?.Toolbar.SaveToolbarSettings();
             SelectedTool = tool;
             SelectedTool.Toolbar.LoadSharedSettings();
