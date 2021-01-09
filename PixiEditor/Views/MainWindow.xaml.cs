@@ -70,6 +70,13 @@ namespace PixiEditor
 
         private void MainWindow_Initialized(object sender, EventArgs e)
         {
+#if RELEASE
+            CheckForDownloadedUpdates();
+#endif
+        }
+
+        private void CheckForDownloadedUpdates()
+        {
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             UpdateDownloader.CreateTempDirectory();
             bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
