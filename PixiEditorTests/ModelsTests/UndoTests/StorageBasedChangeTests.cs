@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
@@ -76,7 +77,6 @@ namespace PixiEditorTests.ModelsTests.UndoTests
             Document document = GenerateTestDocument();
 
             StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
-            change.SaveLayersOnDevice();
 
             foreach (var layer in change.StoredLayers)
             {
@@ -92,8 +92,6 @@ namespace PixiEditorTests.ModelsTests.UndoTests
 
             StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
 
-            change.SaveLayersOnDevice();
-
             Layer[] layers = change.LoadLayersFromDevice();
 
             Assert.Equal(document.Layers.Count, layers.Length);
@@ -103,6 +101,69 @@ namespace PixiEditorTests.ModelsTests.UndoTests
                 Layer actual = layers[i];
                 LayersTestHelper.LayersAreEqual(expected, actual);
             }
+        }
+
+        [Fact]
+        public void TestThatUndoInvokesLoadFromDeviceAndExecutesProcess()
+        {
+            Document document = GenerateTestDocument();
+
+            StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
+            bool undoInvoked = false;
+
+            Action<Layer[], UndoLayer[]> testUndoProcess = (layers, data) =>
+            {
+                undoInvoked = true;
+                Assert.Equal(document.Layers.Count, layers.Length);
+                Assert.Equal(document.Layers.Count, data.Length);
+                foreach (var undoLayer in data)
+                {
+                    Assert.False(File.Exists(undoLayer.StoredPngLayerName));
+                }
+            };
+
+            Action<object[]> testRedoProcess = parameters => { };
+
+            Change undoChange = change.ToChange(testUndoProcess, testRedoProcess, null);
+            UndoManager manager = new UndoManager(this);
+
+            manager.AddUndoChange(undoChange);
+            manager.Undo();
+
+            Assert.True(undoInvoked);
+        }
+
+        [Fact]
+        public void TestThatRedoInvokesSaveToDeviceAndExecutesProcess()
+        {
+            Document document = GenerateTestDocument();
+
+            StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
+            bool redoInvoked = false;
+
+            Action<Layer[], UndoLayer[]> testUndoProcess = (layers, data) => { };
+
+            Action<object[]> testRedoProcess = parameters =>
+            {
+                redoInvoked = true;
+                foreach (var undoLayer in change.StoredLayers)
+                {
+                    Assert.True(File.Exists(undoLayer.StoredPngLayerName));
+                    Assert.NotNull(parameters);
+                    Assert.Single(parameters);
+                    Assert.IsType<int>(parameters[0]);
+                    Assert.Equal(2, parameters[0]);
+                }
+            };
+
+            Change undoChange = change.ToChange(testUndoProcess, testRedoProcess, new object[] { 2 });
+            UndoManager manager = new UndoManager(this);
+
+            manager.AddUndoChange(undoChange);
+            manager.Undo();
+            manager.Redo();
+
+            Assert.True(redoInvoked);
         }
     }
 }

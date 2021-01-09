@@ -1,5 +1,5 @@
-﻿using PixiEditor.Models.Layers;
-using System;
+﻿using System;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.Undo
 {
@@ -7,6 +7,8 @@ namespace PixiEditor.Models.Undo
     public record UndoLayer
     {
         public string StoredPngLayerName { get; set; }
+
+        public Guid LayerGuid { get; init; }
 
         public string Name { get; set; }
 
@@ -43,6 +45,7 @@ namespace PixiEditor.Models.Undo
             OffsetY = layer.OffsetY;
             Opacity = layer.Opacity;
             IsActive = layer.IsActive;
+            LayerGuid = layer.LayerGuid;
         }
     }
 }

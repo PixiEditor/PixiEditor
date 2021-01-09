@@ -317,6 +317,21 @@ namespace PixiEditor.Models.DataHolders
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
         }
 
+        public void SetNextLayerAsActive(int lastLayerIndex)
+        {
+            if (Layers.Count > 0)
+            {
+                if (lastLayerIndex == 0)
+                {
+                    SetActiveLayer(0);
+                }
+                else
+                {
+                    SetActiveLayer(lastLayerIndex - 1);
+                }
+            }
+        }
+
         public void RemoveLayer(int layerIndex)
         {
             if (Layers.Count == 0)
@@ -325,14 +340,45 @@ namespace PixiEditor.Models.DataHolders
             }
 
             bool wasActive = Layers[layerIndex].IsActive;
+
+            StorageBasedChange change = new StorageBasedChange(this, new[] { Layers[layerIndex] });
+
+            UndoManager.AddUndoChange(
+                change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }, "Remove layer"));
             Layers.RemoveAt(layerIndex);
             if (wasActive)
             {
-                SetActiveLayer(0);
+                SetNextLayerAsActive(layerIndex);
             }
-            else if (ActiveLayerIndex > Layers.Count - 1)
+        }
+
+        private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
+        {
+            for (int i = 0; i < layers.Length; i++)
             {
-                SetActiveLayer(Layers.Count - 1);
+                Layer layer = layers[i];
+
+                Layers.Insert(layersData[i].LayerIndex, layer);
+                if (layer.IsActive)
+                {
+                    SetActiveLayer(Layers.IndexOf(layer));
+                }
+            }
+        }
+
+        private void RemoveLayerProcess(object[] parameters)
+        {
+            if (parameters != null && parameters.Length > 0 && parameters[0] is Guid layerGuid)
+            {
+                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+                int index = Layers.IndexOf(layer);
+                bool wasActive = layer.IsActive;
+                Layers.Remove(layer);
+
+                if (wasActive)
+                {
+                    SetNextLayerAsActive(index);
+                }
             }
         }
 

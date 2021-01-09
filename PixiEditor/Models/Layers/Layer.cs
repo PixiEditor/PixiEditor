@@ -32,6 +32,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = BitmapFactory.New(0, 0);
             Width = 0;
             Height = 0;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Layer(string name, int width, int height)
@@ -40,6 +41,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = BitmapFactory.New(width, height);
             Width = width;
             Height = height;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Layer(string name, WriteableBitmap layerBitmap)
@@ -48,9 +50,12 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = layerBitmap;
             Width = layerBitmap.PixelWidth;
             Height = layerBitmap.PixelHeight;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Dictionary<Coordinates, Color> LastRelativeCoordinates { get; set; }
+
+        public Guid LayerGuid { get; init; }
 
         public string Name
         {

@@ -13,6 +13,8 @@ namespace PixiEditor.Models.Undo
 {
     public class StorageBasedChange
     {
+        public static string DefaultUndoChangeLocation => Path.Join(Path.GetTempPath(), "PixiEditor", "UndoStack");
+
         public string UndoChangeLocation { get; set; }
 
         public UndoLayer[] StoredLayers { get; set; }
@@ -21,12 +23,29 @@ namespace PixiEditor.Models.Undo
 
         private Document document;
 
-        public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation)
+        public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool saveOnStartup = true)
+        {
+            document = doc;
+            layersToStore = layers;
+            UndoChangeLocation = DefaultUndoChangeLocation;
+            GenerateUndoLayers();
+            if (saveOnStartup)
+            {
+                SaveLayersOnDevice();
+            }
+        }
+
+        public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
         {
             document = doc;
             layersToStore = layers;
             UndoChangeLocation = undoChangeLocation;
             GenerateUndoLayers();
+
+            if (saveOnStartup)
+            {
+                SaveLayersOnDevice();
+            }
         }
 
         public void SaveLayersOnDevice()
@@ -39,7 +58,7 @@ namespace PixiEditor.Models.Undo
                 i++;
             }
 
-            layersToStore = null;
+            layersToStore = Array.Empty<Layer>();
         }
 
         public Layer[] LoadLayersFromDevice()
@@ -57,6 +76,7 @@ namespace PixiEditor.Models.Undo
                     MaxHeight = storedLayer.MaxHeight,
                     IsVisible = storedLayer.IsVisible,
                     IsActive = storedLayer.IsActive,
+                    LayerGuid = storedLayer.LayerGuid
                 };
 
                 File.Delete(StoredLayers[i].StoredPngLayerName);
@@ -64,6 +84,23 @@ namespace PixiEditor.Models.Undo
 
             layersToStore = layers;
             return layers;
+        }
+
+        public Change ToChange(Action<Layer[], UndoLayer[]> undoProcess, Action<object[]> redoProcess, object[] redoProcessParameters, string description = "")
+        {
+            Action<object[]> finalUndoProcess = _ =>
+            {
+                Layer[] layers = LoadLayersFromDevice();
+                undoProcess(layers, StoredLayers);
+            };
+
+            Action<object[]> fianlRedoProcess = parameters =>
+            {
+                SaveLayersOnDevice();
+                redoProcess(parameters);
+            };
+
+            return new Change(finalUndoProcess, null, fianlRedoProcess, redoProcessParameters, description);
         }
 
         private void GenerateUndoLayers()
