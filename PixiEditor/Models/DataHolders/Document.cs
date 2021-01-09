@@ -483,7 +483,7 @@ namespace PixiEditor.Models.DataHolders
                 int layerHeight = (int)(Layers[i].Height * heightRatio);
 
                 Layers[i].Resize(layerWidth, layerHeight, newWidth, newHeight);
-                Layers[i].Offset = new Thickness(Layers[i].OffsetX * widthRatio, Layers[i].OffsetY * heightRatio, 0, 0);
+                Layers[i].Offset = new Thickness(Math.Floor(Layers[i].OffsetX * widthRatio), Math.Floor(Layers[i].OffsetY * heightRatio), 0, 0);
             }
 
             Height = newHeight;
