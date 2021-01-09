@@ -12,7 +12,6 @@ namespace PixiEditorTests.ModelsTests.LayersTests
     {
         public static void LayersAreEqual(Layer expected, Layer actual)
         {
-            Assert.Equal(expected == null, actual == null);
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Offset, actual.Offset);
             Assert.Equal(expected.Width, actual.Width);
