@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Undo;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
