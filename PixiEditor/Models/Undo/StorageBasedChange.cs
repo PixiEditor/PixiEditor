@@ -54,7 +54,11 @@ namespace PixiEditor.Models.Undo
             foreach (var layer in layersToStore)
             {
                 UndoLayer storedLayer = StoredLayers[i];
-                Exporter.SaveAsPng(storedLayer.StoredPngLayerName, storedLayer.Width, storedLayer.Height, layer.LayerBitmap);
+                if (Directory.Exists(Path.GetDirectoryName(storedLayer.StoredPngLayerName)))
+                {
+                    Exporter.SaveAsPng(storedLayer.StoredPngLayerName, storedLayer.Width, storedLayer.Height, layer.LayerBitmap);
+                }
+
                 i++;
             }
 

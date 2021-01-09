@@ -332,7 +332,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void RemoveLayer(int layerIndex)
+        public void RemoveLayer(int layerIndex, bool addToUndo = true)
         {
             if (Layers.Count == 0)
             {
@@ -342,9 +342,9 @@ namespace PixiEditor.Models.DataHolders
             bool wasActive = Layers[layerIndex].IsActive;
 
             StorageBasedChange change = new StorageBasedChange(this, new[] { Layers[layerIndex] });
-
             UndoManager.AddUndoChange(
                 change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }, "Remove layer"));
+
             Layers.RemoveAt(layerIndex);
             if (wasActive)
             {
