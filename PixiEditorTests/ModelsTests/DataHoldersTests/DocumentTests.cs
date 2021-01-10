@@ -1,13 +1,16 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
 {
+    [Collection("Application collection")]
     public class DocumentTests
     {
         [Theory]
