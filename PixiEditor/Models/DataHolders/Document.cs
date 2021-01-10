@@ -385,48 +385,6 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private void MoveLayerProcess(object[] parameter)
-        {
-            int layerIndex = (int)parameter[0];
-            int amount = (int)parameter[1];
-            MoveLayerIndexBy(layerIndex, amount);
-        }
-
-        private void RestoreLayerProcess(object[] parameters)
-        {
-            RestoreLayersProcess((Layer[])parameters[0], (UndoLayer[])parameters[1]);
-        }
-
-        private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
-        {
-            for (int i = 0; i < layers.Length; i++)
-            {
-                Layer layer = layers[i];
-
-                Layers.Insert(layersData[i].LayerIndex, layer);
-                if (layer.IsActive)
-                {
-                    SetActiveLayer(Layers.IndexOf(layer));
-                }
-            }
-        }
-
-        private void RemoveLayerProcess(object[] parameters)
-        {
-            if (parameters != null && parameters.Length > 0 && parameters[0] is Guid layerGuid)
-            {
-                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
-                int index = Layers.IndexOf(layer);
-                bool wasActive = layer.IsActive;
-                Layers.Remove(layer);
-
-                if (wasActive)
-                {
-                    SetNextLayerAsActive(index);
-                }
-            }
-        }
-
         /// <summary>
         ///     Resizes all document layers using NearestNeighbor interpolation.
         /// </summary>
@@ -515,6 +473,48 @@ namespace PixiEditor.Models.DataHolders
                     MoveOffsetsProcess,
                     new object[] { moveVector },
                     "Center content"));
+        }
+
+        private void MoveLayerProcess(object[] parameter)
+        {
+            int layerIndex = (int)parameter[0];
+            int amount = (int)parameter[1];
+            MoveLayerIndexBy(layerIndex, amount);
+        }
+
+        private void RestoreLayerProcess(object[] parameters)
+        {
+            RestoreLayersProcess((Layer[])parameters[0], (UndoLayer[])parameters[1]);
+        }
+
+        private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
+        {
+            for (int i = 0; i < layers.Length; i++)
+            {
+                Layer layer = layers[i];
+
+                Layers.Insert(layersData[i].LayerIndex, layer);
+                if (layer.IsActive)
+                {
+                    SetActiveLayer(Layers.IndexOf(layer));
+                }
+            }
+        }
+
+        private void RemoveLayerProcess(object[] parameters)
+        {
+            if (parameters != null && parameters.Length > 0 && parameters[0] is Guid layerGuid)
+            {
+                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+                int index = Layers.IndexOf(layer);
+                bool wasActive = layer.IsActive;
+                Layers.Remove(layer);
+
+                if (wasActive)
+                {
+                    SetNextLayerAsActive(index);
+                }
+            }
         }
 
         private void SetAsActiveOnClick(object obj)
