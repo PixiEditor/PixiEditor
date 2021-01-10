@@ -107,21 +107,21 @@ namespace PixiEditor.Models.Undo
             return new Change(finalUndoProcess, null, fianlRedoProcess, redoProcessParameters, description);
         }
 
-        public Change ToChange(Action<object[]> undoProcess, object[] undoProcessParameters, Action<object[]> redoProcess, object[] redoProcessParameters, string description = "")
+        public Change ToChange(Action<object[]> undoProcess, object[] undoProcessParameters, Action<Layer[], UndoLayer[]> redoProcess, string description = "")
         {
             Action<object[]> finalUndoProcess = parameters =>
             {
-                Layer[] layers = LoadLayersFromDevice();
-                undoProcess(parameters.Concat(new object[] { layers, StoredLayers }).ToArray());
+                SaveLayersOnDevice();
+                undoProcess(parameters);
             };
 
             Action<object[]> fianlRedoProcess = parameters =>
             {
-                SaveLayersOnDevice();
-                redoProcess(parameters);
+                Layer[] layers = LoadLayersFromDevice();
+                redoProcess(layers, StoredLayers);
             };
 
-            return new Change(finalUndoProcess, undoProcessParameters, fianlRedoProcess, redoProcessParameters, description);
+            return new Change(finalUndoProcess, undoProcessParameters, fianlRedoProcess, null, description);
         }
 
         private void GenerateUndoLayers()

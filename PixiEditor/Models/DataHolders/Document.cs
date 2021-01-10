@@ -342,8 +342,7 @@ namespace PixiEditor.Models.DataHolders
                     storageChange.ToChange(
                         RemoveLayerProcess,
                         new object[] { Layers[^1].LayerGuid },
-                        RestoreLayerProcess,
-                        new object[] { new Layer[] { Layers[^1] }, storageChange.StoredLayers },
+                        RestoreLayersProcess,
                         "Add layer"));
             }
 
@@ -480,11 +479,6 @@ namespace PixiEditor.Models.DataHolders
             int layerIndex = (int)parameter[0];
             int amount = (int)parameter[1];
             MoveLayerIndexBy(layerIndex, amount);
-        }
-
-        private void RestoreLayerProcess(object[] parameters)
-        {
-            RestoreLayersProcess((Layer[])parameters[0], (UndoLayer[])parameters[1]);
         }
 
         private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
