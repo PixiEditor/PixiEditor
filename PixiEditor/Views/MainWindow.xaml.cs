@@ -70,6 +70,7 @@ namespace PixiEditor
 
         private void MainWindow_Initialized(object sender, EventArgs e)
         {
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => Helpers.CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
 #if RELEASE
             CheckForDownloadedUpdates();
 #endif
