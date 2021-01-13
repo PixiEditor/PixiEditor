@@ -10,11 +10,11 @@
              mc:Ignorable="d"
              d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput">
     <Grid>
-        <TextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}"
+        <ui:UniversalTextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}"
                  PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
             <i:Interaction.Behaviors>
                 <behaviours:TextBoxFocusBehavior />
             </i:Interaction.Behaviors>
-        </TextBox>
+        </ui:UniversalTextBox>
     </Grid>
 </UserControl>
