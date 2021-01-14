@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System;
+using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -11,7 +12,7 @@ namespace PixiEditor.Models.Tools
 
         public bool UseDefaultUndoMethod { get; set; } = true;
 
-        private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, 0) };
+        private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, Guid.Empty) };
 
         public abstract LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color);
 
@@ -21,9 +22,9 @@ namespace PixiEditor.Models.Tools
             return onlyLayerArr;
         }
 
-        protected LayerChange[] Only(BitmapPixelChanges changes, int layerIndex)
+        protected LayerChange[] Only(BitmapPixelChanges changes, Guid layerGuid)
         {
-            onlyLayerArr[0] = new LayerChange(changes, layerIndex);
+            onlyLayerArr[0] = new LayerChange(changes, layerGuid);
             return onlyLayerArr;
         }
     }

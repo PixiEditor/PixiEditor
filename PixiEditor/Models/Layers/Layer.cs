@@ -55,8 +55,6 @@ namespace PixiEditor.Models.Layers
 
         public Dictionary<Coordinates, Color> LastRelativeCoordinates { get; set; }
 
-        public Guid LayerGuid { get; init; }
-
         public string Name
         {
             get => name;
@@ -138,7 +136,7 @@ namespace PixiEditor.Models.Layers
         /// <summary>
         ///     Returns clone of layer.
         /// </summary>
-        public Layer Clone()
+        public Layer Clone(bool generateNewGuid = false)
         {
             return new Layer(Name, LayerBitmap.Clone())
             {
@@ -148,7 +146,8 @@ namespace PixiEditor.Models.Layers
                 MaxWidth = MaxWidth,
                 Opacity = Opacity,
                 IsActive = IsActive,
-                IsRenaming = IsRenaming
+                IsRenaming = IsRenaming,
+                LayerGuid = generateNewGuid ? Guid.NewGuid() : LayerGuid
             };
         }
 

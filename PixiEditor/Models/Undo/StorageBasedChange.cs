@@ -22,14 +22,14 @@ namespace PixiEditor.Models.Undo
 
         public UndoLayer[] StoredLayers { get; set; }
 
-        private IEnumerable<Layer> layersToStore;
+        private IEnumerable<Guid> layersToStore;
 
         private Document document;
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool saveOnStartup = true)
         {
             document = doc;
-            layersToStore = layers;
+            layersToStore = layers.Select(x => x.LayerGuid);
             UndoChangeLocation = DefaultUndoChangeLocation;
             GenerateUndoLayers();
             if (saveOnStartup)
@@ -41,7 +41,7 @@ namespace PixiEditor.Models.Undo
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
         {
             document = doc;
-            layersToStore = layers;
+            layersToStore = layers.Select(x => x.LayerGuid);
             UndoChangeLocation = undoChangeLocation;
             GenerateUndoLayers();
 
@@ -54,8 +54,9 @@ namespace PixiEditor.Models.Undo
         public void SaveLayersOnDevice()
         {
             int i = 0;
-            foreach (var layer in layersToStore)
+            foreach (var layerGuid in layersToStore)
             {
+                Layer layer = document.Layers.First(x => x.LayerGuid == layerGuid);
                 UndoLayer storedLayer = StoredLayers[i];
                 if (Directory.Exists(Path.GetDirectoryName(storedLayer.StoredPngLayerName)))
                 {
@@ -65,7 +66,7 @@ namespace PixiEditor.Models.Undo
                 i++;
             }
 
-            layersToStore = Array.Empty<Layer>();
+            layersToStore = Array.Empty<Guid>();
         }
 
         /// <summary>
@@ -87,13 +88,15 @@ namespace PixiEditor.Models.Undo
                     MaxHeight = storedLayer.MaxHeight,
                     IsVisible = storedLayer.IsVisible,
                     IsActive = storedLayer.IsActive,
-                    LayerGuid = storedLayer.LayerGuid
+                    LayerGuid = storedLayer.LayerGuid,
+                    Width = storedLayer.Width,
+                    Height = storedLayer.Height,
                 };
 
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
 
-            layersToStore = layers;
+            layersToStore = layers.Select(x => x.LayerGuid);
             return layers;
         }
 
@@ -113,13 +116,13 @@ namespace PixiEditor.Models.Undo
                 undoProcess(layers, StoredLayers);
             };
 
-            Action<object[]> fianlRedoProcess = parameters =>
+            Action<object[]> finalRedoProcess = parameters =>
             {
                 SaveLayersOnDevice();
                 redoProcess(parameters);
             };
 
-            return new Change(finalUndoProcess, null, fianlRedoProcess, redoProcessParameters, description);
+            return new Change(finalUndoProcess, null, finalRedoProcess, redoProcessParameters, description);
         }
 
         /// <summary>
@@ -138,13 +141,13 @@ namespace PixiEditor.Models.Undo
                 undoProcess(parameters);
             };
 
-            Action<object[]> fianlRedoProcess = parameters =>
+            Action<object[]> finalRedoProcess = parameters =>
             {
                 Layer[] layers = LoadLayersFromDevice();
                 redoProcess(layers, StoredLayers);
             };
 
-            return new Change(finalUndoProcess, undoProcessParameters, fianlRedoProcess, null, description);
+            return new Change(finalUndoProcess, undoProcessParameters, finalRedoProcess, null, description);
         }
 
         /// <summary>
@@ -154,15 +157,18 @@ namespace PixiEditor.Models.Undo
         {
             StoredLayers = new UndoLayer[layersToStore.Count()];
             int i = 0;
-            foreach (var layer in layersToStore)
+            foreach (var layerGuid in layersToStore)
             {
+                Layer layer = document.Layers.First(x => x.LayerGuid == layerGuid);
                 if (!document.Layers.Contains(layer))
                 {
                     throw new ArgumentException("Provided document doesn't contain selected layer");
                 }
 
+                layer.ClipCanvas();
+
                 int index = document.Layers.IndexOf(layer);
-                string pngName = layer.Name + index + Guid.NewGuid().ToString();
+                string pngName = layer.Name + Guid.NewGuid().ToString();
                 StoredLayers[i] = new UndoLayer(
                     Path.Join(
                         UndoChangeLocation,

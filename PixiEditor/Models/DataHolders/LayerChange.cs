@@ -1,24 +1,24 @@
-﻿using PixiEditor.Models.Layers;
-using PixiEditor.ViewModels;
+﻿using System;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.DataHolders
 {
     public class LayerChange
     {
-        public LayerChange(BitmapPixelChanges pixelChanges, int layerIndex)
+        public LayerChange(BitmapPixelChanges pixelChanges, Guid layerGuid)
         {
             PixelChanges = pixelChanges;
-            LayerIndex = layerIndex;
+            LayerGuid = layerGuid;
         }
 
         public LayerChange(BitmapPixelChanges pixelChanges, Layer layer)
         {
             PixelChanges = pixelChanges;
-            LayerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
+            LayerGuid = layer.LayerGuid;
         }
 
         public BitmapPixelChanges PixelChanges { get; set; }
 
-        public int LayerIndex { get; set; }
+        public Guid LayerGuid { get; set; }
     }
 }

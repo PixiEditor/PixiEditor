@@ -25,7 +25,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 undoChanges = value;
                 for (int i = 0; i < value.Length; i++)
                 {
-                    Owner.BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].SetPixels(value[i].PixelChanges);
+                    Owner.BitmapManager.ActiveDocument.Layers.First(x => x.LayerGuid == value[i].LayerGuid).SetPixels(value[i].PixelChanges);
                 }
             }
         }

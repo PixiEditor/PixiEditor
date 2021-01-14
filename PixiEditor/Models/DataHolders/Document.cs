@@ -308,7 +308,7 @@ namespace PixiEditor.Models.DataHolders
                 MoveLayerProcess,
                 new object[] { layerIndex + amount, -amount },
                 MoveLayerProcess,
-                new object[] { layerIndex, amount }, 
+                new object[] { layerIndex, amount },
                 "Move layer"));
         }
 
@@ -337,7 +337,7 @@ namespace PixiEditor.Models.DataHolders
 
             if (Layers.Count > 1)
             {
-                StorageBasedChange storageChange = new StorageBasedChange(this, new[] { Layers[^1] });
+                StorageBasedChange storageChange = new StorageBasedChange(this, new[] { Layers[^1] }, false);
                 UndoManager.AddUndoChange(
                     storageChange.ToChange(
                         RemoveLayerProcess,

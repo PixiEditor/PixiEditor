@@ -250,8 +250,8 @@ namespace PixiEditor.ViewModels
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
             ChangesController.AddChanges(
-                new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
-                new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
+                new LayerChange(e.PixelsChanged, e.ChangedLayerGuid),
+                new LayerChange(e.OldPixelsValues, e.ChangedLayerGuid));
             BitmapManager.ActiveDocument.ChangesSaved = false;
             if (BitmapManager.IsOperationTool())
             {
