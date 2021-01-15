@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 
@@ -8,6 +10,8 @@ namespace PixiEditor.Models.Controllers
     public class UndoManager
     {
         private bool lastChangeWasUndo;
+
+        private PropertyInfo newUndoChangeBlockedProperty;
 
         public Stack<Change> UndoStack { get; set; } = new Stack<Change>();
 
@@ -37,13 +41,19 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public void AddUndoChange(Change change)
         {
+            if (change.Property != null && ChangeIsBlockedProperty(change))
+            {
+                newUndoChangeBlockedProperty = null;
+                return;
+            }
+
             lastChangeWasUndo = false;
 
             // Clears RedoStack if last move wasn't redo or undo and if redo stack is greater than 0.
             if (lastChangeWasUndo == false && RedoStack.Count > 0)
-            {
-                RedoStack.Clear();
-            }
+                {
+                    RedoStack.Clear();
+                }
 
             change.Root ??= MainRoot;
             UndoStack.Push(change);
@@ -58,7 +68,7 @@ namespace PixiEditor.Models.Controllers
             Change change = UndoStack.Pop();
             if (change.ReverseProcess == null)
             {
-                SetPropertyValue(change.Root, change.Property, change.OldValue);
+                SetPropertyValue(GetChangeRoot(change), change.Property, change.OldValue);
             }
             else
             {
@@ -77,7 +87,7 @@ namespace PixiEditor.Models.Controllers
             Change change = RedoStack.Pop();
             if (change.Process == null)
             {
-                SetPropertyValue(change.Root, change.Property, change.NewValue);
+                SetPropertyValue(GetChangeRoot(change), change.Property, change.NewValue);
             }
             else
             {
@@ -87,17 +97,34 @@ namespace PixiEditor.Models.Controllers
             UndoStack.Push(change);
         }
 
+        private bool ChangeIsBlockedProperty(Change change)
+        {
+            return (change.Root != null || change.FindRootProcess != null)
+                && GetProperty(GetChangeRoot(change), change.Property) == newUndoChangeBlockedProperty;
+        }
+
+        private object GetChangeRoot(Change change)
+        {
+            return change.FindRootProcess != null ? change.FindRootProcess(change.FindRootProcessArgs) : change.Root;
+        }
+
         private void SetPropertyValue(object target, string propName, object value)
+        {
+            PropertyInfo propertyToSet = GetProperty(target, propName);
+            newUndoChangeBlockedProperty = propertyToSet;
+            propertyToSet.SetValue(target, value, null);
+        }
+
+        private PropertyInfo GetProperty(object target, string propName)
         {
             string[] bits = propName.Split('.');
             for (int i = 0; i < bits.Length - 1; i++)
             {
-                System.Reflection.PropertyInfo propertyToGet = target.GetType().GetProperty(bits[i]);
+                PropertyInfo propertyToGet = target.GetType().GetProperty(bits[i]);
                 target = propertyToGet.GetValue(target, null);
             }
 
-            System.Reflection.PropertyInfo propertyToSet = target.GetType().GetProperty(bits.Last());
-            propertyToSet.SetValue(target, value, null);
+            return target.GetType().GetProperty(bits.Last());
         }
     }
 }

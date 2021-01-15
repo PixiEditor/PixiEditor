@@ -30,6 +30,31 @@ namespace PixiEditor.Models.Undo
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Change"/> class.
+        ///     Creates new change for property based undo system.
+        /// </summary>
+        /// <param name="property">Name of property.</param>
+        /// <param name="oldValue">Old value of property.</param>
+        /// <param name="newValue">New value of property.</param>
+        /// <param name="description">Description of change.</param>
+        /// <param name="root">Custom root for finding property.</param>
+        public Change(
+            string property,
+            object oldValue,
+            object newValue,
+            Func<object[], object> findRootProcess,
+            object[] findRootProcessArgs = null,
+            string description = "")
+        {
+            Property = property;
+            OldValue = oldValue;
+            Description = description;
+            NewValue = newValue;
+            FindRootProcess = findRootProcess;
+            FindRootProcessArgs = findRootProcessArgs;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Change"/> class.
         ///     Creates new change for mixed reverse process based system with new value property based system.
         /// </summary>
         /// <param name="property">Name of property, which new value will be applied to.</param>
@@ -94,5 +119,9 @@ namespace PixiEditor.Models.Undo
         public Action<object[]> Process { get; set; }
 
         public object Root { get; set; }
+
+        public Func<object[], object> FindRootProcess { get; set; }
+
+        public object[] FindRootProcessArgs { get; set; }
     }
 }

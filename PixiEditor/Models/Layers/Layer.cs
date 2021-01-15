@@ -4,8 +4,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Layers
 {
@@ -24,7 +27,7 @@ namespace PixiEditor.Models.Layers
 
         private Thickness offset;
 
-        private float opacity = 1;
+        private float opacity = 1f;
 
         public Layer(string name)
         {
@@ -80,8 +83,20 @@ namespace PixiEditor.Models.Layers
             get => isVisible;
             set
             {
-                isVisible = value;
-                RaisePropertyChanged("IsVisible");
+                if (isVisible != value)
+                {
+                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
+                        .AddUndoChange(
+                        new Change(
+                            nameof(IsVisible),
+                            isVisible,
+                            value,
+                            LayerHelper.FindLayerByGuidProcess,
+                            new object[] { LayerGuid },
+                            "Change layer visibility"));
+                    isVisible = value;
+                    RaisePropertyChanged("IsVisible");
+                }
             }
         }
 
@@ -110,8 +125,19 @@ namespace PixiEditor.Models.Layers
             get => opacity;
             set
             {
-                opacity = value;
-                RaisePropertyChanged("Opacity");
+                if (opacity != value)
+                {
+                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
+                        .AddUndoChange(new Change(
+                            nameof(Opacity),
+                            opacity,
+                            value,
+                            LayerHelper.FindLayerByGuidProcess,
+                            new object[] { LayerGuid },
+                            "Change layer opacity"));
+                    opacity = value;
+                    RaisePropertyChanged("Opacity");
+                }
             }
         }
 
