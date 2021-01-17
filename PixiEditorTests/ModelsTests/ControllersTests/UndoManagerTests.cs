@@ -181,6 +181,58 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.Equal(newVal, TestPropClass.IntProperty);
         }
 
+        [Fact]
+        public void TestThatFindRootProcessWorks()
+        {
+            PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
+
+            undoManager.AddUndoChange(new Change("IntProperty", 0, 5, FindRootProcess, null));
+
+            Change change = undoManager.UndoStack.Peek();
+
+            Assert.Equal(TestPropClass, change.FindRootProcess(change.FindRootProcessArgs));
+        }
+
+        [Fact]
+        public void TestThatUndoForFindRootProcessWorks()
+        {
+            PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
+
+            undoManager.AddUndoChange(new Change("IntProperty", 0, 5, FindRootProcess, null));
+
+            TestPropClass.IntProperty = 5;
+
+            undoManager.Undo();
+
+            Assert.Equal(0, TestPropClass.IntProperty);
+        }
+
+        [Fact]
+        public void TestThatUndoAndRedoForFindRootProcessWorks()
+        {
+            PrepareUndoManagerForTest();
+            UndoManager undoManager = new UndoManager(this);
+
+            undoManager.AddUndoChange(new Change("IntProperty", 0, 5, FindRootProcess, null));
+
+            TestPropClass.IntProperty = 5;
+
+            undoManager.Undo();
+
+            Assert.Equal(0, TestPropClass.IntProperty);
+
+            undoManager.Redo();
+
+            Assert.Equal(5, TestPropClass.IntProperty);
+        }
+
+        private object FindRootProcess(object[] args)
+        {
+            return TestPropClass;
+        }
+
         private void ReverseProcess(object[] args)
         {
             ExampleProperty = (int)args[0];

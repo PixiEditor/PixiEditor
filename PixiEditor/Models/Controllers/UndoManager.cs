@@ -100,7 +100,7 @@ namespace PixiEditor.Models.Controllers
         private bool ChangeIsBlockedProperty(Change change)
         {
             return (change.Root != null || change.FindRootProcess != null)
-                && GetProperty(GetChangeRoot(change), change.Property) == newUndoChangeBlockedProperty;
+                && GetProperty(GetChangeRoot(change), change.Property).Item1 == newUndoChangeBlockedProperty;
         }
 
         private object GetChangeRoot(Change change)
@@ -110,12 +110,19 @@ namespace PixiEditor.Models.Controllers
 
         private void SetPropertyValue(object target, string propName, object value)
         {
-            PropertyInfo propertyToSet = GetProperty(target, propName);
+            var properties = GetProperty(target, propName);
+            PropertyInfo propertyToSet = properties.Item1;
             newUndoChangeBlockedProperty = propertyToSet;
-            propertyToSet.SetValue(target, value, null);
+            propertyToSet.SetValue(properties.Item2, value, null);
         }
 
-        private PropertyInfo GetProperty(object target, string propName)
+        /// <summary>
+        /// Gets property info for propName from target. Supports '.' format.
+        /// </summary>
+        /// <param name="target">A object where target can be found.</param>
+        /// <param name="propName">Name of property to get, supports nested property.</param>
+        /// <returns>PropertyInfo about property and target object where property can be found.</returns>
+        private Tuple<PropertyInfo, object> GetProperty(object target, string propName)
         {
             string[] bits = propName.Split('.');
             for (int i = 0; i < bits.Length - 1; i++)
@@ -124,7 +131,7 @@ namespace PixiEditor.Models.Controllers
                 target = propertyToGet.GetValue(target, null);
             }
 
-            return target.GetType().GetProperty(bits.Last());
+            return new Tuple<PropertyInfo, object>(target.GetType().GetProperty(bits.Last()), target);
         }
     }
 }
