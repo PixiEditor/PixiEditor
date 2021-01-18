@@ -1,7 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Data;
+using System.Windows.Interactivity;
 using System.Windows.Media;
 using ColorPicker;
+using PixiEditor.Helpers.Behaviours;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -18,7 +20,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         private PortableColorPicker GenerateColorPicker()
         {
             var resourceDictionary = new ResourceDictionary();
-            resourceDictionary.Source = new System.Uri("pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml",
+            resourceDictionary.Source = new System.Uri(
+                "pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml",
                 System.UriKind.RelativeOrAbsolute);
             PortableColorPicker picker = new PortableColorPicker
             {
@@ -29,6 +32,8 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             {
                 Mode = BindingMode.TwoWay
             };
+            GlobalShortcutFocusBehavior behavor = new GlobalShortcutFocusBehavior();
+            Interaction.GetBehaviors(picker).Add(behavor);
             picker.SetBinding(PortableColorPicker.SelectedColorProperty, binding);
             return picker;
         }

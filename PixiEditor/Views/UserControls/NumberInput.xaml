@@ -9,12 +9,11 @@
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d"
              d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput">
-    <Grid>
-        <ui:UniversalTextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}"
+    <TextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}"
                  PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
-            <i:Interaction.Behaviors>
-                <behaviours:TextBoxFocusBehavior />
-            </i:Interaction.Behaviors>
-        </ui:UniversalTextBox>
-    </Grid>
+        <i:Interaction.Behaviors>
+            <behaviours:TextBoxFocusBehavior />
+            <behaviours:GlobalShortcutFocusBehavior/>
+        </i:Interaction.Behaviors>
+    </TextBox>
 </UserControl>

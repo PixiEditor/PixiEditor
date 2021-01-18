@@ -7,15 +7,14 @@
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:converters="clr-namespace:PixiEditor.Helpers"
              xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
-             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d"
              d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="UserControlLayoutUpdated">
     <UserControl.Resources>
         <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </UserControl.Resources>
-    <ui:UniversalTextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Center"
-             Style="{StaticResource DarkTextBoxStyle}" FontSize="16" MaxLength="4">
-        <ui:UniversalTextBox.Text>
+    <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Center"
+             Style="{StaticResource DarkTextBoxStyle}" MaxLength="4">
+        <TextBox.Text>
             <Binding ElementName="uc"
                      Path="Size" Mode="TwoWay"
                      Converter="{StaticResource ToolSizeToIntConverter}">
@@ -23,9 +22,10 @@
                     <validators:SizeValidationRule ValidatesOnTargetUpdated="True" />
                 </Binding.ValidationRules>
             </Binding>
-        </ui:UniversalTextBox.Text>
+        </TextBox.Text>
         <i:Interaction.Behaviors>
+            <behaviors:GlobalShortcutFocusBehavior/>
             <behaviors:TextBoxFocusBehavior FillSize="True" />
         </i:Interaction.Behaviors>
-    </ui:UniversalTextBox>
+    </TextBox>
 </UserControl>

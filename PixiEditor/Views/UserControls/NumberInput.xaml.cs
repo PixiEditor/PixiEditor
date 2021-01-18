@@ -62,8 +62,8 @@ namespace PixiEditor.Views
 
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            NumberInput input = (NumberInput) d;
-            input.Value = Math.Clamp((float) e.NewValue, input.Min, input.Max);
+            NumberInput input = (NumberInput)d;
+            input.Value = Math.Clamp((float)e.NewValue, input.Min, input.Max);
         }
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)

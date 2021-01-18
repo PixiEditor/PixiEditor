@@ -4,6 +4,7 @@ using System.Windows.Data;
 using System.Windows.Interactivity;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
+using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -17,32 +18,20 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Label = label;
         }
 
-        private TextBox GenerateTextBox()
+        private SizeInput GenerateTextBox()
         {
-            TextBox tb = new TextBox
+            SizeInput tb = new SizeInput
             {
-                TextAlignment = TextAlignment.Center,
-                MaxLength = 4,
                 Width = 40,
-                Height = 20
+                Height = 20,
+                FontSize = 12,
             };
-
-            if (Application.Current != null)
-            {
-                tb.Style = (Style)Application.Current.TryFindResource("DarkTextBoxStyle");
-            }
 
             Binding binding = new Binding("Value")
             {
-                Converter = new ToolSizeToIntConverter(),
-                Mode = BindingMode.TwoWay
+                Mode = BindingMode.TwoWay,
             };
-            tb.SetBinding(TextBox.TextProperty, binding);
-            TextBoxFocusBehavior behavor = new TextBoxFocusBehavior
-            {
-                FillSize = true
-            };
-            Interaction.GetBehaviors(tb).Add(behavor);
+            tb.SetBinding(SizeInput.SizeProperty, binding);
             return tb;
         }
     }
