@@ -251,9 +251,6 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Width="45" Height="45" Margin="0 5 5 5">
-                                                    <Grid.Effect>
-                                                        <DropShadowEffect BlurRadius="5" Direction="-90" RenderingBias="Quality" ShadowDepth="2"/>
-                                                    </Grid.Effect>
                                                     <Border CornerRadius="5.5" Width="44" Height="44">
                                                         <Border.Background>
                                                             <ImageBrush ImageSource="../Images/transparentbg.png"
@@ -265,7 +262,7 @@
                                                             </ImageBrush>
                                                         </Border.Background>
                                                     </Border>
-                                                    <Border CornerRadius="5.5" Cursor="Hand">
+                                                    <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
                                                         <Border.Background>
                                                             <SolidColorBrush Color="{Binding}" />
                                                         </Border.Background>
