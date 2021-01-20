@@ -244,14 +244,17 @@
                                     <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <WrapPanel Margin="10,0,0,0" Orientation="Horizontal"
+                                                <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
                                                            VerticalAlignment="Top" HorizontalAlignment="Left" />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Width="50" Height="50" Margin="2">
-                                                    <Border Width="48" Height="48">
+                                                <Grid Width="45" Height="45" Margin="0 5 5 5">
+                                                    <Grid.Effect>
+                                                        <DropShadowEffect BlurRadius="5" Direction="-90" RenderingBias="Quality" ShadowDepth="2"/>
+                                                    </Grid.Effect>
+                                                    <Border CornerRadius="5.5" Width="44" Height="44">
                                                         <Border.Background>
                                                             <ImageBrush ImageSource="../Images/transparentbg.png"
                                                                         Stretch="UniformToFill">
@@ -262,7 +265,7 @@
                                                             </ImageBrush>
                                                         </Border.Background>
                                                     </Border>
-                                                    <Border BorderThickness="0.25" Cursor="Hand" BorderBrush="White">
+                                                    <Border CornerRadius="5.5" Cursor="Hand">
                                                         <Border.Background>
                                                             <SolidColorBrush Color="{Binding}" />
                                                         </Border.Background>

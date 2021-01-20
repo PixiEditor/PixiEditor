@@ -11,7 +11,7 @@
     <UserControl.Resources>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
     </UserControl.Resources>
-    <Border BorderThickness="1" BorderBrush="Gray" MinWidth="60"
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60"
             Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseDown">
