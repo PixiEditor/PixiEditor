@@ -490,7 +490,7 @@ namespace PixiEditor.Models.DataHolders
                 Layer layer = layers[i];
 
                 Layers.Insert(layersData[i].LayerIndex, layer);
-                if (layer.IsActive)
+                if (layersData[i].IsActive)
                 {
                     SetActiveLayer(Layers.IndexOf(layer));
                 }
