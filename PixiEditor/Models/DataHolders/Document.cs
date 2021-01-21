@@ -288,7 +288,8 @@ namespace PixiEditor.Models.DataHolders
 
             if (Layers.Any(x => x.IsActive))
             {
-                Layers.First(x => x.IsActive).IsActive = false;
+                var guids = Layers.Where(x => x.IsActive).Select(y => y.LayerGuid);
+                guids.ToList().ForEach(x => Layers.First(layer => layer.LayerGuid == x).IsActive = false);
             }
 
             ActiveLayerIndex = index;
@@ -298,11 +299,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void MoveLayerIndexBy(int layerIndex, int amount)
         {
-            Layers.Move(layerIndex, layerIndex + amount);
-            if (ActiveLayerIndex == layerIndex)
-            {
-                SetActiveLayer(layerIndex + amount);
-            }
+            MoveLayerProcess(new object[] { layerIndex, amount });
 
             UndoManager.AddUndoChange(new Change(
                 MoveLayerProcess,
@@ -478,7 +475,12 @@ namespace PixiEditor.Models.DataHolders
         {
             int layerIndex = (int)parameter[0];
             int amount = (int)parameter[1];
-            MoveLayerIndexBy(layerIndex, amount);
+
+            Layers.Move(layerIndex, layerIndex + amount);
+            if (ActiveLayerIndex == layerIndex)
+            {
+                SetActiveLayer(layerIndex + amount);
+            }
         }
 
         private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)

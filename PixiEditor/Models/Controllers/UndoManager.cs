@@ -39,9 +39,9 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Adds property change to UndoStack.
         /// </summary>
-        public void AddUndoChange(Change change)
+        public void AddUndoChange(Change change, bool invokedInsideSetter = false)
         {
-            if (change.Property != null && ChangeIsBlockedProperty(change))
+            if (change.Property != null && (ChangeIsBlockedProperty(change) && invokedInsideSetter == true))
             {
                 newUndoChangeBlockedProperty = null;
                 return;

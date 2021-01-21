@@ -93,7 +93,7 @@ namespace PixiEditor.Models.Layers
                             value,
                             LayerHelper.FindLayerByGuidProcess,
                             new object[] { LayerGuid },
-                            "Change layer visibility"));
+                            "Change layer visibility"), true);
                     isVisible = value;
                     RaisePropertyChanged("IsVisible");
                 }
@@ -128,13 +128,14 @@ namespace PixiEditor.Models.Layers
                 if (opacity != value)
                 {
                     ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
-                        .AddUndoChange(new Change(
+                        .AddUndoChange(
+                            new Change(
                             nameof(Opacity),
                             opacity,
                             value,
                             LayerHelper.FindLayerByGuidProcess,
                             new object[] { LayerGuid },
-                            "Change layer opacity"));
+                            "Change layer opacity"), true);
                     opacity = value;
                     RaisePropertyChanged("Opacity");
                 }
