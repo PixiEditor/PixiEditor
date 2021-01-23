@@ -10,7 +10,7 @@
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:avalondock1="clr-namespace:PixiEditor.Styles.AvalonDock"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
@@ -172,7 +172,7 @@
                 <avalondock:DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
                     <avalondock:DockingManager.Theme>
-                        <avalondock:Vs2013DarkTheme/>
+                        <avalondock1:PixiEditorDockTheme />
                     </avalondock:DockingManager.Theme>
                     <avalondock:DockingManager.LayoutItemContainerStyle>
                         <Style TargetType="{x:Type avalondock:LayoutItem}">
@@ -359,7 +359,7 @@
                     </avalondock:LayoutPanel>
                 </avalondock:LayoutRoot>
                 <avalondock:DockingManager.Theme>
-                    <avalondock:Vs2013DarkTheme />
+                    <avalondock1:PixiEditorDockTheme />
                 </avalondock:DockingManager.Theme>
             </avalondock:DockingManager>
         </Grid>

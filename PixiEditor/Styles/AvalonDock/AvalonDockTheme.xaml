@@ -1,0 +1,2221 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:avalonDock="https://github.com/Dirkster99/AvalonDock"
+                    xmlns:avalonDockControls="clr-namespace:Xceed.Wpf.AvalonDock.Controls;assembly=Xceed.Wpf.AvalonDock"
+                    xmlns:avalonDockConverters="clr-namespace:Xceed.Wpf.AvalonDock.Converters;assembly=Xceed.Wpf.AvalonDock"
+                    xmlns:avalonDockProperties="clr-namespace:Xceed.Wpf.AvalonDock.Properties;assembly=Xceed.Wpf.AvalonDock"
+                    xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Xceed.Wpf.AvalonDock">
+    <avalonDockConverters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    <avalonDockConverters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+    <avalonDockConverters:AnchorSideToOrientationConverter x:Key="AnchorSideToOrientationConverter" />
+    <avalonDockConverters:AnchorSideToAngleConverter x:Key="AnchorSideToAngleConverter" />
+    <avalonDockConverters:NullToDoNothingConverter x:Key="NullToDoNothingConverter" />
+    <avalonDockConverters:LayoutItemFromLayoutModelConverter x:Key="LayoutItemFromLayoutModelConverter" />
+    <avalonDockConverters:ActivateCommandLayoutItemFromLayoutModelConverter x:Key="ActivateCommandLayoutItemFromLayoutModelConverter" />
+
+    <Style x:Key="PixiEditorDockThemeToolButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <!--<Setter Property="BorderBrush" Value="{DynamicResource AvalonDock_ThemeMetro_BaseColor31}" />
+                <Setter Property="Background" Value="{DynamicResource AvalonDock_ThemeMetro_BaseColor10}" />-->
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <!--<Setter Property="BorderBrush" Value="{DynamicResource AvalonDock_ThemeMetro_BaseColor31}" />
+                <Setter Property="Background" Value="{DynamicResource AvalonDock_ThemeMetro_BaseColor10}" />-->
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PixiEditorDockThemeButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  DocumentPaneControlStyle  -->
+    <Style x:Key="PixiEditorDockThemeDocumentPaneControlStyle" TargetType="{x:Type avalonDockControls:LayoutDocumentPaneControl}">
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeTabBackground}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutDocumentPaneControl}">
+                    <Grid ClipToBounds="true"
+                          KeyboardNavigation.TabNavigation="Local"
+                          SnapsToDevicePixels="true">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <!--  Following border is required to catch mouse events  -->
+                        <Border Grid.RowSpan="2" Background="Transparent" />
+                        <Grid Grid.Row="0" Panel.ZIndex="1" Visibility="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type avalonDockControls:LayoutDocumentPaneControl}}, Path=Model.ShowHeader, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="BD"
+                                    Grid.ColumnSpan="2"
+                                    BorderBrush="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedActiveBackground}"
+                                    BorderThickness="0,0,0,2" />
+                            <avalonDockControls:DocumentPaneTabPanel x:Name="HeaderPanel"
+                                                                     Grid.Row="0"
+                                                                     Grid.Column="0"
+                                                                     Margin="0"
+                                                                     IsItemsHost="true"
+                                                                     KeyboardNavigation.TabIndex="1" />
+                            <avalonDockControls:DropDownButton x:Name="MenuDropDownButton"
+                                                               Grid.Column="1"
+                                                               VerticalAlignment="Center"
+                                                               Focusable="False"
+                                                               Style="{StaticResource PixiEditorDockThemeToolButtonStyle}">
+                                <avalonDockControls:DropDownButton.DropDownContextMenu>
+                                    <avalonDockControls:ContextMenuEx ItemsSource="{Binding Model.ChildrenSorted, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <avalonDockControls:ContextMenuEx.ItemContainerStyle>
+                                            <Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="{x:Type avalonDockControls:MenuItemEx}">
+                                                <Setter Property="HeaderTemplate" Value="{Binding Path=Root.Manager.DocumentPaneMenuItemHeaderTemplate}" />
+                                                <Setter Property="HeaderTemplateSelector" Value="{Binding Path=Root.Manager.DocumentPaneMenuItemHeaderTemplateSelector}" />
+                                                <Setter Property="IconTemplate" Value="{Binding Path=Root.Manager.IconContentTemplate}" />
+                                                <Setter Property="IconTemplateSelector" Value="{Binding Path=Root.Manager.IconContentTemplateSelector}" />
+                                                <Setter Property="Command" Value="{Binding Path=., Converter={StaticResource ActivateCommandLayoutItemFromLayoutModelConverter}}" />
+                                            </Style>
+                                        </avalonDockControls:ContextMenuEx.ItemContainerStyle>
+                                    </avalonDockControls:ContextMenuEx>
+                                </avalonDockControls:DropDownButton.DropDownContextMenu>
+                                <Rectangle x:Name="MenuDropDownButtonImage"
+                                           Fill="{DynamicResource PixiEditorDockThemeDocumentWellOverflowButtonDefaultGlyph}"
+                                           Width="12" Height="12">
+                                    <Rectangle.OpacityMask>
+                                        <ImageBrush ImageSource="Images/PinDocMenu.png" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </avalonDockControls:DropDownButton>
+                        </Grid>
+                        <Border x:Name="ContentPanel"
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource PixiEditorDockThemePanelBorderBrush}"
+                                BorderThickness="1,0,1,1"
+                                KeyboardNavigation.DirectionalNavigation="Contained"
+                                KeyboardNavigation.TabIndex="2"
+                                KeyboardNavigation.TabNavigation="Cycle"
+                                Padding="0">
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              Margin="0"
+                                              ContentSource="SelectedContent"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger SourceName="MenuDropDownButton" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="MenuDropDownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellOverflowButtonHoveredBackground}" />
+                            <Setter TargetName="MenuDropDownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellOverflowButtonHoveredBorder}" />
+                            <Setter TargetName="MenuDropDownButtonImage" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellOverflowButtonHoveredGlyph}" />
+                        </Trigger>
+
+                        <Trigger SourceName="MenuDropDownButton" Property="IsChecked" Value="True">
+                            <Setter TargetName="MenuDropDownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellOverflowButtonPressedBackground}" />
+                            <Setter TargetName="MenuDropDownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellOverflowButtonPressedBorder}" />
+                            <Setter TargetName="MenuDropDownButtonImage" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellOverflowButtonPressedGlyph}" />
+                        </Trigger>
+
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SelectedContent.IsActive}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="BD" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedInactiveBackground}" />
+                        </MultiDataTrigger>
+
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                        </Trigger>
+
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Model.ChildrenCount}" Value="0">
+                            <Setter TargetName="BD" Property="BorderBrush" Value="Transparent" />
+                            <Setter TargetName="ContentPanel" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="MenuDropDownButton" Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabUnselectedBackground}" />
+                    <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabUnselectedText}" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="ToolTip" Value="{Binding ToolTip}" />
+                    <Setter Property="Padding" Value="6,1" />
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TabItem}">
+                                <Grid SnapsToDevicePixels="true">
+                                    <Border x:Name="Bd"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{Binding Background, RelativeSource={RelativeSource Self}}"
+                                            BorderThickness="0,0,0,2" />
+                                    <ContentPresenter x:Name="Content"
+                                                      HorizontalAlignment="{Binding HorizontalContentAlignment,
+                                                                                    RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                                      VerticalAlignment="{Binding VerticalContentAlignment,
+                                                                                  RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                                      ContentSource="Header"
+                                                      RecognizesAccessKey="True"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="Selector.IsSelected" Value="true">
+                                        <Setter Property="Panel.ZIndex" Value="1" />
+                                    </Trigger>
+
+                                    <!-- Document Well : Tab / Selected, active -->
+                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedActiveBackground}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedActiveText}" />
+                                        <Setter Property="Panel.ZIndex" Value="1" />
+                                    </DataTrigger>
+
+                                    <!-- Document Well : Tab / Selected, inactive -->
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsActive}" Value="False" />
+                                            <Condition Binding="{Binding IsSelected}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedInactiveBackground}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedInactiveText}" />
+                                    </MultiDataTrigger>
+
+                                    <!-- Document Well : Tab / Unselected -->
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsActive}" Value="False" />
+                                            <Condition Binding="{Binding IsSelected}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent" />
+                                    </MultiDataTrigger>
+
+                                    <!-- Document Well : Tab / Unselected, hovered -->
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsMouseOver" Value="true" />
+                                            <Condition Property="Selector.IsSelected" Value="false" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabUnselectedHoveredBackground}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabUnselectedHoveredText}" />
+                                        <Setter Property="Panel.ZIndex" Value="0" />
+                                    </MultiTrigger>
+
+                                    <Trigger Property="IsEnabled" Value="false">
+                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <avalonDockControls:LayoutDocumentTabItem Model="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <avalonDockControls:LayoutDocumentControl Model="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  AnchorablePaneControlStyle  -->
+    <Style x:Key="PixiEditorDockThemeAnchorablePaneControlStyle" TargetType="{x:Type avalonDockControls:LayoutAnchorablePaneControl}">
+        <Setter Property="TabStripPlacement" Value="Bottom" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{Binding Model.Root.Manager.Foreground, RelativeSource={RelativeSource Self}}" />
+        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeTabBackground}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutAnchorablePaneControl}">
+                    <Grid ClipToBounds="true"
+                          KeyboardNavigation.TabNavigation="Local"
+                          SnapsToDevicePixels="true">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <!--  Following border is required to catch mouse events  -->
+                        <Border Grid.RowSpan="2" Background="Transparent" />
+                        <Border x:Name="ContentPanel"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource PixiEditorDockThemePanelBorderBrush}"
+                                BorderThickness="1"
+                                KeyboardNavigation.DirectionalNavigation="Contained"
+                                KeyboardNavigation.TabIndex="2"
+                                KeyboardNavigation.TabNavigation="Cycle">
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              Margin="{TemplateBinding Padding}"
+                                              ContentSource="SelectedContent"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
+                        <avalonDockControls:AnchorablePaneTabPanel x:Name="HeaderPanel"
+                                                                   Grid.Row="1"
+                                                                   Margin="0"
+                                                                   Panel.ZIndex="1"
+                                                                   IsItemsHost="true"
+                                                                   KeyboardNavigation.TabIndex="1" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowTabUnselectedBackground}" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeToolWindowTabUnselectedText}" />
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    <Setter Property="ToolTip" Value="{Binding ToolTip}" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type TabItem}">
+                                <Grid SnapsToDevicePixels="true">
+                                    <Border x:Name="SelectedBD"
+                                            Margin="1,-1,1,0"
+                                            BorderBrush="{DynamicResource PixiEditorDockThemeToolWindowTabSelectedActiveBackground}"
+                                            BorderThickness="0,1,0,0"
+                                            Visibility="Collapsed" />
+                                    <Border x:Name="Bd"
+                                            Margin="0"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{DynamicResource PixiEditorDockThemePanelBorderBrush}"
+                                            BorderThickness="0">
+                                        <ContentPresenter x:Name="Content"
+                                                          Margin="6,2"
+                                                          HorizontalAlignment="{Binding HorizontalContentAlignment,
+                                                                                        RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                                          VerticalAlignment="{Binding VerticalContentAlignment,
+                                                                                      RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                                          ContentSource="Header"
+                                                          RecognizesAccessKey="True"
+                                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                    </Border>
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="Selector.IsSelected" Value="true">
+                                        <Setter TargetName="SelectedBD" Property="Visibility" Value="Visible" />
+                                        <Setter TargetName="Bd" Property="BorderThickness" Value="1,0,1,1" />
+                                        <Setter Property="Panel.ZIndex" Value="1" />
+                                    </Trigger>
+
+                                    <!-- Tool Window : Tab / Selected, active -->
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding IsActive}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowTabSelectedActiveBackground}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeToolWindowTabSelectedActiveText}" />
+                                    </MultiDataTrigger>
+
+                                    <!-- Tool Window : Tab / Selected, inactive -->
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding IsActive}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowTabSelectedInactiveBackground}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeToolWindowTabSelectedInactiveText}" />
+                                    </MultiDataTrigger>
+
+                                    <!-- Tool Window : Tab / Unselected, hovered -->
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsMouseOver" Value="true" />
+                                            <Condition Property="Selector.IsSelected" Value="false" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowTabUnselectedHoveredBackground}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeToolWindowTabUnselectedHoveredText}" />
+                                        <Setter Property="Panel.ZIndex" Value="0" />
+                                    </MultiTrigger>
+
+                                    <Trigger Property="IsEnabled" Value="false">
+                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TabControl}}, Path=Items.Count}" Value="1">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <avalonDockControls:LayoutAnchorableTabItem Model="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ContentTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <avalonDockControls:LayoutAnchorableControl Model="{Binding}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="avalonDockControls:AnchorablePaneTitle">
+        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionInactiveBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionInactiveText}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid Margin="2,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <avalonDockControls:DropDownControlArea DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu, RelativeSource={RelativeSource TemplatedParent}}" DropDownContextMenuDataContext="{Binding Path=LayoutItem, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ContentPresenter x:Name="Header"
+                                                  Margin="2,0,0,0"
+                                                  Content="{Binding Model,
+                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ContentTemplate="{Binding Model.Root.Manager.AnchorableTitleTemplate,
+                                                                            RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ContentTemplateSelector="{Binding Model.Root.Manager.AnchorableTitleTemplateSelector,
+                                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+                            </avalonDockControls:DropDownControlArea>
+
+                            <Rectangle x:Name="DragHandleGeometryPlaceholder"
+                                       Grid.Column="1"
+                                       Fill="{DynamicResource PixiEditorDockThemeToolWindowCaptionInactiveGrip}"
+                                       Visibility="Collapsed" />
+                            <Rectangle x:Name="DragHandleTexture"
+                                       Grid.Column="1"
+                                       Height="5"
+                                       Margin="8,0,4,0"
+                                       VerticalAlignment="Center">
+                                <Rectangle.Fill>
+                                    <DrawingBrush TileMode="Tile"
+                                                  Viewbox="0,0,4,5"
+                                                  ViewboxUnits="Absolute"
+                                                  Viewport="0,0,4,5"
+                                                  ViewportUnits="Absolute">
+                                        <DrawingBrush.Drawing>
+                                            <GeometryDrawing Brush="{Binding Fill, ElementName=DragHandleGeometryPlaceholder, Mode=OneWay, Converter={StaticResource NullToDoNothingConverter}}">
+                                                <GeometryDrawing.Geometry>
+                                                    <GeometryGroup>
+                                                        <GeometryGroup.Children>
+                                                            <RectangleGeometry Rect="0,0,1,1" />
+                                                            <RectangleGeometry Rect="0,4,1,1" />
+                                                            <RectangleGeometry Rect="2,2,1,1" />
+                                                        </GeometryGroup.Children>
+                                                    </GeometryGroup>
+                                                </GeometryDrawing.Geometry>
+                                            </GeometryDrawing>
+                                        </DrawingBrush.Drawing>
+                                    </DrawingBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <avalonDockControls:DropDownButton x:Name="MenuDropDownButton"
+                                                               Grid.Column="2"
+                                                               VerticalAlignment="Center"
+                                                               DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu,
+                                                                                             RelativeSource={RelativeSource TemplatedParent}}"
+                                                               DropDownContextMenuDataContext="{Binding Path=LayoutItem,
+                                                                                                        RelativeSource={RelativeSource TemplatedParent}}"
+                                                               Focusable="False"
+                                                               Style="{StaticResource PixiEditorDockThemeToolButtonStyle}"
+                                                               ToolTip="{x:Static avalonDockProperties:Resources.Anchorable_CxMenu_Hint}">
+                                <Rectangle x:Name="PART_ImgMenuPin"
+                                           Fill="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveGlyph}"
+                                           Width="13" Height="13">
+                                    <Rectangle.OpacityMask>
+                                        <ImageBrush ImageSource="Images/PinMenu.png" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </avalonDockControls:DropDownButton>
+
+                            <Button x:Name="PART_AutoHidePin"
+                                    Grid.Column="3"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding Path=LayoutItem.AutoHideCommand,
+                                                      RelativeSource={RelativeSource TemplatedParent}}"
+                                    Focusable="False"
+                                    Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                    ToolTip="{x:Static avalonDockProperties:Resources.Anchorable_BtnAutoHide_Hint}"
+                                    Visibility="{Binding Path=IsEnabled,
+                                                         RelativeSource={RelativeSource Self},
+                                                         Mode=OneWay,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Rectangle x:Name="PART_ImgAutoHidePin" 
+                                           Fill="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveGlyph}"
+                                           Width="13" Height="13">
+                                    <Rectangle.OpacityMask>
+                                        <ImageBrush ImageSource="Images/PinAutoHide.png" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Button>
+                            <Button x:Name="PART_HidePin"
+                                    Grid.Column="4"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding Path=LayoutItem.HideCommand,
+                                                      RelativeSource={RelativeSource TemplatedParent}}"
+                                    Focusable="False"
+                                    Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                    ToolTip="{x:Static avalonDockProperties:Resources.Anchorable_BtnClose_Hint}"
+                                    Visibility="{Binding Path=IsEnabled,
+                                                         RelativeSource={RelativeSource Self},
+                                                         Mode=OneWay,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Rectangle x:Name="PART_ImgHidePin" 
+                                           Fill="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveGlyph}"
+                                           Width="13" Height="13">
+                                    <Rectangle.OpacityMask>
+                                        <ImageBrush ImageSource="Images/PinClose.png" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Button>
+
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Model.IsAutoHidden, RelativeSource={RelativeSource Mode=Self}}" Value="True">
+                            <Setter TargetName="PART_AutoHidePin" Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="90" />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+
+                        <!-- Tool Window : Caption / Active -->
+                        <DataTrigger Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionActiveBackground}" />
+                            <Setter Property="Foreground" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionActiveText}" />
+                            <Setter TargetName="DragHandleGeometryPlaceholder" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionActiveGrip}" />
+                        </DataTrigger>
+
+                        <!-- Tool Window : Caption : Button / Active -->
+                        <DataTrigger Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="True">
+                            <Setter TargetName="PART_ImgMenuPin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveGlyph}" />
+                            <Setter TargetName="PART_ImgAutoHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveGlyph}" />
+                            <Setter TargetName="PART_ImgHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveGlyph}" />
+                        </DataTrigger>
+
+                        <!-- Tool Window : Caption : Button / Active, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=MenuDropDownButton}" Value="True" />
+                                <Condition Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="MenuDropDownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredBackground}" />
+                            <Setter TargetName="MenuDropDownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgMenuPin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_AutoHidePin}" Value="True" />
+                                <Condition Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_AutoHidePin" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredBackground}" />
+                            <Setter TargetName="PART_AutoHidePin" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgAutoHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_HidePin}" Value="True" />
+                                <Condition Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_HidePin" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredBackground}" />
+                            <Setter TargetName="PART_HidePin" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Tool Window : Caption : Button / Inactive, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=MenuDropDownButton}" Value="True" />
+                                <Condition Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="MenuDropDownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredBackground}" />
+                            <Setter TargetName="MenuDropDownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgMenuPin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_AutoHidePin}" Value="True" />
+                                <Condition Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_AutoHidePin" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_AutoHidePin" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgAutoHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_HidePin}" Value="True" />
+                                <Condition Binding="{Binding Model.IsActive, RelativeSource={RelativeSource Mode=Self}}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_HidePin" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_HidePin" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Tool Window : Caption : Button / Active / Inactive, pressed -->
+                        <Trigger SourceName="MenuDropDownButton" Property="IsChecked" Value="True">
+                            <Setter TargetName="MenuDropDownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedBackground}" />
+                            <Setter TargetName="MenuDropDownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgMenuPin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedGlyph}" />
+                        </Trigger>
+                        <Trigger SourceName="PART_AutoHidePin" Property="IsMouseCaptured" Value="True">
+                            <Setter TargetName="PART_AutoHidePin" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedBackground}" />
+                            <Setter TargetName="PART_AutoHidePin" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgAutoHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedGlyph}" />
+                        </Trigger>
+                        <Trigger SourceName="PART_HidePin" Property="IsMouseCaptured" Value="True">
+                            <Setter TargetName="PART_HidePin" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedBackground}" />
+                            <Setter TargetName="PART_HidePin" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgHidePin" Property="Fill" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionButtonActivePressedGlyph}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="PixiEditorDockThemeAnchorSideTemplate" TargetType="{x:Type avalonDockControls:LayoutAnchorSideControl}">
+        <ItemsControl ItemsSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Children}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel MinWidth="4"
+                                MinHeight="4"
+                                Orientation="{Binding Path=Model.Side,
+                                                      RelativeSource={RelativeSource AncestorType={x:Type avalonDockControls:LayoutAnchorSideControl},
+                                                                                     Mode=FindAncestor},
+                                                      Converter={StaticResource AnchorSideToOrientationConverter}}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="PixiEditorDockThemeAnchorGroupTemplate" TargetType="{x:Type avalonDockControls:LayoutAnchorGroupControl}">
+        <ItemsControl ItemsSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Children}">
+            <ItemsControl.LayoutTransform>
+                <RotateTransform Angle="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Model.Parent.Side, Converter={StaticResource AnchorSideToAngleConverter}}" />
+            </ItemsControl.LayoutTransform>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="PixiEditorDockThemeAnchorTemplate" TargetType="{x:Type avalonDockControls:LayoutAnchorControl}">
+        <Border x:Name="Bd"
+                Margin="0,0,12,0"
+                BorderBrush="{DynamicResource PixiEditorDockThemeAutoHideTabDefaultBorder}"
+                BorderThickness="0,0,0,6"
+                Background="{DynamicResource PixiEditorDockThemeAutoHideTabDefaultBackground}"
+                Padding="0,3,0,3"
+                TextElement.Foreground="{DynamicResource PixiEditorDockThemeAutoHideTabDefaultText}">
+            <ContentPresenter Content="{Binding Model,
+                                                RelativeSource={RelativeSource TemplatedParent}}"
+                              ContentTemplate="{Binding AnchorableHeaderTemplate,
+                                                        Mode=OneWay,
+                                                        RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager},
+                                                                                       Mode=FindAncestor}}"
+                              ContentTemplateSelector="{Binding AnchorableHeaderTemplateSelector,
+                                                                Mode=OneWay,
+                                                                RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager},
+                                                                                               Mode=FindAncestor}}" />
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="Side" Value="Right">
+                <Setter TargetName="Bd" Property="BorderThickness" Value="0,6,0,0" />
+                <Setter TargetName="Bd" Property="Padding" Value="0,3,0,3" />
+            </Trigger>
+
+            <Trigger Property="Side" Value="Top">
+                <Setter TargetName="Bd" Property="BorderThickness" Value="0,6,0,0" />
+                <Setter TargetName="Bd" Property="Padding" Value="0,3,0,3" />
+            </Trigger>
+
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource PixiEditorDockThemeAutoHideTabHoveredBackground}" />
+                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeAutoHideTabHoveredBorder}" />
+                <Setter TargetName="Bd" Property="TextElement.Foreground" Value="{DynamicResource PixiEditorDockThemeAutoHideTabHoveredText}" />
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="{x:Type avalonDockControls:OverlayWindow}" TargetType="{x:Type avalonDockControls:OverlayWindow}">
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:OverlayWindow}">
+                    <Canvas x:Name="PART_DropTargetsContainer" Opacity="0.9">
+                        <Path x:Name="PART_PreviewBox"
+                              Fill="AliceBlue"
+                              Stroke="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"
+                              StrokeThickness="2" />
+                        <Grid x:Name="PART_DockingManagerDropTargets">
+                            <Image x:Name="PART_DockingManagerDropTargetLeft"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Source="Images/DockAnchorableLeft.PNG"
+                                   Stretch="None" />
+                            <Image x:Name="PART_DockingManagerDropTargetRight"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Source="Images/DockAnchorableRight.PNG"
+                                   Stretch="None" />
+                            <Image x:Name="PART_DockingManagerDropTargetBottom"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Bottom"
+                                   Source="Images/DockAnchorableBottom.PNG"
+                                   Stretch="None" />
+                            <Image x:Name="PART_DockingManagerDropTargetTop"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Top"
+                                   Source="Images/DockAnchorableTop.PNG"
+                                   Stretch="None" />
+                        </Grid>
+                        <Grid x:Name="PART_AnchorablePaneDropTargets">
+                            <Grid Width="112"
+                                  Height="112"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Image Grid.RowSpan="3"
+                                       Grid.ColumnSpan="3"
+                                       Margin="0,0.5,0,-0.5"
+                                       Source="Images/DockPaneEmpty.png"
+                                       Stretch="None" />
+                                <Border Name="PART_AnchorablePaneDropTargetTop"
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="0,3.5,0, 0">
+                                    <Image Source="Images/DockDocumentAsAnchorableTop.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_AnchorablePaneDropTargetRight"
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="2">
+                                    <Image Source="Images/DockDocumentAsAnchorableRight.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_AnchorablePaneDropTargetBottom"
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="0,-0.5,0,0">
+                                    <Image Source="Images/DockDocumentAsAnchorableBottom.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_AnchorablePaneDropTargetLeft"
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="2">
+                                    <Image Source="Images/DockDocumentAsAnchorableLeft.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_AnchorablePaneDropTargetInto"
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="0,0.5,0,0">
+                                    <Image Source="Images/DockDocumentInside.png" Stretch="None" />
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        <Grid x:Name="PART_DocumentPaneDropTargets">
+                            <Grid Width="112"
+                                  Height="112"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Image Grid.RowSpan="3"
+                                       Grid.ColumnSpan="3"
+                                       Source="Images/DockPaneEmpty.PNG"
+                                       Stretch="None" />
+                                <Border Name="PART_DocumentPaneDropTargetTop"
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="2">
+                                    <Image Source="Images/DockDocumentTop.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneDropTargetRight"
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="2">
+                                    <Image Source="Images/DockDocumentRight.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneDropTargetBottom"
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        Margin="2">
+                                    <Image Source="Images/DockDocumentBottom.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneDropTargetLeft"
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="2">
+                                    <Image Source="Images/DockDocumentLeft.png" Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneDropTargetInto"
+                                        Grid.Row="1"
+                                        Grid.Column="1">
+                                    <Image Source="Images/DockDocumentInside.png" Stretch="None" />
+                                </Border>
+                            </Grid>
+                        </Grid>
+
+                        <Grid x:Name="PART_DocumentPaneFullDropTargets">
+                            <Grid Width="184"
+                                  Height="184"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Image Grid.RowSpan="5"
+                                       Grid.ColumnSpan="5"
+                                       Source="Images/DockPaneLargeEmpty.PNG"
+                                       Stretch="None" />
+                                <Border Name="PART_DocumentPaneFullDropTargetTop"
+                                        Grid.Row="1"
+                                        Grid.Column="2">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentTop.png"
+                                           Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneFullDropTargetRight"
+                                        Grid.Row="2"
+                                        Grid.Column="3">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentRight.png"
+                                           Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneFullDropTargetBottom"
+                                        Grid.Row="3"
+                                        Grid.Column="2">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentBottom.png"
+                                           Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneFullDropTargetLeft"
+                                        Grid.Row="2"
+                                        Grid.Column="1">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentLeft.png"
+                                           Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneFullDropTargetInto"
+                                        Grid.Row="2"
+                                        Grid.Column="2">
+                                    <Image Source="Images/DockDocumentInside.png" Stretch="None" />
+                                </Border>
+
+                                <Border Name="PART_DocumentPaneDropTargetTopAsAnchorablePane"
+                                        Grid.Row="0"
+                                        Grid.Column="2">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentAsAnchorableTop.png"
+                                           Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneDropTargetRightAsAnchorablePane"
+                                        Grid.Row="2"
+                                        Grid.Column="4">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentAsAnchorableRight.png"
+                                           Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneDropTargetBottomAsAnchorablePane"
+                                        Grid.Row="4"
+                                        Grid.Column="2">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentAsAnchorableBottom.png"
+                                           Stretch="None" />
+                                </Border>
+                                <Border Name="PART_DocumentPaneDropTargetLeftAsAnchorablePane"
+                                        Grid.Row="2"
+                                        Grid.Column="0">
+                                    <Image Margin="2"
+                                           Source="Images/DockDocumentAsAnchorableLeft.png"
+                                           Stretch="None" />
+                                </Border>
+
+                            </Grid>
+                        </Grid>
+
+                    </Canvas>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <DataTemplate x:Key="PixiEditorDockThemeDocumentHeaderTemplate">
+        <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="PixiEditorDockThemeAnchorableHeaderTemplate">
+        <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="PixiEditorDockThemeDocumentTitleTemplate">
+        <TextBlock VerticalAlignment="Center"
+                   Text="{Binding Title}"
+                   TextTrimming="CharacterEllipsis" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="PixiEditorDockThemeAnchorableTitleTemplate">
+        <TextBlock VerticalAlignment="Center"
+                   Text="{Binding Title}"
+                   TextTrimming="CharacterEllipsis" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="PixiEditorDockThemeIconContentTemplate">
+        <Image Source="{Binding IconSource, Converter={StaticResource NullToDoNothingConverter}}" Stretch="Uniform" />
+    </DataTemplate>
+
+    <ContextMenu x:Key="PixiEditorDockThemeAnchorableContextMenu">
+        <MenuItem Command="{Binding Path=FloatCommand}" Header="{x:Static avalonDockProperties:Resources.Anchorable_Float}" />
+        <MenuItem Command="{Binding Path=DockCommand}" Header="{x:Static avalonDockProperties:Resources.Anchorable_Dock}" />
+        <MenuItem Command="{Binding Path=DockAsDocumentCommand}" Header="{x:Static avalonDockProperties:Resources.Anchorable_DockAsDocument}" />
+        <MenuItem Command="{Binding Path=AutoHideCommand}" Header="{x:Static avalonDockProperties:Resources.Anchorable_AutoHide}" />
+        <MenuItem Command="{Binding Path=HideCommand}"
+                  Header="{x:Static avalonDockProperties:Resources.Anchorable_Hide}"
+                  Visibility="{Binding Path=IsEnabled,
+                                       RelativeSource={RelativeSource Self},
+                                       Mode=OneWay,
+                                       Converter={StaticResource BoolToVisibilityConverter}}" />
+    </ContextMenu>
+
+    <ContextMenu x:Key="PixiEditorDockThemeDocumentContextMenu">
+        <MenuItem Command="{Binding Path=CloseCommand}"
+                  Header="{x:Static avalonDockProperties:Resources.Document_Close}"
+                  Visibility="{Binding Path=IsEnabled,
+                                       RelativeSource={RelativeSource Self},
+                                       Mode=OneWay,
+                                       Converter={StaticResource BoolToVisibilityConverter}}" />
+        <MenuItem Command="{Binding Path=CloseAllButThisCommand}" Header="{x:Static avalonDockProperties:Resources.Document_CloseAllButThis}" />
+        <MenuItem Command="{Binding Path=CloseAllCommand}" Header="{x:Static avalonDockProperties:Resources.Document_CloseAll}" />
+        <MenuItem Command="{Binding Path=FloatCommand}" Header="{x:Static avalonDockProperties:Resources.Document_Float}" />
+        <MenuItem Command="{Binding Path=DockAsDocumentCommand}" Header="{x:Static avalonDockProperties:Resources.Document_DockAsDocument}" />
+        <MenuItem Command="{Binding Path=NewHorizontalTabGroupCommand}"
+                  Header="{x:Static avalonDockProperties:Resources.Document_NewHorizontalTabGroup}"
+                  Visibility="{Binding Path=IsEnabled,
+                                       RelativeSource={RelativeSource Self},
+                                       Mode=OneWay,
+                                       Converter={StaticResource BoolToVisibilityConverter}}">
+            <MenuItem.Icon>
+                <Image Width="14"
+                       Source="/Images\HTabGroup.png"
+                       Stretch="Uniform" />
+            </MenuItem.Icon>
+        </MenuItem>
+
+        <MenuItem Command="{Binding Path=NewVerticalTabGroupCommand}"
+                  Header="{x:Static avalonDockProperties:Resources.Document_NewVerticalTabGroup}"
+                  Visibility="{Binding Path=IsEnabled,
+                                       RelativeSource={RelativeSource Self},
+                                       Mode=OneWay,
+                                       Converter={StaticResource BoolToVisibilityConverter}}">
+            <MenuItem.Icon>
+                <Image Width="14"
+                       Source="/Images/VTabGroup.png"
+                       Stretch="Uniform" />
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Command="{Binding Path=MoveToNextTabGroupCommand}"
+                  Header="{x:Static avalonDockProperties:Resources.Document_MoveToNextTabGroup}"
+                  Visibility="{Binding Path=IsEnabled,
+                                       RelativeSource={RelativeSource Self},
+                                       Mode=OneWay,
+                                       Converter={StaticResource BoolToVisibilityConverter}}" />
+        <MenuItem Command="{Binding Path=MoveToPreviousTabGroupCommand}"
+                  Header="{x:Static avalonDockProperties:Resources.Document_MoveToPreviousTabGroup}"
+                  Visibility="{Binding Path=IsEnabled,
+                                       RelativeSource={RelativeSource Self},
+                                       Mode=OneWay,
+                                       Converter={StaticResource BoolToVisibilityConverter}}" />
+    </ContextMenu>
+
+    <!--  DockingManager  -->
+    <Style x:Key="{x:Type avalonDock:DockingManager}" TargetType="{x:Type avalonDock:DockingManager}">
+        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeBackground}" />
+        <Setter Property="DocumentPaneControlStyle" Value="{StaticResource PixiEditorDockThemeDocumentPaneControlStyle}" />
+        <Setter Property="AnchorablePaneControlStyle" Value="{StaticResource PixiEditorDockThemeAnchorablePaneControlStyle}" />
+        <Setter Property="AnchorSideTemplate" Value="{StaticResource PixiEditorDockThemeAnchorSideTemplate}" />
+        <Setter Property="AnchorGroupTemplate" Value="{StaticResource PixiEditorDockThemeAnchorGroupTemplate}" />
+        <Setter Property="AnchorTemplate" Value="{StaticResource PixiEditorDockThemeAnchorTemplate}" />
+        <Setter Property="DocumentHeaderTemplate" Value="{StaticResource PixiEditorDockThemeDocumentHeaderTemplate}" />
+        <Setter Property="AnchorableHeaderTemplate" Value="{StaticResource PixiEditorDockThemeAnchorableHeaderTemplate}" />
+        <Setter Property="DocumentTitleTemplate" Value="{StaticResource PixiEditorDockThemeDocumentTitleTemplate}" />
+        <Setter Property="AnchorableTitleTemplate" Value="{StaticResource PixiEditorDockThemeAnchorableTitleTemplate}" />
+        <Setter Property="AnchorableContextMenu" Value="{StaticResource PixiEditorDockThemeAnchorableContextMenu}" />
+        <Setter Property="DocumentContextMenu" Value="{StaticResource PixiEditorDockThemeDocumentContextMenu}" />
+        <Setter Property="DocumentPaneMenuItemHeaderTemplate" Value="{StaticResource PixiEditorDockThemeDocumentHeaderTemplate}" />
+        <Setter Property="IconContentTemplate" Value="{StaticResource PixiEditorDockThemeIconContentTemplate}" />
+        <Setter Property="GridSplitterWidth" Value="6" />
+        <Setter Property="GridSplitterHeight" Value="6" />
+    </Style>
+
+    <!--  LayoutGridResizerControl  -->
+    <Style x:Key="{x:Type avalonDockControls:LayoutGridResizerControl}" TargetType="{x:Type avalonDockControls:LayoutGridResizerControl}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutGridResizerControl}">
+                    <Border Background="Transparent" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type avalonDockControls:LayoutDocumentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutDocumentControl}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter Content="{Binding LayoutItem.View, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type avalonDockControls:LayoutDocumentTabItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutDocumentTabItem}">
+                    <avalonDockControls:DropDownControlArea DropDownContextMenu="{Binding Root.Manager.DocumentContextMenu}" DropDownContextMenuDataContext="{Binding LayoutItem, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Border Margin="0,3,0,3"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.ColumnSpan="2" Background="Transparent" />
+                                <ContentPresenter Margin="4,0"
+                                                  Content="{Binding Model,
+                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ContentTemplate="{Binding DocumentHeaderTemplate,
+                                                                            Mode=OneWay,
+                                                                            RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager},
+                                                                                                           Mode=FindAncestor}}"
+                                                  ContentTemplateSelector="{Binding DocumentHeaderTemplateSelector,
+                                                                                    Mode=OneWay,
+                                                                                    RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager},
+                                                                                                                   Mode=FindAncestor}}" />
+                                <!--  Close button should be moved out to the container style  -->
+                                <Button x:Name="DocumentCloseButton"
+                                        Grid.Column="1"
+                                        Width="15"
+                                        Margin="3,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Command="{Binding Path=LayoutItem.CloseCommand,
+                                                          RelativeSource={RelativeSource TemplatedParent}}"
+                                        Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                        ToolTip="{x:Static avalonDockProperties:Resources.Document_Close}"
+                                        Visibility="Hidden">
+                                    <Rectangle x:Name="PART_ImgPinClose"
+                                               Width="13" Height="13">
+                                        <Rectangle.OpacityMask>
+                                            <ImageBrush ImageSource="Images/PinClose.png" />
+                                        </Rectangle.OpacityMask>
+                                    </Rectangle>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </avalonDockControls:DropDownControlArea>
+                    <ControlTemplate.Triggers>
+                        <!-- Close button visibility -->
+                        <DataTrigger Binding="{Binding Path=IsSelected}" Value="true">
+                            <Setter TargetName="DocumentCloseButton" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="DocumentCloseButton" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Path=IsLastFocusedDocument}" Value="true">
+                            <Setter TargetName="DocumentCloseButton" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=IsActive}" Value="true">
+                            <Setter TargetName="DocumentCloseButton" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Path=CanClose}" Value="false">
+                            <Setter TargetName="DocumentCloseButton" Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, inactive -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsLastFocusedDocument}" Value="true" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, inactive, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsLastFocusedDocument}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=DocumentCloseButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="DocumentCloseButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="DocumentCloseButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, inactive, pressed -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsLastFocusedDocument}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=DocumentCloseButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="DocumentCloseButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="DocumentCloseButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active -->
+                        <DataTrigger Binding="{Binding IsActive}" Value="true">
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                        </DataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=DocumentCloseButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="DocumentCloseButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="DocumentCloseButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active, pressed -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=DocumentCloseButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="DocumentCloseButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="DocumentCloseButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Unselected, tab hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsActive}" Value="False" />
+                                <Condition Binding="{Binding IsLastFocusedDocument}" Value="False" />
+                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource TemplatedParent}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonUnselectedTabHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Unselected, tab hovered, button hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsActive}" Value="False" />
+                                <Condition Binding="{Binding IsLastFocusedDocument}" Value="False" />
+                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource TemplatedParent}}" Value="True" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=DocumentCloseButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="DocumentCloseButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonUnselectedTabHoveredButtonHoveredBackground}" />
+                            <Setter TargetName="DocumentCloseButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonUnselectedTabHoveredButtonHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonUnselectedTabHoveredButtonHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Unselected, tab hovered, button pressed -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsActive}" Value="False" />
+                                <Condition Binding="{Binding IsLastFocusedDocument}" Value="False" />
+                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource TemplatedParent}}" Value="True" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=DocumentCloseButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="DocumentCloseButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonUnselectedTabHoveredButtonPressedBackground}" />
+                            <Setter TargetName="DocumentCloseButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonUnselectedTabHoveredButtonPressedBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonUnselectedTabHoveredButtonPressedGlyph}" />
+                        </MultiDataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type avalonDockControls:LayoutAnchorableTabItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutAnchorableTabItem}">
+                    <avalonDockControls:DropDownControlArea DropDownContextMenu="{Binding Root.Manager.AnchorableContextMenu}" DropDownContextMenuDataContext="{Binding LayoutItem, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <ContentPresenter Content="{Binding Model,
+                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ContentTemplate="{Binding AnchorableHeaderTemplate,
+                                                                            Mode=OneWay,
+                                                                            RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager},
+                                                                                                           Mode=FindAncestor}}"
+                                                  ContentTemplateSelector="{Binding AnchorableHeaderTemplateSelector,
+                                                                                    Mode=OneWay,
+                                                                                    RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager},
+                                                                                                                   Mode=FindAncestor}}" />
+                                <avalonDockControls:DropDownControlArea Grid.Column="0"
+                                                                        DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu,
+                                                                                                      RelativeSource={RelativeSource TemplatedParent}}"
+                                                                        DropDownContextMenuDataContext="{Binding Path=Model,
+                                                                                                                 RelativeSource={RelativeSource TemplatedParent}}" />
+                            </Grid>
+                        </Border>
+                    </avalonDockControls:DropDownControlArea>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type avalonDockControls:LayoutAnchorableControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutAnchorableControl}">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border x:Name="Header">
+                                <avalonDockControls:AnchorablePaneTitle Model="{Binding Model, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </Border>
+                            <ContentPresenter Grid.Row="1"
+                                              Content="{Binding LayoutItem.View,
+                                                                RelativeSource={RelativeSource TemplatedParent}}"
+                                              FlowDirection="{TemplateBinding FlowDirection}" />
+
+                            <!--
+                                <ContentPresenter
+                                Content="{Binding Model.Content, RelativeSource={RelativeSource TemplatedParent}}"
+                                ContentTemplate="{Binding LayoutItemTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager}, Mode=FindAncestor}}"
+                                ContentTemplateSelector="{Binding LayoutItemTemplateSelector, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager}, Mode=FindAncestor}}"
+                                Grid.Row="1"/>
+                            -->
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.IsFloating}" Value="True" />
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.Parent.IsDirectlyHostedInFloatingWindow}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Header" Property="Visibility" Value="Collapsed" />
+                        </MultiDataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Type avalonDockControls:LayoutDocumentFloatingWindowControl}" TargetType="{x:Type avalonDockControls:LayoutDocumentFloatingWindowControl}">
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeFloatingDocumentWindowBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeFloatingDocumentWindowBorder}" />
+        <Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+                <shell:WindowChrome CaptionHeight="24"
+                                    CornerRadius="0"
+                                    GlassFrameThickness="0"
+                                    ResizeBorderThickness="10"
+                                    ShowSystemMenu="False" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutDocumentFloatingWindowControl}">
+                    <Grid>
+                        <Border x:Name="WindowBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="24" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <Border x:Name="Header"
+                                        Padding="2,0,2,0"
+                                        Background="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedInactiveBackground}"
+                                        TextElement.Foreground="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedInactiveText}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ContentPresenter Content="{Binding Model.RootDocument,
+                                                                            RelativeSource={RelativeSource TemplatedParent}}"
+                                                          ContentTemplate="{Binding Model.Root.Manager.DocumentTitleTemplate,
+                                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                          ContentTemplateSelector="{Binding Model.Root.Manager.DocumentTitleTemplateSelector,
+                                                                                            RelativeSource={RelativeSource TemplatedParent}}" />
+
+
+                                        <avalonDockControls:DropDownButton x:Name="ContextMenuDropdownButton"
+                                                                           Grid.Column="1"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           HorizontalContentAlignment="Center"
+                                                                           VerticalContentAlignment="Center"
+                                                                           DropDownContextMenu="{Binding Model.Root.Manager.DocumentContextMenu,
+                                                                                                         RelativeSource={RelativeSource TemplatedParent}}"
+                                                                           DropDownContextMenuDataContext="{Binding Path=RootDocumentLayoutItem,
+                                                                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                                           Focusable="False"
+                                                                           Style="{StaticResource PixiEditorDockThemeToolButtonStyle}"
+                                                                           ToolTip="{x:Static avalonDockProperties:Resources.Document_CxMenu_Hint}"
+                                                                           shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinMenu"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinMenu.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </avalonDockControls:DropDownButton>
+
+                                        <Button x:Name="PART_PinMaximize"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Grid.Column="2"
+                                                Command="{x:Static shell:SystemCommands.MaximizeWindowCommand}"
+                                                CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                                Focusable="False"
+                                                Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                                ToolTip="{x:Static avalonDockProperties:Resources.Window_Maximize}"
+                                                Visibility="{Binding IsMaximized,
+                                                                     RelativeSource={RelativeSource TemplatedParent},
+                                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinMaximize"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinMaximize.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Button>
+
+                                        <Button x:Name="PART_PinRestore"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Grid.Column="2"
+                                                Command="{x:Static shell:SystemCommands.RestoreWindowCommand}"
+                                                CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                                Focusable="False"
+                                                Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                                ToolTip="{x:Static avalonDockProperties:Resources.Window_Restore}"
+                                                Visibility="{Binding IsMaximized,
+                                                                     RelativeSource={RelativeSource TemplatedParent},
+                                                                     Converter={StaticResource BoolToVisibilityConverter}}"
+                                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinRestore"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinRestore.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Button>
+
+                                        <Button x:Name="PART_PinClose"
+                                                Grid.Column="3"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Command="{Binding Path=RootDocumentLayoutItem.CloseCommand,
+                                                                  RelativeSource={RelativeSource TemplatedParent}}"
+                                                Focusable="False"
+                                                Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                                ToolTip="{x:Static avalonDockProperties:Resources.Document_Close}"
+                                                Visibility="{Binding Path=IsEnabled,
+                                                                     RelativeSource={RelativeSource Self},
+                                                                     Mode=OneWay,
+                                                                     Converter={StaticResource BoolToVisibilityConverter}}"
+                                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinClose"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinClose.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                                <ContentPresenter Grid.Row="1"
+                                                  Content="{TemplateBinding Content}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="WindowState" Value="Maximized">
+                            <Setter TargetName="WindowBorder" Property="Padding" Value="3" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="True">
+                            <Setter TargetName="Header" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedActiveBackground}" />
+                            <Setter TargetName="Header" Property="TextElement.Foreground" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabSelectedActiveText}" />
+                        </DataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, inactive, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=ContextMenuDropdownButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ContextMenuDropdownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="ContextMenuDropdownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, inactive, pressed -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=ContextMenuDropdownButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ContextMenuDropdownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="ContextMenuDropdownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsChecked, ElementName=ContextMenuDropdownButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ContextMenuDropdownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="ContextMenuDropdownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active -->
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true">
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                        </DataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=ContextMenuDropdownButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ContextMenuDropdownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="ContextMenuDropdownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active, pressed -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=ContextMenuDropdownButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ContextMenuDropdownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="ContextMenuDropdownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsChecked, ElementName=ContextMenuDropdownButton}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="ContextMenuDropdownButton" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="ContextMenuDropdownButton" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.RootDocument.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Type avalonDockControls:LayoutAnchorableFloatingWindowControl}" TargetType="{x:Type avalonDockControls:LayoutAnchorableFloatingWindowControl}">
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeFloatingToolWindowBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeFloatingToolWindowBorder}" />
+        <Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+                <shell:WindowChrome CaptionHeight="24"
+                                    CornerRadius="0"
+                                    GlassFrameThickness="0"
+                                    ResizeBorderThickness="10" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:LayoutAnchorableFloatingWindowControl}">
+                    <Grid>
+                        <Border x:Name="WindowBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="24" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Border x:Name="Header"
+                                        Background="{DynamicResource PixiEditorDockThemeToolWindowCaptionInactiveBackground}"
+                                        Padding="2,0,2,0"
+                                        TextElement.Foreground="{DynamicResource PixiEditorDockThemeToolWindowCaptionInactiveText}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Visibility="{Binding Path=Model.IsSinglePane, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <avalonDockControls:DropDownControlArea DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu, RelativeSource={RelativeSource TemplatedParent}}" DropDownContextMenuDataContext="{Binding Path=SingleContentLayoutItem, RelativeSource={RelativeSource TemplatedParent}}">
+                                                <ContentPresenter Content="{Binding Model.SinglePane.SelectedContent,
+                                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                                  ContentTemplate="{Binding Model.Root.Manager.AnchorableTitleTemplate,
+                                                                                            RelativeSource={RelativeSource TemplatedParent}}"
+                                                                  ContentTemplateSelector="{Binding Model.Root.Manager.AnchorableTitleTemplateSelector,
+                                                                                                    RelativeSource={RelativeSource TemplatedParent}}" />
+                                            </avalonDockControls:DropDownControlArea>
+                                        </Border>
+
+                                        <avalonDockControls:DropDownButton x:Name="SinglePaneContextMenu"
+                                                                           Grid.Column="1"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           HorizontalContentAlignment="Center"
+                                                                           VerticalContentAlignment="Center"
+                                                                           DropDownContextMenu="{Binding Model.Root.Manager.AnchorableContextMenu,
+                                                                                                         RelativeSource={RelativeSource TemplatedParent}}"
+                                                                           DropDownContextMenuDataContext="{Binding Path=SingleContentLayoutItem,
+                                                                                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                                                           Focusable="False"
+                                                                           Style="{StaticResource PixiEditorDockThemeToolButtonStyle}"
+                                                                           ToolTip="{x:Static avalonDockProperties:Resources.Anchorable_CxMenu_Hint}"
+                                                                           Visibility="{Binding Path=Model.IsSinglePane,
+                                                                                                RelativeSource={RelativeSource TemplatedParent},
+                                                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                           shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinMenu"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinMenu.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </avalonDockControls:DropDownButton>
+
+                                        <Button x:Name="PART_PinMaximize"
+                                                Grid.Column="2"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                HorizontalContentAlignment="Center"
+                                                VerticalContentAlignment="Center"
+                                                Command="{x:Static shell:SystemCommands.MaximizeWindowCommand}"
+                                                CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                                Focusable="False"
+                                                Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                                ToolTip="{x:Static avalonDockProperties:Resources.Window_Maximize}"
+                                                Visibility="{Binding IsMaximized,
+                                                                     RelativeSource={RelativeSource TemplatedParent},
+                                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinMaximize"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinMaximize.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Button>
+
+                                        <Button x:Name="PART_PinRestore"
+                                                Grid.Column="2"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Command="{x:Static shell:SystemCommands.RestoreWindowCommand}"
+                                                CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                                Focusable="False"
+                                                Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                                ToolTip="{x:Static avalonDockProperties:Resources.Window_Restore}"
+                                                Visibility="{Binding IsMaximized,
+                                                                     RelativeSource={RelativeSource TemplatedParent},
+                                                                     Converter={StaticResource BoolToVisibilityConverter}}"
+                                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinRestore"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinRestore.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Button>
+
+                                        <Button x:Name="PART_PinClose"
+                                                Grid.Column="3"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Command="{Binding HideWindowCommand,
+                                                                  RelativeSource={RelativeSource TemplatedParent}}"
+                                                Focusable="False"
+                                                Style="{StaticResource PixiEditorDockThemeButtonStyle}"
+                                                ToolTip="{x:Static avalonDockProperties:Resources.Anchorable_BtnClose_Hint}"
+                                                Visibility="{Binding Path=IsEnabled,
+                                                                     RelativeSource={RelativeSource Self},
+                                                                     Mode=OneWay,
+                                                                     Converter={StaticResource BoolToVisibilityConverter}}"
+                                                shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                            <Rectangle x:Name="PART_ImgPinClose"
+                                                       Fill="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveGlyph}"
+                                                       Width="13" Height="13">
+                                                <Rectangle.OpacityMask>
+                                                    <ImageBrush ImageSource="Images/PinClose.png" />
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                                <ContentPresenter Grid.Row="1" Content="{TemplateBinding Content}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="WindowState" Value="Maximized">
+                            <Setter TargetName="WindowBorder" Property="Padding" Value="3" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="True">
+                            <Setter TargetName="Header" Property="Background" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionActiveBackground}" />
+                            <Setter TargetName="Header" Property="TextElement.Foreground" Value="{DynamicResource PixiEditorDockThemeToolWindowCaptionActiveText}" />
+                        </DataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, inactive, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=SinglePaneContextMenu}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="SinglePaneContextMenu" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="SinglePaneContextMenu" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, inactive, pressed -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=SinglePaneContextMenu}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="SinglePaneContextMenu" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="SinglePaneContextMenu" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsChecked, ElementName=SinglePaneContextMenu}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="SinglePaneContextMenu" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="SinglePaneContextMenu" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedInactivePressedGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active -->
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true">
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveGlyph}" />
+                        </DataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active, hovered -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=SinglePaneContextMenu}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="SinglePaneContextMenu" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="SinglePaneContextMenu" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseOver, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActiveHoveredGlyph}" />
+                        </MultiDataTrigger>
+
+                        <!-- Document Well : Tab : Button / Selected, active, pressed -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=SinglePaneContextMenu}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="SinglePaneContextMenu" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="SinglePaneContextMenu" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsChecked, ElementName=SinglePaneContextMenu}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="SinglePaneContextMenu" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="SinglePaneContextMenu" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMenu" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinMaximize}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinMaximize" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="PART_PinMaximize" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinMaximize" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinRestore}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinRestore" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="PART_PinRestore" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinRestore" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=Model.SinglePane.SelectedContent.IsActive}" Value="true" />
+                                <Condition Binding="{Binding IsMouseCaptured, ElementName=PART_PinClose}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_PinClose" Property="Background" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBackground}" />
+                            <Setter TargetName="PART_PinClose" Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedBorder}" />
+                            <Setter TargetName="PART_ImgPinClose" Property="Fill" Value="{DynamicResource PixiEditorDockThemeDocumentWellTabButtonSelectedActivePressedGlyph}" />
+                        </MultiDataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Type avalonDockControls:LayoutAutoHideWindowControl}" TargetType="{x:Type avalonDockControls:LayoutAutoHideWindowControl}">
+        <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeTabBackground}" />
+        <Setter Property="AnchorableStyle">
+            <Setter.Value>
+                <Style TargetType="avalonDockControls:LayoutAnchorableControl">
+                    <Setter Property="BorderBrush" Value="{DynamicResource PixiEditorDockThemePanelBorderBrush}" />
+                    <Setter Property="BorderThickness" Value="1" />
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style x:Key="PixiEditorDockThemeNavigatorWindowListBoxItemFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle RadiusX="2"
+                               RadiusY="2"
+                               Stroke="{DynamicResource PixiEditorDockThemePanelBorderBrush}"
+                               StrokeThickness="1" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PixiEditorDockThemeNavigatorWindowListBoxItemStyle" TargetType="ListBoxItem">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource PixiEditorDockThemeNavigatorWindowListBoxItemFocusVisual}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="5,0,5,0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="true">
+                        <Border x:Name="InnerBorder" BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition MaxHeight="11" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Rectangle x:Name="UpperHighlight"
+                                           Fill="#75FFFFFF"
+                                           Visibility="Collapsed" />
+                                <ContentPresenter Grid.RowSpan="2"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </Grid>
+                        </Border>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!--<Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Background" Value="{StaticResource PixiEditorDockThemeNavigatorWindowListBoxItemSelectedFill}" />
+                            <Setter Property="BorderBrush" Value="#FF98DDFB" />
+                            <Setter TargetName="InnerBorder" Property="BorderBrush" Value="#80FFFFFF" />
+                            <Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="UpperHighlight" Property="Fill" Value="#40FFFFFF" />
+                        </Trigger>-->
+                        <Trigger Property="IsSelected" Value="true">
+                            <Setter Property="Background" Value="{DynamicResource PixiEditorDockThemeNavigatorWindowSelectedBackground}" />
+                            <Setter Property="TextElement.Foreground" Value="{DynamicResource PixiEditorDockThemeNavigatorWindowSelectedText}" />
+                            <!--<Setter Property="BorderBrush" Value="#FF98DDFB" />-->
+                            <!--<Setter TargetName="InnerBorder" Property="BorderBrush" Value="#80FFFFFF" />-->
+                            <!--<Setter TargetName="UpperHighlight" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="UpperHighlight" Property="Fill" Value="#40FFFFFF" />-->
+                        </Trigger>
+                        <!--
+                            <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                            <Condition Property="IsSelected" Value="true"/>
+                            <Condition Property="IsMouseOver" Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="{StaticResource AvalonDock_ThemeMetro_NavigatorWindowListBoxItemSelectedHoverFill}"/>
+                            <Setter Property="BorderBrush" Value="#FF98DDFB"/>
+                            </MultiTrigger>
+                        -->
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Type avalonDockControls:NavigatorWindow}" TargetType="{x:Type avalonDockControls:NavigatorWindow}">
+        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+        <Setter Property="SizeToContent" Value="WidthAndHeight" />
+        <Setter Property="ResizeMode" Value="NoResize" />
+        <!--<Setter Property="shell:WindowChrome.WindowChrome">
+            <Setter.Value>
+                <shell:WindowChrome CaptionHeight="16"
+                                    GlassFrameThickness="4"
+                                    ResizeBorderThickness="10" />
+            </Setter.Value>
+        </Setter>-->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type avalonDockControls:NavigatorWindow}">
+                    <Grid>
+                        <Border x:Name="WindowBorder"
+                                Background="{DynamicResource PixiEditorDockThemeNavigatorWindowBackground}"
+                                BorderBrush="{DynamicResource PixiEditorDockThemePanelBorderBrush}"
+                                BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="54" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Grid Margin="5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Image Source="{Binding SelectedDocument.LayoutElement.IconSource,
+                                                                RelativeSource={RelativeSource TemplatedParent},
+                                                                Converter={StaticResource NullToDoNothingConverter}}"
+                                               Stretch="None"
+                                               Visibility="{Binding SelectedDocument.LayoutElement.IconSource,
+                                                                    RelativeSource={RelativeSource TemplatedParent},
+                                                                    Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        <TextBlock Grid.Column="1"
+                                                   Margin="4,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="Bold"
+                                                   Text="{Binding SelectedDocument.LayoutElement.Title, RelativeSource={RelativeSource TemplatedParent}}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                    <!--<TextBlock VerticalAlignment="Center"
+                                               Text="{Binding SelectedDocument.LayoutElement.Description, RelativeSource={RelativeSource TemplatedParent}}"
+                                               TextTrimming="CharacterEllipsis" />-->
+                                </Grid>
+
+                                <Border Grid.Row="1"
+                                        MinHeight="200"
+                                        Background="{DynamicResource PixiEditorDockThemeNavigatorWindowBackground}"
+                                        BorderBrush="Transparent"
+                                        BorderThickness="0,1,0,0">
+                                    <Grid Margin="5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid Margin="5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Margin="0,3,0,4"
+                                                       FontWeight="Bold"
+                                                       Text="Active Tool Windows" />
+                                            <ListBox Grid.Row="1"
+                                                     MaxHeight="400"
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     ItemContainerStyle="{StaticResource PixiEditorDockThemeNavigatorWindowListBoxItemStyle}"
+                                                     ItemsSource="{Binding Anchorables}"
+                                                     SelectedItem="{Binding SelectedAnchorable,
+                                                                            Mode=TwoWay}">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="16" />
+                                                                <ColumnDefinition Width="150" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Image Source="{Binding LayoutElement.IconSource, Converter={StaticResource NullToDoNothingConverter}}" Stretch="None" />
+                                                            <TextBlock Grid.Column="1"
+                                                                       Margin="4,0,0,0"
+                                                                       Text="{Binding LayoutElement.Title}"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </Grid>
+                                        <Grid Grid.Column="1" Margin="5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Margin="0,3,0,4"
+                                                       FontWeight="Bold"
+                                                       Text="Active Files" />
+                                            <ListBox Grid.Row="1"
+                                                     MaxHeight="400"
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     ItemContainerStyle="{StaticResource PixiEditorDockThemeNavigatorWindowListBoxItemStyle}"
+                                                     ItemsSource="{Binding Documents}"
+                                                     SelectedItem="{Binding SelectedDocument,
+                                                                            Mode=TwoWay}">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="16" />
+                                                                <ColumnDefinition Width="150" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Image Source="{Binding LayoutElement.IconSource, Converter={StaticResource NullToDoNothingConverter}}" Stretch="None" />
+                                                            <TextBlock Grid.Column="1"
+                                                                       Margin="4,0,0,0"
+                                                                       Text="{Binding LayoutElement.Title}"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                                <ListBox.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Vertical" />
+                                                    </ItemsPanelTemplate>
+                                                </ListBox.ItemsPanel>
+                                            </ListBox>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+
+                                <Grid Grid.Row="2" Margin="5">
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding SelectedDocument.LayoutElement.ToolTip, RelativeSource={RelativeSource TemplatedParent}}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+    </Style>
+
+
+</ResourceDictionary>
