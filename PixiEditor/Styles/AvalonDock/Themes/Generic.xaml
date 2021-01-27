@@ -310,10 +310,11 @@
 					<Setter Property="Template">
 						<Setter.Value>
 							<ControlTemplate TargetType="{x:Type TabItem}">
-								<Grid SnapsToDevicePixels="true">
-									<Border
+                                <Grid SnapsToDevicePixels="true">
+                                    <Border
 										x:Name="Bd"
 										Background="{TemplateBinding Background}"
+                                        CornerRadius="2.5 2.5 0 0"
 										BorderBrush="{Binding Background, RelativeSource={RelativeSource Self}}"
 										BorderThickness="0,0,0,2" />
 									<ContentPresenter
@@ -397,8 +398,8 @@
 	<Style x:Key="PixiEditorDockThemeAnchorablePaneControlStyle" TargetType="{x:Type avalonDockControls:LayoutAnchorablePaneControl}">
 		<Setter Property="TabStripPlacement" Value="Bottom" />
 		<Setter Property="Padding" Value="0" />
-		<Setter Property="BorderThickness" Value="0" />
-		<Setter Property="Foreground" Value="{Binding Model.Root.Manager.Foreground, RelativeSource={RelativeSource Self}}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{Binding Model.Root.Manager.Foreground, RelativeSource={RelativeSource Self}}" />
 		<Setter Property="Background" Value="{DynamicResource {x:Static reskeys:ResourceKeys.TabBackground}}" />
 		<Setter Property="Template">
 			<Setter.Value>
@@ -421,7 +422,7 @@
 							Background="{TemplateBinding Background}"
 							BorderBrush="{DynamicResource {x:Static reskeys:ResourceKeys.PanelBorderBrush}}"
 							BorderThickness="1"
-							KeyboardNavigation.DirectionalNavigation="Contained"
+                            KeyboardNavigation.DirectionalNavigation="Contained"
 							KeyboardNavigation.TabIndex="2"
 							KeyboardNavigation.TabNavigation="Cycle">
 							<ContentPresenter
@@ -461,7 +462,7 @@
 								<Grid SnapsToDevicePixels="true">
 									<Border
 										x:Name="SelectedBD"
-										Margin="1,-1,1,0"
+										Margin="1,-1,1,0"                                        
 										BorderBrush="{DynamicResource {x:Static reskeys:ResourceKeys.ToolWindowTabSelectedActiveBackground}}"
 										BorderThickness="0,1,0,0"
 										Visibility="Collapsed" />

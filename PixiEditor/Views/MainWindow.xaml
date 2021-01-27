@@ -168,7 +168,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
+        <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
             <Grid>
                 <avalondock:DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
