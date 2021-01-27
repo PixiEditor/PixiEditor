@@ -506,7 +506,7 @@ namespace PixiEditor.Models.DataHolders
                 bool wasActive = layer.IsActive;
                 Layers.Remove(layer);
 
-                if (wasActive)
+                if (wasActive || ActiveLayerIndex >= index)
                 {
                     SetNextLayerAsActive(index);
                 }

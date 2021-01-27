@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -50,11 +51,11 @@ namespace PixiEditor.Models.Tools.Tools
 
             ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
                 new Change(
-                    "ActiveSelection",
-                    oldSelection,
-                    ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection,
+                    "SelectedPoints",
+                    oldSelection.SelectedPoints,
+                    new ObservableCollection<Coordinates>(ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints),
                     "Select pixels",
-                    ViewModelMain.Current.SelectionSubViewModel));
+                    ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection));
         }
 
         public override void Use(Coordinates[] pixels)
