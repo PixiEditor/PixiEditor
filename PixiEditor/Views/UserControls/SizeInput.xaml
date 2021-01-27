@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:converters="clr-namespace:PixiEditor.Helpers"
@@ -14,7 +13,7 @@
         <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </UserControl.Resources>
     <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Center"
-             Style="{StaticResource DarkTextBoxStyle}" FontSize="16" MaxLength="4">
+             Style="{StaticResource DarkTextBoxStyle}" MaxLength="4">
         <TextBox.Text>
             <Binding ElementName="uc"
                      Path="Size" Mode="TwoWay"
@@ -25,6 +24,7 @@
             </Binding>
         </TextBox.Text>
         <i:Interaction.Behaviors>
+            <behaviors:GlobalShortcutFocusBehavior/>
             <behaviors:TextBoxFocusBehavior FillSize="True" />
         </i:Interaction.Behaviors>
     </TextBox>

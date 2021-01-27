@@ -15,6 +15,7 @@
                              AspectRatioValue="{Binding Path=ChosenHeight, ElementName=uc}"
                              AspectRatioControl="{Binding ElementName=HeightPicker}"
                              HorizontalAlignment="Left" Margin="10,0,0,0"
+                             FontSize="16"
                              Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}" />
         </DockPanel>
         <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -25,6 +26,7 @@
                              AspectRatioValue="{Binding Path=ChosenWidth, ElementName=uc}"
                              AspectRatioControl="{Binding ElementName=WidthPicker}"
                              HorizontalAlignment="Left" Width="150" Height="30"
+                             FontSize="16"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}" />
         </DockPanel>
         <CheckBox Name="aspectRatio" Content="Preserve aspect ratio" Foreground="White" HorizontalAlignment="Left"
