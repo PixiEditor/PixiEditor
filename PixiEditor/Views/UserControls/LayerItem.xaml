@@ -7,7 +7,8 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
-             d:DesignHeight="60" d:DesignWidth="250" Name="uc" MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
+             d:DesignHeight="60" d:DesignWidth="250" Name="uc"
+             MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
     <UserControl.Resources>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
     </UserControl.Resources>
@@ -29,10 +30,16 @@
             <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center"
                       IsChecked="{Binding Path=IsVisible, Mode=TwoWay}" Grid.Column="0" Height="16" />
-            <local:EditableTextBlock
-                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" Grid.Column="1" FontSize="16" HorizontalAlignment="Center"
+            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="20,0,0,0">
+                <Grid Width="50" Height="20" Margin="0,0,20,0">
+                    <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform"
+                       RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                </Grid>
+                <local:EditableTextBlock
+                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="16" 
                     VerticalAlignment="Center"
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />
+            </StackPanel>
             <StackPanel Visibility="{Binding Path=ControlButtonsVisible, ElementName=uc}" 
                         Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width="15" 
                         Grid.Column="2">

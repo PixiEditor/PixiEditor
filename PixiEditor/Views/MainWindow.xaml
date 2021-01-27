@@ -148,7 +148,7 @@
                         Command="{x:Static SystemCommands.CloseWindowCommand}" />
             </StackPanel>
         </DockPanel>
-        <StackPanel Background="{StaticResource AccentColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
+        <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
                      Grid.Row="1">
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
@@ -326,6 +326,7 @@
                                 Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
                                                                    LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
                                                                    IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
+                                                                   PreviewImage="{Binding LayerBitmap}"
                                                                    MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
                                                                    MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
                                                         <vws:LayerItem.ContextMenu>

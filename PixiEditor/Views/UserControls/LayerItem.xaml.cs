@@ -72,13 +72,21 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
             "ControlButtonsVisible", typeof(Visibility), typeof(LayerItem), new PropertyMetadata(System.Windows.Visibility.Hidden));
 
-        public Visibility ControlButtonsVisible
+        public WriteableBitmap PreviewImage
         {
-            get { return (Visibility) GetValue(ControlButtonsVisibleProperty); }
-            set { SetValue(ControlButtonsVisibleProperty, value); }
+            get { return (WriteableBitmap)GetValue(PreviewImageProperty); }
+            set { SetValue(PreviewImageProperty, value); }
         }
 
+        // Using a DependencyProperty as the backing store for PreviewImage.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty PreviewImageProperty =
+            DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(LayerItem), new PropertyMetadata(null));
 
+        public Visibility ControlButtonsVisible
+        {
+            get { return (Visibility)GetValue(ControlButtonsVisibleProperty); }
+            set { SetValue(ControlButtonsVisibleProperty, value); }
+        }
 
         public RelayCommand MoveToBackCommand
         {

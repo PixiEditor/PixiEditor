@@ -21,7 +21,7 @@ namespace PixiEditor.Helpers.Converters
                 }
             }
 
-            return "#638DCA";
+            return "#505056";
         }
     }
 }
