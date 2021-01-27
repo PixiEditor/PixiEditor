@@ -30,13 +30,11 @@
             <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center"
                       IsChecked="{Binding Path=IsVisible, Mode=TwoWay}" Grid.Column="0" Height="16" />
-            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="20,0,0,0">
-                <Grid Width="50" Height="20" Margin="0,0,20,0">
-                    <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform"
+            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0">
+                <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform" Width="50" Height="20" Margin="0,0,20,0"
                        RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-                </Grid>
                 <local:EditableTextBlock
-                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="16" 
+                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="16"
                     VerticalAlignment="Center"
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />
             </StackPanel>

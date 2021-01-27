@@ -150,6 +150,8 @@
         </DockPanel>
         <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
                      Grid.Row="1">
+            <Label Style="{StaticResource BaseLabel}" Margin="10,0,0,0" FontSize="12" VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.ToolName}"/>
+            <Label Style="{StaticResource BaseLabel}" Padding="0" FontSize="12" VerticalAlignment="Center" Content="tool"/>
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
