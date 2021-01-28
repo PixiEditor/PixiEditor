@@ -23,12 +23,12 @@
         </i:Interaction.Triggers>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="35"/>
+                <ColumnDefinition Width="30"/>
                 <ColumnDefinition Width="199*"/>
-                <ColumnDefinition Width="35"/>
+                <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
             <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
-                      IsThreeState="False" HorizontalAlignment="Center"
+                      IsThreeState="False" HorizontalAlignment="Center" 
                       IsChecked="{Binding Path=IsVisible, Mode=TwoWay}" Grid.Column="0" Height="16" />
             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0">
                 <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform" Width="50" Height="20" Margin="0,0,20,0"
@@ -39,7 +39,7 @@
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />
             </StackPanel>
             <StackPanel Visibility="{Binding Path=ControlButtonsVisible, ElementName=uc}" 
-                        Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width="15" 
+                        Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width="11" 
                         Grid.Column="2">
                 <Button CommandParameter="{Binding LayerIndex, ElementName=uc}" Command="{Binding Path=MoveToFrontCommand, ElementName=uc}" Background="Transparent" Style="{StaticResource OpacityButtonStyle}" Foreground="White" HorizontalAlignment="Center" BorderThickness="0">
                     <TextBlock Text="&#9650;"/>

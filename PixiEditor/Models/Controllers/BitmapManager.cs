@@ -77,8 +77,9 @@ namespace PixiEditor.Models.Controllers
             get => activeDocument;
             set
             {
+                activeDocument?.UpdatePreviewImage();
                 activeDocument = value;
-                RaisePropertyChanged("ActiveDocument");
+                RaisePropertyChanged(nameof(ActiveDocument));
                 DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
             }
         }
@@ -140,6 +141,7 @@ namespace PixiEditor.Models.Controllers
             {
                 ActiveDocument.PreviewLayer = null;
             }
+
             SelectedTool?.Toolbar.SaveToolbarSettings();
             SelectedTool = tool;
             SelectedTool.Toolbar.LoadSharedSettings();

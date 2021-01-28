@@ -3,12 +3,15 @@ using System.Buffers;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -52,6 +55,13 @@ namespace PixiEditor.Models.DataHolders
                 xamlAccesibleViewModel = value;
                 RaisePropertyChanged(nameof(XamlAccesibleViewModel));
             }
+        }
+
+        private WriteableBitmap _previewImage;
+
+        public WriteableBitmap PreviewImage
+        {
+            get => _previewImage;
         }
 
         private string documentFilePath = string.Empty;
@@ -114,7 +124,7 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 selection = value;
-                RaisePropertyChanged("ActiveSelection");
+                RaisePropertyChanged(nameof(ActiveSelection));
             }
         }
 
@@ -126,7 +136,7 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 previewLayer = value;
-                RaisePropertyChanged("PreviewLayer");
+                RaisePropertyChanged(nameof(PreviewLayer));
             }
         }
 
@@ -202,9 +212,15 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 activeLayerIndex = value;
-                RaisePropertyChanged("ActiveLayerIndex");
-                RaisePropertyChanged("ActiveLayer");
+                RaisePropertyChanged(nameof(ActiveLayerIndex));
+                RaisePropertyChanged(nameof(ActiveLayer));
             }
+        }
+
+        public void UpdatePreviewImage()
+        {
+            _previewImage = BitmapUtils.GeneratePreviewBitmap(this, 30, 20);
+            RaisePropertyChanged(nameof(PreviewImage));
         }
 
         public void GeneratePreviewLayer()
@@ -429,7 +445,10 @@ namespace PixiEditor.Models.DataHolders
         {
             XamlAccesibleViewModel.BitmapManager.MouseController.StopRecordingMouseMovementChanges();
             XamlAccesibleViewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
-            XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
+            if (XamlAccesibleViewModel.BitmapManager.ActiveDocument != this)
+            {
+                XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
+            }
         }
 
         private void RequestCloseDocument(object parameter)

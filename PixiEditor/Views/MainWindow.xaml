@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
+        xmlns:ex="clr-namespace:PixiEditor.Helpers.Extensions"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"

@@ -8,7 +8,7 @@
 	</ResourceDictionary.MergedDictionaries>
 
 	<!--  Accent Keys  -->
-    <Color x:Key="{x:Static reskeys:ResourceKeys.ControlAccentColorKey}">#234099</Color>
+    <Color x:Key="{x:Static reskeys:ResourceKeys.ControlAccentColorKey}">#B00022</Color>
 
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ControlAccentBrushKey}"
@@ -27,7 +27,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.TabBackground}"
 		options:Freeze="true"
-		Color="#252526" />
+		Color="#252525" />
 
 	<!--  Auto Hide : Tab  -->
 	<SolidColorBrush
@@ -74,16 +74,16 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellOverflowButtonHoveredGlyph}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#FFFFFF" />
 	<!--  AccentColor  -->
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellOverflowButtonPressedBackground}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#B00022" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellOverflowButtonPressedBorder}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#B00022" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellOverflowButtonPressedGlyph}"
 		options:Freeze="true"
@@ -94,7 +94,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabSelectedActiveBackground}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#505056" />
 
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabSelectedActiveText}"
@@ -103,7 +103,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabSelectedInactiveBackground}"
 		options:Freeze="true"
-		Color="#3F3F46" />
+		Color="#505056" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabSelectedInactiveText}"
 		options:Freeze="true"
@@ -120,7 +120,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabUnselectedHoveredBackground}"
 		options:Freeze="true"
-		Color="#4A6996" />
+		Color="#4B4B4B" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabUnselectedHoveredText}"
 		options:Freeze="true"
@@ -136,12 +136,12 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabButtonSelectedActiveHoveredBackground}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="Black" />
 	<!--  AccentColor  -->
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabButtonSelectedActiveHoveredBorder}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="Black" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.DocumentWellTabButtonSelectedActiveHoveredGlyph}"
 		options:Freeze="true"
@@ -226,7 +226,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionActiveBackground}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#B00022" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionActiveGrip}"
 		options:Freeze="true"
@@ -238,7 +238,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionInactiveBackground}"
 		options:Freeze="true"
-		Color="#2D2D30" />
+		Color="#252525" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionInactiveGrip}"
 		options:Freeze="true"
@@ -257,12 +257,12 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonActiveHoveredBackground}"
 		options:Freeze="true"
-		Color="#52B0EF" />
+		Color="#D60029" />
 	<!--  AccentColor  -->
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonActiveHoveredBorder}"
 		options:Freeze="true"
-		Color="#52B0EF" />
+		Color="#D60029" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonActiveHoveredGlyph}"
 		options:Freeze="true"
@@ -271,12 +271,12 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonActivePressedBackground}"
 		options:Freeze="true"
-		Color="#0E6198" />
+		Color="#D60029" />
 	<!--  (AccentColor)  -->
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonActivePressedBorder}"
 		options:Freeze="true"
-		Color="#0E6198" />
+		Color="#D60029" />
 
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonActivePressedGlyph}"
@@ -304,11 +304,11 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonInactivePressedBackground}"
 		options:Freeze="true"
-		Color="#0E6198" />
+		Color="#D60029" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonInactivePressedBorder}"
 		options:Freeze="true"
-		Color="#0E6198" />
+		Color="#D60029" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowCaptionButtonInactivePressedGlyph}"
 		options:Freeze="true"
@@ -318,21 +318,21 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowTabSelectedActiveBackground}"
 		options:Freeze="true"
-		Color="#252526" />
+		Color="#252525" />
 	<!--  (AccentColor)  -->
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowTabSelectedActiveText}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#B00022" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowTabSelectedInactiveBackground}"
 		options:Freeze="true"
-		Color="#252526" />
+		Color="#252525" />
 	<!--  (AccentColor)  -->
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowTabSelectedInactiveText}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#B00022" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowTabUnselectedBackground}"
 		options:Freeze="true"
@@ -349,7 +349,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowTabUnselectedHoveredText}"
 		options:Freeze="true"
-		Color="#55AAFF" />
+		Color="#D60029" />
 
 	<!--  Floating Document Window  -->
 	<SolidColorBrush
@@ -375,7 +375,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.NavigatorWindowBackground}"
 		options:Freeze="true"
-		Color="#2D2D30" />
+		Color="#252525" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.NavigatorWindowForeground}"
 		options:Freeze="true"
@@ -385,7 +385,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.NavigatorWindowSelectedBackground}"
 		options:Freeze="true"
-		Color="#234099" />
+		Color="#B00022" />
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.NavigatorWindowSelectedText}"
 		options:Freeze="true"

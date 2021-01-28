@@ -1,14 +1,3 @@
-<!--
-	************************************************************************
-	AvalonDock
-	
-	Copyright (C) 2007-2013 Xceed Software Inc.
-	
-	This program is provided to you under the terms of the Microsoft Public
-	License (Ms-PL) as published at https://opensource.org/licenses/MS-PL
-	************************************************************************
--->
-
 <ResourceDictionary
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,7 +6,8 @@
 	xmlns:avalonDockConverters="clr-namespace:AvalonDock.Converters;assembly=AvalonDock"
 	xmlns:avalonDockProperties="clr-namespace:AvalonDock.Properties;assembly=AvalonDock"
 	xmlns:reskeys="clr-namespace:PixiEditor.Styles.AvalonDock.Themes"
-	xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=AvalonDock">
+    xmlns:ex="clr-namespace:PixiEditor.Helpers.Extensions"
+	xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=AvalonDock" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="/Styles/AvalonDock/OverlayButtons.xaml" />
         <ResourceDictionary Source="/Styles/AvalonDock/Themes/Menu/MenuItem.xaml" />
@@ -315,9 +305,8 @@
 										x:Name="Bd"
 										Background="{TemplateBinding Background}"
 										BorderBrush="{Binding Background, RelativeSource={RelativeSource Self}}"
+                                        CornerRadius="2.5 2.5 0 0"
 										BorderThickness="0,0,0,2" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Margin="5" Width="50" Stretch="UniformToFill" Height="40" Source="{Binding }"/>
                                     <ContentPresenter
 										x:Name="Content"
 										HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
@@ -325,7 +314,6 @@
 										ContentSource="Header"
 										RecognizesAccessKey="True"
 										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                    </StackPanel>
                                 </Grid>
 								<ControlTemplate.Triggers>
 									<Trigger Property="Selector.IsSelected" Value="true">
@@ -1230,9 +1218,9 @@
 		</Setter>
 	</Style>
 
-	<DataTemplate x:Key="PixiEditorDockThemeDocumentHeaderTemplate">
-		<TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
-	</DataTemplate>
+    <DataTemplate x:Key="PixiEditorDockThemeDocumentHeaderTemplate">
+		<TextBlock VerticalAlignment="Center" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+    </DataTemplate>
 
 	<DataTemplate x:Key="PixiEditorDockThemeAnchorableHeaderTemplate">
 		<TextBlock
@@ -1244,7 +1232,7 @@
 	<DataTemplate x:Key="PixiEditorDockThemeDocumentTitleTemplate">
 		<TextBlock
 			VerticalAlignment="Center"
-			Text="{Binding Title}"
+			Text="Canvas"
 			TextTrimming="CharacterEllipsis" />
 	</DataTemplate>
 
@@ -1350,8 +1338,8 @@
 		</Setter>
 	</Style>
 
-	<Style TargetType="{x:Type avalonDockControls:LayoutDocumentControl}">
-		<Setter Property="Template">
+    <Style TargetType="{x:Type avalonDockControls:LayoutDocumentControl}">
+        <Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type avalonDockControls:LayoutDocumentControl}">
 					<Border
@@ -1384,13 +1372,18 @@
 									<ColumnDefinition Width="Auto" />
 								</Grid.ColumnDefinitions>
 								<Border Grid.ColumnSpan="2" Background="Transparent" />
-								<ContentPresenter
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Stretch="Uniform" Name="previewImage" Margin="1" Width="30" Height="20"
+                                           RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                           Source="{Binding LayoutItem.Model.PreviewImage, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <ContentPresenter
 									Margin="4,0"
 									Content="{Binding Model, RelativeSource={RelativeSource TemplatedParent}}"
 									ContentTemplate="{Binding DocumentHeaderTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager}, Mode=FindAncestor}}"
 									ContentTemplateSelector="{Binding DocumentHeaderTemplateSelector, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type avalonDock:DockingManager}, Mode=FindAncestor}}"
 									TextBlock.Foreground="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TabItem}}" />
-								<!--  Close button should be moved out to the container style  -->
+                                </StackPanel>
+                                <!--  Close button should be moved out to the container style  -->
 								<Button
 									x:Name="DocumentCloseButton"
 									Grid.Column="1"
