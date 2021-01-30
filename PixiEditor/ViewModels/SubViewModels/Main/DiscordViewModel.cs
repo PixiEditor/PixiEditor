@@ -60,6 +60,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void UpdatePresence(Document document)
         {
+            if (client == null)
+            {
+                return;
+            }
+
             RichPresence richPresence = new RichPresence
             {
                 Assets = new Assets
