@@ -46,6 +46,8 @@
                     Command="{Binding SelectCategoryCommand}" CommandParameter="General">General</Button>
             <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
                     Command="{Binding SelectCategoryCommand}" CommandParameter="Updates">Updates</Button>
+            <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
+                    Command="{Binding SelectCategoryCommand}" CommandParameter="Discord">Discord</Button>
         </StackPanel>
         <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource AccentColor}">
             <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
@@ -71,6 +73,15 @@
                     <Label Style="{StaticResource Header1}" Content="Auto-updates"/>
                     <StackPanel Orientation="Vertical" Margin="50 0 50 0">
                         <CheckBox IsChecked="{Binding SettingsSubViewModel.CheckUpdatesOnStartup}" Content="Check updates on startup"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            ConverterParameter='Discord'}">
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource Header1}" Content="Rich Presence"/>
+                    <StackPanel Orientation="Vertical" Margin="50 0 50 0">
+                        <CheckBox IsChecked="{Binding SettingsSubViewModel.EnableRichPresence}" Content="Enable"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>

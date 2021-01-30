@@ -58,6 +58,18 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
             }
         }
 
+        private bool enableRichPresence = PreferencesSettings.GetPreference<bool>(nameof(EnableRichPresence));
+
+        public bool EnableRichPresence
+        {
+            get => enableRichPresence;
+            set
+            {
+                enableRichPresence = value;
+                RaiseAndUpdatePreference(nameof(EnableRichPresence), value);
+            }
+        }
+
         public void RaiseAndUpdatePreference<T>(string name, T value)
         {
             RaisePropertyChanged(name);
