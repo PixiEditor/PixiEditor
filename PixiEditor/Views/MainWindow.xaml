@@ -164,7 +164,7 @@
                             <Label
                                 Visibility="{Binding HasLabel, Converter={StaticResource BoolToVisibilityConverter}}"
                                 Foreground="White" Content="{Binding Label}" />
-                            <ContentPresenter Content="{Binding SettingControl}" />
+                            <ContentControl Content="{Binding SettingControl}" />
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -237,7 +237,11 @@
                                                              CanClose="False" CanAutoHide="False"
                                                              CanDockAsTabbedDocument="True" CanFloat="True">
                                 <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
-                                     SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" Style="{StaticResource DefaultColorPickerStyle}" />
+                                     SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" Style="{StaticResource DefaultColorPickerStyle}" >
+                                    <i:Interaction.Behaviors>
+                                        <behaviours:GlobalShortcutFocusBehavior/>
+                                    </i:Interaction.Behaviors>
+                                </colorpicker:StandardColorPicker>
                             </LayoutAnchorable>
                             <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"

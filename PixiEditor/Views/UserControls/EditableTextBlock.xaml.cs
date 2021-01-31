@@ -13,12 +13,18 @@ namespace PixiEditor.Views
     {
         // Using a DependencyProperty as the backing store for TextBlockVisibility.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextBlockVisibilityProperty =
-            DependencyProperty.Register("TextBlockVisibility", typeof(Visibility), typeof(EditableTextBlock),
+            DependencyProperty.Register(
+                "TextBlockVisibility",
+                typeof(Visibility),
+                typeof(EditableTextBlock),
                 new PropertyMetadata(Visibility.Visible));
 
         // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(EditableTextBlock),
+            DependencyProperty.Register(
+                "Text",
+                typeof(string),
+                typeof(EditableTextBlock),
                 new PropertyMetadata(default(string)));
 
         // Using a DependencyProperty as the backing store for EnableEditing.  This enables animation, styling, binding, etc...
@@ -78,7 +84,6 @@ namespace PixiEditor.Views
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
-            {
                 EnableEditing();
             }
         }

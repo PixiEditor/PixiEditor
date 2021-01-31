@@ -60,7 +60,7 @@ namespace PixiEditor.Models.Controllers
             : 1;
             set
             {
-                if (SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is var toolSize)
+                if (SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
                 {
                     toolSize.Value = value;
                     HighlightPixels(MousePositionConverter.CurrentCoordinates);
