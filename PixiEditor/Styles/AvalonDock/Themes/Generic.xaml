@@ -9,9 +9,9 @@
     xmlns:ex="clr-namespace:PixiEditor.Helpers.Extensions"
 	xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=AvalonDock">
 	<ResourceDictionary.MergedDictionaries>
-		<ResourceDictionary Source="/Styles/AvalonDock/OverlayButtons.xaml" />
-        <ResourceDictionary Source="/Styles/AvalonDock/Themes/Menu/MenuItem.xaml" />
-		<ResourceDictionary Source="/Styles/AvalonDock/Themes/Icons/IconGeometry.xaml" />
+		<ResourceDictionary Source="/PixiEditor;component/Styles/AvalonDock/Themes/OverlayButtons.xaml" />
+        <ResourceDictionary Source="/PixiEditor;component/Styles/AvalonDock/Themes/Menu/MenuItem.xaml" />
+        <ResourceDictionary Source="/PixiEditor;component/Styles/AvalonDock/Themes/Icons/IconGeometry.xaml" />
 	</ResourceDictionary.MergedDictionaries>
 
 	<Style x:Key="DropDownControlArea" TargetType="avalonDockControls:DropDownControlArea" />
