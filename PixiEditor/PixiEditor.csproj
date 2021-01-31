@@ -32,6 +32,7 @@
     <None Remove="Images\Eye.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
+    <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\SelectImage.png" />
     <None Remove="Images\ZoomImage.png" />
@@ -72,6 +73,7 @@
     <Resource Include="Images\MoveViewportImage.png" />
     <Resource Include="Images\PenImage.png" />
     <Resource Include="Images\ColorPickerImage.png" />
+    <Resource Include="Images\PixiBotLogo.png" />
     <Resource Include="Images\PixiEditorLogo.png" />
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />

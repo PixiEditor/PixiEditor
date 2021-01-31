@@ -34,6 +34,51 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
+        private bool showDocumentName = PreferencesSettings.GetPreference(nameof(ShowDocumentName), true);
+
+        public bool ShowDocumentName
+        {
+            get => showDocumentName;
+            set
+            {
+                if (showDocumentName != value)
+                {
+                    showDocumentName = value;
+                    UpdatePresence(currentDocument);
+                }
+            }
+        }
+
+        private bool showDocumentSize = PreferencesSettings.GetPreference(nameof(ShowDocumentSize), true);
+
+        public bool ShowDocumentSize
+        {
+            get => showDocumentSize;
+            set
+            {
+                if (showDocumentSize != value)
+                {
+                    showDocumentSize = value;
+                    UpdatePresence(currentDocument);
+                }
+            }
+        }
+
+        private bool showLayerCount = PreferencesSettings.GetPreference(nameof(ShowLayerCount), true);
+
+        public bool ShowLayerCount
+        {
+            get => showLayerCount;
+            set
+            {
+                if (showLayerCount != value)
+                {
+                    showLayerCount = value;
+                    UpdatePresence(currentDocument);
+                }
+            }
+        }
+
         public DiscordViewModel(ViewModelMain owner, string clientId)
             : base(owner)
         {
@@ -42,6 +87,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             Enabled = PreferencesSettings.GetPreference<bool>("EnableRichPresence");
             PreferencesSettings.AddCallback("EnableRichPresence", x => Enabled = (bool)x);
+            PreferencesSettings.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
+            PreferencesSettings.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
+            PreferencesSettings.AddCallback(nameof(ShowLayerCount), x => ShowLayerCount = (bool)x);
         }
 
         public void Start()
@@ -65,43 +113,56 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 return;
             }
 
-            RichPresence richPresence = new RichPresence
-            {
-                Assets = new Assets
-                {
-                    LargeImageKey = "editorlogo",
-                    LargeImageText = "You discovered PixiEditor's logo",
-                    SmallImageKey = "github",
-                    SmallImageText = "Download PixiEditor on GitHub (please)!"
-                }
-            };
+            RichPresence richPresence = NewDefaultRP();
 
-            if (document == null)
-            {
-                richPresence.WithTimestamps(new Timestamps(DateTime.UtcNow));
-                richPresence.Details = "Staring at absolutely";
-                richPresence.State = "nothing";
-            }
-            else
+            if (document != null)
             {
                 richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
-                richPresence.Details = $"Editing {document.Name}";
 
-                string state = $"{document.Width}x{document.Height}, ";
+                richPresence.Details = ShowDocumentName ? $"Editing {document.Name}" : "Editing something (incognito)";
 
-                if (document.Layers.Count == 1)
+                string state = string.Empty;
+
+                if (ShowDocumentSize)
                 {
-                    state += "1 Layer";
+                    state = $"{document.Width}x{document.Height}";
                 }
-                else
+
+                if (ShowDocumentSize && ShowLayerCount)
                 {
-                    state += $"{document.Layers.Count} Layers";
+                    state += ", ";
+                }
+
+                if (ShowLayerCount)
+                {
+                    state += document.Layers.Count == 1 ? "1 Layer" : $"{document.Layers.Count} Layers";
                 }
 
                 richPresence.State = state;
             }
 
             client.SetPresence(richPresence);
+        }
+
+        private static RichPresence NewDefaultRP()
+        {
+            return new RichPresence
+            {
+                Details = "Staring at absolutely",
+                State = "nothing",
+
+                Assets = new Assets
+                {
+                    LargeImageKey = "editorlogo",
+                    LargeImageText = "You discovered PixiEditor's logo",
+                    SmallImageKey = "github",
+                    SmallImageText = "Download PixiEditor on GitHub (github.com/PixiEditor/PixiEditor)!"
+                },
+                Timestamps = new Timestamps()
+                {
+                    Start = DateTime.UtcNow
+                }
+            };
         }
 
         private void DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)

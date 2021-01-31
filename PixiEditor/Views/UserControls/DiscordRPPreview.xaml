@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.DiscordRPPreview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="280" d:DesignWidth="300"
+             x:Name="uc">
+    <UserControl.Resources>
+        <converters:EmptyStringToVisibiltyConverter x:Key="EmptyStringToVisibilty"/>
+        <converters:BoolToVisibiltyConverter x:Key="BoolToVisibilty"/>
+        <converters:BoolToDiscordBrush x:Key="BoolToDiscordColor"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.OpacityMask>
+            <VisualBrush Visual="{Binding ElementName=OutsideBorder}"/>
+        </Grid.OpacityMask>
+        <Border CornerRadius="5" Background="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToDiscordColor}}" x:Name="OutsideBorder"/>
+        <Grid x:Name="background">
+            <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid VerticalAlignment="Center">
+                    <StackPanel>
+                        <Grid  Width="80" Height="80" Margin="20">
+                            <Image Source="{Binding ElementName=uc, Path=UserSource}"/>
+                        <Border Height="30" Width="30" Background="#FF43B581" CornerRadius="90" BorderThickness="5" BorderBrush="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToDiscordColor}}">
+                                <Border.RenderTransform>
+                                    <TransformGroup>
+                                        <TranslateTransform X="27" Y="27"></TranslateTransform>
+                                    </TransformGroup>
+                                </Border.RenderTransform>
+                            </Border>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+                            <TextBlock Foreground="White" FontSize="16" FontWeight="SemiBold">PixiBot</TextBlock>
+                            <TextBlock Foreground="White" FontSize="16">#8523</TextBlock>
+                            <Border CornerRadius="3" BorderThickness="1" Background="White" Margin="5,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Foreground="#FF7289DA" FontSize="12" Margin="4,2,4,2" FontWeight="Medium">BOT</TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1" Background="#0D000000" Visibility="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToVisibilty}}">
+                    <StackPanel Orientation="Vertical" Margin="15">
+                        <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10">PLAYING A "GAME"</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../../Images/PixiEditorLogo.png" Height="70"/>
+                            <StackPanel Margin="15,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Foreground="White" FontSize="12" FontWeight="SemiBold">PixiEditor</TextBlock>
+                            <TextBlock Foreground="White" FontSize="12" Text="{Binding ElementName=uc, Path=Detail}" Visibility="{Binding ElementName=uc, Path=Detail, Converter={StaticResource EmptyStringToVisibilty}}"/>
+                            <TextBlock Foreground="White" FontSize="12" Text="{Binding ElementName=uc, Path=State}" Visibility="{Binding ElementName=uc, Path=State, Converter={StaticResource EmptyStringToVisibilty}}"/>
+                            <TextBlock Foreground="White" FontSize="12">00:00 elapsed</TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+</UserControl>
