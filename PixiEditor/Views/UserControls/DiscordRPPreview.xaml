@@ -10,13 +10,17 @@
     <UserControl.Resources>
         <converters:EmptyStringToVisibiltyConverter x:Key="EmptyStringToVisibilty"/>
         <converters:BoolToVisibiltyConverter x:Key="BoolToVisibilty"/>
-        <converters:BoolToDiscordBrush x:Key="BoolToDiscordColor"/>
+        <converters:BoolToBrushConverter x:Key="BoolToBrush"/>
+        <converters:BrushTuple FirstBrush="#7289da" SecondBrush="#202225" x:Key="BackgroundBrushTuple"/>
+        <converters:BrushTuple FirstBrush="White" SecondBrush="#7289da" x:Key="BotLabelTuple"/>
+        <converters:BrushTuple FirstBrush="#7289da" SecondBrush="White" x:Key="BotTextTuple"/>
+        <converters:BrushTuple FirstBrush="White" SecondBrush="#b9bbbe" x:Key="DiscriminatorTuple"/>
     </UserControl.Resources>
     <Grid>
         <Grid.OpacityMask>
             <VisualBrush Visual="{Binding ElementName=OutsideBorder}"/>
         </Grid.OpacityMask>
-        <Border CornerRadius="5" Background="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToDiscordColor}}" x:Name="OutsideBorder"/>
+        <Border CornerRadius="5" Background="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter={StaticResource BackgroundBrushTuple}}" x:Name="OutsideBorder"/>
         <Grid x:Name="background">
             <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -27,7 +31,7 @@
                     <StackPanel>
                         <Grid  Width="80" Height="80" Margin="20">
                             <Image Source="{Binding ElementName=uc, Path=UserSource}"/>
-                        <Border Height="30" Width="30" Background="#FF43B581" CornerRadius="90" BorderThickness="5" BorderBrush="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToDiscordColor}}">
+                        <Border Height="30" Width="30" Background="#FF43B581" CornerRadius="90" BorderThickness="5" BorderBrush="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter={StaticResource BackgroundBrushTuple}}">
                                 <Border.RenderTransform>
                                     <TransformGroup>
                                         <TranslateTransform X="27" Y="27"></TranslateTransform>
@@ -38,9 +42,9 @@
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
                             <TextBlock Foreground="White" FontSize="16" FontWeight="SemiBold">PixiBot</TextBlock>
-                            <TextBlock Foreground="White" FontSize="16">#8523</TextBlock>
-                            <Border CornerRadius="3" BorderThickness="1" Background="White" Margin="5,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Foreground="#FF7289DA" FontSize="12" Margin="4,2,4,2" FontWeight="Medium">BOT</TextBlock>
+                        <TextBlock Foreground="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter={StaticResource DiscriminatorTuple}}" FontSize="16">#8523</TextBlock>
+                            <Border CornerRadius="3" BorderThickness="1" Background="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter={StaticResource BotLabelTuple}}" Margin="5,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Foreground="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToBrush}, ConverterParameter={StaticResource BotTextTuple}}" FontSize="12" Margin="4,2,4,2" FontWeight="Medium">BOT</TextBlock>
                             </Border>
                         </StackPanel>
                     </StackPanel>
