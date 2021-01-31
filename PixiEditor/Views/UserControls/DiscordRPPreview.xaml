@@ -9,7 +9,7 @@
              x:Name="uc">
     <UserControl.Resources>
         <converters:EmptyStringToVisibiltyConverter x:Key="EmptyStringToVisibilty"/>
-        <converters:BoolToVisibiltyConverter x:Key="BoolToVisibilty"/>
+        <BoolToVisibilityConverter x:Key="BoolToVisibilty"/>
         <converters:BoolToBrushConverter x:Key="BoolToBrush"/>
         <converters:BrushTuple FirstBrush="#7289da" SecondBrush="#202225" x:Key="BackgroundBrushTuple"/>
         <converters:BrushTuple FirstBrush="White" SecondBrush="#7289da" x:Key="BotLabelTuple"/>
