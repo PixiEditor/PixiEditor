@@ -244,6 +244,7 @@
 							Background="{TemplateBinding Background}"
 							BorderBrush="{DynamicResource {x:Static reskeys:ResourceKeys.PanelBorderBrush}}"
 							BorderThickness="1,0,1,1"
+                            CornerRadius="5 0 5 5"
 							KeyboardNavigation.DirectionalNavigation="Contained"
 							KeyboardNavigation.TabIndex="2"
 							KeyboardNavigation.TabNavigation="Cycle">
@@ -396,7 +397,7 @@
 				<ControlTemplate TargetType="{x:Type avalonDockControls:LayoutAnchorablePaneControl}">
 					<Grid
 						ClipToBounds="true"
-						KeyboardNavigation.TabNavigation="Local"
+						KeyboardNavigation.TabNavigation="Local"                        
 						SnapsToDevicePixels="true">
 						<Grid.RowDefinitions>
 							<RowDefinition Height="*" />
@@ -409,6 +410,7 @@
 							Grid.Row="0"
 							Grid.Column="0"
 							Margin="0"
+                            CornerRadius="5 5 5 0"
 							Background="{TemplateBinding Background}"
 							BorderBrush="{DynamicResource {x:Static reskeys:ResourceKeys.PanelBorderBrush}}"
 							BorderThickness="1"
@@ -459,6 +461,7 @@
 									<Border
 										x:Name="Bd"
 										Margin="0"
+                                        CornerRadius="0 0 5 5"
 										Background="{TemplateBinding Background}"
 										BorderBrush="{DynamicResource {x:Static reskeys:ResourceKeys.PanelBorderBrush}}">
 										<ContentPresenter
@@ -551,6 +554,7 @@
 					<Border
 						Background="{TemplateBinding Background}"
 						BorderBrush="{TemplateBinding BorderBrush}"
+                        CornerRadius="5 5 0 0"
 						BorderThickness="{TemplateBinding BorderThickness}">
 						<Grid Margin="2,3">
 							<Grid.ColumnDefinitions>

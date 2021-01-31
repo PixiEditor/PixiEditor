@@ -349,7 +349,7 @@
 	<SolidColorBrush
 		x:Key="{x:Static reskeys:ResourceKeys.ToolWindowTabUnselectedHoveredText}"
 		options:Freeze="true"
-		Color="Gray" />
+		Color="#EEEEEE" />
 
 	<!--  Floating Document Window  -->
 	<SolidColorBrush
