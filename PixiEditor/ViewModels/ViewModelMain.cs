@@ -57,6 +57,8 @@ namespace PixiEditor.ViewModels
 
         public MiscViewModel MiscSubViewModel { get; set; }
 
+        public DiscordViewModel DiscordViewModel { get; set; }
+
         public BitmapManager BitmapManager { get; set; }
 
         public PixelChangesController ChangesController { get; set; }
@@ -89,6 +91,7 @@ namespace PixiEditor.ViewModels
             ColorsSubViewModel = new ColorsViewModel(this);
             DocumentSubViewModel = new DocumentViewModel(this);
             MiscSubViewModel = new MiscViewModel(this);
+            DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
 
             ShortcutController = new ShortcutController
             {

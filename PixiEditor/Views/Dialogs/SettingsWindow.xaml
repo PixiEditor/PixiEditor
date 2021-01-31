@@ -3,10 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:views="clr-namespace:PixiEditor.Views" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:views="clr-namespace:PixiEditor.Views" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
-        Height="450" Width="800" WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
+        Height="600" Width="800"
+        MinHeight="350" MinWidth="600"
+        WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
         BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
@@ -46,6 +48,8 @@
                     Command="{Binding SelectCategoryCommand}" CommandParameter="General">General</Button>
             <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
                     Command="{Binding SelectCategoryCommand}" CommandParameter="Updates">Updates</Button>
+            <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
+                    Command="{Binding SelectCategoryCommand}" CommandParameter="Discord">Discord</Button>
         </StackPanel>
         <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource AccentColor}">
             <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
@@ -71,6 +75,19 @@
                     <Label Style="{StaticResource Header1}" Content="Auto-updates"/>
                     <StackPanel Orientation="Vertical" Margin="50 0 50 0">
                         <CheckBox IsChecked="{Binding SettingsSubViewModel.CheckUpdatesOnStartup}" Content="Check updates on startup"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            ConverterParameter='Discord'}">
+                <StackPanel Orientation="Vertical">
+                    <Label Style="{StaticResource Header1}" Content="Rich Presence"/>
+                    <StackPanel Orientation="Vertical" Margin="50 0 50 0">
+                        <CheckBox Margin="5" IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" Content="Enabled"/>
+                        <CheckBox Margin="5" IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}" Content="Show Document Name"/>
+                        <CheckBox Margin="5" IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentSize}" Content="Show Document Size"/>
+                        <CheckBox Margin="5" IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" IsChecked="{Binding SettingsSubViewModel.Discord.ShowLayerCount}" Content="Show Layer Count"/>
+                        <usercontrols:DiscordRPPreview Margin="5" State="{Binding SettingsSubViewModel.Discord.StatePreview}" Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}" Width="280" IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>

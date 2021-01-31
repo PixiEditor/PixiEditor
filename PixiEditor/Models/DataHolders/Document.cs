@@ -25,6 +25,8 @@ namespace PixiEditor.Models.DataHolders
         private int height;
         private int width;
 
+        private DateTime openedUtc = DateTime.UtcNow;
+
         public Document(int width, int height)
         {
             Width = width;
@@ -114,6 +116,11 @@ namespace PixiEditor.Models.DataHolders
                 height = value;
                 RaisePropertyChanged("Height");
             }
+        }
+
+        public DateTime OpenedUTC
+        {
+            get => openedUtc;
         }
 
         private Selection selection = new Selection(Array.Empty<Coordinates>());
