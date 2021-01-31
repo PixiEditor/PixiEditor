@@ -35,13 +35,9 @@ namespace PixiEditor.Models.ImageManipulation
         /// </summary>
         /// <param name="layers">Layers to combine.</param>
         /// <param name="width">Width of final bitmap.</param>
-        /// <param name="height">Height of final bitmap.</param>
-        /// <param name="stepX">Width precision, determinates how much pixels per row to calculate.
-        /// Ex. layer width = 500, stepX = 5, output image would be 50px wide. So to fill all space, width would need to be 50.</param>
-        /// /// <param name="stepY">Height precision, determinates how much pixels per column to calculate.
-        /// Ex. layer height = 500, stepY = 5, output image would be 50px high. So to fill all space, height would need to be 50.</param>
+        /// <param name="height">Height of final bitmap.</param>        
         /// <returns>WriteableBitmap of layered bitmaps.</returns>
-        public static WriteableBitmap CombineLayers(Layer[] layers, int width, int height, int stepX = 1, int stepY = 1)
+        public static WriteableBitmap CombineLayers(Layer[] layers, int width, int height)
         {
             WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
 
@@ -50,14 +46,16 @@ namespace PixiEditor.Models.ImageManipulation
                 for (int i = 0; i < layers.Length; i++)
                 {
                     float layerOpacity = layers[i].Opacity;
-                    for (int y = 0; y < finalBitmap.Height; y += stepY)
+                    Layer layer = layers[i];
+
+                    for (int y = 0; y < layers[i].Height; y++)
                     {
-                        for (int x = 0; x < finalBitmap.Width; x += stepX)
+                        for (int x = 0; x < layers[i].Width; x++)
                         {
-                            Color color = layers[i].GetPixelWithOffset(x, y);
+                            Color color = layer.GetPixel(x, y);
                             if (i > 0 && ((color.A < 255 && color.A > 0) || (layerOpacity < 1f && layerOpacity > 0 && color.A > 0)))
                             {
-                                var lastLayerPixel = finalBitmap.GetPixel(x, y);
+                                var lastLayerPixel = finalBitmap.GetPixel(x + layer.OffsetX, y + layer.OffsetY);
                                 byte pixelA = (byte)(color.A * layerOpacity);
                                 byte r = (byte)((color.R * pixelA / 255) + (lastLayerPixel.R * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
                                 byte g = (byte)((color.G * pixelA / 255) + (lastLayerPixel.G * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
@@ -72,7 +70,7 @@ namespace PixiEditor.Models.ImageManipulation
 
                             if (color.A > 0)
                             {
-                                finalBitmap.SetPixel(x, y, color);
+                                finalBitmap.SetPixel(x + layer.OffsetX, y + layer.OffsetY, color);
                             }
                         }
                     }
@@ -82,21 +80,30 @@ namespace PixiEditor.Models.ImageManipulation
             return finalBitmap;
         }
 
+        /// <summary>
+        /// Generates simplified preview from Document, very fast, great for creating small previews. Creates uniform streched image.
+        /// </summary>
+        /// <param name="document">Document which be used to generate preview.</param>
+        /// <param name="maxPreviewWidth">Max width of preview.</param>
+        /// <param name="maxPreviewHeight">Max height of preview.</param>
+        /// <returns>WriteableBitmap image.</returns>
         public static WriteableBitmap GeneratePreviewBitmap(Document document, int maxPreviewWidth, int maxPreviewHeight)
         {
-            int stepX = 1;
-            int stepY = 1;
-            int targetWidth = document.Width;
-            int targetHeight = document.Height;
-            if (document.Width > maxPreviewWidth || document.Height > maxPreviewHeight)
+            WriteableBitmap previewBitmap = BitmapFactory.New(document.Width, document.Height);
+
+            // 0.8 because blit doesn't take into consideration layer opacity. Small images with opacity > 80% are simillar enough.
+            foreach (var layer in document.Layers.Where(x => x.IsVisible && x.Opacity > 0.8f))
             {
-                stepX = (int)Math.Floor((float)document.Width / maxPreviewWidth);
-                stepY = (int)Math.Floor((float)document.Height / maxPreviewHeight);
-                targetWidth = maxPreviewWidth;
-                targetHeight = maxPreviewHeight;
+                previewBitmap.Blit(
+                    new Rect(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height),
+                    layer.LayerBitmap,
+                    new Rect(0, 0, layer.Width, layer.Height));
             }
 
-            return CombineLayers(document.Layers.ToArray(), document.Width, document.Height, stepX, stepY);
+            int width = document.Width >= document.Height ? maxPreviewWidth : document.Width / (document.Height / maxPreviewHeight);
+            int height = document.Height > document.Width ? maxPreviewHeight : document.Height / (document.Width / maxPreviewWidth);
+
+            return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
         }
 
         public static Dictionary<Layer, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)

@@ -16,8 +16,8 @@
                 <ResourceDictionary Source="Styles/ImageCheckBoxStyle.xaml" />
                 <ResourceDictionary Source="Styles/DarkCheckboxStyle.xaml" />
                 <ResourceDictionary Source="Styles/LabelStyles.xaml" />
-                <ResourceDictionary Source="Styles/AvalonDock/DarkBrushs.xaml" />
-                <ResourceDictionary Source="Styles/AvalonDock/Themes/Menu/DarkBrushs.xaml" />
+                <ResourceDictionary Source="Styles/AvalonDock/DarkBrushes.xaml" />
+                <ResourceDictionary Source="Styles/AvalonDock/Themes/Menu/DarkBrushes.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/OverlayButtons.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/Themes/Menu/MenuItem.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/Themes/Icons/IconGeometry.xaml" />

@@ -7,7 +7,7 @@
 	xmlns:avalonDockProperties="clr-namespace:AvalonDock.Properties;assembly=AvalonDock"
 	xmlns:reskeys="clr-namespace:PixiEditor.Styles.AvalonDock.Themes"
     xmlns:ex="clr-namespace:PixiEditor.Helpers.Extensions"
-	xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=AvalonDock" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters">
+	xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=AvalonDock">
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="/Styles/AvalonDock/OverlayButtons.xaml" />
         <ResourceDictionary Source="/Styles/AvalonDock/Themes/Menu/MenuItem.xaml" />
