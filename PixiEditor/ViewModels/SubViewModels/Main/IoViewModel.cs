@@ -38,7 +38,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             Owner.BitmapManager.MouseController.MouseUp(new MouseEventArgs(
                 Mouse.PrimaryDevice,
-                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));         
+                (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
         }
 
         public void KeyDown(object parameter)

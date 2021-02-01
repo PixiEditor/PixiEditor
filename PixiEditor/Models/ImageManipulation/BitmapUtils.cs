@@ -100,8 +100,8 @@ namespace PixiEditor.Models.ImageManipulation
                     new Rect(0, 0, layer.Width, layer.Height));
             }
 
-            int width = document.Width >= document.Height ? maxPreviewWidth : document.Width / (document.Height / maxPreviewHeight);
-            int height = document.Height > document.Width ? maxPreviewHeight : document.Height / (document.Width / maxPreviewWidth);
+            int width = document.Width >= document.Height ? maxPreviewWidth : (int)Math.Ceiling(document.Width / ((float)document.Height / maxPreviewHeight));
+            int height = document.Height > document.Width ? maxPreviewHeight : (int)Math.Ceiling(document.Height / ((float)document.Width / maxPreviewWidth));
 
             return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
         }

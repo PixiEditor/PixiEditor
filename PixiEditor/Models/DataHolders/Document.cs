@@ -59,11 +59,11 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private WriteableBitmap _previewImage;
+        private WriteableBitmap previewImage;
 
         public WriteableBitmap PreviewImage
         {
-            get => _previewImage;
+            get => previewImage;
         }
 
         private string documentFilePath = string.Empty;
@@ -226,7 +226,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void UpdatePreviewImage()
         {
-            _previewImage = BitmapUtils.GeneratePreviewBitmap(this, 30, 20);
+            previewImage = BitmapUtils.GeneratePreviewBitmap(this, 30, 20);
             RaisePropertyChanged(nameof(PreviewImage));
         }
 
