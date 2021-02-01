@@ -244,7 +244,7 @@
 							Background="{TemplateBinding Background}"
 							BorderBrush="{DynamicResource {x:Static reskeys:ResourceKeys.PanelBorderBrush}}"
 							BorderThickness="1,0,1,1"
-                            CornerRadius="5 0 5 5"
+                            CornerRadius="0 0 5 5"
 							KeyboardNavigation.DirectionalNavigation="Contained"
 							KeyboardNavigation.TabIndex="2"
 							KeyboardNavigation.TabNavigation="Cycle">
@@ -283,7 +283,8 @@
 							<Setter TargetName="BD" Property="BorderBrush" Value="Transparent" />
 							<Setter TargetName="ContentPanel" Property="Visibility" Value="Collapsed" />
 							<Setter TargetName="MenuDropDownButton" Property="Visibility" Value="Collapsed" />
-						</DataTrigger>
+                            <Setter TargetName="ContentPanel" Property="CornerRadius" Value="5"/>
+                        </DataTrigger>
 					</ControlTemplate.Triggers>
 				</ControlTemplate>
 			</Setter.Value>
@@ -317,11 +318,11 @@
 										SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                 </Grid>
 								<ControlTemplate.Triggers>
-									<Trigger Property="Selector.IsSelected" Value="true">
-										<Setter Property="Panel.ZIndex" Value="1" />
-									</Trigger>
+                                    <Trigger Property="Selector.IsSelected" Value="true">
+                                        <Setter Property="Panel.ZIndex" Value="1" />
+                                    </Trigger>
 
-									<!--  Document Well : Tab / Selected, active  -->
+                                    <!--  Document Well : Tab / Selected, active  -->
 									<DataTrigger Binding="{Binding IsActive}" Value="True">
 										<Setter TargetName="Bd" Property="Background" Value="{DynamicResource {x:Static reskeys:ResourceKeys.DocumentWellTabSelectedActiveBackground}}" />
 										<Setter Property="Foreground" Value="{DynamicResource {x:Static reskeys:ResourceKeys.DocumentWellTabSelectedActiveText}}" />
@@ -432,10 +433,10 @@
 							KeyboardNavigation.TabIndex="1" />
 					</Grid>
 					<ControlTemplate.Triggers>
-						<Trigger Property="IsEnabled" Value="false">
-							<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
-						</Trigger>
-					</ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
