@@ -213,7 +213,7 @@
                     <avalondock:LayoutRoot x:Name="LayoutRoot">
                         <LayoutPanel Orientation="Horizontal">
                             <LayoutDocumentPane/>
-                            <LayoutPanel Orientation="Vertical" DockWidth="290">
+                            <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="290">
                                 <LayoutAnchorablePane>
                                 <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
                                                              CanClose="False" CanAutoHide="False"
@@ -345,7 +345,7 @@
                                         </Grid>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
-                            </LayoutPanel>
+                            </LayoutAnchorablePaneGroup>
                         </LayoutPanel>
                     </avalondock:LayoutRoot>
                 </DockingManager>

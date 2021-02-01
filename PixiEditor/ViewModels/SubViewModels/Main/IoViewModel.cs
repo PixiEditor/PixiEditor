@@ -91,7 +91,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandParameter.</param>
         private void MouseMove(object parameter)
         {
-            if (Owner.BitmapManager.ActiveDocument == null) return;
+            if (Owner.BitmapManager.ActiveDocument == null)
+            {
+                return;
+            }
+
             Coordinates cords = new Coordinates(
                 (int)Owner.BitmapManager.ActiveDocument.MouseXOnCanvas,
                 (int)Owner.BitmapManager.ActiveDocument.MouseYOnCanvas);
