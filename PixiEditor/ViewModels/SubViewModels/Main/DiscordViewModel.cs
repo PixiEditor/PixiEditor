@@ -1,11 +1,7 @@
-﻿using DiscordRPC;
+﻿using System;
+using DiscordRPC;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -90,6 +86,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             PreferencesSettings.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
             PreferencesSettings.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
             PreferencesSettings.AddCallback(nameof(ShowLayerCount), x => ShowLayerCount = (bool)x);
+
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => Enabled = false;
         }
 
         public void Start()
@@ -150,6 +148,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 Details = "Staring at absolutely",
                 State = "nothing",
+                Buttons = new Button[]
+                {
+                    new Button() { Label = "Download PixiEditor", Url = "https://www.github.com/PixiEditor/PixiEditor/releases/latest" },
+                    new Button() { Label = "Watch trailer", Url = "https://youtu.be/QKnXBUY0Pqk" }
+                },
 
                 Assets = new Assets
                 {
@@ -203,7 +206,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         ~DiscordViewModel()
         {
-            Stop();
+            Enabled = false;
         }
     }
 }
