@@ -45,7 +45,7 @@ Follow these instructions to get PixiEditor working on your machine.
 
 ## Featured content
 
-### VPixiEditor 0.1.4 Trailer
+### PixiEditor 0.1.4 Trailer
 
 [![Trailer](https://img.youtube.com/vi/QKnXBUY0Pqk/0.jpg)](https://www.youtube.com/watch?v=QKnXBUY0Pqk)
 
