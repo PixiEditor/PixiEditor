@@ -43,6 +43,16 @@ Follow these instructions to get PixiEditor working on your machine.
 3. Follow installer instructions
 
 
+## Featured content
+
+### VPixiEditor 0.1.4 Trailer
+
+[![Trailer](https://img.youtube.com/vi/QKnXBUY0Pqk/0.jpg)](https://www.youtube.com/watch?v=QKnXBUY0Pqk)
+
+### Pixel Art Timelapse - "Bog Landscape" | PixiEditor
+
+[![Landscape timelapse](https://img.youtube.com/vi/bzC-wy6HCB8/0.jpg)](https://www.youtube.com/watch?v=bzC-wy6HCB8)
+
 
 ## Support
 
