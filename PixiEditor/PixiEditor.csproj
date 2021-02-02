@@ -27,6 +27,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Styles\AvalonDock\Images\**" />
+    <EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
+    <None Remove="Styles\AvalonDock\Images\**" />
+    <Page Remove="Styles\AvalonDock\Images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
@@ -46,7 +53,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.50.0" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.1" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>

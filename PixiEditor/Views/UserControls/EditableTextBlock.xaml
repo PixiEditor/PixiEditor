@@ -10,13 +10,14 @@
         <converters:OppositeVisibilityConverter x:Key="OppositeVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
-        <TextBlock Foreground="Snow" MouseDown="TextBlock_MouseDown"
+        <TextBlock Foreground="Snow" MouseLeftButtonDown="TextBlock_MouseDown"
+                   TextTrimming="CharacterEllipsis"
                    Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
                    Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" />
         <TextBox Style="{StaticResource DarkTextBoxStyle}"
-                 LostFocus="TextBox_LostFocus"
+                 LostFocus="TextBox_LostFocus" 
                  Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
-                 KeyDown="TextBox_KeyDown"
+                 KeyDown="TextBox_KeyDown"                 
                  LostKeyboardFocus="textBox_LostKeyboardFocus"
                  Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, 
             Converter={StaticResource OppositeVisibilityConverter}}"

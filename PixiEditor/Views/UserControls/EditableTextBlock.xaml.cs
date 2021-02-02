@@ -32,6 +32,7 @@ namespace PixiEditor.Views
             DependencyProperty.Register("IsEditing", typeof(bool), typeof(EditableTextBlock),
                 new PropertyMetadata(OnIsEditingChanged));
 
+
         public EditableTextBlock()
         {
             InitializeComponent();
@@ -39,29 +40,20 @@ namespace PixiEditor.Views
 
         public Visibility TextBlockVisibility
         {
-            get => (Visibility) GetValue(TextBlockVisibilityProperty);
+            get => (Visibility)GetValue(TextBlockVisibilityProperty);
             set => SetValue(TextBlockVisibilityProperty, value);
         }
 
         public bool IsEditing
         {
-            get => (bool) GetValue(EnableEditingProperty);
+            get => (bool)GetValue(EnableEditingProperty);
             set => SetValue(EnableEditingProperty, value);
         }
 
         public string Text
         {
-            get => (string) GetValue(TextProperty);
+            get => (string)GetValue(TextProperty);
             set => SetValue(TextProperty, value);
-        }
-
-        private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if ((bool) e.NewValue)
-            {
-                EditableTextBlock tb = (EditableTextBlock) d;
-                tb.EnableEditing();
-            }
         }
 
         public void EnableEditing()
@@ -73,17 +65,25 @@ namespace PixiEditor.Views
             textBox.SelectAll();
         }
 
-        private void DisableEditing()
+        public void DisableEditing()
         {
             TextBlockVisibility = Visibility.Visible;
             ShortcutController.BlockShortcutExecution = false;
             IsEditing = false;
         }
 
+        private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool)e.NewValue)
+            {
+                EditableTextBlock tb = (EditableTextBlock)d;
+                tb.EnableEditing();
+            }
+        }
 
         private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2)
+            if (e.ClickCount == 2)
             {
                 EnableEditing();
             }

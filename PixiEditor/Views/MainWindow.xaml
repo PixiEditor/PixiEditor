@@ -10,7 +10,8 @@
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
+        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
@@ -61,7 +62,6 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="45" />
             <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="290" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -147,8 +147,10 @@
                         Command="{x:Static SystemCommands.CloseWindowCommand}" />
             </StackPanel>
         </DockPanel>
-        <StackPanel Background="{StaticResource AccentColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
+        <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
                      Grid.Row="1">
+            <Label Style="{StaticResource BaseLabel}" Margin="10,0,0,0" FontSize="12" VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.ToolName}"/>
+            <Label Style="{StaticResource BaseLabel}" Padding="0" FontSize="12" VerticalAlignment="Center" Content="tool"/>
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -167,22 +169,28 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="2" Background="#303030" Margin="0,7,5,0">
+        <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
             <Grid>
-                <avalondock:DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
+                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
-                    <avalondock:DockingManager.Theme>
-                        <avalondock:Vs2013DarkTheme/>
-                    </avalondock:DockingManager.Theme>
-                    <avalondock:DockingManager.LayoutItemContainerStyle>
-                        <Style TargetType="{x:Type avalondock:LayoutItem}">
-                            <Setter Property="Title" Value="{Binding Model.Name}" />
-                            <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
-                        </Style>
-                    </avalondock:DockingManager.LayoutItemContainerStyle>
-                    <avalondock:DockingManager.LayoutItemTemplate>
-                        <DataTemplate DataType="{x:Type vm:ViewModelMain}">
-                            <usercontrols:DrawingViewPort
+                    <DockingManager.Theme>
+                        <avalonDockTheme:PixiEditorDockTheme />
+                    </DockingManager.Theme>
+                    <avalondock:DockingManager.LayoutItemContainerStyleSelector>
+                        <ui:PanelsStyleSelector>
+                            <ui:PanelsStyleSelector.DocumentTabStyle>
+                                <Style TargetType="{x:Type avalondock:LayoutItem}">
+                                    <Setter Property="Title" Value="{Binding Model.Name}" />
+                                    <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
+                                </Style>
+                            </ui:PanelsStyleSelector.DocumentTabStyle>
+                        </ui:PanelsStyleSelector>
+                    </avalondock:DockingManager.LayoutItemContainerStyleSelector>
+                    <DockingManager.LayoutItemTemplateSelector>
+                        <ui:DocumentsTemplateSelector>
+                            <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
+                                <DataTemplate DataType="{x:Type vm:ViewModelMain}">
+                                    <usercontrols:DrawingViewPort
                                         ZoomPercentage="{Binding ZoomPercentage}"
                                         RecenterZoombox="{Binding RecenterZoombox}"
                                         Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
@@ -192,15 +200,155 @@
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="PreviewMouseDown">
-                                        <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </usercontrols:DrawingViewPort>
-                        </DataTemplate>
-                    </avalondock:DockingManager.LayoutItemTemplate>
-                </avalondock:DockingManager>
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="PreviewMouseDown">
+                                                <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </usercontrols:DrawingViewPort>
+                                </DataTemplate>
+                            </ui:DocumentsTemplateSelector.DocumentsViewTemplate>
+                        </ui:DocumentsTemplateSelector>
+                    </DockingManager.LayoutItemTemplateSelector>
+                    <avalondock:LayoutRoot x:Name="LayoutRoot">
+                        <LayoutPanel Orientation="Horizontal">
+                            <LayoutDocumentPane/>
+                            <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="290">
+                                <LayoutAnchorablePane>
+                                <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
+                                                             CanClose="False" CanAutoHide="False"
+                                                             CanDockAsTabbedDocument="False" CanFloat="True">
+                                    <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
+                                     SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" Style="{StaticResource DefaultColorPickerStyle}" >
+                                        <i:Interaction.Behaviors>
+                                            <behaviours:GlobalShortcutFocusBehavior/>
+                                        </i:Interaction.Behaviors>
+                                    </colorpicker:StandardColorPicker>
+                                </LayoutAnchorable>
+                                <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
+                                                         CanClose="False" CanAutoHide="False"
+                                                         CanDockAsTabbedDocument="False" CanFloat="True">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
+                                                           VerticalAlignment="Top" HorizontalAlignment="Left" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Width="45" Height="45" Margin="0 5 5 5">
+                                                        <Border CornerRadius="5.5" Width="44" Height="44">
+                                                            <Border.Background>
+                                                                <ImageBrush ImageSource="../Images/transparentbg.png"
+                                                                        Stretch="UniformToFill">
+                                                                    <ImageBrush.RelativeTransform>
+                                                                        <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
+                                                                                    CenterY="0.5" />
+                                                                    </ImageBrush.RelativeTransform>
+                                                                </ImageBrush>
+                                                            </Border.Background>
+                                                        </Border>
+                                                        <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
+                                                            <Border.Background>
+                                                                <SolidColorBrush Color="{Binding}" />
+                                                            </Border.Background>
+                                                        </Border>
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="MouseDown">
+                                                                <i:InvokeCommandAction
+                                                                Command="{Binding
+                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ColorsSubViewModel.SelectColorCommand}"
+                                                                CommandParameter="{Binding}" />
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                        <Grid.ContextMenu>
+                                                            <ContextMenu>
+                                                                <MenuItem Header="Remove" Foreground="White"
+                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
+                                                                      CommandParameter="{Binding}" />
+                                                            </ContextMenu>
+                                                        </Grid.ContextMenu>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </avalondock:LayoutAnchorable>
+                            </LayoutAnchorablePane>
+                                <LayoutAnchorablePane>
+                                    <LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
+                                                         CanClose="False" CanAutoHide="False"
+                                                         CanDockAsTabbedDocument="True" CanFloat="True">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="40"/>
+                                                <RowDefinition Height="30"/>
+                                                <RowDefinition Height="15"/>
+                                                <RowDefinition Height="1*"/>
+                                            </Grid.RowDefinitions>
+                                            <Button Grid.Row="0" Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
+                                            HorizontalAlignment="Stretch" Margin="5"
+                                            Style="{StaticResource DarkRoundButton}" />
+                                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
+                                                <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
+                                                <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
+                                                         Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
+                                            Converter={StaticResource FloatNormalizeConverter}}" />
+                                                <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
+                                            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
+                                                      x:Name="layersItemsControl" AlternationCount="9999">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <ui:ReversedOrderStackPanel Orientation="Vertical" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
+                                                                   LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
+                                                                   IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
+                                                                   PreviewImage="{Binding LayerBitmap}"
+                                                                   MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
+                                                                   MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
+                                                                <vws:LayerItem.ContextMenu>
+                                                                    <ContextMenu>
+                                                                        <MenuItem Header="Delete"
+                                                                                  Command="{Binding LayersSubViewModel.DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <MenuItem Header="Rename"
+                                                                                  Command="{Binding LayersSubViewModel.RenameLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <MenuItem Header="Move to front"
+                                                                                  Command="{Binding LayersSubViewModel.MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <MenuItem Header="Move to back"
+                                                                                  Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                    </ContextMenu>
+                                                                </vws:LayerItem.ContextMenu>
+                                                            </vws:LayerItem>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </Grid>
+                                    </LayoutAnchorable>
+                                </LayoutAnchorablePane>
+                            </LayoutAnchorablePaneGroup>
+                        </LayoutPanel>
+                    </avalondock:LayoutRoot>
+                </DockingManager>
             </Grid>
         </Grid>
 
@@ -225,149 +373,20 @@
             </ItemsControl>
         </StackPanel>
 
-        <Grid Grid.Column="2" Background="{StaticResource AccentColor}" Grid.Row="2" Grid.RowSpan="1">
+        <!--<Grid Grid.Column="2" Background="{StaticResource AccentColor}" Grid.Row="2" Grid.RowSpan="1">
             <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0">
-                <avalondock:LayoutRoot x:Name="LayoutRoot">
-                    <avalondock:LayoutPanel Orientation="Vertical">
-                        <LayoutAnchorablePane DockHeight="1.3*" DockWidth="*">
-                            <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
-                                                             CanClose="False" CanAutoHide="False"
-                                                             CanDockAsTabbedDocument="True" CanFloat="True">
-                                <colorpicker:StandardColorPicker Grid.Row="0" SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
-                                     SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" Style="{StaticResource DefaultColorPickerStyle}" >
-                                    <i:Interaction.Behaviors>
-                                        <behaviours:GlobalShortcutFocusBehavior/>
-                                    </i:Interaction.Behaviors>
-                                </colorpicker:StandardColorPicker>
-                            </LayoutAnchorable>
-                            <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
-                                                         CanClose="False" CanAutoHide="False"
-                                                         CanDockAsTabbedDocument="False" CanFloat="True">
-                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                              VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
-                                                           VerticalAlignment="Top" HorizontalAlignment="Left" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Width="45" Height="45" Margin="0 5 5 5">
-                                                    <Border CornerRadius="5.5" Width="44" Height="44">
-                                                        <Border.Background>
-                                                            <ImageBrush ImageSource="../Images/transparentbg.png"
-                                                                        Stretch="UniformToFill">
-                                                                <ImageBrush.RelativeTransform>
-                                                                    <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
-                                                                                    CenterY="0.5" />
-                                                                </ImageBrush.RelativeTransform>
-                                                            </ImageBrush>
-                                                        </Border.Background>
-                                                    </Border>
-                                                    <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
-                                                        <Border.Background>
-                                                            <SolidColorBrush Color="{Binding}" />
-                                                        </Border.Background>
-                                                    </Border>
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="MouseDown">
-                                                            <i:InvokeCommandAction
-                                                                Command="{Binding
-                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ColorsSubViewModel.SelectColorCommand}"
-                                                                CommandParameter="{Binding}" />
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <Grid.ContextMenu>
-                                                        <ContextMenu>
-                                                            <MenuItem Header="Remove" Foreground="White"
-                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
-                                                                      CommandParameter="{Binding}" />
-                                                        </ContextMenu>
-                                                    </Grid.ContextMenu>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                            </avalondock:LayoutAnchorable>
-                        </LayoutAnchorablePane>
-                        <avalondock:LayoutAnchorablePane>
-                            <avalondock:LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
-                                                         CanClose="False" CanAutoHide="False"
-                                                         CanDockAsTabbedDocument="True" CanFloat="True">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="40"/>
-                                        <RowDefinition Height="30"/>
-                                        <RowDefinition Height="15"/>
-                                        <RowDefinition Height="1*"/>
-                                    </Grid.RowDefinitions>
-                                    <Button Grid.Row="0" Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
-                                            HorizontalAlignment="Stretch" Margin="5"
-                                            Style="{StaticResource DarkRoundButton}" />
-                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
-                                        <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
-                                        <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
-                                                         Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
-                                            Converter={StaticResource FloatNormalizeConverter}}" />
-                                        <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                    <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
-                                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-                                        <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
-                                                      x:Name="layersItemsControl" AlternationCount="9999">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <ui:ReversedOrderStackPanel Orientation="Vertical" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
-                                                                   LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
-                                                                   IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                                                   MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
-                                                                   MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
-                                                        <vws:LayerItem.ContextMenu>
-                                                            <ContextMenu>
-                                                                <MenuItem Header="Delete"
-                                                                                  Command="{Binding LayersSubViewModel.DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                <MenuItem Header="Rename"
-                                                                                  Command="{Binding LayersSubViewModel.RenameLayerCommand, Source={StaticResource ViewModelMain}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                <MenuItem Header="Move to front"
-                                                                                  Command="{Binding LayersSubViewModel.MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                <MenuItem Header="Move to back"
-                                                                                  Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                            </ContextMenu>
-                                                        </vws:LayerItem.ContextMenu>
-                                                    </vws:LayerItem>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                </Grid>
-                            </avalondock:LayoutAnchorable>
-                        </avalondock:LayoutAnchorablePane>
-                        
-                    </avalondock:LayoutPanel>
-                </avalondock:LayoutRoot>
+
                 <avalondock:DockingManager.Theme>
-                    <avalondock:Vs2013DarkTheme />
+                    <avalonDockTheme:PixiEditorDockTheme />
                 </avalondock:DockingManager.Theme>
             </avalondock:DockingManager>
-        </Grid>
-        <DockPanel Grid.Row="3" Grid.Column="1">
+        </Grid>-->
+        <Grid Grid.Row="3" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="290"/>
+            </Grid.ColumnDefinitions>
+            <DockPanel>
             <TextBlock Text="{Binding BitmapManager.SelectedTool.ActionDisplay}" Foreground="White" FontSize="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="X:" Foreground="White" FontSize="16"/>
@@ -384,5 +403,6 @@
             <TextBlock VerticalAlignment="Center" Padding="10" HorizontalAlignment="Right"
                        Foreground="White" FontSize="14"  Text="{Binding UpdateSubViewModel.VersionText}" />
         </StackPanel>
+        </Grid>
     </Grid>
 </Window>
