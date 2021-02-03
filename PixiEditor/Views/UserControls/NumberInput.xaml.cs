@@ -1,9 +1,9 @@
-﻿using PixiEditor.Models.Controllers.Shortcuts;
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Views
 {
@@ -32,9 +32,11 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty MaxProperty =
             DependencyProperty.Register(
                 "Max",
-                typeof(float), 
+                typeof(float),
                 typeof(NumberInput),
                 new PropertyMetadata(float.PositiveInfinity));
+
+        private Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$");
 
         public NumberInput()
         {
@@ -53,7 +55,6 @@ namespace PixiEditor.Views
             set => SetValue(MinProperty, value);
         }
 
-
         public float Max
         {
             get => (float)GetValue(MaxProperty);
@@ -68,7 +69,6 @@ namespace PixiEditor.Views
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$");
             e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
         }
     }

@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="uc"
              MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
     <UserControl.Resources>
