@@ -28,6 +28,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             {
                 Style = (Style)resourceDictionary["DefaultColorPickerStyle"]
             };
+
             Binding binding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay

@@ -13,7 +13,7 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class ToolSettingColorPicker : UserControl
     {
-        public static DependencyProperty SelectedColorProperty =
+        public static readonly DependencyProperty SelectedColorProperty =
             DependencyProperty.Register(nameof(SelectedColor), typeof(Color), typeof(ToolSettingColorPicker));
 
         public Color SelectedColor
@@ -37,6 +37,7 @@ namespace PixiEditor.Views
         public ToolSettingColorPicker()
         {
             InitializeComponent();
+            ColorPicker.SecondaryColor = Colors.Black;
 
             CopyMainColorCommand = new RelayCommand(CopyMainColor);
         }
