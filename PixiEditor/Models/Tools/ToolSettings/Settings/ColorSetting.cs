@@ -4,6 +4,7 @@ using System.Windows.Interactivity;
 using System.Windows.Media;
 using ColorPicker;
 using PixiEditor.Helpers.Behaviours;
+using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -17,16 +18,15 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Value = Color.FromArgb(255, 255, 255, 255);
         }
 
-        private PortableColorPicker GenerateColorPicker()
+        private ToolSettingColorPicker GenerateColorPicker()
         {
             var resourceDictionary = new ResourceDictionary();
             resourceDictionary.Source = new System.Uri(
                 "pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml",
                 System.UriKind.RelativeOrAbsolute);
-            PortableColorPicker picker = new PortableColorPicker
+            ToolSettingColorPicker picker = new ToolSettingColorPicker
             {
-                Style = (Style)resourceDictionary["DefaultColorPickerStyle"],
-                SecondaryColor = System.Windows.Media.Colors.Black
+                Style = (Style)resourceDictionary["DefaultColorPickerStyle"]
             };
             Binding binding = new Binding("Value")
             {
@@ -34,7 +34,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             };
             GlobalShortcutFocusBehavior behavor = new GlobalShortcutFocusBehavior();
             Interaction.GetBehaviors(picker).Add(behavor);
-            picker.SetBinding(PortableColorPicker.SelectedColorProperty, binding);
+            picker.SetBinding(ToolSettingColorPicker.SelectedColorProperty, binding);
             return picker;
         }
     }
