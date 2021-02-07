@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
@@ -14,13 +15,22 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
         }
 
+        public event EventHandler<SettingValueChangedEventArgs<T>> ValueChanged;
+
         public new T Value
         {
             get => (T)base.Value;
             set
             {
+                T oldValue = default;
+                if (base.Value != null)
+                {
+                    oldValue = Value;
+                }
+
                 base.Value = value;
-                RaisePropertyChanged("Value");
+                ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<T>(oldValue, Value));
+                RaisePropertyChanged(nameof(Value));
             }
         }
     }

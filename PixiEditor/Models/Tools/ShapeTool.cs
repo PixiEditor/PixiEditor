@@ -18,6 +18,8 @@ namespace PixiEditor.Models.Tools
             Toolbar = new BasicShapeToolbar();
         }
 
+        //TODO: Add cache for lines 31, 32
+
         public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
 
         protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
