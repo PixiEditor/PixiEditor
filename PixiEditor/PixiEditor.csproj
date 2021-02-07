@@ -9,11 +9,11 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <AssemblyName>PixiEditor</AssemblyName>
     <RootNamespace>PixiEditor</RootNamespace>
-    <RepositoryUrl>https://github.com/flabbet/PixiEditor</RepositoryUrl>
+    <RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>icon.ico</PackageIcon>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <Authors>Krzysztof Krysiński</Authors>
+    <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -27,11 +27,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Styles\AvalonDock\Images\**" />
+    <EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
+    <None Remove="Styles\AvalonDock\Images\**" />
+    <Page Remove="Styles\AvalonDock\Images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
+    <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\SelectImage.png" />
     <None Remove="Images\ZoomImage.png" />
@@ -45,7 +53,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.50.0" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.1" />
+    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
     </PackageReference>
@@ -71,6 +80,7 @@
     <Resource Include="Images\MoveViewportImage.png" />
     <Resource Include="Images\PenImage.png" />
     <Resource Include="Images\ColorPickerImage.png" />
+    <Resource Include="Images\PixiBotLogo.png" />
     <Resource Include="Images\PixiEditorLogo.png" />
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />

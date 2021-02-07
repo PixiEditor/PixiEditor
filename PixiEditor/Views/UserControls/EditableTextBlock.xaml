@@ -3,23 +3,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="100">
     <UserControl.Resources>
         <converters:OppositeVisibilityConverter x:Key="OppositeVisibilityConverter" />
     </UserControl.Resources>
     <Grid>
-        <TextBlock Foreground="Snow" MouseDown="TextBlock_MouseDown"
+        <TextBlock Foreground="Snow" MouseLeftButtonDown="TextBlock_MouseDown"
+                   TextTrimming="CharacterEllipsis"
                    Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
                    Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" />
         <TextBox Style="{StaticResource DarkTextBoxStyle}"
-                 LostFocus="TextBox_LostFocus"
+                 LostFocus="TextBox_LostFocus" 
                  Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
-                 KeyDown="TextBox_KeyDown"
+                 KeyDown="TextBox_KeyDown"                 
                  LostKeyboardFocus="textBox_LostKeyboardFocus"
                  Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, 
             Converter={StaticResource OppositeVisibilityConverter}}"
-                 Name="textBox" />
+                 Name="textBox">
+            <i:Interaction.Behaviors>
+                <behaviours:GlobalShortcutFocusBehavior/>
+            </i:Interaction.Behaviors>
+        </TextBox>
     </Grid>
 </UserControl>

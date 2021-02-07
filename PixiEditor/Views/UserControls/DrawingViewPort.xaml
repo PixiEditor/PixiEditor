@@ -30,7 +30,7 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <i:Interaction.Behaviors>
-                <behaviors:MouseBehaviour RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
+                <behaviors:MouseBehavior RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
                                                   MouseX="{Binding MouseXOnCanvas, Mode=TwoWay, ElementName=uc}"
                                                   MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
             </i:Interaction.Behaviors>

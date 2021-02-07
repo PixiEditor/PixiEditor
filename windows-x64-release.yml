@@ -79,7 +79,7 @@ steps:
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.0.5\tools\ISCC.exe" Installer\installer-setup-x64-light.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.1.2\tools\ISCC.exe" Installer\installer-setup-x64-light.iss'
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"

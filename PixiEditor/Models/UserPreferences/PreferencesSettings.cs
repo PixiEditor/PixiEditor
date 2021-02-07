@@ -55,6 +55,14 @@ namespace PixiEditor.Models.UserPreferences
 
             Preferences[name] = value;
 
+            if (Callbacks.ContainsKey(name))
+            {
+                foreach (var action in Callbacks[name])
+                {
+                    action.Invoke(value);
+                }
+            }
+
             Save();
         }
 
@@ -69,6 +77,19 @@ namespace PixiEditor.Models.UserPreferences
         }
 
 #nullable enable
+
+        public static Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
+
+        public static void AddCallback(string setting, Action<object> action)
+        {
+            if (Callbacks.ContainsKey(setting))
+            {
+                Callbacks[setting].Add(action);
+                return;
+            }
+
+            Callbacks.Add(setting, new List<Action<object>>() { action });
+        }
 
         public static T? GetPreference<T>(string name)
         {
