@@ -1,6 +1,6 @@
-﻿using PixiEditor.Models.ImageManipulation;
+﻿using System.Windows.Media.Imaging;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -39,6 +39,5 @@ namespace PixiEditor.Models.DataHolders
                 MaxHeight = Height
             };
         }
-
     }
 }
