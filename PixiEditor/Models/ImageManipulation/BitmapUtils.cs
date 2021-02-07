@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using Color = System.Windows.Media.Color;
 
 namespace PixiEditor.Models.ImageManipulation
 {
@@ -78,7 +79,7 @@ namespace PixiEditor.Models.ImageManipulation
 
             return finalBitmap;
         }
-      
+
       /// <summary>
         /// Generates simplified preview from Document, very fast, great for creating small previews. Creates uniform streched image.
         /// </summary>
@@ -105,7 +106,7 @@ namespace PixiEditor.Models.ImageManipulation
             return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
         }
 
-        public static Dictionary<Layer, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
+        public static Dictionary<Guid, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
         {
             Dictionary<Guid, Color[]> result = new Dictionary<Guid, Color[]>();
 
