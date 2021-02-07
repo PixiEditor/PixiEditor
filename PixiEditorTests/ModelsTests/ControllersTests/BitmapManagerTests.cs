@@ -3,6 +3,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Undo;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests

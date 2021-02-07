@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -78,11 +79,11 @@ namespace PixiEditorTests.ModelsTests.ImageManipulationTests
             layers[0].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[0] }, Colors.Green));
             layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[1] }, Colors.Red));
 
-            Dictionary<Layer, Color[]> output = BitmapUtils.GetPixelsForSelection(layers, cords);
+            Dictionary<Guid, Color[]> output = BitmapUtils.GetPixelsForSelection(layers, cords);
 
             List<Color> colors = new List<Color>();
 
-            foreach (KeyValuePair<Layer, Color[]> layerColor in output.ToArray())
+            foreach (KeyValuePair<Guid, Color[]> layerColor in output.ToArray())
             {
                 foreach (Color color in layerColor.Value)
                 {

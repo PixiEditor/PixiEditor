@@ -6,6 +6,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Controllers

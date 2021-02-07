@@ -1,8 +1,8 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using System.Windows.Media;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
-using System.Windows.Media;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
 {
@@ -10,7 +10,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
     {
         public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
         {
-            return Only(BitmapPixelChanges.FromSingleColoredArray(new[] { mouseMove[0] }, color), 0);
+            return Only(BitmapPixelChanges.FromSingleColoredArray(new[] { mouseMove[0] }, color), layer.LayerGuid);
         }
     }
 }

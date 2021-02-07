@@ -4,8 +4,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Layers
 {
@@ -24,7 +27,7 @@ namespace PixiEditor.Models.Layers
 
         private Thickness offset;
 
-        private float opacity = 1;
+        private float opacity = 1f;
 
         public Layer(string name)
         {
@@ -32,6 +35,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = BitmapFactory.New(0, 0);
             Width = 0;
             Height = 0;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Layer(string name, int width, int height)
@@ -40,6 +44,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = BitmapFactory.New(width, height);
             Width = width;
             Height = height;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Layer(string name, WriteableBitmap layerBitmap)
@@ -48,6 +53,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = layerBitmap;
             Width = layerBitmap.PixelWidth;
             Height = layerBitmap.PixelHeight;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Dictionary<Coordinates, Color> LastRelativeCoordinates { get; set; }
@@ -77,8 +83,20 @@ namespace PixiEditor.Models.Layers
             get => isVisible;
             set
             {
-                isVisible = value;
-                RaisePropertyChanged("IsVisible");
+                if (isVisible != value)
+                {
+                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
+                        .AddUndoChange(
+                        new Change(
+                            nameof(IsVisible),
+                            isVisible,
+                            value,
+                            LayerHelper.FindLayerByGuidProcess,
+                            new object[] { LayerGuid },
+                            "Change layer visibility"), true);
+                    isVisible = value;
+                    RaisePropertyChanged("IsVisible");
+                }
             }
         }
 
@@ -107,8 +125,20 @@ namespace PixiEditor.Models.Layers
             get => opacity;
             set
             {
-                opacity = value;
-                RaisePropertyChanged("Opacity");
+                if (opacity != value)
+                {
+                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
+                        .AddUndoChange(
+                            new Change(
+                            nameof(Opacity),
+                            opacity,
+                            value,
+                            LayerHelper.FindLayerByGuidProcess,
+                            new object[] { LayerGuid },
+                            "Change layer opacity"), true);
+                    opacity = value;
+                    RaisePropertyChanged("Opacity");
+                }
             }
         }
 
@@ -133,7 +163,7 @@ namespace PixiEditor.Models.Layers
         /// <summary>
         ///     Returns clone of layer.
         /// </summary>
-        public Layer Clone()
+        public Layer Clone(bool generateNewGuid = false)
         {
             return new Layer(Name, LayerBitmap.Clone())
             {
@@ -143,7 +173,8 @@ namespace PixiEditor.Models.Layers
                 MaxWidth = MaxWidth,
                 Opacity = Opacity,
                 IsActive = IsActive,
-                IsRenaming = IsRenaming
+                IsRenaming = IsRenaming,
+                LayerGuid = generateNewGuid ? Guid.NewGuid() : LayerGuid
             };
         }
 

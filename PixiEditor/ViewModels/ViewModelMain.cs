@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -254,8 +253,8 @@ namespace PixiEditor.ViewModels
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
             ChangesController.AddChanges(
-                new LayerChange(e.PixelsChanged, e.ChangedLayerIndex),
-                new LayerChange(e.OldPixelsValues, e.ChangedLayerIndex));
+                new LayerChange(e.PixelsChanged, e.ChangedLayerGuid),
+                new LayerChange(e.OldPixelsValues, e.ChangedLayerGuid));
             BitmapManager.ActiveDocument.ChangesSaved = false;
             if (BitmapManager.IsOperationTool())
             {
