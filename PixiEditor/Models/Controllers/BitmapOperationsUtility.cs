@@ -202,11 +202,6 @@ namespace PixiEditor.Models.Controllers
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
                 Manager.ActiveDocument.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
 
-                foreach (var modifiedLayer in modifiedLayers)
-                {
-                    modifiedLayer.PixelChanges = modifiedLayer.PixelChanges.RemoveTransparentPixels();
-                }
-
                 if (clearPreviewLayer || previewLayerChanges == null)
                 {
                     previewLayerChanges = new List<LayerChange>(modifiedLayers);
@@ -215,7 +210,9 @@ namespace PixiEditor.Models.Controllers
                 {
                     for (int i = 0; i < modifiedLayers.Length; i++)
                     {
-                        previewLayerChanges.Add(modifiedLayers[i]);
+                        var layer = previewLayerChanges.First(x => x.LayerIndex == modifiedLayers[i].LayerIndex);
+                        layer.PixelChanges.ChangedPixels.AddRangeOverride(modifiedLayers[i].PixelChanges.ChangedPixels);
+                        layer.PixelChanges = layer.PixelChanges.WithoutTransparentPixels();
                     }
                 }
             }

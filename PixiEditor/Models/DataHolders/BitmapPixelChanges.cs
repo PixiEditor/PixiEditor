@@ -89,7 +89,7 @@ namespace PixiEditor.Models.DataHolders
             return new BitmapPixelChanges(dict);
         }
 
-        public BitmapPixelChanges RemoveTransparentPixels()
+        public BitmapPixelChanges WithoutTransparentPixels()
         {
             return new BitmapPixelChanges(ChangedPixels.Where(x => x.Value.A > 0).ToDictionary(y => y.Key, y => y.Value));
         }
