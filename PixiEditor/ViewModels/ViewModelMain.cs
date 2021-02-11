@@ -134,7 +134,10 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.S, FileSubViewModel.ExportFileCommand, modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
                     new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, modifier: ModifierKeys.Control),
                     new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
-                    new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control)
+                    new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
+
+                    // Layers
+                    new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerIndex)
                 }
             };
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;

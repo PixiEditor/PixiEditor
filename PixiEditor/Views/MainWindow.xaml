@@ -335,6 +335,14 @@
                                                                                   Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <MenuItem Header="Merge with above"
+                                                                                  Command="{Binding LayersSubViewModel.MergeWithAboveCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <MenuItem Header="Merge with below"
+                                                                                  Command="{Binding LayersSubViewModel.MergeWithBelowCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
                                                                     </ContextMenu>
                                                                 </vws:LayerItem.ContextMenu>
                                                             </vws:LayerItem>

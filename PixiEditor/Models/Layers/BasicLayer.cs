@@ -30,6 +30,6 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public Guid LayerGuid { get; init; }
+        public Guid LayerGuid { get; protected set; }
     }
 }

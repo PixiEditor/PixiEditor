@@ -16,6 +16,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand MoveToFrontCommand { get; set; }
 
+        public RelayCommand MergeWithAboveCommand { get; set; }
+
+        public RelayCommand MergeWithBelowCommand { get; set; }
+
         public LayersViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -25,6 +29,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             RenameLayerCommand = new RelayCommand(RenameLayer);
+            MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
+            MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
         }
 
         public void NewLayer(object parameter)
@@ -54,7 +60,19 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void RenameLayer(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.Layers[(int)parameter].IsRenaming = true;
+            int? index = (int?)parameter;
+
+            if (index == null)
+            {
+                index = Owner.BitmapManager.ActiveDocument.ActiveLayerIndex;
+            }
+
+            Owner.BitmapManager.ActiveDocument.Layers[index.Value].IsRenaming = true;
+        }
+
+        public bool CanRenameLayer(object parameter)
+        {
+            return Owner.BitmapManager.ActiveDocument != null;
         }
 
         public void MoveLayerToFront(object parameter)
@@ -77,6 +95,30 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public bool CanMoveToBack(object property)
         {
             return (int)property > 0;
+        }
+
+        public void MergeWithAbove(object parameter)
+        {
+            int index = (int)parameter;
+            Owner.BitmapManager.ActiveDocument.MergeLayers(index, index + 1, false);
+        }
+
+        public void MergeWithBelow(object parameter)
+        {
+            int index = (int)parameter;
+            Owner.BitmapManager.ActiveDocument.MergeLayers(index - 1, index, true);
+        }
+
+        public bool CanMergeWithAbove(object propery)
+        {
+            int index = (int)propery;
+            return Owner.DocumentIsNotNull(null) && index != Owner.BitmapManager.ActiveDocument.Layers.Count - 1;
+        }
+
+        public bool CanMergeWithBelow(object propery)
+        {
+            int index = (int)propery;
+            return Owner.DocumentIsNotNull(null) && index != 0;
         }
     }
 }

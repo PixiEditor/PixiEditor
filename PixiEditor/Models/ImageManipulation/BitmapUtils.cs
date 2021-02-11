@@ -35,9 +35,9 @@ namespace PixiEditor.Models.ImageManipulation
         /// </summary>
         /// <param name="layers">Layers to combine.</param>
         /// <param name="width">Width of final bitmap.</param>
-        /// <param name="height">Height of final bitmap.</param>        
+        /// <param name="height">Height of final bitmap.</param>.
         /// <returns>WriteableBitmap of layered bitmaps.</returns>
-        public static WriteableBitmap CombineLayers(Layer[] layers, int width, int height)
+        public static WriteableBitmap CombineLayers(int width, int height, params Layer[] layers)
         {
             WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
 

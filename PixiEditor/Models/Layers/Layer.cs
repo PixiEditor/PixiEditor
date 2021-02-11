@@ -161,6 +161,16 @@ namespace PixiEditor.Models.Layers
         public int MaxHeight { get; set; } = int.MaxValue;
 
         /// <summary>
+        /// Changes Guid of layer.
+        /// </summary>
+        /// <param name="newGuid">Guid to set.</param>
+        /// <remarks>This is potentially destructive operation, use when absolutelly necessary.</remarks>
+        public void ChangeGuid(Guid newGuid)
+        {
+            LayerGuid = newGuid;
+        }
+
+        /// <summary>
         ///     Returns clone of layer.
         /// </summary>
         public Layer Clone(bool generateNewGuid = false)

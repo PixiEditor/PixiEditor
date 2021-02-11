@@ -45,7 +45,7 @@ namespace PixiEditorTests.ModelsTests.ImageManipulationTests
 
             layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[1] }, Colors.Red));
 
-            WriteableBitmap outputBitmap = BitmapUtils.CombineLayers(layers, 2, 2);
+            WriteableBitmap outputBitmap = BitmapUtils.CombineLayers(2, 2, layers);
 
             Assert.Equal(Colors.Green, outputBitmap.GetPixel(0, 0));
             Assert.Equal(Colors.Red, outputBitmap.GetPixel(1, 1));
@@ -61,7 +61,7 @@ namespace PixiEditorTests.ModelsTests.ImageManipulationTests
 
             layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Red));
 
-            WriteableBitmap outputBitmap = BitmapUtils.CombineLayers(layers, 2, 2);
+            WriteableBitmap outputBitmap = BitmapUtils.CombineLayers(2, 2, layers);
 
             Assert.Equal(Colors.Red, outputBitmap.GetPixel(0, 0));
         }

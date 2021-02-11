@@ -124,7 +124,7 @@ namespace PixiEditor.Models.Controllers
 
         public WriteableBitmap GetCombinedLayersBitmap()
         {
-            return BitmapUtils.CombineLayers(ActiveDocument.Layers.Where(x => x.IsVisible).ToArray(), ActiveDocument.Width, ActiveDocument.Height);
+            return BitmapUtils.CombineLayers(ActiveDocument.Width, ActiveDocument.Height, ActiveDocument.Layers.Where(x => x.IsVisible).ToArray());
         }
 
         /// <summary>
