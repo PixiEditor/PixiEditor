@@ -73,6 +73,8 @@ namespace PixiEditor.Models.Tools.Tools
 
                 MovePixelsToCheck(changes);
 
+                changes.ChangedPixels.AddRangeNewOnly(
+                    BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color).ChangedPixels);
                 return changes;
             }
 
