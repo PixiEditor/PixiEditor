@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
@@ -15,7 +17,9 @@ namespace PixiEditor.Models.Controllers
 {
     public class BitmapOperationsUtility
     {
-        private LayerChange[] lastModifiedLayers;
+        public List<LayerChange> PreviewLayerChanges => previewLayerChanges;
+
+        private List<LayerChange> previewLayerChanges;
 
         private Coordinates lastMousePos;
 
@@ -78,26 +82,28 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public void ApplyPreviewLayer()
         {
-            if (lastModifiedLayers == null)
+            if (previewLayerChanges == null)
             {
                 return;
             }
 
-            for (int i = 0; i < lastModifiedLayers.Length; i++)
+            foreach (var modifiedLayer in previewLayerChanges)
             {
-                Layer layer = Manager.ActiveDocument.Layers.FirstOrDefault(x => x.LayerGuid == lastModifiedLayers[i].LayerGuid);
+                Layer layer = Manager.ActiveDocument.Layers.FirstOrDefault(x => x.LayerGuid == modifiedLayer.LayerGuid);
 
                 if (layer != null)
                 {
-                    BitmapPixelChanges oldValues = ApplyToLayer(layer, lastModifiedLayers[i]).PixelChanges;
+                    BitmapPixelChanges oldValues = ApplyToLayer(layer, modifiedLayer).PixelChanges;
 
                     BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(
-                        lastModifiedLayers[i].PixelChanges,
+                        modifiedLayer.PixelChanges,
                         oldValues,
-                        lastModifiedLayers[i].LayerGuid));
+                        modifiedLayer.LayerGuid));
                     Manager.ActiveDocument.GeneratePreviewLayer();
                 }
             }
+
+            previewLayerChanges = null;
         }
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
@@ -124,7 +130,7 @@ namespace PixiEditor.Models.Controllers
             }
             else
             {
-                UseToolOnPreviewLayer(mouseMoveCords);
+                UseToolOnPreviewLayer(mouseMoveCords, tool.ClearPreviewLayerOnEachIteration);
             }
         }
 
@@ -183,19 +189,42 @@ namespace PixiEditor.Models.Controllers
             return new BitmapPixelChanges(values);
         }
 
-        private void UseToolOnPreviewLayer(List<Coordinates> mouseMove)
+        private void UseToolOnPreviewLayer(List<Coordinates> mouseMove, bool clearPreviewLayer = true)
         {
             LayerChange[] modifiedLayers;
             if (mouseMove.Count > 0 && mouseMove[0] != lastMousePos)
             {
-                Manager.ActiveDocument.GeneratePreviewLayer();
+                if (clearPreviewLayer || Manager.ActiveDocument.PreviewLayer == null)
+                {
+                    Manager.ActiveDocument.GeneratePreviewLayer();
+                }
+
                 modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(
                     Manager.ActiveDocument.ActiveLayer,
                     mouseMove.ToArray(),
                     Manager.PrimaryColor);
+
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
                 Manager.ActiveDocument.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
-                lastModifiedLayers = modifiedLayers;
+
+                if (clearPreviewLayer || previewLayerChanges == null)
+                {
+                    previewLayerChanges = new List<LayerChange>(modifiedLayers);
+                }
+                else
+                {
+                    InjectPreviewLayerChanges(modifiedLayers);
+                }
+            }
+        }
+
+        private void InjectPreviewLayerChanges(LayerChange[] modifiedLayers)
+        {
+            for (int i = 0; i < modifiedLayers.Length; i++)
+            {
+                var layer = previewLayerChanges.First(x => x.LayerGuid == modifiedLayers[i].LayerGuid);
+                layer.PixelChanges.ChangedPixels.AddRangeOverride(modifiedLayers[i].PixelChanges.ChangedPixels);
+                layer.PixelChanges = layer.PixelChanges.WithoutTransparentPixels();
             }
         }
     }

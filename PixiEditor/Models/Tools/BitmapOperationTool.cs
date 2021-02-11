@@ -10,6 +10,8 @@ namespace PixiEditor.Models.Tools
     {
         public bool RequiresPreviewLayer { get; set; }
 
+        public bool ClearPreviewLayerOnEachIteration { get; set; } = true;
+
         public bool UseDefaultUndoMethod { get; set; } = true;
 
         private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, Guid.Empty) };
