@@ -1,4 +1,6 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -7,6 +9,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand SetActiveLayerCommand { get; set; }
 
         public RelayCommand NewLayerCommand { get; set; }
+
+        public RelayCommand NewTemplateLayerCommand { get; set; }
 
         public RelayCommand DeleteLayerCommand { get; set; }
 
@@ -25,12 +29,25 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
+            NewTemplateLayerCommand = new RelayCommand(NewTemplateLayer, CanCreateNewLayer);
             DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             RenameLayerCommand = new RelayCommand(RenameLayer);
             MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
+        }
+
+        public void NewTemplateLayer(object parameter)
+        {
+            ImportFileDialog dialog = new ImportFileDialog();
+
+            if (dialog.ShowDialog())
+            {
+                TemplateLayer template = new TemplateLayer(dialog.FilePath, Owner.BitmapManager.ActiveDocument.Width, Owner.BitmapManager.ActiveDocument.Height);
+                Owner.BitmapManager.ActiveDocument.DocumentSizeChanged += template.DocumentSizeChanged;
+                Owner.BitmapManager.ActiveDocument.Layers.Add(template);
+            }
         }
 
         public void NewLayer(object parameter)

@@ -13,7 +13,7 @@
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
     </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60"
-            Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
+            Background="{Binding Path=LayerColor, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseDown">
                 <i:InvokeCommandAction Command="{Binding ElementName=uc, 

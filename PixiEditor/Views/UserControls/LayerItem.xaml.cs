@@ -72,6 +72,15 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
             "ControlButtonsVisible", typeof(Visibility), typeof(LayerItem), new PropertyMetadata(System.Windows.Visibility.Hidden));
 
+        public static readonly DependencyProperty LayerColorProperty = DependencyProperty.Register(
+            nameof(LayerColor), typeof(Brush), typeof(LayerItem), new PropertyMetadata(Brushes.Transparent));
+
+        public Brush LayerColor
+        {
+            get => (Brush)GetValue(LayerColorProperty);
+            set => SetValue(LayerColorProperty, value);
+        }
+
         public WriteableBitmap PreviewImage
         {
             get { return (WriteableBitmap)GetValue(PreviewImageProperty); }

@@ -114,6 +114,12 @@ namespace PixiEditor.Models.Controllers
                 for (int i = 0; i < modifiedLayers.Length; i++)
                 {
                     Layer layer = Manager.ActiveDocument.Layers.First(x => x.LayerGuid == modifiedLayers[i].LayerGuid);
+
+                    if (layer is TemplateLayer)
+                    {
+                        continue;
+                    }
+
                     oldPixelsValues[i] = ApplyToLayer(layer, modifiedLayers[i]);
 
                     BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(

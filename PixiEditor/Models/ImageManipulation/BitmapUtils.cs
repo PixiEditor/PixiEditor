@@ -92,7 +92,7 @@ namespace PixiEditor.Models.ImageManipulation
             WriteableBitmap previewBitmap = BitmapFactory.New(document.Width, document.Height);
 
             // 0.8 because blit doesn't take into consideration layer opacity. Small images with opacity > 80% are simillar enough.
-            foreach (var layer in document.Layers.Where(x => x.IsVisible && x.Opacity > 0.8f))
+            foreach (var layer in document.Layers.Where(x => x.IsVisible && x.Opacity > 0.8f && x is not TemplateLayer))
             {
                 previewBitmap.Blit(
                     new Rect(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height),

@@ -284,7 +284,8 @@
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
                                         <Grid>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="40"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="30"/>
                                                 <RowDefinition Height="15"/>
                                                 <RowDefinition Height="1*"/>
@@ -292,15 +293,18 @@
                                             <Button Grid.Row="0" Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
-                                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
+                                            <Button Grid.Row="1" Command="{Binding LayersSubViewModel.NewTemplateLayerCommand}" Height="30" Content="New Template Layer"
+                                            HorizontalAlignment="Stretch" Margin="5"
+                                            Style="{StaticResource DarkRoundButton}" />
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10,0">
                                                 <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
                                                 <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
                                                          Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
                                             Converter={StaticResource FloatNormalizeConverter}}" />
                                                 <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
                                             </StackPanel>
-                                            <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
-                                            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                                            <Separator Grid.Row="3" Background="{StaticResource BrighterAccentColor}"/>
+                                            <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Auto">
                                                 <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
                                                       x:Name="layersItemsControl" AlternationCount="9999">
                                                     <ItemsControl.ItemsPanel>
@@ -316,7 +320,8 @@
                                                                    IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
                                                                    PreviewImage="{Binding LayerBitmap}"
                                                                    MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
-                                                                   MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
+                                                                   MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}"
+                                                                   LayerColor="{Binding LayerColor}">
                                                                 <vws:LayerItem.ContextMenu>
                                                                     <ContextMenu>
                                                                         <MenuItem Header="Delete"

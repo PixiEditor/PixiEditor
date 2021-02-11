@@ -40,7 +40,7 @@ namespace PixiEditor.Models.DataHolders
                 ActiveLayer.IsActive = false;
             }
 
-            if (Layers.Any(x => x.IsActive))
+            if (Layers.Where(x => x is not TemplateLayer).Any(x => x.IsActive))
             {
                 var guids = Layers.Where(x => x.IsActive).Select(y => y.LayerGuid);
                 guids.ToList().ForEach(x => Layers.First(layer => layer.LayerGuid == x).IsActive = false);
@@ -85,6 +85,24 @@ namespace PixiEditor.Models.DataHolders
             {
                 SetActiveLayer(Layers.Count - 1);
             }
+
+            if (Layers.Count > 1)
+            {
+                StorageBasedChange storageChange = new StorageBasedChange(this, new[] { Layers[^1] }, false);
+                UndoManager.AddUndoChange(
+                    storageChange.ToChange(
+                        RemoveLayerProcess,
+                        new object[] { Layers[^1].LayerGuid },
+                        RestoreLayersProcess,
+                        "Add layer"));
+            }
+
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
+        }
+
+        public void AddNewLayer(Layer layer)
+        {
+            Layers.Add(layer);
 
             if (Layers.Count > 1)
             {

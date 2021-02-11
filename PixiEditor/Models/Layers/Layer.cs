@@ -15,6 +15,10 @@ namespace PixiEditor.Models.Layers
     public class Layer : BasicLayer
     {
         private const int SizeOfArgb = 4;
+
+        private static readonly Brush ActiveBrush = new SolidColorBrush(Color.FromRgb(80, 80, 86));
+        private static readonly Brush InactiveBrush = Brushes.Transparent;
+
         private bool clipRequested;
 
         private bool isActive;
@@ -28,6 +32,8 @@ namespace PixiEditor.Models.Layers
         private Thickness offset;
 
         private float opacity = 1f;
+
+        private Brush layerColor;
 
         public Layer(string name)
         {
@@ -64,7 +70,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 name = value;
-                RaisePropertyChanged("Name");
+                RaisePropertyChanged(nameof(Name));
             }
         }
 
@@ -74,7 +80,8 @@ namespace PixiEditor.Models.Layers
             set
             {
                 isActive = value;
-                RaisePropertyChanged("IsActive");
+                RaisePropertyChanged(nameof(IsActive));
+                UpdateLayerColor();
             }
         }
 
@@ -95,7 +102,7 @@ namespace PixiEditor.Models.Layers
                             new object[] { LayerGuid },
                             "Change layer visibility"), true);
                     isVisible = value;
-                    RaisePropertyChanged("IsVisible");
+                    RaisePropertyChanged(nameof(IsVisible));
                 }
             }
         }
@@ -106,7 +113,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 isRenaming = value;
-                RaisePropertyChanged("IsRenaming");
+                RaisePropertyChanged(nameof(IsRenaming));
             }
         }
 
@@ -116,7 +123,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 layerBitmap = value;
-                RaisePropertyChanged("LayerBitmap");
+                RaisePropertyChanged(nameof(LayerBitmap));
             }
         }
 
@@ -137,7 +144,7 @@ namespace PixiEditor.Models.Layers
                             new object[] { LayerGuid },
                             "Change layer opacity"), true);
                     opacity = value;
-                    RaisePropertyChanged("Opacity");
+                    RaisePropertyChanged(nameof(Opacity));
                 }
             }
         }
@@ -152,7 +159,17 @@ namespace PixiEditor.Models.Layers
             set
             {
                 offset = value;
-                RaisePropertyChanged("Offset");
+                RaisePropertyChanged(nameof(Offset));
+            }
+        }
+
+        public Brush LayerColor
+        {
+            get => layerColor;
+            set
+            {
+                layerColor = value;
+                RaisePropertyChanged(nameof(LayerColor));
             }
         }
 
@@ -386,6 +403,21 @@ namespace PixiEditor.Models.Layers
             byte[] byteArray = LayerBitmap.ToByteArray();
             LayerBitmap.Unlock();
             return byteArray;
+        }
+
+        /// <summary>
+        /// Updates the <see cref="LayerColor"/> corresponding to <see cref="IsVisible"/>.
+        /// </summary>
+        protected virtual void UpdateLayerColor()
+        {
+            if (IsActive)
+            {
+                LayerColor = ActiveBrush;
+            }
+            else
+            {
+                LayerColor = InactiveBrush;
+            }
         }
 
         private Dictionary<Coordinates, Color> GetRelativePosition(Dictionary<Coordinates, Color> changedPixels)

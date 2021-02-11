@@ -31,7 +31,7 @@ namespace PixiEditor.Models.IO
         }
 
         /// <summary>
-        ///     Imports image from path and resizes it to given dimensions.
+        ///     Imports image from path.
         /// </summary>
         /// <param name="path">Path of image.</param>
         public static WriteableBitmap ImportImage(string path)

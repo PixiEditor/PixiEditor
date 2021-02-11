@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
 
 namespace PixiEditor.Models.DataHolders
@@ -94,6 +95,11 @@ namespace PixiEditor.Models.DataHolders
 
             for (int i = 0; i < Layers.Count; i++)
             {
+                if (Layers[i] is TemplateLayer)
+                {
+                    continue;
+                }
+
                 float widthRatio = (float)newWidth / Width;
                 float heightRatio = (float)newHeight / Height;
                 int layerWidth = (int)(Layers[i].Width * widthRatio);
