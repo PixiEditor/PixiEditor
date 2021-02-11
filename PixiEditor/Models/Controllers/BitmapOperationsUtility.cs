@@ -199,6 +199,7 @@ namespace PixiEditor.Models.Controllers
                     Manager.ActiveDocument.ActiveLayer,
                     mouseMove.ToArray(),
                     Manager.PrimaryColor);
+
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
                 Manager.ActiveDocument.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
 
@@ -208,13 +209,18 @@ namespace PixiEditor.Models.Controllers
                 }
                 else
                 {
-                    for (int i = 0; i < modifiedLayers.Length; i++)
-                    {
-                        var layer = previewLayerChanges.First(x => x.LayerIndex == modifiedLayers[i].LayerIndex);
-                        layer.PixelChanges.ChangedPixels.AddRangeOverride(modifiedLayers[i].PixelChanges.ChangedPixels);
-                        layer.PixelChanges = layer.PixelChanges.WithoutTransparentPixels();
-                    }
+                    InjectPreviewLayerChanges(modifiedLayers);
                 }
+            }
+        }
+
+        private void InjectPreviewLayerChanges(LayerChange[] modifiedLayers)
+        {
+            for (int i = 0; i < modifiedLayers.Length; i++)
+            {
+                var layer = previewLayerChanges.First(x => x.LayerIndex == modifiedLayers[i].LayerIndex);
+                layer.PixelChanges.ChangedPixels.AddRangeOverride(modifiedLayers[i].PixelChanges.ChangedPixels);
+                layer.PixelChanges = layer.PixelChanges.WithoutTransparentPixels();
             }
         }
     }

@@ -60,14 +60,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             var latestPixels = lineTool.CreateLine(startingCoords, latestCords, 1);
-            if (latestPixels.Count() == 1)
-            {
-                lastChangedPixels[changedPixelsindex] = latestPixels.First();
-            }
-            else
-            {
-                lastChangedPixels[changedPixelsindex] = latestPixels.ElementAt(1);
-            }
+            SetPixelToCheck(latestPixels);
 
             if (changedPixelsindex == 2)
             {
@@ -78,17 +71,7 @@ namespace PixiEditor.Models.Tools.Tools
                     color,
                     toolSize);
 
-                if (changes.ChangedPixels[lastChangedPixels[1]].A != 0)
-                {
-                    lastChangedPixels[0] = lastChangedPixels[1];
-                    lastChangedPixels[1] = lastChangedPixels[2];
-                    changedPixelsindex = 2;
-                }
-                else
-                {
-                    lastChangedPixels[0] = lastChangedPixels[2];
-                    changedPixelsindex = 1;
-                }
+                MovePixelsToCheck(changes);
 
                 return changes;
             }
@@ -96,6 +79,33 @@ namespace PixiEditor.Models.Tools.Tools
             changedPixelsindex += changedPixelsindex >= 2 ? 0 : 1;
 
             return BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
+        }
+
+        private void MovePixelsToCheck(BitmapPixelChanges changes)
+        {
+            if (changes.ChangedPixels[lastChangedPixels[1]].A != 0)
+            {
+                lastChangedPixels[0] = lastChangedPixels[1];
+                lastChangedPixels[1] = lastChangedPixels[2];
+                changedPixelsindex = 2;
+            }
+            else
+            {
+                lastChangedPixels[0] = lastChangedPixels[2];
+                changedPixelsindex = 1;
+            }
+        }
+
+        private void SetPixelToCheck(IEnumerable<Coordinates> latestPixels)
+        {
+            if (latestPixels.Count() == 1)
+            {
+                lastChangedPixels[changedPixelsindex] = latestPixels.First();
+            }
+            else
+            {
+                lastChangedPixels[changedPixelsindex] = latestPixels.ElementAt(1);
+            }
         }
 
         private BitmapPixelChanges ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
