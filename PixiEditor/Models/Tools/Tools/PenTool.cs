@@ -22,6 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly BoolSetting pixelPerfectSetting;
         private readonly LineTool lineTool;
         private Coordinates[] lastChangedPixels = new Coordinates[3];
+        private List<Coordinates> confirmedPixels = new List<Coordinates>();
         private byte changedPixelsindex = 0;
 
         public PenTool()
@@ -42,21 +43,33 @@ namespace PixiEditor.Models.Tools.Tools
             base.OnRecordingLeftMouseDown(e);
             changedPixelsindex = 0;
             lastChangedPixels = new Coordinates[3];
+            confirmedPixels.Clear();
         }
 
         public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
         {
             Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
-            BitmapPixelChanges pixels = Draw(startingCords, coordinates[0], color, toolSizeSetting.Value, pixelPerfectSetting.Value);
+            BitmapPixelChanges pixels = Draw(
+                startingCords, 
+                coordinates[0], 
+                color, 
+                toolSizeSetting.Value, 
+                pixelPerfectSetting.Value,
+                ViewModelMain.Current.BitmapManager.ActiveDocument.PreviewLayer);
             return Only(pixels, layer);
         }
 
-        public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize, bool pixelPerfect = false)
+        public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)
         {
             if (!pixelPerfect)
             {
                 return BitmapPixelChanges.FromSingleColoredArray(
                     lineTool.CreateLine(startingCoords, latestCords, toolSize), color);
+            }
+
+            if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).A > 0)
+            {
+                confirmedPixels.Add(latestCords);
             }
 
             var latestPixels = lineTool.CreateLine(startingCoords, latestCords, 1);
@@ -75,12 +88,15 @@ namespace PixiEditor.Models.Tools.Tools
 
                 changes.ChangedPixels.AddRangeNewOnly(
                     BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color).ChangedPixels);
+
                 return changes;
             }
 
             changedPixelsindex += changedPixelsindex >= 2 ? 0 : 1;
 
-            return BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
+            var result = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
+
+            return result;
         }
 
         private void MovePixelsToCheck(BitmapPixelChanges changes)
@@ -112,7 +128,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         private BitmapPixelChanges ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
         {
-            if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1)
+            if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {
                 var changes = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(new Coordinates[] { p1, p3 }, toolSize), color);
                 changes.ChangedPixels.AddRangeNewOnly(
