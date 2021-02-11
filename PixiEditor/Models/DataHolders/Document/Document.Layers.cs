@@ -138,8 +138,8 @@ namespace PixiEditor.Models.DataHolders
         /// <summary>
         /// Merges two layers.
         /// </summary>
-        /// <param name="firstLayer">The index of the first.</param>
-        /// <param name="secondLayer">The index of the second.</param>
+        /// <param name="firstLayer">The lower layer.</param>
+        /// <param name="secondLayer">The upper layer.</param>
         /// <returns>The merged layer.</returns>
         public Layer MergeLayers(Layer firstLayer, Layer secondLayer, bool nameOfSecond, int index)
         {
@@ -170,8 +170,8 @@ namespace PixiEditor.Models.DataHolders
         /// <summary>
         /// Merges two layers.
         /// </summary>
-        /// <param name="firstIndex">The index of the first.</param>
-        /// <param name="secondIndex">The index of the second.</param>
+        /// <param name="firstIndex">The index of the lower layer.</param>
+        /// <param name="secondIndex">The index of the upper leyer.</param>
         /// <returns>The merged layer.</returns>
         public Layer MergeLayers(int firstIndex, int secondIndex, bool nameOfSecond)
         {

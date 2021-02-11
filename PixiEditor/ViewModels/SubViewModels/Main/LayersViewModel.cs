@@ -106,7 +106,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void MergeWithBelow(object parameter)
         {
             int index = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.MergeLayers(index, index - 1, true);
+            Owner.BitmapManager.ActiveDocument.MergeLayers(index - 1, index, true);
         }
 
         public bool CanMergeWithAbove(object propery)
