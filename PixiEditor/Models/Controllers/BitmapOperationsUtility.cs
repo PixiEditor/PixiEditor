@@ -89,16 +89,16 @@ namespace PixiEditor.Models.Controllers
 
             foreach (var modifiedLayer in previewLayerChanges)
             {
-                Layer layer = Manager.ActiveDocument.Layers.FirstOrDefault(x => x.LayerGuid == lastModifiedLayers[i].LayerGuid);
+                Layer layer = Manager.ActiveDocument.Layers.FirstOrDefault(x => x.LayerGuid == modifiedLayer.LayerGuid);
 
                 if (layer != null)
                 {
-                    BitmapPixelChanges oldValues = ApplyToLayer(layer, lastModifiedLayers[i]).PixelChanges;
+                    BitmapPixelChanges oldValues = ApplyToLayer(layer, modifiedLayer).PixelChanges;
 
                     BitmapChanged?.Invoke(this, new BitmapChangedEventArgs(
-                        lastModifiedLayers[i].PixelChanges,
+                        modifiedLayer.PixelChanges,
                         oldValues,
-                        lastModifiedLayers[i].LayerGuid));
+                        modifiedLayer.LayerGuid));
                     Manager.ActiveDocument.GeneratePreviewLayer();
                 }
             }
@@ -222,7 +222,7 @@ namespace PixiEditor.Models.Controllers
         {
             for (int i = 0; i < modifiedLayers.Length; i++)
             {
-                var layer = previewLayerChanges.First(x => x.LayerIndex == modifiedLayers[i].LayerIndex);
+                var layer = previewLayerChanges.First(x => x.LayerGuid == modifiedLayers[i].LayerGuid);
                 layer.PixelChanges.ChangedPixels.AddRangeOverride(modifiedLayers[i].PixelChanges.ChangedPixels);
                 layer.PixelChanges = layer.PixelChanges.WithoutTransparentPixels();
             }
