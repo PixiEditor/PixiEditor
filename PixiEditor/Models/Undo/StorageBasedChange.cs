@@ -88,16 +88,42 @@ namespace PixiEditor.Models.Undo
                     MaxHeight = storedLayer.MaxHeight,
                     IsVisible = storedLayer.IsVisible,
                     IsActive = storedLayer.IsActive,
-                    LayerGuid = storedLayer.LayerGuid,
                     Width = storedLayer.Width,
                     Height = storedLayer.Height,
                 };
+                layers[i].ChangeGuid(storedLayer.LayerGuid);
 
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
 
             layersToStore = layers.Select(x => x.LayerGuid);
             return layers;
+        }
+
+        /// <summary>
+        ///     Creates UndoManager ready Change instance, where undo process loads layers from device, and redo saves them.
+        /// </summary>
+        /// <param name="undoProcess">Method that is invoked on undo, with loaded layers parameter and UndoLayer array data.</param>
+        /// <param name="processArgs">Custom parameters for undo process.</param>
+        /// <param name="redoProcess">Method that is invoked on redo with custom object array parameters.</param>
+        /// <param name="redoProcessParameters">Parameters for redo process.</param>
+        /// <param name="description">Undo change description.</param>
+        /// <returns>UndoManager ready Change instance.</returns>
+        public Change ToChange(Action<Layer[], UndoLayer[], object[]> undoProcess, object[] processArgs, Action<object[]> redoProcess, object[] redoProcessParameters, string description = "")
+        {
+            Action<object[]> finalUndoProcess = processParameters =>
+            {
+                Layer[] layers = LoadLayersFromDevice();
+                undoProcess(layers, StoredLayers, processParameters);
+            };
+
+            Action<object[]> finalRedoProcess = parameters =>
+            {
+                SaveLayersOnDevice();
+                redoProcess(parameters);
+            };
+
+            return new Change(finalUndoProcess, processArgs, finalRedoProcess, redoProcessParameters, description);
         }
 
         /// <summary>
@@ -148,6 +174,32 @@ namespace PixiEditor.Models.Undo
             };
 
             return new Change(finalUndoProcess, undoProcessParameters, finalRedoProcess, null, description);
+        }
+
+        /// <summary>
+        ///     Creates UndoManager ready Change instance, where undo process saves layers on device, and redo loads them.
+        /// </summary>
+        /// <param name="undoProcess">Method that is invoked on undo, with loaded layers parameter and UndoLayer array data.</param>
+        /// <param name="undoProcessParameters">Parameters for undo process.</param>
+        /// <param name="redoProcess">Method that is invoked on redo with custom object array parameters.</param>
+        /// <param name="redoProcessArgs">Parameters for redo process.</param>
+        /// <param name="description">Undo change description.</param>
+        /// <returns>UndoManager ready Change instance.</returns>
+        public Change ToChange(Action<object[]> undoProcess, object[] undoProcessParameters, Action<Layer[], UndoLayer[], object[]> redoProcess, object[] redoProcessArgs, string description = "")
+        {
+            Action<object[]> finalUndoProcess = parameters =>
+            {
+                SaveLayersOnDevice();
+                undoProcess(parameters);
+            };
+
+            Action<object[]> finalRedoProcess = parameters =>
+            {
+                Layer[] layers = LoadLayersFromDevice();
+                redoProcess(layers, StoredLayers, parameters);
+            };
+
+            return new Change(finalUndoProcess, undoProcessParameters, finalRedoProcess, redoProcessArgs, description);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -144,7 +145,7 @@ namespace PixiEditor.Models.DataHolders
         {
             string name;
 
-            // Wich name should be user
+            // Wich name should be used
             if (nameOfSecond)
             {
                 name = secondLayer.Name;
@@ -177,7 +178,53 @@ namespace PixiEditor.Models.DataHolders
             Layer firstLayer = Layers[firstIndex];
             Layer secondLayer = Layers[secondIndex];
 
-            return MergeLayers(firstLayer, secondLayer, nameOfSecond, firstIndex);
+            IEnumerable<Layer> undoArgs = new[] { firstLayer, secondLayer };
+            if (firstIndex > secondIndex)
+            {
+                undoArgs = undoArgs.Reverse();
+            }
+
+            StorageBasedChange undoChange = new StorageBasedChange(this, undoArgs);
+
+            var layer = MergeLayers(firstLayer, secondLayer, nameOfSecond, firstIndex);
+
+            UndoManager.AddUndoChange(undoChange.ToChange(
+                InsertLayersAtIndexesProcess,
+                new object[] { firstIndex > secondIndex ? firstIndex - 1 : firstIndex },
+                MergeLayersProcess,
+                new object[] { firstIndex, secondIndex, nameOfSecond, layer.LayerGuid },
+                "Undo merge layers"));
+
+            return layer;
+        }
+
+        private void MergeLayersProcess(object[] args)
+        {
+            if (args.Length > 0 
+                && args[0] is int firstIndex
+                && args[1] is int secondIndex
+                && args[2] is bool nameOfSecond
+                && args[3] is Guid mergedLayerGuid)
+            {
+                Layer firstLayer = Layers[firstIndex];
+                Layer secondLayer = Layers[secondIndex];
+
+                Layer layer = MergeLayers(firstLayer, secondLayer, nameOfSecond, firstIndex);
+                layer.ChangeGuid(mergedLayerGuid);
+            }
+        }
+
+        private void InsertLayersAtIndexesProcess(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            if (args.Length > 0 && args[0] is int layerIndex)
+            {
+                Layers.RemoveAt(layerIndex);
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    Layer layer = layers[i];
+                    Layers.Insert(data[i].LayerIndex, layer);
+                }
+            }
         }
 
         /// <summary>
