@@ -47,7 +47,7 @@ namespace PixiEditor.Views
 
         public RelayCommand SetActiveLayerCommand
         {
-            get { return (RelayCommand) GetValue(SetActiveLayerCommandProperty); }
+            get { return (RelayCommand)GetValue(SetActiveLayerCommandProperty); }
             set { SetValue(SetActiveLayerCommandProperty, value); }
         }
 
@@ -103,7 +103,7 @@ namespace PixiEditor.Views
 
         public RelayCommand MoveToFrontCommand
         {
-            get { return (RelayCommand) GetValue(MoveToFrontCommandProperty); }
+            get { return (RelayCommand)GetValue(MoveToFrontCommandProperty); }
             set { SetValue(MoveToFrontCommandProperty, value); }
         }
 

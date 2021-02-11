@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Undo;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -23,7 +25,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 undoChanges = value;
                 for (int i = 0; i < value.Length; i++)
                 {
-                    Owner.BitmapManager.ActiveDocument.Layers[value[i].LayerIndex].SetPixels(value[i].PixelChanges);
+                    Owner.BitmapManager.ActiveDocument.Layers.First(x => x.LayerGuid == value[i].LayerGuid).SetPixels(value[i].PixelChanges);
                 }
             }
         }
@@ -33,6 +35,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
+            if (!Directory.Exists(StorageBasedChange.DefaultUndoChangeLocation))
+            {
+                Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
+            }
+
+            ClearUndoTempDirectory();
         }
 
         public void TriggerNewUndoChange(Tool toolUsed)
@@ -69,6 +77,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             Owner.SelectionSubViewModel.Deselect(null);
             Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
+        }
+
+        /// <summary>
+        /// Removes all files from %tmp%/PixiEditor/UndoStack/.
+        /// </summary>
+        public void ClearUndoTempDirectory()
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(StorageBasedChange.DefaultUndoChangeLocation);
+            foreach (FileInfo file in dirInfo.GetFiles())
+            {
+                file.Delete();
+            }
         }
 
         /// <summary>

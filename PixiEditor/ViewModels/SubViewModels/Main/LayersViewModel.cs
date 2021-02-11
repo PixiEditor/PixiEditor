@@ -29,7 +29,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewLayer(object parameter)
         {
-            //TODO: Implement AddNewLayer to Document, not BitmapManager
             Owner.BitmapManager.ActiveDocument.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
         }
 
@@ -61,21 +60,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void MoveLayerToFront(object parameter)
         {
             int oldIndex = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex + 1);
-            if (Owner.BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
-            {
-                Owner.BitmapManager.ActiveDocument.SetActiveLayer(oldIndex + 1);
-            }
+            Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, 1);
         }
 
         public void MoveLayerToBack(object parameter)
         {
             int oldIndex = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.Layers.Move(oldIndex, oldIndex - 1);
-            if (Owner.BitmapManager.ActiveDocument.ActiveLayerIndex == oldIndex)
-            {
-                Owner.BitmapManager.ActiveDocument.SetActiveLayer(oldIndex - 1);
-            }
+            Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, -1);
         }
 
         public bool CanMoveToFront(object property)

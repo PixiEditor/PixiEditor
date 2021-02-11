@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using Color = System.Windows.Media.Color;
 
 namespace PixiEditor.Models.ImageManipulation
 {
@@ -80,7 +80,7 @@ namespace PixiEditor.Models.ImageManipulation
             return finalBitmap;
         }
 
-        /// <summary>
+      /// <summary>
         /// Generates simplified preview from Document, very fast, great for creating small previews. Creates uniform streched image.
         /// </summary>
         /// <param name="document">Document which be used to generate preview.</param>
@@ -106,30 +106,30 @@ namespace PixiEditor.Models.ImageManipulation
             return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
         }
 
-        public static Dictionary<Layer, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
+        public static Dictionary<Guid, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
         {
-            Dictionary<Layer, Color[]> result = new Dictionary<Layer, Color[]>();
+            Dictionary<Guid, Color[]> result = new Dictionary<Guid, Color[]>();
 
-            for (int i = 0; i < layers.Length; i++)
+            foreach (Layer layer in layers)
             {
                 Color[] pixels = new Color[selection.Length];
 
-                using (layers[i].LayerBitmap.GetBitmapContext())
+                using (layer.LayerBitmap.GetBitmapContext())
                 {
                     for (int j = 0; j < pixels.Length; j++)
                     {
-                        Coordinates position = layers[i].GetRelativePosition(selection[j]);
-                        if (position.X < 0 || position.X > layers[i].Width - 1 || position.Y < 0 ||
-                            position.Y > layers[i].Height - 1)
+                        Coordinates position = layer.GetRelativePosition(selection[j]);
+                        if (position.X < 0 || position.X > layer.Width - 1 || position.Y < 0 ||
+                            position.Y > layer.Height - 1)
                         {
                             continue;
                         }
 
-                        pixels[j] = layers[i].GetPixel(position.X, position.Y);
+                        pixels[j] = layer.GetPixel(position.X, position.Y);
                     }
                 }
 
-                result[layers[i]] = pixels;
+                result[layer.LayerGuid] = pixels;
             }
 
             return result;
