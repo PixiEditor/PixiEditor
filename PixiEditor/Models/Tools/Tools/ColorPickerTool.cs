@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Windows.Input;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 using Color = System.Windows.Media.Color;
@@ -14,10 +15,13 @@ namespace PixiEditor.Models.Tools.Tools
             Tooltip = "Swaps primary color with selected on canvas. (O)";
         }
 
-        public override void Use(Coordinates[] coordinates)
+        public override void OnMouseDown(MouseEventArgs e)
         {
+            base.OnMouseDown(e);
             ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();
         }
+
+        public override void Use(Coordinates[] coordinates) { }
 
         public Color GetColorUnderMouse()
         {
