@@ -185,7 +185,6 @@ namespace PixiEditor.Views
         private void Zoombox_CurrentViewChanged(object sender, ZoomboxViewChangedEventArgs e)
         {
             Zoombox.MinScale = 32 / ((FrameworkElement)Item).Width;
-            Zoombox.KeepContentInBounds = !(Zoombox.Scale > Zoombox.MinScale * 35.0);
         }
 
         private void Zoombox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
