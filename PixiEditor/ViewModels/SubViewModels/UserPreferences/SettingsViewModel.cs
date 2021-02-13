@@ -6,55 +6,73 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
 {
     public class SettingsViewModel : SubViewModel<SettingsWindowViewModel>
     {
-        private bool showNewFilePopupOnStartup = PreferencesSettings.GetPreference("ShowNewFilePopupOnStartup", true);
-
-        public bool ShowNewFilePopupOnStartup
+        public class FileSettings : SettingsGroup
         {
-            get => showNewFilePopupOnStartup;
-            set
+            private bool showNewFilePopupOnStartup = PreferencesSettings.GetPreference("ShowNewFilePopupOnStartup", true);
+
+            public bool ShowNewFilePopupOnStartup
             {
-                showNewFilePopupOnStartup = value;
-                string name = nameof(ShowNewFilePopupOnStartup);
-                RaiseAndUpdatePreference(name, value);
+                get => showNewFilePopupOnStartup;
+                set
+                {
+                    showNewFilePopupOnStartup = value;
+                    string name = nameof(ShowNewFilePopupOnStartup);
+                    RaiseAndUpdatePreference(name, value);
+                }
+            }
+
+            private long defaultNewFileWidth = (int)PreferencesSettings.GetPreference("DefaultNewFileWidth", 16L);
+
+            public long DefaultNewFileWidth
+            {
+                get => defaultNewFileWidth;
+                set
+                {
+                    defaultNewFileWidth = value;
+                    string name = nameof(DefaultNewFileWidth);
+                    RaiseAndUpdatePreference(name, value);
+                }
+            }
+
+            private long defaultNewFileHeight = (int)PreferencesSettings.GetPreference("DefaultNewFileHeight", 16L);
+
+            public long DefaultNewFileHeight
+            {
+                get => defaultNewFileHeight;
+                set
+                {
+                    defaultNewFileHeight = value;
+                    string name = nameof(DefaultNewFileHeight);
+                    RaiseAndUpdatePreference(name, value);
+                }
+            }
+
+            private int maxOpenedRecently = (int)PreferencesSettings.GetPreference(nameof(MaxOpenedRecently), 10);
+
+            public int MaxOpenedRecently
+            {
+                get => maxOpenedRecently;
+                set
+                {
+                    maxOpenedRecently = value;
+                    RaiseAndUpdatePreference(nameof(MaxOpenedRecently), value);
+                }
             }
         }
 
-        private bool checkUpdatesOnStartup = PreferencesSettings.GetPreference("CheckUpdatesOnStartup", true);
-
-        public bool CheckUpdatesOnStartup
+        public class UpdateSettings : SettingsGroup
         {
-            get => checkUpdatesOnStartup;
-            set
+            private bool checkUpdatesOnStartup = PreferencesSettings.GetPreference("CheckUpdatesOnStartup", true);
+
+            public bool CheckUpdatesOnStartup
             {
-                checkUpdatesOnStartup = value;
-                string name = nameof(CheckUpdatesOnStartup);
-                RaiseAndUpdatePreference(name, value);
-            }
-        }
-
-        private long defaultNewFileWidth = (int)PreferencesSettings.GetPreference("DefaultNewFileWidth", 16L);
-
-        public long DefaultNewFileWidth
-        {
-            get => defaultNewFileWidth;
-            set
-            {
-                defaultNewFileWidth = value;
-                string name = nameof(DefaultNewFileWidth);
-                RaiseAndUpdatePreference(name, value);
-            }
-        }
-
-        private long defaultNewFileHeight = (int)PreferencesSettings.GetPreference("DefaultNewFileHeight", 16L);
-
-        public long DefaultNewFileHeight
-        {
-            get => defaultNewFileHeight;
-            set
-            {
-                defaultNewFileHeight = value;
-                string name = nameof(DefaultNewFileHeight);
-                RaiseAndUpdatePreference(name, value);
+                get => checkUpdatesOnStartup;
+                set
+                {
+                    checkUpdatesOnStartup = value;
+                    string name = nameof(CheckUpdatesOnStartup);
+                    RaiseAndUpdatePreference(name, value);
+                }
             }
         }
 
@@ -145,13 +163,11 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
             }
         }
 
-        public DiscordSettings Discord { get; set; } = new DiscordSettings();
+        public FileSettings File { get; set; } = new FileSettings();
 
-        public void RaiseAndUpdatePreference<T>(string name, T value)
-        {
-            RaisePropertyChanged(name);
-            PreferencesSettings.UpdatePreference(name, value);
-        }
+        public UpdateSettings Update { get; set; } = new UpdateSettings();
+
+        public DiscordSettings Discord { get; set; } = new DiscordSettings();
 
         public SettingsViewModel(SettingsWindowViewModel owner)
             : base(owner)
