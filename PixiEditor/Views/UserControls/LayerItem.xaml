@@ -12,8 +12,11 @@
     <UserControl.Resources>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
     </UserControl.Resources>
-    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60"
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
             Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
+        <i:Interaction.Behaviors>
+            <behaviors:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseDown">
                 <i:InvokeCommandAction Command="{Binding ElementName=uc, 
@@ -21,15 +24,12 @@
                                        CommandParameter="{Binding Path=LayerIndex, ElementName=uc}"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
-        <Grid Focusable="True">
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="30"/>
                 <ColumnDefinition Width="199*"/>
                 <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
-            <i:Interaction.Behaviors>
-                <behaviors:ClearFocusOnClickBehavior/>
-            </i:Interaction.Behaviors>
             <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center" 
                       IsChecked="{Binding Path=IsVisibleUndoTriggerable, Mode=TwoWay}" Grid.Column="0" Height="16" />
