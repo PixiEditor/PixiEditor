@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
 
 namespace PixiEditor.Models.DataHolders
@@ -12,25 +15,6 @@ namespace PixiEditor.Models.DataHolders
     public partial class Document
     {
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
-
-        /// <summary>
-        ///     Resizes canvas.
-        /// </summary>
-        /// <param name="offset">Offset of content in new canvas. It will move layer to that offset.</param>
-        /// <param name="newWidth">New canvas size.</param>
-        /// <param name="newHeight">New canvas height.</param>
-        private void ResizeCanvas(Thickness[] offset, int newWidth, int newHeight)
-        {
-            for (int i = 0; i < Layers.Count; i++)
-            {
-                Layers[i].Offset = offset[i];
-                Layers[i].MaxWidth = newWidth;
-                Layers[i].MaxHeight = newHeight;
-            }
-
-            Width = newWidth;
-            Height = newHeight;
-        }
 
         /// <summary>
         ///     Resizes canvas to specified width and height to selected anchor.
@@ -75,22 +59,58 @@ namespace PixiEditor.Models.DataHolders
         {
             object[] reverseArgs = { Width, Height };
             object[] args = { newWidth, newHeight };
-            ResizeDocument(args);
-            UndoManager.AddUndoChange(new Change(
-                ResizeDocument,
-                reverseArgs,
-                ResizeDocument,
-                args,
-                "Resize document"));
+            StorageBasedChange change = new StorageBasedChange(this, Layers);
+
+            ResizeDocument(newWidth, newHeight);
+
+            UndoManager.AddUndoChange(
+                change.ToChange(
+                    RestoreDocumentLayersProcess,
+                    reverseArgs,
+                    ResizeDocumentProcess,
+                    args,
+                    "Resize document"));
         }
 
-        private void ResizeDocument(object[] arguments)
+        private void RestoreDocumentLayersProcess(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            Width = (int)args[0];
+            Height = (int)args[1];
+            Layers.Clear();
+            Layers.AddRange(layers);
+        }
+
+        /// <summary>
+        ///     Resizes canvas.
+        /// </summary>
+        /// <param name="offset">Offset of content in new canvas. It will move layer to that offset.</param>
+        /// <param name="newWidth">New canvas size.</param>
+        /// <param name="newHeight">New canvas height.</param>
+        private void ResizeCanvas(Thickness[] offset, int newWidth, int newHeight)
+        {
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                Layers[i].Offset = offset[i];
+                Layers[i].MaxWidth = newWidth;
+                Layers[i].MaxHeight = newHeight;
+            }
+
+            Width = newWidth;
+            Height = newHeight;
+        }
+
+        private void ResizeDocumentProcess(object[] args)
+        {
+            if (args.Length > 1 && args[0] is int width && args[1] is int height) 
+            {
+                ResizeDocument(width, height);
+            }
+        }
+
+        private void ResizeDocument(int newWidth, int newHeight)
         {
             int oldWidth = Width;
             int oldHeight = Height;
-
-            int newWidth = (int)arguments[0];
-            int newHeight = (int)arguments[1];
 
             for (int i = 0; i < Layers.Count; i++)
             {
