@@ -25,6 +25,7 @@
             <vm:ViewModelMain x:Key="ViewModelMain" />
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
+            <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
             <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
             <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
             <ResourceDictionary.MergedDictionaries>
@@ -294,8 +295,13 @@
                                             Style="{StaticResource DarkRoundButton}" />
                                             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
                                                 <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
-                                                <vws:NumberInput Min="0" Max="100" Width="40" Height="20" VerticalAlignment="Center"
-                                                         Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.Opacity, Mode=TwoWay, 
+                                                <vws:NumberInput 
+                                                    Min="0" Max="100"
+                                                    IsEnabled="{Binding Path=BitmapManager.ActiveDocument, 
+                                                    Converter={StaticResource NotNullToBoolConverter}}" 
+                                                    Width="40" Height="20"
+                                                    VerticalAlignment="Center"
+                                                   Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.OpacityUndoTriggerable, Mode=TwoWay, 
                                             Converter={StaticResource FloatNormalizeConverter}}" />
                                                 <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
                                             </StackPanel>
@@ -381,14 +387,6 @@
             </ItemsControl>
         </StackPanel>
 
-        <!--<Grid Grid.Column="2" Background="{StaticResource AccentColor}" Grid.Row="2" Grid.RowSpan="1">
-            <avalondock:DockingManager Foreground="White" Background="{StaticResource AccentColor}" BorderThickness="0">
-
-                <avalondock:DockingManager.Theme>
-                    <avalonDockTheme:PixiEditorDockTheme />
-                </avalondock:DockingManager.Theme>
-            </avalondock:DockingManager>
-        </Grid>-->
         <Grid Grid.Row="3" Grid.Column="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

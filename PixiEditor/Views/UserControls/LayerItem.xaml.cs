@@ -107,7 +107,6 @@ namespace PixiEditor.Views
             set { SetValue(MoveToFrontCommandProperty, value); }
         }
 
-
         private void LayerItem_OnMouseEnter(object sender, MouseEventArgs e)
         {
             ControlButtonsVisible = Visibility.Visible;
