@@ -33,7 +33,7 @@ namespace PixiEditor.Views.Dialogs
             InitializeComponent();
         }
 
-        private void Close(object sender, RoutedEventArgs e)
+        private void OkButton_Close(object sender, RoutedEventArgs e)
         {
             Close();
         }
