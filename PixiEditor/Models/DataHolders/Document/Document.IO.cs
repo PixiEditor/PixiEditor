@@ -58,6 +58,11 @@ namespace PixiEditor.Models.DataHolders
             {
                 recentlyOpened.Insert(0, newPath);
             }
+            else
+            {
+                int index = recentlyOpened.IndexOf(newPath);
+                recentlyOpened.Move(index, 0);
+            }
 
             if (recentlyOpened.Count > 5)
             {
@@ -68,6 +73,8 @@ namespace PixiEditor.Models.DataHolders
             }
 
             UserPreferences.PreferencesSettings.UpdateLocalPreference("RecentlyOpened", recentlyOpened);
+
+            XamlAccesibleViewModel.FileSubViewModel.HasRecent = true;
         }
     }
 }

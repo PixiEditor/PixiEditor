@@ -21,6 +21,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class FileViewModel : SubViewModel<ViewModelMain>
     {
+        private bool hasRecent;
+
         public RelayCommand OpenNewFilePopupCommand { get; set; }
 
         public RelayCommand SaveDocumentCommand { get; set; }
@@ -30,6 +32,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand ExportFileCommand { get; set; } // Command that is used to save file
 
         public RelayCommand OpenRecentCommand { get; set; }
+
+        public bool HasRecent
+        {
+            get => hasRecent;
+            set
+            {
+                hasRecent = value;
+                RaisePropertyChanged(nameof(HasRecent));
+            }
+        }
 
         public ObservableCollection<string> RecentlyOpened { get; set; } = new ObservableCollection<string>();
 
@@ -43,6 +55,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             OpenRecentCommand = new RelayCommand(OpenRecent);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
             RecentlyOpened = new ObservableCollection<string>(PreferencesSettings.GetLocalPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
+
+            if (RecentlyOpened.Count > 0)
+            {
+                HasRecent = true;
+            }
         }
 
         public void OpenRecent(object parameter)
