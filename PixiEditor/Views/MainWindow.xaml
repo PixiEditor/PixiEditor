@@ -83,6 +83,14 @@
                 <MenuItem Header="_File">
                     <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding FileSubViewModel.OpenNewFilePopupCommand}" />
                     <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding FileSubViewModel.OpenFileCommand}" />
+                    <MenuItem Header="_Recent" ItemsSource="{Binding FileSubViewModel.RecentlyOpened}" x:Name="recentItemMenu">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Command" Value="{Binding ElementName=recentItemMenu, Path=DataContext.FileSubViewModel.OpenRecentCommand}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
                     <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding FileSubViewModel.SaveDocumentCommand}" />
                     <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S"
                               Command="{Binding FileSubViewModel.SaveDocumentCommand}" CommandParameter="AsNew" />

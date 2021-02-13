@@ -219,6 +219,26 @@ namespace PixiEditor.Models.DataHolders
                     "Center content"));
         }
 
+        private void UpdateRecentlyOpened(string newPath)
+        {
+            ObservableCollection<string> recentlyOpened = XamlAccesibleViewModel.FileSubViewModel.RecentlyOpened;
+
+            if (!recentlyOpened.Contains(newPath))
+            {
+                recentlyOpened.Insert(0, newPath);
+            }
+
+            if (recentlyOpened.Count > 5)
+            {
+                for (int i = 4; i < recentlyOpened.Count; i++)
+                {
+                    recentlyOpened.RemoveAt(i);
+                }
+            }
+
+            UserPreferences.PreferencesSettings.UpdatePreference("RecentlyOpened", recentlyOpened);
+        }
+
         private void SetAsActiveOnClick(object obj)
         {
             XamlAccesibleViewModel.BitmapManager.MouseController.StopRecordingMouseMovementChanges();
