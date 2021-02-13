@@ -9,7 +9,7 @@
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" PreviewMouseDown="mainDrawingPanel_MouseDown" PreviewMouseUp="mainDrawingPanel_PreviewMouseUp"
              d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel" PreviewMouseWheel="Zoombox_MouseWheel">
-    <xctk:Zoombox PreviewMouseDown="Zoombox_PreviewMouseDown" Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="True"
+    <xctk:Zoombox PreviewMouseDown="Zoombox_PreviewMouseDown" Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="False"
                   Loaded="Zoombox_Loaded" IsAnimated="False" MouseDown="Zoombox_MouseDown"
                   CurrentViewChanged="Zoombox_CurrentViewChanged" DragModifiers="Blocked" ZoomModifiers="None">
         <i:Interaction.Triggers>

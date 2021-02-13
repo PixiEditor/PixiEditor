@@ -22,7 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly BoolSetting pixelPerfectSetting;
         private readonly LineTool lineTool;
         private Coordinates[] lastChangedPixels = new Coordinates[3];
-        private List<Coordinates> confirmedPixels = new List<Coordinates>();
+        private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
         private byte changedPixelsindex = 0;
 
         public PenTool()
@@ -50,10 +50,10 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
             BitmapPixelChanges pixels = Draw(
-                startingCords, 
-                coordinates[0], 
-                color, 
-                toolSizeSetting.Value, 
+                startingCords,
+                coordinates[0],
+                color,
+                toolSizeSetting.Value,
                 pixelPerfectSetting.Value,
                 ViewModelMain.Current.BitmapManager.ActiveDocument.PreviewLayer);
             return Only(pixels, layer);

@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
 
@@ -29,9 +31,11 @@ namespace PixiEditor.Views
 
         // Using a DependencyProperty as the backing store for EnableEditing.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty EnableEditingProperty =
-            DependencyProperty.Register("IsEditing", typeof(bool), typeof(EditableTextBlock),
+            DependencyProperty.Register(
+                "IsEditing",
+                typeof(bool),
+                typeof(EditableTextBlock),
                 new PropertyMetadata(OnIsEditingChanged));
-
 
         public EditableTextBlock()
         {
@@ -61,7 +65,13 @@ namespace PixiEditor.Views
             ShortcutController.BlockShortcutExecution = true;
             TextBlockVisibility = Visibility.Hidden;
             IsEditing = true;
-            textBox.Focus();
+            Dispatcher.BeginInvoke(
+                DispatcherPriority.Input,
+                new Action(delegate()
+                {
+                    textBox.Focus();         // Set Logical Focus
+                    Keyboard.Focus(textBox); // Set Keyboard Focus
+                }));
             textBox.SelectAll();
         }
 
@@ -102,7 +112,7 @@ namespace PixiEditor.Views
             DisableEditing();
         }
 
-        private void textBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             DisableEditing();
         }

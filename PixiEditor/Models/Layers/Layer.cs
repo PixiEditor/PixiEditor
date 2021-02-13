@@ -64,7 +64,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 name = value;
-                RaisePropertyChanged("Name");
+                RaisePropertyChanged(nameof(Name));
             }
         }
 
@@ -74,7 +74,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 isActive = value;
-                RaisePropertyChanged("IsActive");
+                RaisePropertyChanged(nameof(IsActive));
             }
         }
 
@@ -85,6 +85,20 @@ namespace PixiEditor.Models.Layers
             {
                 if (isVisible != value)
                 {
+                    isVisible = value;
+                    RaisePropertyChanged(nameof(IsVisible));
+                    RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
+                }
+            }
+        }
+
+        public bool IsVisibleUndoTriggerable
+        {
+            get => IsVisible;
+            set
+            {
+                if (value != IsVisible)
+                {
                     ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
                         .AddUndoChange(
                         new Change(
@@ -93,9 +107,8 @@ namespace PixiEditor.Models.Layers
                             value,
                             LayerHelper.FindLayerByGuidProcess,
                             new object[] { LayerGuid },
-                            "Change layer visibility"), true);
-                    isVisible = value;
-                    RaisePropertyChanged("IsVisible");
+                            "Change layer visibility"));
+                    IsVisible = value;
                 }
             }
         }
@@ -116,7 +129,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 layerBitmap = value;
-                RaisePropertyChanged("LayerBitmap");
+                RaisePropertyChanged(nameof(LayerBitmap));
             }
         }
 
@@ -127,17 +140,30 @@ namespace PixiEditor.Models.Layers
             {
                 if (opacity != value)
                 {
-                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
-                        .AddUndoChange(
-                            new Change(
-                            nameof(Opacity),
-                            opacity,
-                            value,
-                            LayerHelper.FindLayerByGuidProcess,
-                            new object[] { LayerGuid },
-                            "Change layer opacity"), true);
                     opacity = value;
-                    RaisePropertyChanged("Opacity");
+                    RaisePropertyChanged(nameof(Opacity));
+                    RaisePropertyChanged(nameof(OpacityUndoTriggerable));
+                }
+            }
+        }
+
+        public float OpacityUndoTriggerable
+        {
+            get => Opacity;
+            set
+            {
+                if (value != Opacity)
+                {
+                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
+                    .AddUndoChange(
+                                   new Change(
+                                   nameof(Opacity),
+                                   opacity,
+                                   value,
+                                   LayerHelper.FindLayerByGuidProcess,
+                                   new object[] { LayerGuid },
+                                   "Change layer opacity"));
+                    Opacity = value;
                 }
             }
         }

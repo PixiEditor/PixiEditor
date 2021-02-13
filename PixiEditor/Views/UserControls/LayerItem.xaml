@@ -5,15 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="uc"
              MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
     <UserControl.Resources>
         <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
     </UserControl.Resources>
-    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60"
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
             Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
+        <i:Interaction.Behaviors>
+            <behaviors:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseDown">
                 <i:InvokeCommandAction Command="{Binding ElementName=uc, 
@@ -29,7 +32,7 @@
             </Grid.ColumnDefinitions>
             <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center" 
-                      IsChecked="{Binding Path=IsVisible, Mode=TwoWay}" Grid.Column="0" Height="16" />
+                      IsChecked="{Binding Path=IsVisibleUndoTriggerable, Mode=TwoWay}" Grid.Column="0" Height="16" />
             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0">
                 <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform" Width="50" Height="20" Margin="0,0,20,0"
                        RenderOptions.BitmapScalingMode="NearestNeighbor"/>
