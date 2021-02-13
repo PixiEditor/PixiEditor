@@ -42,7 +42,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             OpenRecentCommand = new RelayCommand(OpenRecent);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
-            RecentlyOpened = new ObservableCollection<string>(PreferencesSettings.GetPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
+            RecentlyOpened = new ObservableCollection<string>(PreferencesSettings.GetLocalPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
         }
 
         public void OpenRecent(object parameter)

@@ -67,8 +67,7 @@ namespace PixiEditor.Models.DataHolders
                 }
             }
 
-            UserPreferences.PreferencesSettings.UpdatePreference("RecentlyOpened", recentlyOpened);
+            UserPreferences.PreferencesSettings.UpdateLocalPreference("RecentlyOpened", recentlyOpened);
         }
-
     }
 }
