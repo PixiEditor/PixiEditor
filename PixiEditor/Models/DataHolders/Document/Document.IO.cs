@@ -64,7 +64,7 @@ namespace PixiEditor.Models.DataHolders
                 recentlyOpened.Move(index, 0);
             }
 
-            if (recentlyOpened.Count > 5)
+            if (recentlyOpened.Count > 10)
             {
                 for (int i = 4; i < recentlyOpened.Count; i++)
                 {
