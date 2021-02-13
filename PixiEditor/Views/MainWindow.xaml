@@ -85,7 +85,7 @@
                     <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding FileSubViewModel.OpenFileCommand}" />
                     <MenuItem Header="_Recent" ItemsSource="{Binding FileSubViewModel.RecentlyOpened}" x:Name="recentItemMenu" IsEnabled="{Binding FileSubViewModel.HasRecent}">
                         <MenuItem.ItemContainerStyle>
-                            <Style TargetType="MenuItem">
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource menuItemStyle}">
                                 <Setter Property="Command" Value="{Binding ElementName=recentItemMenu, Path=DataContext.FileSubViewModel.OpenRecentCommand}"/>
                                 <Setter Property="CommandParameter" Value="{Binding}"/>
                             </Style>
