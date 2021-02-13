@@ -10,9 +10,11 @@ namespace PixiEditorTests.ModelsTests.UserPreferencesTests
     {
         public static string PathToPreferencesFile { get; } = Path.Join("PixiEditor", "test_preferences.json");
 
+        public static string PathToLocalPreferencesFile { get; } = Path.Join("PixiEditor", "local_test_preferences.json");
+
         public PreferencesSettingsTests()
         {
-            PreferencesSettings.Init(PathToPreferencesFile);
+            PreferencesSettings.Init(PathToPreferencesFile, PathToLocalPreferencesFile);
         }
 
         [Fact]
