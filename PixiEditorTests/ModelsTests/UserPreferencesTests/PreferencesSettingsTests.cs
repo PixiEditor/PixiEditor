@@ -29,6 +29,7 @@ namespace PixiEditorTests.ModelsTests.UserPreferencesTests
         public void TestThatInitCreatesUserPreferencesJson()
         {
             Assert.True(File.Exists(PathToPreferencesFile));
+            Assert.True(File.Exists(PathToLocalPreferencesFile));
         }
 
         [Theory]
