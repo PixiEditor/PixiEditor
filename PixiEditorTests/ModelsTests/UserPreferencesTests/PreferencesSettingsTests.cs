@@ -67,5 +67,42 @@ namespace PixiEditorTests.ModelsTests.UserPreferencesTests
                 Assert.Equal(value, dict[name]);
             }
         }
+
+        [Theory]
+        [InlineData(-2)]
+        [InlineData(false)]
+        [InlineData("string")]
+        [InlineData(null)]
+        public void TestThatGetPreferenceOnNonExistingKeyReturnsFallbackValueLocal<T>(T value)
+        {
+            T fallbackValue = value;
+            T preferenceValue = PreferencesSettings.GetLocalPreference<T>("NonExistingPreference", fallbackValue);
+            Assert.Equal(fallbackValue, preferenceValue);
+        }
+
+        [Theory]
+        [InlineData("IntPreference", 1)]
+        [InlineData("BoolPreference", true)]
+        public void TestThatUpdatePreferenceUpdatesDictionaryLocal<T>(string name, T value)
+        {
+            PreferencesSettings.UpdateLocalPreference(name, value);
+            Assert.Equal(value, PreferencesSettings.GetLocalPreference<T>(name));
+        }
+
+        [Theory]
+        [InlineData("LongPreference", 1L)]
+        public void TestThatSaveUpdatesFileLocal<T>(string name, T value)
+        {
+            PreferencesSettings.LocalPreferences[name] = value;
+            PreferencesSettings.Save();
+            using (var fs = new FileStream(PathToPreferencesFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                using StreamReader sr = new StreamReader(fs);
+                string json = sr.ReadToEnd();
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                Assert.True(dict.ContainsKey(name));
+                Assert.Equal(value, dict[name]);
+            }
+        }
     }
 }
