@@ -12,6 +12,8 @@ namespace PixiEditorTests.ModelsTests.UserPreferencesTests
 
         public static string PathToLocalPreferencesFile { get; } = Path.Join("PixiEditor", "local_test_preferences.json");
 
+        public static readonly PreferencesSettings PreferencesSettings = new PreferencesSettings();
+
         public PreferencesSettingsTests()
         {
             PreferencesSettings.Init(PathToPreferencesFile, PathToLocalPreferencesFile);

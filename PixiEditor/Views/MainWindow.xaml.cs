@@ -5,9 +5,11 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Processes;
+using PixiEditor.Models.UserPreferences;
 using PixiEditor.UpdateModule;
 using PixiEditor.ViewModels;
 
@@ -23,6 +25,12 @@ namespace PixiEditor
         public MainWindow()
         {
             InitializeComponent();
+
+            IServiceCollection services = new ServiceCollection()
+                .AddSingleton<IPreferences>(new PreferencesSettings());
+
+            DataContext = new ViewModelMain(services.BuildServiceProvider());
+
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             viewModel = (ViewModelMain)DataContext;

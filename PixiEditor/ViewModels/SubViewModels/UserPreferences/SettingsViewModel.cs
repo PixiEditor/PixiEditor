@@ -8,7 +8,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
     {
         public class FileSettings : SettingsGroup
         {
-            private bool showNewFilePopupOnStartup = PreferencesSettings.GetPreference("ShowNewFilePopupOnStartup", true);
+            private bool showNewFilePopupOnStartup = IPreferences.Current.GetPreference("ShowNewFilePopupOnStartup", true);
 
             public bool ShowNewFilePopupOnStartup
             {
@@ -21,7 +21,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
                 }
             }
 
-            private long defaultNewFileWidth = (int)PreferencesSettings.GetPreference("DefaultNewFileWidth", 16L);
+            private long defaultNewFileWidth = (int)IPreferences.Current.GetPreference("DefaultNewFileWidth", 16L);
 
             public long DefaultNewFileWidth
             {
@@ -34,7 +34,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
                 }
             }
 
-            private long defaultNewFileHeight = (int)PreferencesSettings.GetPreference("DefaultNewFileHeight", 16L);
+            private long defaultNewFileHeight = (int)IPreferences.Current.GetPreference("DefaultNewFileHeight", 16L);
 
             public long DefaultNewFileHeight
             {
@@ -47,7 +47,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
                 }
             }
 
-            private int maxOpenedRecently = (int)PreferencesSettings.GetPreference(nameof(MaxOpenedRecently), 10);
+            private int maxOpenedRecently = (int)IPreferences.Current.GetPreference(nameof(MaxOpenedRecently), 10);
 
             public int MaxOpenedRecently
             {
@@ -62,7 +62,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
 
         public class UpdateSettings : SettingsGroup
         {
-            private bool checkUpdatesOnStartup = PreferencesSettings.GetPreference("CheckUpdatesOnStartup", true);
+            private bool checkUpdatesOnStartup = IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true);
 
             public bool CheckUpdatesOnStartup
             {

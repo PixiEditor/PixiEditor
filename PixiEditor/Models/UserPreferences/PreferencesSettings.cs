@@ -2,27 +2,30 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.UserPreferences
 {
-    public static class PreferencesSettings
+    public class PreferencesSettings : IPreferences
     {
-        public static bool IsLoaded { get; private set; } = false;
+        public static IPreferences Current => ViewModelMain.Current.Preferences;
 
-        public static string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData);
+        public bool IsLoaded { get; private set; } = false;
 
-        public static string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData);
+        public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData);
 
-        public static Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
+        public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData);
 
-        public static Dictionary<string, object> LocalPreferences { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
 
-        public static void Init()
+        public Dictionary<string, object> LocalPreferences { get; set; } = new Dictionary<string, object>();
+
+        public void Init()
         {
             Init(PathToRoamingUserPreferences, PathToLocalPreferences);
         }
 
-        public static void Init(string path, string localPath)
+        public void Init(string path, string localPath)
         {
             PathToRoamingUserPreferences = path;
             PathToLocalPreferences = localPath;
@@ -36,7 +39,7 @@ namespace PixiEditor.Models.UserPreferences
             }
         }
 
-        public static void UpdatePreference<T>(string name, T value)
+        public void UpdatePreference<T>(string name, T value)
         {
             if (IsLoaded == false)
             {
@@ -56,7 +59,7 @@ namespace PixiEditor.Models.UserPreferences
             Save();
         }
 
-        public static void UpdateLocalPreference<T>(string name, T value)
+        public void UpdateLocalPreference<T>(string name, T value)
         {
             if (IsLoaded == false)
             {
@@ -76,7 +79,7 @@ namespace PixiEditor.Models.UserPreferences
             Save();
         }
 
-        public static void Save()
+        public void Save()
         {
             if (IsLoaded == false)
             {
@@ -87,9 +90,9 @@ namespace PixiEditor.Models.UserPreferences
             File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
         }
 
-        public static Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
+        public Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
 
-        public static void AddCallback(string setting, Action<object> action)
+        public void AddCallback(string setting, Action<object> action)
         {
             if (Callbacks.ContainsKey(setting))
             {
@@ -102,12 +105,12 @@ namespace PixiEditor.Models.UserPreferences
 
 #nullable enable
 
-        public static T? GetPreference<T>(string name)
+        public T? GetPreference<T>(string name)
         {
             return GetPreference(name, default(T));
         }
 
-        public static T? GetPreference<T>(string name, T? fallbackValue)
+        public T? GetPreference<T>(string name, T? fallbackValue)
         {
             if (IsLoaded == false)
             {
@@ -119,12 +122,12 @@ namespace PixiEditor.Models.UserPreferences
                 : fallbackValue;
         }
 
-        public static T? GetLocalPreference<T>(string name)
+        public T? GetLocalPreference<T>(string name)
         {
             return GetPreference(name, default(T));
         }
 
-        public static T? GetLocalPreference<T>(string name, T? fallbackValue)
+        public T? GetLocalPreference<T>(string name, T? fallbackValue)
         {
             if (IsLoaded == false)
             {

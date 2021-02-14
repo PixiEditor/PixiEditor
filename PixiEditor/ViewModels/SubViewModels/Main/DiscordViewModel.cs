@@ -30,7 +30,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private bool showDocumentName = PreferencesSettings.GetPreference(nameof(ShowDocumentName), true);
+        private bool showDocumentName = IPreferences.Current.GetPreference(nameof(ShowDocumentName), true);
 
         public bool ShowDocumentName
         {
@@ -45,7 +45,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private bool showDocumentSize = PreferencesSettings.GetPreference(nameof(ShowDocumentSize), true);
+        private bool showDocumentSize = IPreferences.Current.GetPreference(nameof(ShowDocumentSize), true);
 
         public bool ShowDocumentSize
         {
@@ -60,7 +60,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private bool showLayerCount = PreferencesSettings.GetPreference(nameof(ShowLayerCount), true);
+        private bool showLayerCount = IPreferences.Current.GetPreference(nameof(ShowLayerCount), true);
 
         public bool ShowLayerCount
         {
@@ -81,11 +81,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.DocumentChanged += DocumentChanged;
             this.clientId = clientId;
 
-            Enabled = PreferencesSettings.GetPreference<bool>("EnableRichPresence");
-            PreferencesSettings.AddCallback("EnableRichPresence", x => Enabled = (bool)x);
-            PreferencesSettings.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
-            PreferencesSettings.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
-            PreferencesSettings.AddCallback(nameof(ShowLayerCount), x => ShowLayerCount = (bool)x);
+            Enabled = IPreferences.Current.GetPreference<bool>("EnableRichPresence");
+            IPreferences.Current.AddCallback("EnableRichPresence", x => Enabled = (bool)x);
+            IPreferences.Current.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
+            IPreferences.Current.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
+            IPreferences.Current.AddCallback(nameof(ShowLayerCount), x => ShowLayerCount = (bool)x);
 
             AppDomain.CurrentDomain.ProcessExit += (_, _) => Enabled = false;
         }

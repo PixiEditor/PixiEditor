@@ -54,7 +54,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             OpenRecentCommand = new RelayCommand(OpenRecent);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
-            RecentlyOpened = new ObservableCollection<string>(PreferencesSettings.GetLocalPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
+            RecentlyOpened = new ObservableCollection<string>(IPreferences.Current.GetLocalPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
 
             if (RecentlyOpened.Count > 0)
             {
@@ -138,7 +138,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else
             {
-                if (PreferencesSettings.GetPreference("ShowNewFilePopupOnStartup", true))
+                if (IPreferences.Current.GetPreference("ShowNewFilePopupOnStartup", true))
                 {
                     OpenNewFilePopup(null);
                 }

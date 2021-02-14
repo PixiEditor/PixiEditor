@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
@@ -64,9 +65,15 @@ namespace PixiEditor.ViewModels
 
         public ShortcutController ShortcutController { get; set; }
 
-        public ViewModelMain()
+        public IPreferences Preferences { get; set; }
+
+        public ViewModelMain(IServiceProvider services)
         {
-            PreferencesSettings.Init();
+            Current = this;
+
+            Preferences = services.GetRequiredService<IPreferences>();
+
+            Preferences.Init();
 
             BitmapManager = new BitmapManager();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
@@ -141,7 +148,6 @@ namespace PixiEditor.ViewModels
                 }
             };
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
-            Current = this;
         }
 
         /// <summary>

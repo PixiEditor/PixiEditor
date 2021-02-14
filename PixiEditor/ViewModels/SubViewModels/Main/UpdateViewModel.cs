@@ -86,7 +86,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private async void Owner_OnStartupEvent(object sender, EventArgs e)
         {
-            if (PreferencesSettings.GetPreference("CheckUpdatesOnStartup", true))
+            if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
                 await CheckForUpdate();
             }
