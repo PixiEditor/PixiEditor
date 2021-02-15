@@ -14,12 +14,6 @@
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
-        <!--<VisualBrush x:Key="VertiBush" Viewport="0, 0, 0.0625, 1" ViewboxUnits="Absolute" TileMode="Tile" >
-            <VisualBrush.Visual>
-                <Line  X1="0" Y1="0" X2="0" Y2="1" Stroke="Black" StrokeThickness="0.01"/>
-            </VisualBrush.Visual>
-
-        </VisualBrush>-->
     </UserControl.Resources>
     <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay, ElementName=uc}"
                           Center="{Binding RecenterZoombox, Mode=TwoWay, ElementName=uc}" 
@@ -76,7 +70,9 @@
                                    Width="{Binding ActiveSelection.SelectionLayer.Width}"
                                    Height="{Binding ActiveSelection.SelectionLayer.Height}" 
                                    Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
-                <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}">
+                <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}" 
+                      Visibility="{Binding GridLinesVisible, Converter={StaticResource BoolToVisibilityConverter},
+                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DrawingViewPort}}}">
                     <Rectangle Focusable="False">
                         <Rectangle.Fill>
                             <VisualBrush Viewport="{Binding Height, Converter={StaticResource IntToViewportRectConverter}}" ViewboxUnits="Absolute" TileMode="Tile" >

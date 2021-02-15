@@ -118,6 +118,10 @@
                     <Separator/>
                     <MenuItem Header="Center Content" Command="{Binding DocumentSubViewModel.CenterContentCommand}" />
                 </MenuItem>
+                <MenuItem Header="_View">
+                    <MenuItem Header="Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
+                              IsCheckable="True" InputGestureText="Ctrl+`"/>
+                </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="Documentation" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki"/>
@@ -194,6 +198,7 @@
                                     <usercontrols:DrawingViewPort
                                         ZoomPercentage="{Binding ZoomPercentage}"
                                         RecenterZoombox="{Binding RecenterZoombox}"
+                                        GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
                                         Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
                                         MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"
                                         ViewportPosition="{Binding ViewportPosition}"
