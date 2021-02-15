@@ -13,6 +13,13 @@
     <UserControl.Resources>
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
+        <!--<VisualBrush x:Key="VertiBush" Viewport="0, 0, 0.0625, 1" ViewboxUnits="Absolute" TileMode="Tile" >
+            <VisualBrush.Visual>
+                <Line  X1="0" Y1="0" X2="0" Y2="1" Stroke="Black" StrokeThickness="0.01"/>
+            </VisualBrush.Visual>
+
+        </VisualBrush>-->
     </UserControl.Resources>
     <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay, ElementName=uc}"
                           Center="{Binding RecenterZoombox, Mode=TwoWay, ElementName=uc}" 
@@ -34,11 +41,11 @@
                                                   MouseX="{Binding MouseXOnCanvas, Mode=TwoWay, ElementName=uc}"
                                                   MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
             </i:Interaction.Behaviors>
-            <vws:MainDrawingPanel.Item>
-                <Canvas Width="{Binding Width}"
+        <vws:MainDrawingPanel.Item>
+            <Canvas Width="{Binding Width}"
                                 Height="{Binding Height}" VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
-                    <Image Source="/Images/transparentbg.png"
+                <Image Source="/Images/transparentbg.png"
                                    Height="{Binding Height}"
                                    Width="{Binding Width}" Opacity="0.9"
                                    Stretch="UniformToFill" />
@@ -48,28 +55,49 @@
                                    Height="{Binding PreviewLayer.Height}" 
                                    Margin="{Binding PreviewLayer.Offset}"/>
                 <ItemsControl ItemsSource="{Binding Layers}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Grid />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
                                                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                                Opacity="{Binding Opacity}"
                                                Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Image VerticalAlignment="Top" HorizontalAlignment="Left" 
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Image VerticalAlignment="Top" HorizontalAlignment="Left" 
                            Source="{Binding ActiveSelection.SelectionLayer.LayerBitmap}"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                    Width="{Binding ActiveSelection.SelectionLayer.Width}"
                                    Height="{Binding ActiveSelection.SelectionLayer.Height}" 
                                    Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
-                </Canvas>
-            </vws:MainDrawingPanel.Item>
+                <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}">
+                    <Rectangle Focusable="False">
+                        <Rectangle.Fill>
+                            <VisualBrush Viewport="{Binding Height, Converter={StaticResource IntToViewportRectConverter}}" ViewboxUnits="Absolute" TileMode="Tile" >
+                                <VisualBrush.Visual>
+                                    <Line  X1="0" Y1="0" X2="1" Y2="0" Stroke="Black" StrokeThickness="0.01"/>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <Rectangle Focusable="False">
+                        <Rectangle.Fill>
+                            <VisualBrush Viewport="{Binding Width, Converter={StaticResource IntToViewportRectConverter}, 
+                            ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
+                                <VisualBrush.Visual>
+                                    <Line  X1="0" Y1="0" X2="0" Y2="1" Stroke="Black" StrokeThickness="0.01"/>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </Grid>
+            </Canvas>
+        </vws:MainDrawingPanel.Item>
         </vws:MainDrawingPanel>
 </UserControl>
