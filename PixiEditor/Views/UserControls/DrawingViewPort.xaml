@@ -96,7 +96,7 @@
                         <Rectangle.Fill>
                             <VisualBrush Viewport="{Binding Height, Converter={StaticResource IntToViewportRectConverter}}" ViewboxUnits="Absolute" TileMode="Tile" >
                                 <VisualBrush.Visual>
-                                    <Line  X1="0" Y1="0" X2="0.9" Y2="0" Stroke="White" StrokeThickness="0.01"/>
+                                    <Line  X1="0" Y1="0" X2="1" Y2="0" Stroke="White" StrokeThickness="0.01"/>
                                 </VisualBrush.Visual>
                             </VisualBrush>
                         </Rectangle.Fill>
@@ -106,7 +106,7 @@
                             <VisualBrush Viewport="{Binding Width, Converter={StaticResource IntToViewportRectConverter}, 
                             ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
                                 <VisualBrush.Visual>
-                                    <Line  X1="0" Y1="0" X2="0" Y2="0.9" Stroke="White" StrokeThickness="0.01"/>
+                                    <Line  X1="0" Y1="0" X2="0" Y2="1" Stroke="White" StrokeThickness="0.01"/>
                                 </VisualBrush.Visual>
                             </VisualBrush>
                         </Rectangle.Fill>
