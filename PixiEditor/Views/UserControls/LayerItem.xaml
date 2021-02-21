@@ -18,7 +18,7 @@
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
         <i:Interaction.Triggers>
-            <i:EventTrigger EventName="MouseDown">
+            <i:EventTrigger EventName="MouseLeftButtonDown">
                 <i:InvokeCommandAction Command="{Binding ElementName=uc, 
                             Path=SetActiveLayerCommand}"
                                        CommandParameter="{Binding Path=LayerIndex, ElementName=uc}"/>

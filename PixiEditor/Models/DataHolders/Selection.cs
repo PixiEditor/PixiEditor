@@ -56,7 +56,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void Clear()
         {
-            SelectionLayer = new Layer("_selectionLayer");
+            SelectionLayer.Clear();
             SelectedPoints.Clear();
         }
     }

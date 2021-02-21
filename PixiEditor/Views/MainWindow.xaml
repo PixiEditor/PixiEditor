@@ -110,29 +110,29 @@
                     <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
                 </MenuItem>
                 <MenuItem Header="_Document">
-                    <MenuItem Header="Resize Document..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
+                    <MenuItem Header="_Resize Document..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
                               InputGestureText="Ctrl+Shift+I" />
-                    <MenuItem Header="Resize Canvas..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
+                    <MenuItem Header="_Resize Canvas..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
                               CommandParameter="canvas" InputGestureText="Ctrl+Shift+C" />
-                    <MenuItem Header="Clip Canvas" Command="{Binding DocumentSubViewModel.ClipCanvasCommand}" />
+                    <MenuItem Header="_Clip Canvas" Command="{Binding DocumentSubViewModel.ClipCanvasCommand}" />
                     <Separator/>
-                    <MenuItem Header="Center Content" Command="{Binding DocumentSubViewModel.CenterContentCommand}" />
+                    <MenuItem Header="_Center Content" Command="{Binding DocumentSubViewModel.CenterContentCommand}" />
                 </MenuItem>
                 <MenuItem Header="_View">
-                    <MenuItem Header="Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
+                    <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                               IsCheckable="True" InputGestureText="Ctrl+`"/>
                 </MenuItem>
                 <MenuItem Header="_Help">
-                    <MenuItem Header="Documentation" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
+                    <MenuItem Header="_Documentation" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki"/>
-                    <MenuItem Header="Repository" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
+                    <MenuItem Header="_Repository" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor"/>
-                    <MenuItem Header="Shortcuts" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
+                    <MenuItem Header="_Shortcuts" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Shortcuts"/>
                     <Separator/>
-                    <MenuItem Header="License" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
+                    <MenuItem Header="_License" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE"/>
-                    <MenuItem Header="Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
+                    <MenuItem Header="_Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
             </Menu>
@@ -346,6 +346,8 @@
                                                                                   Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <MenuItem Header="Merge selected"
+                                                                                  Command="{Binding LayersSubViewModel.MergeSelectedCommand, Source={StaticResource ViewModelMain}}"/>
                                                                         <MenuItem Header="Merge with above"
                                                                                   Command="{Binding LayersSubViewModel.MergeWithAboveCommand, Source={StaticResource ViewModelMain}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},

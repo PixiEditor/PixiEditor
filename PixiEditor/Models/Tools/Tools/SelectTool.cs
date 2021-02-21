@@ -49,13 +49,16 @@ namespace PixiEditor.Models.Tools.Tools
                 ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.Clear();
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                new Change(
-                    "SelectedPoints",
-                    oldSelection.SelectedPoints,
-                    new ObservableCollection<Coordinates>(ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints),
-                    "Select pixels",
-                    ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection));
+            if (oldSelection != null)
+            {
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
+                    new Change(
+                        "SelectedPoints",
+                        oldSelection.SelectedPoints,
+                        new ObservableCollection<Coordinates>(ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints),
+                        "Select pixels",
+                        ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection));
+            }
         }
 
         public override void Use(Coordinates[] pixels)

@@ -135,64 +135,64 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        /// <summary>
-        /// Merges two layers.
-        /// </summary>
-        /// <param name="firstLayer">The lower layer.</param>
-        /// <param name="secondLayer">The upper layer.</param>
-        /// <returns>The merged layer.</returns>
-        public Layer MergeLayers(Layer firstLayer, Layer secondLayer, bool nameOfSecond, int index)
+        public Layer MergeLayers(Layer[] layersToMerge, bool nameOfLast, int index)
         {
+            if (layersToMerge == null || layersToMerge.Length < 2)
+            {
+                throw new ArgumentException("Not enough layers were provided to merge. Minimum amount is 2");
+            }
+
             string name;
 
             // Wich name should be used
-            if (nameOfSecond)
+            if (nameOfLast)
             {
-                name = secondLayer.Name;
+                name = layersToMerge[^1].Name;
             }
             else
             {
-                name = firstLayer.Name;
+                name = layersToMerge[0].Name;
             }
 
-            Layer mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
+            Layer mergedLayer = null;
 
-            // Insert new layer and remove old
-            Layers.Insert(index, mergedLayer);
-            Layers.Remove(firstLayer);
-            Layers.Remove(secondLayer);
+            for (int i = 0; i < layersToMerge.Length - 1; i++)
+            {
+                Layer firstLayer = layersToMerge[i];
+                Layer secondLayer = layersToMerge[i + 1];
+                mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
 
-            SetActiveLayer(Layers.IndexOf(mergedLayer));
+                // Insert new layer and remove old
+                Layers.Insert(index, mergedLayer);
+                Layers.Remove(firstLayer);
+                Layers.Remove(secondLayer);
+
+                SetActiveLayer(Layers.IndexOf(mergedLayer));
+            }
 
             return mergedLayer;
         }
 
-        /// <summary>
-        /// Merges two layers.
-        /// </summary>
-        /// <param name="firstIndex">The index of the lower layer.</param>
-        /// <param name="secondIndex">The index of the upper leyer.</param>
-        /// <returns>The merged layer.</returns>
-        public Layer MergeLayers(int firstIndex, int secondIndex, bool nameOfSecond)
+        public Layer MergeLayers(Layer[] layersToMerge, bool nameIsLastLayers)
         {
-            Layer firstLayer = Layers[firstIndex];
-            Layer secondLayer = Layers[secondIndex];
-
-            IEnumerable<Layer> undoArgs = new[] { firstLayer, secondLayer };
-            if (firstIndex > secondIndex)
+            if (layersToMerge == null || layersToMerge.Length < 2)
             {
-                undoArgs = undoArgs.Reverse();
+                throw new ArgumentException("Not enough layers were provided to merge. Minimum amount is 2");
             }
+
+            IEnumerable<Layer> undoArgs = layersToMerge;
 
             StorageBasedChange undoChange = new StorageBasedChange(this, undoArgs);
 
-            var layer = MergeLayers(firstLayer, secondLayer, nameOfSecond, firstIndex);
+            int[] indexes = layersToMerge.Select(x => Layers.IndexOf(x)).ToArray();
+
+            var layer = MergeLayers(layersToMerge, nameIsLastLayers, Layers.IndexOf(layersToMerge[0]));
 
             UndoManager.AddUndoChange(undoChange.ToChange(
                 InsertLayersAtIndexesProcess,
-                new object[] { firstIndex > secondIndex ? firstIndex - 1 : firstIndex },
+                new object[] { indexes[0] },
                 MergeLayersProcess,
-                new object[] { firstIndex, secondIndex, nameOfSecond, layer.LayerGuid },
+                new object[] { indexes, nameIsLastLayers, layer.LayerGuid },
                 "Undo merge layers"));
 
             return layer;
@@ -201,15 +201,18 @@ namespace PixiEditor.Models.DataHolders
         private void MergeLayersProcess(object[] args)
         {
             if (args.Length > 0
-                && args[0] is int firstIndex
-                && args[1] is int secondIndex
-                && args[2] is bool nameOfSecond
-                && args[3] is Guid mergedLayerGuid)
+                && args[0] is int[] indexes
+                && args[1] is bool nameOfSecond
+                && args[2] is Guid mergedLayerGuid)
             {
-                Layer firstLayer = Layers[firstIndex];
-                Layer secondLayer = Layers[secondIndex];
+                Layer[] layers = new Layer[indexes.Length];
 
-                Layer layer = MergeLayers(firstLayer, secondLayer, nameOfSecond, firstIndex);
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    layers[i] = Layers[indexes[i]];
+                }
+
+                Layer layer = MergeLayers(layers, nameOfSecond, indexes[0]);
                 layer.ChangeGuid(mergedLayerGuid);
             }
         }

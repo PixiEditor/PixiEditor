@@ -205,6 +205,11 @@ namespace PixiEditor.Models.Controllers
                     Manager.PrimaryColor);
 
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();
+                if (changes.Length == 0)
+                {
+                    return;
+                }
+
                 Manager.ActiveDocument.PreviewLayer.SetPixels(BitmapPixelChanges.CombineOverride(changes));
 
                 if (clearPreviewLayer || previewLayerChanges == null)
