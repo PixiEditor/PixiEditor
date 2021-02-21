@@ -200,7 +200,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void MergeLayersProcess(object[] args)
         {
-            if (args.Length > 0 
+            if (args.Length > 0
                 && args[0] is int firstIndex
                 && args[1] is int secondIndex
                 && args[2] is bool nameOfSecond

@@ -1,4 +1,6 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Layers;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -45,7 +47,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetActiveLayer(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.SetActiveLayer((int)parameter);
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                Layer layer = Owner.BitmapManager.ActiveDocument.Layers[(int)parameter];
+                layer.IsActive = !layer.IsActive;
+            }
+            else
+            {
+                Owner.BitmapManager.ActiveDocument.SetActiveLayer((int)parameter);
+            }
         }
 
         public void DeleteLayer(object parameter)

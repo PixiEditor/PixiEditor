@@ -121,7 +121,8 @@ namespace PixiEditor.Models.Tools.Tools
                 }
                 else
                 {
-                    affectedLayers = new[] { layer };
+                    affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument
+                        .Layers.Where(x => x.IsActive && x.IsVisible).ToArray();
                 }
 
                 startSelection = currentSelection;
