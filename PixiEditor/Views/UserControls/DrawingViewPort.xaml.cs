@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Position;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -101,5 +93,15 @@ namespace PixiEditor.Views.UserControls
         // Using a DependencyProperty as the backing store for MouseXOnCanvas.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MouseYOnCanvasProperty =
             DependencyProperty.Register("MouseYOnCanvas", typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
+
+        public bool GridLinesVisible
+        {
+            get { return (bool)GetValue(GridLinesVisibleProperty); }
+            set { SetValue(GridLinesVisibleProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for GridLinesVisible.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty GridLinesVisibleProperty =
+            DependencyProperty.Register("GridLinesVisible", typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
     }
 }
