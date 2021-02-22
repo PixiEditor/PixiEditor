@@ -115,6 +115,37 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        public void ToggleLayer(int index)
+        {
+            Layer layer = Layers[index];
+            layer.IsActive = !layer.IsActive;
+        }
+
+        public void SelectLayersRange(int index)
+        {
+            DeselectAllExcept(ActiveLayer);
+            int firstIndex = Layers.IndexOf(ActiveLayer);
+
+            int startIndex = Math.Min(index, firstIndex);
+            for (int i = startIndex; i <= startIndex + Math.Abs(index - firstIndex); i++)
+            {
+                Layers[i].IsActive = true;
+            }
+        }
+
+        public void DeselectAllExcept(Layer exceptLayer)
+        {
+            foreach (var layer in Layers)
+            {
+                if (layer == exceptLayer)
+                {
+                    continue;
+                }
+
+                layer.IsActive = false;
+            }
+        }
+
         public void RemoveLayer(int layerIndex)
         {
             if (Layers.Count == 0)
@@ -154,21 +185,21 @@ namespace PixiEditor.Models.DataHolders
                 name = layersToMerge[0].Name;
             }
 
-            Layer mergedLayer = null;
+            Layer mergedLayer = layersToMerge[0];
 
             for (int i = 0; i < layersToMerge.Length - 1; i++)
             {
-                Layer firstLayer = layersToMerge[i];
+                Layer firstLayer = mergedLayer;
                 Layer secondLayer = layersToMerge[i + 1];
                 mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
-
-                // Insert new layer and remove old
-                Layers.Insert(index, mergedLayer);
-                Layers.Remove(firstLayer);
-                Layers.Remove(secondLayer);
-
-                SetActiveLayer(Layers.IndexOf(mergedLayer));
+                Layers.Remove(layersToMerge[i]);
             }
+
+            Layers.Remove(layersToMerge[^1]);
+            // Insert new layer and remove old
+            Layers.Insert(index, mergedLayer);
+
+            SetActiveLayer(Layers.IndexOf(mergedLayer));
 
             return mergedLayer;
         }

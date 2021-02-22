@@ -346,6 +346,7 @@
                                                                                   Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <Separator/>
                                                                         <MenuItem Header="Merge selected"
                                                                                   Command="{Binding LayersSubViewModel.MergeSelectedCommand, Source={StaticResource ViewModelMain}}"/>
                                                                         <MenuItem Header="Merge with above"

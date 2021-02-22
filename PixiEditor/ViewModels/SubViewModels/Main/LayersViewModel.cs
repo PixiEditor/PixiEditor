@@ -60,20 +60,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             int index = (int)parameter;
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                Layer layer = Owner.BitmapManager.ActiveDocument.Layers[index];
-                layer.IsActive = !layer.IsActive;
+                Owner.BitmapManager.ActiveDocument.ToggleLayer(index);
             }
-            else if (Keyboard.IsKeyDown(Key.LeftShift) 
-                && Owner.BitmapManager.ActiveDocument.Layers.Any(x => x.IsActive))
-                {
-                int firstIndex = Owner.BitmapManager.ActiveDocument.Layers.IndexOf(
-                    Owner.BitmapManager.ActiveDocument.Layers.First(x => x.IsActive));
-
-                int increment = index < firstIndex ? -1 : 1;
-                for (int i = firstIndex; i <= Math.Abs(firstIndex - index); i += increment)
-                {
-                    Owner.BitmapManager.ActiveDocument.Layers[i].IsActive = true //TODO finish shift select
-                }
+            else if (Keyboard.IsKeyDown(Key.LeftShift) && Owner.BitmapManager.ActiveDocument.Layers.Any(x => x.IsActive))
+            {
+                Owner.BitmapManager.ActiveDocument.SelectLayersRange(index);
             }
             else
             {
