@@ -12,7 +12,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand NewLayerCommand { get; set; }
 
-        public RelayCommand DeleteLayerCommand { get; set; }
+        public RelayCommand DeleteLayersCommand { get; set; }
 
         public RelayCommand RenameLayerCommand { get; set; }
 
@@ -31,7 +31,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
+            DeleteLayersCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             RenameLayerCommand = new RelayCommand(RenameLayer);
@@ -52,7 +52,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanCreateNewLayer(object parameter)
         {
-            return Owner.BitmapManager.ActiveDocument != null && Owner.BitmapManager.ActiveDocument.Layers.Count > 0;
+            return Owner.BitmapManager.ActiveDocument != null;
         }
 
         public void SetActiveLayer(object parameter)
@@ -74,7 +74,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void DeleteLayer(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.RemoveLayer((int)parameter);
+            int index = (int)parameter;
+            if (!Owner.BitmapManager.ActiveDocument.Layers[index].IsActive)
+            {
+                Owner.BitmapManager.ActiveDocument.RemoveLayer(index);
+            }
+            else
+            {
+                Owner.BitmapManager.ActiveDocument.RemoveActiveLayers();
+            }
         }
 
         public bool CanDeleteLayer(object property)

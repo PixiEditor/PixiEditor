@@ -331,7 +331,7 @@
                                                                 <vws:LayerItem.ContextMenu>
                                                                     <ContextMenu>
                                                                         <MenuItem Header="Delete"
-                                                                                  Command="{Binding LayersSubViewModel.DeleteLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  Command="{Binding LayersSubViewModel.DeleteLayersCommand, Source={StaticResource ViewModelMain}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                         <MenuItem Header="Rename"

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using GalaSoft.MvvmLight.Messaging;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
@@ -166,6 +167,32 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        public void RemoveLayer(Layer layer)
+        {
+            RemoveLayer(Layers.IndexOf(layer));
+        }
+
+        public void RemoveActiveLayers()
+        {
+            if (Layers.Count == 0 || !Layers.Any(x => x.IsActive))
+            {
+                return;
+            }
+
+            Layer[] layers = Layers.Where(x => x.IsActive).ToArray();
+            int firstIndex = Layers.IndexOf(layers[0]);
+
+            object[] guidArgs = new object[] { layers.Select(x => x.LayerGuid).ToArray() };
+
+            StorageBasedChange change = new StorageBasedChange(this, layers);
+
+            RemoveLayersProcess(guidArgs);
+
+            InjectRemoveActiveLayersUndo(guidArgs, change);
+
+            SetNextLayerAsActive(firstIndex);
+        }
+
         public Layer MergeLayers(Layer[] layersToMerge, bool nameOfLast, int index)
         {
             if (layersToMerge == null || layersToMerge.Length < 2)
@@ -196,7 +223,7 @@ namespace PixiEditor.Models.DataHolders
             }
 
             Layers.Remove(layersToMerge[^1]);
-            // Insert new layer and remove old
+
             Layers.Insert(index, mergedLayer);
 
             SetActiveLayer(Layers.IndexOf(mergedLayer));
@@ -227,6 +254,35 @@ namespace PixiEditor.Models.DataHolders
                 "Undo merge layers"));
 
             return layer;
+        }
+
+        private void InjectRemoveActiveLayersUndo(object[] guidArgs, StorageBasedChange change)
+        {
+            Action<Layer[], UndoLayer[]> undoAction = RestoreLayersProcess;
+            Action<object[]> redoAction = RemoveLayersProcess;
+
+            if (Layers.Count == 0)
+            {
+                Layer layer = new Layer("Base Layer");
+                Layers.Add(layer);
+                undoAction = (Layer[] layers, UndoLayer[] undoData) =>
+                {
+                    Layers.RemoveAt(0);
+                    RestoreLayersProcess(layers, undoData);
+                };
+                redoAction = (object[] args) =>
+                {
+                    RemoveLayersProcess(args);
+                    Layers.Add(layer);
+                };
+            }
+
+            UndoManager.AddUndoChange(
+            change.ToChange(
+                undoAction,
+                redoAction,
+                guidArgs,
+                "Remove layers"));
         }
 
         private void MergeLayersProcess(object[] args)
@@ -317,6 +373,19 @@ namespace PixiEditor.Models.DataHolders
                 if (wasActive || ActiveLayerIndex >= index)
                 {
                     SetNextLayerAsActive(index);
+                }
+            }
+        }
+
+        private void RemoveLayersProcess(object[] parameters)
+        {
+            if (parameters != null && parameters.Length > 0 && parameters[0] is IEnumerable<Guid> layerGuids)
+            {
+                object[] args = new object[1];
+                foreach (var guid in layerGuids)
+                {
+                    args[0] = guid;
+                    RemoveLayerProcess(args);
                 }
             }
         }
