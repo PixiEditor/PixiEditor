@@ -118,10 +118,17 @@ namespace PixiEditor.Models.DataHolders
 
         public void ToggleLayer(int index)
         {
-            Layer layer = Layers[index];
-            layer.IsActive = !layer.IsActive;
+            if (index < Layers.Count && index >= 0)
+            {
+                Layer layer = Layers[index];
+                layer.IsActive = !layer.IsActive;
+            }
         }
 
+        /// <summary>
+        /// Selects all layers between active layer and layer at given index.
+        /// </summary>
+        /// <param name="index">End of range index.</param>
         public void SelectLayersRange(int index)
         {
             DeselectAllExcept(ActiveLayer);
