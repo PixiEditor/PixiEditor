@@ -33,14 +33,6 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         }
 
         [StaFact]
-        public void TestThatClipboardControllerSavesImageToClipboard()
-        {
-            Layer testLayer = new Layer("test layer", 10, 10);
-            ClipboardController.CopyToClipboard(new[] { testLayer }, CoordinatesCalculator.RectangleToCoordinates(0, 0, 9, 9).ToArray(), 10, 10);
-            Assert.True(ClipboardController.IsImageInClipboard());
-        }
-
-        [StaFact]
         public void TestThatCopyToClipboardWithSelectionSavesCorrectBitmap()
         {
             Clipboard.Clear();
