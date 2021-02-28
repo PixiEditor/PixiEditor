@@ -12,9 +12,9 @@ namespace PixiEditor.Models.UserPreferences
 
         public bool IsLoaded { get; private set; } = false;
 
-        public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData);
+        public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData, "user_preferences.json");
 
-        public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData);
+        public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData, "editor_data.json");
 
         public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
 
@@ -141,12 +141,12 @@ namespace PixiEditor.Models.UserPreferences
 
 #nullable disable
 
-        private static string GetPathToSettings(Environment.SpecialFolder folder)
+        private static string GetPathToSettings(Environment.SpecialFolder folder, string fileName)
         {
             return Path.Join(
             Environment.GetFolderPath(folder),
             "PixiEditor",
-            "user_preferences.json");
+            fileName);
         }
 
         private static Dictionary<string, object> InitPath(string path)

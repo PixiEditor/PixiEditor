@@ -73,7 +73,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 return;
             }
 
-            OpenDocument((string)parameter);
+            Open((string)parameter);
         }
 
         /// <summary>
