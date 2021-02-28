@@ -1,4 +1,5 @@
-﻿using PixiEditor.Helpers;
+﻿using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Layers;
 
@@ -40,11 +41,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewTemplateLayer(object parameter)
         {
-            ImportFileDialog dialog = new ImportFileDialog();
-
-            if (dialog.ShowDialog())
+            OpenFileDialog path = new OpenFileDialog
             {
-                TemplateLayer template = new TemplateLayer(dialog.FilePath, Owner.BitmapManager.ActiveDocument.Width, Owner.BitmapManager.ActiveDocument.Height);
+                Title = "Import path",
+                CheckPathExists = true,
+                Filter = "Image Files|*.png;*.jpeg;*.jpg"
+            };
+            if (path.ShowDialog() == true)
+            {
+                ReferenceLayer template = new ReferenceLayer(path.FileName, Owner.BitmapManager.ActiveDocument.Width, Owner.BitmapManager.ActiveDocument.Height);
                 Owner.BitmapManager.ActiveDocument.DocumentSizeChanged += template.DocumentSizeChanged;
                 Owner.BitmapManager.ActiveDocument.Layers.Add(template);
             }
@@ -117,24 +122,36 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void MergeWithAbove(object parameter)
         {
             int index = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.MergeLayers(index, index + 1, false);
+            Owner.BitmapManager.ActiveDocument.MergeLayers(index, Owner.BitmapManager.ActiveDocument.GetMergeableLayerAboveIndex(index), false);
         }
 
         public void MergeWithBelow(object parameter)
         {
             int index = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.MergeLayers(index - 1, index, true);
+            Owner.BitmapManager.ActiveDocument.MergeLayers(Owner.BitmapManager.ActiveDocument.GetMergeableLayerBelowIndex(index), index, true);
         }
 
         public bool CanMergeWithAbove(object propery)
         {
             int index = (int)propery;
+
+            if (!Owner.BitmapManager.ActiveDocument.ActiveLayer.IsMergeable || Owner.BitmapManager.ActiveDocument.GetMergeableLayerAboveIndex(index) == -1)
+            {
+                return false;
+            }
+
             return Owner.DocumentIsNotNull(null) && index != Owner.BitmapManager.ActiveDocument.Layers.Count - 1;
         }
 
         public bool CanMergeWithBelow(object propery)
         {
             int index = (int)propery;
+
+            if (!Owner.BitmapManager.ActiveDocument.ActiveLayer.IsMergeable || Owner.BitmapManager.ActiveDocument.GetMergeableLayerBelowIndex(index) == -1)
+            {
+                return false;
+            }
+
             return Owner.DocumentIsNotNull(null) && index != 0;
         }
     }

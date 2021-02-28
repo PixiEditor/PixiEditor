@@ -40,7 +40,7 @@ namespace PixiEditor.Models.DataHolders
                 ActiveLayer.IsActive = false;
             }
 
-            if (Layers.Where(x => x is not TemplateLayer).Any(x => x.IsActive))
+            if (Layers.Where(x => x is not ReferenceLayer).Any(x => x.IsActive))
             {
                 var guids = Layers.Where(x => x.IsActive).Select(y => y.LayerGuid);
                 guids.ToList().ForEach(x => Layers.First(layer => layer.LayerGuid == x).IsActive = false);
@@ -214,6 +214,36 @@ namespace PixiEditor.Models.DataHolders
                 "Undo merge layers"));
 
             return layer;
+        }
+
+        public int GetMergeableLayerAboveIndex(int from)
+        {
+            for (int i = from + 1; i < Layers.Count; i++)
+            {
+                Layer layer = Layers[i];
+
+                if (layer.IsMergeable)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public int GetMergeableLayerBelowIndex(int from)
+        {
+            for (int i = from - 1; i > -1; i--)
+            {
+                Layer layer = Layers[i];
+
+                if (layer.IsMergeable)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         private void MergeLayersProcess(object[] args)

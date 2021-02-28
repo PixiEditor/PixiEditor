@@ -31,5 +31,7 @@ namespace PixiEditor.Models.Layers
         }
 
         public Guid LayerGuid { get; protected set; }
+
+        public virtual bool IsMergeable => true;
     }
 }

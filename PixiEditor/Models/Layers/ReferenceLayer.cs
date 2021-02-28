@@ -9,7 +9,7 @@ using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Layers
 {
-    internal class TemplateLayer : Layer
+    internal class ReferenceLayer : Layer
     {
         private static readonly Brush ActiveBrush = new SolidColorBrush(Color.FromRgb(130, 35, 35));
         private static readonly Brush InactiveBrush = new SolidColorBrush(Color.FromArgb(70, 130, 35, 35));
@@ -21,6 +21,8 @@ namespace PixiEditor.Models.Layers
         private bool timerRunning;
         private DateTime lastEditTime;
 
+        public override bool IsMergeable => false;
+
         public string Path
         {
             get => path;
@@ -31,8 +33,8 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public TemplateLayer(string path, int width, int height)
-            : base("Template Layer")
+        public ReferenceLayer(string path, int width, int height)
+            : base("Reference Layer")
         {
             Path = path;
             WatcherInit();
@@ -80,26 +82,26 @@ namespace PixiEditor.Models.Layers
 
             watcher.EnableRaisingEvents = true;
 
-            watcher.Changed += TemplateChanged;
-            watcher.Deleted += TemplateDeleted;
-            watcher.Renamed += TemplateRenamed;
+            watcher.Changed += FileChanged;
+            watcher.Deleted += FileDeleted;
+            watcher.Renamed += FileRenamed;
         }
 
-        private void TemplateRenamed(object sender, RenamedEventArgs e)
+        private void FileRenamed(object sender, RenamedEventArgs e)
         {
             path = e.FullPath;
             watcher.Path = System.IO.Path.GetDirectoryName(path);
             watcher.Filter = System.IO.Path.GetFileName(path);
         }
 
-        private void TemplateDeleted(object sender, FileSystemEventArgs e)
+        private void FileDeleted(object sender, FileSystemEventArgs e)
         {
             path = null;
             watcher.Dispose();
             watcher = null;
         }
 
-        private void TemplateChanged(object sender, FileSystemEventArgs e)
+        private void FileChanged(object sender, FileSystemEventArgs e)
         {
             lastEditTime = DateTime.Now;
 
@@ -120,7 +122,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        ~TemplateLayer()
+        ~ReferenceLayer()
         {
             watcher.Dispose();
             updateTimer.Dispose();

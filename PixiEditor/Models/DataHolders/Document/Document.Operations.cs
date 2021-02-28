@@ -95,7 +95,7 @@ namespace PixiEditor.Models.DataHolders
 
             for (int i = 0; i < Layers.Count; i++)
             {
-                if (Layers[i] is TemplateLayer)
+                if (Layers[i] is ReferenceLayer)
                 {
                     continue;
                 }

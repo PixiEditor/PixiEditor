@@ -115,7 +115,7 @@ namespace PixiEditor.Models.Controllers
                 {
                     Layer layer = Manager.ActiveDocument.Layers.First(x => x.LayerGuid == modifiedLayers[i].LayerGuid);
 
-                    if (layer is TemplateLayer)
+                    if (layer is ReferenceLayer)
                     {
                         continue;
                     }

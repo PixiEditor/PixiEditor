@@ -35,6 +35,8 @@ namespace PixiEditor.Models.Layers
 
         private Brush layerColor;
 
+        public override bool IsMergeable => true;
+
         public Layer(string name)
         {
             Name = name;
