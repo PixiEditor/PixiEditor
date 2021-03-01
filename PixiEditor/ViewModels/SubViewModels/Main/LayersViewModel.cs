@@ -150,16 +150,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.ActiveDocument.MergeLayers(new Layer[] { layer1, layer2 }, true);
         }
 
-        public bool CanMergeWithAbove(object propery)
+        public bool CanMergeWithAbove(object property)
         {
-            int index = (int)propery;
-            return Owner.DocumentIsNotNull(null) && index != Owner.BitmapManager.ActiveDocument.Layers.Count - 1;
+            int index = (int)property;
+            return Owner.DocumentIsNotNull(null) && index != Owner.BitmapManager.ActiveDocument.Layers.Count - 1
+                && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
         }
 
-        public bool CanMergeWithBelow(object propery)
+        public bool CanMergeWithBelow(object property)
         {
-            int index = (int)propery;
-            return Owner.DocumentIsNotNull(null) && index != 0;
+            int index = (int)property;
+            return Owner.DocumentIsNotNull(null) && index != 0 && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
         }
     }
 }
