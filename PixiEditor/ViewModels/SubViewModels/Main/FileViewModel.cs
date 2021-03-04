@@ -66,6 +66,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             string path = (string)parameter;
 
+            foreach (Document document in Owner.BitmapManager.Documents)
+            {
+                if (document.DocumentFilePath == path)
+                {
+                    Owner.BitmapManager.ActiveDocument = document;
+                    return;
+                }
+            }
+
             if (!File.Exists(path))
             {
                 NoticeDialog.Show("The file does no longer exist at that path");
