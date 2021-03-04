@@ -19,6 +19,8 @@ namespace PixiEditor.Models.DataHolders
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
+        public LayerStructure LayerStructure { get; set; } = new LayerStructure();
+
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
 
         public int ActiveLayerIndex

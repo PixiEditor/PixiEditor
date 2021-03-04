@@ -6,7 +6,7 @@
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:vws="clr-namespace:PixiEditor.Views" 
-             xmlns:main="clr-namespace:PixiEditor.ViewModels.SubViewModels.Main" 
+             xmlns:layers="clr-namespace:PixiEditor.Models.Layers"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
              d:DataContext="{d:DesignInstance Type=local:LayersManager}"
              mc:Ignorable="d"
@@ -14,6 +14,7 @@
     <UserControl.Resources>
         <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
         <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
+        <converters:LayersToStructuredLayersConverter x:Key="LayersToStructuredLayersConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -40,8 +41,13 @@
         <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
             <ItemsControl DataContext="{Binding ElementName=uc}" 
-                          ItemsSource="{Binding BitmapManager.ActiveDocument.Layers, ElementName=uc}"
-                          x:Name="layersItemsControl" AlternationCount="9999">
+                          x:Name="layersItemsControl" AlternationCount="9999" d:DataContext="{x:Type layers:LayerStructureItem}">
+                <ItemsControl.ItemsSource>
+                    <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
+                        <Binding Path="BitmapManager.ActiveDocument.Layers" ElementName="uc"/>
+                        <Binding Path="BitmapManager.ActiveDocument.LayerStructure" ElementName="uc"/>
+                    </MultiBinding>
+                </ItemsControl.ItemsSource>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel Orientation="Vertical" />
@@ -49,54 +55,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <vws:LayerItem Tag="{Binding Path=DataContext, ElementName=layersItemsControl}" 
-                                       LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" 
-                                       SetActiveLayerCommand="{Binding DataContext.LayersViewModel.SetActiveLayerCommand, ElementName=layersItemsControl}"
-                                       LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
-                                       IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                       PreviewImage="{Binding LayerBitmap}"
-                                      MoveToBackCommand="{Binding DataContext.LayersViewModel.MoveToBackCommand, ElementName=layersItemsControl}"
-                                      MoveToFrontCommand="{Binding DataContext.LayersViewModel.MoveToFrontCommand, ElementName=layersItemsControl}">
-                            <vws:LayerItem.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Delete"
-                                         Command="{Binding PlacementTarget.Tag.LayersViewModel.DeleteLayersCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                         CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                    <MenuItem Header="Rename"
-                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.RenameLayerCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                     CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                    <MenuItem Header="Move to front"
-                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.MoveToFrontCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                     CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                    <MenuItem Header="Move to back"
-                                    Command="{Binding PlacementTarget.Tag.LayersViewModel.MoveToBackCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                     CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                    <Separator/>
-                                    <MenuItem Header="Merge selected"
-                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.MergeSelectedCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                                    <MenuItem Header="Merge with above"
-                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.MergeWithAboveCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                     CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                    <MenuItem Header="Merge with below"
-                                    Command="{Binding PlacementTarget.Tag.LayersViewModel.MergeWithBelowCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                </ContextMenu>
-                            </vws:LayerItem.ContextMenu>
-                        </vws:LayerItem>
+                        
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
