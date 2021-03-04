@@ -25,7 +25,6 @@
             <vm:ViewModelMain x:Key="ViewModelMain" />
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
-            <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
             <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
@@ -287,7 +286,8 @@
                                     <LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <usercontrols:LayersManager LayersViewModel="{Binding LayersSubViewModel}"/>
+                                        <usercontrols:LayersManager LayersViewModel="{Binding LayersSubViewModel}"
+                                                                    BitmapManager="{Binding BitmapManager}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>

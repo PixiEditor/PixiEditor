@@ -92,7 +92,7 @@ namespace PixiEditor.Models.Tools.Tools
                 return changes;
             }
 
-            changedPixelsindex += changedPixelsindex >= 2 ? 0 : 1;
+            changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
 
             var result = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
 

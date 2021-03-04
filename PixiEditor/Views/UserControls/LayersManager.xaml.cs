@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using PixiEditor.Models.Controllers;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -20,16 +10,25 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayersManager : UserControl
     {
-
-        public LayersManager LayersViewModel
+        public LayersViewModel LayersViewModel
         {
-            get { return (LayersManager)GetValue(LayersViewModelProperty); }
+            get { return (LayersViewModel)GetValue(LayersViewModelProperty); }
             set { SetValue(LayersViewModelProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for LayersViewModel.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayersViewModelProperty =
-            DependencyProperty.Register("LayersViewModel", typeof(LayersManager), typeof(LayersManager), new PropertyMetadata(0));
+            DependencyProperty.Register("LayersViewModel", typeof(LayersViewModel), typeof(LayersManager), new PropertyMetadata(default(LayersViewModel)));
+
+        public BitmapManager BitmapManager
+        {
+            get { return (BitmapManager)GetValue(BitmapManagerProperty); }
+            set { SetValue(BitmapManagerProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for BitmapManager.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty BitmapManagerProperty =
+            DependencyProperty.Register("BitmapManager", typeof(BitmapManager), typeof(LayersManager), new PropertyMetadata(default(BitmapManager)));
 
         public LayersManager()
         {
