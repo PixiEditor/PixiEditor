@@ -11,7 +11,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand NewLayerCommand { get; set; }
 
-        public RelayCommand NewTemplateLayerCommand { get; set; }
+        public RelayCommand NewReferenceLayerCommand { get; set; }
 
         public RelayCommand DeleteLayerCommand { get; set; }
 
@@ -30,7 +30,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            NewTemplateLayerCommand = new RelayCommand(NewTemplateLayer, CanCreateNewLayer);
+            NewReferenceLayerCommand = new RelayCommand(NewReferenceLayer, CanCreateNewLayer);
             DeleteLayerCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
@@ -39,7 +39,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
         }
 
-        public void NewTemplateLayer(object parameter)
+        public void NewReferenceLayer(object parameter)
         {
             OpenFileDialog path = new OpenFileDialog
             {
@@ -47,6 +47,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 CheckPathExists = true,
                 Filter = "Image Files|*.png;*.jpeg;*.jpg"
             };
+
             if (path.ShowDialog() == true)
             {
                 ReferenceLayer template = new ReferenceLayer(path.FileName, Owner.BitmapManager.ActiveDocument.Width, Owner.BitmapManager.ActiveDocument.Height);
