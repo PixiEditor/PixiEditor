@@ -293,7 +293,7 @@
                                             <Button Grid.Row="0" Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
-                                            <Button Grid.Row="1" Command="{Binding LayersSubViewModel.NewTemplateLayerCommand}" Height="30" Content="New Reference Layer"
+                                            <Button Grid.Row="1" Command="{Binding LayersSubViewModel.NewReferenceLayerCommand}" Height="30" Content="New Reference Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
                                             <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10,0">
