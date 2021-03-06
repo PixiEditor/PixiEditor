@@ -1,5 +1,4 @@
-﻿using PixiEditor.Models.Layers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,11 +12,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Views.UserControls
 {
     /// <summary>
-    /// Interaction logic for LayerStructureItemContainer.xaml
+    /// Interaction logic for LayerStructureItemContainer.xaml.
     /// </summary>
     public partial class LayerStructureItemContainer : UserControl
     {

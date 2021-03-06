@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Models.Layers
 {
     public class StructuredLayerTree
     {
-        public ObservableCollection<LayerStructureItem> Items { get; set; }
+        public ObservableCollection<LayerStructureItem> Items { get; set; } = new ObservableCollection<LayerStructureItem>();
 
         public StructuredLayerTree(IEnumerable<Layer> layers, LayerStructure structure)
         {
-            Items = new ();
             if (structure == null || structure.Items.Count == 0)
             {
                 foreach (var layer in layers)
@@ -32,6 +30,11 @@ namespace PixiEditor.Models.Layers
 
                 Items.Add(new LayerStructureItem(itemChildren));
             }
+        }
+
+        public StructuredLayerTree()
+        {
+            
         }
     }
 }

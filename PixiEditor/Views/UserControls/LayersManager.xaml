@@ -10,7 +10,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
              d:DataContext="{d:DesignInstance Type=local:LayersManager}"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="300" Name="uc">
+             d:DesignHeight="450" d:DesignWidth="250" Name="uc">
     <UserControl.Resources>
         <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
         <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
@@ -55,7 +55,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        
+                        <local:LayerStructureItemContainer Item="{Binding}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
