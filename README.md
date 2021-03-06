@@ -24,9 +24,9 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 
 
-### Light weighted
+### Lightweight
 
-Program weights only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
+Program weighs only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
 
 ### Active development
 
@@ -38,7 +38,7 @@ PixiEditor started in 2018 and it's been actively developed since. We continuous
 
 Follow these instructions to get PixiEditor working on your machine.
 
-1. Download .exe file from [here](https://github.com/flabbet/PixiEditor/releases)
+1. Download the .exe file from [here](https://github.com/flabbet/PixiEditor/releases)
 2. Open installer
 3. Follow installer instructions
 

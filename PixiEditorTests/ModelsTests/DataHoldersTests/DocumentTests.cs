@@ -4,6 +4,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -282,6 +283,23 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             Assert.Equal("Test", document.Layers[1].Name);
             Assert.Equal("Test2", document.Layers[0].Name);
+        }
+
+        [StaFact]
+        public void TestThatDocumentGetsAddedToRecentlyOpenedList()
+        {
+            ViewModelMain viewModel = Helpers.MockedViewModelMain();
+
+            Document document = new Document(1, 1)
+            {
+                XamlAccesibleViewModel = viewModel
+            };
+
+            string testFilePath = @"C:\idk\somewhere\homework";
+
+            document.DocumentFilePath = testFilePath;
+
+            Assert.Contains(viewModel.FileSubViewModel.RecentlyOpened, x => x == testFilePath);
         }
     }
 }

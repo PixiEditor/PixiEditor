@@ -1,4 +1,6 @@
-﻿using PixiEditor.Models.IO;
+﻿using System.Collections.ObjectModel;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -14,6 +16,7 @@ namespace PixiEditor.Models.DataHolders
                 documentFilePath = value;
                 RaisePropertyChanged(nameof(DocumentFilePath));
                 RaisePropertyChanged(nameof(Name));
+                UpdateRecentlyOpened(value);
             }
         }
 
@@ -46,6 +49,33 @@ namespace PixiEditor.Models.DataHolders
         {
             DocumentFilePath = Exporter.SaveAsEditableFile(this, path);
             ChangesSaved = true;
+        }
+
+        private void UpdateRecentlyOpened(string newPath)
+        {
+            ObservableCollection<string> recentlyOpened = XamlAccesibleViewModel.FileSubViewModel.RecentlyOpened;
+
+            if (!recentlyOpened.Contains(newPath))
+            {
+                recentlyOpened.Insert(0, newPath);
+            }
+            else
+            {
+                int index = recentlyOpened.IndexOf(newPath);
+                recentlyOpened.Move(index, 0);
+            }
+
+            if (recentlyOpened.Count > IPreferences.Current.GetPreference("maxOpenedRecently", 10))
+            {
+                for (int i = 4; i < recentlyOpened.Count; i++)
+                {
+                    recentlyOpened.RemoveAt(i);
+                }
+            }
+
+            IPreferences.Current.UpdateLocalPreference("RecentlyOpened", recentlyOpened);
+
+            XamlAccesibleViewModel.FileSubViewModel.HasRecent = true;
         }
     }
 }

@@ -7,9 +7,9 @@ namespace PixiEditor.Models.Dialogs
 {
     public class NewFileDialog : CustomDialog
     {
-        private int height = (int)PreferencesSettings.GetPreference("DefaultNewFileHeight", 16L);
+        private int height = (int)IPreferences.Current.GetPreference("DefaultNewFileHeight", 16L);
 
-        private int width = (int)PreferencesSettings.GetPreference("DefaultNewFileWidth", 16L);
+        private int width = (int)IPreferences.Current.GetPreference("DefaultNewFileWidth", 16L);
 
         public int Width
         {

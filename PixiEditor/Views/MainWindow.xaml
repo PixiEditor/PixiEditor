@@ -14,7 +14,7 @@
         xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
@@ -22,7 +22,7 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <vm:ViewModelMain x:Key="ViewModelMain" />
+            <!--<vm:ViewModelMain x:Key="ViewModelMain" />-->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
             <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
@@ -84,6 +84,14 @@
                 <MenuItem Header="_File">
                     <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding FileSubViewModel.OpenNewFilePopupCommand}" />
                     <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding FileSubViewModel.OpenFileCommand}" />
+                    <MenuItem Header="_Recent" ItemsSource="{Binding FileSubViewModel.RecentlyOpened}" x:Name="recentItemMenu" IsEnabled="{Binding FileSubViewModel.HasRecent}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource menuItemStyle}">
+                                <Setter Property="Command" Value="{Binding ElementName=recentItemMenu, Path=DataContext.FileSubViewModel.OpenRecentCommand}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
                     <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="{Binding FileSubViewModel.SaveDocumentCommand}" />
                     <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S"
                               Command="{Binding FileSubViewModel.SaveDocumentCommand}" CommandParameter="AsNew" />
@@ -273,7 +281,7 @@
                                                         <Grid.ContextMenu>
                                                             <ContextMenu>
                                                                 <MenuItem Header="Remove" Foreground="White"
-                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
+                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand}"
                                                                       CommandParameter="{Binding}" />
                                                             </ContextMenu>
                                                         </Grid.ContextMenu>
@@ -321,7 +329,7 @@
                                                     </ItemsControl.ItemsPanel>
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <vws:LayerItem LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                                            <vws:LayerItem Tag="{Binding DataContext, ElementName=mainWindow}" LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
                                                                    LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
                                                                    IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
@@ -331,30 +339,37 @@
                                                                 <vws:LayerItem.ContextMenu>
                                                                     <ContextMenu>
                                                                         <MenuItem Header="Delete"
-                                                                                  Command="{Binding LayersSubViewModel.DeleteLayersCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.DeleteLayerCommand,
+                                                                                    RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                         <MenuItem Header="Rename"
-                                                                                  Command="{Binding LayersSubViewModel.RenameLayerCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.RenameLayerCommand,
+                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                         <MenuItem Header="Move to front"
-                                                                                  Command="{Binding LayersSubViewModel.MoveToFrontCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MoveToFrontCommand, 
+                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                         <MenuItem Header="Move to back"
-                                                                                  Command="{Binding LayersSubViewModel.MoveToBackCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MoveToBackCommand, 
+                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                         <Separator/>
                                                                         <MenuItem Header="Merge selected"
                                                                                   Command="{Binding LayersSubViewModel.MergeSelectedCommand, Source={StaticResource ViewModelMain}}"/>
                                                                         <MenuItem Header="Merge with above"
-                                                                                  Command="{Binding LayersSubViewModel.MergeWithAboveCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MergeWithAboveCommand, 
+                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                         <MenuItem Header="Merge with below"
-                                                                                  Command="{Binding LayersSubViewModel.MergeWithBelowCommand, Source={StaticResource ViewModelMain}}"
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MergeWithBelowCommand, 
+                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                     </ContextMenu>
