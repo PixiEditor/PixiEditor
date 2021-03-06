@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
@@ -18,6 +21,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class FileViewModel : SubViewModel<ViewModelMain>
     {
+        private bool hasRecent;
+
         public RelayCommand OpenNewFilePopupCommand { get; set; }
 
         public RelayCommand SaveDocumentCommand { get; set; }
@@ -26,6 +31,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand ExportFileCommand { get; set; } // Command that is used to save file
 
+        public RelayCommand OpenRecentCommand { get; set; }
+
+        public bool HasRecent
+        {
+            get => hasRecent;
+            set
+            {
+                hasRecent = value;
+                RaisePropertyChanged(nameof(HasRecent));
+            }
+        }
+
+        public ObservableCollection<string> RecentlyOpened { get; set; } = new ObservableCollection<string>();
+
         public FileViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -33,7 +52,37 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SaveDocumentCommand = new RelayCommand(SaveDocument, Owner.DocumentIsNotNull);
             OpenFileCommand = new RelayCommand(Open);
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
+            OpenRecentCommand = new RelayCommand(OpenRecent);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
+            RecentlyOpened = new ObservableCollection<string>(IPreferences.Current.GetLocalPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
+
+            if (RecentlyOpened.Count > 0)
+            {
+                HasRecent = true;
+            }
+        }
+
+        public void OpenRecent(object parameter)
+        {
+            string path = (string)parameter;
+
+            foreach (Document document in Owner.BitmapManager.Documents)
+            {
+                if (document.DocumentFilePath == path)
+                {
+                    Owner.BitmapManager.ActiveDocument = document;
+                    return;
+                }
+            }
+
+            if (!File.Exists(path))
+            {
+                NoticeDialog.Show("The file does no longer exist at that path");
+                RecentlyOpened.Remove(path);
+                return;
+            }
+
+            Open((string)parameter);
         }
 
         /// <summary>
@@ -98,7 +147,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else
             {
-                if (PreferencesSettings.GetPreference("ShowNewFilePopupOnStartup", true))
+                if (IPreferences.Current.GetPreference("ShowNewFilePopupOnStartup", true))
                 {
                     OpenNewFilePopup(null);
                 }
