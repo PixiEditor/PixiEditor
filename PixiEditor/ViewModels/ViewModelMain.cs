@@ -12,7 +12,6 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;

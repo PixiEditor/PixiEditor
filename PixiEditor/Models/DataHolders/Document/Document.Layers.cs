@@ -121,6 +121,10 @@ namespace PixiEditor.Models.DataHolders
             if (index < Layers.Count && index >= 0)
             {
                 Layer layer = Layers[index];
+                if (layer.IsActive && Layers.Count(x => x.IsActive) == 1)
+                {
+                    return;
+                }
                 layer.IsActive = !layer.IsActive;
             }
         }

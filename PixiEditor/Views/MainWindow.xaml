@@ -339,7 +339,7 @@
                                                                 <vws:LayerItem.ContextMenu>
                                                                     <ContextMenu>
                                                                         <MenuItem Header="Delete"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.DeleteLayerCommand,
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.DeleteLayersCommand,
                                                                                     RelativeSource={RelativeSource AncestorType=ContextMenu}}"
 
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
@@ -361,7 +361,8 @@
                                 Path=(ItemsControl.AlternationIndex)}" />
                                                                         <Separator/>
                                                                         <MenuItem Header="Merge selected"
-                                                                                  Command="{Binding LayersSubViewModel.MergeSelectedCommand, Source={StaticResource ViewModelMain}}"/>
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MergeSelectedCommand, 
+                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                                                                         <MenuItem Header="Merge with above"
                                                                                   Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MergeWithAboveCommand, 
                                                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"
