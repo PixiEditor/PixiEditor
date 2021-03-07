@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -30,8 +31,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
-            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("SelectMode")?.Value as ComboBoxItem)?.Content as string, out SelectionType selectionType);
-            SelectionType = selectionType;
+            SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
 
             oldSelection = null;
             Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
