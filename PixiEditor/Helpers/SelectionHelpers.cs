@@ -8,14 +8,7 @@ namespace PixiEditor.Helpers
 {
     public class SelectionHelpers
     {
-        public static void UndoSelect(object[] arguments)
-        {
-            Document document = (Document)arguments[0];
-
-            document.ActiveSelection.SetSelection((IEnumerable<Coordinates>)arguments[1], SelectionType.New);
-        }
-
-        public static void RedoSelect(object[] arguments)
+        public static void SelectionSet(object[] arguments)
         {
             Document document = (Document)arguments[0];
 
@@ -28,14 +21,14 @@ namespace PixiEditor.Helpers
             {
                 // Add empty selection as the old one get's fully deleted first
                 document.UndoManager.AddUndoChange(
-                    new Change(UndoSelect, new object[] { document, new List<Coordinates>(oldPoints) }, RedoSelect, new object[] { document, new List<Coordinates>() }));
+                    new Change(SelectionSet, new object[] { document, new List<Coordinates>(oldPoints) }, SelectionSet, new object[] { document, new List<Coordinates>() }));
                 document.UndoManager.AddUndoChange(
-                    new Change(UndoSelect, new object[] { document, new List<Coordinates>() }, RedoSelect, new object[] { document, new List<Coordinates>(document.ActiveSelection.SelectedPoints) }));
+                    new Change(SelectionSet, new object[] { document, new List<Coordinates>() }, SelectionSet, new object[] { document, new List<Coordinates>(document.ActiveSelection.SelectedPoints) }));
             }
             else
             {
                 document.UndoManager.AddUndoChange(
-                    new Change(UndoSelect, new object[] { document, new List<Coordinates>(oldPoints) }, RedoSelect, new object[] { document, new List<Coordinates>(document.ActiveSelection.SelectedPoints) }));
+                    new Change(SelectionSet, new object[] { document, new List<Coordinates>(oldPoints) }, SelectionSet, new object[] { document, new List<Coordinates>(document.ActiveSelection.SelectedPoints) }));
             }
         }
     }
