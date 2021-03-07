@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -35,7 +36,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
 
-            oldSelectedPoints = ActiveSelection.SelectedPoints;
+            oldSelectedPoints = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
@@ -46,19 +47,7 @@ namespace PixiEditor.Models.Tools.Tools
                 ActiveSelection.Clear();
             }
 
-            if (SelectionType == SelectionType.New && ActiveSelection.SelectedPoints.Count != 0)
-            {
-                // Add empty selection as the old one get's fully deleted first
-                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                    new Change(UndoSelect, new object[] { oldSelectedPoints }, RedoSelect, new object[] { new List<Coordinates>() }));
-                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                    new Change(UndoSelect, new object[] { new List<Coordinates>() }, RedoSelect, new object[] { new List<Coordinates>(ActiveSelection.SelectedPoints) }));
-            }
-            else
-            {
-                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                    new Change(UndoSelect, new object[] { oldSelectedPoints }, RedoSelect, new object[] { new List<Coordinates>(ActiveSelection.SelectedPoints) }));
-            }
+            SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType.New);
         }
 
         public override void Use(Coordinates[] pixels)
@@ -96,16 +85,6 @@ namespace PixiEditor.Models.Tools.Tools
         {
             IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
             ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
-        }
-
-        private void UndoSelect(object[] arguments)
-        {
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection((IEnumerable<Coordinates>)arguments[0], SelectionType.New);
-        }
-
-        private void RedoSelect(object[] arguments)
-        {
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection((IEnumerable<Coordinates>)arguments[0], SelectionType.New);
         }
     }
 }
