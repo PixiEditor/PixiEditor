@@ -5,7 +5,7 @@ using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
-    public class DiscordViewModel : SubViewModel<ViewModelMain>
+    public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
     {
         private DiscordRpcClient client;
         private string clientId;
@@ -86,7 +86,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             IPreferences.Current.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
             IPreferences.Current.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
             IPreferences.Current.AddCallback(nameof(ShowLayerCount), x => ShowLayerCount = (bool)x);
-
             AppDomain.CurrentDomain.ProcessExit += (_, _) => Enabled = false;
         }
 
@@ -140,6 +139,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             client.SetPresence(richPresence);
+        }
+
+        public void Dispose()
+        {
+            Enabled = false;
+            GC.SuppressFinalize(this);
         }
 
         private static RichPresence NewDefaultRP()
