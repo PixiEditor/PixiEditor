@@ -81,7 +81,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.DocumentChanged += DocumentChanged;
             this.clientId = clientId;
 
-            Enabled = IPreferences.Current.GetPreference<bool>("EnableRichPresence");
+            Enabled = IPreferences.Current.GetPreference("EnableRichPresence", true);
             IPreferences.Current.AddCallback("EnableRichPresence", x => Enabled = (bool)x);
             IPreferences.Current.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
             IPreferences.Current.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
