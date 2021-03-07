@@ -8,6 +8,25 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         "StyleCop.CSharp.MaintainabilityRules",
         "SA1402:File may only contain a single type",
         Justification = "Same class with generic value")]
+    public abstract class Setting<T, TControl> : Setting<T>
+        where TControl : Control
+    {
+        protected Setting(string name)
+            : base(name)
+        {
+        }
+
+        public new TControl SettingControl
+        {
+            get => (TControl)base.SettingControl;
+            set => base.SettingControl = value;
+        }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "StyleCop.CSharp.MaintainabilityRules",
+        "SA1402:File may only contain a single type",
+        Justification = "Same class with generic value")]
     public abstract class Setting<T> : Setting
     {
         protected Setting(string name)
