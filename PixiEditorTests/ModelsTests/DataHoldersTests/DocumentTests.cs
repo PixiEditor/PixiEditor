@@ -155,7 +155,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test"));
             doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test 2"));
 
-            doc.SetActiveLayer(1);
+            doc.SetMainActiveLayer(1);
 
             doc.SetNextLayerAsActive(1);
 

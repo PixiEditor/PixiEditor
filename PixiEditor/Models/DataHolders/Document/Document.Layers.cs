@@ -15,6 +15,8 @@ namespace PixiEditor.Models.DataHolders
 {
     public partial class Document
     {
+        public const string MainSelectedLayerColor = "#505056";
+        public const string SecondarySelectedLayerColor = "#7D505056";
         private int activeLayerIndex;
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
@@ -34,22 +36,42 @@ namespace PixiEditor.Models.DataHolders
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
-        public void SetActiveLayer(int index)
+        public void SetMainActiveLayer(int index)
         {
             if (ActiveLayerIndex <= Layers.Count - 1)
             {
                 ActiveLayer.IsActive = false;
             }
 
-            if (Layers.Any(x => x.IsActive))
+            foreach (var layer in Layers)
             {
-                var guids = Layers.Where(x => x.IsActive).Select(y => y.LayerGuid);
-                guids.ToList().ForEach(x => Layers.First(layer => layer.LayerGuid == x).IsActive = false);
+                if (layer.IsActive)
+                {
+                    layer.IsActive = false;
+                }
             }
 
             ActiveLayerIndex = index;
             ActiveLayer.IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
+        }
+
+        public void UpdateLayersColor()
+        {
+            int index = 0;
+            foreach (var layer in Layers)
+            {
+                if (index == ActiveLayerIndex)
+                {
+                    layer.LayerHighlightColor = MainSelectedLayerColor;
+                }
+                else
+                {
+                    layer.LayerHighlightColor = SecondarySelectedLayerColor;
+                }
+
+                index++;
+            }
         }
 
         public void MoveLayerIndexBy(int layerIndex, int amount)
@@ -84,7 +106,7 @@ namespace PixiEditor.Models.DataHolders
             });
             if (setAsActive)
             {
-                SetActiveLayer(Layers.Count - 1);
+                SetMainActiveLayer(Layers.Count - 1);
             }
 
             if (Layers.Count > 1)
@@ -107,11 +129,25 @@ namespace PixiEditor.Models.DataHolders
             {
                 if (lastLayerIndex == 0)
                 {
-                    SetActiveLayer(0);
+                    SetMainActiveLayer(0);
                 }
                 else
                 {
-                    SetActiveLayer(lastLayerIndex - 1);
+                    SetMainActiveLayer(lastLayerIndex - 1);
+                }
+            }
+        }
+
+        public void SetNextSelectedLayerAsActive(Guid lastLayerGuid)
+        {
+            var selectedLayers = Layers.Where(x => x.IsActive);
+            foreach (var layer in selectedLayers)
+            {
+                if (layer.LayerGuid != lastLayerGuid)
+                {
+                    ActiveLayerIndex = Layers.IndexOf(layer);
+                    LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerIndex, LayerAction.SetActive));
+                    return;
                 }
             }
         }
@@ -125,6 +161,12 @@ namespace PixiEditor.Models.DataHolders
                 {
                     return;
                 }
+
+                if (ActiveLayerIndex == Layers.IndexOf(layer))
+                {
+                    SetNextSelectedLayerAsActive(layer.LayerGuid);
+                }
+
                 layer.IsActive = !layer.IsActive;
             }
         }
@@ -237,7 +279,7 @@ namespace PixiEditor.Models.DataHolders
 
             Layers.Insert(index, mergedLayer);
 
-            SetActiveLayer(Layers.IndexOf(mergedLayer));
+            SetMainActiveLayer(Layers.IndexOf(mergedLayer));
 
             return mergedLayer;
         }
@@ -354,7 +396,7 @@ namespace PixiEditor.Models.DataHolders
             Layers.Move(layerIndex, layerIndex + amount);
             if (ActiveLayerIndex == layerIndex)
             {
-                SetActiveLayer(layerIndex + amount);
+                SetMainActiveLayer(layerIndex + amount);
             }
         }
 
@@ -367,7 +409,7 @@ namespace PixiEditor.Models.DataHolders
                 Layers.Insert(layersData[i].LayerIndex, layer);
                 if (layersData[i].IsActive)
                 {
-                    SetActiveLayer(Layers.IndexOf(layer));
+                    SetMainActiveLayer(Layers.IndexOf(layer));
                 }
             }
         }

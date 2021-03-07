@@ -72,18 +72,21 @@ namespace PixiEditor.Models.Controllers
 
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
 
+#nullable enable
         public Document ActiveDocument
         {
             get => activeDocument;
             set
             {
                 activeDocument?.UpdatePreviewImage();
+                Document? oldDoc = activeDocument;
                 activeDocument = value;
                 RaisePropertyChanged(nameof(ActiveDocument));
-                DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
+                DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value, oldDoc));
             }
         }
 
+#nullable disable
         public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
 
         /// <summary>

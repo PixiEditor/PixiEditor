@@ -1,9 +1,6 @@
-﻿using PixiEditor.Models.DataHolders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels.SubViewModels.Main;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -12,13 +9,27 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
     public class DocumentLayersTests
     {
         [Fact]
-        public void TestThatToggleLayerTogglesLayer()
+        public void TestThatToggleLayerDoesNotToggleLastLayer()
         {
-            Document doc = new Document(5, 5);
+            Document doc = new (5, 5);
             doc.AddNewLayer("layer");
             bool isActive = doc.Layers[^1].IsActive;
             doc.ToggleLayer(0);
-            Assert.True(doc.Layers[^1].IsActive != isActive);
+            Assert.False(doc.Layers[^1].IsActive != isActive);
+        }
+
+        [Fact]
+        public void TestThatToggleLayerTogglesLayer()
+        {
+            Document doc = new (5, 5);
+            doc.AddNewLayer("layer");
+            doc.AddNewLayer("layer 1");
+            doc.Layers[0].IsActive = true;
+            doc.Layers[^1].IsActive = true;
+
+            doc.ToggleLayer(0);
+            Assert.False(doc.Layers[0].IsActive);
+            Assert.True(doc.Layers[1].IsActive);
         }
 
         [Fact]
@@ -43,7 +54,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             document.AddNewLayer("2");
             document.AddNewLayer("3");
 
-            document.SetActiveLayer(startIndex);
+            document.SetMainActiveLayer(startIndex);
 
             document.SelectLayersRange(endIndex);
 
@@ -68,7 +79,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             document.AddNewLayer("2");
             document.AddNewLayer("3");
 
-            document.SetActiveLayer(0);
+            document.SetMainActiveLayer(0);
             document.Layers[1].IsActive = true;
             document.Layers[2].IsActive = true;
 
@@ -78,6 +89,66 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             {
                 Assert.Equal(layer == document.Layers[index], layer.IsActive);
             }
+        }
+
+        [Fact]
+        public void TestThatUpdateLayersColorMakesOnlyOneLayerMainColorAndOtherSecondary()
+        {
+            Document document = new Document(1, 1);
+
+            document.AddNewLayer("1");
+            document.AddNewLayer("2");
+            document.AddNewLayer("3");
+
+            document.SetMainActiveLayer(0);
+            document.Layers[1].IsActive = true; // This makes layer selected, but not main
+            document.Layers[2].IsActive = true;
+
+            document.UpdateLayersColor();
+
+            Assert.Equal(Document.MainSelectedLayerColor, document.Layers[0].LayerHighlightColor);
+            Assert.Equal(Document.SecondarySelectedLayerColor, document.Layers[1].LayerHighlightColor);
+            Assert.Equal(Document.SecondarySelectedLayerColor, document.Layers[2].LayerHighlightColor);
+        }
+
+        [Fact]
+        public void TestThatUpdateLayersColorMakesLayerMainColorAndRestNonActiveReturnsTransparent()
+        {
+            Document document = new Document(1, 1);
+
+            document.AddNewLayer("1");
+            document.AddNewLayer("2");
+            document.AddNewLayer("3");
+
+            document.SetMainActiveLayer(1);
+
+            document.UpdateLayersColor();
+
+            string transparentHex = "#00000000";
+
+            Assert.Equal(transparentHex, document.Layers[0].LayerHighlightColor);
+            Assert.Equal(Document.MainSelectedLayerColor, document.Layers[1].LayerHighlightColor);
+            Assert.Equal(transparentHex, document.Layers[2].LayerHighlightColor);
+        }
+
+        [Fact]
+        public void TestThatSetNextSelectedLayerAsActiveSelectsFirstAvailableLayer()
+        {
+            Document document = new Document(1, 1);
+
+            document.AddNewLayer("1");
+            document.AddNewLayer("2");
+            document.AddNewLayer("3");
+            document.AddNewLayer("4");
+
+            foreach (var layer in document.Layers)
+            {
+                layer.IsActive = true;
+            }
+
+            document.SetNextSelectedLayerAsActive(document.Layers[1].LayerGuid);
+
+            Assert.Equal(0, document.ActiveLayerIndex);
         }
     }
 }

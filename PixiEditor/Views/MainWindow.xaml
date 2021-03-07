@@ -333,7 +333,8 @@
                                 Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
                                                                    LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
                                                                    IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                                                   PreviewImage="{Binding LayerBitmap}"
+                                                                   PreviewImage="{Binding LayerBitmap}" 
+                                                                   LayerColor="{Binding LayerHighlightColor}"
                                                                    MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
                                                                    MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
                                                                 <vws:LayerItem.ContextMenu>

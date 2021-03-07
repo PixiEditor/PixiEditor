@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -38,6 +39,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MergeSelectedCommand = new RelayCommand(MergeSelected, CanMergeSelected);
             MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
+            Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
         public bool CanMergeSelected(object obj)
@@ -68,7 +70,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else
             {
-                Owner.BitmapManager.ActiveDocument.SetActiveLayer(index);
+                Owner.BitmapManager.ActiveDocument.SetMainActiveLayer(index);
             }
         }
 
@@ -161,6 +163,27 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             int index = (int)property;
             return Owner.DocumentIsNotNull(null) && index != 0 && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
+        }
+
+        private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+        {
+            if (e.OldDocument != null)
+            {
+                e.OldDocument.LayersChanged -= Document_LayersChanged;
+            }
+
+            if (e.NewDocument != null)
+            {
+                e.NewDocument.LayersChanged += Document_LayersChanged;
+            }
+        }
+
+        private void Document_LayersChanged(object sender, LayersChangedEventArgs e)
+        {
+            if (e.LayerChangeType == Models.Enums.LayerAction.SetActive)
+            {
+                Owner.BitmapManager.ActiveDocument.UpdateLayersColor();
+            }
         }
     }
 }
