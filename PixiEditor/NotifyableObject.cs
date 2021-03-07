@@ -30,6 +30,5 @@ namespace PixiEditor.Helpers
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             return true;
         }
-
     }
 }

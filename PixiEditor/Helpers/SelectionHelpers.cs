@@ -1,18 +1,13 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using System.Collections.Generic;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Helpers
 {
     public class SelectionHelpers
     {
-
         public static void UndoSelect(object[] arguments)
         {
             Document document = (Document)arguments[0];

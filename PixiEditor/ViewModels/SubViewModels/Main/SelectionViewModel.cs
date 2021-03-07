@@ -33,11 +33,19 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void Deselect(object parameter)
         {
+            Deselect();
+        }
+
+        public void Deselect(bool addUndo = true)
+        {
             var oldSelection = new List<Coordinates>(Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints);
 
             Owner.BitmapManager.ActiveDocument.ActiveSelection?.Clear();
 
-            SelectionHelpers.AddSelectionUndoStep(Owner.BitmapManager.ActiveDocument, oldSelection, SelectionType.New);
+            if (addUndo)
+            {
+                SelectionHelpers.AddSelectionUndoStep(Owner.BitmapManager.ActiveDocument, oldSelection, SelectionType.New);
+            }
         }
 
         public bool SelectionIsNotEmpty(object property)

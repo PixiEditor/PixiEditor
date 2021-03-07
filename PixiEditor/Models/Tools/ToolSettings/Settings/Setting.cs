@@ -2,12 +2,10 @@
 using System.Windows.Controls;
 using PixiEditor.Helpers;
 
+#pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
+
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "StyleCop.CSharp.MaintainabilityRules",
-        "SA1402:File may only contain a single type",
-        Justification = "Same class with generic value")]
     public abstract class Setting<T, TControl> : Setting<T>
         where TControl : Control
     {
@@ -23,10 +21,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         }
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "StyleCop.CSharp.MaintainabilityRules",
-        "SA1402:File may only contain a single type",
-        Justification = "Same class with generic value")]
     public abstract class Setting<T> : Setting
     {
         protected Setting(string name)
