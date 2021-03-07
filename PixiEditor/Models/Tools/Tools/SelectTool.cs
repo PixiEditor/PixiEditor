@@ -46,7 +46,7 @@ namespace PixiEditor.Models.Tools.Tools
                 ActiveSelection.Clear();
             }
 
-            if (SelectionType == SelectionType.New)
+            if (SelectionType == SelectionType.New && ActiveSelection.SelectedPoints.Count != 0)
             {
                 // Add empty selection as the old one get's fully deleted first
                 ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
