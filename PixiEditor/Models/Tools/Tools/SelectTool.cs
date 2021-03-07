@@ -18,7 +18,9 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
-        private Selection oldSelection;
+        private IEnumerable<Coordinates> oldSelectedPoints;
+
+        private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         public SelectTool()
         {
@@ -33,29 +35,30 @@ namespace PixiEditor.Models.Tools.Tools
         {
             SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
 
-            oldSelection = null;
-            Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
-            if (selection != null && selection.SelectedPoints != null)
-            {
-                oldSelection = selection;
-            }
+            oldSelectedPoints = ActiveSelection.SelectedPoints;
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
         {
-            if (ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.Count() <= 1)
+            if (ActiveSelection.SelectedPoints.Count <= 1)
             {
                 // If we have not selected multiple points, clear the selection
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.Clear();
+                ActiveSelection.Clear();
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                new Change(
-                    "SelectedPoints",
-                    oldSelection.SelectedPoints,
-                    new ObservableCollection<Coordinates>(ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints),
-                    "Select pixels",
-                    ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection));
+            if (SelectionType == SelectionType.New)
+            {
+                // Add empty selection as the old one get's fully deleted first
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
+                    new Change(UndoSelect, new object[] { oldSelectedPoints }, RedoSelect, new object[] { new List<Coordinates>() }));
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
+                    new Change(UndoSelect, new object[] { new List<Coordinates>() }, RedoSelect, new object[] { new List<Coordinates>(ActiveSelection.SelectedPoints) }));
+            }
+            else
+            {
+                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
+                    new Change(UndoSelect, new object[] { oldSelectedPoints }, RedoSelect, new object[] { new List<Coordinates>(ActiveSelection.SelectedPoints) }));
+            }
         }
 
         public override void Use(Coordinates[] pixels)
@@ -93,6 +96,16 @@ namespace PixiEditor.Models.Tools.Tools
         {
             IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
             ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
+        }
+
+        private void UndoSelect(object[] arguments)
+        {
+            ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection((IEnumerable<Coordinates>)arguments[0], SelectionType.New);
+        }
+
+        private void RedoSelect(object[] arguments)
+        {
+            ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection((IEnumerable<Coordinates>)arguments[0], SelectionType.New);
         }
     }
 }
