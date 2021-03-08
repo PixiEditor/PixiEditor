@@ -23,8 +23,8 @@ namespace PixiEditor.Models.Tools.Tools
         private Dictionary<Guid, bool> clearedPixels = new Dictionary<Guid, bool>();
         private Coordinates[] currentSelection;
         private Coordinates lastMouseMove;
-        private Coordinates lastStartMousePos;
         private Dictionary<Guid, Color[]> startPixelColors;
+        private Dictionary<Guid, Color[]> endPixelColors;
         private Dictionary<Guid, Thickness> startingOffsets;
         private Coordinates[] startSelection;
         private bool updateViewModelSelection = true;
@@ -67,12 +67,15 @@ namespace PixiEditor.Models.Tools.Tools
                 foreach (var item in startPixelColors)
                 {
                     BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
+                    BitmapPixelChanges afterMovePixels = BitmapPixelChanges.FromArrays(currentSelection, endPixelColors[item.Key]);
                     Guid layerGuid = item.Key;
                     var oldValue = (LayerChange[])changes.OldValue;
 
                     if (oldValue.Any(x => x.LayerGuid == layerGuid))
                     {
-                        oldValue.First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
+                        var layer = oldValue.First(x => x.LayerGuid == layerGuid);
+                        layer.PixelChanges.ChangedPixels.AddRangeOverride(afterMovePixels.ChangedPixels);
+                        layer.PixelChanges.ChangedPixels
                             .AddRangeOverride(beforeMovePixels.ChangedPixels);
 
                         ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
@@ -138,6 +141,7 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 if (currentSelection.Length > 0)
                 {
+                    endPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, currentSelection);
                     var changes = MoveSelection(affectedLayers[i], mouseMove);
                     changes = RemoveTransparentPixels(changes);
 
@@ -206,7 +210,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void ResetSelectionValues(Coordinates start)
         {
-            lastStartMousePos = start;
             lastMouseMove = start;
             clearedPixels = new Dictionary<Guid, bool>();
             updateViewModelSelection = true;
