@@ -47,7 +47,7 @@ namespace PixiEditor.Models.Tools.Tools
                 ActiveSelection.Clear();
             }
 
-            SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType.New);
+            SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
         }
 
         public override void Use(Coordinates[] pixels)
