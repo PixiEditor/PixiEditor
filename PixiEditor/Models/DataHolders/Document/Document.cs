@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,6 +21,7 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
+    [DebuggerDisplay("'{Name, nq}' {width}x{height} {Layers.Count} Layer(s)")]
     public partial class Document : NotifyableObject
     {
         private int height;
