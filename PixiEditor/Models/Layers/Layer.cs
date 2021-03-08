@@ -64,8 +64,7 @@ namespace PixiEditor.Models.Layers
             get => IsActive ? layerHighlightColor : "#00000000";
             set
             {
-                layerHighlightColor = value;
-                RaisePropertyChanged(nameof(LayerHighlightColor));
+                SetProperty(ref layerHighlightColor, value);
             }
         }
 
