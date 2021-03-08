@@ -59,22 +59,27 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void AfterAddedUndo(UndoManager undoManager)
         {
-            if (currentSelection != null && currentSelection.Length != 0)
+            if (currentSelection != null && currentSelection.Length > 0)
             {
+                Change changes = undoManager.UndoStack.Peek();
+
                 // Inject to default undo system change custom changes made by this tool
                 foreach (var item in startPixelColors)
                 {
                     BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
-                    Change changes = undoManager.UndoStack.Peek();
                     Guid layerGuid = item.Key;
+                    var oldValue = (LayerChange[])changes.OldValue;
 
-                    ((LayerChange[])changes.OldValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
-                        .AddRangeOverride(beforeMovePixels.ChangedPixels);
+                    if (oldValue.Any(x => x.LayerGuid == layerGuid))
+                    {
+                        oldValue.First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
+                            .AddRangeOverride(beforeMovePixels.ChangedPixels);
 
-                    ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
-                        .AddRangeNewOnly(BitmapPixelChanges
-                            .FromSingleColoredArray(startSelection, System.Windows.Media.Colors.Transparent)
-                            .ChangedPixels);
+                        ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
+                            .AddRangeNewOnly(BitmapPixelChanges
+                                .FromSingleColoredArray(startSelection, System.Windows.Media.Colors.Transparent)
+                                .ChangedPixels);
+                    }
                 }
             }
         }
@@ -94,42 +99,39 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
+        public override void OnStart(Coordinates startPos)
         {
-            Coordinates start = mouseMove[^1];
+            ResetSelectionValues(startPos);
 
-            // I am aware that this could be moved to OnMouseDown, but it is executed before Use, so I didn't want to complicate for now
-            if (lastStartMousePos != start)
+            // Move offset if no selection
+            Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
+            if (selection != null && selection.SelectedPoints.Count > 0)
             {
-                ResetSelectionValues(start);
-
-                // Move offset if no selection
-                Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
-                if (selection != null && selection.SelectedPoints.Count > 0)
-                {
-                    currentSelection = selection.SelectedPoints.ToArray();
-                }
-                else
-                {
-                    currentSelection = Array.Empty<Coordinates>();
-                }
-
-                if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
-                {
-                    affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Where(x => x.IsVisible)
-                        .ToArray();
-                }
-                else
-                {
-                    affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument
-                        .Layers.Where(x => x.IsActive && x.IsVisible).ToArray();
-                }
-
-                startSelection = currentSelection;
-                startPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, startSelection);
-                startingOffsets = GetOffsets(affectedLayers);
+                currentSelection = selection.SelectedPoints.ToArray();
+            }
+            else
+            {
+                currentSelection = Array.Empty<Coordinates>();
             }
 
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
+            {
+                affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Where(x => x.IsVisible)
+                    .ToArray();
+            }
+            else
+            {
+                affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument
+                    .Layers.Where(x => x.IsActive && x.IsVisible).ToArray();
+            }
+
+            startSelection = currentSelection;
+            startPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, startSelection);
+            startingOffsets = GetOffsets(affectedLayers);
+        }
+
+        public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
+        {
             LayerChange[] result = new LayerChange[affectedLayers.Length];
             var end = mouseMove[0];
             for (int i = 0; i < affectedLayers.Length; i++)
