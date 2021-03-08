@@ -59,6 +59,10 @@ namespace PixiEditor.ViewModels
 
         public DiscordViewModel DiscordViewModel { get; set; }
 
+#if DEBUG
+        public DebugViewModel DebugSubViewModel { get; set; }
+#endif
+
         public BitmapManager BitmapManager { get; set; }
 
         public PixelChangesController ChangesController { get; set; }
@@ -66,6 +70,16 @@ namespace PixiEditor.ViewModels
         public ShortcutController ShortcutController { get; set; }
 
         public IPreferences Preferences { get; set; }
+
+        public bool IsDebug
+        {
+            get =>
+#if DEBUG
+                true;
+#else
+                false;
+#endif
+        }
 
         public ViewModelMain(IServiceProvider services)
         {
@@ -98,6 +112,9 @@ namespace PixiEditor.ViewModels
             DocumentSubViewModel = new DocumentViewModel(this);
             MiscSubViewModel = new MiscViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
+#if DEBUG
+            DebugSubViewModel = new DebugViewModel(this);
+#endif
 
             ShortcutController = new ShortcutController
             {
@@ -147,7 +164,12 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerIndex),
 
                     // View
-                    new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, modifier: ModifierKeys.Control)
+                    new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, modifier: ModifierKeys.Control),
+
+#if DEBUG
+                    // Debug
+                    new Shortcut(Key.End, DebugSubViewModel.BreakCommand, modifier: ModifierKeys.Shift | ModifierKeys.Alt)
+#endif
                 }
             };
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
