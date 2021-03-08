@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -23,12 +24,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void SelectAll(object parameter)
         {
             SelectTool select = new SelectTool();
+
+            var oldSelection = new List<Coordinates>(Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints);
+
             Owner.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(select.GetAllSelection(), SelectionType.New);
+            SelectionHelpers.AddSelectionUndoStep(Owner.BitmapManager.ActiveDocument, oldSelection, SelectionType.New);
         }
 
         public void Deselect(object parameter)
         {
+            var oldSelection = new List<Coordinates>(Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints);
+
             Owner.BitmapManager.ActiveDocument.ActiveSelection?.Clear();
+
+            SelectionHelpers.AddSelectionUndoStep(Owner.BitmapManager.ActiveDocument, oldSelection, SelectionType.New);
         }
 
         public bool SelectionIsNotEmpty(object property)
