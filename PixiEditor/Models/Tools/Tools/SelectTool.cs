@@ -48,6 +48,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
+        }
 
         public override void Use(Coordinates[] pixels)
         {
