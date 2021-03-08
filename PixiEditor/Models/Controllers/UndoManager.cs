@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using PixiEditor.Models.Undo;
@@ -7,6 +8,7 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Controllers
 {
+    [DebuggerDisplay("{UndoStack.Count} undo steps, {RedoStack.Count} redo step(s)")]
     public class UndoManager
     {
         private bool lastChangeWasUndo;
