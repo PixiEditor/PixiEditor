@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -18,6 +19,7 @@ using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Controllers
 {
+    [DebuggerDisplay("{Documents.Count} Document(s)")]
     public class BitmapManager : NotifyableObject
     {
         private Document activeDocument;
