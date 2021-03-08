@@ -37,6 +37,11 @@ namespace PixiEditor
             viewModel.CloseAction = Close;
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            viewModel.DiscordViewModel.Dispose();
+        }
+
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
