@@ -90,6 +90,7 @@ namespace PixiEditor.Models.Undo
                     IsActive = storedLayer.IsActive,
                     Width = storedLayer.Width,
                     Height = storedLayer.Height,
+                    LayerHighlightColor = storedLayer.LayerHighlightColor                    
                 };
                 layers[i].ChangeGuid(storedLayer.LayerGuid);
 
