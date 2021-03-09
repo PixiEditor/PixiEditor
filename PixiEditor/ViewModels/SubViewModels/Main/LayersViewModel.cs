@@ -60,6 +60,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void SetActiveLayer(object parameter)
         {
             int index = (int)parameter;
+
+            if (Owner.BitmapManager.ActiveDocument.Layers[index].IsActive && Mouse.RightButton == MouseButtonState.Pressed)
+            {
+                return;
+            }
+
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 Owner.BitmapManager.ActiveDocument.ToggleLayer(index);
