@@ -5,13 +5,13 @@ namespace PixiEditor.Models.Controllers
 {
     public class LayersChangedEventArgs : EventArgs
     {
-        public LayersChangedEventArgs(int layerAffected, LayerAction layerChangeType)
+        public LayersChangedEventArgs(Guid layerAffectedGuid, LayerAction layerChangeType)
         {
-            LayerAffected = layerAffected;
+            LayerAffectedGuid = layerAffectedGuid;
             LayerChangeType = layerChangeType;
         }
 
-        public int LayerAffected { get; set; }
+        public Guid LayerAffectedGuid { get; set; }
 
         public LayerAction LayerChangeType { get; set; }
     }

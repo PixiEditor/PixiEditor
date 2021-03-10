@@ -104,10 +104,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (index == null)
             {
-                index = Owner.BitmapManager.ActiveDocument.ActiveLayerIndex;
+                index = Owner.BitmapManager.ActiveDocument.Layers.IndexOf(Owner.BitmapManager.ActiveDocument.ActiveLayer);
             }
 
-            Owner.BitmapManager.ActiveDocument.Layers[index.Value].IsRenaming = true;
+            Owner.BitmapManager.ActiveDocument.Layers[(int)index].IsRenaming = true;
         }
 
         public bool CanRenameLayer(object parameter)

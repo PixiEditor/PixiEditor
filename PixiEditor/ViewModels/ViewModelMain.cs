@@ -143,7 +143,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
 
                     // Layers
-                    new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerIndex),
+                    new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerGuid),
 
                     // View
                     new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, modifier: ModifierKeys.Control)
