@@ -165,11 +165,6 @@ namespace PixiEditor.ViewModels
 
                     // View
                     new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, modifier: ModifierKeys.Control),
-
-#if DEBUG
-                    // Debug
-                    new Shortcut(Key.End, DebugSubViewModel.BreakCommand, modifier: ModifierKeys.Shift | ModifierKeys.Alt)
-#endif
                 }
             };
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
