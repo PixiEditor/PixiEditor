@@ -144,8 +144,7 @@
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
                 <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <MenuItem Header="Break" Command="{Binding DebugSubViewModel.BreakCommand}"
-                              InputGestureText="Shift+Alt+End"/>
+                    <MenuItem Header="Such empty here..." IsEnabled="False"/>
                 </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"
