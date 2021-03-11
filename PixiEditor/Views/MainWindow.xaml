@@ -355,6 +355,11 @@
 
                                                                                   CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
                                 Path=(ItemsControl.AlternationIndex)}" />
+                                                                        <MenuItem Header="Duplicate"
+                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.DuplicateLayerCommand,
+                                                                                    RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
+                                Path=(ItemsControl.AlternationIndex)}" />
                                                                         <MenuItem Header="Rename"
                                                                                   Command="{Binding PlacementTarget.Tag.LayersSubViewModel.RenameLayerCommand,
                                                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"
