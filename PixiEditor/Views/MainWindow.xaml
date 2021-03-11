@@ -143,6 +143,9 @@
                     <MenuItem Header="Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
+                <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <MenuItem Header="Such empty here..." IsEnabled="False"/>
+                </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"
                         HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
