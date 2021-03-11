@@ -176,7 +176,7 @@ namespace PixiEditor.ViewModels
             return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, typeof(T), modifier);
         }
 
-        private void CloseWindow(object property)
+        public void CloseWindow(object property)
         {
             if (!(property is CancelEventArgs))
             {
