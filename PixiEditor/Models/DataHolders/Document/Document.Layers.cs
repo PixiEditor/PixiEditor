@@ -374,19 +374,25 @@ namespace PixiEditor.Models.DataHolders
         /// <summary>
         ///     Moves offsets of layers by specified vector.
         /// </summary>
-        private void MoveOffsets(Coordinates moveVector)
+        private void MoveOffsets(IEnumerable<Layer> layers, Coordinates moveVector)
         {
-            for (int i = 0; i < Layers.Count; i++)
+            foreach (Layer layer in layers)
             {
-                Thickness offset = Layers[i].Offset;
-                Layers[i].Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
+                Thickness offset = layer.Offset;
+                layer.Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
             }
         }
 
         private void MoveOffsetsProcess(object[] arguments)
         {
-            Coordinates vector = (Coordinates)arguments[0];
-            MoveOffsets(vector);
+            if (arguments.Length > 0 && arguments[0] is IEnumerable<Layer> layers && arguments[1] is Coordinates vector)
+            {
+                MoveOffsets(layers, vector);
+            }
+            else
+            {
+                throw new ArgumentException("Provided arguments were invalid. Expected IEnumerable<Layer> and Coordinates");
+            }
         }
 
         private void MoveLayerProcess(object[] parameter)
