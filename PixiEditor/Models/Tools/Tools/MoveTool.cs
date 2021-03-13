@@ -137,12 +137,15 @@ namespace PixiEditor.Models.Tools.Tools
         {
             LayerChange[] result = new LayerChange[affectedLayers.Length];
             var end = mouseMove[0];
+            var lastSelection = currentSelection.ToArray();
             for (int i = 0; i < affectedLayers.Length; i++)
             {
                 if (currentSelection.Length > 0)
                 {
                     endPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, currentSelection);
                     var changes = MoveSelection(affectedLayers[i], mouseMove);
+                    ClearSelectedPixels(affectedLayers[i], lastSelection);
+
                     changes = RemoveTransparentPixels(changes);
 
                     result[i] = new LayerChange(changes, affectedLayers[i]);
@@ -164,13 +167,11 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Coordinates end = mouseMove[0];
 
-            currentSelection = TranslateSelection(end, out Coordinates[] previousSelection);
+            currentSelection = TranslateSelection(end);
             if (updateViewModelSelection)
             {
                 ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
             }
-
-            ClearSelectedPixels(layer, previousSelection);
 
             lastMouseMove = end;
             return BitmapPixelChanges.FromArrays(currentSelection, startPixelColors[layer.LayerGuid]);
@@ -212,16 +213,18 @@ namespace PixiEditor.Models.Tools.Tools
         {
             lastMouseMove = start;
             clearedPixels = new Dictionary<Guid, bool>();
+            endPixelColors = new Dictionary<Guid, Color[]>();
+            currentSelection = null;
+            affectedLayers = null;
             updateViewModelSelection = true;
             startPixelColors = null;
             startSelection = null;
         }
 
-        private Coordinates[] TranslateSelection(Coordinates end, out Coordinates[] previousSelection)
+        private Coordinates[] TranslateSelection(Coordinates end)
         {
             Coordinates translation = Transform.GetTranslation(lastMouseMove, end);
-            previousSelection = currentSelection.ToArray();
-            return Transform.Translate(previousSelection, translation);
+            return Transform.Translate(currentSelection, translation);
         }
 
         private void ClearSelectedPixels(Layer layer, Coordinates[] selection)
