@@ -475,50 +475,57 @@ namespace PixiEditor.Models.DataHolders
         /// <returns>Name of the layer with suffix.</returns>
         private string GetLayerSuffix(Layer layer)
         {
-            int? highgestValue = null;
-
             Regex reversedRegex = new (@"(?:\)([0-9]+)*\()? *([\s\S]+)", RegexOptions.Compiled);
 
             Match match = reversedRegex.Match(layer.Name.Reverse());
 
+            int? highestValue = GetHighestSuffix(layer, match.Groups[2].Value, reversedRegex);
+
+            string actualName = match.Groups[2].Value.Reverse();
+
+            if (highestValue == null)
+            {
+                return actualName;
+            }
+
+            return actualName + $" ({highestValue + 1})";
+        }
+
+        private int? GetHighestSuffix(Layer except, string layerName, Regex regex)
+        {
+            int? highestValue = null;
+
             foreach (Layer otherLayer in Layers)
             {
-                if (otherLayer == layer)
+                if (otherLayer == except)
                 {
                     continue;
                 }
 
-                Match otherMatch = reversedRegex.Match(otherLayer.Name.Reverse());
+                Match otherMatch = regex.Match(otherLayer.Name.Reverse());
 
-                if (otherMatch.Groups[2].Value == match.Groups[2].Value)
+                if (otherMatch.Groups[2].Value == layerName)
                 {
                     bool sucess = int.TryParse(otherMatch.Groups[1].Value.Reverse(), out int number);
 
                     if (sucess)
                     {
-                        if (highgestValue == null || highgestValue < number)
+                        if (highestValue == null || highestValue < number)
                         {
-                            highgestValue = number;
+                            highestValue = number;
                         }
                     }
                     else
                     {
-                        if (highgestValue == null)
+                        if (highestValue == null)
                         {
-                            highgestValue = 0;
+                            highestValue = 0;
                         }
                     }
                 }
             }
 
-            string actualName = match.Groups[2].Value.Reverse();
-
-            if (highgestValue == null)
-            {
-                return actualName;
-            }
-
-            return actualName + $" ({highgestValue + 1})";
+            return highestValue;
         }
 
         private void RemoveLayersProcess(object[] parameters)
