@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using GalaSoft.MvvmLight.Messaging;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
@@ -96,11 +98,16 @@ namespace PixiEditor.Models.DataHolders
 
         public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
         {
-            Layers.Add(new Layer(name, width, height)
+            Layer layer;
+
+            Layers.Add(layer = new Layer(name, width, height)
             {
                 MaxHeight = Height,
                 MaxWidth = Width
             });
+
+            layer.Name = GetLayerSuffix(layer);
+
             if (setAsActive)
             {
                 SetMainActiveLayer(Layers.Count - 1);
@@ -435,6 +442,54 @@ namespace PixiEditor.Models.DataHolders
                     SetNextLayerAsActive(index);
                 }
             }
+        }
+
+        private string GetLayerSuffix(Layer layer)
+        {
+            int? highgestValue = null;
+
+            Regex reversedRegex = new (@"(?:\)([0-9]+)*\()? *([\s\S]+)", RegexOptions.Compiled);
+
+            Match match = reversedRegex.Match(layer.Name.Reverse());
+
+            foreach (Layer otherLayer in Layers)
+            {
+                if (otherLayer == layer)
+                {
+                    continue;
+                }
+
+                Match otherMatch = reversedRegex.Match(otherLayer.Name.Reverse());
+
+                if (otherMatch.Groups[2].Value == match.Groups[2].Value)
+                {
+                    bool sucess = int.TryParse(otherMatch.Groups[1].Value.Reverse(), out int number);
+
+                    if (sucess)
+                    {
+                        if (highgestValue == null || highgestValue < number)
+                        {
+                            highgestValue = number;
+                        }
+                    }
+                    else
+                    {
+                        if (highgestValue == null)
+                        {
+                            highgestValue = 0;
+                        }
+                    }
+                }
+            }
+
+            string actualName = match.Groups[2].Value.Reverse();
+
+            if (highgestValue == null)
+            {
+                return actualName;
+            }
+
+            return actualName + $" ({highgestValue + 1})";
         }
 
         private void RemoveLayersProcess(object[] parameters)
