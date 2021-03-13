@@ -139,7 +139,7 @@ namespace PixiEditor.Models.DataHolders
             duplicate.Name = GetLayerSuffix(duplicate);
 
             Layers.Insert(index + 1, duplicate);
-            SetActiveLayer(index + 1);
+            SetMainActiveLayer(index + 1);
 
             StorageBasedChange storageChange = new (this, new[] { duplicate }, false);
             UndoManager.AddUndoChange(
