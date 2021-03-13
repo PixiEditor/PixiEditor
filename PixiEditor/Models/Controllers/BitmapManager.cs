@@ -24,6 +24,7 @@ namespace PixiEditor.Models.Controllers
     {
         private Document activeDocument;
         private Tool selectedTool;
+        private Coordinates? startPosition = null;
 
         public BitmapManager()
         {
@@ -74,18 +75,21 @@ namespace PixiEditor.Models.Controllers
 
         public ReadonlyToolUtility ReadonlyToolUtility { get; set; }
 
+#nullable enable
         public Document ActiveDocument
         {
             get => activeDocument;
             set
             {
                 activeDocument?.UpdatePreviewImage();
+                Document? oldDoc = activeDocument;
                 activeDocument = value;
                 RaisePropertyChanged(nameof(ActiveDocument));
-                DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value));
+                DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value, oldDoc));
             }
         }
 
+#nullable disable
         public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
 
         /// <summary>
@@ -113,6 +117,12 @@ namespace PixiEditor.Models.Controllers
         {
             if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
             {
+                if (startPosition == null)
+                {
+                    SelectedTool.OnStart(newPosition);
+                    startPosition = newPosition;
+                }
+
                 if (IsOperationTool(SelectedTool))
                 {
                     BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
@@ -193,6 +203,8 @@ namespace PixiEditor.Models.Controllers
             {
                 BitmapOperations.ApplyPreviewLayer();
             }
+
+            startPosition = null;
         }
 
         private void HighlightPixels(Coordinates newPosition)

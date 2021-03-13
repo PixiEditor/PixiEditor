@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
@@ -30,6 +29,8 @@ namespace PixiEditor.Models.Layers
         private Thickness offset;
 
         private float opacity = 1f;
+
+        private string layerHighlightColor = "#666666";
 
         public Layer(string name)
         {
@@ -60,6 +61,15 @@ namespace PixiEditor.Models.Layers
 
         public Dictionary<Coordinates, Color> LastRelativeCoordinates { get; set; }
 
+        public string LayerHighlightColor
+        {
+            get => IsActive ? layerHighlightColor : "#00000000";
+            set
+            {
+                SetProperty(ref layerHighlightColor, value);
+            }
+        }
+
         public string Name
         {
             get => name;
@@ -77,6 +87,7 @@ namespace PixiEditor.Models.Layers
             {
                 isActive = value;
                 RaisePropertyChanged(nameof(IsActive));
+                RaisePropertyChanged(nameof(LayerHighlightColor));
             }
         }
 

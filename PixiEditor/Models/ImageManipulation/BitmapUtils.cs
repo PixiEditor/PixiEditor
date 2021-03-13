@@ -108,7 +108,7 @@ namespace PixiEditor.Models.ImageManipulation
 
         public static Dictionary<Guid, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
         {
-            Dictionary<Guid, Color[]> result = new Dictionary<Guid, Color[]>();
+            Dictionary<Guid, Color[]> result = new ();
 
             foreach (Layer layer in layers)
             {

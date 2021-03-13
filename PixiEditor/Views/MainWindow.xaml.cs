@@ -39,6 +39,7 @@ namespace PixiEditor
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            ((ViewModelMain)DataContext).CloseWindow(e);
             viewModel.DiscordViewModel.Dispose();
         }
 

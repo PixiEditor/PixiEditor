@@ -53,7 +53,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void DeletePixels(object parameter)
         {
             Owner.BitmapManager.BitmapOperations.DeletePixels(
-                new[] { Owner.BitmapManager.ActiveLayer },
+                Owner.BitmapManager.ActiveDocument.Layers.Where(x => x.IsActive && x.IsVisible).ToArray(),
                 Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray());
         }
 

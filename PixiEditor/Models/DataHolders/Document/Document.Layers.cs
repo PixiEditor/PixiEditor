@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using GalaSoft.MvvmLight.Messaging;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
@@ -14,41 +15,60 @@ namespace PixiEditor.Models.DataHolders
 {
     public partial class Document
     {
-        private int activeLayerIndex;
+        public const string MainSelectedLayerColor = "#505056";
+        public const string SecondarySelectedLayerColor = "#7D505056";
+        private Guid activeLayerGuid;
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
-        public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
+        public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.LayerGuid == ActiveLayerGuid) : null;
 
-        public int ActiveLayerIndex
+        public Guid ActiveLayerGuid
         {
-            get => activeLayerIndex;
+            get => activeLayerGuid;
             set
             {
-                activeLayerIndex = value;
-                RaisePropertyChanged(nameof(ActiveLayerIndex));
+                activeLayerGuid = value;
+                RaisePropertyChanged(nameof(ActiveLayerGuid));
                 RaisePropertyChanged(nameof(ActiveLayer));
             }
         }
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
-        public void SetActiveLayer(int index)
+        public void SetMainActiveLayer(int index)
         {
-            if (ActiveLayerIndex <= Layers.Count - 1)
+            if (ActiveLayer != null && Layers.IndexOf(ActiveLayer) <= Layers.Count - 1)
             {
                 ActiveLayer.IsActive = false;
             }
 
-            if (Layers.Any(x => x.IsActive))
+            foreach (var layer in Layers)
             {
-                var guids = Layers.Where(x => x.IsActive).Select(y => y.LayerGuid);
-                guids.ToList().ForEach(x => Layers.First(layer => layer.LayerGuid == x).IsActive = false);
+                if (layer.IsActive)
+                {
+                    layer.IsActive = false;
+                }
             }
 
-            ActiveLayerIndex = index;
+            ActiveLayerGuid = Layers[index].LayerGuid;
             ActiveLayer.IsActive = true;
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
+        }
+
+        public void UpdateLayersColor()
+        {
+            foreach (var layer in Layers)
+            {
+                if (layer.LayerGuid == ActiveLayerGuid)
+                {
+                    layer.LayerHighlightColor = MainSelectedLayerColor;
+                }
+                else
+                {
+                    layer.LayerHighlightColor = SecondarySelectedLayerColor;
+                }
+            }
         }
 
         public void MoveLayerIndexBy(int layerIndex, int amount)
@@ -83,7 +103,7 @@ namespace PixiEditor.Models.DataHolders
             });
             if (setAsActive)
             {
-                SetActiveLayer(Layers.Count - 1);
+                SetMainActiveLayer(Layers.Count - 1);
             }
 
             if (Layers.Count > 1)
@@ -97,7 +117,7 @@ namespace PixiEditor.Models.DataHolders
                         "Add layer"));
             }
 
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[0].LayerGuid, LayerAction.Add));
         }
 
         public void SetNextLayerAsActive(int lastLayerIndex)
@@ -106,12 +126,74 @@ namespace PixiEditor.Models.DataHolders
             {
                 if (lastLayerIndex == 0)
                 {
-                    SetActiveLayer(0);
+                    SetMainActiveLayer(0);
                 }
                 else
                 {
-                    SetActiveLayer(lastLayerIndex - 1);
+                    SetMainActiveLayer(lastLayerIndex - 1);
                 }
+            }
+        }
+
+        public void SetNextSelectedLayerAsActive(Guid lastLayerGuid)
+        {
+            var selectedLayers = Layers.Where(x => x.IsActive);
+            foreach (var layer in selectedLayers)
+            {
+                if (layer.LayerGuid != lastLayerGuid)
+                {
+                    ActiveLayerGuid = layer.LayerGuid;
+                    LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
+                    return;
+                }
+            }
+        }
+
+        public void ToggleLayer(int index)
+        {
+            if (index < Layers.Count && index >= 0)
+            {
+                Layer layer = Layers[index];
+                if (layer.IsActive && Layers.Count(x => x.IsActive) == 1)
+                {
+                    return;
+                }
+
+                if (ActiveLayerGuid == layer.LayerGuid)
+                {
+                    SetNextSelectedLayerAsActive(layer.LayerGuid);
+                }
+
+                layer.IsActive = !layer.IsActive;
+            }
+        }
+
+        /// <summary>
+        /// Selects all layers between active layer and layer at given index.
+        /// </summary>
+        /// <param name="index">End of range index.</param>
+        public void SelectLayersRange(int index)
+        {
+            DeselectAllExcept(ActiveLayer);
+            int firstIndex = Layers.IndexOf(ActiveLayer);
+
+            int startIndex = Math.Min(index, firstIndex);
+            for (int i = startIndex; i <= startIndex + Math.Abs(index - firstIndex); i++)
+            {
+                Layers[i].IsActive = true;
+            }
+        }
+
+        public void DeselectAllExcept(Layer exceptLayer)
+        {
+            foreach (var layer in Layers)
+            {
+                if (layer == exceptLayer)
+                {
+                    continue;
+                }
+
+                layer.IsActive = false;
             }
         }
 
@@ -135,81 +217,139 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        /// <summary>
-        /// Merges two layers.
-        /// </summary>
-        /// <param name="firstLayer">The lower layer.</param>
-        /// <param name="secondLayer">The upper layer.</param>
-        /// <returns>The merged layer.</returns>
-        public Layer MergeLayers(Layer firstLayer, Layer secondLayer, bool nameOfSecond, int index)
+        public void RemoveLayer(Layer layer)
         {
+            RemoveLayer(Layers.IndexOf(layer));
+        }
+
+        public void RemoveActiveLayers()
+        {
+            if (Layers.Count == 0 || !Layers.Any(x => x.IsActive))
+            {
+                return;
+            }
+
+            Layer[] layers = Layers.Where(x => x.IsActive).ToArray();
+            int firstIndex = Layers.IndexOf(layers[0]);
+
+            object[] guidArgs = new object[] { layers.Select(x => x.LayerGuid).ToArray() };
+
+            StorageBasedChange change = new StorageBasedChange(this, layers);
+
+            RemoveLayersProcess(guidArgs);
+
+            InjectRemoveActiveLayersUndo(guidArgs, change);
+
+            SetNextLayerAsActive(firstIndex);
+        }
+
+        public Layer MergeLayers(Layer[] layersToMerge, bool nameOfLast, int index)
+        {
+            if (layersToMerge == null || layersToMerge.Length < 2)
+            {
+                throw new ArgumentException("Not enough layers were provided to merge. Minimum amount is 2");
+            }
+
             string name;
 
             // Wich name should be used
-            if (nameOfSecond)
+            if (nameOfLast)
             {
-                name = secondLayer.Name;
+                name = layersToMerge[^1].Name;
             }
             else
             {
-                name = firstLayer.Name;
+                name = layersToMerge[0].Name;
             }
 
-            Layer mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
+            Layer mergedLayer = layersToMerge[0];
 
-            // Insert new layer and remove old
+            for (int i = 0; i < layersToMerge.Length - 1; i++)
+            {
+                Layer firstLayer = mergedLayer;
+                Layer secondLayer = layersToMerge[i + 1];
+                mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
+                Layers.Remove(layersToMerge[i]);
+            }
+
+            Layers.Remove(layersToMerge[^1]);
+
             Layers.Insert(index, mergedLayer);
-            Layers.Remove(firstLayer);
-            Layers.Remove(secondLayer);
 
-            SetActiveLayer(Layers.IndexOf(mergedLayer));
+            SetMainActiveLayer(Layers.IndexOf(mergedLayer));
 
             return mergedLayer;
         }
 
-        /// <summary>
-        /// Merges two layers.
-        /// </summary>
-        /// <param name="firstIndex">The index of the lower layer.</param>
-        /// <param name="secondIndex">The index of the upper leyer.</param>
-        /// <returns>The merged layer.</returns>
-        public Layer MergeLayers(int firstIndex, int secondIndex, bool nameOfSecond)
+        public Layer MergeLayers(Layer[] layersToMerge, bool nameIsLastLayers)
         {
-            Layer firstLayer = Layers[firstIndex];
-            Layer secondLayer = Layers[secondIndex];
-
-            IEnumerable<Layer> undoArgs = new[] { firstLayer, secondLayer };
-            if (firstIndex > secondIndex)
+            if (layersToMerge == null || layersToMerge.Length < 2)
             {
-                undoArgs = undoArgs.Reverse();
+                throw new ArgumentException("Not enough layers were provided to merge. Minimum amount is 2");
             }
+
+            IEnumerable<Layer> undoArgs = layersToMerge;
 
             StorageBasedChange undoChange = new StorageBasedChange(this, undoArgs);
 
-            var layer = MergeLayers(firstLayer, secondLayer, nameOfSecond, firstIndex);
+            int[] indexes = layersToMerge.Select(x => Layers.IndexOf(x)).ToArray();
+
+            var layer = MergeLayers(layersToMerge, nameIsLastLayers, Layers.IndexOf(layersToMerge[0]));
 
             UndoManager.AddUndoChange(undoChange.ToChange(
                 InsertLayersAtIndexesProcess,
-                new object[] { firstIndex > secondIndex ? firstIndex - 1 : firstIndex },
+                new object[] { indexes[0] },
                 MergeLayersProcess,
-                new object[] { firstIndex, secondIndex, nameOfSecond, layer.LayerGuid },
+                new object[] { indexes, nameIsLastLayers, layer.LayerGuid },
                 "Undo merge layers"));
 
             return layer;
         }
 
+        private void InjectRemoveActiveLayersUndo(object[] guidArgs, StorageBasedChange change)
+        {
+            Action<Layer[], UndoLayer[]> undoAction = RestoreLayersProcess;
+            Action<object[]> redoAction = RemoveLayersProcess;
+
+            if (Layers.Count == 0)
+            {
+                Layer layer = new Layer("Base Layer");
+                Layers.Add(layer);
+                undoAction = (Layer[] layers, UndoLayer[] undoData) =>
+                {
+                    Layers.RemoveAt(0);
+                    RestoreLayersProcess(layers, undoData);
+                };
+                redoAction = (object[] args) =>
+                {
+                    RemoveLayersProcess(args);
+                    Layers.Add(layer);
+                };
+            }
+
+            UndoManager.AddUndoChange(
+            change.ToChange(
+                undoAction,
+                redoAction,
+                guidArgs,
+                "Remove layers"));
+        }
+
         private void MergeLayersProcess(object[] args)
         {
-            if (args.Length > 0 
-                && args[0] is int firstIndex
-                && args[1] is int secondIndex
-                && args[2] is bool nameOfSecond
-                && args[3] is Guid mergedLayerGuid)
+            if (args.Length > 0
+                && args[0] is int[] indexes
+                && args[1] is bool nameOfSecond
+                && args[2] is Guid mergedLayerGuid)
             {
-                Layer firstLayer = Layers[firstIndex];
-                Layer secondLayer = Layers[secondIndex];
+                Layer[] layers = new Layer[indexes.Length];
 
-                Layer layer = MergeLayers(firstLayer, secondLayer, nameOfSecond, firstIndex);
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    layers[i] = Layers[indexes[i]];
+                }
+
+                Layer layer = MergeLayers(layers, nameOfSecond, indexes[0]);
                 layer.ChangeGuid(mergedLayerGuid);
             }
         }
@@ -222,27 +362,37 @@ namespace PixiEditor.Models.DataHolders
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
+                    layer.IsActive = true;
                     Layers.Insert(data[i].LayerIndex, layer);
                 }
+
+                ActiveLayerGuid = layers.First(x => x.LayerHighlightColor == MainSelectedLayerColor).LayerGuid;
+                // Identifying main layer by highlightColor is a bit hacky, but shhh
             }
         }
 
         /// <summary>
         ///     Moves offsets of layers by specified vector.
         /// </summary>
-        private void MoveOffsets(Coordinates moveVector)
+        private void MoveOffsets(IEnumerable<Layer> layers, Coordinates moveVector)
         {
-            for (int i = 0; i < Layers.Count; i++)
+            foreach (Layer layer in layers)
             {
-                Thickness offset = Layers[i].Offset;
-                Layers[i].Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
+                Thickness offset = layer.Offset;
+                layer.Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
             }
         }
 
         private void MoveOffsetsProcess(object[] arguments)
         {
-            Coordinates vector = (Coordinates)arguments[0];
-            MoveOffsets(vector);
+            if (arguments.Length > 0 && arguments[0] is IEnumerable<Layer> layers && arguments[1] is Coordinates vector)
+            {
+                MoveOffsets(layers, vector);
+            }
+            else
+            {
+                throw new ArgumentException("Provided arguments were invalid. Expected IEnumerable<Layer> and Coordinates");
+            }
         }
 
         private void MoveLayerProcess(object[] parameter)
@@ -251,9 +401,9 @@ namespace PixiEditor.Models.DataHolders
             int amount = (int)parameter[1];
 
             Layers.Move(layerIndex, layerIndex + amount);
-            if (ActiveLayerIndex == layerIndex)
+            if (Layers.IndexOf(ActiveLayer) == layerIndex)
             {
-                SetActiveLayer(layerIndex + amount);
+                SetMainActiveLayer(layerIndex + amount);
             }
         }
 
@@ -266,7 +416,7 @@ namespace PixiEditor.Models.DataHolders
                 Layers.Insert(layersData[i].LayerIndex, layer);
                 if (layersData[i].IsActive)
                 {
-                    SetActiveLayer(Layers.IndexOf(layer));
+                    SetMainActiveLayer(Layers.IndexOf(layer));
                 }
             }
         }
@@ -280,9 +430,22 @@ namespace PixiEditor.Models.DataHolders
                 bool wasActive = layer.IsActive;
                 Layers.Remove(layer);
 
-                if (wasActive || ActiveLayerIndex >= index)
+                if (wasActive || Layers.IndexOf(ActiveLayer) >= index)
                 {
                     SetNextLayerAsActive(index);
+                }
+            }
+        }
+
+        private void RemoveLayersProcess(object[] parameters)
+        {
+            if (parameters != null && parameters.Length > 0 && parameters[0] is IEnumerable<Guid> layerGuids)
+            {
+                object[] args = new object[1];
+                foreach (var guid in layerGuids)
+                {
+                    args[0] = guid;
+                    RemoveLayerProcess(args);
                 }
             }
         }

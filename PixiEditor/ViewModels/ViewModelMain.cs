@@ -12,7 +12,6 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
@@ -161,7 +160,7 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
 
                     // Layers
-                    new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerIndex),
+                    new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerGuid),
 
                     // View
                     new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, modifier: ModifierKeys.Control),
@@ -194,7 +193,7 @@ namespace PixiEditor.ViewModels
             return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, typeof(T), modifier);
         }
 
-        private void CloseWindow(object property)
+        public void CloseWindow(object property)
         {
             if (!(property is CancelEventArgs))
             {

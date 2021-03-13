@@ -136,6 +136,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             manager.ActiveDocument.AddNewLayer("test2");
             manager.ActiveLayer.SetPixel(new Coordinates(1, 1), Colors.Green);
 
+            foreach (var layer in manager.ActiveDocument.Layers)
+            {
+                layer.IsActive = true;
+            }
+
             doc.CenterContent();
 
             int midWidth = (int)Math.Floor(docWidth / 2f);
@@ -155,7 +160,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test"));
             doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test 2"));
 
-            doc.SetActiveLayer(1);
+            doc.SetMainActiveLayer(1);
 
             doc.SetNextLayerAsActive(1);
 

@@ -10,6 +10,8 @@ namespace PixiEditor.Models.Undo
 
         public Guid LayerGuid { get; init; }
 
+        public string LayerHighlightColor { get; set; }
+
         public string Name { get; set; }
 
         public int LayerIndex { get; set; }
@@ -47,6 +49,7 @@ namespace PixiEditor.Models.Undo
             Opacity = layer.Opacity;
             IsActive = layer.IsActive;
             LayerGuid = layer.LayerGuid;
+            LayerHighlightColor = layer.LayerHighlightColor;
         }
     }
 }
