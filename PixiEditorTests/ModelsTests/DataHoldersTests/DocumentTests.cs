@@ -4,6 +4,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -135,6 +136,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             manager.ActiveDocument.AddNewLayer("test2");
             manager.ActiveLayer.SetPixel(new Coordinates(1, 1), Colors.Green);
 
+            foreach (var layer in manager.ActiveDocument.Layers)
+            {
+                layer.IsActive = true;
+            }
+
             doc.CenterContent();
 
             int midWidth = (int)Math.Floor(docWidth / 2f);
@@ -154,7 +160,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test"));
             doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test 2"));
 
-            doc.SetActiveLayer(1);
+            doc.SetMainActiveLayer(1);
 
             doc.SetNextLayerAsActive(1);
 
@@ -282,6 +288,23 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             Assert.Equal("Test", document.Layers[1].Name);
             Assert.Equal("Test2", document.Layers[0].Name);
+        }
+
+        [StaFact]
+        public void TestThatDocumentGetsAddedToRecentlyOpenedList()
+        {
+            ViewModelMain viewModel = Helpers.MockedViewModelMain();
+
+            Document document = new Document(1, 1)
+            {
+                XamlAccesibleViewModel = viewModel
+            };
+
+            string testFilePath = @"C:\idk\somewhere\homework";
+
+            document.DocumentFilePath = testFilePath;
+
+            Assert.Contains(viewModel.FileSubViewModel.RecentlyOpened, x => x == testFilePath);
         }
     }
 }

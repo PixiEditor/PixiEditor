@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
@@ -11,7 +12,6 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
@@ -58,15 +58,35 @@ namespace PixiEditor.ViewModels
 
         public DiscordViewModel DiscordViewModel { get; set; }
 
+#if DEBUG
+        public DebugViewModel DebugSubViewModel { get; set; }
+#endif
+
         public BitmapManager BitmapManager { get; set; }
 
         public PixelChangesController ChangesController { get; set; }
 
         public ShortcutController ShortcutController { get; set; }
 
-        public ViewModelMain()
+        public IPreferences Preferences { get; set; }
+
+        public bool IsDebug
         {
-            PreferencesSettings.Init();
+            get =>
+#if DEBUG
+                true;
+#else
+                false;
+#endif
+        }
+
+        public ViewModelMain(IServiceProvider services)
+        {
+            Current = this;
+
+            Preferences = services.GetRequiredService<IPreferences>();
+
+            Preferences.Init();
 
             BitmapManager = new BitmapManager();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
@@ -91,6 +111,9 @@ namespace PixiEditor.ViewModels
             DocumentSubViewModel = new DocumentViewModel(this);
             MiscSubViewModel = new MiscViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
+#if DEBUG
+            DebugSubViewModel = new DebugViewModel(this);
+#endif
 
             ShortcutController = new ShortcutController
             {
@@ -137,14 +160,13 @@ namespace PixiEditor.ViewModels
                     new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, modifier: ModifierKeys.Control),
 
                     // Layers
-                    new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerIndex),
+                    new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, BitmapManager.ActiveDocument?.ActiveLayerGuid),
 
                     // View
-                    new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, modifier: ModifierKeys.Control)
+                    new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, modifier: ModifierKeys.Control),
                 }
             };
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
-            Current = this;
         }
 
         /// <summary>
@@ -171,7 +193,7 @@ namespace PixiEditor.ViewModels
             return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, typeof(T), modifier);
         }
 
-        private void CloseWindow(object property)
+        public void CloseWindow(object property)
         {
             if (!(property is CancelEventArgs))
             {

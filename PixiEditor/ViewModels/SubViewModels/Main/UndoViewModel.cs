@@ -75,7 +75,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandParameter.</param>
         public void Undo(object parameter)
         {
-            Owner.SelectionSubViewModel.Deselect(null);
             Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
         }
 

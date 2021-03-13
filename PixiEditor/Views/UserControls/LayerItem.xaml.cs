@@ -78,6 +78,16 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty PreviewImageProperty =
             DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(LayerItem), new PropertyMetadata(null));
 
+        public string LayerColor
+        {
+            get { return (string)GetValue(LayerColorProperty); }
+            set { SetValue(LayerColorProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for LayerColor.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LayerColorProperty =
+            DependencyProperty.Register("LayerColor", typeof(string), typeof(LayerItem), new PropertyMetadata("#00000000"));
+
         public Visibility ControlButtonsVisible
         {
             get { return (Visibility)GetValue(ControlButtonsVisibleProperty); }

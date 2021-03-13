@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
@@ -71,6 +72,10 @@ namespace PixiEditor.Models.Tools
         }
 
         public virtual void OnKeyUp(KeyEventArgs e)
+        {
+        }
+
+        public virtual void OnStart(Coordinates clickPosition)
         {
         }
 

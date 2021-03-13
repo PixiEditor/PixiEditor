@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,6 +23,7 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
+    [DebuggerDisplay("'{Name, nq}' {width}x{height} {Layers.Count} Layer(s)")]
     public partial class Document : NotifyableObject
     {
         private int height;
@@ -152,7 +156,7 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void ClipCanvas()
         {
-            DoubleCords points = GetEdgePoints();
+            DoubleCords points = GetEdgePoints(Layers);
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
             int biggestX = points.Coords2.X;
@@ -171,7 +175,7 @@ namespace PixiEditor.Models.DataHolders
             int oldWidth = Width;
             int oldHeight = Height;
 
-            MoveOffsets(moveVector);
+            MoveOffsets(Layers, moveVector);
             Width = width;
             Height = height;
 
@@ -187,11 +191,17 @@ namespace PixiEditor.Models.DataHolders
         }
 
         /// <summary>
-        /// Centers content inside document.
+        /// Centers selected, visible layers inside document.
         /// </summary>
         public void CenterContent()
         {
-            DoubleCords points = GetEdgePoints();
+            var layersToCenter = Layers.Where(x => x.IsActive && x.IsVisible);
+            if (layersToCenter.Count() == 0)
+            {
+                return;
+            }
+
+            DoubleCords points = GetEdgePoints(layersToCenter);
 
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
@@ -209,13 +219,13 @@ namespace PixiEditor.Models.DataHolders
                 new Coordinates(Width, Height));
             Coordinates moveVector = new Coordinates(documentCenter.X - contentCenter.X, documentCenter.Y - contentCenter.Y);
 
-            MoveOffsets(moveVector);
+            MoveOffsets(layersToCenter, moveVector);
             UndoManager.AddUndoChange(
                 new Change(
                     MoveOffsetsProcess,
-                    new object[] { new Coordinates(-moveVector.X, -moveVector.Y) },
+                    new object[] { layersToCenter, new Coordinates(-moveVector.X, -moveVector.Y) },
                     MoveOffsetsProcess,
-                    new object[] { moveVector },
+                    new object[] { layersToCenter, moveVector },
                     "Center content"));
         }
 
@@ -264,35 +274,40 @@ namespace PixiEditor.Models.DataHolders
             return 0;
         }
 
-        private DoubleCords GetEdgePoints()
+        private DoubleCords GetEdgePoints(IEnumerable<Layer> layers)
         {
-            Layer firstLayer = Layers[0];
+            if (Layers.Count == 0)
+            {
+                throw new ArgumentException("Not enough layers");
+            }
+
+            Layer firstLayer = layers.First();
             int smallestX = firstLayer.OffsetX;
             int smallestY = firstLayer.OffsetY;
             int biggestX = smallestX + firstLayer.Width;
             int biggestY = smallestY + firstLayer.Height;
 
-            for (int i = 0; i < Layers.Count; i++)
+            foreach (Layer layer in layers)
             {
-                Layers[i].ClipCanvas();
-                if (Layers[i].OffsetX < smallestX)
+                layer.ClipCanvas();
+                if (layer.OffsetX < smallestX)
                 {
-                    smallestX = Layers[i].OffsetX;
+                    smallestX = layer.OffsetX;
                 }
 
-                if (Layers[i].OffsetX + Layers[i].Width > biggestX)
+                if (layer.OffsetX + layer.Width > biggestX)
                 {
-                    biggestX = Layers[i].OffsetX + Layers[i].Width;
+                    biggestX = layer.OffsetX + layer.Width;
                 }
 
-                if (Layers[i].OffsetY < smallestY)
+                if (layer.OffsetY < smallestY)
                 {
-                    smallestY = Layers[i].OffsetY;
+                    smallestY = layer.OffsetY;
                 }
 
-                if (Layers[i].OffsetY + Layers[i].Height > biggestY)
+                if (layer.OffsetY + layer.Height > biggestY)
                 {
-                    biggestY = Layers[i].OffsetY + Layers[i].Height;
+                    biggestY = layer.OffsetY + layer.Height;
                 }
             }
 

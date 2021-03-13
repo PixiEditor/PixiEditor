@@ -9,16 +9,13 @@
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="uc"
              MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
-    <UserControl.Resources>
-        <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
-    </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
-            Background="{Binding IsActive, Mode=TwoWay, Converter={StaticResource BoolToColorConverter}}">
+            Background="{Binding LayerColor, ElementName=uc}" >
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
         <i:Interaction.Triggers>
-            <i:EventTrigger EventName="MouseLeftButtonDown">
+            <i:EventTrigger EventName="MouseDown">
                 <i:InvokeCommandAction Command="{Binding ElementName=uc, 
                             Path=SetActiveLayerCommand}"
                                        CommandParameter="{Binding Path=LayerIndex, ElementName=uc}"/>

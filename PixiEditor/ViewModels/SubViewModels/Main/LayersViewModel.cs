@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -38,6 +39,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MergeSelectedCommand = new RelayCommand(MergeSelected, CanMergeSelected);
             MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
+            Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
         public bool CanMergeSelected(object obj)
@@ -58,6 +60,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void SetActiveLayer(object parameter)
         {
             int index = (int)parameter;
+
+            if (Owner.BitmapManager.ActiveDocument.Layers[index].IsActive && Mouse.RightButton == MouseButtonState.Pressed)
+            {
+                return;
+            }
+
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
                 Owner.BitmapManager.ActiveDocument.ToggleLayer(index);
@@ -68,7 +76,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else
             {
-                Owner.BitmapManager.ActiveDocument.SetActiveLayer(index);
+                Owner.BitmapManager.ActiveDocument.SetMainActiveLayer(index);
             }
         }
 
@@ -96,10 +104,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (index == null)
             {
-                index = Owner.BitmapManager.ActiveDocument.ActiveLayerIndex;
+                index = Owner.BitmapManager.ActiveDocument.Layers.IndexOf(Owner.BitmapManager.ActiveDocument.ActiveLayer);
             }
 
-            Owner.BitmapManager.ActiveDocument.Layers[index.Value].IsRenaming = true;
+            Owner.BitmapManager.ActiveDocument.Layers[(int)index].IsRenaming = true;
         }
 
         public bool CanRenameLayer(object parameter)
@@ -161,6 +169,27 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             int index = (int)property;
             return Owner.DocumentIsNotNull(null) && index != 0 && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
+        }
+
+        private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+        {
+            if (e.OldDocument != null)
+            {
+                e.OldDocument.LayersChanged -= Document_LayersChanged;
+            }
+
+            if (e.NewDocument != null)
+            {
+                e.NewDocument.LayersChanged += Document_LayersChanged;
+            }
+        }
+
+        private void Document_LayersChanged(object sender, LayersChangedEventArgs e)
+        {
+            if (e.LayerChangeType == Models.Enums.LayerAction.SetActive)
+            {
+                Owner.BitmapManager.ActiveDocument.UpdateLayersColor();
+            }
         }
     }
 }
