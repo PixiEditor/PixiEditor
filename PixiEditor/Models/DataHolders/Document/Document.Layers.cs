@@ -18,12 +18,21 @@ namespace PixiEditor.Models.DataHolders
         public const string MainSelectedLayerColor = "#505056";
         public const string SecondarySelectedLayerColor = "#7D505056";
         private Guid activeLayerGuid;
+        private LayerStructure layerStructure = new ();
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
-        public LayerStructure LayerStructure { get; set; } = new LayerStructure();
+        public LayerStructure LayerStructure
+        {
+            get => layerStructure;
+            set
+            {
+                layerStructure = value;
+                RaisePropertyChanged(nameof(LayerStructure));
+            }
+        }
 
-        public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
+        public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.LayerGuid == ActiveLayerGuid) : null;
 
         public Guid ActiveLayerGuid
         {
@@ -119,7 +128,7 @@ namespace PixiEditor.Models.DataHolders
                         "Add layer"));
             }
 
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[0].LayerGuid, LayerAction.Add));
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[^1].LayerGuid, LayerAction.Add));
         }
 
         public void SetNextLayerAsActive(int lastLayerIndex)

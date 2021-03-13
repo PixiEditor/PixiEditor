@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using PixiEditor.Models.Layers;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -21,7 +10,6 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayerStructureItemContainer : UserControl
     {
-
         public LayerStructureItem Item
         {
             get { return (LayerStructureItem)GetValue(ItemProperty); }
@@ -35,6 +23,26 @@ namespace PixiEditor.Views.UserControls
                 typeof(LayerStructureItem),
                 typeof(LayerStructureItemContainer),
                 new PropertyMetadata(default(LayerStructureItem)));
+
+        public LayersViewModel LayerCommandsViewModel
+        {
+            get { return (LayersViewModel)GetValue(LayerCommandsViewModelProperty); }
+            set { SetValue(LayerCommandsViewModelProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LayerCommandsViewModelProperty =
+            DependencyProperty.Register("LayerCommandsViewModel", typeof(LayersViewModel), typeof(LayerStructureItemContainer), new PropertyMetadata(default(LayersViewModel)));
+
+        public int ContainerIndex
+        {
+            get { return (int)GetValue(ContainerIndexProperty); }
+            set { SetValue(ContainerIndexProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ContainerIndex.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ContainerIndexProperty =
+            DependencyProperty.Register("ContainerIndex", typeof(int), typeof(LayerStructureItemContainer), new PropertyMetadata(0));
 
         public LayerStructureItemContainer()
         {

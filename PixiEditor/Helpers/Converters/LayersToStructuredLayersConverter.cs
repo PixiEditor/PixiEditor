@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 using PixiEditor.Models.Layers;
 
@@ -15,12 +17,25 @@ namespace PixiEditor.Helpers.Converters
                 return new StructuredLayerTree(layers, structure).Items;
             }
 
-            return new StructuredLayerTree();
+            return new StructuredLayerTree().Items;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (value is ObservableCollection<LayerStructureItem> tree)
+            {
+                List<Layer> layers = new ();
+                LayerStructure structure = new ();
+                foreach (var branchLayers in tree.Select(x => x.Children))
+                {
+                    layers.AddRange(branchLayers);
+                    structure.Items.Add(new GuidStructureItem(new ObservableCollection<Guid>(branchLayers.Select(x => x.LayerGuid))));
+                }
+
+                return new object[] { layers, structure };
+            }
+
+            throw new ArgumentException("Value is not a StructuredLayerTree");
         }
     }
 }

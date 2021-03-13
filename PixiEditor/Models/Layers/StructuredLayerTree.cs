@@ -34,7 +34,6 @@ namespace PixiEditor.Models.Layers
 
         public StructuredLayerTree()
         {
-            
         }
     }
 }

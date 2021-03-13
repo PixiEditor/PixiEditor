@@ -11,10 +11,10 @@
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock"
+        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized" DataContext="{DynamicResource ViewModelMain}">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
@@ -22,9 +22,10 @@
 
     <Window.Resources>
         <ResourceDictionary>
-            <vm:ViewModelMain x:Key="ViewModelMain" />
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
+            <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
+            <converters:LayersToStructuredLayersConverter x:Key="LayersToStructuredLayersConverter"/>
             <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
@@ -251,7 +252,7 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Grid Width="45" Height="45" Margin="0 5 5 5">
+                                                        <Grid Width="45" Height="45" Margin="0 5 5 5" Tag="{Binding DataContext, ElementName=mainWindow}">
                                                             <Border CornerRadius="5.5" Width="44" Height="44">
                                                                 <Border.Background>
                                                                     <ImageBrush ImageSource="../Images/transparentbg.png"
@@ -279,7 +280,8 @@
                                                             <Grid.ContextMenu>
                                                                 <ContextMenu>
                                                                     <MenuItem Header="Remove" Foreground="White"
-                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand, Source={StaticResource ViewModelMain}}"
+                                                                      Command="{Binding PlacementTarget.Tag.ColorsSubViewModel.RemoveSwatchCommand, 
+                                                                        RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                       CommandParameter="{Binding}" />
                                                                 </ContextMenu>
                                                             </Grid.ContextMenu>
@@ -294,8 +296,18 @@
                                     <LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <usercontrols:LayersManager LayersViewModel="{Binding LayersSubViewModel}"
-                                                                    BitmapManager="{Binding BitmapManager}"/>
+                                        <usercontrols:LayersManager
+                                            LayerOpacity="{Binding BitmapManager.ActiveDocument.ActiveLayer.OpacityUndoTriggerable}"
+                                            LayerCommandsViewModel="{Binding LayersSubViewModel}"
+                                            OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
+                    Converter={StaticResource NotNullToBoolConverter}}">
+                                            <usercontrols:LayersManager.StructuredLayers>
+                                                <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
+                                                    <Binding Path="BitmapManager.ActiveDocument.Layers" />
+                                                    <Binding Path="BitmapManager.ActiveDocument.LayerStructure"/>
+                                                </MultiBinding>
+                                            </usercontrols:LayersManager.StructuredLayers>
+                                        </usercontrols:LayersManager>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
