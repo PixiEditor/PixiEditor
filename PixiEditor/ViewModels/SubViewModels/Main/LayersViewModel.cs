@@ -52,7 +52,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewLayer(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+            Owner.BitmapManager.ActiveDocument.AddNewLayer($"New Layer");
         }
 
         public bool CanCreateNewLayer(object parameter)
@@ -103,8 +103,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void DuplicateLayer(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.Layers.Insert((int)parameter, Owner.BitmapManager.ActiveDocument.Layers[(int)parameter].Clone(true));
-            Owner.BitmapManager.ActiveDocument.SetActiveLayer((int)parameter);
+            Owner.BitmapManager.ActiveDocument.DuplicateLayer((int)parameter);
         }
 
         public bool CanDuplicateLayer(object property)

@@ -127,6 +127,31 @@ namespace PixiEditor.Models.DataHolders
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[0].LayerGuid, LayerAction.Add));
         }
 
+        /// <summary>
+        /// Duplicates the layer at the <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index">The index of the layer to duplicate.</param>
+        /// <returns>The duplicate.</returns>
+        public Layer DuplicateLayer(int index)
+        {
+            Layer duplicate = Layers[index].Clone(true);
+
+            duplicate.Name = GetLayerSuffix(duplicate);
+
+            Layers.Insert(index + 1, duplicate);
+            SetActiveLayer(index + 1);
+
+            StorageBasedChange storageChange = new (this, new[] { duplicate }, false);
+            UndoManager.AddUndoChange(
+                storageChange.ToChange(
+                    RemoveLayerProcess,
+                    new object[] { duplicate.LayerGuid },
+                    RestoreLayersProcess,
+                    "Duplicate Layer"));
+
+            return duplicate;
+        }
+
         public void SetNextLayerAsActive(int lastLayerIndex)
         {
             if (Layers.Count > 0)
@@ -444,6 +469,10 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        /// <summary>
+        /// Get's the layers suffix, e.g. "New Layer" becomes "New Layer (1)".
+        /// </summary>
+        /// <returns>Name of the layer with suffix.</returns>
         private string GetLayerSuffix(Layer layer)
         {
             int? highgestValue = null;
