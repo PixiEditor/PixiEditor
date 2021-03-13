@@ -15,7 +15,9 @@ namespace PixiEditor.Models.DataHolders
 {
     public partial class Document
     {
-        private int activeLayerIndex;
+        public const string MainSelectedLayerColor = "#505056";
+        public const string SecondarySelectedLayerColor = "#7D505056";
+        private Guid activeLayerGuid;
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
@@ -23,35 +25,52 @@ namespace PixiEditor.Models.DataHolders
 
         public Layer ActiveLayer => Layers.Count > 0 ? Layers[ActiveLayerIndex] : null;
 
-        public int ActiveLayerIndex
+        public Guid ActiveLayerGuid
         {
-            get => activeLayerIndex;
+            get => activeLayerGuid;
             set
             {
-                activeLayerIndex = value;
-                RaisePropertyChanged(nameof(ActiveLayerIndex));
+                activeLayerGuid = value;
+                RaisePropertyChanged(nameof(ActiveLayerGuid));
                 RaisePropertyChanged(nameof(ActiveLayer));
             }
         }
 
         public event EventHandler<LayersChangedEventArgs> LayersChanged;
 
-        public void SetActiveLayer(int index)
+        public void SetMainActiveLayer(int index)
         {
-            if (ActiveLayerIndex <= Layers.Count - 1)
+            if (ActiveLayer != null && Layers.IndexOf(ActiveLayer) <= Layers.Count - 1)
             {
                 ActiveLayer.IsActive = false;
             }
 
-            if (Layers.Any(x => x.IsActive))
+            foreach (var layer in Layers)
             {
-                var guids = Layers.Where(x => x.IsActive).Select(y => y.LayerGuid);
-                guids.ToList().ForEach(x => Layers.First(layer => layer.LayerGuid == x).IsActive = false);
+                if (layer.IsActive)
+                {
+                    layer.IsActive = false;
+                }
             }
 
-            ActiveLayerIndex = index;
+            ActiveLayerGuid = Layers[index].LayerGuid;
             ActiveLayer.IsActive = true;
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(index, LayerAction.SetActive));
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
+        }
+
+        public void UpdateLayersColor()
+        {
+            foreach (var layer in Layers)
+            {
+                if (layer.LayerGuid == ActiveLayerGuid)
+                {
+                    layer.LayerHighlightColor = MainSelectedLayerColor;
+                }
+                else
+                {
+                    layer.LayerHighlightColor = SecondarySelectedLayerColor;
+                }
+            }
         }
 
         public void MoveLayerIndexBy(int layerIndex, int amount)
@@ -86,7 +105,7 @@ namespace PixiEditor.Models.DataHolders
             });
             if (setAsActive)
             {
-                SetActiveLayer(Layers.Count - 1);
+                SetMainActiveLayer(Layers.Count - 1);
             }
 
             if (Layers.Count > 1)
@@ -100,7 +119,7 @@ namespace PixiEditor.Models.DataHolders
                         "Add layer"));
             }
 
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(0, LayerAction.Add));
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[0].LayerGuid, LayerAction.Add));
         }
 
         public void SetNextLayerAsActive(int lastLayerIndex)
@@ -109,11 +128,25 @@ namespace PixiEditor.Models.DataHolders
             {
                 if (lastLayerIndex == 0)
                 {
-                    SetActiveLayer(0);
+                    SetMainActiveLayer(0);
                 }
                 else
                 {
-                    SetActiveLayer(lastLayerIndex - 1);
+                    SetMainActiveLayer(lastLayerIndex - 1);
+                }
+            }
+        }
+
+        public void SetNextSelectedLayerAsActive(Guid lastLayerGuid)
+        {
+            var selectedLayers = Layers.Where(x => x.IsActive);
+            foreach (var layer in selectedLayers)
+            {
+                if (layer.LayerGuid != lastLayerGuid)
+                {
+                    ActiveLayerGuid = layer.LayerGuid;
+                    LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
+                    return;
                 }
             }
         }
@@ -123,6 +156,16 @@ namespace PixiEditor.Models.DataHolders
             if (index < Layers.Count && index >= 0)
             {
                 Layer layer = Layers[index];
+                if (layer.IsActive && Layers.Count(x => x.IsActive) == 1)
+                {
+                    return;
+                }
+
+                if (ActiveLayerGuid == layer.LayerGuid)
+                {
+                    SetNextSelectedLayerAsActive(layer.LayerGuid);
+                }
+
                 layer.IsActive = !layer.IsActive;
             }
         }
@@ -235,7 +278,7 @@ namespace PixiEditor.Models.DataHolders
 
             Layers.Insert(index, mergedLayer);
 
-            SetActiveLayer(Layers.IndexOf(mergedLayer));
+            SetMainActiveLayer(Layers.IndexOf(mergedLayer));
 
             return mergedLayer;
         }
@@ -321,27 +364,37 @@ namespace PixiEditor.Models.DataHolders
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
+                    layer.IsActive = true;
                     Layers.Insert(data[i].LayerIndex, layer);
                 }
+
+                ActiveLayerGuid = layers.First(x => x.LayerHighlightColor == MainSelectedLayerColor).LayerGuid;
+                // Identifying main layer by highlightColor is a bit hacky, but shhh
             }
         }
 
         /// <summary>
         ///     Moves offsets of layers by specified vector.
         /// </summary>
-        private void MoveOffsets(Coordinates moveVector)
+        private void MoveOffsets(IEnumerable<Layer> layers, Coordinates moveVector)
         {
-            for (int i = 0; i < Layers.Count; i++)
+            foreach (Layer layer in layers)
             {
-                Thickness offset = Layers[i].Offset;
-                Layers[i].Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
+                Thickness offset = layer.Offset;
+                layer.Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
             }
         }
 
         private void MoveOffsetsProcess(object[] arguments)
         {
-            Coordinates vector = (Coordinates)arguments[0];
-            MoveOffsets(vector);
+            if (arguments.Length > 0 && arguments[0] is IEnumerable<Layer> layers && arguments[1] is Coordinates vector)
+            {
+                MoveOffsets(layers, vector);
+            }
+            else
+            {
+                throw new ArgumentException("Provided arguments were invalid. Expected IEnumerable<Layer> and Coordinates");
+            }
         }
 
         private void MoveLayerProcess(object[] parameter)
@@ -350,9 +403,9 @@ namespace PixiEditor.Models.DataHolders
             int amount = (int)parameter[1];
 
             Layers.Move(layerIndex, layerIndex + amount);
-            if (ActiveLayerIndex == layerIndex)
+            if (Layers.IndexOf(ActiveLayer) == layerIndex)
             {
-                SetActiveLayer(layerIndex + amount);
+                SetMainActiveLayer(layerIndex + amount);
             }
         }
 
@@ -365,7 +418,7 @@ namespace PixiEditor.Models.DataHolders
                 Layers.Insert(layersData[i].LayerIndex, layer);
                 if (layersData[i].IsActive)
                 {
-                    SetActiveLayer(Layers.IndexOf(layer));
+                    SetMainActiveLayer(Layers.IndexOf(layer));
                 }
             }
         }
@@ -379,7 +432,7 @@ namespace PixiEditor.Models.DataHolders
                 bool wasActive = layer.IsActive;
                 Layers.Remove(layer);
 
-                if (wasActive || ActiveLayerIndex >= index)
+                if (wasActive || Layers.IndexOf(ActiveLayer) >= index)
                 {
                     SetNextLayerAsActive(index);
                 }
