@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -11,6 +12,7 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Layers
 {
+    [DebuggerDisplay("'{name,nq}' {width}x{height}")]
     public class Layer : BasicLayer
     {
         private const int SizeOfArgb = 4;

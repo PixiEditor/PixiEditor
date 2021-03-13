@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.UserPreferences
 {
+    [DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
     public class PreferencesSettings : IPreferences
     {
         public static IPreferences Current => ViewModelMain.Current.Preferences;
