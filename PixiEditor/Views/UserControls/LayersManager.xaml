@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.LayersManager"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:vws="clr-namespace:PixiEditor.Views" 
+             xmlns:layers="clr-namespace:PixiEditor.Models.Layers"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
+             d:DataContext="{d:DesignInstance Type=local:LayersManager}"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="250" Name="uc">
+    <UserControl.Resources>
+        <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
+        <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
+        <converters:LayersToStructuredLayersConverter x:Key="LayersToStructuredLayersConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="15"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" Command="{Binding LayersViewModel.NewLayerCommand, ElementName=uc}" Height="30" Content="New Layer"
+                                            HorizontalAlignment="Stretch" Margin="5"
+                                            Style="{StaticResource DarkRoundButton}" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
+            <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
+            <vws:NumberInput                                         
+                    Min="0" Max="100"
+                    IsEnabled="{Binding Path=BitmapManager.ActiveDocument, 
+                    Converter={StaticResource NotNullToBoolConverter}, ElementName=uc}" 
+                    Width="40" Height="20"
+                    VerticalAlignment="Center"
+                    Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.OpacityUndoTriggerable, Mode=TwoWay, 
+                    Converter={StaticResource FloatNormalizeConverter}, ElementName=uc}" />
+            <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <ItemsControl DataContext="{Binding ElementName=uc}" 
+                          x:Name="layersItemsControl" AlternationCount="9999" d:DataContext="{x:Type layers:LayerStructureItem}">
+                <ItemsControl.ItemsSource>
+                    <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
+                        <Binding Path="BitmapManager.ActiveDocument.Layers" ElementName="uc"/>
+                        <Binding Path="BitmapManager.ActiveDocument.LayerStructure" ElementName="uc"/>
+                    </MultiBinding>
+                </ItemsControl.ItemsSource>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ui:ReversedOrderStackPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:LayerStructureItemContainer Item="{Binding}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

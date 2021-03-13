@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.UI;
+using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Views
 {
     /// <summary>
-    /// Interaction logic for LayerItem.xaml
+    /// Interaction logic for LayerItem.xaml.
     /// </summary>
     public partial class LayerItem : UserControl
     {
@@ -29,7 +25,7 @@ namespace PixiEditor.Views
 
         public bool IsRenaming
         {
-            get { return (bool) GetValue(IsRenamingProperty); }
+            get { return (bool)GetValue(IsRenamingProperty); }
             set { SetValue(IsRenamingProperty, value); }
         }
 
@@ -38,7 +34,7 @@ namespace PixiEditor.Views
 
         public bool IsActive
         {
-            get { return (bool) GetValue(IsActiveProperty); }
+            get { return (bool)GetValue(IsActiveProperty); }
             set { SetValue(IsActiveProperty, value); }
         }
 
