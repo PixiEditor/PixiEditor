@@ -19,6 +19,7 @@ namespace PixiEditor.Models.DataHolders
     {
         public const string MainSelectedLayerColor = "#505056";
         public const string SecondarySelectedLayerColor = "#7D505056";
+        private static readonly Regex reversedLayerSuffixRegex = new (@"(?:\)([0-9]+)*\()? *([\s\S]+)", RegexOptions.Compiled);
         private Guid activeLayerGuid;
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
@@ -475,11 +476,9 @@ namespace PixiEditor.Models.DataHolders
         /// <returns>Name of the layer with suffix.</returns>
         private string GetLayerSuffix(Layer layer)
         {
-            Regex reversedRegex = new (@"(?:\)([0-9]+)*\()? *([\s\S]+)", RegexOptions.Compiled);
+            Match match = reversedLayerSuffixRegex.Match(layer.Name.Reverse());
 
-            Match match = reversedRegex.Match(layer.Name.Reverse());
-
-            int? highestValue = GetHighestSuffix(layer, match.Groups[2].Value, reversedRegex);
+            int? highestValue = GetHighestSuffix(layer, match.Groups[2].Value, reversedLayerSuffixRegex);
 
             string actualName = match.Groups[2].Value.Reverse();
 
@@ -506,26 +505,34 @@ namespace PixiEditor.Models.DataHolders
 
                 if (otherMatch.Groups[2].Value == layerName)
                 {
-                    bool sucess = int.TryParse(otherMatch.Groups[1].Value.Reverse(), out int number);
-
-                    if (sucess)
-                    {
-                        if (highestValue == null || highestValue < number)
-                        {
-                            highestValue = number;
-                        }
-                    }
-                    else
-                    {
-                        if (highestValue == null)
-                        {
-                            highestValue = 0;
-                        }
-                    }
+                    SetHighest(otherMatch.Groups[1].Value.Reverse(), ref highestValue);
                 }
             }
 
             return highestValue;
+        }
+
+        /// <returns>Was the parse a sucess.</returns>
+        private bool SetHighest(string number, ref int? highest, int? defaultValue = 0)
+        {
+            bool sucess = int.TryParse(number, out int parsedNumber);
+
+            if (sucess)
+            {
+                if (highest == null || highest < parsedNumber)
+                {
+                    highest = parsedNumber;
+                }
+            }
+            else
+            {
+                if (highest == null)
+                {
+                    highest = defaultValue;
+                }
+            }
+
+            return sucess;
         }
 
         private void RemoveLayersProcess(object[] parameters)
