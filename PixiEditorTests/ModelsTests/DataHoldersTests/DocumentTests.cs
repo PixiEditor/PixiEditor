@@ -309,6 +309,21 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         }
 
         [Fact]
+        public void TestThatDupliacteLayerWorks()
+        {
+            const string layerName = "New Layer";
+
+            Document document = new (10, 10);
+
+            document.AddNewLayer(layerName);
+            Layer duplicate = document.DuplicateLayer(0);
+
+            Assert.Equal(document.Layers[1], duplicate);
+            Assert.Equal(layerName + " (1)", duplicate.Name);
+            Assert.True(duplicate.IsActive);
+        }
+
+        [Fact]
         public void TestThatCorrectLayerSuffixIsSet()
         {
             const string layerName = "New Layer";
