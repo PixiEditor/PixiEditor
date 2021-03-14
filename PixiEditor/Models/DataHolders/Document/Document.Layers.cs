@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using GalaSoft.MvvmLight.Messaging;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
@@ -17,6 +19,7 @@ namespace PixiEditor.Models.DataHolders
     {
         public const string MainSelectedLayerColor = "#505056";
         public const string SecondarySelectedLayerColor = "#7D505056";
+        private static readonly Regex reversedLayerSuffixRegex = new (@"(?:\)([0-9]+)*\()? *([\s\S]+)", RegexOptions.Compiled);
         private Guid activeLayerGuid;
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
@@ -96,11 +99,16 @@ namespace PixiEditor.Models.DataHolders
 
         public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
         {
-            Layers.Add(new Layer(name, width, height)
+            Layer layer;
+
+            Layers.Add(layer = new Layer(name, width, height)
             {
                 MaxHeight = Height,
                 MaxWidth = Width
             });
+
+            layer.Name = GetLayerSuffix(layer);
+
             if (setAsActive)
             {
                 SetMainActiveLayer(Layers.Count - 1);
@@ -118,6 +126,31 @@ namespace PixiEditor.Models.DataHolders
             }
 
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[0].LayerGuid, LayerAction.Add));
+        }
+
+        /// <summary>
+        /// Duplicates the layer at the <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index">The index of the layer to duplicate.</param>
+        /// <returns>The duplicate.</returns>
+        public Layer DuplicateLayer(int index)
+        {
+            Layer duplicate = Layers[index].Clone(true);
+
+            duplicate.Name = GetLayerSuffix(duplicate);
+
+            Layers.Insert(index + 1, duplicate);
+            SetMainActiveLayer(index + 1);
+
+            StorageBasedChange storageChange = new (this, new[] { duplicate }, false);
+            UndoManager.AddUndoChange(
+                storageChange.ToChange(
+                    RemoveLayerProcess,
+                    new object[] { duplicate.LayerGuid },
+                    RestoreLayersProcess,
+                    "Duplicate Layer"));
+
+            return duplicate;
         }
 
         public void SetNextLayerAsActive(int lastLayerIndex)
@@ -435,6 +468,71 @@ namespace PixiEditor.Models.DataHolders
                     SetNextLayerAsActive(index);
                 }
             }
+        }
+
+        /// <summary>
+        /// Get's the layers suffix, e.g. "New Layer" becomes "New Layer (1)".
+        /// </summary>
+        /// <returns>Name of the layer with suffix.</returns>
+        private string GetLayerSuffix(Layer layer)
+        {
+            Match match = reversedLayerSuffixRegex.Match(layer.Name.Reverse());
+
+            int? highestValue = GetHighestSuffix(layer, match.Groups[2].Value, reversedLayerSuffixRegex);
+
+            string actualName = match.Groups[2].Value.Reverse();
+
+            if (highestValue == null)
+            {
+                return actualName;
+            }
+
+            return actualName + $" ({highestValue + 1})";
+        }
+
+        private int? GetHighestSuffix(Layer except, string layerName, Regex regex)
+        {
+            int? highestValue = null;
+
+            foreach (Layer otherLayer in Layers)
+            {
+                if (otherLayer == except)
+                {
+                    continue;
+                }
+
+                Match otherMatch = regex.Match(otherLayer.Name.Reverse());
+
+                if (otherMatch.Groups[2].Value == layerName)
+                {
+                    SetHighest(otherMatch.Groups[1].Value.Reverse(), ref highestValue);
+                }
+            }
+
+            return highestValue;
+        }
+
+        /// <returns>Was the parse a sucess.</returns>
+        private bool SetHighest(string number, ref int? highest, int? defaultValue = 0)
+        {
+            bool sucess = int.TryParse(number, out int parsedNumber);
+
+            if (sucess)
+            {
+                if (highest == null || highest < parsedNumber)
+                {
+                    highest = parsedNumber;
+                }
+            }
+            else
+            {
+                if (highest == null)
+                {
+                    highest = defaultValue;
+                }
+            }
+
+            return sucess;
         }
 
         private void RemoveLayersProcess(object[] parameters)
