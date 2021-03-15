@@ -3,10 +3,13 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.UI;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
+using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.Views
 {
@@ -15,6 +18,8 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class LayerItem : UserControl
     {
+        public static Brush HighlightColor = (SolidColorBrush)new BrushConverter().ConvertFrom(Document.SecondarySelectedLayerColor);
+
         public LayerItem()
         {
             InitializeComponent();
@@ -122,6 +127,57 @@ namespace PixiEditor.Views
         {
             ControlButtonsVisible = Visibility.Hidden;
 
+        }
+
+        private void RemoveDragEffect(Grid grid)
+        {
+            grid.Background = Brushes.Transparent;
+        }
+
+        private void Grid_DragEnter(object sender, DragEventArgs e)
+        {
+            Grid item = sender as Grid;
+
+            item.Background = HighlightColor;
+        }
+
+        private void Grid_DragLeave(object sender, DragEventArgs e)
+        {
+            Grid item = sender as Grid;
+
+            RemoveDragEffect(item);
+        }
+
+        private void HandleGridDrop(object sender, DragEventArgs e, int indexModifier)
+        {
+            Grid item = sender as Grid;
+            RemoveDragEffect(item);
+
+            if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerStructureItemContainer"))
+            {
+                var data = (LayerStructureItemContainer)e.Data.GetData("PixiEditor.Views.UserControls.LayerStructureItemContainer");
+                for (int i = 0; i < data.Item.Children.Count; i++)
+                {
+                    int oldIndex = data.ContainerIndex + i;
+                    int moveBy = LayerIndex + indexModifier - oldIndex;
+                    if (moveBy > 0)
+                    {
+                        moveBy--;
+                    }
+
+                    data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, moveBy);
+                }
+            }
+        }
+
+        private void Grid_Drop_Top(object sender, DragEventArgs e)
+        {
+            HandleGridDrop(sender, e, 1);
+        }
+
+        private void Grid_Drop_Bottom(object sender, DragEventArgs e)
+        {
+            HandleGridDrop(sender, e, 0);
         }
     }
 }

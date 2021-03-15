@@ -20,7 +20,17 @@ namespace PixiEditor.Models.DataHolders
         private Guid activeLayerGuid;
         private LayerStructure layerStructure = new ();
 
-        public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
+        private ObservableCollection<Layer> layers = new ();
+
+        public ObservableCollection<Layer> Layers
+        {
+            get => layers;
+            set
+            {
+                layers = value;
+                Layers.CollectionChanged += Layers_CollectionChanged;
+            }
+        }
 
         public LayerStructure LayerStructure
         {

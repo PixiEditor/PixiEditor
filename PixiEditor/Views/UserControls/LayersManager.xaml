@@ -30,7 +30,7 @@
                     IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 
                     Width="40" Height="20"
                     VerticalAlignment="Center"
-                    Value="{Binding LayerOpacity, Mode=TwoWay, 
+                    Value="{Binding LayerOpacity, Mode=TwoWay,
                     Converter={StaticResource FloatNormalizeConverter}, ElementName=layersManager}" />
             <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
         </StackPanel>
@@ -45,7 +45,8 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:LayerStructureItemContainer Item="{Binding}" ContainerIndex="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource TemplatedParent}}"
+                        <local:LayerStructureItemContainer MouseMove="LayerStructureItemContainer_MouseMove"
+                            Item="{Binding}" ContainerIndex="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource TemplatedParent}}"
                                                            LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

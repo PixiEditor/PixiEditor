@@ -22,11 +22,6 @@ namespace PixiEditor.Models.DataHolders
             Layers.CollectionChanged += Layers_CollectionChanged;
         }
 
-        ~Document()
-        {
-            Layers.CollectionChanged -= Layers_CollectionChanged;
-        }
-
         private void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RaisePropertyChanged(nameof(Layers));

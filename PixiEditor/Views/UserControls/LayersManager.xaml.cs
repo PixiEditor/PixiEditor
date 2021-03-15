@@ -46,7 +46,7 @@ namespace PixiEditor.Views.UserControls
         // Using a DependencyProperty as the backing store for LayerCommandsViewModel.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayerCommandsViewModelProperty =
             DependencyProperty.Register("LayerCommandsViewModel", typeof(LayersViewModel), typeof(LayersManager), new PropertyMetadata(default(LayersViewModel)));
-      
+
         public bool OpacityInputEnabled
         {
             get { return (bool)GetValue(OpacityInputEnabledProperty); }
@@ -60,6 +60,15 @@ namespace PixiEditor.Views.UserControls
         public LayersManager()
         {
             InitializeComponent();
+        }
+
+        private void LayerStructureItemContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            LayerStructureItemContainer container = sender as LayerStructureItemContainer;
+            if (container != null && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                DragDrop.DoDragDrop(container, container, DragDropEffects.Move);
+            }
         }
     }
 }

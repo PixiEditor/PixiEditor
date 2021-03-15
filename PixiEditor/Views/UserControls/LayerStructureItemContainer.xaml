@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:vws="clr-namespace:PixiEditor.Views" xmlns:ui="clr-namespace:PixiEditor.Helpers.UI" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="250" Name="layerStructureContainer">
     <UserControl.Resources>
         <converters:IndexOfConverter x:Key="IndexOfConverter"/>
@@ -17,7 +17,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-                <DataTemplate>
+            <DataTemplate>
                 <vws:LayerItem Tag="{Binding ElementName=layerStructureContainer}"
                                SetActiveLayerCommand="{Binding LayerCommandsViewModel.SetActiveLayerCommand, ElementName=layerStructureContainer}"
                                        LayerName="{Binding Name, Mode=TwoWay}" 
@@ -33,8 +33,8 @@
                             <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
                         </MultiBinding>
                     </vws:LayerItem.LayerIndex>
-                        <vws:LayerItem.ContextMenu>
-                            <ContextMenu>
+                    <vws:LayerItem.ContextMenu>
+                        <ContextMenu>
                             <MenuItem Header="Delete"
                                          Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}">
@@ -75,8 +75,8 @@
                                     </MultiBinding>
                                 </MenuItem.CommandParameter>
                             </MenuItem>
-                                <Separator/>
-                                <MenuItem Header="Merge selected"
+                            <Separator/>
+                            <MenuItem Header="Merge selected"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MergeSelectedCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                             <MenuItem Header="Merge with above"
@@ -92,7 +92,7 @@
                             <MenuItem Header="Merge with below"
                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MergeWithBelowCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                 <MenuItem.CommandParameter>
+                                <MenuItem.CommandParameter>
                                     <MultiBinding Converter="{StaticResource IndexOfConverter}">
                                         <Binding Path="PlacementTarget.Tag.ContainerIndex" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
                                         <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
@@ -100,9 +100,9 @@
                                 </MenuItem.CommandParameter>
                             </MenuItem>
                         </ContextMenu>
-                        </vws:LayerItem.ContextMenu>
-                    </vws:LayerItem>
-                </DataTemplate>
+                    </vws:LayerItem.ContextMenu>
+                </vws:LayerItem>
+            </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 </UserControl>
