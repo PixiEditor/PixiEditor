@@ -12,7 +12,7 @@ namespace PixiEditor.Helpers.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values[0] is IEnumerable<Layer> layers && values[1] is LayerStructure structure)
+            if (values[0] is IEnumerable<ILayerContainer> layers && values[1] is LayerStructure structure)
             {
                 return new StructuredLayerTree(layers, structure).Items;
             }
@@ -28,8 +28,8 @@ namespace PixiEditor.Helpers.Converters
                 LayerStructure structure = new ();
                 foreach (var branchLayers in tree.Select(x => x.Children))
                 {
-                    layers.AddRange(branchLayers);
-                    structure.Items.Add(new GuidStructureItem(new ObservableCollection<Guid>(branchLayers.Select(x => x.LayerGuid))));
+                    //layers.AddRange(branchLayers);
+                    //structure.Items.Add(new GuidStructureItem(new ObservableCollection<Guid>(branchLayers.Select(x => x.LayerGuid))));
                 }
 
                 return new object[] { layers, structure };

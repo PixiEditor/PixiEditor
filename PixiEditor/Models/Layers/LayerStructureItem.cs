@@ -4,9 +4,9 @@ namespace PixiEditor.Models.Layers
 {
     public class LayerStructureItem
     {
-        public ObservableCollection<Layer> Children { get; set; } = new ObservableCollection<Layer>();
+        public ObservableCollection<ILayerContainer> Children { get; set; } = new ObservableCollection<ILayerContainer>();
 
-        public LayerStructureItem(ObservableCollection<Layer> children)
+        public LayerStructureItem(ObservableCollection<ILayerContainer> children)
         {
             Children = children;
         }

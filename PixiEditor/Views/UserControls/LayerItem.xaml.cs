@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
-using PixiEditor.Helpers.UI;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
 using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.Views

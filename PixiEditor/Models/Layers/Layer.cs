@@ -13,7 +13,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Models.Layers
 {
     [DebuggerDisplay("'{name,nq}' {width}x{height}")]
-    public class Layer : BasicLayer
+    public class Layer : BasicLayer, ILayerContainer
     {
         private const int SizeOfArgb = 4;
         private bool clipRequested;
@@ -207,6 +207,11 @@ namespace PixiEditor.Models.Layers
         public void ChangeGuid(Guid newGuid)
         {
             LayerGuid = newGuid;
+        }
+
+        public IEnumerable<Layer> GetLayers()
+        {
+            return new Layer[] { this };
         }
 
         /// <summary>
