@@ -13,7 +13,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Models.Layers
 {
     [DebuggerDisplay("'{name,nq}' {width}x{height}")]
-    public class Layer : BasicLayer, ILayerContainer
+    public class Layer : BasicLayer
     {
         private const int SizeOfArgb = 4;
         private bool clipRequested;

@@ -1,42 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Models.Layers
 {
-    public class StructuredLayerTree
+    public class StructuredLayerTree : NotifyableObject
     {
-        public ObservableCollection<LayerStructureItem> Items { get; set; } = new ObservableCollection<LayerStructureItem>();
+        private readonly List<Layer> layersInStructure = new ();
 
-        public StructuredLayerTree(IEnumerable<ILayerContainer> layers, LayerStructure structure)
+        public ObservableCollection<object> RootDirectoryItems { get; } = new ObservableCollection<object>();
+
+        public StructuredLayerTree(IEnumerable<Layer> layers, LayerStructure structure)
         {
-            if (structure == null || structure.Items.Count == 0)
+            if (structure.Folders == null || structure.Folders.Count == 0)
             {
-                foreach (var layer in layers)
-                {
-                    var collection = new ObservableCollection<ILayerContainer>();
-                    collection.AddRange(layer.GetLayers());
-                    Items.Add(new LayerStructureItem(collection));
-                }
-
+                RootDirectoryItems.AddRange(layers);
                 return;
             }
 
-            for (int i = 0; i < structure.Items.Count; i++)
-            {
-                var itemChildren = new ObservableCollection<ILayerContainer>();
-                foreach (var guid in structure.Items[i].Children)
-                {
-                    itemChildren.Add(layers.First(x => x.GetLayers().First(y => y.LayerGuid == guid).LayerGuid == guid));
-                }
-
-                Items.Add(new LayerStructureItem(itemChildren));
-            }
+            RootDirectoryItems.AddRange(ParseFolders(structure.Folders, layers));
+            RootDirectoryItems.AddRange(layers.Where(x => !layersInStructure.Contains(x)));
+            layersInStructure.Clear();
         }
 
-        public StructuredLayerTree()
+        private List<LayerFolder> ParseFolders(IEnumerable<GuidStructureItem> folders, IEnumerable<Layer> layers)
         {
+            List<LayerFolder> parsedFolders = new ();
+            foreach (var structureItem in folders)
+            {
+                parsedFolders.Add(ParseFolder(structureItem, layers));
+            }
+
+            return parsedFolders;
+        }
+
+        private LayerFolder ParseFolder(GuidStructureItem structureItem, IEnumerable<Layer> layers)
+        {
+            List<Layer> structureItemLayers = new ();
+            foreach (var guid in structureItem.LayerGuids)
+            {
+                var layer = layers.First(x => x.LayerGuid == guid);
+                layersInStructure.Add(layer);
+                structureItemLayers.Add(layer);
+            }
+
+            var subFolders = new List<LayerFolder>();
+
+            if (structureItem.Subfolders.Count > 0)
+            {
+                subFolders = ParseFolders(structureItem.Subfolders, layers);
+            }
+
+            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name);
+            return folder;
         }
     }
 }

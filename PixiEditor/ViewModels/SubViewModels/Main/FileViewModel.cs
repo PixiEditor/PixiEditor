@@ -14,6 +14,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Parser;
 
@@ -108,6 +109,25 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             Owner.ResetProgramStateValues();
+
+
+            Owner.BitmapManager.ActiveDocument.AddNewLayer("Test");
+            Owner.BitmapManager.ActiveDocument.AddNewLayer("Test1");
+            Owner.BitmapManager.ActiveDocument.AddNewLayer("Test1 sub1");
+            Owner.BitmapManager.ActiveDocument.AddNewLayer("Test1 sub2");
+            Owner.BitmapManager.ActiveDocument.LayerStructure.Folders.Add(
+                new GuidStructureItem("Folder 1", new ObservableCollection<Guid>()
+                {
+                    Owner.BitmapManager.ActiveDocument.Layers[1].LayerGuid,
+                    Owner.BitmapManager.ActiveDocument.Layers[2].LayerGuid
+                },
+                new GuidStructureItem[] {
+                        new GuidStructureItem("Subfolder 1", new ObservableCollection<Guid>()
+                    {
+                        Owner.BitmapManager.ActiveDocument.Layers[3].LayerGuid,
+                        Owner.BitmapManager.ActiveDocument.Layers[4].LayerGuid
+                    },  Array.Empty<GuidStructureItem>()
+                    )}));
         }
 
         /// <summary>

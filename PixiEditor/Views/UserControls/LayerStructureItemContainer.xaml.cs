@@ -10,19 +10,15 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayerStructureItemContainer : UserControl
     {
-        public LayerStructureItem Item
+        public Layer Layer
         {
-            get { return (LayerStructureItem)GetValue(ItemProperty); }
-            set { SetValue(ItemProperty, value); }
+            get { return (Layer)GetValue(LayerProperty); }
+            set { SetValue(LayerProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ItemProperty =
-            DependencyProperty.Register(
-                "Item",
-                typeof(LayerStructureItem),
-                typeof(LayerStructureItemContainer),
-                new PropertyMetadata(default(LayerStructureItem)));
+        // Using a DependencyProperty as the backing store for Layer.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LayerProperty =
+            DependencyProperty.Register("Layer", typeof(Layer), typeof(LayerStructureItemContainer), new PropertyMetadata(default(Layer)));
 
         public LayersViewModel LayerCommandsViewModel
         {

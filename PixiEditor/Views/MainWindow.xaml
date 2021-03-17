@@ -301,12 +301,12 @@
                                             LayerCommandsViewModel="{Binding LayersSubViewModel}"
                                             OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
                     Converter={StaticResource NotNullToBoolConverter}}">
-                                            <usercontrols:LayersManager.StructuredLayers>
+                                            <usercontrols:LayersManager.LayerTreeRoot>
                                                 <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
                                                     <Binding Path="BitmapManager.ActiveDocument.Layers" />
                                                     <Binding Path="BitmapManager.ActiveDocument.LayerStructure"/>
                                                 </MultiBinding>
-                                            </usercontrols:LayersManager.StructuredLayers>
+                                            </usercontrols:LayersManager.LayerTreeRoot>
                                         </usercontrols:LayersManager>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>

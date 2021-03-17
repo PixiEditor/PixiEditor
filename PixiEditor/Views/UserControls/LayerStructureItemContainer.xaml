@@ -7,113 +7,50 @@
              xmlns:vws="clr-namespace:PixiEditor.Views" xmlns:ui="clr-namespace:PixiEditor.Helpers.UI" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="250" Name="layerStructureContainer">
-    <UserControl.Resources>
-        <converters:IndexOfConverter x:Key="IndexOfConverter"/>
-        <converters:LayersCountToVisiblityConverter x:Key="LayersCountToVisiblityConverter"/>
-        <converters:ILayerContainerToLayersConverter x:Key="ILayerContainerToLayersConverter"/>
-    </UserControl.Resources>
-    <ItemsControl Name="itemsControl" ItemsSource="{Binding Item.Children, ElementName=layerStructureContainer}" AlternationCount="9999">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ui:ReversedOrderStackPanel Orientation="Vertical"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-            <DataTemplate>
-                <Grid>
-                    <ItemsControl Visibility="{Binding Converter={StaticResource LayersCountToVisiblityConverter}, ConverterParameter='equalsOne'}" ItemsSource="{Binding Converter={StaticResource ILayerContainerToLayersConverter}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <vws:LayerItem Tag="{Binding ElementName=layerStructureContainer}"
+    <vws:LayerItem Tag="{Binding ElementName=layerStructureContainer}"
                                SetActiveLayerCommand="{Binding LayerCommandsViewModel.SetActiveLayerCommand, ElementName=layerStructureContainer}"
                                        LayerName="{Binding Name, Mode=TwoWay}" 
                                        IsActive="{Binding IsActive, Mode=TwoWay}"
                                        IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
                                        PreviewImage="{Binding LayerBitmap}"
                                        LayerColor="{Binding LayerHighlightColor}"
+                                       LayerIndex="{Binding ContainerIndex, ElementName=layerStructureContainer}"
                                       MoveToBackCommand="{Binding LayerCommandsViewModel.MoveToBackCommand, ElementName=layerStructureContainer}"
                                       MoveToFrontCommand="{Binding LayerCommandsViewModel.MoveToFrontCommand, ElementName=layerStructureContainer}">
-                                    <vws:LayerItem.LayerIndex>
-                                        <MultiBinding Converter="{StaticResource IndexOfConverter}">
-                                            <Binding Path="ContainerIndex" ElementName="layerStructureContainer" />
-                                            <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                        </MultiBinding>
-                                    </vws:LayerItem.LayerIndex>
-                                    <vws:LayerItem.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="Delete"
+        <vws:LayerItem.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Delete"
                                          Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource IndexOfConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.ContainerIndex" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
-                                                        <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <MenuItem Header="Rename"
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex,  RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+                <MenuItem Header="Rename"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.RenameLayerCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource IndexOfConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.ContainerIndex" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
-                                                        <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <MenuItem Header="Move to front"
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+                <MenuItem Header="Move to front"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource IndexOfConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.ContainerIndex" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
-                                                        <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <MenuItem Header="Move to back"
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+                <MenuItem Header="Move to back"
                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToBackCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource IndexOfConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.ContainerIndex" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
-                                                        <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <Separator/>
-                                            <MenuItem Header="Merge selected"
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Merge selected"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MergeSelectedCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                                            <MenuItem Header="Merge with above"
+                <MenuItem Header="Merge with above"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MergeWithAboveCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource IndexOfConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.ContainerIndex" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
-                                                        <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                            <MenuItem Header="Merge with below"
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+                <MenuItem Header="Merge with below"
                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MergeWithBelowCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                                <MenuItem.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource IndexOfConverter}">
-                                                        <Binding Path="PlacementTarget.Tag.ContainerIndex" RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
-                                                        <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                                    </MultiBinding>
-                                                </MenuItem.CommandParameter>
-                                            </MenuItem>
-                                        </ContextMenu>
-                                    </vws:LayerItem.ContextMenu>
-                                </vws:LayerItem>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <local:LayerStructureItemContainer Margin="20 0 0 0" Item="{Binding}" Visibility="{Binding Converter={StaticResource LayersCountToVisiblityConverter}}"/>
-                </Grid>
-            </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+            </ContextMenu>
+        </vws:LayerItem.ContextMenu>
+    </vws:LayerItem>
 </UserControl>

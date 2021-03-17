@@ -4,16 +4,16 @@ namespace PixiEditor.Models.Layers
 {
     public class LayerStructure
     {
-        public ObservableCollection<GuidStructureItem> Items { get; set; }
+        public ObservableCollection<GuidStructureItem> Folders { get; set; }
 
         public LayerStructure(ObservableCollection<GuidStructureItem> items)
         {
-            Items = items;
+            Folders = items;
         }
 
         public LayerStructure()
         {
-            Items = new ObservableCollection<GuidStructureItem>();
+            Folders = new ObservableCollection<GuidStructureItem>();
         }
     }
 }

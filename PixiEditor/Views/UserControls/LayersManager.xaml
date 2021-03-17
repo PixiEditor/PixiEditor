@@ -12,6 +12,7 @@
              d:DesignHeight="450" d:DesignWidth="250" Name="layersManager">
     <UserControl.Resources>
         <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
+        <converters:IndexOfConverter x:Key="IndexOfConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -36,7 +37,19 @@
         </StackPanel>
         <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-            <ItemsControl DataContext="{Binding ElementName=layersManager}"
+            <TreeView ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type layers:LayerFolder}" ItemsSource="{Binding Items}">
+                        <Label Content="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type layers:Layer}">
+                        <local:LayerStructureItemContainer 
+                            MouseMove="LayerStructureItemContainer_MouseMove" ContainerIndex="{Binding Converter={StaticResource IndexOfConverter}}"
+                            Layer="{Binding}" LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
+                    </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+            <!--<ItemsControl DataContext="{Binding ElementName=layersManager}"
                           x:Name="layersItemsControl" AlternationCount="9999" ItemsSource="{Binding StructuredLayers}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -50,7 +63,7 @@
                                                            LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            </ItemsControl>-->
         </ScrollViewer>
     </Grid>
 </UserControl>

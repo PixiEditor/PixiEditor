@@ -1,28 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Data;
+using PixiEditor.Models.Layers;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class IndexOfConverter : IMultiValueConverter
+    public class IndexOfConverter : IValueConverter
     {
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values[0] is int containerIndex && values[1] is int relativeIndex)
+            if (value is Layer layer && ViewModelMain.Current.BitmapManager.ActiveDocument != null)
             {
-                return containerIndex + relativeIndex;
+                return ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
             }
 
-            return -1;
+            return Binding.DoNothing;
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return targetTypes.Select(t => Binding.DoNothing).ToArray();
+            throw new NotImplementedException();
         }
     }
 }

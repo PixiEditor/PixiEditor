@@ -1,9 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using GalaSoft.MvvmLight.Command;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
@@ -13,19 +10,20 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayersManager : UserControl
     {
-        public ObservableCollection<LayerStructureItem> StructuredLayers
+
+        public ObservableCollection<object> LayerTreeRoot
         {
-            get { return (ObservableCollection<LayerStructureItem>)GetValue(StructuredLayersProperty); }
-            set { SetValue(StructuredLayersProperty, value); }
+            get { return (ObservableCollection<object>)GetValue(LayerTreeRootProperty); }
+            set { SetValue(LayerTreeRootProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for StructuredLayers.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty StructuredLayersProperty =
+        // Using a DependencyProperty as the backing store for LayerTreeRoot.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LayerTreeRootProperty =
             DependencyProperty.Register(
-                "StructuredLayers",
-                typeof(ObservableCollection<LayerStructureItem>),
+                "LayerTreeRoot",
+                typeof(ObservableCollection<object>),
                 typeof(LayersManager),
-                new PropertyMetadata(default(ObservableCollection<LayerStructureItem>)));
+                new PropertyMetadata(default(ObservableCollection<object>)));
 
         public float LayerOpacity
         {
@@ -64,8 +62,7 @@ namespace PixiEditor.Views.UserControls
 
         private void LayerStructureItemContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            LayerStructureItemContainer container = sender as LayerStructureItemContainer;
-            if (container != null && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (sender is LayerStructureItemContainer container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
                 DragDrop.DoDragDrop(container, container, DragDropEffects.Move);
             }

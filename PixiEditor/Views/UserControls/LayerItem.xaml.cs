@@ -152,17 +152,14 @@ namespace PixiEditor.Views
             if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerStructureItemContainer"))
             {
                 var data = (LayerStructureItemContainer)e.Data.GetData("PixiEditor.Views.UserControls.LayerStructureItemContainer");
-                for (int i = 0; i < data.Item.Children.Count; i++)
+                int oldIndex = data.ContainerIndex;
+                int moveBy = LayerIndex + indexModifier - oldIndex;
+                if (moveBy > 0)
                 {
-                    int oldIndex = data.ContainerIndex + i;
-                    int moveBy = LayerIndex + indexModifier - oldIndex;
-                    if (moveBy > 0)
-                    {
-                        moveBy--;
-                    }
-
-                    data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, moveBy);
+                    moveBy--;
                 }
+
+                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, moveBy);
             }
         }
 
