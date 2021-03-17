@@ -54,7 +54,10 @@ namespace PixiEditor.Models.Layers
                 subFolders = ParseFolders(structureItem.Subfolders, layers);
             }
 
-            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name);
+            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name, structureItem.FolderGuid)
+            {
+                IsExpanded = structureItem.IsExpanded
+            };
             return folder;
         }
     }

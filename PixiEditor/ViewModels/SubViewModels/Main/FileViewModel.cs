@@ -126,7 +126,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                         Owner.BitmapManager.ActiveDocument.Layers[3].LayerGuid,
                         Owner.BitmapManager.ActiveDocument.Layers[4].LayerGuid
                     },  Array.Empty<GuidStructureItem>()
-                    )}));
+                    )})
+                { IsExpanded = true});
         }
 
         /// <summary>

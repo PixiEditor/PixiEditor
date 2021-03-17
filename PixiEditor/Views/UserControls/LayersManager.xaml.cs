@@ -10,7 +10,6 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayersManager : UserControl
     {
-
         public ObservableCollection<object> LayerTreeRoot
         {
             get { return (ObservableCollection<object>)GetValue(LayerTreeRootProperty); }

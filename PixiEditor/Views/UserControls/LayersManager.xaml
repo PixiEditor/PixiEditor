@@ -45,31 +45,16 @@
             <TreeView ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type layers:LayerFolder}" ItemsSource="{Binding Items}">
-                        <local:LayerFolder FolderName="{Binding Name}" />
+                        <local:LayerFolder FolderName="{Binding Name}" LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" FolderGuid="{Binding FolderGuid}" />
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
-                        <local:LayerStructureItemContainer 
+                        <local:LayerStructureItemContainer                             
                             MouseMove="LayerStructureItemContainer_MouseMove" 
                             ContainerIndex="{Binding Converter={StaticResource IndexOfConverter}}"
                             Layer="{Binding}" LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
                     </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
-            <!--<ItemsControl DataContext="{Binding ElementName=layersManager}"
-                          x:Name="layersItemsControl" AlternationCount="9999" ItemsSource="{Binding StructuredLayers}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ui:ReversedOrderStackPanel Orientation="Vertical" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <local:LayerStructureItemContainer MouseMove="LayerStructureItemContainer_MouseMove"
-                            Item="{Binding}" ContainerIndex="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource TemplatedParent}}"
-                                                           LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>-->
         </ScrollViewer>
     </Grid>
 </UserControl>

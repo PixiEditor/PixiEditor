@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -20,6 +12,25 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayerFolder : UserControl
     {
+        public Guid FolderGuid
+        {
+            get { return (Guid)GetValue(FolderGuidProperty); }
+            set { SetValue(FolderGuidProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty FolderGuidProperty =
+            DependencyProperty.Register("FolderGuid", typeof(Guid), typeof(LayerFolder), new PropertyMetadata(Guid.NewGuid()));
+
+        public LayersViewModel LayersViewModel
+        {
+            get { return (LayersViewModel)GetValue(LayersViewModelProperty); }
+            set { SetValue(LayersViewModelProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LayersViewModelProperty =
+            DependencyProperty.Register("LayersViewModel", typeof(LayersViewModel), typeof(LayerFolder), new PropertyMetadata(default(LayersViewModel)));
 
         public string FolderName
         {
