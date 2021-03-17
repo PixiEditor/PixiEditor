@@ -23,6 +23,7 @@
                 <ResourceDictionary Source="Styles/AvalonDock/Themes/Icons/IconGeometry.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/Themes/Generic.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/PixiEditorDockTheme.xaml" />
+                <ResourceDictionary Source="Styles/TreeViewStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

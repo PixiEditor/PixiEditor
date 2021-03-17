@@ -40,7 +40,7 @@
                     <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform" Width="50" Height="20" Margin="0,0,20,0"
                        RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                     <local:EditableTextBlock
-                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="16"
+                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="15"
                     VerticalAlignment="Center"
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />
                 </StackPanel>

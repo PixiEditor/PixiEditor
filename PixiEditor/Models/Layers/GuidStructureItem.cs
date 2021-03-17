@@ -1,13 +1,23 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Layers
 {
-    public class GuidStructureItem
+    public class GuidStructureItem : NotifyableObject
     {
-        public string Name { get; set; }
+        private string name;
+
+        public string Name
+        {
+            get => name;
+            set
+            {
+                name = value;
+                RaisePropertyChanged(nameof(Name));
+            }
+        }
 
         public ObservableCollection<Guid> LayerGuids { get; set; }
 
@@ -18,6 +28,13 @@ namespace PixiEditor.Models.Layers
             Name = name;
             LayerGuids = new ObservableCollection<Guid>(children);
             Subfolders = new ObservableCollection<GuidStructureItem>(subfolders);
+        }
+
+        public GuidStructureItem(string name)
+        {
+            Name = name;
+            LayerGuids = new ObservableCollection<Guid>();
+            Subfolders = new ObservableCollection<GuidStructureItem>();
         }
     }
 }

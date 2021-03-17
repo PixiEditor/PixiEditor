@@ -20,6 +20,12 @@ namespace PixiEditor.Models.DataHolders
             XamlAccesibleViewModel = ViewModelMain.Current ?? null;
             GeneratePreviewLayer();
             Layers.CollectionChanged += Layers_CollectionChanged;
+            LayerStructure.Folders.CollectionChanged += Folders_CollectionChanged1;
+        }
+
+        private void Folders_CollectionChanged1(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(LayerStructure));
         }
 
         private void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

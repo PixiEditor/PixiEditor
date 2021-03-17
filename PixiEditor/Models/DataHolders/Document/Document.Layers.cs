@@ -42,6 +42,11 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private void Folders_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(LayerStructure));
+        }
+
         public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.LayerGuid == ActiveLayerGuid) : null;
 
         public Guid ActiveLayerGuid

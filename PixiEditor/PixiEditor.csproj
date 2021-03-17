@@ -37,6 +37,7 @@
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
+    <None Remove="Images\Folder.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
     <None Remove="Images\PixiBotLogo.png" />
@@ -76,6 +77,7 @@
     <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\Eye-off.png" />
     <Resource Include="Images\Eye.png" />
+    <Resource Include="Images\Folder.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\MoveImage.png" />
     <Resource Include="Images\MoveViewportImage.png" />

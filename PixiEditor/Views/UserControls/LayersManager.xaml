@@ -21,9 +21,14 @@
             <RowDefinition Height="15"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
         <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
+        <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewFolderCommand, ElementName=layersManager}" Height="30" Content="New Folder"
+                                            HorizontalAlignment="Stretch" Margin="5"
+                                            Style="{StaticResource DarkRoundButton}" />
+        </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
             <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
             <vws:NumberInput                                         
@@ -36,15 +41,16 @@
             <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
         </StackPanel>
         <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <TreeView ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type layers:LayerFolder}" ItemsSource="{Binding Items}">
-                        <Label Content="{Binding Name}" />
+                        <local:LayerFolder FolderName="{Binding Name}" />
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
                         <local:LayerStructureItemContainer 
-                            MouseMove="LayerStructureItemContainer_MouseMove" ContainerIndex="{Binding Converter={StaticResource IndexOfConverter}}"
+                            MouseMove="LayerStructureItemContainer_MouseMove" 
+                            ContainerIndex="{Binding Converter={StaticResource IndexOfConverter}}"
                             Layer="{Binding}" LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
                     </DataTemplate>
                 </TreeView.Resources>

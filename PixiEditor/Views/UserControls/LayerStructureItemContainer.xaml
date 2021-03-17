@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
-             xmlns:vws="clr-namespace:PixiEditor.Views" xmlns:ui="clr-namespace:PixiEditor.Helpers.UI" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:vws="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="250" Name="layerStructureContainer">
     <vws:LayerItem Tag="{Binding ElementName=layerStructureContainer}"
@@ -22,7 +21,7 @@
                 <MenuItem Header="Delete"
                                          Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex,  RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
                 <MenuItem Header="Rename"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.RenameLayerCommand, 
@@ -31,12 +30,12 @@
                 <MenuItem Header="Move to front"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                           CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
                 <MenuItem Header="Move to back"
                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToBackCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                           CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="Merge selected"

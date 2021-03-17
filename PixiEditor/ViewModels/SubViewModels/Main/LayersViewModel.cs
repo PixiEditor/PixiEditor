@@ -13,6 +13,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand NewLayerCommand { get; set; }
 
+        public RelayCommand NewFolderCommand { get; set; }
+
         public RelayCommand DeleteLayersCommand { get; set; }
 
         public RelayCommand RenameLayerCommand { get; set; }
@@ -32,6 +34,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
+            NewFolderCommand = new RelayCommand(NewFolder, CanCreateNewLayer);
             DeleteLayersCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
@@ -40,6 +43,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+        }
+
+        public void NewFolder(object parameter)
+        {
+            Owner.BitmapManager.ActiveDocument?.LayerStructure.Folders.Add(new GuidStructureItem("New Folder"));
         }
 
         public bool CanMergeSelected(object obj)
@@ -129,11 +137,21 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanMoveToFront(object property)
         {
+            if (property == null)
+            {
+                return false;
+            }
+
             return Owner.DocumentIsNotNull(null) && Owner.BitmapManager.ActiveDocument.Layers.Count - 1 > (int)property;
         }
 
         public bool CanMoveToBack(object property)
         {
+            if (property == null)
+            {
+                return false;
+            }
+
             return (int)property > 0;
         }
 
@@ -160,6 +178,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanMergeWithAbove(object property)
         {
+            if (property == null)
+            {
+                return false;
+            }
             int index = (int)property;
             return Owner.DocumentIsNotNull(null) && index != Owner.BitmapManager.ActiveDocument.Layers.Count - 1
                 && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
@@ -167,6 +189,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanMergeWithBelow(object property)
         {
+            if (property == null)
+            {
+                return false;
+            }
+
             int index = (int)property;
             return Owner.DocumentIsNotNull(null) && index != 0 && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
         }
