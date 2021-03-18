@@ -126,13 +126,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void MoveLayerToFront(object parameter)
         {
             int oldIndex = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, 1);
+            Guid layerToMove = Owner.BitmapManager.ActiveDocument.Layers[oldIndex].LayerGuid;
+            Guid referenceLayer = Owner.BitmapManager.ActiveDocument.Layers[oldIndex + 1].LayerGuid;
+            Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layerToMove, referenceLayer, true);
         }
 
         public void MoveLayerToBack(object parameter)
         {
             int oldIndex = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, -1);
+            Guid layerToMove = Owner.BitmapManager.ActiveDocument.Layers[oldIndex].LayerGuid;
+            Guid referenceLayer = Owner.BitmapManager.ActiveDocument.Layers[oldIndex - 1].LayerGuid;
+            Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layerToMove, referenceLayer, false);
         }
 
         public bool CanMoveToFront(object property)

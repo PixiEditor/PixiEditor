@@ -43,6 +43,11 @@
         <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <TreeView ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
+                <TreeView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ui:ReversedOrderStackPanel/>
+                    </ItemsPanelTemplate>
+                </TreeView.ItemsPanel>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type layers:LayerFolder}" ItemsSource="{Binding Items}">
                         <local:LayerFolder FolderName="{Binding Name}" LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" FolderGuid="{Binding FolderGuid}" />

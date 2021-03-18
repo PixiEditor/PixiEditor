@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -53,7 +54,7 @@ namespace PixiEditor.Views
 
         public int LayerIndex
         {
-            get { return (int) GetValue(LayerIndexProperty); }
+            get { return (int)GetValue(LayerIndexProperty); }
             set { SetValue(LayerIndexProperty, value); }
         }
 
@@ -65,6 +66,16 @@ namespace PixiEditor.Views
             get { return (string) GetValue(LayerNameProperty); }
             set { SetValue(LayerNameProperty, value); }
         }
+
+        public Guid LayerGuid
+        {
+            get { return (Guid)GetValue(LayerGuidProperty); }
+            set { SetValue(LayerGuidProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for LayerGuid.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty LayerGuidProperty =
+            DependencyProperty.Register("LayerGuid", typeof(Guid), typeof(LayerItem), new PropertyMetadata(default(Guid)));
 
         public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
             "ControlButtonsVisible", typeof(Visibility), typeof(LayerItem), new PropertyMetadata(System.Windows.Visibility.Hidden));
@@ -144,7 +155,7 @@ namespace PixiEditor.Views
             RemoveDragEffect(item);
         }
 
-        private void HandleGridDrop(object sender, DragEventArgs e, int indexModifier)
+        private void HandleGridDrop(object sender, DragEventArgs e, bool above)
         {
             Grid item = sender as Grid;
             RemoveDragEffect(item);
@@ -152,25 +163,30 @@ namespace PixiEditor.Views
             if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerStructureItemContainer"))
             {
                 var data = (LayerStructureItemContainer)e.Data.GetData("PixiEditor.Views.UserControls.LayerStructureItemContainer");
-                int oldIndex = data.ContainerIndex;
-                int moveBy = LayerIndex + indexModifier - oldIndex;
-                if (moveBy > 0)
-                {
-                    moveBy--;
-                }
+                Guid layer = data.Layer.LayerGuid;
 
-                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerIndexBy(oldIndex, moveBy);
+                //var folder = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetFolderByLayer(
+                //    data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.Layers[LayerIndex + moveBy].LayerGuid);
+
+                //Guid? folderGuid = null;
+
+                //if (folder != null)
+                //{
+                //    folderGuid = folder.FolderGuid;
+                //}
+
+                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layer, LayerGuid, above);
             }
         }
 
         private void Grid_Drop_Top(object sender, DragEventArgs e)
         {
-            HandleGridDrop(sender, e, 1);
+            HandleGridDrop(sender, e, true);
         }
 
         private void Grid_Drop_Bottom(object sender, DragEventArgs e)
         {
-            HandleGridDrop(sender, e, 0);
+            HandleGridDrop(sender, e, false);
         }
     }
 }

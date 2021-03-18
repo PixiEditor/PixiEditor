@@ -97,15 +97,16 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void MoveLayerIndexBy(int layerIndex, int amount)
+        public void MoveLayerInStructure(Guid layer, Guid referenceLayer, bool above = false)
         {
-            MoveLayerProcess(new object[] { layerIndex, amount });
+            var args = new object[] { layer, referenceLayer, above };
+            MoveLayerInStructureProcess(args);
 
             UndoManager.AddUndoChange(new Change(
-                MoveLayerProcess,
-                new object[] { layerIndex + amount, -amount },
-                MoveLayerProcess,
-                new object[] { layerIndex, amount },
+                MoveLayerInStructureProcess,
+                new object[] { layer, referenceLayer, !above },
+                MoveLayerInStructureProcess,
+                args,
                 "Move layer"));
         }
 
@@ -421,16 +422,28 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private void MoveLayerProcess(object[] parameter)
+        private void MoveLayerInStructureProcess(object[] parameter)
         {
-            int layerIndex = (int)parameter[0];
-            int amount = (int)parameter[1];
+            Guid layer = (Guid)parameter[0];
+            Guid referenceLayer = (Guid)parameter[1];
+            bool above = (bool)parameter[2];
 
-            Layers.Move(layerIndex, layerIndex + amount);
-            if (Layers.IndexOf(ActiveLayer) == layerIndex)
+            int oldIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == layer));
+            int newIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayer));
+
+            if ((oldIndex - newIndex == -1 && !above) || (oldIndex - newIndex == 1 && above))
             {
-                SetMainActiveLayer(layerIndex + amount);
+                newIndex += above ? 1 : -1;
             }
+
+            Layers.Move(oldIndex, newIndex);
+            if (Layers.IndexOf(ActiveLayer) == oldIndex)
+            {
+                SetMainActiveLayer(newIndex);
+            }
+
+            //LayerStructure.MoveLayerToFolder(layerGuid, folderGuid);
+            //RaisePropertyChanged(nameof(LayerStructure));
         }
 
         private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)

@@ -47,16 +47,6 @@ namespace PixiEditor.Views.UserControls
             InitializeComponent();
         }
 
-        private void FolderControl_MouseLeave(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void FolderControl_MouseEnter(object sender, MouseEventArgs e)
-        {
-
-        }
-
         private void Grid_DragEnter(object sender, DragEventArgs e)
         {
 
@@ -73,6 +63,16 @@ namespace PixiEditor.Views.UserControls
         }
 
         private void Grid_Drop_Bottom(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void Grid_Drop_Middle(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void FolderControl_MouseMove(object sender, MouseEventArgs e)
         {
 
         }

@@ -4,9 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views"
-             mc:Ignorable="d" Focusable="True"
-             d:DesignHeight="60" d:DesignWidth="250" Name="folderControl"
-             MouseLeave="FolderControl_MouseLeave"  MouseEnter="FolderControl_MouseEnter">
+             mc:Ignorable="d" Focusable="True" MouseMove="FolderControl_MouseMove"
+             d:DesignHeight="60" d:DesignWidth="250" Name="folderControl">
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" >
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
@@ -18,7 +17,7 @@
                 <RowDefinition Height="7.5"/>
             </Grid.RowDefinitions>
             <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
-            <Grid Grid.Row="1" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave">
+            <Grid Grid.Row="1" Drop="Grid_Drop_Middle" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="1*"/>
