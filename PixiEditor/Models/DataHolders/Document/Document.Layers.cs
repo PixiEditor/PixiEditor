@@ -97,14 +97,21 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void MoveLayerInStructure(Guid layer, Guid referenceLayer, bool above = false)
+        public void MoveLayerInStructure(Guid layerGuid, Guid referenceLayer, bool above = false)
         {
-            var args = new object[] { layer, referenceLayer, above };
+            var args = new object[] { layerGuid, referenceLayer, above };
+
+            Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+
+            int oldIndex = Layers.IndexOf(layer);
+
+            Guid? oldLayerFolder = LayerStructure.GetFolderByLayer(layerGuid)?.FolderGuid;
+
             MoveLayerInStructureProcess(args);
 
             UndoManager.AddUndoChange(new Change(
-                MoveLayerInStructureProcess,
-                new object[] { layer, referenceLayer, !above },
+                ReverseMoveLayerInStructureProcess,
+                new object[] { oldIndex, layerGuid, oldLayerFolder },
                 MoveLayerInStructureProcess,
                 args,
                 "Move layer"));
@@ -331,6 +338,17 @@ namespace PixiEditor.Models.DataHolders
                 "Undo merge layers"));
 
             return layer;
+        }
+
+        private void ReverseMoveLayerInStructureProcess(object[] props)
+        {
+            int indexTo = (int)props[0];
+            Guid layerGuid = (Guid)props[1];
+            Guid? folder = (Guid?)props[2];
+
+            Layers.Move(Layers.IndexOf(Layers.First(x => x.LayerGuid == layerGuid)), indexTo);
+
+            LayerStructure.MoveLayerToFolder(layerGuid, folder);
         }
 
         private void InjectRemoveActiveLayersUndo(object[] guidArgs, StorageBasedChange change)
