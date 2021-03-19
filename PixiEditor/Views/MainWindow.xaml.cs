@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +34,7 @@ namespace PixiEditor
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             viewModel = (ViewModelMain)DataContext;
             viewModel.CloseAction = Close;
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 
         protected override void OnClosing(CancelEventArgs e)

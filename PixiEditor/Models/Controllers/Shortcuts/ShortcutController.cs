@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
@@ -6,14 +7,14 @@ namespace PixiEditor.Models.Controllers.Shortcuts
 {
     public class ShortcutController
     {
-        public ShortcutController()
+        public ShortcutController(params ShortcutGroup[] shortcutGroups)
         {
-            Shortcuts = new List<Shortcut>();
+            ShortcutGroups = new ObservableCollection<ShortcutGroup>(shortcutGroups);
         }
 
         public static bool BlockShortcutExecution { get; set; }
 
-        public List<Shortcut> Shortcuts { get; set; }
+        public ObservableCollection<ShortcutGroup> ShortcutGroups { get; init; }
 
         public Shortcut LastShortcut { get; private set; }
 
@@ -21,7 +22,7 @@ namespace PixiEditor.Models.Controllers.Shortcuts
         {
             if (!BlockShortcutExecution)
             {
-                Shortcut[] shortcuts = Shortcuts.FindAll(x => x.ShortcutKey == key).ToArray();
+                Shortcut[] shortcuts = ShortcutGroups.SelectMany(x => x.Shortcuts).ToList().FindAll(x => x.ShortcutKey == key).ToArray();
                 if (shortcuts.Length < 1)
                 {
                     return;

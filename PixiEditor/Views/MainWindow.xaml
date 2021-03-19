@@ -135,8 +135,7 @@
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki"/>
                     <MenuItem Header="_Repository" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor"/>
-                    <MenuItem Header="_Shortcuts" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Shortcuts"/>
+                    <MenuItem Header="_Shortcuts" Command="{Binding MiscSubViewModel.OpenShortcutWindowCommand}"/>
                     <Separator/>
                     <MenuItem Header="_License" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE"/>

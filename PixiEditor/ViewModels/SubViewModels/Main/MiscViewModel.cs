@@ -15,11 +15,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand OpenSettingsWindowCommand { get; set; }
 
+        public RelayCommand OpenShortcutWindowCommand { get; set; }
+
+        public ShortcutPopup ShortcutPopup { get; set; }
+
         public MiscViewModel(ViewModelMain owner)
             : base(owner)
         {
             OpenHyperlinkCommand = new RelayCommand(OpenHyperlink);
             OpenSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
+            OpenShortcutWindowCommand = new RelayCommand(OpenShortcutWindow);
+
+            ShortcutPopup = new ShortcutPopup(owner.ShortcutController);
         }
 
         private void OpenSettingsWindow(object parameter)
@@ -42,6 +49,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 UseShellExecute = true
             };
             Process.Start(processInfo);
+        }
+
+        private void OpenShortcutWindow(object parameter)
+        {
+            ShortcutPopup.Show();
         }
     }
 }
