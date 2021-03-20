@@ -9,7 +9,8 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/pixieditor/pixieditor/badge)](https://www.codefactor.io/repository/github/pixieditor/pixieditor)
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
 [![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
-[![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq) 
+[![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq)
+[![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/PixiEditor?label=%20r%2FPixiEditor&logoColor=%23e3002d)](https://reddit.com/r/PixiEditor)
 [![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
 
 ## About PixiEditor
