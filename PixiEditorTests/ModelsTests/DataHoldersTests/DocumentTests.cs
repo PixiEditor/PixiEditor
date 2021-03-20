@@ -305,7 +305,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             document.DocumentFilePath = testFilePath;
 
-            Assert.Contains(viewModel.FileSubViewModel.RecentlyOpened, x => x == testFilePath);
+            Assert.Contains(viewModel.FileSubViewModel.RecentlyOpened, x => x.FilePath == testFilePath);
         }
 
         [Fact]
