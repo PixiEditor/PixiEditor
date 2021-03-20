@@ -125,6 +125,11 @@ namespace PixiEditor.Views
             set { SetValue(MoveToFrontCommandProperty, value); }
         }
 
+        public static void RemoveDragEffect(Grid grid)
+        {
+            grid.Background = Brushes.Transparent;
+        }
+
         private void LayerItem_OnMouseEnter(object sender, MouseEventArgs e)
         {
             ControlButtonsVisible = Visibility.Visible;
@@ -134,11 +139,6 @@ namespace PixiEditor.Views
         {
             ControlButtonsVisible = Visibility.Hidden;
 
-        }
-
-        private void RemoveDragEffect(Grid grid)
-        {
-            grid.Background = Brushes.Transparent;
         }
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
@@ -164,16 +164,6 @@ namespace PixiEditor.Views
             {
                 var data = (LayerStructureItemContainer)e.Data.GetData("PixiEditor.Views.UserControls.LayerStructureItemContainer");
                 Guid layer = data.Layer.LayerGuid;
-
-                //var folder = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetFolderByLayer(
-                //    data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.Layers[LayerIndex + moveBy].LayerGuid);
-
-                //Guid? folderGuid = null;
-
-                //if (folder != null)
-                //{
-                //    folderGuid = folder.FolderGuid;
-                //}
 
                 data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layer, LayerGuid, above);
             }

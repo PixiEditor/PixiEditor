@@ -49,12 +49,16 @@ namespace PixiEditor.Views.UserControls
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
         {
+            Grid item = sender as Grid;
 
+            item.Background = LayerItem.HighlightColor;
         }
 
         private void Grid_DragLeave(object sender, DragEventArgs e)
         {
+            Grid grid = (Grid)sender;
 
+            LayerItem.RemoveDragEffect(grid);
         }
 
         private void Grid_Drop_Top(object sender, DragEventArgs e)
@@ -69,7 +73,14 @@ namespace PixiEditor.Views.UserControls
 
         private void Grid_Drop_Middle(object sender, DragEventArgs e)
         {
+            Grid grid = (Grid)sender;
 
+            LayerItem.RemoveDragEffect(grid);
+
+            if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerStructureItemContainer"))
+            {
+
+            }
         }
 
         private void FolderControl_MouseMove(object sender, MouseEventArgs e)

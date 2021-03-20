@@ -22,11 +22,6 @@ namespace PixiEditor.Helpers.Converters
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            if (value is ObservableCollection<object> tree)
-            {
-
-            }
-
             throw new ArgumentException("Value is not a StructuredLayerTree");
         }
     }

@@ -37,6 +37,18 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private int folderDisplayIndex;
+
+        public int FolderDisplayIndex
+        {
+            get => folderDisplayIndex;
+            set
+            {
+                folderDisplayIndex = value;
+                RaisePropertyChanged(nameof(FolderDisplayIndex));
+            }
+        }
+
         public GuidStructureItem(string name, IEnumerable<Guid> children, IEnumerable<GuidStructureItem> subfolders)
         {
             Name = name;

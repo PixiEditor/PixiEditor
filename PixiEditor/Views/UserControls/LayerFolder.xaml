@@ -17,7 +17,7 @@
                 <RowDefinition Height="7.5"/>
             </Grid.RowDefinitions>
             <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
-            <Grid Grid.Row="1" Drop="Grid_Drop_Middle" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave">
+            <Grid Grid.Row="1" Drop="Grid_Drop_Middle" AllowDrop="True" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="1*"/>
