@@ -50,7 +50,7 @@
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type layers:LayerFolder}" ItemsSource="{Binding Items}">
-                        <local:LayerFolder FolderName="{Binding Name}" LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" FolderGuid="{Binding FolderGuid}" />
+                        <local:LayerFolder FolderName="{Binding Name}" LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" FolderGuid="{Binding FolderGuid}" MouseMove="LayerFolder_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
                         <local:LayerStructureItemContainer                             

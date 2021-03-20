@@ -49,12 +49,13 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public GuidStructureItem(string name, IEnumerable<Guid> children, IEnumerable<GuidStructureItem> subfolders)
+        public GuidStructureItem(string name, IEnumerable<Guid> children, IEnumerable<GuidStructureItem> subfolders, int index)
         {
             Name = name;
             LayerGuids = new ObservableCollection<Guid>(children);
             Subfolders = new ObservableCollection<GuidStructureItem>(subfolders);
             FolderGuid = Guid.NewGuid();
+            FolderDisplayIndex = index;
         }
 
         public GuidStructureItem(string name)
@@ -63,6 +64,7 @@ namespace PixiEditor.Models.Layers
             LayerGuids = new ObservableCollection<Guid>();
             Subfolders = new ObservableCollection<GuidStructureItem>();
             FolderGuid = Guid.NewGuid();
+            FolderDisplayIndex = 0;
         }
     }
 }

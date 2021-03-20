@@ -167,6 +167,14 @@ namespace PixiEditor.Views
 
                 data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layer, LayerGuid, above);
             }
+
+            if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerFolder"))
+            {
+                var data = (LayerFolder)e.Data.GetData("PixiEditor.Views.UserControls.LayerFolder");
+                Guid layer = data.FolderGuid;
+
+                data.LayersViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layer, LayerGuid, above);
+            }
         }
 
         private void Grid_Drop_Top(object sender, DragEventArgs e)

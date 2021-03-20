@@ -82,10 +82,5 @@ namespace PixiEditor.Views.UserControls
 
             }
         }
-
-        private void FolderControl_MouseMove(object sender, MouseEventArgs e)
-        {
-
-        }
     }
 }

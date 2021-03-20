@@ -117,6 +117,26 @@ namespace PixiEditor.Models.DataHolders
                 "Move layer"));
         }
 
+        public void MoveFolderInStructure(Guid folder, Guid referenceLayer, bool above = false)
+        {
+            var args = new object[] { layerGuid, referenceLayer, above };
+
+            Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+
+            int oldIndex = Layers.IndexOf(layer);
+
+            Guid? oldLayerFolder = LayerStructure.GetFolderByLayer(layerGuid)?.FolderGuid;
+
+            MoveLayerInStructureProcess(args);
+
+            UndoManager.AddUndoChange(new Change(
+                ReverseMoveLayerInStructureProcess,
+                new object[] { oldIndex, layerGuid, oldLayerFolder },
+                MoveLayerInStructureProcess,
+                args,
+                "Move layer"));
+        }
+
         public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
         {
             AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
