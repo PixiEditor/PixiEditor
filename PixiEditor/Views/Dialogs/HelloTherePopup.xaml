@@ -1,0 +1,119 @@
+﻿<Window x:Class="PixiEditor.Views.Dialogs.HelloTherePopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        mc:Ignorable="d"
+        Title="Hello there!" Height="630" Width="545"
+        WindowStyle="None" WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <converters:EqualityBoolToVisibilityConverter x:Key="EqualBoolToVisibilty"/>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="35"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed_Close" />
+    </Window.CommandBindings>
+
+    <Grid Background="{StaticResource AccentColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
+            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
+        </DockPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <Grid Grid.Row="1" Margin="0,30,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="90"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition MinHeight="120"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../../Images/PixiEditorLogo.png" Height="40" VerticalAlignment="Center"/>
+                        <TextBlock FontSize="40" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
+                    </StackPanel>
+                    <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Medium">v0.2</TextBlock>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" Width="150" Margin="10">Open</Button>
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" Width="150" Margin="10">New</Button>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
+                    <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center">Recent Files</TextBlock>
+                    <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center">
+                        <TextBlock.Visibility>
+                            <Binding Path="RecentlyOpened.Count"
+                                     Converter="{StaticResource EqualBoolToVisibilty}">
+                                <Binding.ConverterParameter>
+                                    <sys:Int32/>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </TextBlock.Visibility>
+                        Such empty here
+                    </TextBlock>
+                    <ItemsControl ItemsSource="{Binding RecentlyOpened}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type dataHolders:RecentlyOpenedDocument}">
+                                <StackPanel Margin="8,5,8,0" ToolTip="{Binding FilePath}">
+                                    <Button Style="{StaticResource DarkRoundButton}" Margin="0,10,0,0" HorizontalAlignment="Center"
+                                            Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=WrapPanel}}" CommandParameter="{Binding FilePath}">
+                                        <Image Source="{Binding PreviewBitmap}" Height="50" Margin="20"/>
+                                    </Button>
+
+                                    <TextBlock Text="{Binding FileName}" FontSize="18" Margin="10,2,10,2" HorizontalAlignment="Center" Foreground="White"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Resources>
+                                <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">
+                                    <Setter Property="Width" Value="150"/>
+                                    <Setter Property="Margin" Value="5,0,5,0"/>
+                                    <Setter Property="FontSize" Value="18"/>
+                                    <Setter Property="Height" Value="28"/>
+                                </Style>
+                            </Style.Resources>
+                        </Style>
+                    </StackPanel.Style>
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://discord.gg/tzkQFDkqQS">Discord</Button>
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://reddit.com/r/PixiEditor">r/PixiEditor</Button>
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://github.com/PixiEditor/PixiEditor">GitHub</Button>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Window>

@@ -8,17 +8,12 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
 {
     public class FileSettings : SettingsGroup
     {
-        private bool showNewFilePopupOnStartup = GetPreference("ShowNewFilePopupOnStartup", true);
+        private bool showStartupWindow = GetPreference(nameof(ShowStartupWindow), true);
 
-        public bool ShowNewFilePopupOnStartup
+        public bool ShowStartupWindow
         {
-            get => showNewFilePopupOnStartup;
-            set
-            {
-                showNewFilePopupOnStartup = value;
-                string name = nameof(ShowNewFilePopupOnStartup);
-                RaiseAndUpdatePreference(name, value);
-            }
+            get => showStartupWindow;
+            set => RaiseAndUpdatePreference(ref showStartupWindow, value);
         }
 
         private long defaultNewFileWidth = GetPreference("DefaultNewFileWidth", 16L);

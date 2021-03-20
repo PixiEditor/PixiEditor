@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 
@@ -53,7 +54,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void UpdateRecentlyOpened(string newPath)
         {
-            ObservableCollection<string> recentlyOpened = XamlAccesibleViewModel.FileSubViewModel.RecentlyOpened;
+            RecentlyOpenedCollection recentlyOpened = XamlAccesibleViewModel.FileSubViewModel.RecentlyOpened;
 
             if (!recentlyOpened.Contains(newPath))
             {
@@ -73,7 +74,7 @@ namespace PixiEditor.Models.DataHolders
                 }
             }
 
-            IPreferences.Current.UpdateLocalPreference("RecentlyOpened", recentlyOpened);
+            IPreferences.Current.UpdateLocalPreference("RecentlyOpened", recentlyOpened.Select(x => x.FilePath));
 
             XamlAccesibleViewModel.FileSubViewModel.HasRecent = true;
         }

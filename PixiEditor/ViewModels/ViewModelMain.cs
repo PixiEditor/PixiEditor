@@ -17,6 +17,7 @@ using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels
 {
@@ -254,7 +255,6 @@ namespace PixiEditor.ViewModels
             {
                 return false;
             }
-
         }
 
         private void OnStartup(object parameter)

@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Parser;
 
 namespace PixiEditor.Models.ImageManipulation
 {
@@ -104,6 +105,25 @@ namespace PixiEditor.Models.ImageManipulation
             int height = document.Height > document.Width ? maxPreviewHeight : (int)Math.Ceiling(document.Height / ((float)document.Width / maxPreviewWidth));
 
             return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+        }
+
+        public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<SerializableLayer> layers, int width, int height, int maxPreviewWidth, int maxPreviewHeight)
+        {
+            WriteableBitmap previewBitmap = BitmapFactory.New(width, height);
+
+            // 0.8 because blit doesn't take into consideration layer opacity. Small images with opacity > 80% are simillar enough.
+            foreach (var layer in layers.Where(x => x.IsVisible && x.Opacity > 0.8f))
+            {
+                previewBitmap.Blit(
+                    new Rect(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height),
+                    BitmapUtils.BytesToWriteableBitmap(layer.Width, layer.Height, layer.BitmapBytes),
+                    new Rect(0, 0, layer.Width, layer.Height));
+            }
+
+            int resizeWidth = width >= height ? maxPreviewWidth : (int)Math.Ceiling(width / ((float)height / maxPreviewHeight));
+            int resizeHeight = height > width ? maxPreviewHeight : (int)Math.Ceiling(height / ((float)width / maxPreviewWidth));
+
+            return previewBitmap.Resize(resizeWidth, resizeHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
         }
 
         public static Dictionary<Guid, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)

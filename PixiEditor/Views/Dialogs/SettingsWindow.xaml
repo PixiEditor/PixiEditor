@@ -57,8 +57,8 @@
                 <StackPanel Orientation="Vertical">
                     <Label Content="File" Style="{StaticResource Header1}"/>
                     <StackPanel Orientation="Vertical" Margin="50 0 50 0">
-                        <CheckBox Content="Show New File dialog on startup" 
-                                  IsChecked="{Binding SettingsSubViewModel.File.ShowNewFilePopupOnStartup}"/>
+                        <CheckBox Content="Show Startup Window" 
+                                  IsChecked="{Binding SettingsSubViewModel.File.ShowStartupWindow}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                             <Label Content="Max Saved Opened Recently:" ToolTip="How many documents are shown under File > Recent. Default: 10" Style="{StaticResource BaseLabel}"/>
                             <views:NumberInput FontSize="16" Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently}" Width="40"/>

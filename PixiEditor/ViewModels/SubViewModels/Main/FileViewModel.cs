@@ -16,6 +16,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Parser;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -43,7 +44,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public ObservableCollection<string> RecentlyOpened { get; set; } = new ObservableCollection<string>();
+        public RecentlyOpenedCollection RecentlyOpened { get; set; } = new RecentlyOpenedCollection();
 
         public FileViewModel(ViewModelMain owner)
             : base(owner)
@@ -54,7 +55,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             OpenRecentCommand = new RelayCommand(OpenRecent);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
-            RecentlyOpened = new ObservableCollection<string>(IPreferences.Current.GetLocalPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
+            RecentlyOpened = new RecentlyOpenedCollection(GetRecentlyOpenedDocuments());
 
             if (RecentlyOpened.Count > 0)
             {
@@ -98,6 +99,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
+        public void OpenHelloTherePopup()
+        {
+            new HelloTherePopup(this).Show();
+        }
+
         public void NewDocument(int width, int height, bool addBaseLayer = true)
         {
             Owner.BitmapManager.Documents.Add(new Document(width, height));
@@ -138,6 +144,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SaveDocument(parameter: asNew ? "asnew" : null);
         }
 
+        public void OpenAny()
+        {
+            Open((object)null);
+        }
+
         private void Owner_OnStartupEvent(object sender, System.EventArgs e)
         {
             var lastArg = Environment.GetCommandLineArgs().Last();
@@ -147,9 +158,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else
             {
-                if (IPreferences.Current.GetPreference("ShowNewFilePopupOnStartup", true))
+                if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
                 {
-                    OpenNewFilePopup(null);
+                    OpenHelloTherePopup();
                 }
             }
         }
@@ -195,9 +206,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             OpenFileDialog dialog = new OpenFileDialog
             {
-                Filter = "All Files|*.*|PixiEditor Files | *.pixi|PNG Files|*.png",
+                Filter =
+                "Any|*.pixi;*.png;*.jpg;*.jpeg;|" +
+                "PixiEditor Files | *.pixi|" +
+                "Image Files|*.png;*.jpg;*.jpeg;",
                 DefaultExt = "pixi"
             };
+
             if ((bool)dialog.ShowDialog())
             {
                 if (Importer.IsSupportedFile(dialog.FileName))
@@ -269,6 +284,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private bool CanSave(object property)
         {
             return Owner.BitmapManager.ActiveDocument != null;
+        }
+
+        private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
+        {
+            var paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>();
+
+            List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
+
+            foreach (string path in paths)
+            {
+                documents.Add(new RecentlyOpenedDocument(path));
+            }
+
+            return documents;
         }
     }
 }
