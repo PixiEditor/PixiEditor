@@ -101,7 +101,7 @@
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
                             <Style.Resources>
-                                <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}" x:Key="SocialMediaButton">
                                     <Setter Property="Width" Value="150"/>
                                     <Setter Property="Margin" Value="5,0,5,0"/>
                                     <Setter Property="FontSize" Value="18"/>
@@ -110,9 +110,43 @@
                             </Style.Resources>
                         </Style>
                     </StackPanel.Style>
-                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://discord.gg/tzkQFDkqQS">Discord</Button>
-                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://reddit.com/r/PixiEditor">r/PixiEditor</Button>
-                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://github.com/PixiEditor/PixiEditor">GitHub</Button>
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://discord.gg/tzkQFDkqQS"
+                            Content="Discord">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#7289DA"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://reddit.com/r/PixiEditor"
+                            Content="r/PixiEditor">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FF4500"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
+                            Content="GitHub">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="White"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
             </Grid>
         </ScrollViewer>
