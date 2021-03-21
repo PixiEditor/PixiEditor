@@ -34,6 +34,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand OpenRecentCommand { get; set; }
 
+        public RelayCommand RemoveRecentlyOpenedCommand { get; set; }
+
         public bool HasRecent
         {
             get => hasRecent;
@@ -54,6 +56,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             OpenFileCommand = new RelayCommand(Open);
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             OpenRecentCommand = new RelayCommand(OpenRecent);
+            RemoveRecentlyOpenedCommand = new RelayCommand(RemoveRecentlyOpened);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
             RecentlyOpened = new RecentlyOpenedCollection(GetRecentlyOpenedDocuments());
 
@@ -86,6 +89,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             Open((string)parameter);
+        }
+
+        public void RemoveRecentlyOpened(object parameter)
+        {
+            if (RecentlyOpened.Contains((string)parameter))
+            {
+                RecentlyOpened.Remove((string)parameter);
+            }
         }
 
         /// <summary>

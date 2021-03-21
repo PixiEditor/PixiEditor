@@ -63,8 +63,8 @@ namespace PixiEditor.Views.Dialogs
             }
             else if (RecentlyOpened.Count < 7)
             {
-                Height = 612;
-                Width = 506;
+                Height = 656;
+                Width = 545;
             }
         }
 

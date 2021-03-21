@@ -6,11 +6,12 @@
         xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        Title="Hello there!" Height="615" Width="625"
+        Title="Hello there!" Height="651" Width="651"
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <converters:EqualityBoolToVisibilityConverter x:Key="EqualBoolToVisibilty"/>
+        <converters:FileExtensionToImageSourceConverter x:Key="FileExtensionToImageSource"/>
 
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
@@ -85,15 +86,26 @@
                     <ItemsControl ItemsSource="{Binding RecentlyOpened}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type dataHolders:RecentlyOpenedDocument}">
-                                <StackPanel Margin="8,5,8,0" ToolTip="{Binding FilePath}">
-                                    <Button Style="{StaticResource DarkRoundButton}" Margin="0,10,0,0" HorizontalAlignment="Center"
-                                            Width="90" Height="90"
-                                            Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=WrapPanel}}" CommandParameter="{Binding FilePath}">
-                                        <Image Source="{Binding PreviewBitmap}" Margin="20"/>
-                                    </Button>
+                                <Grid>
+                                    <StackPanel Margin="8,5,8,0" ToolTip="{Binding FilePath}">
+                                        <Button Margin="0,10,0,0" HorizontalAlignment="Center"
+                                                Width="100" Height="100"
+                                                Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=WrapPanel}}"
+                                                CommandParameter="{Binding FilePath}"
+                                                Style="{StaticResource DarkRoundButton}">
+                                            <Image Source="{Binding PreviewBitmap}" Margin="20"/>
+                                        </Button>
 
-                                    <TextBlock Text="{Binding FileName}" Width="100" TextAlignment="Center" TextTrimming="CharacterEllipsis" FontSize="18" Margin="10,2,10,2" HorizontalAlignment="Center" Foreground="White"/>
-                                </StackPanel>
+                                        <TextBlock Text="{Binding FileName}" Width="110" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                   FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" Foreground="White"/>
+                                    </StackPanel>
+                                    <Image Source="{Binding FileExtension, Converter={StaticResource FileExtensionToImageSource}, ConverterParameter=../..}" Width="33"
+                                           ToolTip="{Binding FileExtension}">
+                                        <Image.RenderTransform>
+                                            <TranslateTransform X="38" Y="23"/>
+                                        </Image.RenderTransform>
+                                    </Image>
+                                </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>

@@ -13,6 +13,8 @@ namespace PixiEditor.Models.DataHolders
     [DebuggerDisplay("{FilePath}")]
     public class RecentlyOpenedDocument : NotifyableObject
     {
+        private bool corrupt;
+
         private string filePath;
 
         private WriteableBitmap previewBitmap;
@@ -24,11 +26,27 @@ namespace PixiEditor.Models.DataHolders
             {
                 SetProperty(ref filePath, value);
                 RaisePropertyChanged(nameof(FileName));
+                RaisePropertyChanged(nameof(FileExtension));
                 PreviewBitmap = null;
             }
         }
 
-        public string FileName => Path.GetFileName(filePath);
+        public bool Corrupt { get => corrupt; set => SetProperty(ref corrupt, value); }
+
+        public string FileName => Path.GetFileNameWithoutExtension(filePath);
+
+        public string FileExtension
+        {
+            get
+            {
+                if (Corrupt)
+                {
+                    return "Corrupt";
+                }
+
+                return Path.GetExtension(filePath).ToLower();
+            }
+        }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public WriteableBitmap PreviewBitmap
@@ -52,18 +70,39 @@ namespace PixiEditor.Models.DataHolders
 
         private WriteableBitmap LoadPreviewBitmap()
         {
-            if (FilePath.EndsWith(".pixi"))
+            if (FileExtension == ".pixi")
             {
-                SerializableDocument serializableDocument = PixiParser.Deserialize(filePath);
+                SerializableDocument serializableDocument = null;
+
+                try
+                {
+                    serializableDocument = PixiParser.Deserialize(filePath);
+                }
+                catch
+                {
+                    corrupt = true;
+                    return null;
+                }
 
                 return BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
             }
-            else
+            else if (FileExtension == ".png" || FileExtension == ".jpg" || FileExtension == ".jpeg")
             {
-                WriteableBitmap bitmap = Importer.ImportImage(FilePath);
+                WriteableBitmap bitmap = null;
+
+                try
+                {
+                    bitmap = Importer.ImportImage(FilePath);
+                }
+                catch
+                {
+                    corrupt = true;
+                }
 
                 return bitmap;
             }
+
+            return null;
         }
     }
 }
