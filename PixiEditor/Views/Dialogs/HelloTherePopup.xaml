@@ -16,6 +16,13 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="16"/>
         </Style>
+
+        <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}" x:Key="SocialMediaButton">
+            <Setter Property="Width" Value="150"/>
+            <Setter Property="Margin" Value="5,0,5,0"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Height" Value="28"/>
+        </Style>
     </Window.Resources>
 
     <WindowChrome.WindowChrome>
@@ -98,18 +105,6 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Style.Resources>
-                                <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}" x:Key="SocialMediaButton">
-                                    <Setter Property="Width" Value="150"/>
-                                    <Setter Property="Margin" Value="5,0,5,0"/>
-                                    <Setter Property="FontSize" Value="18"/>
-                                    <Setter Property="Height" Value="28"/>
-                                </Style>
-                            </Style.Resources>
-                        </Style>
-                    </StackPanel.Style>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://discord.gg/tzkQFDkqQS"
                             Content="Discord">
                         <Button.Style>
