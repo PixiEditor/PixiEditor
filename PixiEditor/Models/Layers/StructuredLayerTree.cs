@@ -23,10 +23,7 @@ namespace PixiEditor.Models.Layers
 
             var parsedFolders = ParseFolders(structure.Folders, layers);
 
-            foreach (var folder in parsedFolders)
-            {
-                RootDirectoryItems.Add(folder);
-            }
+            RootDirectoryItems.AddRange(parsedFolders);
 
             RootDirectoryItems.AddRange(layers.Where(x => !layersInStructure.Contains(x)));
 
@@ -66,7 +63,9 @@ namespace PixiEditor.Models.Layers
                 subFolders = ParseFolders(structureItem.Subfolders, layers);
             }
 
-            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name, 
+            structureItemLayers.Reverse();
+
+            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name,
                 structureItem.FolderGuid, structureItem.FolderDisplayIndex)
             {
                 IsExpanded = structureItem.IsExpanded

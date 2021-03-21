@@ -120,7 +120,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 {
                     Owner.BitmapManager.ActiveDocument.Layers[1].LayerGuid,
                     Owner.BitmapManager.ActiveDocument.Layers[2].LayerGuid
-                }, Array.Empty<GuidStructureItem>(), 1, null)
+                }, Array.Empty<GuidStructureItem>(), 4, null)
                 { IsExpanded = true });
 
             Owner.BitmapManager.ActiveDocument.LayerStructure.Folders[0].Subfolders.Add(
@@ -129,7 +129,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                         Owner.BitmapManager.ActiveDocument.Layers[3].LayerGuid,
                         Owner.BitmapManager.ActiveDocument.Layers[4].LayerGuid
                     },  Array.Empty<GuidStructureItem>()
-                    , 3,  Owner.BitmapManager.ActiveDocument.LayerStructure.Folders[0]));
+                    , 4,  Owner.BitmapManager.ActiveDocument.LayerStructure.Folders[0]));
         }
 
         /// <summary>

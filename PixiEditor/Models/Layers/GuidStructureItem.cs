@@ -39,16 +39,42 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private int folderDisplayIndex;
+        private int actualIndex;
+
+        public int ActualIndex
+        {
+            get => actualIndex;
+            set
+            {
+                actualIndex = value;
+                RaisePropertyChanged(nameof(ActualIndex));
+            }
+        }
 
         public int FolderDisplayIndex
         {
-            get => folderDisplayIndex;
-            set
+            get => ActualIndex - GetLayersCount() + 1;
+        }
+
+        public int GetLayersCount()
+        {
+            return GetLayersCount(this);
+        }
+
+        private int GetLayersCount(GuidStructureItem item)
+        {
+            if (Subfolders.Count == 0)
             {
-                folderDisplayIndex = value;
-                RaisePropertyChanged(nameof(FolderDisplayIndex));
+                return LayerGuids.Count;
             }
+
+            int itemsCount = 0;
+            foreach (var subFolder in item.Subfolders)
+            {
+                itemsCount += GetLayersCount(subFolder);
+            }
+
+            return itemsCount + LayerGuids.Count;
         }
 
         public GuidStructureItem(
@@ -62,7 +88,7 @@ namespace PixiEditor.Models.Layers
             LayerGuids = new ObservableCollection<Guid>(children);
             Subfolders = new ObservableCollection<GuidStructureItem>(subfolders);
             FolderGuid = Guid.NewGuid();
-            FolderDisplayIndex = index;
+            ActualIndex = index;
             Parent = parent;
         }
 
@@ -72,7 +98,7 @@ namespace PixiEditor.Models.Layers
             LayerGuids = new ObservableCollection<Guid>();
             Subfolders = new ObservableCollection<GuidStructureItem>();
             FolderGuid = Guid.NewGuid();
-            FolderDisplayIndex = 0;
+            ActualIndex = 0;
             Parent = null;
         }
     }

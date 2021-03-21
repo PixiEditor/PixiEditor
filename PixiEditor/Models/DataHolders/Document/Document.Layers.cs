@@ -463,24 +463,26 @@ namespace PixiEditor.Models.DataHolders
             GuidStructureItem folder = LayerStructure.GetFolderByGuid(folderGuid);
             GuidStructureItem parentFolder = LayerStructure.GetFolderByLayer(referenceLayerGuid);
 
-            int oldIndex = folder.FolderDisplayIndex;
-            int newIndex = CalculateNewIndex(referenceLayerGuid, above, oldIndex, 1);
+            int layerIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayerGuid));
+            int relativeIndex = layerIndex > folder.ActualIndex ? folder.ActualIndex : folder.FolderDisplayIndex;
+
+            int newIndex = CalculateNewIndex(layerIndex, above, relativeIndex);
+
+            if (newIndex == relativeIndex) //FIX bad new index, it moves to wrong indexes
+            {
+                return;
+            }
 
             LayerStructure.MoveFolder(folderGuid, parentFolder, newIndex);
         }
 
-        private int CalculateNewIndex(Guid referenceLayerGuid, bool above, int oldIndex, int aboveModifier = 0)
+        private int CalculateNewIndex(int layerIndex, bool above, int oldIndex)
         {
-            int newIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayerGuid));
+            int newIndex = layerIndex;
 
-            if ((oldIndex - newIndex == -1 && !above) || (oldIndex - newIndex == 1 && above))
+            if ((oldIndex - layerIndex == -1 && !above) || (oldIndex - layerIndex == 1 && above))
             {
                 newIndex += above ? 1 : -1;
-            }
-
-            if (newIndex >= oldIndex)
-            {
-                newIndex += aboveModifier;
             }
 
             return newIndex;
@@ -492,8 +494,9 @@ namespace PixiEditor.Models.DataHolders
             Guid referenceLayer = (Guid)parameter[1];
             bool above = (bool)parameter[2];
 
+            int layerIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayer));
             int oldIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == layer));
-            int newIndex = CalculateNewIndex(referenceLayer, above, oldIndex);
+            int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
             Layers.Move(oldIndex, newIndex);
             if (Layers.IndexOf(ActiveLayer) == oldIndex)

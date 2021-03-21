@@ -1,8 +1,8 @@
-﻿using PixiEditor.Models.DataHolders;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Layers
 {
@@ -46,13 +46,32 @@ namespace PixiEditor.Models.Layers
         public void MoveFolder(Guid folderGuid, GuidStructureItem? parentFolder, int newIndex)
         {
             var folder = GetFolderByGuid(folderGuid);
-            int oldIndex = folder.FolderDisplayIndex;
+            int oldIndex = folder.ActualIndex;
+            bool reverseOrder = true;
+
+            int indexToApply = folder.ActualIndex;
+
+            if (newIndex > oldIndex)
+            {
+                indexToApply = newIndex;
+            }
+            else
+            {
+                indexToApply = newIndex + folder.ActualIndex - 1;
+                reverseOrder = false;
+            }
+
+            int difference = indexToApply - oldIndex;
+
+            MoveLayersInFolder(folder, difference, reverseOrder);
+
+            folder.ActualIndex = indexToApply;
+
             if (folder.Parent == null)
             {
                 Folders.Remove(folder);
             }
 
-            folder.FolderDisplayIndex = newIndex;
             if (parentFolder == null && !Folders.Contains(folder))
             {
                 Folders.Add(folder);
@@ -61,13 +80,35 @@ namespace PixiEditor.Models.Layers
             {
                 parentFolder.Subfolders.Add(folder);
             }
+        }
 
-            for (int i = 0; i < folder.LayerGuids.Count; i++)
+        private void MoveLayersInFolder(GuidStructureItem folder, int moveBy, bool reverseOrder)
+        {
+            List<Guid> layersInOrder = GetLayersInOrder(folder);
+
+            List<Guid> layerGuids = reverseOrder ? layersInOrder.Reverse<Guid>().ToList() : layersInOrder;
+
+            for (int i = 0; i < layersInOrder.Count; i++)
             {
-                Guid layerGuid = folder.LayerGuids[i];
-                int layerIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == layerGuid));
-                Owner.Layers.Move(layerIndex, newIndex + folder.LayerGuids.Count - i);
+                Guid layerGuid = layerGuids[i];
+                var layer = Owner.Layers.First(x => x.LayerGuid == layerGuid);
+                int layerIndex = Owner.Layers.IndexOf(layer);
+                Owner.Layers.Move(layerIndex, layerIndex + moveBy);
             }
+        }
+
+        private List<Guid> GetLayersInOrder(GuidStructureItem folder)
+        {
+            List<Guid> layerGuids = new List<Guid>();
+            int minIndex = folder.FolderDisplayIndex;
+            int maxIndex = folder.ActualIndex;
+
+            for (int i = minIndex; i <= maxIndex; i++)
+            {
+                layerGuids.Add(Owner.Layers[i].LayerGuid);
+            }
+
+            return layerGuids;
         }
 
 #nullable disable
