@@ -66,7 +66,7 @@ namespace PixiEditor.Models.DataHolders
                 recentlyOpened.Move(index, 0);
             }
 
-            if (recentlyOpened.Count > IPreferences.Current.GetPreference("maxOpenedRecently", 8))
+            if (recentlyOpened.Count > IPreferences.Current.GetPreference("MaxOpenedRecently", 8))
             {
                 for (int i = 4; i < recentlyOpened.Count; i++)
                 {

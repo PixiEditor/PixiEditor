@@ -119,14 +119,21 @@ namespace PixiEditor.Models.UserPreferences
                 Init();
             }
 
-            return Preferences.ContainsKey(name)
-                ? (T)Preferences[name]
-                : fallbackValue;
+            try
+            {
+                return Preferences.ContainsKey(name)
+                        ? (T)Convert.ChangeType(Preferences[name], typeof(T))
+                        : fallbackValue;
+            }
+            catch (InvalidCastException)
+            {
+                return fallbackValue;
+            }
         }
 
         public T? GetLocalPreference<T>(string name)
         {
-            return GetPreference(name, default(T));
+            return GetLocalPreference(name, default(T));
         }
 
         public T? GetLocalPreference<T>(string name, T? fallbackValue)
@@ -136,9 +143,16 @@ namespace PixiEditor.Models.UserPreferences
                 Init();
             }
 
-            return LocalPreferences.ContainsKey(name)
-                ? (T)LocalPreferences[name]
-                : fallbackValue;
+            try
+            {
+                return LocalPreferences.ContainsKey(name)
+                    ? (T)Convert.ChangeType(LocalPreferences[name], typeof(T))
+                    : fallbackValue;
+            }
+            catch (InvalidCastException)
+            {
+                return fallbackValue;
+            }
         }
 
 #nullable disable

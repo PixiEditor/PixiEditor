@@ -47,11 +47,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
         public int MaxOpenedRecently
         {
             get => maxOpenedRecently;
-            set
-            {
-                maxOpenedRecently = value;
-                RaiseAndUpdatePreference(nameof(MaxOpenedRecently), value);
-            }
+            set => RaiseAndUpdatePreference(ref maxOpenedRecently, value);
         }
     }
 }

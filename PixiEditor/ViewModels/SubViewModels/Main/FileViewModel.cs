@@ -61,6 +61,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 HasRecent = true;
             }
+
+            IPreferences.Current.AddCallback("MaxOpenedRecently", UpdateMaxRecentlyOpened);
         }
 
         public void OpenRecent(object parameter)
@@ -286,9 +288,29 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             return Owner.BitmapManager.ActiveDocument != null;
         }
 
+        private void UpdateMaxRecentlyOpened(object parameter)
+        {
+            int newAmount = (int)parameter;
+
+            if (newAmount >= RecentlyOpened.Count)
+            {
+                return;
+            }
+
+            var recentlyOpeneds = new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
+
+            RecentlyOpened.Clear();
+
+            foreach (var recent in recentlyOpeneds)
+            {
+                RecentlyOpened.Add(recent);
+            }
+        }
+
         private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
         {
-            var paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>();
+            var paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>()
+                .Take(IPreferences.Current.GetPreference("MaxOpenedRecently", 8));
 
             List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
 
