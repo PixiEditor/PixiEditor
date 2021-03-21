@@ -18,7 +18,7 @@ namespace PixiEditor.Models.DataHolders
         public const string MainSelectedLayerColor = "#505056";
         public const string SecondarySelectedLayerColor = "#7D505056";
         private Guid activeLayerGuid;
-        private LayerStructure layerStructure = new ();
+        private LayerStructure layerStructure;
 
         private ObservableCollection<Layer> layers = new ();
 
@@ -117,24 +117,18 @@ namespace PixiEditor.Models.DataHolders
                 "Move layer"));
         }
 
-        public void MoveFolderInStructure(Guid folder, Guid referenceLayer, bool above = false)
+        public void MoveFolderInStructure(Guid folderGuid, Guid referenceLayer, bool above = false)
         {
-            var args = new object[] { layerGuid, referenceLayer, above };
+            var args = new object[] { folderGuid, referenceLayer, above };
 
-            Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+            MoveFolderInStructureProcess(args);
 
-            int oldIndex = Layers.IndexOf(layer);
-
-            Guid? oldLayerFolder = LayerStructure.GetFolderByLayer(layerGuid)?.FolderGuid;
-
-            MoveLayerInStructureProcess(args);
-
-            UndoManager.AddUndoChange(new Change(
-                ReverseMoveLayerInStructureProcess,
-                new object[] { oldIndex, layerGuid, oldLayerFolder },
-                MoveLayerInStructureProcess,
-                args,
-                "Move layer"));
+            //UndoManager.AddUndoChange(new Change(
+            //    ReverseMoveLayerInStructureProcess,
+            //    new object[] { oldIndex, layerGuid, oldLayerFolder },
+            //    MoveLayerInStructureProcess,
+            //    args,
+            //    "Move layer"));
         }
 
         public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
@@ -460,6 +454,38 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private void MoveFolderInStructureProcess(object[] parameter)
+        {
+            Guid folderGuid = (Guid)parameter[0];
+            Guid referenceLayerGuid = (Guid)parameter[1];
+            bool above = (bool)parameter[2];
+
+            GuidStructureItem folder = LayerStructure.GetFolderByGuid(folderGuid);
+            GuidStructureItem parentFolder = LayerStructure.GetFolderByLayer(referenceLayerGuid);
+
+            int oldIndex = folder.FolderDisplayIndex;
+            int newIndex = CalculateNewIndex(referenceLayerGuid, above, oldIndex, 1);
+
+            LayerStructure.MoveFolder(folderGuid, parentFolder, newIndex);
+        }
+
+        private int CalculateNewIndex(Guid referenceLayerGuid, bool above, int oldIndex, int aboveModifier = 0)
+        {
+            int newIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayerGuid));
+
+            if ((oldIndex - newIndex == -1 && !above) || (oldIndex - newIndex == 1 && above))
+            {
+                newIndex += above ? 1 : -1;
+            }
+
+            if (newIndex >= oldIndex)
+            {
+                newIndex += aboveModifier;
+            }
+
+            return newIndex;
+        }
+
         private void MoveLayerInStructureProcess(object[] parameter)
         {
             Guid layer = (Guid)parameter[0];
@@ -467,12 +493,7 @@ namespace PixiEditor.Models.DataHolders
             bool above = (bool)parameter[2];
 
             int oldIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == layer));
-            int newIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayer));
-
-            if ((oldIndex - newIndex == -1 && !above) || (oldIndex - newIndex == 1 && above))
-            {
-                newIndex += above ? 1 : -1;
-            }
+            int newIndex = CalculateNewIndex(referenceLayer, above, oldIndex);
 
             Layers.Move(oldIndex, newIndex);
             if (Layers.IndexOf(ActiveLayer) == oldIndex)

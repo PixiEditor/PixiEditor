@@ -171,9 +171,9 @@ namespace PixiEditor.Views
             if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerFolder"))
             {
                 var data = (LayerFolder)e.Data.GetData("PixiEditor.Views.UserControls.LayerFolder");
-                Guid layer = data.FolderGuid;
+                Guid folder = data.FolderGuid;
 
-                data.LayersViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layer, LayerGuid, above);
+                data.LayersViewModel.Owner.BitmapManager.ActiveDocument.MoveFolderInStructure(folder, LayerGuid, above);
             }
         }
 

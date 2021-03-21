@@ -1,11 +1,15 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace PixiEditor.Models.Layers
 {
     public class LayerStructure
     {
+        public Document Owner { get; set; }
+
         public ObservableCollection<GuidStructureItem> Folders { get; set; }
 
         public GuidStructureItem GetFolderByGuid(Guid folderGuid)
@@ -38,6 +42,35 @@ namespace PixiEditor.Models.Layers
             return GetFolderByLayer(layerGuid, Folders);
         }
 
+#nullable enable
+        public void MoveFolder(Guid folderGuid, GuidStructureItem? parentFolder, int newIndex)
+        {
+            var folder = GetFolderByGuid(folderGuid);
+            int oldIndex = folder.FolderDisplayIndex;
+            if (folder.Parent == null)
+            {
+                Folders.Remove(folder);
+            }
+
+            folder.FolderDisplayIndex = newIndex;
+            if (parentFolder == null && !Folders.Contains(folder))
+            {
+                Folders.Add(folder);
+            }
+            else if (parentFolder != null)
+            {
+                parentFolder.Subfolders.Add(folder);
+            }
+
+            for (int i = 0; i < folder.LayerGuids.Count; i++)
+            {
+                Guid layerGuid = folder.LayerGuids[i];
+                int layerIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == layerGuid));
+                Owner.Layers.Move(layerIndex, newIndex + folder.LayerGuids.Count - i);
+            }
+        }
+
+#nullable disable
         private GuidStructureItem GetFolderByLayer(Guid layerGuid, IEnumerable<GuidStructureItem> folders)
         {
             foreach (var folder in folders)
@@ -74,14 +107,16 @@ namespace PixiEditor.Models.Layers
             return null;
         }
 
-        public LayerStructure(ObservableCollection<GuidStructureItem> items)
+        public LayerStructure(ObservableCollection<GuidStructureItem> items, Document owner)
         {
             Folders = items;
+            Owner = owner;
         }
 
-        public LayerStructure()
+        public LayerStructure(Document owner)
         {
             Folders = new ObservableCollection<GuidStructureItem>();
+            Owner = owner;
         }
     }
 }

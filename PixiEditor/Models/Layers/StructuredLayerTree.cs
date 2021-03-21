@@ -21,11 +21,18 @@ namespace PixiEditor.Models.Layers
                 return;
             }
 
+            var parsedFolders = ParseFolders(structure.Folders, layers);
+
+            foreach (var folder in parsedFolders)
+            {
+                RootDirectoryItems.Add(folder);
+            }
+
             RootDirectoryItems.AddRange(layers.Where(x => !layersInStructure.Contains(x)));
 
-            foreach (var folder in ParseFolders(structure.Folders, layers))
+            for (int i = 0; i < parsedFolders.Count; i++)
             {
-                RootDirectoryItems.Insert(folder.DisplayIndex, folder);
+                RootDirectoryItems.Move(i, parsedFolders[i].DisplayIndex);
             }
 
             layersInStructure.Clear();
