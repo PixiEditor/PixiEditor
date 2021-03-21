@@ -42,7 +42,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
             }
         }
 
-        private int maxOpenedRecently = GetPreference(nameof(MaxOpenedRecently), 10);
+        private int maxOpenedRecently = GetPreference(nameof(MaxOpenedRecently), 8);
 
         public int MaxOpenedRecently
         {
