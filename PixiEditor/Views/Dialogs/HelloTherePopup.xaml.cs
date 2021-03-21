@@ -55,6 +55,17 @@ namespace PixiEditor.Views.Dialogs
             RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
             InitializeComponent();
+
+            if (RecentlyOpenedEmpty)
+            {
+                Height = 450;
+                Width = 522;
+            }
+            else if (RecentlyOpened.Count < 7)
+            {
+                Height = 612;
+                Width = 506;
+            }
         }
 
         protected override void OnDeactivated(EventArgs e)
