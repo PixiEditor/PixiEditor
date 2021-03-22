@@ -13,7 +13,7 @@ namespace PixiEditor.Models.Layers
 
         public ObservableCollection<object> RootDirectoryItems { get; } = new ObservableCollection<object>();
 
-        public StructuredLayerTree(IEnumerable<Layer> layers, LayerStructure structure)
+        public StructuredLayerTree(ObservableCollection<Layer> layers, LayerStructure structure)
         {
             if (structure.Folders == null || structure.Folders.Count == 0)
             {
@@ -35,7 +35,7 @@ namespace PixiEditor.Models.Layers
             layersInStructure.Clear();
         }
 
-        private List<LayerFolder> ParseFolders(IEnumerable<GuidStructureItem> folders, IEnumerable<Layer> layers)
+        private List<LayerFolder> ParseFolders(IEnumerable<GuidStructureItem> folders, ObservableCollection<Layer> layers)
         {
             List<LayerFolder> parsedFolders = new ();
             foreach (var structureItem in folders)
@@ -46,15 +46,11 @@ namespace PixiEditor.Models.Layers
             return parsedFolders;
         }
 
-        private LayerFolder ParseFolder(GuidStructureItem structureItem, IEnumerable<Layer> layers)
+        private LayerFolder ParseFolder(GuidStructureItem structureItem, ObservableCollection<Layer> layers)
         {
             List<Layer> structureItemLayers = new ();
-            foreach (var guid in structureItem.LayerGuids)
-            {
-                var layer = layers.First(x => x.LayerGuid == guid);
-                layersInStructure.Add(layer);
-                structureItemLayers.Add(layer);
-            }
+
+            Guid[] layersInFolder = GetLayersInFolder(layers, structureItem);
 
             var subFolders = new List<LayerFolder>();
 
@@ -63,14 +59,55 @@ namespace PixiEditor.Models.Layers
                 subFolders = ParseFolders(structureItem.Subfolders, layers);
             }
 
+            foreach (var guid in layersInFolder)
+            {
+                var layer = layers.First(x => x.LayerGuid == guid);
+                if (!layersInStructure.Contains(layer))
+                {
+                    layersInStructure.Add(layer);
+                    structureItemLayers.Add(layer);
+                }
+            }
+
+            int displayIndex = layersInStructure.Min(x => layers.IndexOf(x));
+
             structureItemLayers.Reverse();
 
             LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name,
-                structureItem.FolderGuid, structureItem.FolderDisplayIndex)
+                structureItem.FolderGuid, displayIndex, displayIndex + layersInStructure.Count - 1)
             {
                 IsExpanded = structureItem.IsExpanded
             };
             return folder;
+        }
+
+        private Guid[] GetLayersInFolder(ObservableCollection<Layer> layers, GuidStructureItem structureItem)
+        {
+            int startIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.StartLayerGuid));
+            int endIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.EndLayerGuid));
+
+            if (startIndex > endIndex)
+            {
+                Swap(ref startIndex, ref endIndex);
+            }
+
+            int len = endIndex - startIndex + 1;
+
+            Guid[] guids = new Guid[len];
+
+            for (int i = 0; i < len; i++)
+            {
+                guids[i] = layers[i + startIndex].LayerGuid;
+            }
+
+            return guids;
+        }
+
+        private static void Swap(ref int startIndex, ref int endIndex)
+        {
+            int tmp = startIndex;
+            startIndex = endIndex;
+            endIndex = tmp;
         }
     }
 }

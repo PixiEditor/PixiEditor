@@ -21,7 +21,29 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public ObservableCollection<Guid> LayerGuids { get; set; }
+        private Guid? startLayerGuid = null;
+
+        public Guid? StartLayerGuid
+        {
+            get => startLayerGuid;
+            set
+            {
+                startLayerGuid = value;
+                RaisePropertyChanged(nameof(StartLayerGuid));
+            }
+        }
+
+        private Guid? endLayerGuid = null;
+
+        public Guid? EndLayerGuid
+        {
+            get => endLayerGuid;
+            set
+            {
+                endLayerGuid = value;
+                RaisePropertyChanged(nameof(EndLayerGuid));
+            }
+        }
 
         public ObservableCollection<GuidStructureItem> Subfolders { get; set; }
 
@@ -39,66 +61,26 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private int actualIndex;
-
-        public int ActualIndex
-        {
-            get => actualIndex;
-            set
-            {
-                actualIndex = value;
-                RaisePropertyChanged(nameof(ActualIndex));
-            }
-        }
-
-        public int FolderDisplayIndex
-        {
-            get => ActualIndex - GetLayersCount() + 1;
-        }
-
-        public int GetLayersCount()
-        {
-            return GetLayersCount(this);
-        }
-
-        private int GetLayersCount(GuidStructureItem item)
-        {
-            if (Subfolders.Count == 0)
-            {
-                return LayerGuids.Count;
-            }
-
-            int itemsCount = 0;
-            foreach (var subFolder in item.Subfolders)
-            {
-                itemsCount += GetLayersCount(subFolder);
-            }
-
-            return itemsCount + LayerGuids.Count;
-        }
-
         public GuidStructureItem(
             string name,
-            IEnumerable<Guid> children,
+            Guid startLayerGuid,
+            Guid endLayerGuid,
             IEnumerable<GuidStructureItem> subfolders,
-            int index,
             GuidStructureItem parent)
         {
             Name = name;
-            LayerGuids = new ObservableCollection<Guid>(children);
             Subfolders = new ObservableCollection<GuidStructureItem>(subfolders);
             FolderGuid = Guid.NewGuid();
-            ActualIndex = index;
             Parent = parent;
+            StartLayerGuid = startLayerGuid;
+            EndLayerGuid = endLayerGuid;
         }
 
         public GuidStructureItem(string name)
         {
             Name = name;
-            LayerGuids = new ObservableCollection<Guid>();
             Subfolders = new ObservableCollection<GuidStructureItem>();
             FolderGuid = Guid.NewGuid();
-            ActualIndex = 0;
             Parent = null;
         }
     }

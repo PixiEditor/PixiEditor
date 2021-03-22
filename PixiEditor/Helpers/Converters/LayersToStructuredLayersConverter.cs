@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Data;
 using PixiEditor.Models.Layers;
@@ -10,7 +11,7 @@ namespace PixiEditor.Helpers.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values[0] is IEnumerable<Layer> layers && values[1] is LayerStructure structure)
+            if (values[0] is ObservableCollection<Layer> layers && values[1] is LayerStructure structure)
             {
                 return new StructuredLayerTree(layers, structure).RootDirectoryItems;
             }

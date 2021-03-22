@@ -116,20 +116,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.ActiveDocument.AddNewLayer("Test1 sub1");
             Owner.BitmapManager.ActiveDocument.AddNewLayer("Test1 sub2");
             Owner.BitmapManager.ActiveDocument.LayerStructure.Folders.Add(
-                new GuidStructureItem("Folder 1", new ObservableCollection<Guid>()
-                {
-                    Owner.BitmapManager.ActiveDocument.Layers[1].LayerGuid,
-                    Owner.BitmapManager.ActiveDocument.Layers[2].LayerGuid
-                }, Array.Empty<GuidStructureItem>(), 4, null)
-                { IsExpanded = true });
+                new GuidStructureItem("Folder 1",
+                Owner.BitmapManager.ActiveDocument.Layers[1].LayerGuid,
+                Owner.BitmapManager.ActiveDocument.Layers[4].LayerGuid, Array.Empty<GuidStructureItem>(), null));
 
             Owner.BitmapManager.ActiveDocument.LayerStructure.Folders[0].Subfolders.Add(
-                        new GuidStructureItem("Subfolder 1", new ObservableCollection<Guid>()
-                    {
-                        Owner.BitmapManager.ActiveDocument.Layers[3].LayerGuid,
-                        Owner.BitmapManager.ActiveDocument.Layers[4].LayerGuid
-                    },  Array.Empty<GuidStructureItem>()
-                    , 4,  Owner.BitmapManager.ActiveDocument.LayerStructure.Folders[0]));
+                new GuidStructureItem("Subfolder 1", Owner.BitmapManager.ActiveDocument.Layers[3].LayerGuid,
+                Owner.BitmapManager.ActiveDocument.Layers[4].LayerGuid, Array.Empty<GuidStructureItem>(),
+                Owner.BitmapManager.ActiveDocument.LayerStructure.Folders[0]));
         }
 
         /// <summary>

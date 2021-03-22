@@ -55,6 +55,18 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private int topIndex;
+
+        public int TopIndex
+        {
+            get => topIndex;
+            set
+            {
+                topIndex = value;
+                RaisePropertyChanged(nameof(TopIndex));
+            }
+        }
+
         private void UpdateIsExpandedInDocument(bool value)
         {
             var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetFolderByGuid(FolderGuid);
@@ -64,16 +76,17 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, int index)
-            : this(layers, subfolders, name, Guid.NewGuid(), index) { }
+        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, int displayIndex, int topIndex)
+            : this(layers, subfolders, name, Guid.NewGuid(), displayIndex, topIndex) { }
 
-        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, Guid guid, int index)
+        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, Guid guid, int displayIndex, int topIndex)
         {
             Layers = new ObservableCollection<Layer>(layers);
             Subfolders = new ObservableCollection<LayerFolder>(subfolders);
             Name = name;
             FolderGuid = guid;
-            DisplayIndex = index;
+            DisplayIndex = displayIndex;
+            TopIndex = topIndex;
         }
     }
 }
