@@ -468,7 +468,7 @@ namespace PixiEditor.Models.DataHolders
 
             int newIndex = CalculateNewIndex(layerIndex, above, relativeIndex);
 
-            if (newIndex == relativeIndex) //FIX bad new index, it moves to wrong indexes
+            if (newIndex == relativeIndex)
             {
                 return;
             }

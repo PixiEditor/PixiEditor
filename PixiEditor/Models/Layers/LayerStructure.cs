@@ -46,22 +46,24 @@ namespace PixiEditor.Models.Layers
         public void MoveFolder(Guid folderGuid, GuidStructureItem? parentFolder, int newIndex)
         {
             var folder = GetFolderByGuid(folderGuid);
-            int oldIndex = folder.ActualIndex;
+            int oldFolderActualIndex = folder.ActualIndex;
+            int oldFolderDisplayIndex = folder.FolderDisplayIndex;
             bool reverseOrder = true;
 
-            int indexToApply = folder.ActualIndex;
+            int indexToApply;
+            int difference;
 
-            if (newIndex > oldIndex)
+            if (newIndex > oldFolderActualIndex)
             {
                 indexToApply = newIndex;
+                difference = indexToApply - oldFolderActualIndex;
             }
             else
             {
-                indexToApply = newIndex + folder.ActualIndex - 1;
                 reverseOrder = false;
+                difference = newIndex - oldFolderDisplayIndex;
+                indexToApply = oldFolderActualIndex + difference;
             }
-
-            int difference = indexToApply - oldIndex;
 
             MoveLayersInFolder(folder, difference, reverseOrder);
 
