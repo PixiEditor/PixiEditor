@@ -37,11 +37,16 @@
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
+    <None Remove="Images\JpgFile.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
     <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
+    <None Remove="Images\PixiFile.png" />
+    <None Remove="Images\PixiParserLogo.png" />
+    <None Remove="Images\PngFile.png" />
     <None Remove="Images\SelectImage.png" />
+    <None Remove="Images\UnknownFile.png" />
     <None Remove="Images\ZoomImage.png" />
     <None Include="..\icon.ico">
       <Pack>True</Pack>
@@ -76,6 +81,7 @@
     <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\Eye-off.png" />
     <Resource Include="Images\Eye.png" />
+    <Resource Include="Images\JpgFile.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\MoveImage.png" />
     <Resource Include="Images\MoveViewportImage.png" />
@@ -83,9 +89,13 @@
     <Resource Include="Images\ColorPickerImage.png" />
     <Resource Include="Images\PixiBotLogo.png" />
     <Resource Include="Images\PixiEditorLogo.png" />
+    <Resource Include="Images\PixiFile.png" />
+    <Resource Include="Images\PixiParserLogo.png" />
+    <Resource Include="Images\PngFile.png" />
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\transparentbg.png" />
+    <Resource Include="Images\UnknownFile.png" />
     <Resource Include="Images\ZoomImage.png" />
   </ItemGroup>
   <ItemGroup>

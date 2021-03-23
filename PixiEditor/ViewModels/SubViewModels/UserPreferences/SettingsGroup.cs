@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using PixiEditor.Helpers;
 using PixiEditor.Models.UserPreferences;
 
@@ -23,6 +24,12 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
         protected void RaiseAndUpdatePreference<T>(string name, T value)
         {
             RaisePropertyChanged(name);
+            IPreferences.Current.UpdatePreference(name, value);
+        }
+
+        protected void RaiseAndUpdatePreference<T>(ref T backingStore, T value, [CallerMemberName]string name = "")
+        {
+            SetProperty(ref backingStore, value, name);
             IPreferences.Current.UpdatePreference(name, value);
         }
     }
