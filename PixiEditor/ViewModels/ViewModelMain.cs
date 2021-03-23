@@ -165,6 +165,12 @@ namespace PixiEditor.ViewModels
 
             MiscSubViewModel = new MiscViewModel(this);
 
+            // Add F1 shortcut after MiscSubViewModel is constructed
+            ShortcutController.ShortcutGroups.Add(
+                    new ShortcutGroup(
+                        "Misc",
+                        new Shortcut(Key.F1, MiscSubViewModel.OpenShortcutWindowCommand, "Open the shortcut window", true)));
+
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
         }
 
