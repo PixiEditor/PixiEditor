@@ -52,7 +52,7 @@ namespace PixiEditor.Models.Layers
 
             int difference;
 
-            if (newIndex > folderTopIndex)
+            if (newIndex >= folderTopIndex)
             {
                 difference = newIndex - folderTopIndex;
             }
@@ -62,30 +62,85 @@ namespace PixiEditor.Models.Layers
                 difference = newIndex - folderBottomIndex;
             }
 
-            MoveLayersInFolder(new FolderData(folderTopIndex, folderBottomIndex), difference, reverseOrder);
-
-            if (folder.Parent == null)
+            if (difference == 0)
             {
-                Folders.Remove(folder);
+                return;
             }
 
-            if (parentFolder == null && !Folders.Contains(folder))
+            List<Guid> layersInOrder = GetLayersInOrder(new FolderData(folderTopIndex, folderBottomIndex));
+            bool parentBoundsReassigned = ReassignBounds(parentFolder, folder);
+
+            Guid oldLayerAtIndex = Owner.Layers[newIndex].LayerGuid;
+
+            MoveLayersInFolder(layersInOrder, difference, reverseOrder);
+
+            if (parentBoundsReassigned)
             {
-                Folders.Add(folder);
-            }
-            else if (parentFolder != null)
-            {
-                parentFolder.Subfolders.Add(folder);
+                parentFolder!.Subfolders.Remove(folder);
+                GuidStructureItem? newParent = GetFolderByLayer(oldLayerAtIndex);
+                if(newParent != null)
+                {
+                    newParent.Subfolders.Add(folder);
+                }
             }
         }
 
-        private void MoveLayersInFolder(FolderData folder, int moveBy, bool reverseOrder)
+        private bool ReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)
         {
-            List<Guid> layersInOrder = GetLayersInOrder(folder);
+            if (parentFolder != null)
+            {
+                if (folder.EndLayerGuid == parentFolder.EndLayerGuid && folder.StartLayerGuid != null)
+                {
+                    parentFolder.EndLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.StartLayerGuid, false);
+                    return true;
+                }
+                else if (folder.StartLayerGuid == parentFolder.StartLayerGuid && folder.EndLayerGuid != null)
+                {
+                    parentFolder.StartLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.EndLayerGuid, true);
+                    return true;
+                }
+            }
 
-            List<Guid> layerGuids = reverseOrder ? layersInOrder.Reverse<Guid>().ToList() : layersInOrder;
+            return false;
+        }
 
-            for (int i = 0; i < layersInOrder.Count; i++)
+        private Guid? FindBoundLayer(GuidStructureItem parentFolder, Guid oldLayerGuid, bool above)
+        {
+            int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.EndLayerGuid));
+            int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.StartLayerGuid));
+
+            return GetNextLayerGuid(
+                    oldLayerGuid,
+                    GetLayersInOrder(new FolderData(parentFolderTopIndex, parentFolderBottomIndex)),
+                    above);
+        }
+
+        private Guid? GetNextLayerGuid(Guid? layer, List<Guid> allLayers, bool above)
+        {
+            if (layer == null)
+            {
+                return null;
+            }
+
+            int indexOfLayer = allLayers.IndexOf(layer.Value);
+
+            int modifier = above ? 1 : -1;
+
+            int newIndex = indexOfLayer + modifier;
+
+            if (newIndex < 0 || newIndex >= allLayers.Count)
+            {
+                return null;
+            }
+
+            return allLayers[newIndex];
+        }
+
+        private void MoveLayersInFolder(List<Guid> layers, int moveBy, bool reverseOrder)
+        {
+            List<Guid> layerGuids = reverseOrder ? layers.Reverse<Guid>().ToList() : layers;
+
+            for (int i = 0; i < layers.Count; i++)
             {
                 Guid layerGuid = layerGuids[i];
                 var layer = Owner.Layers.First(x => x.LayerGuid == layerGuid);
@@ -111,18 +166,21 @@ namespace PixiEditor.Models.Layers
 #nullable disable
         private GuidStructureItem GetFolderByLayer(Guid layerGuid, IEnumerable<GuidStructureItem> folders)
         {
-            //foreach (var folder in folders)
-            //{
-            //    if (folder.LayerGuids.Contains(layerGuid))
-            //    {
-            //        return folder;
-            //    }
+            foreach (var folder in folders)
+            {
+                int topIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
+                int bottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
+                var layers = GetLayersInOrder(new FolderData(topIndex, bottomIndex));
+                if (layers.Contains(layerGuid))
+                {
+                    return folder;
+                }
 
-            //    if (folder.Subfolders.Count > 0)
-            //    {
-            //        return GetFolderByLayer(layerGuid, folder.Subfolders);
-            //    }
-            //}
+                if (folder.Subfolders.Count > 0)
+                {
+                    return GetFolderByLayer(layerGuid, folder.Subfolders);
+                }
+            }
 
             return null;
         }

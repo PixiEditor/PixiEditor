@@ -16,7 +16,20 @@ namespace PixiEditor.Models.Layers
 
         public ObservableCollection<LayerFolder> Subfolders { get; set; } = new ObservableCollection<LayerFolder>();
 
-        public IEnumerable Items => Subfolders?.Cast<object>().Concat(Layers);
+        public IEnumerable Items => BuildItems();
+
+        private IEnumerable BuildItems()
+        {
+            List<object> obj = new List<object>(Layers.Reverse());
+            foreach (var subfolder in Subfolders)
+            {
+                obj.Insert(subfolder.DisplayIndex - DisplayIndex, subfolder);
+            }
+
+            obj.Reverse();
+
+            return obj;
+        }
 
         private string name;
 

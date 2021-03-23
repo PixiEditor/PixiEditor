@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -27,12 +28,17 @@ namespace PixiEditor.Models.Layers
 
             RootDirectoryItems.AddRange(layers.Where(x => !layersInStructure.Contains(x)));
 
-            for (int i = 0; i < parsedFolders.Count; i++)
-            {
-                RootDirectoryItems.Move(i, parsedFolders[i].DisplayIndex);
-            }
+            MoveFoldersToDisplayIndex(RootDirectoryItems, parsedFolders);
 
             layersInStructure.Clear();
+        }
+
+        private void MoveFoldersToDisplayIndex(ObservableCollection<object> parentList, IList<LayerFolder> parsedFolders)
+        {
+            for (int i = 0; i < parsedFolders.Count; i++)
+            {
+                parentList.Move(i, parsedFolders[i].DisplayIndex);
+            }
         }
 
         private List<LayerFolder> ParseFolders(IEnumerable<GuidStructureItem> folders, ObservableCollection<Layer> layers)
@@ -69,7 +75,7 @@ namespace PixiEditor.Models.Layers
                 }
             }
 
-            int displayIndex = layersInStructure.Min(x => layers.IndexOf(x));
+            int displayIndex = layersInFolder.Length > 0 ? layersInStructure.Min(x => layers.IndexOf(x)) : 0;
 
             structureItemLayers.Reverse();
 
@@ -83,6 +89,10 @@ namespace PixiEditor.Models.Layers
 
         private Guid[] GetLayersInFolder(ObservableCollection<Layer> layers, GuidStructureItem structureItem)
         {
+            if (structureItem.EndLayerGuid == null || structureItem.StartLayerGuid == null)
+            {
+                return Array.Empty<Guid>();
+            }
             int startIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.StartLayerGuid));
             int endIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.EndLayerGuid));
 
