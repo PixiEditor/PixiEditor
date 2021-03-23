@@ -73,16 +73,6 @@ namespace PixiEditor.Models.Layers
             Guid oldLayerAtIndex = Owner.Layers[newIndex].LayerGuid;
 
             MoveLayersInFolder(layersInOrder, difference, reverseOrder);
-
-            if (parentBoundsReassigned)
-            {
-                parentFolder!.Subfolders.Remove(folder);
-                GuidStructureItem? newParent = GetFolderByLayer(oldLayerAtIndex);
-                if(newParent != null)
-                {
-                    newParent.Subfolders.Add(folder);
-                }
-            }
         }
 
         private bool ReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)

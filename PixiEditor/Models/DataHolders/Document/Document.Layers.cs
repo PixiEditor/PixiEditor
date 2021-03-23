@@ -461,9 +461,11 @@ namespace PixiEditor.Models.DataHolders
             bool above = (bool)parameter[2];
 
             GuidStructureItem folder = LayerStructure.GetFolderByGuid(folderGuid);
-            GuidStructureItem parentFolder = LayerStructure.GetFolderByLayer(referenceLayerGuid);
+            GuidStructureItem referenceLayerFolder = LayerStructure.GetFolderByLayer(referenceLayerGuid);
 
-            int layerIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayerGuid));
+            Layer referenceLayer = Layers.First(x => x.LayerGuid == referenceLayerGuid);
+
+            int layerIndex = Layers.IndexOf(referenceLayer);
             int folderTopIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
             int oldIndex = folderTopIndex;
 
@@ -475,7 +477,20 @@ namespace PixiEditor.Models.DataHolders
 
             int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
-            LayerStructure.MoveFolder(folderGuid, parentFolder, newIndex);
+            LayerStructure.MoveFolder(folderGuid, folder.Parent, newIndex);
+
+            folder.Parent?.Subfolders.Remove(folder);
+            if (referenceLayerFolder == null)
+            {
+                if (!LayerStructure.Folders.Contains(folder))
+                {
+                    LayerStructure.Folders.Add(folder);
+                }
+            }
+            else
+            {
+                referenceLayerFolder.Subfolders.Add(folder);
+            }
         }
 
         private int CalculateNewIndex(int layerIndex, bool above, int oldIndex)
