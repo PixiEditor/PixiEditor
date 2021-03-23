@@ -110,7 +110,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             Owner.ResetProgramStateValues();
 
-
             Owner.BitmapManager.ActiveDocument.AddNewLayer("Test");
             Owner.BitmapManager.ActiveDocument.AddNewLayer("Test1");
             Owner.BitmapManager.ActiveDocument.AddNewLayer("Test1 sub1");

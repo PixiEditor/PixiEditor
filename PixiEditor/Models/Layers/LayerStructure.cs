@@ -47,64 +47,66 @@ namespace PixiEditor.Models.Layers
         {
             var folder = GetFolderByGuid(folderGuid);
             bool reverseOrder = true;
+            int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
+            int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
 
             int difference;
 
-            //if (newIndex > oldFolderActualIndex)
-            //{
-            //    difference = indexToApply - oldFolderActualIndex;
-            //}
-            //else
-            //{
-            //    reverseOrder = false;
-            //    difference = newIndex - oldFolderDisplayIndex;
-            //}
+            if (newIndex > folderTopIndex)
+            {
+                difference = newIndex - folderTopIndex;
+            }
+            else
+            {
+                reverseOrder = false;
+                difference = newIndex - folderBottomIndex;
+            }
 
-            //MoveLayersInFolder(folder, difference, reverseOrder);
+            MoveLayersInFolder(new FolderData(folderTopIndex, folderBottomIndex), difference, reverseOrder);
 
-            //if (folder.Parent == null)
-            //{
-            //    Folders.Remove(folder);
-            //}
+            if (folder.Parent == null)
+            {
+                Folders.Remove(folder);
+            }
 
-            //if (parentFolder == null && !Folders.Contains(folder))
-            //{
-            //    Folders.Add(folder);
-            //}
-            //else if (parentFolder != null)
-            //{
-            //    parentFolder.Subfolders.Add(folder);
-            //}
+            if (parentFolder == null && !Folders.Contains(folder))
+            {
+                Folders.Add(folder);
+            }
+            else if (parentFolder != null)
+            {
+                parentFolder.Subfolders.Add(folder);
+            }
         }
 
-        private void MoveLayersInFolder(GuidStructureItem folder, int moveBy, bool reverseOrder)
+        private void MoveLayersInFolder(FolderData folder, int moveBy, bool reverseOrder)
         {
-            //List<Guid> layersInOrder = GetLayersInOrder(folder);
+            List<Guid> layersInOrder = GetLayersInOrder(folder);
 
-            //List<Guid> layerGuids = reverseOrder ? layersInOrder.Reverse<Guid>().ToList() : layersInOrder;
+            List<Guid> layerGuids = reverseOrder ? layersInOrder.Reverse<Guid>().ToList() : layersInOrder;
 
-            //for (int i = 0; i < layersInOrder.Count; i++)
-            //{
-            //    Guid layerGuid = layerGuids[i];
-            //    var layer = Owner.Layers.First(x => x.LayerGuid == layerGuid);
-            //    int layerIndex = Owner.Layers.IndexOf(layer);
-            //    Owner.Layers.Move(layerIndex, layerIndex + moveBy);
-            //}
+            for (int i = 0; i < layersInOrder.Count; i++)
+            {
+                Guid layerGuid = layerGuids[i];
+                var layer = Owner.Layers.First(x => x.LayerGuid == layerGuid);
+                int layerIndex = Owner.Layers.IndexOf(layer);
+                Owner.Layers.Move(layerIndex, layerIndex + moveBy);
+            }
         }
 
-        //private List<Guid> GetLayersInOrder(GuidStructureItem folder)
-        //{
-        //    List<Guid> layerGuids = new ();
-        //    int minIndex = Owner.Layers.folder.FolderDisplayIndex;
-        //    int maxIndex = folder.ActualIndex;
+        private List<Guid> GetLayersInOrder(FolderData folder)
+        {
+            List<Guid> layerGuids = new ();
+            int minIndex = folder.BottomIndex;
+            int maxIndex = folder.TopIndex;
 
-        //    for (int i = minIndex; i <= maxIndex; i++)
-        //    {
-        //        layerGuids.Add(Owner.Layers[i].LayerGuid);
-        //    }
+            for (int i = minIndex; i <= maxIndex; i++)
+            {
+                layerGuids.Add(Owner.Layers[i].LayerGuid);
+            }
 
-        //    return layerGuids;
-        //}
+            return layerGuids;
+        }
 
 #nullable disable
         private GuidStructureItem GetFolderByLayer(Guid layerGuid, IEnumerable<GuidStructureItem> folders)
