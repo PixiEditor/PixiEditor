@@ -480,6 +480,11 @@ namespace PixiEditor.Models.DataHolders
             LayerStructure.MoveFolder(folderGuid, folder.Parent, newIndex);
 
             folder.Parent?.Subfolders.Remove(folder);
+            if (LayerStructure.Folders.Contains(folder))
+            {
+                LayerStructure.Folders.Remove(folder);
+            }
+
             if (referenceLayerFolder == null)
             {
                 if (!LayerStructure.Folders.Contains(folder))

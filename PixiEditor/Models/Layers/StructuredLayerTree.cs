@@ -10,7 +10,7 @@ namespace PixiEditor.Models.Layers
 {
     public class StructuredLayerTree : NotifyableObject
     {
-        private readonly List<Layer> layersInStructure = new ();
+        private List<Guid> layersInStructure = new ();
 
         public ObservableCollection<object> RootDirectoryItems { get; } = new ObservableCollection<object>();
 
@@ -26,51 +26,46 @@ namespace PixiEditor.Models.Layers
 
             parsedFolders = parsedFolders.OrderBy(x => x.DisplayIndex).ToList();
 
-            RootDirectoryItems.AddRange(parsedFolders);
-
-            RootDirectoryItems.AddRange(layers.Where(x => !layersInStructure.Contains(x)));
-
-            UpdateFoldersDisplayIndexes(parsedFolders);
+            PlaceItems(parsedFolders, layers);
 
             layersInStructure.Clear();
         }
 
-        private void UpdateFoldersDisplayIndexes(IList<LayerFolder> parsedFolders)
+        private void PlaceItems(List<LayerFolder> parsedFolders, ObservableCollection<Layer> layers)
         {
-            for (int i = parsedFolders.Count - 1; i > 0; i--)
+            LayerFolder currentFolder = null;
+            for (int i = 0; i < layers.Count; i++)
             {
-                LayerFolder layerFolder = parsedFolders[i];
-                int oldDisplayIndex = layerFolder.DisplayIndex;
-                int collapsedLayers = ((List<object>)parsedFolders[i - 1].Items).Count;
-                int newIndex = oldDisplayIndex - collapsedLayers + 1;
-                int difference = newIndex - oldDisplayIndex;
-                if (layerFolder.Subfolders.Count > 0)
+                if (currentFolder != null && layers[i].LayerGuid == currentFolder.StructureData.EndLayerGuid)
                 {
-                    UpdateDisplayIndexes(layerFolder.Subfolders, difference);
+                    currentFolder = null;
+                    continue;
                 }
 
-                layerFolder.DisplayIndex = newIndex;
-                layerFolder.TopIndex += newIndex - oldDisplayIndex;
-                RootDirectoryItems.Move(RootDirectoryItems.IndexOf(layerFolder), layerFolder.DisplayIndex);
-            }
+                if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid))
+                {
+                    currentFolder = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
+                    currentFolder.DisplayIndex = RootDirectoryItems.Count;
+                    currentFolder.TopIndex = CalculateTopIndex(currentFolder.DisplayIndex, currentFolder.StructureData, layers);
+                }
 
-            if (parsedFolders.Count > 0)
-            {
-                RootDirectoryItems.Move(0, parsedFolders[0].DisplayIndex);
+                if (currentFolder == null && !layersInStructure.Contains(layers[i].LayerGuid))
+                {
+                    RootDirectoryItems.Add(layers[i]);
+                }
+                else if (!RootDirectoryItems.Contains(currentFolder))
+                {
+                    RootDirectoryItems.Add(currentFolder);
+                }
             }
         }
 
-        private void UpdateDisplayIndexes(ObservableCollection<LayerFolder> subfolders, int difference)
+        private int CalculateTopIndex(int displayIndex, GuidStructureItem structureData, ObservableCollection<Layer> layers)
         {
-            for (int i = 0; i < subfolders.Count; i++)
-            {
-                if (subfolders[i].Subfolders.Count > 0)
-                {
-                    UpdateDisplayIndexes(subfolders[i].Subfolders, difference);
-                }
+            int originalTopIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureData.EndLayerGuid));
+            int originalBottomIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureData.StartLayerGuid));
 
-                subfolders[i].DisplayIndex += difference;
-            }
+            return displayIndex + (originalTopIndex - originalBottomIndex);
         }
 
         private List<LayerFolder> ParseFolders(IEnumerable<GuidStructureItem> folders, ObservableCollection<Layer> layers)
@@ -100,19 +95,19 @@ namespace PixiEditor.Models.Layers
             foreach (var guid in layersInFolder)
             {
                 var layer = layers.First(x => x.LayerGuid == guid);
-                if (!layersInStructure.Contains(layer))
+                if (!layersInStructure.Contains(layer.LayerGuid))
                 {
-                    layersInStructure.Add(layer);
+                    layersInStructure.Add(layer.LayerGuid);
                     structureItemLayers.Add(layer);
                 }
             }
 
-            int displayIndex = layersInFolder.Length > 0 ? layersInStructure.Min(x => layers.IndexOf(x)) : 0;
+            int displayIndex = layersInFolder.Length > 0 ? layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.StartLayerGuid)) : 0;
 
             structureItemLayers.Reverse();
 
             LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name,
-                structureItem.FolderGuid, displayIndex, displayIndex + structureItemLayers.Count - 1)
+                structureItem.FolderGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
             {
                 IsExpanded = structureItem.IsExpanded
             };

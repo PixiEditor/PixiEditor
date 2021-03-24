@@ -12,6 +12,8 @@ namespace PixiEditor.Models.Layers
     {
         public Guid FolderGuid { get; init; }
 
+        public GuidStructureItem StructureData { get; init; }
+
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
         public ObservableCollection<LayerFolder> Subfolders { get; set; } = new ObservableCollection<LayerFolder>();
@@ -89,10 +91,14 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, int displayIndex, int topIndex)
-            : this(layers, subfolders, name, Guid.NewGuid(), displayIndex, topIndex) { }
+        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, 
+            int displayIndex, int topIndex, GuidStructureItem structureData)
+            : this(layers, subfolders, name, Guid.NewGuid(), displayIndex, topIndex, structureData)
+        {
+        }
 
-        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, Guid guid, int displayIndex, int topIndex)
+        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name,
+            Guid guid, int displayIndex, int topIndex, GuidStructureItem structureData)
         {
             Layers = new ObservableCollection<Layer>(layers);
             Subfolders = new ObservableCollection<LayerFolder>(subfolders);
@@ -100,6 +106,7 @@ namespace PixiEditor.Models.Layers
             FolderGuid = guid;
             DisplayIndex = displayIndex;
             TopIndex = topIndex;
+            StructureData = structureData;
         }
     }
 }
