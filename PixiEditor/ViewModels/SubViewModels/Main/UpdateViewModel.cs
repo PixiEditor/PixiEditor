@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Processes;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.UpdateModule;
@@ -88,7 +89,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
-                await CheckForUpdate();
+                try
+                {
+                    await CheckForUpdate();
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    NoticeDialog.Show("Could not check if there's an update available");
+                }
             }
         }
 

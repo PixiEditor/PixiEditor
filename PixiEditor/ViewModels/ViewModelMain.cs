@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -59,9 +60,7 @@ namespace PixiEditor.ViewModels
 
         public DiscordViewModel DiscordViewModel { get; set; }
 
-#if DEBUG
         public DebugViewModel DebugSubViewModel { get; set; }
-#endif
 
         public BitmapManager BitmapManager { get; set; }
 
@@ -101,7 +100,6 @@ namespace PixiEditor.ViewModels
             CloseWindowCommand = new RelayCommand(CloseWindow);
 
             FileSubViewModel = new FileViewModel(this);
-            UpdateSubViewModel = new UpdateViewModel(this);
             ToolsSubViewModel = new ToolsViewModel(this);
             IoSubViewModel = new IoViewModel(this);
             LayersSubViewModel = new LayersViewModel(this);
@@ -111,9 +109,9 @@ namespace PixiEditor.ViewModels
             ColorsSubViewModel = new ColorsViewModel(this);
             DocumentSubViewModel = new DocumentViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
-#if DEBUG
-            DebugSubViewModel = new DebugViewModel(this);
-#endif
+
+            AddDebugOnlyViewModels();
+            AddReleaseOnlyViewModels();
 
             ShortcutController = new ShortcutController(
                     new ShortcutGroup(
@@ -190,6 +188,18 @@ namespace PixiEditor.ViewModels
         public bool DocumentIsNotNull(object property)
         {
             return BitmapManager.ActiveDocument != null;
+        }
+
+        [Conditional("DEBUG")]
+        private void AddDebugOnlyViewModels()
+        {
+            DebugSubViewModel = new DebugViewModel(this);
+        }
+
+        [Conditional("RELEASE")]
+        private void AddReleaseOnlyViewModels()
+        {
+            UpdateSubViewModel = new UpdateViewModel(this);
         }
 
         private Shortcut CreateToolShortcut<T>(Key key, ModifierKeys modifier = ModifierKeys.None)
