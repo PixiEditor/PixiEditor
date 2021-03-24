@@ -122,11 +122,22 @@ namespace PixiEditor.Models.UserPreferences
             try
             {
                 return Preferences.ContainsKey(name)
+<<<<<<< HEAD
                         ? (T)Convert.ChangeType(Preferences[name], typeof(T))
                         : fallbackValue;
             }
             catch (InvalidCastException)
             {
+=======
+                    ? (T)Preferences[name]
+                    : fallbackValue;
+            }
+            catch (InvalidCastException)
+            {
+                Preferences.Remove(name);
+                Save();
+
+>>>>>>> ab87ace (Fixed crashes when user edits preference file)
                 return fallbackValue;
             }
         }
@@ -146,11 +157,21 @@ namespace PixiEditor.Models.UserPreferences
             try
             {
                 return LocalPreferences.ContainsKey(name)
+<<<<<<< HEAD
                     ? (T)Convert.ChangeType(LocalPreferences[name], typeof(T))
+=======
+                    ? (T)LocalPreferences[name]
+>>>>>>> ab87ace (Fixed crashes when user edits preference file)
                     : fallbackValue;
             }
             catch (InvalidCastException)
             {
+<<<<<<< HEAD
+=======
+                LocalPreferences.Remove(name);
+                Save();
+
+>>>>>>> ab87ace (Fixed crashes when user edits preference file)
                 return fallbackValue;
             }
         }
@@ -181,7 +202,13 @@ namespace PixiEditor.Models.UserPreferences
             else
             {
                 string json = File.ReadAllText(path);
-                return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+                // dictionary is null if the user deletes the content of the preference file.
+                if (dictionary != null)
+                {
+                    return dictionary;
+                }
             }
 
             return new Dictionary<string, object>();
