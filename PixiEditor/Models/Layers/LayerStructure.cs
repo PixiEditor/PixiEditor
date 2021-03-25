@@ -67,28 +67,33 @@ namespace PixiEditor.Models.Layers
                 return;
             }
 
-            List<Guid> layersInOrder = GetLayersInOrder(new FolderData(folderTopIndex, folderBottomIndex));
             bool parentBoundsReassigned = ReassignBounds(parentFolder, folder);
+
+            List<Guid> layersInOrder = GetLayersInOrder(new FolderData(folderTopIndex, folderBottomIndex));
 
             Guid oldLayerAtIndex = Owner.Layers[newIndex].LayerGuid;
 
             MoveLayersInFolder(layersInOrder, difference, reverseOrder);
         }
 
-        private bool ReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)
+        public bool ReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)
         {
             if (parentFolder != null)
             {
+                bool reassigned = false;
                 if (folder.EndLayerGuid == parentFolder.EndLayerGuid && folder.StartLayerGuid != null)
                 {
                     parentFolder.EndLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.StartLayerGuid, false);
-                    return true;
+                    reassigned = true;
                 }
-                else if (folder.StartLayerGuid == parentFolder.StartLayerGuid && folder.EndLayerGuid != null)
+
+                if (folder.StartLayerGuid == parentFolder.StartLayerGuid && folder.EndLayerGuid != null)
                 {
                     parentFolder.StartLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.EndLayerGuid, true);
-                    return true;
+                    reassigned = true;
                 }
+
+                return reassigned;
             }
 
             return false;

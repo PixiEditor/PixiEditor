@@ -10,7 +10,7 @@ namespace PixiEditor.Models.Layers
 {
     public class StructuredLayerTree : NotifyableObject
     {
-        private List<Guid> layersInStructure = new ();
+        private List<Guid> layersInStructure = new();
 
         public ObservableCollection<object> RootDirectoryItems { get; } = new ObservableCollection<object>();
 
@@ -34,19 +34,41 @@ namespace PixiEditor.Models.Layers
         private void PlaceItems(List<LayerFolder> parsedFolders, ObservableCollection<Layer> layers)
         {
             LayerFolder currentFolder = null;
+            List<LayerFolder> foldersAtIndex = new ();
+            Stack<LayerFolder> unfinishedFolders = new ();
             for (int i = 0; i < layers.Count; i++)
             {
                 if (currentFolder != null && layers[i].LayerGuid == currentFolder.StructureData.EndLayerGuid)
                 {
-                    currentFolder = null;
+                    if (unfinishedFolders.Count > 0)
+                    {
+                        currentFolder = unfinishedFolders.Pop();
+                    }
+                    else
+                    {
+                        currentFolder = null;
+                    }
+
                     continue;
                 }
 
                 if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid))
                 {
-                    currentFolder = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
-                    currentFolder.DisplayIndex = RootDirectoryItems.Count;
-                    currentFolder.TopIndex = CalculateTopIndex(currentFolder.DisplayIndex, currentFolder.StructureData, layers);
+                    foldersAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid).ToList();
+                    for (int j = 0; j < foldersAtIndex.Count; j++)
+                    {
+                        LayerFolder folder = foldersAtIndex[j];
+
+                        if (currentFolder != null)
+                        {
+                            unfinishedFolders.Push(currentFolder);
+                        }
+
+                        foldersAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
+                        foldersAtIndex[j].DisplayIndex = RootDirectoryItems.Count;
+                        foldersAtIndex[j].TopIndex = CalculateTopIndex(folder.DisplayIndex, folder.StructureData, layers);
+                        currentFolder = foldersAtIndex[j];
+                    }
                 }
 
                 if (currentFolder == null && !layersInStructure.Contains(layers[i].LayerGuid))
@@ -55,7 +77,7 @@ namespace PixiEditor.Models.Layers
                 }
                 else if (!RootDirectoryItems.Contains(currentFolder))
                 {
-                    RootDirectoryItems.Add(currentFolder);
+                    RootDirectoryItems.AddRange(foldersAtIndex.Where(x => !RootDirectoryItems.Contains(x)));
                 }
             }
         }
@@ -70,7 +92,7 @@ namespace PixiEditor.Models.Layers
 
         private List<LayerFolder> ParseFolders(IEnumerable<GuidStructureItem> folders, ObservableCollection<Layer> layers)
         {
-            List<LayerFolder> parsedFolders = new ();
+            List<LayerFolder> parsedFolders = new();
             foreach (var structureItem in folders)
             {
                 parsedFolders.Add(ParseFolder(structureItem, layers));
@@ -81,7 +103,7 @@ namespace PixiEditor.Models.Layers
 
         private LayerFolder ParseFolder(GuidStructureItem structureItem, ObservableCollection<Layer> layers)
         {
-            List<Layer> structureItemLayers = new ();
+            List<Layer> structureItemLayers = new();
 
             Guid[] layersInFolder = GetLayersInFolder(layers, structureItem);
 
@@ -106,7 +128,7 @@ namespace PixiEditor.Models.Layers
 
             structureItemLayers.Reverse();
 
-            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name,
+            LayerFolder folder = new(structureItemLayers, subFolders, structureItem.Name,
                 structureItem.FolderGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
             {
                 IsExpanded = structureItem.IsExpanded

@@ -490,12 +490,16 @@ namespace PixiEditor.Models.DataHolders
                 if (!LayerStructure.Folders.Contains(folder))
                 {
                     LayerStructure.Folders.Add(folder);
+                    folder.Parent = null;
                 }
             }
             else
             {
                 referenceLayerFolder.Subfolders.Add(folder);
+                folder.Parent = referenceLayerFolder;
             }
+
+            LayerStructure.ReassignBounds(folder.Parent, folder);
         }
 
         private int CalculateNewIndex(int layerIndex, bool above, int oldIndex)
