@@ -57,32 +57,108 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public async Task<bool> CheckForUpdate()
         {
-            return await Task.Run(async () =>
+            bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
+            bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
+            bool updateFileDoesNotExists = !File.Exists(
+                Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+            bool updateExeDoesNotExists = !File.Exists(
+                Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
+            if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
             {
-                bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
-                bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
-                bool updateFileDoesNotExists = !File.Exists(
-                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
-                bool updateExeDoesNotExists = !File.Exists(
-                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
-                if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
+                VersionText = "Downloading update...";
+                if (updateCompatible)
                 {
-                    VersionText = "Downloading update...";
-                    if (updateCompatible)
-                    {
-                        await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
-                    }
-                    else
-                    {
-                        await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
-                    }
-
-                    UpdateReadyToInstall = true;
-                    return true;
+                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                }
+                else
+                {
+                    await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
                 }
 
-                return false;
-            });
+                UpdateReadyToInstall = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static void AskToInstall()
+        {
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            UpdateDownloader.CreateTempDirectory();
+            bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
+            string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
+            bool updateExeExists = updateExeFiles.Length > 0;
+
+            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+
+            if (updateZipExists || updateExeExists)
+            {
+                ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
+                var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
+                if (result == Models.Enums.ConfirmationType.Yes)
+                {
+                    if (updateZipExists && File.Exists(updaterPath))
+                    {
+                        InstallHeadless(updaterPath);
+                    }
+                    else if (updateExeExists)
+                    {
+                        OpenExeInstaller(updateExeFiles[0]);
+                    }
+                }
+            }
+        }
+
+        private static void InstallHeadless(string updaterPath)
+        {
+            try
+            {
+                ProcessHelper.RunAsAdmin(updaterPath);
+                Application.Current.Shutdown();
+            }
+            catch (Win32Exception)
+            {
+                MessageBox.Show(
+                    "Couldn't update without administrator rights.",
+                    "Insufficient permissions",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private static void OpenExeInstaller(string updateExeFile)
+        {
+            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
+                    updateExeFile.Split('-')[1].Split(".exe")[0];
+
+            if (!alreadyUpdated)
+            {
+                RestartToUpdate(updateExeFile);
+            }
+            else
+            {
+                File.Delete(updateExeFile);
+            }
+        }
+
+        private static void RestartToUpdate(string updateExeFile)
+        {
+            Process.Start(updateExeFile);
+            Application.Current.Shutdown();
+        }
+
+        private static void RestartApplication(object parameter)
+        {
+            try
+            {
+                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+                Application.Current.Shutdown();
+            }
+            catch (Win32Exception)
+            {
+                NoticeDialog.Show("Couldn't update without administrator rights.", "Insufficient permissions");
+            }
         }
 
         private async void Owner_OnStartupEvent(object sender, EventArgs e)
@@ -97,23 +173,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 {
                     NoticeDialog.Show("Could not check if there's an update available");
                 }
-            }
-        }
 
-        private void RestartApplication(object parameter)
-        {
-            try
-            {
-                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
-                Application.Current.Shutdown();
-            }
-            catch (Win32Exception)
-            {
-                MessageBox.Show(
-                    "Couldn't update without administrator rights.",
-                    "Insufficient permissions",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                AskToInstall();
             }
         }
 

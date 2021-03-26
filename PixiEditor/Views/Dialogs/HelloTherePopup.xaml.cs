@@ -42,6 +42,8 @@ namespace PixiEditor.Views.Dialogs
 
         public RelayCommand OpenHyperlinkCommand { get => FileViewModel.Owner.MiscSubViewModel.OpenHyperlinkCommand; }
 
+        private bool isClosing;
+
         public HelloTherePopup(FileViewModel fileViewModel)
         {
             DataContext = this;
@@ -53,6 +55,8 @@ namespace PixiEditor.Views.Dialogs
 
             RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
             RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
+
+            Closing += (_, _) => { isClosing = true; };
 
             InitializeComponent();
 
@@ -81,7 +85,10 @@ namespace PixiEditor.Views.Dialogs
         [Conditional("RELEASE")]
         private void CloseIfRelease()
         {
-            Close();
+            if (!isClosing)
+            {
+                Close();
+            }
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

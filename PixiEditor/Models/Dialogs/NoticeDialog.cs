@@ -6,9 +6,23 @@ namespace PixiEditor.Models.Dialogs
     {
         public static void Show(string message)
         {
-            NoticePopup popup = new NoticePopup
+            NoticePopup popup = new ()
             {
-                Body = message
+                Body = message,
+                Title = string.Empty,
+                Topmost = true
+            };
+
+            popup.ShowDialog();
+        }
+
+        public static void Show(string message, string title)
+        {
+            NoticePopup popup = new ()
+            {
+                Body = message,
+                Title = title,
+                Topmost = true
             };
 
             popup.ShowDialog();
