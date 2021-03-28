@@ -50,13 +50,9 @@ namespace PixiEditor.Models.Layers
             int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
             int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
 
-            int difference;
+            int difference = newIndex - folderTopIndex;
 
-            if (newIndex >= folderTopIndex)
-            {
-                difference = newIndex - folderTopIndex;
-            }
-            else
+            if (newIndex < folderTopIndex)
             {
                 reverseOrder = false;
                 difference = newIndex - folderBottomIndex;
@@ -67,45 +63,57 @@ namespace PixiEditor.Models.Layers
                 return;
             }
 
-            bool parentBoundsReassigned = ReassignBounds(parentFolder, folder);
+            PreMoveReassignBounds(parentFolder, folder);
 
             List<Guid> layersInOrder = GetLayersInOrder(new FolderData(folderTopIndex, folderBottomIndex));
-
-            Guid oldLayerAtIndex = Owner.Layers[newIndex].LayerGuid;
 
             MoveLayersInFolder(layersInOrder, difference, reverseOrder);
         }
 
-        public bool ReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)
+        public void PostMoveReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)
         {
             if (parentFolder != null)
             {
-                bool reassigned = false;
+                if (folder.StartLayerGuid != null && folder.EndLayerGuid != null)
+                {
+                    Guid? topBoundLayer = FindBoundLayer(parentFolder, (Guid)folder.StartLayerGuid, false);
+                    Guid? bottomBoundLayer = FindBoundLayer(parentFolder, (Guid)folder.EndLayerGuid, true);
+
+                    if (topBoundLayer == parentFolder.EndLayerGuid)
+                    {
+                        parentFolder.EndLayerGuid = folder.EndLayerGuid;
+                    }
+                    else if (bottomBoundLayer == parentFolder.StartLayerGuid)
+                    {
+                        parentFolder.StartLayerGuid = folder.StartLayerGuid;
+                    }
+                }
+            }
+        }
+
+        private void PreMoveReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)
+        {
+            if (parentFolder != null)
+            {
                 if (folder.EndLayerGuid == parentFolder.EndLayerGuid && folder.StartLayerGuid != null)
                 {
                     parentFolder.EndLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.StartLayerGuid, false);
-                    reassigned = true;
                 }
 
                 if (folder.StartLayerGuid == parentFolder.StartLayerGuid && folder.EndLayerGuid != null)
                 {
                     parentFolder.StartLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.EndLayerGuid, true);
-                    reassigned = true;
                 }
-
-                return reassigned;
             }
-
-            return false;
         }
 
-        private Guid? FindBoundLayer(GuidStructureItem parentFolder, Guid oldLayerGuid, bool above)
+        private Guid? FindBoundLayer(GuidStructureItem parentFolder, Guid layerGuid, bool above)
         {
             int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.EndLayerGuid));
             int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.StartLayerGuid));
 
             return GetNextLayerGuid(
-                    oldLayerGuid,
+                    layerGuid,
                     GetLayersInOrder(new FolderData(parentFolderTopIndex, parentFolderBottomIndex)),
                     above);
         }

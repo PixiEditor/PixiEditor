@@ -479,6 +479,13 @@ namespace PixiEditor.Models.DataHolders
 
             LayerStructure.MoveFolder(folderGuid, folder.Parent, newIndex);
 
+            ReassignParent(folder, referenceLayerFolder);
+
+            LayerStructure.PostMoveReassignBounds(folder.Parent, folder);
+        }
+
+        private void ReassignParent(GuidStructureItem folder, GuidStructureItem referenceLayerFolder)
+        {
             folder.Parent?.Subfolders.Remove(folder);
             if (LayerStructure.Folders.Contains(folder))
             {
@@ -498,8 +505,6 @@ namespace PixiEditor.Models.DataHolders
                 referenceLayerFolder.Subfolders.Add(folder);
                 folder.Parent = referenceLayerFolder;
             }
-
-            LayerStructure.ReassignBounds(folder.Parent, folder);
         }
 
         private int CalculateNewIndex(int layerIndex, bool above, int oldIndex)
