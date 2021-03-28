@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Layers
 {
+    [DebuggerDisplay("{Name} - {FolderGuid}")]
     public class GuidStructureItem : NotifyableObject
     {
         public Guid FolderGuid { get; init; }

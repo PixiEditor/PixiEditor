@@ -76,14 +76,24 @@ namespace PixiEditor.Models.Layers
             {
                 if (folder.StartLayerGuid != null && folder.EndLayerGuid != null)
                 {
-                    Guid? topBoundLayer = FindBoundLayer(parentFolder, (Guid)folder.StartLayerGuid, false);
-                    Guid? bottomBoundLayer = FindBoundLayer(parentFolder, (Guid)folder.EndLayerGuid, true);
+                    int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
+                    int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
+
+                    int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.EndLayerGuid));
+                    int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.StartLayerGuid));
+
+                    int finalTopIndex = Math.Max(folderTopIndex, parentFolderTopIndex);
+                    int finalBottomIndex = Math.Min(folderBottomIndex, parentFolderBottomIndex);
+
+                    Guid? topBoundLayer = FindBoundLayer((Guid)folder.StartLayerGuid, finalTopIndex, finalBottomIndex, false);
+                    Guid? bottomBoundLayer = FindBoundLayer((Guid)folder.EndLayerGuid, finalTopIndex, finalBottomIndex, true);
 
                     if (topBoundLayer == parentFolder.EndLayerGuid)
                     {
                         parentFolder.EndLayerGuid = folder.EndLayerGuid;
                     }
-                    else if (bottomBoundLayer == parentFolder.StartLayerGuid)
+
+                    if (bottomBoundLayer == parentFolder.StartLayerGuid)
                     {
                         parentFolder.StartLayerGuid = folder.StartLayerGuid;
                     }
@@ -107,15 +117,20 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private Guid? FindBoundLayer(Guid layerGuid, int parentFolderTopIndex, int parentFolderBottomIndex, bool above)
+        {
+            return GetNextLayerGuid(
+                   layerGuid,
+                   GetLayersInOrder(new FolderData(parentFolderTopIndex, parentFolderBottomIndex)),
+                   above);
+        }
+
         private Guid? FindBoundLayer(GuidStructureItem parentFolder, Guid layerGuid, bool above)
         {
             int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.EndLayerGuid));
             int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.StartLayerGuid));
 
-            return GetNextLayerGuid(
-                    layerGuid,
-                    GetLayersInOrder(new FolderData(parentFolderTopIndex, parentFolderBottomIndex)),
-                    above);
+            return FindBoundLayer(layerGuid, parentFolderTopIndex, parentFolderBottomIndex, above);
         }
 
         private Guid? GetNextLayerGuid(Guid? layer, List<Guid> allLayers, bool above)
