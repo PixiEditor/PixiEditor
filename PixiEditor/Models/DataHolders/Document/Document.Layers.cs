@@ -361,8 +361,6 @@ namespace PixiEditor.Models.DataHolders
             Guid? folder = (Guid?)props[2];
 
             Layers.Move(Layers.IndexOf(Layers.First(x => x.LayerGuid == layerGuid)), indexTo);
-
-            LayerStructure.MoveLayerToFolder(layerGuid, folder);
         }
 
         private void InjectRemoveActiveLayersUndo(object[] guidArgs, StorageBasedChange change)
@@ -529,14 +527,22 @@ namespace PixiEditor.Models.DataHolders
             int oldIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == layer));
             int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
+            var startFolder = LayerStructure.GetFolderByLayer(layer);
+
+            LayerStructure.PreMoveReassignBounds(startFolder, layer);
+
             Layers.Move(oldIndex, newIndex);
+
+            var newFolder = LayerStructure.GetFolderByLayer(referenceLayer);
+
+            LayerStructure.PostMoveReassignBounds(newFolder, layer);
+
             if (Layers.IndexOf(ActiveLayer) == oldIndex)
             {
                 SetMainActiveLayer(newIndex);
             }
 
-            //LayerStructure.MoveLayerToFolder(layerGuid, folderGuid);
-            //RaisePropertyChanged(nameof(LayerStructure));
+            RaisePropertyChanged(nameof(LayerStructure));
         }
 
         private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
