@@ -168,10 +168,10 @@ namespace PixiEditor.Views
                 data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layer, LayerGuid, above);
             }
 
-            if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerFolder"))
+            if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerGroupControl"))
             {
-                var data = (LayerFolder)e.Data.GetData("PixiEditor.Views.UserControls.LayerFolder");
-                Guid folder = data.FolderGuid;
+                var data = (LayerGroupControl)e.Data.GetData("PixiEditor.Views.UserControls.LayerGroupControl");
+                Guid folder = data.GroupGuid;
 
                 data.LayersViewModel.Owner.BitmapManager.ActiveDocument.MoveFolderInStructure(folder, LayerGuid, above);
             }

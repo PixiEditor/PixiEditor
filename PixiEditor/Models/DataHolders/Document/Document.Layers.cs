@@ -467,7 +467,7 @@ namespace PixiEditor.Models.DataHolders
             Guid referenceLayerGuid = (Guid)parameter[1];
             bool above = (bool)parameter[2];
 
-            GuidStructureItem folder = LayerStructure.GetFolderByGuid(folderGuid);
+            GuidStructureItem folder = LayerStructure.GetGroupByGuid(folderGuid);
             GuidStructureItem referenceLayerFolder = LayerStructure.GetGroupByLayer(referenceLayerGuid);
 
             Layer referenceLayer = Layers.First(x => x.LayerGuid == referenceLayerGuid);
@@ -494,16 +494,16 @@ namespace PixiEditor.Models.DataHolders
         private void ReassignParent(GuidStructureItem folder, GuidStructureItem referenceLayerFolder)
         {
             folder.Parent?.Subfolders.Remove(folder);
-            if (LayerStructure.Folders.Contains(folder))
+            if (LayerStructure.Groups.Contains(folder))
             {
-                LayerStructure.Folders.Remove(folder);
+                LayerStructure.Groups.Remove(folder);
             }
 
             if (referenceLayerFolder == null)
             {
-                if (!LayerStructure.Folders.Contains(folder))
+                if (!LayerStructure.Groups.Contains(folder))
                 {
-                    LayerStructure.Folders.Add(folder);
+                    LayerStructure.Groups.Add(folder);
                     folder.Parent = null;
                 }
             }

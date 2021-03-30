@@ -69,7 +69,7 @@ namespace PixiEditor.Views.UserControls
 
         private void LayerFolder_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (sender is LayerFolder container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
                 DragDrop.DoDragDrop(container, container, DragDropEffects.Move);
             }

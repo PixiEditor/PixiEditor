@@ -1,35 +1,35 @@
-﻿<UserControl x:Class="PixiEditor.Views.UserControls.LayerFolder"
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.LayerGroupControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" Focusable="True"
-             d:DesignHeight="60" d:DesignWidth="250" Name="folderControl">
+             d:DesignHeight="60" d:DesignWidth="250" Name="groupControl">
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" >
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="7.5"/>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="7.5"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="15"/>
+                <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
             <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
-            <Grid Grid.Row="1" Drop="Grid_Drop_Middle" AllowDrop="True" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave">
+            <Grid Grid.Row="0" Grid.RowSpan="3" Margin="5 0 5 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="20"/>
                 </Grid.ColumnDefinitions>
-                <Image Source="/Images/Folder.png" />
+                <Image Source="/Images/Folder.png" Height="20"/>
                 <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0">
                     <userControls:EditableTextBlock
                     IsEditing="False"
                     FontSize="16"
                     VerticalAlignment="Center"
-                    Text="{Binding FolderName, ElementName=folderControl, Mode=TwoWay}" />
+                    Text="{Binding GroupName, ElementName=groupControl, Mode=TwoWay}" />
                 </StackPanel>
             </Grid>
             <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom"  DragLeave="Grid_DragLeave" Grid.Row="2" AllowDrop="True" Grid.ColumnSpan="3" Background="Transparent"/>

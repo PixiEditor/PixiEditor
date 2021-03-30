@@ -25,7 +25,7 @@
         <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
-        <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" Height="30" Content="New Folder"
+        <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" Height="30" Content="New Group"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
         </StackPanel>
@@ -49,8 +49,8 @@
                     </ItemsPanelTemplate>
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type layers:LayerFolder}" ItemsSource="{Binding Items}">
-                        <local:LayerFolder FolderName="{Binding Name}" LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" FolderGuid="{Binding FolderGuid}" MouseMove="LayerFolder_MouseMove"/>
+                    <HierarchicalDataTemplate DataType="{x:Type layers:LayerGroup}" ItemsSource="{Binding Items}">
+                        <local:LayerGroupControl GroupName="{Binding Name}" LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" GroupGuid="{Binding GroupGuid}" GroupData="{Binding StructureData}" MouseMove="LayerFolder_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
                         <local:LayerStructureItemContainer                             

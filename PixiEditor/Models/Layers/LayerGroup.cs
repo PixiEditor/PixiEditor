@@ -8,21 +8,21 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Layers
 {
-    public class LayerFolder : NotifyableObject
+    public class LayerGroup : NotifyableObject
     {
-        public Guid FolderGuid { get; init; }
+        public Guid GroupGuid { get; init; }
 
         public GuidStructureItem StructureData { get; init; }
 
         public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
 
-        public ObservableCollection<LayerFolder> Subfolders { get; set; } = new ObservableCollection<LayerFolder>();
+        public ObservableCollection<LayerGroup> Subfolders { get; set; } = new ObservableCollection<LayerGroup>();
 
         public IEnumerable Items => BuildItems();
 
         private IEnumerable BuildItems()
         {
-            List<object> obj = new List<object>(Layers.Reverse());
+            List<object> obj = new(Layers.Reverse());
             foreach (var subfolder in Subfolders)
             {
                 obj.Insert(subfolder.DisplayIndex - DisplayIndex, subfolder);
@@ -84,26 +84,26 @@ namespace PixiEditor.Models.Layers
 
         private void UpdateIsExpandedInDocument(bool value)
         {
-            var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetFolderByGuid(FolderGuid);
+            var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(GroupGuid);
             if (folder != null)
             {
                 folder.IsExpanded = value;
             }
         }
 
-        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name, 
+        public LayerGroup(IEnumerable<Layer> layers, IEnumerable<LayerGroup> subfolders, string name,
             int displayIndex, int topIndex, GuidStructureItem structureData)
             : this(layers, subfolders, name, Guid.NewGuid(), displayIndex, topIndex, structureData)
         {
         }
 
-        public LayerFolder(IEnumerable<Layer> layers, IEnumerable<LayerFolder> subfolders, string name,
+        public LayerGroup(IEnumerable<Layer> layers, IEnumerable<LayerGroup> subfolders, string name,
             Guid guid, int displayIndex, int topIndex, GuidStructureItem structureData)
         {
             Layers = new ObservableCollection<Layer>(layers);
-            Subfolders = new ObservableCollection<LayerFolder>(subfolders);
+            Subfolders = new ObservableCollection<LayerGroup>(subfolders);
             Name = name;
-            FolderGuid = guid;
+            GroupGuid = guid;
             DisplayIndex = displayIndex;
             TopIndex = topIndex;
             StructureData = structureData;

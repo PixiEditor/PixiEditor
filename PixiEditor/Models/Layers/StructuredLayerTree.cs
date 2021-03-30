@@ -16,13 +16,13 @@ namespace PixiEditor.Models.Layers
 
         public StructuredLayerTree(ObservableCollection<Layer> layers, LayerStructure structure)
         {
-            if (structure.Folders == null || structure.Folders.Count == 0)
+            if (structure.Groups == null || structure.Groups.Count == 0)
             {
                 RootDirectoryItems.AddRange(layers);
                 return;
             }
 
-            var parsedFolders = ParseFolders(structure.Folders, layers);
+            var parsedFolders = ParseFolders(structure.Groups, layers);
 
             parsedFolders = parsedFolders.OrderBy(x => x.DisplayIndex).ToList();
 
@@ -31,11 +31,11 @@ namespace PixiEditor.Models.Layers
             layersInStructure.Clear();
         }
 
-        private void PlaceItems(List<LayerFolder> parsedFolders, ObservableCollection<Layer> layers)
+        private void PlaceItems(List<LayerGroup> parsedFolders, ObservableCollection<Layer> layers)
         {
-            LayerFolder currentFolder = null;
-            List<LayerFolder> foldersAtIndex = new ();
-            Stack<LayerFolder> unfinishedFolders = new ();
+            LayerGroup currentFolder = null;
+            List<LayerGroup> foldersAtIndex = new ();
+            Stack<LayerGroup> unfinishedFolders = new ();
 
             for (int i = 0; i < layers.Count; i++)
             {
@@ -58,7 +58,7 @@ namespace PixiEditor.Models.Layers
                     foldersAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid).ToList();
                     for (int j = 0; j < foldersAtIndex.Count; j++)
                     {
-                        LayerFolder folder = foldersAtIndex[j];
+                        LayerGroup folder = foldersAtIndex[j];
 
                         if (currentFolder != null)
                         {
@@ -94,9 +94,9 @@ namespace PixiEditor.Models.Layers
             return displayIndex + (originalTopIndex - originalBottomIndex);
         }
 
-        private List<LayerFolder> ParseFolders(IEnumerable<GuidStructureItem> folders, ObservableCollection<Layer> layers)
+        private List<LayerGroup> ParseFolders(IEnumerable<GuidStructureItem> folders, ObservableCollection<Layer> layers)
         {
-            List<LayerFolder> parsedFolders = new();
+            List<LayerGroup> parsedFolders = new();
             foreach (var structureItem in folders)
             {
                 parsedFolders.Add(ParseFolder(structureItem, layers));
@@ -105,13 +105,13 @@ namespace PixiEditor.Models.Layers
             return parsedFolders;
         }
 
-        private LayerFolder ParseFolder(GuidStructureItem structureItem, ObservableCollection<Layer> layers)
+        private LayerGroup ParseFolder(GuidStructureItem structureItem, ObservableCollection<Layer> layers)
         {
             List<Layer> structureItemLayers = new();
 
             Guid[] layersInFolder = GetLayersInFolder(layers, structureItem);
 
-            var subFolders = new List<LayerFolder>();
+            var subFolders = new List<LayerGroup>();
 
             if (structureItem.Subfolders.Count > 0)
             {
@@ -132,7 +132,7 @@ namespace PixiEditor.Models.Layers
 
             structureItemLayers.Reverse();
 
-            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name,
+            LayerGroup folder = new (structureItemLayers, subFolders, structureItem.Name,
                 structureItem.FolderGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
             {
                 IsExpanded = structureItem.IsExpanded
