@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.RightsManagement;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
@@ -13,7 +14,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand NewLayerCommand { get; set; }
 
-        public RelayCommand NewFolderCommand { get; set; }
+        public RelayCommand NewGroupCommand { get; set; }
 
         public RelayCommand DeleteLayersCommand { get; set; }
 
@@ -34,7 +35,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-            NewFolderCommand = new RelayCommand(NewFolder, CanCreateNewLayer);
+            NewGroupCommand = new RelayCommand(NewGroup, CanCreateNewLayer);
             DeleteLayersCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
@@ -45,9 +46,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
-        public void NewFolder(object parameter)
+        public void NewGroup(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument?.LayerStructure.Folders.Add(new GuidStructureItem("New Folder"));
+            Owner.BitmapManager.ActiveDocument?.LayerStructure.AddNewGroup("New Folder", Owner.BitmapManager.ActiveLayer.LayerGuid);
+        }
+
+        public bool CanAddNewGroup(object property)
+        {
+            return CanCreateNewLayer(property) && Owner.BitmapManager.ActiveLayer != null;
         }
 
         public bool CanMergeSelected(object obj)

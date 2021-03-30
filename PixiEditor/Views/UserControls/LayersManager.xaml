@@ -25,7 +25,7 @@
         <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" Height="30" Content="New Layer"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
-        <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewFolderCommand, ElementName=layersManager}" Height="30" Content="New Folder"
+        <Button Grid.Row="0" Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" Height="30" Content="New Folder"
                                             HorizontalAlignment="Stretch" Margin="5"
                                             Style="{StaticResource DarkRoundButton}" />
         </StackPanel>

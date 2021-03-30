@@ -36,6 +36,7 @@ namespace PixiEditor.Models.Layers
             LayerFolder currentFolder = null;
             List<LayerFolder> foldersAtIndex = new ();
             Stack<LayerFolder> unfinishedFolders = new ();
+
             for (int i = 0; i < layers.Count; i++)
             {
                 if (currentFolder != null && layers[i].LayerGuid == currentFolder.StructureData.EndLayerGuid)
@@ -67,7 +68,10 @@ namespace PixiEditor.Models.Layers
                         foldersAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
                         foldersAtIndex[j].DisplayIndex = RootDirectoryItems.Count;
                         foldersAtIndex[j].TopIndex = CalculateTopIndex(folder.DisplayIndex, folder.StructureData, layers);
-                        currentFolder = foldersAtIndex[j];
+                        if (foldersAtIndex[j].StructureData.EndLayerGuid != layers[i].LayerGuid)
+                        {
+                            currentFolder = foldersAtIndex[j];
+                        }
                     }
                 }
 
@@ -128,7 +132,7 @@ namespace PixiEditor.Models.Layers
 
             structureItemLayers.Reverse();
 
-            LayerFolder folder = new(structureItemLayers, subFolders, structureItem.Name,
+            LayerFolder folder = new (structureItemLayers, subFolders, structureItem.Name,
                 structureItem.FolderGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
             {
                 IsExpanded = structureItem.IsExpanded

@@ -78,12 +78,14 @@ namespace PixiEditor.Models.Layers
             EndLayerGuid = endLayerGuid;
         }
 
-        public GuidStructureItem(string name)
+        public GuidStructureItem(string name, Guid layer)
         {
             Name = name;
             Subfolders = new ObservableCollection<GuidStructureItem>();
             FolderGuid = Guid.NewGuid();
             Parent = null;
+            StartLayerGuid = layer;
+            EndLayerGuid = layer;
         }
     }
 }
