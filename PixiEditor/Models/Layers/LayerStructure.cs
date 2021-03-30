@@ -283,7 +283,11 @@ namespace PixiEditor.Models.Layers
 
                 if (folder.Subfolders.Count > 0)
                 {
-                    return GetGroupByLayer(layerGuid, folder.Subfolders);
+                    var group = GetGroupByLayer(layerGuid, folder.Subfolders);
+                    if(group != null)
+                    {
+                        return group;
+                    }
                 }
 
                 if (layers.Contains(layerGuid))

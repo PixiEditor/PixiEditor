@@ -48,7 +48,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewGroup(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument?.LayerStructure.AddNewGroup("New Folder", Owner.BitmapManager.ActiveLayer.LayerGuid);
+            Owner.BitmapManager.ActiveDocument?.LayerStructure.AddNewGroup("New Group", Owner.BitmapManager.ActiveLayer.LayerGuid);
         }
 
         public bool CanAddNewGroup(object property)
