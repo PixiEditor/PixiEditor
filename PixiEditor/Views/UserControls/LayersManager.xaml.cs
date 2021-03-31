@@ -67,7 +67,7 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void LayerFolder_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void LayerGroup_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {

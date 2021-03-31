@@ -96,7 +96,7 @@ namespace PixiEditor.Views.UserControls
 
                 Layer tempLayer = new("_temp");
                 document.Layers.Insert(indexOfReferenceLayer, tempLayer);
-                document.MoveFolderInStructure(group, tempLayer.LayerGuid, above); //TODO fix
+                document.MoveFolderInStructure(group, tempLayer.LayerGuid, above);
                 document.Layers.Remove(tempLayer);
             }
         }

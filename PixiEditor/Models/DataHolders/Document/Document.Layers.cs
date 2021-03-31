@@ -115,9 +115,9 @@ namespace PixiEditor.Models.DataHolders
                 "Move layer"));
         }
 
-        public void MoveFolderInStructure(Guid folderGuid, Guid referenceLayer, bool above = false)
+        public void MoveFolderInStructure(Guid groupGuid, Guid referenceLayer, bool above = false)
         {
-            var args = new object[] { folderGuid, referenceLayer, above };
+            var args = new object[] { groupGuid, referenceLayer, above };
 
             MoveFolderInStructureProcess(args);
 
@@ -467,28 +467,28 @@ namespace PixiEditor.Models.DataHolders
             Guid referenceLayerGuid = (Guid)parameter[1];
             bool above = (bool)parameter[2];
 
-            GuidStructureItem folder = LayerStructure.GetGroupByGuid(folderGuid);
-            GuidStructureItem referenceLayerFolder = LayerStructure.GetGroupByLayer(referenceLayerGuid);
+            GuidStructureItem group = LayerStructure.GetGroupByGuid(folderGuid);
+            GuidStructureItem referenceLayergroup = LayerStructure.GetGroupByLayer(referenceLayerGuid);
 
             Layer referenceLayer = Layers.First(x => x.LayerGuid == referenceLayerGuid);
 
             int layerIndex = Layers.IndexOf(referenceLayer);
-            int folderTopIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
+            int folderTopIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == group.EndLayerGuid));
             int oldIndex = folderTopIndex;
 
             if (layerIndex < folderTopIndex)
             {
-                int folderBottomIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
+                int folderBottomIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == group.StartLayerGuid));
                 oldIndex = folderBottomIndex;
             }
 
             int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
-            LayerStructure.MoveGroup(folderGuid, folder.Parent, newIndex);
+            LayerStructure.MoveGroup(folderGuid, group.Parent, newIndex);
 
-            ReassignParent(folder, referenceLayerFolder);
+            ReassignParent(group, referenceLayergroup);
 
-            LayerStructure.PostMoveReassignBounds(folder.Parent, folder);
+            LayerStructure.PostMoveReassignBounds(group.Parent, group);
         }
 
         private void ReassignParent(GuidStructureItem folder, GuidStructureItem referenceLayerFolder)

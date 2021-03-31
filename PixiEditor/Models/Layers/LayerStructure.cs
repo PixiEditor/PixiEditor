@@ -9,6 +9,8 @@ namespace PixiEditor.Models.Layers
 {
     public class LayerStructure
     {
+        public event EventHandler LayerStructureChanged;
+
         public Document Owner { get; set; }
 
         public ObservableCollection<GuidStructureItem> Groups { get; set; }
@@ -36,6 +38,8 @@ namespace PixiEditor.Models.Layers
                 group.Parent = parent;
                 parent.Subfolders.Add(group);
             }
+
+            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
 #nullable enable
@@ -64,6 +68,8 @@ namespace PixiEditor.Models.Layers
             List<Guid> layersInOrder = GetLayersInOrder(new FolderData(groupTopIndex, groupBottomIndex));
 
             MoveLayersInGroup(layersInOrder, difference, reverseOrder);
+
+            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PostMoveReassignBounds(GuidStructureItem? parentFolder, Guid layerGuid)
@@ -143,6 +149,8 @@ namespace PixiEditor.Models.Layers
             }
 
             PostMoveReassignBounds(parent, layer);
+
+            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PreMoveReassignBounds(GuidStructureItem? parentGroup, Guid layer)
@@ -156,7 +164,6 @@ namespace PixiEditor.Models.Layers
                 }
                 else
                 {
-
                     if (parentGroup.EndLayerGuid == layer)
                     {
                         parentGroup.EndLayerGuid = FindBoundLayer(parentGroup, layer, false);
@@ -185,26 +192,48 @@ namespace PixiEditor.Models.Layers
             {
                 parentFolder.Parent.Subfolders.Remove(parentFolder);
             }
+
+            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void PreMoveReassignBounds(GuidStructureItem? parentFolder, GuidStructureItem folder)
+        private void PreMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
         {
-            if (parentFolder != null)
+            if (parentGroup != null)
             {
-                if (folder.EndLayerGuid == parentFolder.EndLayerGuid && folder.StartLayerGuid != null)
+                Guid? oldStart = group.StartLayerGuid;
+                Guid? oldEnd = group.EndLayerGuid;
+                if (group.EndLayerGuid == parentGroup.EndLayerGuid && group.StartLayerGuid != null)
                 {
-                    parentFolder.EndLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.StartLayerGuid, false);
+                    parentGroup.EndLayerGuid = FindBoundLayer(parentGroup, (Guid)group.StartLayerGuid, false);
                 }
 
-                if (folder.StartLayerGuid == parentFolder.StartLayerGuid && folder.EndLayerGuid != null)
+                if (group.StartLayerGuid == parentGroup.StartLayerGuid && group.EndLayerGuid != null)
                 {
-                    parentFolder.StartLayerGuid = FindBoundLayer(parentFolder, (Guid)folder.EndLayerGuid, true);
+                    parentGroup.StartLayerGuid = FindBoundLayer(parentGroup, (Guid)group.EndLayerGuid, true);
                 }
 
-                if (parentFolder.Parent != null)
+                if (parentGroup.Parent != null)
                 {
-                    PreMoveReassignBounds(parentFolder.Parent, parentFolder);
+                    ApplyBoundsToParents(parentGroup.Parent, parentGroup, oldStart, oldEnd);
                 }
+            }
+        }
+
+        private void ApplyBoundsToParents(GuidStructureItem parent, GuidStructureItem group, Guid? oldStart, Guid? oldEnd)
+        {
+            if(parent.StartLayerGuid == oldStart)
+            {
+                parent.StartLayerGuid = group.StartLayerGuid;
+            }
+
+            if (parent.EndLayerGuid == oldEnd)
+            {
+                parent.EndLayerGuid = group.EndLayerGuid;
+            }
+
+            if (parent.Parent != null)
+            {
+                ApplyBoundsToParents(parent.Parent, parent, oldStart, oldEnd);
             }
         }
 
@@ -310,7 +339,11 @@ namespace PixiEditor.Models.Layers
 
                 if (folder.Subfolders.Count > 0)
                 {
-                    return GetGroupByGuid(folderGuid, folder.Subfolders);
+                    var guid = GetGroupByGuid(folderGuid, folder.Subfolders);
+                    if(guid != null)
+                    {
+                        return guid;
+                    }
                 }
             }
 
