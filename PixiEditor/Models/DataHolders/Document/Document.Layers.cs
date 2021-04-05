@@ -42,11 +42,6 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private void Folders_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            RaisePropertyChanged(nameof(LayerStructure));
-        }
-
         public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.LayerGuid == ActiveLayerGuid) : null;
 
         public Guid ActiveLayerGuid
@@ -249,6 +244,8 @@ namespace PixiEditor.Models.DataHolders
             {
                 return;
             }
+
+            LayerStructure.AssignParent(Layers[layerIndex].LayerGuid, null);
 
             bool wasActive = Layers[layerIndex].IsActive;
 
@@ -493,7 +490,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void ReassignParent(GuidStructureItem folder, GuidStructureItem referenceLayerFolder)
         {
-            folder.Parent?.Subfolders.Remove(folder);
+            folder.Parent?.Subgroups.Remove(folder);
             if (LayerStructure.Groups.Contains(folder))
             {
                 LayerStructure.Groups.Remove(folder);
@@ -509,7 +506,7 @@ namespace PixiEditor.Models.DataHolders
             }
             else
             {
-                referenceLayerFolder.Subfolders.Add(folder);
+                referenceLayerFolder.Subgroups.Add(folder);
                 folder.Parent = referenceLayerFolder;
             }
         }
@@ -575,6 +572,9 @@ namespace PixiEditor.Models.DataHolders
                 Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
                 int index = Layers.IndexOf(layer);
                 bool wasActive = layer.IsActive;
+
+                LayerStructure.AssignParent(Layers[index].LayerGuid, null);
+
                 Layers.Remove(layer);
 
                 if (wasActive || Layers.IndexOf(ActiveLayer) >= index)

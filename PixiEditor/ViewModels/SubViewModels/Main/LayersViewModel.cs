@@ -48,7 +48,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewGroup(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument?.LayerStructure.AddNewGroup("New Group", Owner.BitmapManager.ActiveLayer.LayerGuid);
+            Owner.BitmapManager.ActiveDocument?.LayerStructure.AddNewGroup($"{Owner.BitmapManager.ActiveLayer.Name} Group", Owner.BitmapManager.ActiveLayer.LayerGuid);
         }
 
         public bool CanAddNewGroup(object property)
@@ -97,13 +97,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void DeleteLayer(object parameter)
         {
             int index = (int)parameter;
-            if (!Owner.BitmapManager.ActiveDocument.Layers[index].IsActive)
+            var doc = Owner.BitmapManager.ActiveDocument;
+            if (!doc.Layers[index].IsActive)
             {
-                Owner.BitmapManager.ActiveDocument.RemoveLayer(index);
+                doc.RemoveLayer(index);
             }
             else
             {
-                Owner.BitmapManager.ActiveDocument.RemoveActiveLayers();
+                doc.RemoveActiveLayers();
             }
         }
 

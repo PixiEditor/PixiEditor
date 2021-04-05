@@ -6,10 +6,12 @@ using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Layers
 {
-    [DebuggerDisplay("{Name} - {FolderGuid}")]
+    [DebuggerDisplay("{Name} - {GroupGuid}")]
     public class GuidStructureItem : NotifyableObject
     {
-        public Guid FolderGuid { get; init; }
+        public event EventHandler GroupsChanged;
+
+        public Guid GroupGuid { get; init; }
 
         private string name;
 
@@ -47,7 +49,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public ObservableCollection<GuidStructureItem> Subfolders { get; set; }
+        public ObservableCollection<GuidStructureItem> Subgroups { get; set; } = new ObservableCollection<GuidStructureItem>();
 
         public GuidStructureItem Parent { get; set; }
 
@@ -71,21 +73,28 @@ namespace PixiEditor.Models.Layers
             GuidStructureItem parent)
         {
             Name = name;
-            Subfolders = new ObservableCollection<GuidStructureItem>(subfolders);
-            FolderGuid = Guid.NewGuid();
+            Subgroups = new ObservableCollection<GuidStructureItem>(subfolders);
+            GroupGuid = Guid.NewGuid();
             Parent = parent;
             StartLayerGuid = startLayerGuid;
             EndLayerGuid = endLayerGuid;
+            Subgroups.CollectionChanged += Subgroups_CollectionChanged;
         }
 
         public GuidStructureItem(string name, Guid layer)
         {
             Name = name;
-            Subfolders = new ObservableCollection<GuidStructureItem>();
-            FolderGuid = Guid.NewGuid();
+            GroupGuid = Guid.NewGuid();
             Parent = null;
             StartLayerGuid = layer;
             EndLayerGuid = layer;
+            Subgroups.CollectionChanged += Subgroups_CollectionChanged;
+        }
+
+        private void Subgroups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            GroupsChanged?.Invoke(this, EventArgs.Empty);
+            Parent?.GroupsChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

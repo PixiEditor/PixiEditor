@@ -3,9 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="groupControl">
+    <UserControl.Resources>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+    </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" >
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
@@ -32,7 +35,7 @@
                     Text="{Binding GroupName, ElementName=groupControl, Mode=TwoWay}" />
                 </StackPanel>
             </Grid>
-            <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom"  DragLeave="Grid_DragLeave" Grid.Row="2" AllowDrop="True" Grid.ColumnSpan="3" Background="Transparent"/>
+            <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom"  DragLeave="Grid_DragLeave" Grid.Row="2" AllowDrop="{Binding  GroupData.IsExpanded, ElementName=groupControl, Converter={StaticResource InverseBooleanConverter}}" Grid.ColumnSpan="3" Background="Transparent"/>
         </Grid>
     </Border>
 </UserControl>

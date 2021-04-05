@@ -91,13 +91,18 @@ namespace PixiEditor.Views.UserControls
                 Guid group = data.GroupGuid;
                 var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
 
+                int modifier = above ? 1 : -1;
+
                 Layer layer = document.Layers.First(x => x.LayerGuid == referenceLayer);
-                int indexOfReferenceLayer = document.Layers.IndexOf(layer) + 1;
+                int indexOfReferenceLayer = Math.Clamp(document.Layers.IndexOf(layer) + modifier, 0, document.Layers.Count);
 
                 Layer tempLayer = new("_temp");
                 document.Layers.Insert(indexOfReferenceLayer, tempLayer);
+
+                document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData.Parent);
                 document.MoveFolderInStructure(group, tempLayer.LayerGuid, above);
-                document.Layers.Remove(tempLayer);
+                document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
+                document.RemoveLayer(tempLayer);
             }
         }
 

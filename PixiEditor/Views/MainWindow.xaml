@@ -310,18 +310,8 @@
                                         </usercontrols:LayersManager>
                                     </LayoutAnchorable>
                                     <LayoutAnchorable ContentId="rawLayer" Title="Raw layers">
-                                        <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <ui:ReversedOrderStackPanel />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Label Foreground="White" Content="{Binding Name}"/>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                                        <usercontrols:RawLayersViewer Layers="{Binding BitmapManager.ActiveDocument.Layers}"
+                                                                      Structure="{Binding BitmapManager.ActiveDocument.LayerStructure}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>

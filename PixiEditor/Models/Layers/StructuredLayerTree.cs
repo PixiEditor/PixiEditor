@@ -34,7 +34,7 @@ namespace PixiEditor.Models.Layers
         private void PlaceItems(List<LayerGroup> parsedFolders, ObservableCollection<Layer> layers)
         {
             LayerGroup currentFolder = null;
-            List<LayerGroup> foldersAtIndex = new ();
+            List<LayerGroup> groupsAtIndex = new ();
             Stack<LayerGroup> unfinishedFolders = new ();
 
             for (int i = 0; i < layers.Count; i++)
@@ -55,22 +55,22 @@ namespace PixiEditor.Models.Layers
 
                 if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid))
                 {
-                    foldersAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid).ToList();
-                    for (int j = 0; j < foldersAtIndex.Count; j++)
+                    groupsAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid).ToList();
+                    for (int j = 0; j < groupsAtIndex.Count; j++)
                     {
-                        LayerGroup folder = foldersAtIndex[j];
+                        LayerGroup group = groupsAtIndex[j];
 
                         if (currentFolder != null)
                         {
                             unfinishedFolders.Push(currentFolder);
                         }
 
-                        foldersAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
-                        foldersAtIndex[j].DisplayIndex = RootDirectoryItems.Count;
-                        foldersAtIndex[j].TopIndex = CalculateTopIndex(folder.DisplayIndex, folder.StructureData, layers);
-                        if (foldersAtIndex[j].StructureData.EndLayerGuid != layers[i].LayerGuid)
+                        groupsAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
+                        groupsAtIndex[j].DisplayIndex = RootDirectoryItems.Count;
+                        groupsAtIndex[j].TopIndex = CalculateTopIndex(group.DisplayIndex, group.StructureData, layers);
+                        if (groupsAtIndex[j].StructureData.EndLayerGuid != layers[i].LayerGuid)
                         {
-                            currentFolder = foldersAtIndex[j];
+                            currentFolder = groupsAtIndex[j];
                         }
                     }
                 }
@@ -81,7 +81,7 @@ namespace PixiEditor.Models.Layers
                 }
                 else if (!RootDirectoryItems.Contains(currentFolder))
                 {
-                    RootDirectoryItems.AddRange(foldersAtIndex.Where(x => !RootDirectoryItems.Contains(x)));
+                    RootDirectoryItems.AddRange(groupsAtIndex.Where(x => !RootDirectoryItems.Contains(x)));
                 }
             }
         }
@@ -113,9 +113,9 @@ namespace PixiEditor.Models.Layers
 
             var subFolders = new List<LayerGroup>();
 
-            if (structureItem.Subfolders.Count > 0)
+            if (structureItem.Subgroups.Count > 0)
             {
-                subFolders = ParseFolders(structureItem.Subfolders, layers);
+                subFolders = ParseFolders(structureItem.Subgroups, layers);
             }
 
             foreach (var guid in layersInFolder)
@@ -133,7 +133,7 @@ namespace PixiEditor.Models.Layers
             structureItemLayers.Reverse();
 
             LayerGroup folder = new (structureItemLayers, subFolders, structureItem.Name,
-                structureItem.FolderGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
+                structureItem.GroupGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
             {
                 IsExpanded = structureItem.IsExpanded
             };

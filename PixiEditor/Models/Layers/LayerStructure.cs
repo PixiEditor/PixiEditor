@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Layers
@@ -36,8 +37,10 @@ namespace PixiEditor.Models.Layers
             else
             {
                 group.Parent = parent;
-                parent.Subfolders.Add(group);
+                parent.Subgroups.Add(group);
             }
+
+            group.GroupsChanged += Group_GroupsChanged;
 
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -72,93 +75,14 @@ namespace PixiEditor.Models.Layers
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public void PostMoveReassignBounds(GuidStructureItem? parentFolder, Guid layerGuid)
-        {
-            if (parentFolder != null)
-            {
-                int layerIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == layerGuid));
-
-                int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.EndLayerGuid));
-                int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.StartLayerGuid));
-
-                int finalTopIndex = Math.Max(folderTopIndex, layerIndex);
-                int finalBottomIndex = Math.Min(folderBottomIndex, layerIndex);
-
-                Guid? topBoundLayer = FindBoundLayer(layerGuid, finalTopIndex, finalBottomIndex, false);
-                Guid? bottomBoundLayer = FindBoundLayer(layerGuid, finalTopIndex, finalBottomIndex, true);
-
-                if (topBoundLayer == parentFolder.EndLayerGuid)
-                {
-                    parentFolder.EndLayerGuid = layerGuid;
-                }
-
-                if (bottomBoundLayer == parentFolder.StartLayerGuid)
-                {
-                    parentFolder.StartLayerGuid = layerGuid;
-                }
-
-                if (parentFolder.Parent != null)
-                {
-                    PostMoveReassignBounds(parentFolder.Parent, layerGuid);
-                }
-            }
-        }
-
-        public void PostMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem folder)
-        {
-            if (parentGroup != null)
-            {
-                if (folder.StartLayerGuid != null && folder.EndLayerGuid != null)
-                {
-                    int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
-                    int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
-
-                    int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.EndLayerGuid));
-                    int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.StartLayerGuid));
-
-                    int finalTopIndex = Math.Max(folderTopIndex, parentFolderTopIndex);
-                    int finalBottomIndex = Math.Min(folderBottomIndex, parentFolderBottomIndex);
-
-                    Guid? topBoundLayer = FindBoundLayer((Guid)folder.StartLayerGuid, finalTopIndex, finalBottomIndex, false);
-                    Guid? bottomBoundLayer = FindBoundLayer((Guid)folder.EndLayerGuid, finalTopIndex, finalBottomIndex, true);
-
-                    if (topBoundLayer == parentGroup.EndLayerGuid)
-                    {
-                        parentGroup.EndLayerGuid = folder.EndLayerGuid;
-                    }
-
-                    if (bottomBoundLayer == parentGroup.StartLayerGuid)
-                    {
-                        parentGroup.StartLayerGuid = folder.StartLayerGuid;
-                    }
-                }
-
-                if (parentGroup.Parent != null)
-                {
-                    PostMoveReassignBounds(parentGroup.Parent, parentGroup);
-                }
-            }
-        }
-
-        public void AssignParent(Guid layer, GuidStructureItem parent)
-        {
-            var currentParent = GetGroupByLayer(layer);
-            if(currentParent != null)
-            {
-                PreMoveReassignBounds(currentParent, layer);
-            }
-
-            PostMoveReassignBounds(parent, layer);
-
-            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
-        }
-
         public void PreMoveReassignBounds(GuidStructureItem? parentGroup, Guid layer)
         {
             if (parentGroup != null)
             {
+                Guid? oldStart = parentGroup.StartLayerGuid;
+                Guid? oldEnd = parentGroup.EndLayerGuid;
                 GuidStructureItem parentOfParent = parentGroup.Parent;
-                if (parentGroup.Subfolders.Count == 0 && parentGroup.StartLayerGuid == layer && parentGroup.EndLayerGuid == layer)
+                if (parentGroup.Subgroups.Count == 0 && parentGroup.StartLayerGuid == layer && parentGroup.EndLayerGuid == layer)
                 {
                     RemoveGroup(parentGroup);
                 }
@@ -177,31 +101,17 @@ namespace PixiEditor.Models.Layers
 
                 if (parentOfParent != null)
                 {
-                    PreMoveReassignBounds(parentOfParent, layer);
+                    ApplyBoundsToParents(parentOfParent, parentGroup, oldStart, oldEnd);
                 }
             }
         }
 
-        private void RemoveGroup(GuidStructureItem parentFolder)
-        {
-            if (parentFolder.Parent == null)
-            {
-                Groups.Remove(parentFolder);
-            }
-            else
-            {
-                parentFolder.Parent.Subfolders.Remove(parentFolder);
-            }
-
-            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void PreMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
+        public void PreMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
         {
             if (parentGroup != null)
             {
-                Guid? oldStart = group.StartLayerGuid;
-                Guid? oldEnd = group.EndLayerGuid;
+                Guid? oldStart = parentGroup.StartLayerGuid;
+                Guid? oldEnd = parentGroup.EndLayerGuid;
                 if (group.EndLayerGuid == parentGroup.EndLayerGuid && group.StartLayerGuid != null)
                 {
                     parentGroup.EndLayerGuid = FindBoundLayer(parentGroup, (Guid)group.StartLayerGuid, false);
@@ -219,9 +129,119 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        public void PostMoveReassignBounds(GuidStructureItem? parentGroup, Guid layerGuid)
+        {
+            if (parentGroup != null)
+            {
+                Guid? oldStart = parentGroup.StartLayerGuid;
+                Guid? oldEnd = parentGroup.EndLayerGuid;
+
+                int layerIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == layerGuid));
+
+                int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.EndLayerGuid));
+                int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.StartLayerGuid));
+
+                int finalTopIndex = Math.Max(folderTopIndex, layerIndex);
+                int finalBottomIndex = Math.Min(folderBottomIndex, layerIndex);
+
+                Guid? topBoundLayer = FindBoundLayer(layerGuid, finalTopIndex, finalBottomIndex, false);
+                Guid? bottomBoundLayer = FindBoundLayer(layerGuid, finalTopIndex, finalBottomIndex, true);
+
+                if (topBoundLayer == parentGroup.EndLayerGuid)
+                {
+                    parentGroup.EndLayerGuid = layerGuid;
+                }
+
+                if (bottomBoundLayer == parentGroup.StartLayerGuid)
+                {
+                    parentGroup.StartLayerGuid = layerGuid;
+                }
+
+                if (parentGroup.Parent != null)
+                {
+                    ApplyBoundsToParents(parentGroup.Parent, parentGroup, oldStart, oldEnd);
+                }
+            }
+        }
+
+        public void PostMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
+        {
+            if (parentGroup != null)
+            {
+                Guid? oldStart = parentGroup.StartLayerGuid;
+                Guid? oldEnd = parentGroup.EndLayerGuid;
+
+                if (group.StartLayerGuid != null && group.EndLayerGuid != null)
+                {
+
+                    int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid));
+                    int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid));
+
+                    int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.EndLayerGuid));
+                    int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.StartLayerGuid));
+
+                    int finalTopIndex = Math.Max(folderTopIndex, parentFolderTopIndex);
+                    int finalBottomIndex = Math.Min(folderBottomIndex, parentFolderBottomIndex);
+
+                    Guid? topBoundLayer = FindBoundLayer((Guid)group.StartLayerGuid, finalTopIndex, finalBottomIndex, false);
+                    Guid? bottomBoundLayer = FindBoundLayer((Guid)group.EndLayerGuid, finalTopIndex, finalBottomIndex, true);
+
+                    if (topBoundLayer == parentGroup.EndLayerGuid)
+                    {
+                        parentGroup.EndLayerGuid = group.EndLayerGuid;
+                    }
+
+                    if (bottomBoundLayer == parentGroup.StartLayerGuid)
+                    {
+                        parentGroup.StartLayerGuid = group.StartLayerGuid;
+                    }
+                }
+
+                if (parentGroup.Parent != null)
+                {
+                    ApplyBoundsToParents(parentGroup.Parent, parentGroup, oldStart, oldEnd);
+                }
+            }
+        }
+
+        public void AssignParent(Guid layer, GuidStructureItem parent)
+        {
+            var currentParent = GetGroupByLayer(layer);
+            if(currentParent != null)
+            {
+                PreMoveReassignBounds(currentParent, layer);
+            }
+
+            PostMoveReassignBounds(parent, layer);
+
+            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void Group_GroupsChanged(object sender, EventArgs e)
+        {
+            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void RemoveGroup(GuidStructureItem parentFolder)
+        {
+            parentFolder.GroupsChanged -= Group_GroupsChanged;
+            if (parentFolder.Parent == null)
+            {
+                Groups.Remove(parentFolder);
+            }
+            else
+            {
+                parentFolder.Parent.Subgroups.Remove(parentFolder);
+            }
+
+            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         private void ApplyBoundsToParents(GuidStructureItem parent, GuidStructureItem group, Guid? oldStart, Guid? oldEnd)
         {
-            if(parent.StartLayerGuid == oldStart)
+            Guid? parentOldStart = parent.StartLayerGuid;
+            Guid? parentOldEnd = parent.EndLayerGuid;
+            if (parent.StartLayerGuid == oldStart)
             {
                 parent.StartLayerGuid = group.StartLayerGuid;
             }
@@ -233,7 +253,7 @@ namespace PixiEditor.Models.Layers
 
             if (parent.Parent != null)
             {
-                ApplyBoundsToParents(parent.Parent, parent, oldStart, oldEnd);
+                ApplyBoundsToParents(parent.Parent, parent, parentOldStart, parentOldEnd);
             }
         }
 
@@ -310,9 +330,9 @@ namespace PixiEditor.Models.Layers
                 int bottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
                 var layers = GetLayersInOrder(new FolderData(topIndex, bottomIndex));
 
-                if (folder.Subfolders.Count > 0)
+                if (folder.Subgroups.Count > 0)
                 {
-                    var group = GetGroupByLayer(layerGuid, folder.Subfolders);
+                    var group = GetGroupByLayer(layerGuid, folder.Subgroups);
                     if(group != null)
                     {
                         return group;
@@ -332,14 +352,14 @@ namespace PixiEditor.Models.Layers
         {
             foreach (var folder in folders)
             {
-                if (folder.FolderGuid == folderGuid)
+                if (folder.GroupGuid == folderGuid)
                 {
                     return folder;
                 }
 
-                if (folder.Subfolders.Count > 0)
+                if (folder.Subgroups.Count > 0)
                 {
-                    var guid = GetGroupByGuid(folderGuid, folder.Subfolders);
+                    var guid = GetGroupByGuid(folderGuid, folder.Subgroups);
                     if(guid != null)
                     {
                         return guid;
