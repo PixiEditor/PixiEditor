@@ -16,6 +16,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand NewGroupCommand { get; set; }
 
+        public RelayCommand DeleteGroupCommand { get; set; }
+
         public RelayCommand DeleteLayersCommand { get; set; }
 
         public RelayCommand RenameLayerCommand { get; set; }
@@ -46,7 +48,23 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
             RenameGroupCommand = new RelayCommand(RenameGroup);
+            DeleteGroupCommand = new RelayCommand(DeleteGroup);
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+        }
+
+        public void DeleteGroup(object parameter)
+        {
+            if (parameter is Guid guid)
+            {
+                var group = Owner.BitmapManager.ActiveDocument?.LayerStructure.GetGroupByGuid(guid);
+                var layers = Owner.BitmapManager.ActiveDocument?.LayerStructure.GetGroupLayers(group);
+                foreach (var layer in layers)
+                {
+                    layer.IsActive = true;
+                }
+
+                Owner.BitmapManager.ActiveDocument?.RemoveActiveLayers();
+            }
         }
 
         public void RenameGroup(object parameter)

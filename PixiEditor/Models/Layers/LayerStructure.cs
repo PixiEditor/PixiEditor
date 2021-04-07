@@ -222,6 +222,53 @@ namespace PixiEditor.Models.Layers
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        public List<Guid> GetLayersInOrder(FolderData folder)
+        {
+            List<Guid> layerGuids = new();
+            int minIndex = folder.BottomIndex;
+            int maxIndex = folder.TopIndex;
+
+            for (int i = minIndex; i <= maxIndex; i++)
+            {
+                layerGuids.Add(Owner.Layers[i].LayerGuid);
+            }
+
+            return layerGuids;
+        }
+
+        /// <summary>
+        /// Gets all layers inside group, including nested groups.
+        /// </summary>
+        /// <param name="group">Group to get layers from.</param>
+        /// <returns>List of layer guids.</returns>
+        public List<Guid> GetGroupLayerGuids(GuidStructureItem group)
+        {
+            Layer layerTop = Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid);
+            Layer layerBottom = Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid);
+
+            int indexTop = Owner.Layers.IndexOf(layerTop);
+            int indexBottom = Owner.Layers.IndexOf(layerBottom);
+
+            return GetLayersInOrder(new FolderData(indexTop, indexBottom));
+        }
+
+        /// <summary>
+        /// Gets all layers inside group, including nested groups.
+        /// </summary>
+        /// <param name="group">Group to get layers from.</param>
+        /// <returns>List of layers.</returns>
+        public List<Layer> GetGroupLayers(GuidStructureItem group)
+        {
+            List<Layer> layers = new();
+            var layerGuids = GetGroupLayerGuids(group);
+            foreach (var layerGuid in layerGuids)
+            {
+                layers.Add(Owner.Layers.First(x => x.LayerGuid == layerGuid));
+            }
+
+            return layers;
+        }
+
         private void Group_GroupsChanged(object sender, EventArgs e)
         {
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
@@ -310,20 +357,6 @@ namespace PixiEditor.Models.Layers
                 int layerIndex = Owner.Layers.IndexOf(layer);
                 Owner.Layers.Move(layerIndex, layerIndex + moveBy);
             }
-        }
-
-        private List<Guid> GetLayersInOrder(FolderData folder)
-        {
-            List<Guid> layerGuids = new ();
-            int minIndex = folder.BottomIndex;
-            int maxIndex = folder.TopIndex;
-
-            for (int i = minIndex; i <= maxIndex; i++)
-            {
-                layerGuids.Add(Owner.Layers[i].LayerGuid);
-            }
-
-            return layerGuids;
         }
 
 #nullable disable

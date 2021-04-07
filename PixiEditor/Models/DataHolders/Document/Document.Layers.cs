@@ -37,8 +37,7 @@ namespace PixiEditor.Models.DataHolders
             get => layerStructure;
             set
             {
-                layerStructure = value;
-                RaisePropertyChanged(nameof(LayerStructure));
+                SetProperty(ref layerStructure, value);
             }
         }
 

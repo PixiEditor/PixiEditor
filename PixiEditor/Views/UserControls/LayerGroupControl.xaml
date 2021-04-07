@@ -43,6 +43,10 @@
                                      Command="{Binding PlacementTarget.Tag.LayersViewModel.RenameGroupCommand, 
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.GroupGuid, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
+                <MenuItem Header="Delete"
+                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.DeleteGroupCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.GroupGuid, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
             </ContextMenu>
         </Border.ContextMenu>
     </Border>
