@@ -65,6 +65,17 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private bool isRenaming = false;
+
+        public bool IsRenaming
+        {
+            get => isRenaming;
+            set
+            {
+                SetProperty(ref isRenaming, value);
+            }
+        }
+
         public GuidStructureItem(
             string name,
             Guid startLayerGuid,

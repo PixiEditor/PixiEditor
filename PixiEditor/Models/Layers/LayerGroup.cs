@@ -82,6 +82,17 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private bool isRenaming;
+
+        public bool IsRenaming
+        {
+            get => isRenaming;
+            set
+            {
+                SetProperty(ref isRenaming, value);
+            }
+        }
+
         private void UpdateIsExpandedInDocument(bool value)
         {
             var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(GroupGuid);

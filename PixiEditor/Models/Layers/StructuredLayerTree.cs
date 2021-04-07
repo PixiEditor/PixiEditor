@@ -140,7 +140,8 @@ namespace PixiEditor.Models.Layers
             LayerGroup folder = new (structureItemLayers, subFolders, structureItem.Name,
                 structureItem.GroupGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
             {
-                IsExpanded = structureItem.IsExpanded
+                IsExpanded = structureItem.IsExpanded,
+                IsRenaming = structureItem.IsRenaming
             };
             return folder;
         }

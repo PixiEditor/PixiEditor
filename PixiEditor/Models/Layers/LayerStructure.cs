@@ -173,7 +173,6 @@ namespace PixiEditor.Models.Layers
 
                 if (group.StartLayerGuid != null && group.EndLayerGuid != null)
                 {
-
                     int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid));
                     int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid));
 
