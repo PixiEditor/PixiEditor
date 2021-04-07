@@ -16,6 +16,11 @@ namespace PixiEditor.Models.Layers
 
         public ObservableCollection<GuidStructureItem> Groups { get; set; }
 
+        public static bool GroupContainsOnlyLayer(Layer layer, GuidStructureItem layerGroup)
+        {
+            return layerGroup != null && layerGroup.Subgroups.Count == 0 && layerGroup.StartLayerGuid == layer.LayerGuid && layerGroup.EndLayerGuid == layer.LayerGuid;
+        }
+
         public GuidStructureItem GetGroupByGuid(Guid? groupGuid)
         {
             return GetGroupByGuid(groupGuid, Groups);
@@ -44,6 +49,7 @@ namespace PixiEditor.Models.Layers
 
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
+
 
 #nullable enable
         public void MoveGroup(Guid groupGuid, GuidStructureItem? parentGroup, int newIndex)

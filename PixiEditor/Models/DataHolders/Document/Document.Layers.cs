@@ -573,13 +573,32 @@ namespace PixiEditor.Models.DataHolders
                 int index = Layers.IndexOf(layer);
                 bool wasActive = layer.IsActive;
 
+                var layerGroup = LayerStructure.GetGroupByLayer(layer.LayerGuid);
+
                 LayerStructure.AssignParent(Layers[index].LayerGuid, null);
+                RemoveGroupsIfEmpty(layer, layerGroup);
 
                 Layers.Remove(layer);
 
                 if (wasActive || Layers.IndexOf(ActiveLayer) >= index)
                 {
                     SetNextLayerAsActive(index);
+                }
+            }
+        }
+
+        private void RemoveGroupsIfEmpty(Layer layer, GuidStructureItem layerGroup)
+        {
+            if (LayerStructure.GroupContainsOnlyLayer(layer, layerGroup))
+            {
+                if (layerGroup.Parent != null)
+                {
+                    layerGroup.Parent.Subgroups.Remove(layerGroup);
+                    RemoveGroupsIfEmpty(layer, layerGroup.Parent);
+                }
+                else
+                {
+                    LayerStructure.Groups.Remove(layerGroup);
                 }
             }
         }

@@ -125,11 +125,14 @@ namespace PixiEditor.Models.Layers
 
             foreach (var guid in layersInFolder)
             {
-                var layer = layers.First(x => x.LayerGuid == guid);
-                if (!layersInStructure.Contains(layer.LayerGuid))
+                var layer = layers.FirstOrDefault(x => x.LayerGuid == guid);
+                if (layer != null)
                 {
-                    layersInStructure.Add(layer.LayerGuid);
-                    structureItemLayers.Add(layer);
+                    if (!layersInStructure.Contains(layer.LayerGuid))
+                    {
+                        layersInStructure.Add(layer.LayerGuid);
+                        structureItemLayers.Add(layer);
+                    }
                 }
             }
 
@@ -153,8 +156,16 @@ namespace PixiEditor.Models.Layers
                 return Array.Empty<Guid>();
             }
 
-            int startIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.StartLayerGuid));
-            int endIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.EndLayerGuid));
+            var startLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.StartLayerGuid);
+            var endLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.EndLayerGuid);
+
+            if(startLayer == null || endLayer == null)
+            {
+                return Array.Empty<Guid>();
+            }
+
+            int startIndex = layers.IndexOf(startLayer);
+            int endIndex = layers.IndexOf(endLayer);
 
             if (startIndex > endIndex)
             {
