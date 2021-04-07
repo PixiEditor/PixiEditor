@@ -34,12 +34,7 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for Structure.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty StructureProperty =
-            DependencyProperty.Register("Structure", typeof(LayerStructure), typeof(RawLayersViewer), new PropertyMetadata(default(LayerStructure), StructureChangedCallback));
-
-        private static void StructureChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            Debug.Write("asd");
-        }
+            DependencyProperty.Register("Structure", typeof(LayerStructure), typeof(RawLayersViewer), new PropertyMetadata(default(LayerStructure)));
 
         public RawLayersViewer()
         {

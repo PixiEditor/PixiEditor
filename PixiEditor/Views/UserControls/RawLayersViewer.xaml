@@ -47,11 +47,26 @@
                             <TextBlock Foreground="White" Text="End Layer: "/>
                                 <TextBlock Foreground="Wheat" Text="{Binding EndLayerGuid}"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Foreground="White" Text="Start Layer: "/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Foreground="White" Text="Start Layer: "/>
                                 <TextBlock Foreground="Wheat" Text="{Binding StartLayerGuid}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Foreground="White" Text="Subgroups: "/>
+                                <ItemsControl ItemsSource="{Binding Subgroups}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Foreground="Wheat" Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

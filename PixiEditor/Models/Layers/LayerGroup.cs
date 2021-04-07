@@ -25,7 +25,7 @@ namespace PixiEditor.Models.Layers
             List<object> obj = new(Layers.Reverse());
             foreach (var subfolder in Subfolders)
             {
-                obj.Insert(subfolder.DisplayIndex - DisplayIndex, subfolder);
+                obj.Insert(Math.Clamp(subfolder.DisplayIndex - DisplayIndex, 0, obj.Count), subfolder);
             }
 
             obj.Reverse();

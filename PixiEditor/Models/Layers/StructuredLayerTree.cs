@@ -53,27 +53,7 @@ namespace PixiEditor.Models.Layers
                     continue;
                 }
 
-                if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid))
-                {
-                    groupsAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid).ToList();
-                    for (int j = 0; j < groupsAtIndex.Count; j++)
-                    {
-                        LayerGroup group = groupsAtIndex[j];
-
-                        if (currentFolder != null)
-                        {
-                            unfinishedFolders.Push(currentFolder);
-                        }
-
-                        groupsAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
-                        groupsAtIndex[j].DisplayIndex = RootDirectoryItems.Count;
-                        groupsAtIndex[j].TopIndex = CalculateTopIndex(group.DisplayIndex, group.StructureData, layers);
-                        if (groupsAtIndex[j].StructureData.EndLayerGuid != layers[i].LayerGuid)
-                        {
-                            currentFolder = groupsAtIndex[j];
-                        }
-                    }
-                }
+                AssignGroup(parsedFolders, layers, ref currentFolder, ref groupsAtIndex, unfinishedFolders, i);
 
                 if (currentFolder == null && !layersInStructure.Contains(layers[i].LayerGuid))
                 {
@@ -82,6 +62,31 @@ namespace PixiEditor.Models.Layers
                 else if (!RootDirectoryItems.Contains(currentFolder))
                 {
                     RootDirectoryItems.AddRange(groupsAtIndex.Where(x => !RootDirectoryItems.Contains(x)));
+                }
+            }
+        }
+
+        private void AssignGroup(List<LayerGroup> parsedFolders, ObservableCollection<Layer> layers, ref LayerGroup currentFolder, ref List<LayerGroup> groupsAtIndex, Stack<LayerGroup> unfinishedFolders, int i)
+        {
+            if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid))
+            {
+                groupsAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid).ToList();
+                for (int j = 0; j < groupsAtIndex.Count; j++)
+                {
+                    LayerGroup group = groupsAtIndex[j];
+
+                    if (currentFolder != null)
+                    {
+                        unfinishedFolders.Push(currentFolder);
+                    }
+
+                    groupsAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
+                    groupsAtIndex[j].DisplayIndex = RootDirectoryItems.Count;
+                    groupsAtIndex[j].TopIndex = CalculateTopIndex(group.DisplayIndex, group.StructureData, layers);
+                    if (groupsAtIndex[j].StructureData.EndLayerGuid != layers[i].LayerGuid)
+                    {
+                        currentFolder = groupsAtIndex[j];
+                    }
                 }
             }
         }
