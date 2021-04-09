@@ -168,7 +168,7 @@
                         </Button.Style>
                     </Button>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://opencollective.com/pixieditor"
-                            Content="Sponsor">
+                            Content="Donate" ToolTip="And subscribe to PixiEditor's OnlyFans please">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
                                 <Style.Triggers>

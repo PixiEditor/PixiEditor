@@ -199,7 +199,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             catch (OldFileFormatException)
             {
-                NoticeDialog.Show("This .pixi file uses the old format, which is no longer supported and can't be opened.", "Old file format");
+                NoticeDialog.Show("This .pixi file uses the old format,\n which is no longer supported and can't be opened.", "Old file format");
             }
         }
 

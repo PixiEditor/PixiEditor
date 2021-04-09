@@ -22,8 +22,9 @@
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center"
-                   VerticalAlignment="Center" FontSize="18" Foreground="White" />
+        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" TextAlignment="Center"
+                   VerticalAlignment="Center" FontSize="18" Foreground="White"
+                       TextWrapping="WrapWithOverflow" TextTrimming="WordEllipsis" />
         <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
             <TextBlock Text="{Binding Title, ElementName=popup}" 
                        FontSize="18" Foreground="White"
