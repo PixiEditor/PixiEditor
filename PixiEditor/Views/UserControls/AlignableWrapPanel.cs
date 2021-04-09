@@ -24,7 +24,7 @@ namespace PixiEditor.Views.UserControls
 
             for (int i = 0; i < children.Count; i++)
             {
-                UIElement child = children[i] as UIElement;
+                UIElement child = children[i];
 
                 // Flow passes its own constraint to children
                 child.Measure(constraint);
@@ -49,7 +49,6 @@ namespace PixiEditor.Views.UserControls
                     curLineSize.Height = Math.Max(sz.Height, curLineSize.Height);
                 }
             }
-
 
             panelSize.Width = Math.Max(curLineSize.Width, panelSize.Width);
             panelSize.Height += curLineSize.Height;
