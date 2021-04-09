@@ -450,7 +450,7 @@
         <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Grid.Row="3"
                        Grid.Column="3" Orientation="Horizontal">
             <Button Style="{StaticResource BaseDarkButton}" 
-                    Visibility="{Binding UpdateSubViewModel.UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}}" FontSize="14" Height="20" 
+                    Visibility="{Binding UpdateSubViewModel.UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Hidden}" FontSize="14" Height="20" 
                     Command="{Binding UpdateSubViewModel.RestartApplicationCommand}">Restart</Button>
             <TextBlock VerticalAlignment="Center" Padding="10" HorizontalAlignment="Right"
                        Foreground="White" FontSize="14"  Text="{Binding UpdateSubViewModel.VersionText}" />

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using Newtonsoft.Json.Linq;
@@ -34,6 +35,8 @@ namespace PixiEditor.Views.Dialogs
 
         public bool RecentlyOpenedEmpty { get => (bool)GetValue(RecentlyOpenedEmptyProperty); set => SetValue(RecentlyOpenedEmptyProperty, value); }
 
+        public static string VersionText { get => $"v{Assembly.GetExecutingAssembly().GetName().Version.Major}.{Assembly.GetExecutingAssembly().GetName().Version.Minor}"; }
+
         public RelayCommand OpenFileCommand { get; set; }
 
         public RelayCommand OpenNewFileCommand { get; set; }
@@ -62,12 +65,12 @@ namespace PixiEditor.Views.Dialogs
 
             if (RecentlyOpenedEmpty)
             {
-                Height = 450;
-                Width = 522;
+                Height = 500;
+                Width = 520;
             }
             else if (RecentlyOpened.Count < 7)
             {
-                Height = 656;
+                Height = 676;
                 Width = 545;
             }
         }
