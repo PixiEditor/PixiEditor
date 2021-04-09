@@ -127,6 +127,9 @@ namespace PixiEditor.Models.UserPreferences
             }
             catch (InvalidCastException)
             {
+                Preferences.Remove(name);
+                Save();
+
                 return fallbackValue;
             }
         }
@@ -151,6 +154,9 @@ namespace PixiEditor.Models.UserPreferences
             }
             catch (InvalidCastException)
             {
+                LocalPreferences.Remove(name);
+                Save();
+
                 return fallbackValue;
             }
         }
@@ -181,7 +187,13 @@ namespace PixiEditor.Models.UserPreferences
             else
             {
                 string json = File.ReadAllText(path);
-                return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+                // dictionary is null if the user deletes the content of the preference file.
+                if (dictionary != null)
+                {
+                    return dictionary;
+                }
             }
 
             return new Dictionary<string, object>();

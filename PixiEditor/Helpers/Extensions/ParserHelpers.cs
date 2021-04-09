@@ -20,6 +20,11 @@ namespace PixiEditor.Helpers.Extensions
                     Color.FromArgb(x.Item1, x.Item2, x.Item3, x.Item4)))
             };
 
+            if (document.Layers.Count > 0)
+            {
+                document.SetMainActiveLayer(0);
+            }
+
             return document;
         }
 
