@@ -88,8 +88,14 @@ namespace PixiEditor.Views.UserControls
             if (dataObj.GetDataPresent("PixiEditor.Views.UserControls.LayerGroupControl"))
             {
                 var data = (LayerGroupControl)dataObj.GetData("PixiEditor.Views.UserControls.LayerGroupControl");
-                Guid group = data.GroupGuid;
                 var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
+
+                Guid group = data.GroupGuid;
+
+                if(group == GroupGuid || document.LayerStructure.IsChildOf(GroupData, data.GroupData))
+                {
+                    return;
+                }
 
                 int modifier = above ? 1 : -1;
 
@@ -102,7 +108,7 @@ namespace PixiEditor.Views.UserControls
                 document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData.Parent);
                 document.MoveFolderInStructure(group, tempLayer.LayerGuid, above);
                 document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
-                document.RemoveLayer(tempLayer);
+                document.RemoveLayer(tempLayer, false);
             }
         }
 

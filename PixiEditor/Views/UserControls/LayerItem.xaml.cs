@@ -173,7 +173,16 @@ namespace PixiEditor.Views
                 var data = (LayerGroupControl)e.Data.GetData("PixiEditor.Views.UserControls.LayerGroupControl");
                 Guid folder = data.GroupGuid;
 
-                data.LayersViewModel.Owner.BitmapManager.ActiveDocument.MoveFolderInStructure(folder, LayerGuid, above);
+                var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
+
+                var parentGroup = document.LayerStructure.GetGroupByLayer(LayerGuid);
+
+                if (parentGroup == data.GroupData || document.LayerStructure.IsChildOf(parentGroup, data.GroupData))
+                {
+                    return;
+                }
+
+                document.MoveFolderInStructure(folder, LayerGuid, above);
             }
         }
 

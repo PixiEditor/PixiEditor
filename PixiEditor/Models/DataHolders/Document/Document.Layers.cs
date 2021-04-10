@@ -237,7 +237,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void RemoveLayer(int layerIndex)
+        public void RemoveLayer(int layerIndex, bool addToUndo)
         {
             if (Layers.Count == 0)
             {
@@ -249,8 +249,12 @@ namespace PixiEditor.Models.DataHolders
             bool wasActive = Layers[layerIndex].IsActive;
 
             StorageBasedChange change = new StorageBasedChange(this, new[] { Layers[layerIndex] });
-            UndoManager.AddUndoChange(
-                change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }, "Remove layer"));
+            if (addToUndo)
+            {
+                UndoManager.AddUndoChange(
+                    change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }, "Remove layer"));
+
+            }
 
             Layers.RemoveAt(layerIndex);
             if (wasActive)
@@ -259,9 +263,9 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void RemoveLayer(Layer layer)
+        public void RemoveLayer(Layer layer, bool addToUndo)
         {
-            RemoveLayer(Layers.IndexOf(layer));
+            RemoveLayer(Layers.IndexOf(layer), addToUndo);
         }
 
         public void RemoveActiveLayers()
@@ -306,17 +310,26 @@ namespace PixiEditor.Models.DataHolders
 
             Layer mergedLayer = layersToMerge[0];
 
+            var groupParent = LayerStructure.GetGroupByLayer(layersToMerge[^1].LayerGuid);
+
+            Layer placeholderLayer = new("_placeholder");
+            Layers.Insert(index, placeholderLayer);
+            LayerStructure.AssignParent(placeholderLayer.LayerGuid, groupParent);
+
             for (int i = 0; i < layersToMerge.Length - 1; i++)
             {
                 Layer firstLayer = mergedLayer;
                 Layer secondLayer = layersToMerge[i + 1];
                 mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
-                Layers.Remove(layersToMerge[i]);
+                RemoveLayer(layersToMerge[i], false);
             }
 
-            Layers.Remove(layersToMerge[^1]);
-
             Layers.Insert(index, mergedLayer);
+            LayerStructure.AssignParent(mergedLayer.LayerGuid, groupParent);
+
+            RemoveLayer(placeholderLayer, false);
+
+            RemoveLayer(layersToMerge[^1], false);
 
             SetMainActiveLayer(Layers.IndexOf(mergedLayer));
 

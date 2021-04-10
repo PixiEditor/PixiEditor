@@ -118,14 +118,22 @@ namespace PixiEditor.Models.Layers
             {
                 Guid? oldStart = parentGroup.StartLayerGuid;
                 Guid? oldEnd = parentGroup.EndLayerGuid;
-                if (group.EndLayerGuid == parentGroup.EndLayerGuid && group.StartLayerGuid != null)
-                {
-                    parentGroup.EndLayerGuid = FindBoundLayer(parentGroup, (Guid)group.StartLayerGuid, false);
-                }
 
-                if (group.StartLayerGuid == parentGroup.StartLayerGuid && group.EndLayerGuid != null)
+                if (parentGroup.Subgroups.Count == 1 && parentGroup.StartLayerGuid == group.StartLayerGuid && parentGroup.EndLayerGuid == group.EndLayerGuid)
                 {
-                    parentGroup.StartLayerGuid = FindBoundLayer(parentGroup, (Guid)group.EndLayerGuid, true);
+                    RemoveGroup(parentGroup);
+                }
+                else
+                {
+                    if (group.EndLayerGuid == parentGroup.EndLayerGuid && group.StartLayerGuid != null)
+                    {
+                        parentGroup.EndLayerGuid = FindBoundLayer(parentGroup, (Guid)group.StartLayerGuid, false);
+                    }
+
+                    if (group.StartLayerGuid == parentGroup.StartLayerGuid && group.EndLayerGuid != null)
+                    {
+                        parentGroup.StartLayerGuid = FindBoundLayer(parentGroup, (Guid)group.EndLayerGuid, true);
+                    }
                 }
 
                 if (parentGroup.Parent != null)
@@ -133,6 +141,38 @@ namespace PixiEditor.Models.Layers
                     ApplyBoundsToParents(parentGroup.Parent, parentGroup, oldStart, oldEnd);
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if group is nested inside parent group.
+        /// </summary>
+        /// <param name="group">Group to check.</param>
+        /// <param name="parent">Parent of that group.</param>
+        /// <returns>True if group is nested inside parent, false if not.</returns>
+        public bool IsChildOf(GuidStructureItem group, GuidStructureItem parent)
+        {
+            if(group == null)
+            {
+                return false;
+            }
+
+            foreach (var subgroup in parent.Subgroups)
+            {
+                if(subgroup == group)
+                {
+                    return true;
+                }
+
+                if(subgroup.Subgroups.Count > 0)
+                {
+                    if(IsChildOf(group, subgroup))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void PostMoveReassignBounds(GuidStructureItem? parentGroup, Guid layerGuid)

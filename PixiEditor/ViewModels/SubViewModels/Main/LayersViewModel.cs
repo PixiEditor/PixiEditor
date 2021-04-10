@@ -130,7 +130,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             var doc = Owner.BitmapManager.ActiveDocument;
             if (!doc.Layers[index].IsActive)
             {
-                doc.RemoveLayer(index);
+                doc.RemoveLayer(index, true);
             }
             else
             {

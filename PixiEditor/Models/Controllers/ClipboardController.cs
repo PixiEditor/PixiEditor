@@ -59,7 +59,7 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0]);
+            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0], true);
         }
 
         private static void AddLayerProcess(object[] parameters)
