@@ -123,7 +123,7 @@
                 <ColumnDefinition Width="0.00001*"/>
                 <ColumnDefinition MaxWidth="18"/>
             </Grid.ColumnDefinitions>
-            <Border Grid.ColumnSpan="3" CornerRadius="2" Background="#F0F0F0"/>
+            <Border Grid.ColumnSpan="3" CornerRadius="2" Background="Transparent"/>
             <RepeatButton Grid.Column="0"  Style="{StaticResource ScrollBarLineButton}" Width="18" Command="ScrollBar.LineLeftCommand" Content="M 4 0 L 4 8 L 0 4 Z" />
             <Track Name="PART_Track" Grid.Column="1" IsDirectionReversed="False">
                 <Track.DecreaseRepeatButton>
@@ -154,29 +154,6 @@
                 <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
             </Trigger>
         </Style.Triggers>
-    </Style>
-
-    <Style x:Key="FavsScrollViewer" TargetType="{x:Type ScrollViewer}">
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <ScrollContentPresenter Grid.Column="1"/>
-                        <ScrollBar Name="PART_VerticalScrollBar" Value="{TemplateBinding VerticalOffset}" Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
-                        <ScrollBar Name="PART_HorizontalScrollBar" Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Value="{TemplateBinding HorizontalOffset}" Maximum="{TemplateBinding ScrollableWidth}" ViewportSize="{TemplateBinding ViewportWidth}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
     </Style>
 
 </ResourceDictionary>

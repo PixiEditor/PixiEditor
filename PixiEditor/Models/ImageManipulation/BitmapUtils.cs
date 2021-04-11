@@ -33,9 +33,9 @@ namespace PixiEditor.Models.ImageManipulation
         /// <summary>
         ///     Converts layers bitmaps into one bitmap.
         /// </summary>
-        /// <param name="layers">Layers to combine.</param>
         /// <param name="width">Width of final bitmap.</param>
         /// <param name="height">Height of final bitmap.</param>.
+        /// <param name="layers">Layers to combine.</param>
         /// <returns>WriteableBitmap of layered bitmaps.</returns>
         public static WriteableBitmap CombineLayers(int width, int height, params Layer[] layers)
         {
@@ -99,32 +99,13 @@ namespace PixiEditor.Models.ImageManipulation
         /// <param name="maxPreviewWidth">Max width of preview.</param>
         /// <param name="maxPreviewHeight">Max height of preview.</param>
         /// <returns>WriteableBitmap image.</returns>
-        public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int maxPreviewWidth, int maxPreviewHeight)
+        public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int maxPreviewWidth, int maxPreviewHeight, bool showHidden = false)
         {
             int minOffsetX = layers.Min(x => x.OffsetX);
             int minOffsetY = layers.Min(x => x.OffsetY);
             int width = layers.Max(x => x.OffsetX + x.Width) - minOffsetX;
             int height = layers.Max(x => x.OffsetY + x.Height) - minOffsetY;
-            return GeneratePreviewBitmap(layers, maxPreviewWidth, maxPreviewHeight, width, height, minOffsetX, minOffsetY);
-        }
-
-        private static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int maxPreviewWidth, int maxPreviewHeight, int width, int height, int minOffsetX, int minOffsetY)
-        {
-            WriteableBitmap previewBitmap = BitmapFactory.New(width, height);
-
-            // 0.8 because blit doesn't take into consideration layer opacity. Small images with opacity > 80% are simillar enough.
-            foreach (var layer in layers.Where(x => x.IsVisible && x.Opacity > 0.8f))
-            {
-                previewBitmap.Blit(
-                    new Rect(layer.OffsetX - minOffsetX, layer.OffsetY - minOffsetY, layer.Width, layer.Height),
-                    layer.LayerBitmap,
-                    new Rect(0, 0, layer.Width, layer.Height));
-            }
-
-            int finalWidth = width >= height ? maxPreviewWidth : (int)Math.Ceiling(width / ((float)height / maxPreviewHeight));
-            int finalHeight = height > width ? maxPreviewHeight : (int)Math.Ceiling(height / ((float)width / maxPreviewWidth));
-
-            return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            return GeneratePreviewBitmap(layers, maxPreviewWidth, maxPreviewHeight, width, height, minOffsetX, minOffsetY, showHidden);
         }
 
         public static Dictionary<Guid, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
@@ -154,6 +135,25 @@ namespace PixiEditor.Models.ImageManipulation
             }
 
             return result;
+        }
+
+        private static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int maxPreviewWidth, int maxPreviewHeight, int width, int height, int minOffsetX, int minOffsetY, bool showHidden = false)
+        {
+            WriteableBitmap previewBitmap = BitmapFactory.New(width, height);
+
+            // 0.8 because blit doesn't take into consideration layer opacity. Small images with opacity > 80% are simillar enough.
+            foreach (var layer in layers.Where(x => (x.IsVisible || showHidden) && x.Opacity > 0.8f))
+            {
+                previewBitmap.Blit(
+                    new Rect(layer.OffsetX - minOffsetX, layer.OffsetY - minOffsetY, layer.Width, layer.Height),
+                    layer.LayerBitmap,
+                    new Rect(0, 0, layer.Width, layer.Height));
+            }
+
+            int finalWidth = width >= height ? maxPreviewWidth : (int)Math.Ceiling(width / ((float)height / maxPreviewHeight));
+            int finalHeight = height > width ? maxPreviewHeight : (int)Math.Ceiling(height / ((float)width / maxPreviewWidth));
+
+            return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
         }
     }
 }

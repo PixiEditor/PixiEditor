@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
@@ -35,6 +36,36 @@ namespace PixiEditor.Views.UserControls
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayersViewModelProperty =
             DependencyProperty.Register("LayersViewModel", typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel), LayersViewModelCallback));
+
+        public bool IsVisibleUndoTriggerable
+        {
+            get { return (bool)GetValue(IsVisibleUndoTriggerableProperty); }
+            set { SetValue(IsVisibleUndoTriggerableProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsVisibleUndoTriggerable.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsVisibleUndoTriggerableProperty =
+            DependencyProperty.Register("IsVisibleUndoTriggerable", typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true, IsVisibleChangedCallback));
+
+        private static void IsVisibleChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            LayerGroupControl control = (LayerGroupControl)d;
+            var doc = control.LayersViewModel.Owner.BitmapManager.ActiveDocument;
+            var layers = doc.LayerStructure.GetGroupLayers(control.GroupData);
+
+            foreach (var layer in layers)
+            {
+                layer.IsVisible = (bool)e.NewValue;
+            }
+
+            doc.UndoManager.AddUndoChange(
+                new Change(
+                    nameof(IsVisibleUndoTriggerable), 
+                    e.OldValue,
+                    e.NewValue,
+                    $"Change {control.GroupName} visiblity",
+                    control), true);
+        }
 
         private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -70,6 +101,12 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty GroupDataProperty =
             DependencyProperty.Register("GroupData", typeof(GuidStructureItem), typeof(LayerGroupControl), new PropertyMetadata(default(GuidStructureItem), GroupDataChangedCallback));
 
+        public void GeneratePreviewImage()
+        {
+            var layers = LayersViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupLayers(GroupData);
+            PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, 25, 25, true);
+        }
+
         private static void GroupDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((LayerGroupControl)d).GeneratePreviewImage();
@@ -93,12 +130,6 @@ namespace PixiEditor.Views.UserControls
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
             GeneratePreviewImage();
-        }
-
-        public void GeneratePreviewImage()
-        {
-            var layers = LayersViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupLayers(GroupData);
-            PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, 25, 25);
         }
 
         private void Grid_DragEnter(object sender, DragEventArgs e)

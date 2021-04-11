@@ -9,22 +9,14 @@
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
-    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3A3A3D"/>
     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
                       Color="Black" />
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
                       Color="Transparent" />
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}"
                       Color="Black" />
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Fill" Color="#FF595959"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Stroke" Color="#FF262626"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Stroke" Color="#FF27C7F7"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Fill" Color="#FFCCEEFB"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Stroke" Color="#FF1CC4F7"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Fill" Color="#FF82DFFB"/>
     <PathGeometry x:Key="TreeArrow" Figures="M0,0 L0,6 L6,0 z"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Fill" Color="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Stroke" Color="#FF818181"/>
 
     <Style x:Key="TreeViewItemFocusVisual">
         <Setter Property="Control.Template">
@@ -44,7 +36,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
                     <Border Width="16" Height="16" Background="Transparent" Padding="5,5,5,5">
-                        <Path x:Name="ExpandPath" Fill="Transparent" Stroke="#FF989898" Data="{StaticResource TreeArrow}">
+                        <Path x:Name="ExpandPath" Fill="White" Stroke="White" Data="{StaticResource TreeArrow}">
                             <Path.RenderTransform>
                                 <RotateTransform Angle="135" CenterX="3" CenterY="3"/>
                             </Path.RenderTransform>
@@ -52,8 +44,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="#FF1BBBFA"/>
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="Transparent"/>
+                            <Setter Property="Stroke" TargetName="ExpandPath" Value="#FFA8A8A8"/>
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="#FFA8A8A8"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter Property="RenderTransform" TargetName="ExpandPath">
@@ -61,8 +53,6 @@
                                     <RotateTransform Angle="180" CenterX="3" CenterY="3"/>
                                 </Setter.Value>
                             </Setter>
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="#FF595959"/>
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="#FF262626"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -103,17 +93,21 @@
                         <Trigger Property="HasItems" Value="false">
                             <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
                         </Trigger>
-                        <Trigger Property="IsSelected" Value="true">
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="HasItems" Value="True"/>
+                                <Condition Property="IsSelected" Value="True"/>
+                            </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
                             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
-                        </Trigger>
+                        </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="true"/>
                                 <Condition Property="IsSelectionActive" Value="false"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
@@ -126,7 +120,6 @@
 
     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     </Style>
 

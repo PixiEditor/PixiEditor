@@ -41,8 +41,7 @@
             <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
         </StackPanel>
         <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <TreeView ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
+        <TreeView Grid.Row="3" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
@@ -60,6 +59,5 @@
                     </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
-        </ScrollViewer>
     </Grid>
 </UserControl>
