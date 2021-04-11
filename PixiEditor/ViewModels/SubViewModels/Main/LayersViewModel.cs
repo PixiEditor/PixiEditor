@@ -93,7 +93,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewLayer(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+            var doc = Owner.BitmapManager.ActiveDocument;
+            var activeLayerParent = doc.LayerStructure.GetGroupByLayer(doc.ActiveLayerGuid);
+            Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
+
+            doc.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+            doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
         }
 
         public bool CanCreateNewLayer(object parameter)

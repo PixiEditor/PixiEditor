@@ -35,8 +35,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
-                    <Border Width="16" Height="16" Background="Transparent" Padding="5,5,5,5">
-                        <Path x:Name="ExpandPath" Fill="White" Stroke="White" Data="{StaticResource TreeArrow}">
+                    <Border Width="20" Height="20" Background="Transparent" Padding="5,5,5,5">
+                        <Path x:Name="ExpandPath" Fill="Transparent" Stroke="White" Data="{StaticResource TreeArrow}">
                             <Path.RenderTransform>
                                 <RotateTransform Angle="135" CenterX="3" CenterY="3"/>
                             </Path.RenderTransform>
@@ -53,6 +53,7 @@
                                     <RotateTransform Angle="180" CenterX="3" CenterY="3"/>
                                 </Setter.Value>
                             </Setter>
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="White"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -37,15 +37,15 @@
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
+    <None Remove="Images\Folder-add.png" />
     <None Remove="Images\Folder.png" />
+    <None Remove="Images\Layer-add.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
     <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\SelectImage.png" />
     <None Remove="Images\ZoomImage.png" />
-    <None Remove="Views\UserControls\transparentbg.png" />
-    <None Remove="Views\UserControls\transparentbg_mini.png" />
     <None Include="..\icon.ico">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -79,7 +79,9 @@
     <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\Eye-off.png" />
     <Resource Include="Images\Eye.png" />
+    <Resource Include="Images\Folder-add.png" />
     <Resource Include="Images\Folder.png" />
+    <Resource Include="Images\Layer-add.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\MoveImage.png" />
     <Resource Include="Images\MoveViewportImage.png" />
@@ -91,8 +93,6 @@
     <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\transparentbg.png" />
     <Resource Include="Images\ZoomImage.png" />
-    <Resource Include="Views\UserControls\transparentbg.png" />
-    <Resource Include="Views\UserControls\transparentbg_mini.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE">
