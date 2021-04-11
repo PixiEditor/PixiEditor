@@ -44,6 +44,8 @@
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\SelectImage.png" />
     <None Remove="Images\ZoomImage.png" />
+    <None Remove="Views\UserControls\transparentbg.png" />
+    <None Remove="Views\UserControls\transparentbg_mini.png" />
     <None Include="..\icon.ico">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -89,6 +91,8 @@
     <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\transparentbg.png" />
     <Resource Include="Images\ZoomImage.png" />
+    <Resource Include="Views\UserControls\transparentbg.png" />
+    <Resource Include="Views\UserControls\transparentbg_mini.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE">

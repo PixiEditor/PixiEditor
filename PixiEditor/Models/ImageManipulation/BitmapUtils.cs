@@ -83,25 +83,46 @@ namespace PixiEditor.Models.ImageManipulation
       /// <summary>
         /// Generates simplified preview from Document, very fast, great for creating small previews. Creates uniform streched image.
         /// </summary>
-        /// <param name="document">Document which be used to generate preview.</param>
+        /// <param name="document">Document which will be used to generate preview.</param>
         /// <param name="maxPreviewWidth">Max width of preview.</param>
         /// <param name="maxPreviewHeight">Max height of preview.</param>
         /// <returns>WriteableBitmap image.</returns>
         public static WriteableBitmap GeneratePreviewBitmap(Document document, int maxPreviewWidth, int maxPreviewHeight)
         {
-            WriteableBitmap previewBitmap = BitmapFactory.New(document.Width, document.Height);
+            return GeneratePreviewBitmap(document.Layers, maxPreviewWidth, maxPreviewHeight, document.Width, document.Height, 0, 0);
+        }
+
+        /// <summary>
+        /// Generates simplified preview from layers, very fast, great for creating small previews. Creates uniform streched image.
+        /// </summary>
+        /// <param name="layers">Layers which will be used to generate preview.</param>
+        /// <param name="maxPreviewWidth">Max width of preview.</param>
+        /// <param name="maxPreviewHeight">Max height of preview.</param>
+        /// <returns>WriteableBitmap image.</returns>
+        public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int maxPreviewWidth, int maxPreviewHeight)
+        {
+            int minOffsetX = layers.Min(x => x.OffsetX);
+            int minOffsetY = layers.Min(x => x.OffsetY);
+            int width = layers.Max(x => x.OffsetX + x.Width) - minOffsetX;
+            int height = layers.Max(x => x.OffsetY + x.Height) - minOffsetY;
+            return GeneratePreviewBitmap(layers, maxPreviewWidth, maxPreviewHeight, width, height, minOffsetX, minOffsetY);
+        }
+
+        private static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int maxPreviewWidth, int maxPreviewHeight, int width, int height, int minOffsetX, int minOffsetY)
+        {
+            WriteableBitmap previewBitmap = BitmapFactory.New(width, height);
 
             // 0.8 because blit doesn't take into consideration layer opacity. Small images with opacity > 80% are simillar enough.
-            foreach (var layer in document.Layers.Where(x => x.IsVisible && x.Opacity > 0.8f))
+            foreach (var layer in layers.Where(x => x.IsVisible && x.Opacity > 0.8f))
             {
                 previewBitmap.Blit(
-                    new Rect(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height),
+                    new Rect(layer.OffsetX - minOffsetX, layer.OffsetY - minOffsetY, layer.Width, layer.Height),
                     layer.LayerBitmap,
                     new Rect(0, 0, layer.Width, layer.Height));
             }
 
-            int width = document.Width >= document.Height ? maxPreviewWidth : (int)Math.Ceiling(document.Width / ((float)document.Height / maxPreviewHeight));
-            int height = document.Height > document.Width ? maxPreviewHeight : (int)Math.Ceiling(document.Height / ((float)document.Width / maxPreviewWidth));
+            int finalWidth = width >= height ? maxPreviewWidth : (int)Math.Ceiling(width / ((float)height / maxPreviewHeight));
+            int finalHeight = height > width ? maxPreviewHeight : (int)Math.Ceiling(height / ((float)width / maxPreviewWidth));
 
             return previewBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
         }

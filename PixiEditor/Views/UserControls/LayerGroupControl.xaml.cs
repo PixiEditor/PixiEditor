@@ -3,6 +3,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -31,7 +34,21 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayersViewModelProperty =
-            DependencyProperty.Register("LayersViewModel", typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel)));
+            DependencyProperty.Register("LayersViewModel", typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel), LayersViewModelCallback));
+
+        private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            LayerGroupControl control = (LayerGroupControl)d;
+            if(e.OldValue is LayersViewModel oldVm && oldVm != e.NewValue)
+            {
+                oldVm.Owner.BitmapManager.MouseController.StoppedRecordingChanges -= control.MouseController_StoppedRecordingChanges;
+            }
+
+            if(e.NewValue is LayersViewModel vm)
+            {
+                vm.Owner.BitmapManager.MouseController.StoppedRecordingChanges += control.MouseController_StoppedRecordingChanges;
+            }
+        }
 
         public string GroupName
         {
@@ -51,11 +68,37 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty GroupDataProperty =
-            DependencyProperty.Register("GroupData", typeof(GuidStructureItem), typeof(LayerGroupControl), new PropertyMetadata(default(GuidStructureItem)));
+            DependencyProperty.Register("GroupData", typeof(GuidStructureItem), typeof(LayerGroupControl), new PropertyMetadata(default(GuidStructureItem), GroupDataChangedCallback));
+
+        private static void GroupDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((LayerGroupControl)d).GeneratePreviewImage();
+        }
+
+        public WriteableBitmap PreviewImage
+        {
+            get { return (WriteableBitmap)GetValue(PreviewImageProperty); }
+            set { SetValue(PreviewImageProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for PreviewImage.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty PreviewImageProperty =
+            DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(LayerGroupControl), new PropertyMetadata(default(WriteableBitmap)));
 
         public LayerGroupControl()
         {
             InitializeComponent();
+        }
+
+        private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
+        {
+            GeneratePreviewImage();
+        }
+
+        public void GeneratePreviewImage()
+        {
+            var layers = LayersViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupLayers(GroupData);
+            PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, 25, 25);
         }
 
         private void Grid_DragEnter(object sender, DragEventArgs e)
@@ -120,6 +163,12 @@ namespace PixiEditor.Views.UserControls
         private void Grid_Drop_Bottom(object sender, DragEventArgs e)
         {
             HandleDrop(e.Data, false);
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
+            doc.SetMainActiveLayer(doc.Layers.IndexOf(doc.Layers.First(x => x.LayerGuid == GroupData.EndLayerGuid)));
         }
     }
 }
