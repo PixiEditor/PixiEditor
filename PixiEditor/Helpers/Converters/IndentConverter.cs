@@ -11,7 +11,7 @@ namespace PixiEditor.Helpers.Converters
 {
     public class IndentConverter : IValueConverter
     {
-        private const int IndentSize = 16;  // hard-coded into the XAML template
+        private const int IndentSize = 20;
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

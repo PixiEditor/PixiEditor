@@ -31,7 +31,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center" 
