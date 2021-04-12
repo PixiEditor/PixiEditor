@@ -297,7 +297,7 @@
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
                                         <usercontrols:LayersManager
-                                            LayerOpacity="{Binding BitmapManager.ActiveDocument.ActiveLayer.OpacityUndoTriggerable}"
+                                            LayerOpacity="{Binding BitmapManager.ActiveDocument.ActiveLayer.OpacityUndoTriggerable, Mode=TwoWay}"
                                             LayerCommandsViewModel="{Binding LayersSubViewModel}"
                                             OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
                     Converter={StaticResource NotNullToBoolConverter}}">

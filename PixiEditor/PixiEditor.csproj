@@ -45,6 +45,7 @@
     <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\SelectImage.png" />
+    <None Remove="Images\Trash.png" />
     <None Remove="Images\ZoomImage.png" />
     <None Include="..\icon.ico">
       <Pack>True</Pack>
@@ -92,6 +93,7 @@
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\transparentbg.png" />
+    <Resource Include="Images\Trash.png" />
     <Resource Include="Images\ZoomImage.png" />
   </ItemGroup>
   <ItemGroup>

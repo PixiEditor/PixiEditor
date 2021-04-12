@@ -15,7 +15,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand NewLayerCommand { get; set; }
 
         public RelayCommand NewGroupCommand { get; set; }
-
+        public RelayCommand DeleteSelectedCommand { get; set; }
         public RelayCommand DeleteGroupCommand { get; set; }
 
         public RelayCommand DeleteLayersCommand { get; set; }
@@ -49,7 +49,25 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
             RenameGroupCommand = new RelayCommand(RenameGroup);
             DeleteGroupCommand = new RelayCommand(DeleteGroup);
+            DeleteSelectedCommand = new RelayCommand(DeleteSelected, CanDeleteSelected);
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+        }
+
+        public bool CanDeleteSelected(object parameter)
+        {
+            return parameter is not null and (Layer or LayerGroup);
+        }
+
+        public void DeleteSelected(object parameter)
+        {
+            if(parameter is Layer layer)
+            {
+                DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(layer));
+            }
+            else if(parameter is LayerGroup group)
+            {
+                DeleteGroup(group.GroupGuid);
+            }
         }
 
         public void DeleteGroup(object parameter)

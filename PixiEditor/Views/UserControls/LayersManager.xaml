@@ -20,34 +20,45 @@
             <RowDefinition Height="15"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-        <StackPanel Background="{StaticResource MainColor}" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Stretch">
-            <Button Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" 
-                    Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
-                                            HorizontalAlignment="Stretch" Margin="5"
-                                            Style="{StaticResource DarkRoundButton}">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/Layer-add.png"/>
-                </Button.Background>
-            </Button>
-            <Button Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" Height="24" Width="24" ToolTip="New Group"
-                                            HorizontalAlignment="Stretch" Margin="5"
-                                            Style="{StaticResource DarkRoundButton}">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/Folder-add.png"/>
-                </Button.Background>
-            </Button>
-            <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
-            <vws:NumberInput
-                    Min="0" Max="100"
-                    IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 
-                    Width="40" Height="20"
-                    VerticalAlignment="Center"
-                    Value="{Binding LayerOpacity, Mode=TwoWay,
-                    Converter={StaticResource FloatNormalizeConverter}, ElementName=layersManager}" />
-            <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
-        </StackPanel>
+        <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                <Button Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" 
+                        Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
+                                                HorizontalAlignment="Stretch" Margin="5"
+                                                Style="{StaticResource ToolButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Layer-add.png"/>
+                    </Button.Background>
+                </Button>
+                <Button Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" Height="24" Width="24" ToolTip="New Group" Cursor="Hand"
+                                                HorizontalAlignment="Stretch" Margin="5"
+                                                Style="{StaticResource ToolButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Folder-add.png"/>
+                    </Button.Background>
+                </Button>
+                <Button Command="{Binding LayerCommandsViewModel.DeleteSelectedCommand, ElementName=layersManager}" Height="24" Width="24" ToolTip="Delete selected" CommandParameter="{Binding ElementName=treeView, Path=SelectedItem}" Cursor="Hand"
+                                                HorizontalAlignment="Stretch" Margin="5"
+                                                Style="{StaticResource ToolButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Trash.png"/>
+                    </Button.Background>
+                </Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right">
+                <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
+                <vws:NumberInput
+                        Min="0" Max="100"
+                        IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 
+                        Width="40" Height="20"
+                        VerticalAlignment="Center"
+                        Value="{Binding LayerOpacity, Mode=TwoWay,
+                        Converter={StaticResource FloatNormalizeConverter}, ElementName=layersManager}" />
+                <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DockPanel>
         <Separator Grid.Row="1" Margin="0,-12, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
-        <TreeView Grid.Row="2" Margin="0, -12, 0, 0" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
+        <TreeView Name="treeView" Grid.Row="2" Margin="0, -12, 0, 0" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
