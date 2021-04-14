@@ -60,11 +60,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void CreateGroupFromActiveLayers(object parameter)
         {
-            var doc = Owner.BitmapManager.ActiveDocument;
-            if (doc != null)
-            {
-                doc.LayerStructure.AddNewGroup($"{Owner.BitmapManager.ActiveLayer.Name} Group", doc.Layers.Where(x => x.IsActive).Reverse(), Owner.BitmapManager.ActiveDocument.ActiveLayerGuid);
-            }
+            //var doc = Owner.BitmapManager.ActiveDocument;
+            //if (doc != null)
+            //{
+            //    doc.LayerStructure.AddNewGroup($"{Owner.BitmapManager.ActiveLayer.Name} Group", doc.Layers.Where(x => x.IsActive).Reverse(), Owner.BitmapManager.ActiveDocument.ActiveLayerGuid);
+            //}
         }
 
         public bool CanDeleteSelected(object parameter)

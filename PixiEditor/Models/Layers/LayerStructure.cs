@@ -32,7 +32,8 @@ namespace PixiEditor.Models.Layers
             return GetGroupByLayer(layerGuid, Groups);
         }
 
-        public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers, Guid activeLayer)
+        // This will allow to add new group with multiple layers and groups at once. Not working well, todo fix
+        /*public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers, Guid activeLayer)
         {
             var activeLayerParent = GetGroupByLayer(activeLayer);
 
@@ -68,7 +69,7 @@ namespace PixiEditor.Models.Layers
             }
 
             return group;
-        }
+        }*/
 
         public GuidStructureItem AddNewGroup(string groupName, Guid childLayer)
         {
