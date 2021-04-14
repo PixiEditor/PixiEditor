@@ -32,6 +32,30 @@ namespace PixiEditor.Models.Layers
             return GetGroupByLayer(layerGuid, Groups);
         }
 
+        public LayerStructure Clone()
+        {
+            return new(CloneGroups(Groups), Owner);
+        }
+
+        private ObservableCollection<GuidStructureItem> CloneGroups(ObservableCollection<GuidStructureItem> groups)
+        {
+            ObservableCollection<GuidStructureItem> outputGroups = new();
+            foreach (var group in groups.ToArray())
+            {
+                outputGroups.Add(new(group.Name, group.StartLayerGuid, group.EndLayerGuid, group.Subgroups, group.Parent)
+                {
+                    GroupGuid = group.GroupGuid,
+                    IsExpanded = group.IsExpanded,
+                });
+                if(group.Subgroups.Count > 0)
+                {
+                    outputGroups[^1].Subgroups = CloneGroups(group.Subgroups);
+                }
+            }
+
+            return outputGroups;
+        }
+
         // This will allow to add new group with multiple layers and groups at once. Not working well, todo fix
         /*public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers, Guid activeLayer)
         {
@@ -420,7 +444,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private Guid? FindBoundLayer(Guid layerGuid, int parentFolderTopIndex, int parentFolderBottomIndex, bool above)
+        private Guid FindBoundLayer(Guid layerGuid, int parentFolderTopIndex, int parentFolderBottomIndex, bool above)
         {
             return GetNextLayerGuid(
                    layerGuid,
@@ -428,7 +452,7 @@ namespace PixiEditor.Models.Layers
                    above);
         }
 
-        private Guid? FindBoundLayer(GuidStructureItem parentFolder, Guid layerGuid, bool above)
+        private Guid FindBoundLayer(GuidStructureItem parentFolder, Guid layerGuid, bool above)
         {
             int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.EndLayerGuid));
             int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.StartLayerGuid));
@@ -436,23 +460,13 @@ namespace PixiEditor.Models.Layers
             return FindBoundLayer(layerGuid, parentFolderTopIndex, parentFolderBottomIndex, above);
         }
 
-        private Guid? GetNextLayerGuid(Guid? layer, List<Guid> allLayers, bool above)
+        private Guid GetNextLayerGuid(Guid layer, List<Guid> allLayers, bool above)
         {
-            if (layer == null)
-            {
-                return null;
-            }
-
-            int indexOfLayer = allLayers.IndexOf(layer.Value);
+            int indexOfLayer = allLayers.IndexOf(layer);
 
             int modifier = above ? 1 : -1;
 
-            int newIndex = indexOfLayer + modifier;
-
-            if (newIndex < 0 || newIndex >= allLayers.Count)
-            {
-                return null;
-            }
+            int newIndex = Math.Clamp(indexOfLayer + modifier, 0, allLayers.Count - 1);
 
             return allLayers[newIndex];
         }

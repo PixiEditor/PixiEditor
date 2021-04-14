@@ -168,16 +168,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void DeleteLayer(object parameter)
         {
-            int index = (int)parameter;
             var doc = Owner.BitmapManager.ActiveDocument;
-            if (!doc.Layers[index].IsActive)
-            {
-                doc.RemoveLayer(index, true);
-            }
-            else
-            {
-                doc.RemoveActiveLayers();
-            }
+            doc.RemoveActiveLayers();
         }
 
         public bool CanDeleteLayer(object property)

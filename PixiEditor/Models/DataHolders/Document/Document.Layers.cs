@@ -149,7 +149,7 @@ namespace PixiEditor.Models.DataHolders
 
             if (Layers.Count > 1)
             {
-                StorageBasedChange storageChange = new StorageBasedChange(this, new[] { Layers[^1] }, false);
+                StorageBasedChange storageChange = new(this, new[] { Layers[^1] }, false);
                 UndoManager.AddUndoChange(
                     storageChange.ToChange(
                         RemoveLayerProcess,
@@ -238,7 +238,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void RemoveLayer(int layerIndex, bool addToUndo)
+        public void RemoveLayer(int layerIndex, bool addToUndo = true)
         {
             if (Layers.Count == 0)
             {
@@ -249,12 +249,11 @@ namespace PixiEditor.Models.DataHolders
 
             bool wasActive = Layers[layerIndex].IsActive;
 
-            StorageBasedChange change = new StorageBasedChange(this, new[] { Layers[layerIndex] });
+            StorageBasedChange change = new(this, new[] { Layers[layerIndex] });
             if (addToUndo)
             {
                 UndoManager.AddUndoChange(
-                    change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }, "Remove layer"));
-
+                    change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }));
             }
 
             Layers.RemoveAt(layerIndex);
@@ -276,16 +275,23 @@ namespace PixiEditor.Models.DataHolders
                 return;
             }
 
+            var oldLayerStructure = LayerStructure.Clone();
+
             Layer[] layers = Layers.Where(x => x.IsActive).ToArray();
             int firstIndex = Layers.IndexOf(layers[0]);
 
             object[] guidArgs = new object[] { layers.Select(x => x.LayerGuid).ToArray() };
 
-            StorageBasedChange change = new StorageBasedChange(this, layers);
+            StorageBasedChange change = new(this, layers);
 
             RemoveLayersProcess(guidArgs);
 
+            UndoManager.AddUndoChange(
+                new Change(nameof(LayerStructure), oldLayerStructure, LayerStructure.Clone(), root: this));
+
             InjectRemoveActiveLayersUndo(guidArgs, change);
+
+            UndoManager.SquashUndoChanges(2, "Removed active layers");
 
             SetNextLayerAsActive(firstIndex);
         }
@@ -389,7 +395,7 @@ namespace PixiEditor.Models.DataHolders
 
             if (Layers.Count == 0)
             {
-                Layer layer = new Layer("Base Layer");
+                Layer layer = new("Base Layer");
                 Layers.Add(layer);
                 undoAction = (Layer[] layers, UndoLayer[] undoData) =>
                 {

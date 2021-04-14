@@ -25,9 +25,9 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private Guid? startLayerGuid = null;
+        private Guid startLayerGuid;
 
-        public Guid? StartLayerGuid
+        public Guid StartLayerGuid
         {
             get => startLayerGuid;
             set
@@ -37,9 +37,9 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private Guid? endLayerGuid = null;
+        private Guid endLayerGuid;
 
-        public Guid? EndLayerGuid
+        public Guid EndLayerGuid
         {
             get => endLayerGuid;
             set
