@@ -15,7 +15,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand NewLayerCommand { get; set; }
 
         public RelayCommand NewGroupCommand { get; set; }
+
+        public RelayCommand CreateGroupFromActiveLayersCommand { get; set; }
+
         public RelayCommand DeleteSelectedCommand { get; set; }
+
         public RelayCommand DeleteGroupCommand { get; set; }
 
         public RelayCommand DeleteLayersCommand { get; set; }
@@ -40,6 +44,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
             NewGroupCommand = new RelayCommand(NewGroup, CanCreateNewLayer);
+            CreateGroupFromActiveLayersCommand = new RelayCommand(CreateGroupFromActiveLayers, CanCreateGroupFromSelected);
             DeleteLayersCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
@@ -51,6 +56,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             DeleteGroupCommand = new RelayCommand(DeleteGroup);
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, CanDeleteSelected);
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+        }
+
+        public void CreateGroupFromActiveLayers(object parameter)
+        {
+            var doc = Owner.BitmapManager.ActiveDocument;
+            if (doc != null)
+            {
+                doc.LayerStructure.AddNewGroup($"{Owner.BitmapManager.ActiveLayer.Name} Group", doc.Layers.Where(x => x.IsActive).Reverse(), Owner.BitmapManager.ActiveDocument.ActiveLayerGuid);
+            }
         }
 
         public bool CanDeleteSelected(object parameter)
@@ -107,6 +121,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public bool CanMergeSelected(object obj)
         {
             return Owner.BitmapManager.ActiveDocument?.Layers.Count(x => x.IsActive) > 1;
+        }
+
+        public bool CanCreateGroupFromSelected(object obj)
+        {
+            return Owner.BitmapManager.ActiveDocument?.Layers.Count(x => x.IsActive) > 0;
         }
 
         public void NewLayer(object parameter)

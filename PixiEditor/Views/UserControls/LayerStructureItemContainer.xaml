@@ -38,6 +38,8 @@
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                            CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
+                <MenuItem Header="Create group"  Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.CreateGroupFromActiveLayersCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                 <Separator/>
                 <MenuItem Header="Merge selected"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MergeSelectedCommand, 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Windows;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
@@ -31,7 +32,45 @@ namespace PixiEditor.Models.Layers
             return GetGroupByLayer(layerGuid, Groups);
         }
 
-        public void AddNewGroup(string groupName, Guid childLayer)
+        public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers, Guid activeLayer)
+        {
+            var activeLayerParent = GetGroupByLayer(activeLayer);
+
+            List<GuidStructureItem> sameLevelGroups = new List<GuidStructureItem>();
+
+            var group = AddNewGroup(groupName, activeLayer);
+
+            if (activeLayerParent == null)
+            {
+                sameLevelGroups.AddRange(Groups);
+            }
+            else
+            {
+                sameLevelGroups.AddRange(activeLayerParent.Subgroups);
+            }
+
+            sameLevelGroups.Remove(group);
+            group.Subgroups = new ObservableCollection<GuidStructureItem>(sameLevelGroups);
+
+            sameLevelGroups = new(sameLevelGroups.Where(x => IsChildOf(activeLayer, x)));
+
+            Guid lastLayer = activeLayer;
+
+            foreach (var layer in layers)
+            {
+                if (layer.LayerGuid == activeLayer)
+                {
+                    continue;
+                }
+
+                Owner.MoveLayerInStructure(layer.LayerGuid, lastLayer, false);
+                lastLayer = layer.LayerGuid;
+            }
+
+            return group;
+        }
+
+        public GuidStructureItem AddNewGroup(string groupName, Guid childLayer)
         {
             var parent = GetGroupByLayer(childLayer);
             GuidStructureItem group = new (groupName, childLayer);
@@ -48,8 +87,8 @@ namespace PixiEditor.Models.Layers
             group.GroupsChanged += Group_GroupsChanged;
 
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+            return group;
         }
-
 
 #nullable enable
         public void MoveGroup(Guid groupGuid, GuidStructureItem? parentGroup, int newIndex)
@@ -169,6 +208,37 @@ namespace PixiEditor.Models.Layers
                     {
                         return true;
                     }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if layer is nested inside parent group.
+        /// </summary>
+        /// <param name="layerGuid">Layer GUID to check.</param>
+        /// <param name="parent">Parent of that group.</param>
+        /// <returns>True if layer is nested inside parent, false if not.</returns>
+        public bool IsChildOf(Guid layerGuid, GuidStructureItem parent)
+        {
+            var layerParent = GetGroupByLayer(layerGuid);
+
+            if(layerParent == parent)
+            {
+                return true;
+            }
+            else
+            {
+                GuidStructureItem nextParent = parent;
+                while (nextParent.Parent != null)
+                {
+                    if(nextParent == parent)
+                    {
+                        return true;
+                    }
+
+                    nextParent = nextParent.Parent;
                 }
             }
 
@@ -400,17 +470,17 @@ namespace PixiEditor.Models.Layers
         }
 
 #nullable disable
-        private GuidStructureItem GetGroupByLayer(Guid layerGuid, IEnumerable<GuidStructureItem> folders)
+        private GuidStructureItem GetGroupByLayer(Guid layerGuid, IEnumerable<GuidStructureItem> groups)
         {
-            foreach (var folder in folders)
+            foreach (var currentGroup in groups)
             {
-                int topIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.EndLayerGuid));
-                int bottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == folder.StartLayerGuid));
+                int topIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == currentGroup.EndLayerGuid));
+                int bottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == currentGroup.StartLayerGuid));
                 var layers = GetLayersInOrder(new FolderData(topIndex, bottomIndex));
 
-                if (folder.Subgroups.Count > 0)
+                if (currentGroup.Subgroups.Count > 0)
                 {
-                    var group = GetGroupByLayer(layerGuid, folder.Subgroups);
+                    var group = GetGroupByLayer(layerGuid, currentGroup.Subgroups);
                     if(group != null)
                     {
                         return group;
@@ -419,7 +489,7 @@ namespace PixiEditor.Models.Layers
 
                 if (layers.Contains(layerGuid))
                 {
-                    return folder;
+                    return currentGroup;
                 }
             }
 

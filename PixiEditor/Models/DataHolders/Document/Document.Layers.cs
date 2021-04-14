@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -536,7 +537,7 @@ namespace PixiEditor.Models.DataHolders
                 newIndex++;
             }
 
-            return newIndex;
+            return Math.Clamp(newIndex, 0, Layers.Count - 1);
         }
 
         private void MoveLayerInStructureProcess(object[] parameter)
