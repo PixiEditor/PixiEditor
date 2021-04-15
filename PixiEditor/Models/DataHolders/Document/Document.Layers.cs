@@ -38,7 +38,15 @@ namespace PixiEditor.Models.DataHolders
             get => layerStructure;
             set
             {
+                if (layerStructure != null)
+                {
+                    layerStructure.Groups.CollectionChanged -= Groups_CollectionChanged;
+                    layerStructure.LayerStructureChanged -= LayerStructure_LayerStructureChanged;
+                }
+
                 SetProperty(ref layerStructure, value);
+                value.Groups.CollectionChanged += Groups_CollectionChanged;
+                value.LayerStructureChanged += LayerStructure_LayerStructureChanged;
             }
         }
 
@@ -116,18 +124,39 @@ namespace PixiEditor.Models.DataHolders
             UndoManager.SquashUndoChanges(2, "Move layer");
         }
 
-        public void MoveFolderInStructure(Guid groupGuid, Guid referenceLayer, bool above = false)
+        public void MoveGroupInStructure(Guid groupGuid, Guid referenceLayer, bool above = false)
         {
             var args = new object[] { groupGuid, referenceLayer, above };
 
+            var topLayer = Layers.First(x => x.LayerGuid == LayerStructure.GetGroupByGuid(groupGuid).EndLayerGuid);
+            var bottomLayer = Layers.First(x => x.LayerGuid == LayerStructure.GetGroupByGuid(groupGuid).StartLayerGuid);
+
+            int indexOfTopLayer = Layers.IndexOf(topLayer);
+            Guid oldReferenceLayerGuid;
+            bool oldAbove = false;
+
+            if(indexOfTopLayer + 1 < Layers.Count)
+            {
+                oldReferenceLayerGuid = topLayer.LayerGuid;
+            }
+            else
+            {
+                int indexOfBottomLayer = Layers.IndexOf(bottomLayer);
+                oldReferenceLayerGuid = Layers[indexOfBottomLayer - 1].LayerGuid;
+                oldAbove = true;
+            }
+
             var oldLayerStructure = LayerStructure.Clone();
 
-            MoveFolderInStructureProcess(args);
+            MoveGroupInStructureProcess(args);
 
             AddLayerStructureToUndo(oldLayerStructure);
 
-            //UndoManager.AddUndoChange(new Change(
-            //    MoveFolderInStructureProcess, ));
+            UndoManager.AddUndoChange(new Change(
+                MoveGroupInStructureProcess,
+                new object[] { groupGuid, oldReferenceLayerGuid, oldAbove },
+                MoveGroupInStructureProcess,
+                args));
 
             UndoManager.SquashUndoChanges(2, "Move gorup");
         }
@@ -495,7 +524,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private void MoveFolderInStructureProcess(object[] parameter)
+        private void MoveGroupInStructureProcess(object[] parameter)
         {
             Guid folderGuid = (Guid)parameter[0];
             Guid referenceLayerGuid = (Guid)parameter[1];

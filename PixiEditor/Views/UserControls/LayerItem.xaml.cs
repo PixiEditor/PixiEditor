@@ -182,7 +182,7 @@ namespace PixiEditor.Views
                     return;
                 }
 
-                document.MoveFolderInStructure(folder, LayerGuid, above);
+                document.MoveGroupInStructure(folder, LayerGuid, above);
             }
         }
 

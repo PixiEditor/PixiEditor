@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Windows;
-using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Layers
@@ -45,7 +42,7 @@ namespace PixiEditor.Models.Layers
                 outputGroups.Add(new(group.Name, group.StartLayerGuid, group.EndLayerGuid, group.Subgroups, group.Parent)
                 {
                     GroupGuid = group.GroupGuid,
-                    IsExpanded = group.IsExpanded,
+                    IsExpanded = group.IsExpanded
                 });
                 if(group.Subgroups.Count > 0)
                 {

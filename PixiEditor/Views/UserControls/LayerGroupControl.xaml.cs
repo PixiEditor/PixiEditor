@@ -180,7 +180,7 @@ namespace PixiEditor.Views.UserControls
                 document.Layers.Insert(indexOfReferenceLayer, tempLayer);
 
                 document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData.Parent);
-                document.MoveFolderInStructure(group, tempLayer.LayerGuid, above);
+                document.MoveGroupInStructure(group, tempLayer.LayerGuid, above);
                 document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
                 document.RemoveLayer(tempLayer, false);
             }
