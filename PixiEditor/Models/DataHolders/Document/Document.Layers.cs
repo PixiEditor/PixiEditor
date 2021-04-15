@@ -100,7 +100,11 @@ namespace PixiEditor.Models.DataHolders
 
             int oldIndex = Layers.IndexOf(layer);
 
+            var oldLayerStrcuture = LayerStructure.Clone();
+
             MoveLayerInStructureProcess(args);
+
+            AddLayerStructureToUndo(oldLayerStrcuture);
 
             UndoManager.AddUndoChange(new Change(
                 ReverseMoveLayerInStructureProcess,
@@ -108,20 +112,24 @@ namespace PixiEditor.Models.DataHolders
                 MoveLayerInStructureProcess,
                 args,
                 "Move layer"));
+
+            UndoManager.SquashUndoChanges(2, "Move layer");
         }
 
         public void MoveFolderInStructure(Guid groupGuid, Guid referenceLayer, bool above = false)
         {
             var args = new object[] { groupGuid, referenceLayer, above };
 
+            var oldLayerStructure = LayerStructure.Clone();
+
             MoveFolderInStructureProcess(args);
 
+            AddLayerStructureToUndo(oldLayerStructure);
+
             //UndoManager.AddUndoChange(new Change(
-            //    ReverseMoveLayerInStructureProcess,
-            //    new object[] { oldIndex, layerGuid, oldLayerFolder },
-            //    MoveLayerInStructureProcess,
-            //    args,
-            //    "Move layer"));
+            //    MoveFolderInStructureProcess, ));
+
+            UndoManager.SquashUndoChanges(2, "Move gorup");
         }
 
         public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
@@ -286,14 +294,19 @@ namespace PixiEditor.Models.DataHolders
 
             RemoveLayersProcess(guidArgs);
 
-            UndoManager.AddUndoChange(
-                new Change(nameof(LayerStructure), oldLayerStructure, LayerStructure.Clone(), root: this));
+            AddLayerStructureToUndo(oldLayerStructure);
 
             InjectRemoveActiveLayersUndo(guidArgs, change);
 
             UndoManager.SquashUndoChanges(2, "Removed active layers");
 
             SetNextLayerAsActive(firstIndex);
+        }
+
+        public void AddLayerStructureToUndo(LayerStructure oldLayerStructure)
+        {
+            UndoManager.AddUndoChange(
+                new Change(nameof(LayerStructure), oldLayerStructure, LayerStructure.Clone(), root: this));
         }
 
         public Layer MergeLayers(Layer[] layersToMerge, bool nameOfLast, int index)
@@ -352,18 +365,23 @@ namespace PixiEditor.Models.DataHolders
 
             IEnumerable<Layer> undoArgs = layersToMerge;
 
-            StorageBasedChange undoChange = new StorageBasedChange(this, undoArgs);
+            var oldLayerStructure = LayerStructure.Clone();
+
+            StorageBasedChange undoChange = new(this, undoArgs);
 
             int[] indexes = layersToMerge.Select(x => Layers.IndexOf(x)).ToArray();
 
             var layer = MergeLayers(layersToMerge, nameIsLastLayers, Layers.IndexOf(layersToMerge[0]));
 
+            AddLayerStructureToUndo(oldLayerStructure);
+
             UndoManager.AddUndoChange(undoChange.ToChange(
                 InsertLayersAtIndexesProcess,
                 new object[] { indexes[0] },
                 MergeLayersProcess,
-                new object[] { indexes, nameIsLastLayers, layer.LayerGuid },
-                "Undo merge layers"));
+                new object[] { indexes, nameIsLastLayers, layer.LayerGuid }));
+
+            UndoManager.SquashUndoChanges(2, "Undo merge layers");
 
             return layer;
         }

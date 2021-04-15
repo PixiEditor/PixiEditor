@@ -130,7 +130,7 @@ namespace PixiEditor.Models.Controllers
 
             Action<object[]> process = (object[] props) =>
             {
-                foreach (var prop in props)
+                foreach (var prop in props.Reverse())
                 {
                     Change change = (Change)prop;
                     if (change.Process == null)
@@ -144,7 +144,7 @@ namespace PixiEditor.Models.Controllers
                 }
             };
 
-            Change change = new Change(reverseProcess, changes, process, changes, description);
+            Change change = new(reverseProcess, changes, process, changes, description);
             AddUndoChange(change);
         }
 
