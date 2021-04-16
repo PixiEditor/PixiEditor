@@ -149,6 +149,13 @@
                     <MenuItem Header="_Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
+                <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <MenuItem Header="_Open Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
+                              CommandParameter="%LocalAppData%/PixiEditor"/>
+                    <MenuItem Header="_Open Roaming App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
+                              CommandParameter="%AppData%/PixiEditor"/>
+                    <MenuItem Header="_Open Install Location"  Command="{Binding DebugSubViewModel.OpenInstallLocationCommand}"/>
+                </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"
                         HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
