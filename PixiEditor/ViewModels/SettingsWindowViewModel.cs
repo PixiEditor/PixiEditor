@@ -24,6 +24,18 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        public bool ShowUpdateTab
+        {
+            get
+            {
+#if UPDATE
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
+
         public SettingsViewModel SettingsSubViewModel { get; set; }
 
         public SettingsWindowViewModel()

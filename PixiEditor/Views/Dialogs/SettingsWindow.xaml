@@ -13,6 +13,7 @@
     <Window.Resources>
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
         <converters:EqualityBoolToVisibilityConverter x:Key="EqualityBoolToVisibilityConverter"/>
+        <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"
@@ -47,7 +48,8 @@
             <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5"
                     Command="{Binding SelectCategoryCommand}" CommandParameter="General">General</Button>
             <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
-                    Command="{Binding SelectCategoryCommand}" CommandParameter="Updates">Updates</Button>
+                    Command="{Binding SelectCategoryCommand}" CommandParameter="Updates"
+                    Visibility="{Binding ShowUpdateTab, Converter={StaticResource BoolToVisibilityConverter}}">Updates</Button>
             <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
                     Command="{Binding SelectCategoryCommand}" CommandParameter="Discord">Discord</Button>
         </StackPanel>

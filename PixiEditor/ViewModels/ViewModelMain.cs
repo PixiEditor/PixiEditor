@@ -109,6 +109,7 @@ namespace PixiEditor.ViewModels
             ColorsSubViewModel = new ColorsViewModel(this);
             DocumentSubViewModel = new DocumentViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
+            UpdateSubViewModel = new UpdateViewModel(this);
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
@@ -199,7 +200,6 @@ namespace PixiEditor.ViewModels
         [Conditional("RELEASE")]
         private void AddReleaseOnlyViewModels()
         {
-            UpdateSubViewModel = new UpdateViewModel(this);
         }
 
         private Shortcut CreateToolShortcut<T>(Key key, ModifierKeys modifier = ModifierKeys.None)

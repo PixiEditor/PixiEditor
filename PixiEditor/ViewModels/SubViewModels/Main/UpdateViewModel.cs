@@ -161,7 +161,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private async void Owner_OnStartupEvent(object sender, EventArgs e)
+        private void Owner_OnStartupEvent(object sender, EventArgs e)
+        {
+            ConditionalUPDATE();
+        }
+
+        [Conditional("UPDATE")]
+        private async void ConditionalUPDATE()
         {
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
