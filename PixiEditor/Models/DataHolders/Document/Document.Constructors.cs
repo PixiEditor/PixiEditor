@@ -32,7 +32,10 @@ namespace PixiEditor.Models.DataHolders
 
         private void Groups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            RaisePropertyChanged(nameof(LayerStructure));
+            if (e.OldItems != e.NewItems)
+            {
+                RaisePropertyChanged(nameof(LayerStructure));
+            }
         }
 
         private void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

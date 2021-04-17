@@ -110,7 +110,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewGroup(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument?.LayerStructure.AddNewGroup($"{Owner.BitmapManager.ActiveLayer.Name} Group", Owner.BitmapManager.ActiveLayer.LayerGuid);
+            var doc = Owner.BitmapManager.ActiveDocument;
+            if (doc != null)
+            {
+                var lastGroups = doc.LayerStructure.CloneGroups();
+                doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.LayerGuid);
+                doc.AddLayerStructureToUndo(lastGroups);
+            }
         }
 
         public bool CanAddNewGroup(object property)

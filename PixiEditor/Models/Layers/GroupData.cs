@@ -1,17 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Models.Layers
 {
-    public record FolderData
+    public record GroupData
     {
         public int TopIndex { get; set; }
         public int BottomIndex { get; set; }
+        public Guid? GroupGuid { get; set; }
 
-        public FolderData(int topIndex, int bottomIndex)
+        public GroupData(Guid? groupGuid)
+        {
+            GroupGuid = groupGuid;
+        }
+
+        public GroupData(int topIndex, int bottomIndex)
         {
             TopIndex = topIndex;
             BottomIndex = bottomIndex;

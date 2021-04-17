@@ -38,8 +38,9 @@
                 <DataTemplate>
                     <Border BorderThickness="1" BorderBrush="Black">
                     <StackPanel>
-                        <Label Foreground="White" Content="{Binding Name}"/>
-                        <StackPanel Orientation="Horizontal">
+                            <Label Foreground="White" Content="{Binding Name}"/>
+                            <Label Foreground="White" Content="{Binding GroupGuid}"/>
+                            <StackPanel Orientation="Horizontal">
                             <TextBlock Foreground="White" Text="Parent: "/>
                                 <TextBlock Foreground="Wheat" Text="{Binding Parent.Name}"/>
                         </StackPanel>

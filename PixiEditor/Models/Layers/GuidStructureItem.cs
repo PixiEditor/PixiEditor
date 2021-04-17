@@ -7,7 +7,7 @@ using PixiEditor.Helpers;
 namespace PixiEditor.Models.Layers
 {
     [DebuggerDisplay("{Name} - {GroupGuid}")]
-    public class GuidStructureItem : NotifyableObject
+    public class GuidStructureItem : NotifyableObject, ICloneable
     {
         public event EventHandler GroupsChanged;
 
@@ -80,11 +80,11 @@ namespace PixiEditor.Models.Layers
             string name,
             Guid startLayerGuid,
             Guid endLayerGuid,
-            IEnumerable<GuidStructureItem> subfolders,
+            IEnumerable<GuidStructureItem> subgroups,
             GuidStructureItem parent)
         {
             Name = name;
-            Subgroups = new ObservableCollection<GuidStructureItem>(subfolders);
+            Subgroups = new ObservableCollection<GuidStructureItem>(subgroups);
             GroupGuid = Guid.NewGuid();
             Parent = parent;
             StartLayerGuid = startLayerGuid;
@@ -100,6 +100,37 @@ namespace PixiEditor.Models.Layers
             StartLayerGuid = layer;
             EndLayerGuid = layer;
             Subgroups.CollectionChanged += Subgroups_CollectionChanged;
+        }
+
+        public override int GetHashCode()
+        {
+            return GroupGuid.GetHashCode();
+        }
+
+        public GuidStructureItem CloneGroup()
+        {
+            GuidStructureItem item = new(Name, StartLayerGuid, EndLayerGuid, Array.Empty<GuidStructureItem>(), Parent?.CloneGroup())
+            {
+                GroupGuid = GroupGuid,
+                IsExpanded = isExpanded,
+                IsRenaming = isRenaming
+            };
+
+            if(Subgroups.Count > 0)
+            {
+                item.Subgroups = new ObservableCollection<GuidStructureItem>();
+                for (int i = 0; i < Subgroups.Count; i++)
+                {
+                    item.Subgroups.Add(item.CloneGroup());
+                }
+            }
+
+            return item;
+        }
+
+        public object Clone()
+        {
+            return CloneGroup();
         }
 
         private void Subgroups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

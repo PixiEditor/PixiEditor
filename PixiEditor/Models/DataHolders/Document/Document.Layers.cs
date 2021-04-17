@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using GalaSoft.MvvmLight.Messaging;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
@@ -38,15 +37,8 @@ namespace PixiEditor.Models.DataHolders
             get => layerStructure;
             set
             {
-                if (layerStructure != null)
-                {
-                    layerStructure.Groups.CollectionChanged -= Groups_CollectionChanged;
-                    layerStructure.LayerStructureChanged -= LayerStructure_LayerStructureChanged;
-                }
-
-                SetProperty(ref layerStructure, value);
-                value.Groups.CollectionChanged += Groups_CollectionChanged;
-                value.LayerStructureChanged += LayerStructure_LayerStructureChanged;
+                layerStructure = value;
+                RaisePropertyChanged(nameof(LayerStructure));
             }
         }
 
@@ -108,11 +100,11 @@ namespace PixiEditor.Models.DataHolders
 
             int oldIndex = Layers.IndexOf(layer);
 
-            var oldLayerStrcuture = LayerStructure.Clone();
+            var oldLayerStrcutureGroups = LayerStructure.CloneGroups();
 
             MoveLayerInStructureProcess(args);
 
-            AddLayerStructureToUndo(oldLayerStrcuture);
+            AddLayerStructureToUndo(oldLayerStrcutureGroups);
 
             UndoManager.AddUndoChange(new Change(
                 ReverseMoveLayerInStructureProcess,
@@ -146,7 +138,7 @@ namespace PixiEditor.Models.DataHolders
                 oldAbove = true;
             }
 
-            var oldLayerStructure = LayerStructure.Clone();
+            var oldLayerStructure = LayerStructure.CloneGroups();
 
             MoveGroupInStructureProcess(args);
 
@@ -312,7 +304,7 @@ namespace PixiEditor.Models.DataHolders
                 return;
             }
 
-            var oldLayerStructure = LayerStructure.Clone();
+            var oldLayerStructure = LayerStructure.CloneGroups();
 
             Layer[] layers = Layers.Where(x => x.IsActive).ToArray();
             int firstIndex = Layers.IndexOf(layers[0]);
@@ -332,10 +324,14 @@ namespace PixiEditor.Models.DataHolders
             SetNextLayerAsActive(firstIndex);
         }
 
-        public void AddLayerStructureToUndo(LayerStructure oldLayerStructure)
+        public void AddLayerStructureToUndo(ObservableCollection<GuidStructureItem> oldLayerStructureGroups)
         {
             UndoManager.AddUndoChange(
-                new Change(nameof(LayerStructure), oldLayerStructure, LayerStructure.Clone(), root: this));
+                new Change(
+                    BuildLayerStructureProcess,
+                    new[] { oldLayerStructureGroups },
+                    BuildLayerStructureProcess,
+                    new[] { LayerStructure.CloneGroups() }));
         }
 
         public Layer MergeLayers(Layer[] layersToMerge, bool nameOfLast, int index)
@@ -363,7 +359,7 @@ namespace PixiEditor.Models.DataHolders
 
             Layer placeholderLayer = new("_placeholder");
             Layers.Insert(index, placeholderLayer);
-            LayerStructure.AssignParent(placeholderLayer.LayerGuid, groupParent);
+            LayerStructure.AssignParent(placeholderLayer.LayerGuid, groupParent.GroupGuid);
 
             for (int i = 0; i < layersToMerge.Length - 1; i++)
             {
@@ -374,7 +370,7 @@ namespace PixiEditor.Models.DataHolders
             }
 
             Layers.Insert(index, mergedLayer);
-            LayerStructure.AssignParent(mergedLayer.LayerGuid, groupParent);
+            LayerStructure.AssignParent(mergedLayer.LayerGuid, groupParent.GroupGuid);
 
             RemoveLayer(placeholderLayer, false);
 
@@ -394,7 +390,7 @@ namespace PixiEditor.Models.DataHolders
 
             IEnumerable<Layer> undoArgs = layersToMerge;
 
-            var oldLayerStructure = LayerStructure.Clone();
+            var oldLayerStructure = LayerStructure.CloneGroups();
 
             StorageBasedChange undoChange = new(this, undoArgs);
 
@@ -415,6 +411,17 @@ namespace PixiEditor.Models.DataHolders
             return layer;
         }
 
+        private void BuildLayerStructureProcess(object[] parameters)
+        {
+            if(parameters.Length > 0 && parameters[0] is ObservableCollection<GuidStructureItem> groups)
+            {
+                LayerStructure.Groups.CollectionChanged -= Groups_CollectionChanged;
+                LayerStructure.Groups = LayerStructure.CloneGroups(groups);
+                LayerStructure.Groups.CollectionChanged += Groups_CollectionChanged;
+                RaisePropertyChanged(nameof(LayerStructure));
+            }
+        }
+
         private void ReverseMoveLayerInStructureProcess(object[] props)
         {
             int indexTo = (int)props[0];
@@ -422,15 +429,15 @@ namespace PixiEditor.Models.DataHolders
 
             Guid layerAtOldIndex = Layers[indexTo].LayerGuid;
 
-            var startFolder = LayerStructure.GetGroupByLayer(layerGuid);
+            var startGroup = LayerStructure.GetGroupByLayer(layerGuid);
 
-            LayerStructure.PreMoveReassignBounds(startFolder, layerGuid);
+            LayerStructure.PreMoveReassignBounds(new GroupData(startGroup?.GroupGuid), layerGuid);
 
             Layers.Move(Layers.IndexOf(Layers.First(x => x.LayerGuid == layerGuid)), indexTo);
 
-            var newFolder = LayerStructure.GetGroupByLayer(layerAtOldIndex);
+            var newGroup = LayerStructure.GetGroupByLayer(layerAtOldIndex);
 
-            LayerStructure.PostMoveReassignBounds(newFolder, layerGuid);
+            LayerStructure.PostMoveReassignBounds(new GroupData(newGroup?.GroupGuid), layerGuid);
 
             RaisePropertyChanged(nameof(LayerStructure));
         }
@@ -526,17 +533,17 @@ namespace PixiEditor.Models.DataHolders
 
         private void MoveGroupInStructureProcess(object[] parameter)
         {
-            Guid folderGuid = (Guid)parameter[0];
+            Guid groupGuid = (Guid)parameter[0];
             Guid referenceLayerGuid = (Guid)parameter[1];
             bool above = (bool)parameter[2];
 
-            GuidStructureItem group = LayerStructure.GetGroupByGuid(folderGuid);
+            GuidStructureItem group = LayerStructure.GetGroupByGuid(groupGuid);
             GuidStructureItem referenceLayergroup = LayerStructure.GetGroupByLayer(referenceLayerGuid);
 
             Layer referenceLayer = Layers.First(x => x.LayerGuid == referenceLayerGuid);
 
             int layerIndex = Layers.IndexOf(referenceLayer);
-            int folderTopIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == group.EndLayerGuid));
+            int folderTopIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == group?.EndLayerGuid));
             int oldIndex = folderTopIndex;
 
             if (layerIndex < folderTopIndex)
@@ -547,11 +554,11 @@ namespace PixiEditor.Models.DataHolders
 
             int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
-            LayerStructure.MoveGroup(folderGuid, group.Parent, newIndex);
+            LayerStructure.MoveGroup(groupGuid, group?.Parent?.GroupGuid, newIndex);
 
             ReassignParent(group, referenceLayergroup);
 
-            LayerStructure.PostMoveReassignBounds(group.Parent, group);
+            LayerStructure.PostMoveReassignBounds(new GroupData(group?.Parent?.GroupGuid), new GroupData(group.GroupGuid));
         }
 
         private void ReassignParent(GuidStructureItem folder, GuidStructureItem referenceLayerFolder)
@@ -603,15 +610,15 @@ namespace PixiEditor.Models.DataHolders
             int oldIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == layer));
             int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
-            var startFolder = LayerStructure.GetGroupByLayer(layer);
+            var startGroup = LayerStructure.GetGroupByLayer(layer);
 
-            LayerStructure.PreMoveReassignBounds(startFolder, layer);
+            LayerStructure.PreMoveReassignBounds(new GroupData(startGroup?.GroupGuid), layer);
 
             Layers.Move(oldIndex, newIndex);
 
             var newFolder = LayerStructure.GetGroupByLayer(referenceLayer);
 
-            LayerStructure.PostMoveReassignBounds(newFolder, layer);
+            LayerStructure.PostMoveReassignBounds(new GroupData(newFolder?.GroupGuid), layer);
 
             if (Layers.IndexOf(ActiveLayer) == oldIndex)
             {

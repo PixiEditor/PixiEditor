@@ -156,7 +156,7 @@ namespace PixiEditor.Views.UserControls
                 Guid group = data.Layer.LayerGuid;
 
                 data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(group, referenceLayer, above);
-                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, GroupData.Parent);
+                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, GroupData.Parent.GroupGuid);
             }
 
             if (dataObj.GetDataPresent("PixiEditor.Views.UserControls.LayerGroupControl"))
@@ -179,7 +179,7 @@ namespace PixiEditor.Views.UserControls
                 Layer tempLayer = new("_temp");
                 document.Layers.Insert(indexOfReferenceLayer, tempLayer);
 
-                document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData.Parent);
+                document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData.Parent.GroupGuid);
                 document.MoveGroupInStructure(group, tempLayer.LayerGuid, above);
                 document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
                 document.RemoveLayer(tempLayer, false);
