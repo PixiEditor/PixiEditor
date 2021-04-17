@@ -153,7 +153,7 @@ namespace PixiEditor.ViewModels
                         new Shortcut(Key.O, FileSubViewModel.OpenFileCommand, "Open a Document", modifier: ModifierKeys.Control),
                         new Shortcut(Key.S, FileSubViewModel.ExportFileCommand, "Export as image", modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
                         new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save Document", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save Docuemnt As New", "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
+                        new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save Document As New", "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
                         new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, "Create new Document", modifier: ModifierKeys.Control)),
                     new ShortcutGroup(
                         "Layers",
