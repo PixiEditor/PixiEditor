@@ -109,9 +109,9 @@ namespace PixiEditor.Models.Layers
 
         public GuidStructureItem CloneGroup()
         {
-            GuidStructureItem item = new(Name, StartLayerGuid, EndLayerGuid, Array.Empty<GuidStructureItem>(), Parent?.CloneGroup())
+            GuidStructureItem item = new(Name, StartLayerGuid, EndLayerGuid, Array.Empty<GuidStructureItem>(), null)
             {
-                GroupGuid = GroupGuid,
+                GroupGuid = this.GroupGuid,
                 IsExpanded = isExpanded,
                 IsRenaming = isRenaming
             };
@@ -121,7 +121,8 @@ namespace PixiEditor.Models.Layers
                 item.Subgroups = new ObservableCollection<GuidStructureItem>();
                 for (int i = 0; i < Subgroups.Count; i++)
                 {
-                    item.Subgroups.Add(item.CloneGroup());
+                    item.Subgroups.Add(Subgroups[i].CloneGroup());
+                    item.Subgroups[^1].Parent = item;
                 }
             }
 

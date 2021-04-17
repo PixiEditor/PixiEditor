@@ -377,11 +377,11 @@ namespace PixiEditor.Models.Layers
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public List<Guid> GetLayersInOrder(GroupData folder)
+        public List<Guid> GetLayersInOrder(GroupData group)
         {
             List<Guid> layerGuids = new();
-            int minIndex = folder.BottomIndex;
-            int maxIndex = folder.TopIndex;
+            int minIndex = group.BottomIndex;
+            int maxIndex = group.TopIndex;
 
             for (int i = minIndex; i <= maxIndex; i++)
             {
