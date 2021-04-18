@@ -359,7 +359,7 @@ namespace PixiEditor.Models.DataHolders
 
             Layer placeholderLayer = new("_placeholder");
             Layers.Insert(index, placeholderLayer);
-            LayerStructure.AssignParent(placeholderLayer.LayerGuid, groupParent.GroupGuid);
+            LayerStructure.AssignParent(placeholderLayer.LayerGuid, groupParent?.GroupGuid);
 
             for (int i = 0; i < layersToMerge.Length - 1; i++)
             {
@@ -370,7 +370,7 @@ namespace PixiEditor.Models.DataHolders
             }
 
             Layers.Insert(index, mergedLayer);
-            LayerStructure.AssignParent(mergedLayer.LayerGuid, groupParent.GroupGuid);
+            LayerStructure.AssignParent(mergedLayer.LayerGuid, groupParent?.GroupGuid);
 
             RemoveLayer(placeholderLayer, false);
 
