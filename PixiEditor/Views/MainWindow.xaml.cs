@@ -1,16 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels;
+using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Processes;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.UpdateModule;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor
 {
@@ -35,12 +29,29 @@ namespace PixiEditor
             viewModel = (ViewModelMain)DataContext;
             viewModel.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            HideOrShowColorPickerPanels();
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
             ((ViewModelMain)DataContext).CloseWindow(e);
             viewModel.DiscordViewModel.Dispose();
+        }
+
+        private void HideOrShowColorPickerPanels()
+        {
+            if (SystemParameters.PrimaryScreenHeight < 1010)
+            {
+                colorPickerPanel.IsVisible = false;
+                colorSlidersPanel.IsVisible = true;
+                smallColorPickerPanel.IsVisible = true;
+            }
+            else
+            {
+                colorSlidersPanel.IsVisible = false;
+                smallColorPickerPanel.IsVisible = false;
+            }
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
