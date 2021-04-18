@@ -236,7 +236,8 @@
                                         MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
-                                        MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}">
+                                        MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
+                                        Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="PreviewMouseDown">
                                                 <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>

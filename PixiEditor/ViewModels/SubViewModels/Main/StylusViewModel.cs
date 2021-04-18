@@ -14,10 +14,22 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public StylusViewModel(ViewModelMain owner)
             : base(owner)
         {
+            // TODO: Only capture it on the Drawing View Port
             Window mw = Application.Current.MainWindow;
 
             mw.PreviewStylusButtonDown += Mw_StylusButtonDown;
             mw.PreviewStylusButtonUp += Mw_StylusButtonUp;
+            mw.PreviewStylusSystemGesture += Mw_PreviewStylusSystemGesture;
+        }
+
+        private void Mw_PreviewStylusSystemGesture(object sender, StylusSystemGestureEventArgs e)
+        {
+            if (e.SystemGesture == SystemGesture.Drag || e.SystemGesture == SystemGesture.Tap)
+            {
+                return;
+            }
+
+            e.Handled = true;
         }
 
         private void Mw_StylusButtonDown(object sender, StylusButtonEventArgs e)
