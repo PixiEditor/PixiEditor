@@ -63,6 +63,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             LastActionTool = Owner.BitmapManager.SelectedTool;
             Owner.BitmapManager.SetActiveTool(tool);
             SetToolCursor(tool.GetType());
+
+            if (Owner.StylusSubViewModel != null)
+            {
+                Owner.StylusSubViewModel.ToolSetByStylus = false;
+            }
         }
 
         public void SetTool(object parameter)

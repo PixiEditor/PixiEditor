@@ -68,6 +68,8 @@ namespace PixiEditor.ViewModels
 
         public ShortcutController ShortcutController { get; set; }
 
+        public StylusViewModel StylusSubViewModel { get; set; }
+
         public IPreferences Preferences { get; set; }
 
         public bool IsDebug
@@ -110,6 +112,7 @@ namespace PixiEditor.ViewModels
             DocumentSubViewModel = new DocumentViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
             UpdateSubViewModel = new UpdateViewModel(this);
+            StylusSubViewModel = new StylusViewModel(this);
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
