@@ -144,6 +144,38 @@ namespace PixiEditor.Models.Layers
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Checks if group is nested inside parent group.
+        /// </summary>
+        /// <param name="group">Group to check.</param>
+        /// <param name="parent">Parent of that group.</param>
+        /// <returns>True if group is nested inside parent, false if not.</returns>
+        public bool IsChildOf(GuidStructureItem? group, GuidStructureItem parent)
+        {
+            if (group == null)
+            {
+                return false;
+            }
+
+            foreach (var subgroup in parent.Subgroups)
+            {
+                if (subgroup == group)
+                {
+                    return true;
+                }
+
+                if (subgroup.Subgroups.Count > 0)
+                {
+                    if (IsChildOf(group, subgroup))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public void PreMoveReassignBounds(GroupData parentGroup, Guid layer)
         {
             PreMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), layer);
@@ -217,38 +249,6 @@ namespace PixiEditor.Models.Layers
         }
 
         /// <summary>
-        /// Checks if group is nested inside parent group.
-        /// </summary>
-        /// <param name="group">Group to check.</param>
-        /// <param name="parent">Parent of that group.</param>
-        /// <returns>True if group is nested inside parent, false if not.</returns>
-        public bool IsChildOf(GuidStructureItem group, GuidStructureItem parent)
-        {
-            if (group == null)
-            {
-                return false;
-            }
-
-            foreach (var subgroup in parent.Subgroups)
-            {
-                if (subgroup == group)
-                {
-                    return true;
-                }
-
-                if (subgroup.Subgroups.Count > 0)
-                {
-                    if (IsChildOf(group, subgroup))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Checks if layer is nested inside parent group.
         /// </summary>
         /// <param name="layerGuid">Layer GUID to check.</param>
@@ -262,21 +262,8 @@ namespace PixiEditor.Models.Layers
             {
                 return true;
             }
-            else
-            {
-                GuidStructureItem nextParent = parent;
-                while (nextParent.Parent != null)
-                {
-                    if (nextParent == parent)
-                    {
-                        return true;
-                    }
 
-                    nextParent = nextParent.Parent;
-                }
-            }
-
-            return false;
+            return IsChildOf(layerParent, parent);
         }
 
         public void PostMoveReassignBounds(GroupData parentGroup, Guid layerGuid)

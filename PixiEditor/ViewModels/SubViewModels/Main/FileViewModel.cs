@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -9,12 +8,9 @@ using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Parser;
 

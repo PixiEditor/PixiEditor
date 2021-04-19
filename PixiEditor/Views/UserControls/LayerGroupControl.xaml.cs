@@ -66,7 +66,7 @@ namespace PixiEditor.Views.UserControls
                     nameof(IsVisibleUndoTriggerable), 
                     e.OldValue,
                     e.NewValue,
-                    $"Change {control.GroupName} visiblity",
+                    $"Change {control.GroupName} visibility",
                     control), true);
         }
 
@@ -149,9 +149,10 @@ namespace PixiEditor.Views.UserControls
             LayerItem.RemoveDragEffect(grid);
         }
 
-        private void HandleDrop(IDataObject dataObj, bool above)
+        private void HandleDrop(IDataObject dataObj, Grid grid, bool above)
         {
             Guid referenceLayer = above ? GroupData.EndLayerGuid : GroupData.StartLayerGuid;
+            LayerItem.RemoveDragEffect(grid);
 
             if (dataObj.GetDataPresent(LayerContainerDataName))
             {
@@ -206,12 +207,12 @@ namespace PixiEditor.Views.UserControls
 
         private void Grid_Drop_Top(object sender, DragEventArgs e)
         {
-            HandleDrop(e.Data, true);
+            HandleDrop(e.Data, (Grid)sender, true);
         }
 
         private void Grid_Drop_Bottom(object sender, DragEventArgs e)
         {
-            HandleDrop(e.Data, false);
+            HandleDrop(e.Data, (Grid)sender, false);
         }
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)

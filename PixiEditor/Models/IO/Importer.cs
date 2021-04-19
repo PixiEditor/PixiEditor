@@ -61,7 +61,7 @@ namespace PixiEditor.Models.IO
         {
             try
             {
-                Document doc = PixiParser.Deserialize(path).ToDocument();
+                Document doc = PixiEditor.Parser.PixiParser.Deserialize(path).ToDocument();
                 doc.DocumentFilePath = path;
                 return doc;
             }
@@ -77,7 +77,7 @@ namespace PixiEditor.Models.IO
             {
                 using FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
 
-                Document doc = PixiParser.DeserializeOld(stream).ToDocument();
+                Document doc = PixiEditor.Parser.PixiParser.DeserializeOld(stream).ToDocument();
                 doc.DocumentFilePath = path;
                 return doc;
             }

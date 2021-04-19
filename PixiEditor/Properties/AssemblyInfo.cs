@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("PixiEditor")]
 [assembly: AssemblyProduct("PixiEditor")]
-[assembly: AssemblyCopyright("Copyright PixiEditor © 2018 - 2021")]
+[assembly: AssemblyCopyright("Copyright PixiEditor © 2017 - 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
