@@ -1,5 +1,5 @@
-﻿using System;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
+using System;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -16,6 +16,6 @@ namespace PixiEditor.Models.Controllers
 
         public BitmapPixelChanges OldPixelsValues { get; set; }
 
-        public Guid ChangedLayerGuid{ get; set; }
+        public Guid ChangedLayerGuid { get; set; }
     }
 }

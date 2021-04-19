@@ -1,7 +1,7 @@
-﻿using System.Windows;
+﻿using PixiEditor.Models.Enums;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Views
 {
@@ -10,7 +10,6 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class AnchorPointPicker : UserControl
     {
-        // Using a DependencyProperty as the backing store for AnchorPoint.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AnchorPointProperty =
             DependencyProperty.Register("AnchorPoint", typeof(AnchorPoint), typeof(AnchorPointPicker),
                 new PropertyMetadata());
@@ -25,14 +24,14 @@ namespace PixiEditor.Views
 
         public AnchorPoint AnchorPoint
         {
-            get => (AnchorPoint) GetValue(AnchorPointProperty);
+            get => (AnchorPoint)GetValue(AnchorPointProperty);
             set => SetValue(AnchorPointProperty, value);
         }
 
         private void ToggleButton_Checked(object sender, RoutedEventArgs e)
         {
-            ToggleButton btn = (ToggleButton) sender;
-            AnchorPoint = (AnchorPoint) (1 << (Grid.GetRow(btn) + 3)) | (AnchorPoint) (1 << Grid.GetColumn(btn));
+            ToggleButton btn = (ToggleButton)sender;
+            AnchorPoint = (AnchorPoint)(1 << (Grid.GetRow(btn) + 3)) | (AnchorPoint)(1 << Grid.GetColumn(btn));
             if (_selectedToggleButton != null) _selectedToggleButton.IsChecked = false;
             _selectedToggleButton = btn;
         }

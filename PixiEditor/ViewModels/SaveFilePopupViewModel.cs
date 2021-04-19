@@ -1,6 +1,6 @@
-﻿using System.Windows;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
+using System.Windows;
 
 namespace PixiEditor.ViewModels
 {
@@ -97,7 +97,7 @@ namespace PixiEditor.ViewModels
 
         private void CloseWindow(object parameter)
         {
-            ((Window) parameter).DialogResult = false;
+            ((Window)parameter).DialogResult = false;
             CloseButton(parameter);
         }
 
@@ -108,7 +108,7 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
-            ((Window) parameter).DialogResult = true;
+            ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
         }
 

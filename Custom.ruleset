@@ -18,6 +18,7 @@
     <Rule Id="SA1112" Action="None" />
     <Rule Id="SA1117" Action="None" />
     <Rule Id="SA1119" Action="None" />
+    <Rule Id="SA1122" Action="None" />
     <Rule Id="SA1124" Action="None" />
     <Rule Id="SA1128" Action="None" />
     <Rule Id="SA1130" Action="None" />
@@ -41,6 +42,7 @@
     <Rule Id="SA1310" Action="None" />
     <Rule Id="SA1311" Action="None" />
     <Rule Id="SA1400" Action="None" />
+    <Rule Id="SA1401" Action="None" />
     <Rule Id="SA1405" Action="None" />
     <Rule Id="SA1406" Action="None" />
     <Rule Id="SA1407" Action="None" />
@@ -50,10 +52,13 @@
     <Rule Id="SA1501" Action="None" />
     <Rule Id="SA1502" Action="None" />
     <Rule Id="SA1503" Action="None" />
+    <Rule Id="SA1505" Action="None" />
     <Rule Id="SA1507" Action="None" />
+    <Rule Id="SA1508" Action="None" />
     <Rule Id="SA1512" Action="None" />
     <Rule Id="SA1513" Action="None" />
     <Rule Id="SA1515" Action="None" />
+    <Rule Id="SA1516" Action="None" />
     <Rule Id="SA1518" Action="None" />
     <Rule Id="SA1600" Action="None" />
     <Rule Id="SA1601" Action="None" />

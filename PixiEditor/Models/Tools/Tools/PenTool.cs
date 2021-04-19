@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -13,6 +6,11 @@ using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -21,8 +19,8 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly SizeSetting toolSizeSetting;
         private readonly BoolSetting pixelPerfectSetting;
         private readonly LineTool lineTool;
-        private Coordinates[] lastChangedPixels = new Coordinates[3];
         private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
+        private Coordinates[] lastChangedPixels = new Coordinates[3];
         private byte changedPixelsindex = 0;
 
         public PenTool()

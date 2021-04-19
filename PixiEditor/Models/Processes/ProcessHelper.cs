@@ -15,9 +15,9 @@ namespace PixiEditor.Models.Processes
                 proc.StartInfo.UseShellExecute = true;
                 proc.Start();
             }
-            catch (Win32Exception ex)
+            catch (Win32Exception)
             {
-                throw ex;
+                throw;
             }
 
             return proc;
