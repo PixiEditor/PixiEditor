@@ -141,7 +141,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
 
             doc.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
-            doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
+            if (doc.Layers.Count > 1)
+            {
+                doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
+            }
         }
 
         public bool CanCreateNewLayer(object parameter)

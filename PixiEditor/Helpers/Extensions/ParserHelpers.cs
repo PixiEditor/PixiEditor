@@ -25,7 +25,7 @@ namespace PixiEditor.Helpers.Extensions
 
         public static ObservableCollection<Layer> ToLayers(this Parser.SerializableDocument serializableDocument)
         {
-            ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
+            ObservableCollection<Layer> layers = new();
             for (int i = 0; i < serializableDocument.Layers.Length; i++)
             {
                 Parser.SerializableLayer serLayer = serializableDocument.Layers[i];

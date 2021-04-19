@@ -1,10 +1,10 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.LayerStructureTests
@@ -19,11 +19,11 @@ namespace PixiEditorTests.ModelsTests.LayerStructureTests
             LayerStructure structure = new(doc);
             structure.AddNewGroup("Test group", doc.Layers[0].LayerGuid);
 
-            var clone = structure.Clone();
+            var clone = structure.CloneGroups();
 
-            Assert.Equal(doc, clone.Owner);
-            Assert.Single(clone.Groups);
-            Assert.Equal(structure.Groups[0].GroupGuid, clone.Groups[0].GroupGuid);
+            Assert.Equal(structure.Groups, clone);
+            Assert.Single(clone);
+            Assert.Equal(structure.Groups[0].GroupGuid, clone[0].GroupGuid);
         }
     }
 }

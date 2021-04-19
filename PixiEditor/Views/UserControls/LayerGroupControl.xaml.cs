@@ -23,6 +23,9 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(GroupGuidProperty, value); }
         }
 
+        private const string LayerGroupControlDataName = "PixiEditor.Views.UserControls.LayerGroupControl";
+        private const string LayerContainerDataName = "PixiEditor.Views.UserControls.LayerStructureItemContainer";
+
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty GroupGuidProperty =
             DependencyProperty.Register("GroupGuid", typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
@@ -148,42 +151,57 @@ namespace PixiEditor.Views.UserControls
 
         private void HandleDrop(IDataObject dataObj, bool above)
         {
-            Guid referenceLayer = above ? (Guid)GroupData.EndLayerGuid : (Guid)GroupData.StartLayerGuid;
+            Guid referenceLayer = above ? GroupData.EndLayerGuid : GroupData.StartLayerGuid;
 
-            if (dataObj.GetDataPresent("PixiEditor.Views.UserControls.LayerStructureItemContainer"))
+            if (dataObj.GetDataPresent(LayerContainerDataName))
             {
-                var data = (LayerStructureItemContainer)dataObj.GetData("PixiEditor.Views.UserControls.LayerStructureItemContainer");
-                Guid group = data.Layer.LayerGuid;
-
-                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(group, referenceLayer, above);
-                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, GroupData.Parent.GroupGuid);
+                HandleLayerDrop(dataObj, above, referenceLayer);
             }
 
-            if (dataObj.GetDataPresent("PixiEditor.Views.UserControls.LayerGroupControl"))
+            if (dataObj.GetDataPresent(LayerGroupControlDataName))
             {
-                var data = (LayerGroupControl)dataObj.GetData("PixiEditor.Views.UserControls.LayerGroupControl");
-                var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
-
-                Guid group = data.GroupGuid;
-
-                if(group == GroupGuid || document.LayerStructure.IsChildOf(GroupData, data.GroupData))
-                {
-                    return;
-                }
-
-                int modifier = above ? 1 : -1;
-
-                Layer layer = document.Layers.First(x => x.LayerGuid == referenceLayer);
-                int indexOfReferenceLayer = Math.Clamp(document.Layers.IndexOf(layer) + modifier, 0, document.Layers.Count);
-
-                Layer tempLayer = new("_temp");
-                document.Layers.Insert(indexOfReferenceLayer, tempLayer);
-
-                document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData.Parent.GroupGuid);
-                document.MoveGroupInStructure(group, tempLayer.LayerGuid, above);
-                document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
-                document.RemoveLayer(tempLayer, false);
+                HandleGroupControlDrop(dataObj, referenceLayer, above);
             }
+        }
+
+        private void HandleLayerDrop(IDataObject dataObj, bool above, Guid referenceLayer)
+        {
+            var data = (LayerStructureItemContainer)dataObj.GetData(LayerContainerDataName);
+            Guid group = data.Layer.LayerGuid;
+
+            data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(group, referenceLayer, above);
+            data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, GroupData.Parent.GroupGuid);
+        }
+
+        private void HandleGroupControlDrop(IDataObject dataObj, Guid referenceLayer, bool above)
+        {
+            var data = (LayerGroupControl)dataObj.GetData(LayerGroupControlDataName);
+            var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
+
+            Guid group = data.GroupGuid;
+
+            if (group == GroupGuid || document.LayerStructure.IsChildOf(GroupData, data.GroupData))
+            {
+                return;
+            }
+
+            int modifier = above ? 1 : 0;
+
+            Layer layer = document.Layers.First(x => x.LayerGuid == referenceLayer);
+            int indexOfReferenceLayer = Math.Clamp(document.Layers.IndexOf(layer) + modifier, 0, document.Layers.Count);
+            MoveGroupWithTempLayer(above, document, group, indexOfReferenceLayer);
+        }
+
+        private void MoveGroupWithTempLayer(bool above, Models.DataHolders.Document document, Guid group, int indexOfReferenceLayer)
+        {
+            // The trick here is to insert a temp layer, assign group to it, then delete it.
+            Layer tempLayer = new("_temp");
+            document.Layers.Insert(indexOfReferenceLayer, tempLayer);
+
+            document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData?.Parent?.GroupGuid);
+            document.MoveGroupInStructure(group, tempLayer.LayerGuid, above);
+            document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
+            document.RemoveLayer(tempLayer, false);
         }
 
         private void Grid_Drop_Top(object sender, DragEventArgs e)
