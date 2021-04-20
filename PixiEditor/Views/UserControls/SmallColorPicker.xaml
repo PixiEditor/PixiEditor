@@ -29,9 +29,9 @@
             <RowDefinition Height="8*"/>
             <RowDefinition Height="2*"/>
             <RowDefinition Height="1.2*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
-        <colorpicker:SquarePicker Grid.ColumnSpan="2" Grid.RowSpan="2"
+        <colorpicker:SquarePicker Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="3"
                                   ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"
                                   PickerType="{Binding ElementName=colorSpaceComboBox, Path=SelectedIndex, Converter={StaticResource IntToPickerTypeConverter}}"/>
         <colorpicker:ColorDisplay Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3,0,0,0"
@@ -45,6 +45,9 @@
         <colorpicker:HexColorTextBox Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Margin="0,0,3,0"
                                      HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                                      ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"/>
-        <Slider Grid.Row="3" Grid.ColumnSpan="2"/>
+        <DockPanel Grid.Row="3" Grid.ColumnSpan="2">
+            <Label Margin="5,0" VerticalAlignment="Center">Alpha:</Label>
+            <colorpicker:AlphaSlider Margin="5,0" VerticalAlignment="Center" ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"/>
+        </DockPanel>
     </Grid>
 </colorpicker:DualPickerControlBase>

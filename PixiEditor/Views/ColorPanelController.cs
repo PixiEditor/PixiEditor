@@ -1,5 +1,4 @@
 ﻿using AvalonDock.Layout;
-using System.Windows;
 
 namespace PixiEditor.Views
 {
@@ -18,7 +17,7 @@ namespace PixiEditor.Views
 
         public void DeterminePanelsToDisplay()
         {
-            if (SystemParameters.PrimaryScreenHeight < 1010)
+            if (/*SystemParameters.PrimaryScreenHeight < 1010*/true)
             {
                 colorPickerPanel.IsVisible = false;
                 colorSlidersPanel.IsVisible = true;
