@@ -19,25 +19,26 @@ namespace PixiEditor.Models.Layers
     {
         public event EventHandler LayerStructureChanged;
 
-        public Document Owner { get; set; }
-
         public ObservableCollection<GuidStructureItem> Groups { get; set; }
 
-        public static bool GroupContainsOnlyLayer(Layer layer, GuidStructureItem layerGroup)
+        private Document Owner { get; }
+
+        /// <summary>
+        /// Checks whenever group contains only single layer and none subgroups.
+        /// </summary>
+        /// <param name="layerGuid">Guid of layer to check.</param>
+        /// <param name="layerGroup">Group to check.</param>
+        /// <returns>True if group contains single layer (EndLayerGuid and StartLayerGuid == layerGuid) and none subgroups.</returns>
+        public static bool GroupContainsOnlyLayer(Guid layerGuid, GuidStructureItem layerGroup)
         {
-            return layerGroup != null && layerGroup.Subgroups.Count == 0 && layerGroup.StartLayerGuid == layer.LayerGuid && layerGroup.EndLayerGuid == layer.LayerGuid;
+            return layerGroup != null && layerGroup.Subgroups.Count == 0 && layerGroup.StartLayerGuid == layerGuid && layerGroup.EndLayerGuid == layerGuid;
         }
 
-        public GuidStructureItem GetGroupByGuid(Guid? groupGuid)
-        {
-            return GetGroupByGuid(groupGuid, Groups);
-        }
-
-        public GuidStructureItem GetGroupByLayer(Guid layerGuid)
-        {
-            return GetGroupByLayer(layerGuid, Groups);
-        }
-
+        /// <summary>
+        /// Deep clones groups.
+        /// </summary>
+        /// <param name="groups">Groups to clone.</param>
+        /// <returns>ObservableCollection with cloned groups.</returns>
         public static ObservableCollection<GuidStructureItem> CloneGroups(ObservableCollection<GuidStructureItem> groups)
         {
             ObservableCollection<GuidStructureItem> outputGroups = new();
@@ -47,6 +48,26 @@ namespace PixiEditor.Models.Layers
             }
 
             return outputGroups;
+        }
+
+        /// <summary>
+        /// Finds <see cref="GuidStructureItem"/> (Group) by it's guid.
+        /// </summary>
+        /// <param name="groupGuid">Guid of group.</param>
+        /// <returns><see cref="GuidStructureItem"/> if group was found or null if not.</returns>
+        public GuidStructureItem GetGroupByGuid(Guid? groupGuid)
+        {
+            return GetGroupByGuid(groupGuid, Groups);
+        }
+
+        /// <summary>
+        ///  Finds parent group by layer guid.
+        /// </summary>
+        /// <param name="layerGuid">Guid of group to check.</param>
+        /// <returns><see cref="GuidStructureItem"/>if parent group was found or null if not.</returns>
+        public GuidStructureItem GetGroupByLayer(Guid layerGuid)
+        {
+            return GetGroupByLayer(layerGuid, Groups);
         }
 
         public ObservableCollection<GuidStructureItem> CloneGroups()
@@ -93,6 +114,12 @@ namespace PixiEditor.Models.Layers
             return group;
         }*/
 
+        /// <summary>
+        /// Adds a new group to layer structure taking into consideration nesting. Invokes LayerStructureChanged event.
+        /// </summary>
+        /// <param name="groupName">Name of a group.</param>
+        /// <param name="childLayer">Child layer of a new group.</param>
+        /// <returns>Newly created group (<see cref="GuidStructureItem"/>).</returns>
         public GuidStructureItem AddNewGroup(string groupName, Guid childLayer)
         {
             var parent = GetGroupByLayer(childLayer);
@@ -114,10 +141,15 @@ namespace PixiEditor.Models.Layers
         }
 
 #nullable enable
-        public void MoveGroup(Guid groupGuid, Guid? parentGroupGuid, int newIndex)
+        /// <summary>
+        /// Moves group and it's children from one index to another. This method makes changes in <see cref="Document"/> Layers.
+        /// </summary>
+        /// <param name="groupGuid">Group guid to move.</param>
+        /// <param name="newIndex">New group index, relative to <see cref="Document"/> Layers.</param>
+        public void MoveGroup(Guid groupGuid, int newIndex)
         {
             var group = GetGroupByGuid(groupGuid);
-            var parentGroup = GetGroupByGuid(parentGroupGuid);
+            var parentGroup = group.Parent;
             bool reverseOrder = true;
             int groupTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid));
             int groupBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid));
@@ -176,12 +208,122 @@ namespace PixiEditor.Models.Layers
             return false;
         }
 
+        /// <summary>
+        /// Checks if layer is nested inside parent group.
+        /// </summary>
+        /// <param name="layerGuid">Layer GUID to check.</param>
+        /// <param name="parent">Parent of that group.</param>
+        /// <returns>True if layer is nested inside parent, false if not.</returns>
+        public bool IsChildOf(Guid layerGuid, GuidStructureItem parent)
+        {
+            var layerParent = GetGroupByLayer(layerGuid);
+
+            if (layerParent == parent)
+            {
+                return true;
+            }
+
+            return IsChildOf(layerParent, parent);
+        }
+
+        /// <summary>
+        /// Reassigns (removes) group data from parent group.
+        /// </summary>
+        /// <param name="parentGroup">Parent group to reassign data in.</param>
+        /// <param name="group">Group which data should be reassigned.</param>
+        public void PreMoveReassignBounds(GroupData parentGroup, GroupData group)
+        {
+            PreMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), GetGroupByGuid(group.GroupGuid));
+        }
+
+        /// <summary>
+        /// Reassigns (removes) layer data from parent group.
+        /// </summary>
+        /// <param name="parentGroup">Parent group to reassign data in.</param>
+        /// <param name="layer">Layer which data should be reassigned.</param>
         public void PreMoveReassignBounds(GroupData parentGroup, Guid layer)
         {
             PreMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), layer);
         }
 
-        protected void PreMoveReassignBounds(GuidStructureItem? parentGroup, Guid layer)
+        /// <summary>
+        /// Reassigns (adds) layer data to parent group.
+        /// </summary>
+        /// <param name="parentGroup">Parent group to reassign data in.</param>
+        /// <param name="layerGuid">Group which data should be reassigned.</param>
+        public void PostMoveReassignBounds(GroupData parentGroup, Guid layerGuid)
+        {
+            PostMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), layerGuid);
+        }
+
+        /// <summary>
+        /// Reassigns (adds) group data to parent group.
+        /// </summary>
+        /// <param name="parentGroup">Parent group to reassign data in.</param>
+        /// <param name="group">Group which data should be reassigned.</param>
+        public void PostMoveReassignBounds(GroupData parentGroup, GroupData group)
+        {
+            PostMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), GetGroupByGuid(group.GroupGuid));
+        }
+
+        /// <summary>
+        /// Assigns parent to a layer.
+        /// </summary>
+        /// <param name="layer">Layer to assign parent to.</param>
+        /// <param name="parent">Parent which should be assigned. Null indicates no parent.</param>
+        public void AssignParent(Guid layer, Guid? parent)
+        {
+            AssignParent(layer, parent.HasValue ? GetGroupByGuid(parent) : null);
+        }
+
+        /// <summary>
+        /// Gets all layers inside group, including nested groups.
+        /// </summary>
+        /// <param name="group">Group to get layers from.</param>
+        /// <returns>List of layers.</returns>
+        public List<Layer> GetGroupLayers(GuidStructureItem group)
+        {
+            List<Layer> layers = new();
+            var layerGuids = GetGroupLayerGuids(group);
+            foreach (var layerGuid in layerGuids)
+            {
+                layers.Add(Owner.Layers.First(x => x.LayerGuid == layerGuid));
+            }
+
+            return layers;
+        }
+
+        /// <summary>
+        /// Gets all layers inside group, including nested groups.
+        /// </summary>
+        /// <param name="group">Group to get layers from.</param>
+        /// <returns>List of layer guids.</returns>
+        private List<Guid> GetGroupLayerGuids(GuidStructureItem group)
+        {
+            Layer layerTop = Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid);
+            Layer layerBottom = Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid);
+
+            int indexTop = Owner.Layers.IndexOf(layerTop);
+            int indexBottom = Owner.Layers.IndexOf(layerBottom);
+
+            return GetLayersInOrder(new GroupData(indexTop, indexBottom));
+        }
+
+        private List<Guid> GetLayersInOrder(GroupData group)
+        {
+            List<Guid> layerGuids = new();
+            int minIndex = group.BottomIndex;
+            int maxIndex = group.TopIndex;
+
+            for (int i = minIndex; i <= maxIndex; i++)
+            {
+                layerGuids.Add(Owner.Layers[i].LayerGuid);
+            }
+
+            return layerGuids;
+        }
+
+        private void PreMoveReassignBounds(GuidStructureItem? parentGroup, Guid layer)
         {
             if (parentGroup != null)
             {
@@ -212,12 +354,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public void PreMoveReassignBounds(GroupData parentGroup, GroupData group)
-        {
-            PreMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), GetGroupByGuid(group.GroupGuid));
-        }
-
-        protected void PreMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
+        private void PreMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
         {
             if (parentGroup != null)
             {
@@ -248,30 +385,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        /// <summary>
-        /// Checks if layer is nested inside parent group.
-        /// </summary>
-        /// <param name="layerGuid">Layer GUID to check.</param>
-        /// <param name="parent">Parent of that group.</param>
-        /// <returns>True if layer is nested inside parent, false if not.</returns>
-        public bool IsChildOf(Guid layerGuid, GuidStructureItem parent)
-        {
-            var layerParent = GetGroupByLayer(layerGuid);
-
-            if (layerParent == parent)
-            {
-                return true;
-            }
-
-            return IsChildOf(layerParent, parent);
-        }
-
-        public void PostMoveReassignBounds(GroupData parentGroup, Guid layerGuid)
-        {
-            PostMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), layerGuid);
-        }
-
-        protected void PostMoveReassignBounds(GuidStructureItem? parentGroup, Guid layerGuid)
+        private void PostMoveReassignBounds(GuidStructureItem? parentGroup, Guid layerGuid)
         {
             if (parentGroup != null)
             {
@@ -306,12 +420,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public void PostMoveReassignBounds(GroupData parentGroup, GroupData group)
-        {
-            PostMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), GetGroupByGuid(group.GroupGuid));
-        }
-
-        protected void PostMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
+        private void PostMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
         {
             if (parentGroup != null)
             {
@@ -346,12 +455,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public void AssignParent(Guid layer, Guid? parent)
-        {
-            AssignParent(layer, parent.HasValue ? GetGroupByGuid(parent) : null);
-        }
-
-        protected void AssignParent(Guid layer, GuidStructureItem? parent)
+        private void AssignParent(Guid layer, GuidStructureItem? parent)
         {
             var currentParent = GetGroupByLayer(layer);
             if (currentParent != null)
@@ -362,53 +466,6 @@ namespace PixiEditor.Models.Layers
             PostMoveReassignBounds(parent, layer);
 
             LayerStructureChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        public List<Guid> GetLayersInOrder(GroupData group)
-        {
-            List<Guid> layerGuids = new();
-            int minIndex = group.BottomIndex;
-            int maxIndex = group.TopIndex;
-
-            for (int i = minIndex; i <= maxIndex; i++)
-            {
-                layerGuids.Add(Owner.Layers[i].LayerGuid);
-            }
-
-            return layerGuids;
-        }
-
-        /// <summary>
-        /// Gets all layers inside group, including nested groups.
-        /// </summary>
-        /// <param name="group">Group to get layers from.</param>
-        /// <returns>List of layer guids.</returns>
-        public List<Guid> GetGroupLayerGuids(GuidStructureItem group)
-        {
-            Layer layerTop = Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid);
-            Layer layerBottom = Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid);
-
-            int indexTop = Owner.Layers.IndexOf(layerTop);
-            int indexBottom = Owner.Layers.IndexOf(layerBottom);
-
-            return GetLayersInOrder(new GroupData(indexTop, indexBottom));
-        }
-
-        /// <summary>
-        /// Gets all layers inside group, including nested groups.
-        /// </summary>
-        /// <param name="group">Group to get layers from.</param>
-        /// <returns>List of layers.</returns>
-        public List<Layer> GetGroupLayers(GuidStructureItem group)
-        {
-            List<Layer> layers = new();
-            var layerGuids = GetGroupLayerGuids(group);
-            foreach (var layerGuid in layerGuids)
-            {
-                layers.Add(Owner.Layers.First(x => x.LayerGuid == layerGuid));
-            }
-
-            return layers;
         }
 
         private void Group_GroupsChanged(object sender, EventArgs e)

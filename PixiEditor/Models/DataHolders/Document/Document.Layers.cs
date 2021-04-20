@@ -538,7 +538,7 @@ namespace PixiEditor.Models.DataHolders
             bool above = (bool)parameter[2];
 
             GuidStructureItem group = LayerStructure.GetGroupByGuid(groupGuid);
-            GuidStructureItem referenceLayergroup = LayerStructure.GetGroupByLayer(referenceLayerGuid);
+            GuidStructureItem referenceLayerGroup = LayerStructure.GetGroupByLayer(referenceLayerGuid);
 
             Layer referenceLayer = Layers.First(x => x.LayerGuid == referenceLayerGuid);
 
@@ -554,11 +554,11 @@ namespace PixiEditor.Models.DataHolders
 
             int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
-            LayerStructure.MoveGroup(groupGuid, group?.Parent?.GroupGuid, newIndex);
+            LayerStructure.MoveGroup(groupGuid, newIndex);
 
-            ReassignParent(group, referenceLayergroup);
+            ReassignParent(group, referenceLayerGroup);
 
-            LayerStructure.PostMoveReassignBounds(new GroupData(group?.Parent?.GroupGuid), new GroupData(group.GroupGuid));
+            LayerStructure.PostMoveReassignBounds(new GroupData(group?.Parent?.GroupGuid), new GroupData(group?.GroupGuid));
         }
 
         private void ReassignParent(GuidStructureItem folder, GuidStructureItem referenceLayerFolder)
@@ -666,7 +666,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void RemoveGroupsIfEmpty(Layer layer, GuidStructureItem layerGroup)
         {
-            if (LayerStructure.GroupContainsOnlyLayer(layer, layerGroup))
+            if (LayerStructure.GroupContainsOnlyLayer(layer.LayerGuid, layerGroup))
             {
                 if (layerGroup.Parent != null)
                 {
