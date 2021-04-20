@@ -1,4 +1,5 @@
 ﻿using AvalonDock.Layout;
+using System.Windows;
 
 namespace PixiEditor.Views
 {
