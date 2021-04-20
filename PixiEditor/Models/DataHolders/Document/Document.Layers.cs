@@ -73,7 +73,7 @@ namespace PixiEditor.Models.DataHolders
             }
 
             ActiveLayerGuid = Layers[index].LayerGuid;
-            ActiveLayer.IsActive = true;
+            ActiveLayer!.IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
         }
 
@@ -150,7 +150,7 @@ namespace PixiEditor.Models.DataHolders
                 MoveGroupInStructureProcess,
                 args));
 
-            UndoManager.SquashUndoChanges(2, "Move gorup");
+            UndoManager.SquashUndoChanges(2, "Move group");
         }
 
         public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
@@ -343,7 +343,7 @@ namespace PixiEditor.Models.DataHolders
 
             string name;
 
-            // Wich name should be used
+            // Which name should be used
             if (nameOfLast)
             {
                 name = layersToMerge[^1].Name;
