@@ -17,7 +17,7 @@ namespace PixiEditor.Views
 
         public void DeterminePanelsToDisplay()
         {
-            if (/*SystemParameters.PrimaryScreenHeight < 1010*/true)
+            if (SystemParameters.PrimaryScreenHeight < 1010)
             {
                 colorPickerPanel.IsVisible = false;
                 colorSlidersPanel.IsVisible = true;

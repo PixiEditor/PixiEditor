@@ -3,13 +3,16 @@
                                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                                   xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                                   xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
+                                   xmlns:vws="clr-namespace:PixiEditor.Views"
                                    xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
                                    xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
                                    mc:Ignorable="d" 
                                    xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
                                    d:DesignHeight="240" 
                                    d:DesignWidth="270"
-                                   MaxHeight="380"
+                                   MaxHeight="350"
                                    MaxWidth="400"
                                    x:Name="uc">
     <UserControl.Resources>
@@ -18,6 +21,7 @@
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <conv:IntToPickerTypeConverter x:Key="IntToPickerTypeConverter"/>
+            <conv:FloorConverter x:Key="FloorConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -45,9 +49,20 @@
         <colorpicker:HexColorTextBox Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Margin="0,0,3,0"
                                      HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                                      ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"/>
-        <DockPanel Grid.Row="3" Grid.ColumnSpan="2">
-            <Label Margin="5,0" VerticalAlignment="Center">Alpha:</Label>
-            <colorpicker:AlphaSlider Margin="5,0" VerticalAlignment="Center" ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"/>
-        </DockPanel>
+        <Grid Grid.Row="3" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="50"/>
+            </Grid.ColumnDefinitions>
+            <Label VerticalAlignment="Center" Margin="3,0,0,0">A:</Label>
+            <colorpicker:AlphaSlider Margin="5,0" Grid.Column="1" VerticalAlignment="Center" ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"/>
+            <vws:NumberInput 
+                        Grid.Column="2" HorizontalAlignment="Right" Margin="5,0"
+                        Min="0" Max="255"
+                        Width="40" Height="20"
+                        VerticalAlignment="Center"
+                        Value="{Binding ElementName=uc, Path=Color.A, Mode=TwoWay, Delay=10, Converter={StaticResource FloorConverter}}" />
+        </Grid>
     </Grid>
 </colorpicker:DualPickerControlBase>
