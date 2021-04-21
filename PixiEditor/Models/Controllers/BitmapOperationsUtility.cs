@@ -11,6 +11,7 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 
@@ -118,9 +119,16 @@ namespace PixiEditor.Models.Controllers
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
-            if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
+            SizeSetting sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
+            int thickness = sizeSetting != null ? sizeSetting.Value : 1;
+            bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
+            if (Keyboard.IsKeyDown(Key.LeftShift) && !mouseInLine)
             {
                 mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
+            }
+            else if (mouseInLine)
+            {
+                mouseMoveCords = GetLineCoordinates(mouseMoveCords, thickness);
             }
 
             if (!tool.RequiresPreviewLayer)
@@ -173,9 +181,29 @@ namespace PixiEditor.Models.Controllers
             return oldPixelValues;
         }
 
-        private bool MouseCordsNotInLine(List<Coordinates> cords)
+        private bool MouseCordsNotInLine(List<Coordinates> cords, int thickness)
         {
-            return cords[0].X == cords[^1].X || cords[0].Y == cords[^1].Y;
+            return (cords[0].X > cords[^1].X - thickness && cords[0].X < cords[^1].X + thickness)
+                || (cords[0].Y > cords[^1].Y - thickness && cords[0].Y < cords[^1].Y + thickness);
+        }
+
+        private List<Coordinates> GetLineCoordinates(List<Coordinates> mouseMoveCords, int thickness)
+        {
+            int y = mouseMoveCords[0].Y;
+            int x = mouseMoveCords[0].X;
+
+
+            if (Math.Abs(mouseMoveCords[^1].X - mouseMoveCords[0].X) - thickness > 0)
+            {
+                y = mouseMoveCords[^1].Y;
+            }
+            else
+            {
+                x = mouseMoveCords[^1].X;
+            }
+
+            mouseMoveCords[0] = new Coordinates(x, y);
+            return mouseMoveCords;
         }
 
         /// <summary>
