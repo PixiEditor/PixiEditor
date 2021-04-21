@@ -171,7 +171,7 @@ namespace PixiEditor.Views.UserControls
             Guid group = data.Layer.LayerGuid;
 
             data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(group, referenceLayer, above);
-            data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, GroupData.Parent.GroupGuid);
+            data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, GroupData?.Parent?.GroupGuid);
         }
 
         private void HandleGroupControlDrop(IDataObject dataObj, Guid referenceLayer, bool above)
