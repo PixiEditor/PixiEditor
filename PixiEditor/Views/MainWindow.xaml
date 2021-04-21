@@ -309,7 +309,7 @@
                                             </usercontrols:LayersManager.LayerTreeRoot>
                                         </usercontrols:LayersManager>
                                     </LayoutAnchorable>
-                                    <LayoutAnchorable ContentId="rawLayer" Title="Raw layers">
+                                    <LayoutAnchorable x:Name="rawLayerAnchorable" ContentId="rawLayer" Title="Raw layers">
                                         <usercontrols:RawLayersViewer Layers="{Binding BitmapManager.ActiveDocument.Layers}"
                                                                       Structure="{Binding BitmapManager.ActiveDocument.LayerStructure}"/>
                                     </LayoutAnchorable>

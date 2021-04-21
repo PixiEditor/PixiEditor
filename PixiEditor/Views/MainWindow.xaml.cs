@@ -35,6 +35,7 @@ namespace PixiEditor
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             viewModel = (ViewModelMain)DataContext;
             viewModel.CloseAction = Close;
+            rawLayerAnchorable.IsVisible = viewModel.IsDebug;
         }
 
         protected override void OnClosing(CancelEventArgs e)
