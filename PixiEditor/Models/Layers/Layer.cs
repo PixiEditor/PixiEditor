@@ -360,10 +360,10 @@ namespace PixiEditor.Models.Layers
             ResetOffset(pixels);
             Tuple<DoubleCords, bool> borderData = ExtractBorderData(pixels);
             DoubleCords minMaxCords = borderData.Item1;
-            int newMaxX = Math.Max(minMaxCords.Coords2.X - OffsetX, MaxWidth - 1);
-            int newMaxY = Math.Max(minMaxCords.Coords2.Y - OffsetY, MaxHeight - 1);
-            int newMinX = Math.Min(minMaxCords.Coords1.X - OffsetX, 0);
-            int newMinY = Math.Min(minMaxCords.Coords1.Y - OffsetY, 0);
+            int newMaxX = minMaxCords.Coords2.X - OffsetX;
+            int newMaxY = minMaxCords.Coords2.Y - OffsetY;
+            int newMinX = minMaxCords.Coords1.X - OffsetX;
+            int newMinY = minMaxCords.Coords1.Y - OffsetY;
 
             if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.A == 0))
             {
