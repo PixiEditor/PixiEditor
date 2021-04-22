@@ -122,11 +122,12 @@ namespace PixiEditor.Models.Controllers
             SizeSetting sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
             int thickness = sizeSetting != null ? sizeSetting.Value : 1;
             bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
-            if (Keyboard.IsKeyDown(Key.LeftShift) && !mouseInLine)
+            bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
+            if (shiftDown && !mouseInLine)
             {
                 mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
             }
-            else if (mouseInLine)
+            else if (shiftDown && mouseInLine)
             {
                 mouseMoveCords = GetLineCoordinates(mouseMoveCords, thickness);
             }
