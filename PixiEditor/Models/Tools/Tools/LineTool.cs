@@ -39,7 +39,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             BitmapPixelChanges pixels =
                 BitmapPixelChanges.FromSingleColoredArray(
@@ -58,10 +58,10 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
-            return CreateLine(new[] { end, start }, thickness, startCap, endCap);
+            return CreateLine(new() { end, start }, thickness, startCap, endCap);
         }
 
-        private IEnumerable<Coordinates> CreateLine(Coordinates[] coordinates, int thickness, CapType startCap, CapType endCap)
+        private IEnumerable<Coordinates> CreateLine(List<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
         {
             Coordinates startingCoordinates = coordinates[^1];
             Coordinates latestCoordinates = coordinates[0];

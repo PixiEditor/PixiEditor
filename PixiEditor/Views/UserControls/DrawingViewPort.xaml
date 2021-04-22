@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="PixiEditor.Views.UserControls.DrawingViewPort"
+﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,39 +8,49 @@
              xmlns:vws="clr-namespace:PixiEditor.Views" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Class="PixiEditor.Views.UserControls.DrawingViewPort"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Name="uc">
+             d:DesignHeight="450" d:DesignWidth="800" x:Name="uc">
     <UserControl.Resources>
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
+        <converters:ZoomToViewportConverter x:Key="ZoomToViewportConverter"/>
     </UserControl.Resources>
-    <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay, ElementName=uc}"
-                          Center="{Binding RecenterZoombox, Mode=TwoWay, ElementName=uc}" 
+    <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, ElementName=uc, Mode=TwoWay}"
+                          Center="{Binding RecenterZoombox, ElementName=uc, Mode=TwoWay}" 
                           x:Name="DrawingPanel"
                           CenterOnStart="True" Cursor="{Binding Cursor, ElementName=uc}" 
                           MiddleMouseClickedCommand="{Binding MiddleMouseClickedCommand, ElementName=uc}" 
                           MiddleMouseClickedCommandParameter="{x:Type tools:MoveViewportTool}"
                           ViewportPosition="{Binding ViewportPosition, ElementName=uc, Mode=TwoWay}">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseMove">
-                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseDown">
-                    <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-            <i:Interaction.Behaviors>
-                <behaviors:MouseBehavior RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
-                                                  MouseX="{Binding MouseXOnCanvas, Mode=TwoWay, ElementName=uc}"
-                                                  MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
-            </i:Interaction.Behaviors>
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseMove">
+                <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseDown">
+                <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        <i:Interaction.Behaviors>
+            <behaviors:MouseBehavior RelativeTo="{Binding Item, ElementName=DrawingPanel}"
+                                                  MouseX="{Binding MouseXOnCanvas, ElementName=uc, Mode=TwoWay}"
+                                                  MouseY="{Binding MouseYOnCanvas, ElementName=uc, Mode=TwoWay}" />
+        </i:Interaction.Behaviors>
         <vws:MainDrawingPanel.Item>
             <Canvas Width="{Binding Width}"
                                 Height="{Binding Height}" VerticalAlignment="Center"
                                 HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="NearestNeighbor">
                 <Canvas.Background>
-                    <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" ViewportUnits="Absolute" Viewport="0, 0, 16, 16" />
+                    <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" ViewportUnits="Absolute">
+                        <ImageBrush.Viewport>
+                            <Binding Path="Scale" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type xctk:Zoombox}}" Converter="{StaticResource ZoomToViewportConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Double>16</sys:Double>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ImageBrush.Viewport>
+                    </ImageBrush>
                 </Canvas.Background>
                 <Image Source="{Binding PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
@@ -70,8 +80,7 @@
                                    Height="{Binding ActiveSelection.SelectionLayer.Height}" 
                                    Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
                 <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}" Panel.ZIndex="10" 
-                      Visibility="{Binding GridLinesVisible, Converter={StaticResource BoolToVisibilityConverter},
-                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DrawingViewPort}}}">
+                      Visibility="{Binding GridLinesVisible, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DrawingViewPort}}}">
                     <Rectangle Focusable="False">
                         <Rectangle.Fill>
                             <VisualBrush Viewport="{Binding Height, Converter={StaticResource IntToViewportRectConverter}}" ViewboxUnits="Absolute" TileMode="Tile" >
@@ -83,8 +92,7 @@
                     </Rectangle>
                     <Rectangle Focusable="False">
                         <Rectangle.Fill>
-                            <VisualBrush Viewport="{Binding Width, Converter={StaticResource IntToViewportRectConverter}, 
-                            ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
+                            <VisualBrush Viewport="{Binding Width, Converter={StaticResource IntToViewportRectConverter}, ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
                                 <VisualBrush.Visual>
                                     <Line  X1="0" Y1="0" X2="0" Y2="1" Stroke="Black" StrokeThickness="0.01"/>
                                 </VisualBrush.Visual>
@@ -102,8 +110,7 @@
                     </Rectangle>
                     <Rectangle Focusable="False">
                         <Rectangle.Fill>
-                            <VisualBrush Viewport="{Binding Width, Converter={StaticResource IntToViewportRectConverter}, 
-                            ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
+                            <VisualBrush Viewport="{Binding Width, Converter={StaticResource IntToViewportRectConverter}, ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
                                 <VisualBrush.Visual>
                                     <Line  X1="0" Y1="0" X2="0" Y2="1" Stroke="White" StrokeThickness="0.01"/>
                                 </VisualBrush.Visual>
@@ -113,5 +120,5 @@
                 </Grid>
             </Canvas>
         </vws:MainDrawingPanel.Item>
-        </vws:MainDrawingPanel>
+    </vws:MainDrawingPanel>
 </UserControl>

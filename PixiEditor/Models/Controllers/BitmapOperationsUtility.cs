@@ -121,20 +121,26 @@ namespace PixiEditor.Models.Controllers
         {
             SizeSetting sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
             int thickness = sizeSetting != null ? sizeSetting.Value : 1;
-            bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
+
             bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
-            if (shiftDown && !mouseInLine)
+
+            if (shiftDown)
             {
-                mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
-            }
-            else if (shiftDown && mouseInLine)
-            {
-                mouseMoveCords = GetLineCoordinates(mouseMoveCords, thickness);
+                bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
+
+                if (!mouseInLine)
+                {
+                    mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
+                }
+                else
+                {
+                    mouseMoveCords = GetLineCoordinates(mouseMoveCords, thickness);
+                }
             }
 
             if (!tool.RequiresPreviewLayer)
             {
-                LayerChange[] modifiedLayers = tool.Use(Manager.ActiveLayer, mouseMoveCords.ToArray(), color);
+                LayerChange[] modifiedLayers = tool.Use(Manager.ActiveLayer, mouseMoveCords, color);
                 LayerChange[] oldPixelsValues = new LayerChange[modifiedLayers.Length];
                 for (int i = 0; i < modifiedLayers.Length; i++)
                 {
@@ -257,7 +263,7 @@ namespace PixiEditor.Models.Controllers
 
                 modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(
                     Manager.ActiveDocument.ActiveLayer,
-                    mouseMove.ToArray(),
+                    mouseMove,
                     Manager.PrimaryColor);
 
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();

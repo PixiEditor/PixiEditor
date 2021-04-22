@@ -133,7 +133,7 @@ namespace PixiEditor.Models.Tools.Tools
             startingOffsets = GetOffsets(affectedLayers);
         }
 
-        public override LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, Color color)
         {
             LayerChange[] result = new LayerChange[affectedLayers.Length];
             var end = mouseMove[0];
@@ -163,9 +163,9 @@ namespace PixiEditor.Models.Tools.Tools
             return result;
         }
 
-        public BitmapPixelChanges MoveSelection(Layer layer, Coordinates[] mouseMove)
+        public BitmapPixelChanges MoveSelection(Layer layer, IEnumerable<Coordinates> mouseMove)
         {
-            Coordinates end = mouseMove[0];
+            Coordinates end = mouseMove.First();
 
             currentSelection = TranslateSelection(end);
             if (updateViewModelSelection)

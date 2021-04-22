@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System.Collections.Generic;
+using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -18,14 +19,14 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
         }
 
-        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             return Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
         }
 
-        public LayerChange[] Erase(Layer layer, Coordinates[] coordinates, int toolSize)
+        public LayerChange[] Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
         {
-            Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
+            Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
             BitmapPixelChanges pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
             return Only(pixels, layer);
         }
