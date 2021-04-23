@@ -125,11 +125,11 @@ namespace PixiEditor.Models.Controllers
 
                 if (IsOperationTool(SelectedTool))
                 {
-                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, (BitmapOperationTool)SelectedTool);
                 }
                 else
                 {
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(), (ReadonlyTool)SelectedTool);
+                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates, (ReadonlyTool)SelectedTool);
                 }
             }
         }

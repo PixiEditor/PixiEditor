@@ -592,10 +592,6 @@ namespace PixiEditor.Models.DataHolders
             {
                 newIndex += above ? 1 : -1;
             }
-            else if (above)
-            {
-                newIndex++;
-            }
 
             return Math.Clamp(newIndex, 0, Layers.Count - 1);
         }

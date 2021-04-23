@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Input;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
@@ -21,7 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
             ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();
         }
 
-        public override void Use(Coordinates[] coordinates)
+        public override void Use(List<Coordinates> coordinates)
         {
             ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();
         }

@@ -25,6 +25,8 @@ namespace PixiEditor.Models.Controllers
 
         private Coordinates lastMousePos;
 
+        private SizeSetting sizeSetting;
+
         public BitmapOperationsUtility(BitmapManager manager)
         {
             Manager = manager;
@@ -58,7 +60,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Executes tool Use() method with given parameters. NOTE: mouseMove is reversed inside function!.
+        ///     Executes tool Use() method with given parameters. NOTE: [0] is a start point, [^1] is latest.
         /// </summary>
         /// <param name="newPos">Most recent coordinates.</param>
         /// <param name="mouseMove">Last mouse movement coordinates.</param>
@@ -72,7 +74,6 @@ namespace PixiEditor.Models.Controllers
                     return;
                 }
 
-                mouseMove.Reverse();
                 UseTool(mouseMove, tool, Manager.PrimaryColor);
 
                 lastMousePos = newPos;
@@ -119,7 +120,11 @@ namespace PixiEditor.Models.Controllers
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
-            SizeSetting sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
+            if(sizeSetting == null)
+            {
+                sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
+            }
+
             int thickness = sizeSetting != null ? sizeSetting.Value : 1;
 
             bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
