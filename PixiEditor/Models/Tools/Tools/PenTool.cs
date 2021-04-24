@@ -34,6 +34,7 @@ namespace PixiEditor.Models.Tools.Tools
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
             pixelPerfectSetting.ValueChanged += PixelPerfectSettingValueChanged;
+            RequiresPreviewLayer = pixelPerfectSetting.Value;
             lineTool = new LineTool();
             ClearPreviewLayerOnEachIteration = false;
         }
