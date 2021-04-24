@@ -300,8 +300,13 @@ namespace PixiEditor.Models.Layers
         /// <returns>List of layer guids.</returns>
         private List<Guid> GetGroupLayerGuids(GuidStructureItem group)
         {
-            Layer layerTop = Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid);
-            Layer layerBottom = Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid);
+            Layer? layerTop = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.EndLayerGuid);
+            Layer? layerBottom = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.StartLayerGuid);
+
+            if(layerTop == null || layerBottom == null)
+            {
+                return new List<Guid>();
+            }
 
             int indexTop = Owner.Layers.IndexOf(layerTop);
             int indexBottom = Owner.Layers.IndexOf(layerBottom);

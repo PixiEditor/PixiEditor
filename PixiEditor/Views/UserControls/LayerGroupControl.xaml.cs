@@ -107,7 +107,10 @@ namespace PixiEditor.Views.UserControls
         public void GeneratePreviewImage()
         {
             var layers = LayersViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupLayers(GroupData);
-            PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, 25, 25, true);
+            if (layers.Count > 0)
+            {
+                PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, 25, 25, true);
+            }
         }
 
         private static void GroupDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
