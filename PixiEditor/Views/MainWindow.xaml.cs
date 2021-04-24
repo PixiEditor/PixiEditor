@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
-using PixiEditor.Views;
 using System;
 using System.ComponentModel;
 using System.Windows;
@@ -30,9 +29,6 @@ namespace PixiEditor
             viewModel = (ViewModelMain)DataContext;
             viewModel.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-
-            ColorPanelController controller = new ColorPanelController(colorPickerPanel, colorSlidersPanel, smallColorPickerPanel);
-            controller.DeterminePanelsToDisplay();
         }
 
         protected override void OnClosing(CancelEventArgs e)

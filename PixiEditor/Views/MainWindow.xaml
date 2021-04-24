@@ -248,20 +248,9 @@
                                     <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
                                                              CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                              CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <colorpicker:StandardColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
+                                        <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
                                                                          SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" 
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
-                                            <i:Interaction.Behaviors>
-                                                <behaviours:GlobalShortcutFocusBehavior/>
-                                            </i:Interaction.Behaviors>
-                                        </colorpicker:StandardColorPicker>
-                                    </LayoutAnchorable>
-                                    <LayoutAnchorable ContentId="smallColorPicker" Title="Color Wheel" CanHide="False"
-                                                      CanClose="False" CanAutoHide="False" x:Name="smallColorPickerPanel"
-                                                      CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:SmallColorPicker Style="{StaticResource DefaultColorPickerStyle}" 
-                                                                       ColorState="{Binding ElementName=mainColorPicker, Path=ColorState, Delay=10, Mode=TwoWay}"
-                                                                       SecondColorState="{Binding ElementName=mainColorPicker, Path=SecondColorState, Delay=10, Mode=TwoWay}">
                                             <i:Interaction.Behaviors>
                                                 <behaviours:GlobalShortcutFocusBehavior/>
                                             </i:Interaction.Behaviors>
