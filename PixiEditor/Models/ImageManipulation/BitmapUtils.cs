@@ -1,13 +1,13 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Parser;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Parser;
 
 namespace PixiEditor.Models.ImageManipulation
 {
@@ -34,9 +34,9 @@ namespace PixiEditor.Models.ImageManipulation
         /// <summary>
         ///     Converts layers bitmaps into one bitmap.
         /// </summary>
-        /// <param name="layers">Layers to combine.</param>
         /// <param name="width">Width of final bitmap.</param>
         /// <param name="height">Height of final bitmap.</param>.
+        /// <param name="layers">Layers to combine.</param>
         /// <returns>WriteableBitmap of layered bitmaps.</returns>
         public static WriteableBitmap CombineLayers(int width, int height, params Layer[] layers)
         {
@@ -48,6 +48,13 @@ namespace PixiEditor.Models.ImageManipulation
                 {
                     float layerOpacity = layers[i].Opacity;
                     Layer layer = layers[i];
+
+                    if (layer.OffsetX < 0 || layer.OffsetY < 0 ||
+                        layer.Width + layer.OffsetX > layer.MaxWidth ||
+                        layer.Height + layer.OffsetY > layer.MaxHeight)
+                    {
+                        throw new InvalidOperationException("Layers must not extend beyond canvas borders");
+                    }
 
                     for (int y = 0; y < layers[i].Height; y++)
                     {
@@ -81,7 +88,7 @@ namespace PixiEditor.Models.ImageManipulation
             return finalBitmap;
         }
 
-      /// <summary>
+        /// <summary>
         /// Generates simplified preview from Document, very fast, great for creating small previews. Creates uniform streched image.
         /// </summary>
         /// <param name="document">Document which be used to generate preview.</param>
@@ -118,7 +125,7 @@ namespace PixiEditor.Models.ImageManipulation
 
         public static Dictionary<Guid, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
         {
-            Dictionary<Guid, Color[]> result = new ();
+            Dictionary<Guid, Color[]> result = new();
 
             foreach (Layer layer in layers)
             {

@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
-using Newtonsoft.Json.Linq;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.Dialogs
 {
@@ -28,14 +19,14 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty FileViewModelProperty =
             DependencyProperty.Register(nameof(FileViewModel), typeof(FileViewModel), typeof(HelloTherePopup));
 
-        public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
-
         public static readonly DependencyProperty RecentlyOpenedEmptyProperty =
             DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
-        public bool RecentlyOpenedEmpty { get => (bool)GetValue(RecentlyOpenedEmptyProperty); set => SetValue(RecentlyOpenedEmptyProperty, value); }
-
         public static string VersionText { get => $"v{Assembly.GetExecutingAssembly().GetName().Version.Major}.{Assembly.GetExecutingAssembly().GetName().Version.Minor}"; }
+
+        public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
+
+        public bool RecentlyOpenedEmpty { get => (bool)GetValue(RecentlyOpenedEmptyProperty); set => SetValue(RecentlyOpenedEmptyProperty, value); }
 
         public RelayCommand OpenFileCommand { get; set; }
 

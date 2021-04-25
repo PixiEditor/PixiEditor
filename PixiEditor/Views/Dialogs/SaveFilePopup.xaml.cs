@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using PixiEditor.ViewModels;
+﻿using PixiEditor.ViewModels;
+using System.Windows;
 
 namespace PixiEditor.Views
 {
@@ -8,12 +8,10 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class SaveFilePopup : Window
     {
-        // Using a DependencyProperty as the backing store for SaveHeight.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SaveHeightProperty =
             DependencyProperty.Register("SaveHeight", typeof(int), typeof(SaveFilePopup), new PropertyMetadata(32));
 
 
-        // Using a DependencyProperty as the backing store for SaveWidth.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SaveWidthProperty =
             DependencyProperty.Register("SaveWidth", typeof(int), typeof(SaveFilePopup), new PropertyMetadata(32));
 
@@ -28,14 +26,14 @@ namespace PixiEditor.Views
 
         public int SaveWidth
         {
-            get => (int) GetValue(SaveWidthProperty);
+            get => (int)GetValue(SaveWidthProperty);
             set => SetValue(SaveWidthProperty, value);
         }
 
 
         public int SaveHeight
         {
-            get => (int) GetValue(SaveHeightProperty);
+            get => (int)GetValue(SaveHeightProperty);
             set => SetValue(SaveHeightProperty, value);
         }
 

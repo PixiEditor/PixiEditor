@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -67,7 +67,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="2.0.0" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
     <PackageReference Include="PixiEditor.Parser" Version="1.0.1.1" />
     <PackageReference Include="WriteableBitmapEx">
       <Version>1.6.7</Version>
@@ -120,5 +120,5 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  
+
 </Project>

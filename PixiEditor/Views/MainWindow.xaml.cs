@@ -1,16 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels;
+using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Processes;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.UpdateModule;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor
 {
