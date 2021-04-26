@@ -12,8 +12,6 @@ variables:
 
 steps:
 - task: NuGetToolInstaller@1
-  inputs:
-    versionSpec: '5.x'
 
 - task: NuGetCommand@2
   inputs:
@@ -29,7 +27,7 @@ steps:
   displayName: Build
   inputs:
     command: 'build'
-    projects: '**/*.csproj'
+    projects: '!**/*.MSIX.wapproj'
     arguments: '--configuration Release'
 
 - task: DotNetCoreCLI@2
