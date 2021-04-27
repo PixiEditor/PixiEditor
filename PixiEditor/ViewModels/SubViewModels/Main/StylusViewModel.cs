@@ -11,9 +11,26 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private Tool PreviousTool { get; set; }
 
+        public StylusViewModel()
+            : this(null)
+        {
+        }
+
         public StylusViewModel(ViewModelMain owner)
             : base(owner)
         {
+            SetOwner(owner);
+        }
+
+        public void SetOwner(ViewModelMain owner)
+        {
+            if (Owner is not null)
+            {
+                throw new System.Exception("StylusViewModel already has an owner");
+            }
+
+            Owner = owner;
+
             // TODO: Only capture it on the Drawing View Port
             Window mw = Application.Current.MainWindow;
 

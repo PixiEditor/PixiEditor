@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor
 {
@@ -13,28 +14,28 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly ViewModelMain viewModel;
+        public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
             InitializeComponent();
 
             IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IPreferences>(new PreferencesSettings());
+                .AddSingleton<IPreferences>(new PreferencesSettings())
+                .AddSingleton(new StylusViewModel());
 
             DataContext = new ViewModelMain(services.BuildServiceProvider());
 
             StateChanged += MainWindowStateChangeRaised;
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            viewModel = (ViewModelMain)DataContext;
-            viewModel.CloseAction = Close;
+            DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            ((ViewModelMain)DataContext).CloseWindow(e);
-            viewModel.DiscordViewModel.Dispose();
+            DataContext.CloseWindow(e);
+            DataContext.DiscordViewModel.Dispose();
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

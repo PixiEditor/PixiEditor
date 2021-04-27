@@ -112,7 +112,9 @@ namespace PixiEditor.ViewModels
             DocumentSubViewModel = new DocumentViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
             UpdateSubViewModel = new UpdateViewModel(this);
-            StylusSubViewModel = new StylusViewModel(this);
+
+            StylusSubViewModel = services.GetService<StylusViewModel>();
+            StylusSubViewModel?.SetOwner(this);
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
