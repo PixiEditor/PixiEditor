@@ -20,6 +20,7 @@ namespace PixiEditor.Models.Tools.Tools
     public class SelectTool : ReadonlyTool
     {
         private IEnumerable<Coordinates> oldSelectedPoints;
+        private RectangleTool rectangleTool = new RectangleTool();
 
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
@@ -57,7 +58,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            RectangleTool rectangleTool = new RectangleTool();
             List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
             selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
             return selection;
