@@ -39,7 +39,9 @@ namespace PixiEditor.Helpers.Extensions
                     {
                         IsVisible = serLayer.IsVisible,
                         Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),
-                        Opacity = serLayer.Opacity
+                        Opacity = serLayer.Opacity,
+                        MaxHeight = serializableDocument.Height,
+                        MaxWidth = serializableDocument.Width,
                     };
                 layers.Add(layer);
             }
