@@ -22,7 +22,8 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty RecentlyOpenedEmptyProperty =
             DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
-        public static string VersionText { get => $"v{Assembly.GetExecutingAssembly().GetName().Version.Major}.{Assembly.GetExecutingAssembly().GetName().Version.Minor}"; }
+        public static string VersionText => $"v{Assembly.GetExecutingAssembly().GetName().Version.Major}.{Assembly.GetExecutingAssembly().GetName().Version.Minor}" +
+                (Assembly.GetExecutingAssembly().GetName().Version.Build != 0 ? $".{Assembly.GetExecutingAssembly().GetName().Version.Build}" : "");
 
         public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
 
