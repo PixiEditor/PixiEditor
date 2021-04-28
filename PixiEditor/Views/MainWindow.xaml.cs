@@ -46,7 +46,7 @@ namespace PixiEditor
         [Conditional("RELEASE")]
         private static void CloseHelloThereIfRelease()
         {
-            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => x.Close());
+            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

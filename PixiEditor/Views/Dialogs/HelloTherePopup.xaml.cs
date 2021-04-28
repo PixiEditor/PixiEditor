@@ -35,7 +35,7 @@ namespace PixiEditor.Views.Dialogs
 
         public RelayCommand OpenHyperlinkCommand { get => FileViewModel.Owner.MiscSubViewModel.OpenHyperlinkCommand; }
 
-        private bool isClosing;
+        public bool IsClosing { get; private set; }
 
         public HelloTherePopup(FileViewModel fileViewModel)
         {
@@ -49,7 +49,7 @@ namespace PixiEditor.Views.Dialogs
             RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
             RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
-            Closing += (_, _) => { isClosing = true; };
+            Closing += (_, _) => { IsClosing = true; };
 
             InitializeComponent();
 
