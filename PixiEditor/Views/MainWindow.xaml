@@ -179,7 +179,7 @@
             <Button Command="{Binding UndoSubViewModel.RedoCommand}" Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A6;"/>
             <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
             <Label Style="{StaticResource BaseLabel}" FontSize="12"
-                   VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.ToolName}"
+                   VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.DisplayName}"
                    ToolTip="{Binding BitmapManager.SelectedTool.ActionDisplay}"/>
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
