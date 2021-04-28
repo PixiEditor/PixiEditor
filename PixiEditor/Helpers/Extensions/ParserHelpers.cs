@@ -20,6 +20,11 @@ namespace PixiEditor.Helpers.Extensions
                     Color.FromArgb(x.Item1, x.Item2, x.Item3, x.Item4)))
             };
 
+            if (document.Layers.Count > 0)
+            {
+                document.SetMainActiveLayer(0);
+            }
+
             return document;
         }
 
@@ -34,7 +39,9 @@ namespace PixiEditor.Helpers.Extensions
                     {
                         IsVisible = serLayer.IsVisible,
                         Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),
-                        Opacity = serLayer.Opacity
+                        Opacity = serLayer.Opacity,
+                        MaxHeight = serializableDocument.Height,
+                        MaxWidth = serializableDocument.Width,
                     };
                 layers.Add(layer);
             }

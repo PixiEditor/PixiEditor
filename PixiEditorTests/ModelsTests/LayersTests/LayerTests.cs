@@ -54,16 +54,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
 
             Layer clone = layer.Clone();
 
-            Assert.Equal(layer.Name, clone.Name);
-            Assert.Equal(layer.Offset, clone.Offset);
-            Assert.Equal(layer.Width, clone.Width);
-            Assert.Equal(layer.Height, clone.Height);
-            Assert.Equal(layer.MaxHeight, clone.MaxHeight);
-            Assert.Equal(layer.MaxWidth, clone.MaxWidth);
-            Assert.Equal(layer.Opacity, clone.Opacity);
-            Assert.Equal(layer.IsVisible, clone.IsVisible);
-            Assert.Equal(layer.IsRenaming, clone.IsRenaming);
-            Assert.Equal(layer.ConvertBitmapToBytes(), clone.ConvertBitmapToBytes());
+            LayersTestHelper.LayersAreEqual(layer, clone);
         }
 
         [Fact]

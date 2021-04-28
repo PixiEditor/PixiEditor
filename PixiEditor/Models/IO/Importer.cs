@@ -18,7 +18,7 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path of image.</param>
         /// <param name="width">New width of image.</param>
         /// <param name="height">New height of image.</param>
-        /// <returns>WriteableBitmap of improted image.</returns>
+        /// <returns>WriteableBitmap of imported image.</returns>
         public static WriteableBitmap ImportImage(string path, int width, int height)
         {
             WriteableBitmap wbmp = ImportImage(path);
@@ -38,10 +38,11 @@ namespace PixiEditor.Models.IO
         {
             try
             {
-                Uri uri = new Uri(path);
+                Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
                 BitmapImage bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.UriSource = uri;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
 
                 return BitmapFactory.ConvertToPbgra32Format(bitmap);
@@ -65,22 +66,6 @@ namespace PixiEditor.Models.IO
                 return doc;
             }
             catch (InvalidFileException)
-            {
-                throw new CorruptedFileException();
-            }
-        }
-
-        public static Document ImportOldDocument(string path)
-        {
-            try
-            {
-                using FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-
-                Document doc = PixiParser.DeserializeOld(stream).ToDocument();
-                doc.DocumentFilePath = path;
-                return doc;
-            }
-            catch (SerializationException)
             {
                 throw new CorruptedFileException();
             }

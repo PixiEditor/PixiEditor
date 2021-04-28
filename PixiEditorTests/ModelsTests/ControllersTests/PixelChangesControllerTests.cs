@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System;
+using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
@@ -11,7 +12,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatPopChangesPopsChanges()
         {
-            PixelChangesController controller = CreateBasicController();
+            PixelChangesController controller = CreateBasicController().Item2;
 
             System.Tuple<LayerChange, LayerChange>[] changes = controller.PopChanges();
             Assert.NotEmpty(changes);
@@ -21,13 +22,15 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         [Fact]
         public void TestThatAddChangesAddsAsNewChange()
         {
-            PixelChangesController controller = CreateBasicController();
+            var data = CreateBasicController();
+            PixelChangesController controller = data.Item2;
             Coordinates[] cords = { new Coordinates(5, 3), new Coordinates(7, 2) };
+            Guid guid = Guid.NewGuid();
 
             controller.AddChanges(
                 new LayerChange(
-                    BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), 1),
-                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), 1));
+                    BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), guid),
+                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), guid));
 
             System.Tuple<LayerChange, LayerChange>[] changes = controller.PopChanges();
             Assert.Equal(2, changes.Length);
@@ -37,29 +40,32 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         public void TestThatAddChangesAddsToExistingChange()
         {
             Coordinates[] cords2 = { new Coordinates(2, 2), new Coordinates(5, 5) };
-            PixelChangesController controller = CreateBasicController();
+            var data = CreateBasicController();
+            PixelChangesController controller = data.Item2;
 
             controller.AddChanges(
                 new LayerChange(
-                    BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Black), 0),
-                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Transparent), 0));
+                    BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Black), data.Item1),
+                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Transparent), data.Item1));
 
-            System.Tuple<LayerChange, LayerChange>[] changes = controller.PopChanges();
+            Tuple<LayerChange, LayerChange>[] changes = controller.PopChanges();
             Assert.Single(changes);
             Assert.Equal(4, changes[0].Item1.PixelChanges.ChangedPixels.Count);
             Assert.Equal(4, changes[0].Item2.PixelChanges.ChangedPixels.Count);
         }
 
-        private static PixelChangesController CreateBasicController()
+        private static Tuple<Guid, PixelChangesController> CreateBasicController()
         {
             Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };
             PixelChangesController controller = new PixelChangesController();
 
+            Guid guid = Guid.NewGuid();
+
             controller.AddChanges(
                 new LayerChange(
-                    BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), 0),
-                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), 0));
-            return controller;
+                    BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), guid),
+                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), guid));
+            return new Tuple<Guid, PixelChangesController>(guid, controller);
         }
     }
 }

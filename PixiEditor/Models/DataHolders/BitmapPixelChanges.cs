@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -86,6 +87,11 @@ namespace PixiEditor.Models.DataHolders
             }
 
             return new BitmapPixelChanges(dict);
+        }
+
+        public BitmapPixelChanges WithoutTransparentPixels()
+        {
+            return new BitmapPixelChanges(ChangedPixels.Where(x => x.Value.A > 0).ToDictionary(y => y.Key, y => y.Value));
         }
     }
 }

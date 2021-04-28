@@ -1,52 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.UserPreferences
 {
-    public static class PreferencesSettings
+    [DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
+    public class PreferencesSettings : IPreferences
     {
-        public static bool IsLoaded { get; private set; } = false;
+        public static IPreferences Current => ViewModelMain.Current.Preferences;
 
-        public static string PathToUserPreferences { get; private set; } = Path.Join(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "PixiEditor",
-            "user_preferences.json");
+        public bool IsLoaded { get; private set; } = false;
 
-        public static Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
+        public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData, "user_preferences.json");
 
-        public static void Init()
+        public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData, "editor_data.json");
+
+        public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
+
+        public Dictionary<string, object> LocalPreferences { get; set; } = new Dictionary<string, object>();
+
+        public void Init()
         {
-            Init(PathToUserPreferences);
+            Init(PathToRoamingUserPreferences, PathToLocalPreferences);
         }
 
-        public static void Init(string path)
+        public void Init(string path, string localPath)
         {
-            PathToUserPreferences = path;
+            PathToRoamingUserPreferences = path;
+            PathToLocalPreferences = localPath;
+
             if (IsLoaded == false)
             {
-                string dir = Path.GetDirectoryName(path);
-                if (!Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
-
-                if (!File.Exists(path))
-                {
-                    File.WriteAllText(path, "{\n}");
-                }
-                else
-                {
-                    string json = File.ReadAllText(path);
-                    Preferences = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-                }
+                Preferences = InitPath(path);
+                LocalPreferences = InitPath(localPath);
 
                 IsLoaded = true;
             }
         }
 
-        public static void UpdatePreference<T>(string name, T value)
+        public void UpdatePreference<T>(string name, T value)
         {
             if (IsLoaded == false)
             {
@@ -55,36 +50,153 @@ namespace PixiEditor.Models.UserPreferences
 
             Preferences[name] = value;
 
+            if (Callbacks.ContainsKey(name))
+            {
+                foreach (var action in Callbacks[name])
+                {
+                    action.Invoke(value);
+                }
+            }
+
             Save();
         }
 
-        public static void Save()
+        public void UpdateLocalPreference<T>(string name, T value)
         {
             if (IsLoaded == false)
             {
                 Init();
             }
 
-            File.WriteAllText(PathToUserPreferences, JsonConvert.SerializeObject(Preferences));
+            LocalPreferences[name] = value;
+
+            if (Callbacks.ContainsKey(name))
+            {
+                foreach (var action in Callbacks[name])
+                {
+                    action.Invoke(value);
+                }
+            }
+
+            Save();
+        }
+
+        public void Save()
+        {
+            if (IsLoaded == false)
+            {
+                Init();
+            }
+
+            File.WriteAllText(PathToRoamingUserPreferences, JsonConvert.SerializeObject(Preferences));
+            File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
+        }
+
+        public Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
+
+        public void AddCallback(string setting, Action<object> action)
+        {
+            if (Callbacks.ContainsKey(setting))
+            {
+                Callbacks[setting].Add(action);
+                return;
+            }
+
+            Callbacks.Add(setting, new List<Action<object>>() { action });
         }
 
 #nullable enable
 
-        public static T? GetPreference<T>(string name)
+        public T? GetPreference<T>(string name)
         {
             return GetPreference(name, default(T));
         }
 
-        public static T? GetPreference<T>(string name, T? fallbackValue)
+        public T? GetPreference<T>(string name, T? fallbackValue)
         {
             if (IsLoaded == false)
             {
                 Init();
             }
 
-            return Preferences.ContainsKey(name)
-                ? (T)Preferences[name]
-                : fallbackValue;
+            try
+            {
+                return Preferences.ContainsKey(name)
+                        ? (T)Convert.ChangeType(Preferences[name], typeof(T))
+                        : fallbackValue;
+            }
+            catch (InvalidCastException)
+            {
+                Preferences.Remove(name);
+                Save();
+
+                return fallbackValue;
+            }
+        }
+
+        public T? GetLocalPreference<T>(string name)
+        {
+            return GetLocalPreference(name, default(T));
+        }
+
+        public T? GetLocalPreference<T>(string name, T? fallbackValue)
+        {
+            if (IsLoaded == false)
+            {
+                Init();
+            }
+
+            try
+            {
+                return LocalPreferences.ContainsKey(name)
+                    ? (T)Convert.ChangeType(LocalPreferences[name], typeof(T))
+                    : fallbackValue;
+            }
+            catch (InvalidCastException)
+            {
+                LocalPreferences.Remove(name);
+                Save();
+
+                return fallbackValue;
+            }
+        }
+
+#nullable disable
+
+        private static string GetPathToSettings(Environment.SpecialFolder folder, string fileName)
+        {
+            return Path.Join(
+            Environment.GetFolderPath(folder),
+            "PixiEditor",
+            fileName);
+        }
+
+        private static Dictionary<string, object> InitPath(string path)
+        {
+            string dir = Path.GetDirectoryName(path);
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            if (!File.Exists(path))
+            {
+                File.WriteAllText(path, "{\n}");
+            }
+            else
+            {
+                string json = File.ReadAllText(path);
+                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+                // dictionary is null if the user deletes the content of the preference file.
+                if (dictionary != null)
+                {
+                    return dictionary;
+                }
+            }
+
+            return new Dictionary<string, object>();
         }
     }
 }

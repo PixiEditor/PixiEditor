@@ -9,7 +9,8 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/pixieditor/pixieditor/badge)](https://www.codefactor.io/repository/github/pixieditor/pixieditor)
 [![Release](https://img.shields.io/github/v/release/flabbet/PixiEditor)](https://github.com/flabbet/PixiEditor/releases) 
 [![Downloads](https://img.shields.io/github/downloads/PixiEditor/PixiEditor/total)](https://github.com/flabbet/PixiEditor/releases)
-[![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq) 
+[![Discord Server](https://badgen.net/badge/discord/join%20chat/7289DA?icon=discord)](https://discord.gg/qSRMYmq)
+[![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/PixiEditor?label=%20r%2FPixiEditor&logoColor=%23e3002d)](https://reddit.com/r/PixiEditor)
 [![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
 
 ## About PixiEditor
@@ -24,9 +25,9 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 
 
-### Light weighted
+### Lightweight
 
-Program weights only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
+Program weighs only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
 
 ### Active development
 
@@ -38,10 +39,20 @@ PixiEditor started in 2018 and it's been actively developed since. We continuous
 
 Follow these instructions to get PixiEditor working on your machine.
 
-1. Download .exe file from [here](https://github.com/flabbet/PixiEditor/releases)
+1. Download the .exe file from [here](https://github.com/flabbet/PixiEditor/releases)
 2. Open installer
 3. Follow installer instructions
 
+
+## Featured content
+
+### PixiEditor 0.1.4 Trailer
+
+[![Trailer](https://img.youtube.com/vi/QKnXBUY0Pqk/0.jpg)](https://www.youtube.com/watch?v=QKnXBUY0Pqk)
+
+### Pixel Art Timelapse - "Bog Landscape" | PixiEditor
+
+[![Landscape timelapse](https://img.youtube.com/vi/bzC-wy6HCB8/0.jpg)](https://www.youtube.com/watch?v=bzC-wy6HCB8)
 
 
 ## Support
@@ -78,6 +89,10 @@ Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/
 ## FAQ
 
 You can find [FAQ here](https://github.com/PixiEditor/PixiEditor/wiki/FAQ).
+
+## Gallery
+
+Check out some pixel arts made with PixiEditor [here](https://github.com/PixiEditor/PixiEditor/wiki/Gallery).
 
 ## License
 

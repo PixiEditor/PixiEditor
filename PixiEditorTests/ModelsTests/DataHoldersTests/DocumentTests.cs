@@ -3,11 +3,14 @@ using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
 {
+    [Collection("Application collection")]
     public class DocumentTests
     {
         [Theory]
@@ -134,6 +137,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             manager.ActiveDocument.AddNewLayer("test2");
             manager.ActiveLayer.SetPixel(new Coordinates(1, 1), Colors.Green);
 
+            foreach (var layer in manager.ActiveDocument.Layers)
+            {
+                layer.IsActive = true;
+            }
+
             doc.CenterContent();
 
             int midWidth = (int)Math.Floor(docWidth / 2f);
@@ -144,6 +152,196 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             Assert.Equal(midWidth, manager.ActiveDocument.Layers[1].OffsetX);
             Assert.Equal(midHeight, manager.ActiveDocument.Layers[1].OffsetY);
+        }
+
+        [Fact]
+        public void TestThatSetNextActiveLayerSetsLayerBelow()
+        {
+            Document doc = new Document(10, 10);
+            doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test"));
+            doc.Layers.Add(new PixiEditor.Models.Layers.Layer("Test 2"));
+
+            doc.SetMainActiveLayer(1);
+
+            doc.SetNextLayerAsActive(1);
+
+            Assert.False(doc.Layers[1].IsActive);
+            Assert.True(doc.Layers[0].IsActive);
+        }
+
+        [Fact]
+        public void TestThatAddNewLayerAddsUndoChange()
+        {
+            Document document = new Document(10, 10);
+
+            document.AddNewLayer("Test");
+            document.AddNewLayer("Test2");
+
+            Assert.Single(document.UndoManager.UndoStack);
+        }
+
+        [Fact]
+        public void TestThatAddNewLayerUndoProcessWorks()
+        {
+            Document document = new Document(10, 10);
+
+            document.AddNewLayer("Test");
+            document.AddNewLayer("Test2");
+
+            document.UndoManager.Undo();
+
+            Assert.Single(document.Layers);
+        }
+
+        [Fact]
+        public void TestThatAddNewLayerRedoProcessWorks()
+        {
+            Document document = new Document(10, 10);
+
+            document.AddNewLayer("Test");
+            document.AddNewLayer("Test2");
+
+            document.UndoManager.Undo();
+            document.UndoManager.Redo();
+
+            Assert.Equal(2, document.Layers.Count);
+        }
+
+        [Fact]
+        public void TestThatRemoveLayerUndoProcessWorks()
+        {
+            Document document = new Document(10, 10);
+
+            document.AddNewLayer("Test");
+            document.AddNewLayer("Test2");
+
+            document.RemoveLayer(1);
+
+            document.UndoManager.Undo();
+
+            Assert.Equal(2, document.Layers.Count);
+        }
+
+        [Fact]
+        public void TestThatRemoveLayerRedoProcessWorks()
+        {
+            Document document = new Document(10, 10);
+
+            document.AddNewLayer("Test");
+            document.AddNewLayer("Test2");
+
+            document.RemoveLayer(1);
+
+            document.UndoManager.Undo();
+            document.UndoManager.Redo();
+
+            Assert.Single(document.Layers);
+        }
+
+        [Theory]
+        [InlineData(2, 0, 1)]
+        [InlineData(2, 1, -1)]
+        [InlineData(3, 1, 1)]
+        [InlineData(3, 2, -2)]
+        [InlineData(10, 9, -5)]
+        public void TestThatMoveLayerIndexByWorks(int layersAmount, int index, int amount)
+        {
+            Document document = new Document(10, 10);
+            for (int i = 0; i < layersAmount; i++)
+            {
+                document.AddNewLayer("Layer " + i);
+            }
+
+            Guid oldGuid = document.Layers[index].LayerGuid;
+            document.MoveLayerIndexBy(index, amount);
+
+            Assert.Equal(oldGuid, document.Layers[index + amount].LayerGuid);
+        }
+
+        [Fact]
+        public void TestThatMoveLayerIndexByUndoProcessWorks()
+        {
+            Document document = new Document(10, 10);
+
+            document.AddNewLayer("Test");
+            document.AddNewLayer("Test2");
+
+            document.MoveLayerIndexBy(0, 1);
+
+            document.UndoManager.Undo();
+
+            Assert.Equal("Test2", document.Layers[1].Name);
+            Assert.Equal("Test", document.Layers[0].Name);
+        }
+
+        [Fact]
+        public void TestThatMoveLayerIndexByRedoProcessWorks()
+        {
+            Document document = new Document(10, 10);
+
+            document.AddNewLayer("Test");
+            document.AddNewLayer("Test2");
+
+            document.MoveLayerIndexBy(0, 1);
+
+            document.UndoManager.Undo();
+            document.UndoManager.Redo();
+
+            Assert.Equal("Test", document.Layers[1].Name);
+            Assert.Equal("Test2", document.Layers[0].Name);
+        }
+
+        [StaFact]
+        public void TestThatDocumentGetsAddedToRecentlyOpenedList()
+        {
+            ViewModelMain viewModel = Helpers.MockedViewModelMain();
+
+            Document document = new Document(1, 1)
+            {
+                XamlAccesibleViewModel = viewModel
+            };
+
+            string testFilePath = @"C:\idk\somewhere\homework";
+
+            document.DocumentFilePath = testFilePath;
+
+            Assert.Contains(viewModel.FileSubViewModel.RecentlyOpened, x => x.FilePath == testFilePath);
+        }
+
+        [Fact]
+        public void TestThatDupliacteLayerWorks()
+        {
+            const string layerName = "New Layer";
+
+            Document document = new (10, 10);
+
+            document.AddNewLayer(layerName);
+            Layer duplicate = document.DuplicateLayer(0);
+
+            Assert.Equal(document.Layers[1], duplicate);
+            Assert.Equal(layerName + " (1)", duplicate.Name);
+            Assert.True(duplicate.IsActive);
+        }
+
+        [Fact]
+        public void TestThatCorrectLayerSuffixIsSet()
+        {
+            const string layerName = "New Layer";
+
+            Document document = new (10, 10);
+
+            document.AddNewLayer(layerName);
+            document.AddNewLayer(layerName);
+            document.AddNewLayer(layerName);
+
+            Assert.Equal(layerName, document.Layers[0].Name);
+            Assert.Equal(layerName + " (1)", document.Layers[1].Name);
+            Assert.Equal(layerName + " (2)", document.Layers[2].Name);
+
+            document.Layers.Add(new Layer(layerName + " (15)"));
+            document.AddNewLayer(layerName);
+
+            Assert.Equal(layerName + " (16)", document.Layers[4].Name);
         }
     }
 }

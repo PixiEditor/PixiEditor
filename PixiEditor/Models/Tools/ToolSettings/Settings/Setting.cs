@@ -1,12 +1,26 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using PixiEditor.Helpers;
+
+#pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "StyleCop.CSharp.MaintainabilityRules",
-        "SA1402:File may only contain a single type",
-        Justification = "Same class with generic value")]
+    public abstract class Setting<T, TControl> : Setting<T>
+        where TControl : Control
+    {
+        protected Setting(string name)
+            : base(name)
+        {
+        }
+
+        public new TControl SettingControl
+        {
+            get => (TControl)base.SettingControl;
+            set => base.SettingControl = value;
+        }
+    }
+
     public abstract class Setting<T> : Setting
     {
         protected Setting(string name)
@@ -14,13 +28,22 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
         }
 
+        public event EventHandler<SettingValueChangedEventArgs<T>> ValueChanged;
+
         public new T Value
         {
             get => (T)base.Value;
             set
             {
+                T oldValue = default;
+                if (base.Value != null)
+                {
+                    oldValue = Value;
+                }
+
                 base.Value = value;
-                RaisePropertyChanged("Value");
+                ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<T>(oldValue, Value));
+                RaisePropertyChanged(nameof(Value));
             }
         }
     }

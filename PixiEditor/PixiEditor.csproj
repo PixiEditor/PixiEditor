@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -14,10 +14,22 @@
     <PackageIcon>icon.ico</PackageIcon>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
+    <Configurations>Debug;Release;MSIX;MSIX Debug</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -26,14 +38,35 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Styles\AvalonDock\Images\**" />
+    <EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
+    <None Remove="Styles\AvalonDock\Images\**" />
+    <Page Remove="Styles\AvalonDock\Images\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
+    <None Remove="Images\JpgFile.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
+    <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
+    <None Remove="Images\PixiFile.png" />
+    <None Remove="Images\PixiParserLogo.png" />
+    <None Remove="Images\PngFile.png" />
     <None Remove="Images\SelectImage.png" />
+    <None Remove="Images\UnknownFile.png" />
     <None Remove="Images\ZoomImage.png" />
     <None Include="..\icon.ico">
       <Pack>True</Pack>
@@ -45,15 +78,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.50.0" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
+    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="2.0.0" />
-    <PackageReference Include="PixiEditor.Parser" Version="1.0.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
+    <PackageReference Include="PixiEditor.Parser" Version="1.1.1.1" />
     <PackageReference Include="WriteableBitmapEx">
       <Version>1.6.7</Version>
     </PackageReference>
@@ -66,15 +101,21 @@
     <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\Eye-off.png" />
     <Resource Include="Images\Eye.png" />
+    <Resource Include="Images\JpgFile.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\MoveImage.png" />
     <Resource Include="Images\MoveViewportImage.png" />
     <Resource Include="Images\PenImage.png" />
     <Resource Include="Images\ColorPickerImage.png" />
+    <Resource Include="Images\PixiBotLogo.png" />
     <Resource Include="Images\PixiEditorLogo.png" />
+    <Resource Include="Images\PixiFile.png" />
+    <Resource Include="Images\PixiParserLogo.png" />
+    <Resource Include="Images\PngFile.png" />
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\transparentbg.png" />
+    <Resource Include="Images\UnknownFile.png" />
     <Resource Include="Images\ZoomImage.png" />
   </ItemGroup>
   <ItemGroup>
@@ -99,5 +140,5 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  
+
 </Project>

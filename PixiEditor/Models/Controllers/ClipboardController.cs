@@ -1,12 +1,12 @@
-﻿using System.IO;
+﻿using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Controllers
         public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight)
         {
             Clipboard.Clear();
-            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(layers, originalImageWidth, originalImageHeight);
+            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(originalImageWidth, originalImageHeight, layers);
             using (MemoryStream pngStream = new MemoryStream())
             {
                 DataObject data = new DataObject();
@@ -51,26 +51,6 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        private static void RemoveLayerProcess(object[] parameters)
-        {
-            if (parameters.Length == 0 || !(parameters[0] is int))
-            {
-                return;
-            }
-
-            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0]);
-        }
-
-        private static void AddLayerProcess(object[] parameters)
-        {
-            if (parameters.Length == 0 || !(parameters[0] is WriteableBitmap))
-            {
-                return;
-            }
-
-            AddImageToLayers((WriteableBitmap)parameters[0]);
-        }
-
         /// <summary>
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
@@ -92,11 +72,11 @@ namespace PixiEditor.Models.Controllers
             }
             else if (dao.GetDataPresent(DataFormats.Dib))
             {
-                finalImage = new WriteableBitmap(Clipboard.GetImage() !);
+                finalImage = new WriteableBitmap(Clipboard.GetImage()!);
             }
             else if (dao.GetDataPresent(DataFormats.Bitmap))
             {
-                finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource) !);
+                finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource)!);
             }
 
             return finalImage;
@@ -126,6 +106,26 @@ namespace PixiEditor.Models.Controllers
         private static void AddImageToLayers(WriteableBitmap image)
         {
             ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer("Image", image);
+        }
+
+        private static void RemoveLayerProcess(object[] parameters)
+        {
+            if (parameters.Length == 0 || !(parameters[0] is int))
+            {
+                return;
+            }
+
+            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0]);
+        }
+
+        private static void AddLayerProcess(object[] parameters)
+        {
+            if (parameters.Length == 0 || !(parameters[0] is WriteableBitmap))
+            {
+                return;
+            }
+
+            AddImageToLayers((WriteableBitmap)parameters[0]);
         }
     }
 }

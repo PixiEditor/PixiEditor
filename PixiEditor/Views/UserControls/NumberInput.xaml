@@ -3,18 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d"
              d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput">
-    <Grid>
-        <TextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}"
-                 PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
-            <i:Interaction.Behaviors>
-                <behaviours:TextBoxFocusBehavior />
-            </i:Interaction.Behaviors>
-        </TextBox>
-    </Grid>
+    <TextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Focusable="True"
+               
+             PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
+        <i:Interaction.Behaviors>
+            <behaviours:TextBoxFocusBehavior/>
+            <behaviours:GlobalShortcutFocusBehavior/>
+        </i:Interaction.Behaviors>
+    </TextBox>
 </UserControl>

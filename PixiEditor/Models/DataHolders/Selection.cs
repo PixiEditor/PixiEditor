@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media;
 using PixiEditor.Helpers;
@@ -9,6 +10,7 @@ using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.DataHolders
 {
+    [DebuggerDisplay("{SelectedPoints.Count} selected Pixels")]
     public class Selection : NotifyableObject
     {
         private readonly Color selectionBlue;
@@ -56,7 +58,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void Clear()
         {
-            SelectionLayer = new Layer("_selectionLayer");
+            SelectionLayer.Clear();
             SelectedPoints.Clear();
         }
     }

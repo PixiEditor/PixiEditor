@@ -56,7 +56,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void Copy(object parameter)
         {
             ClipboardController.CopyToClipboard(
-                new[] { Owner.BitmapManager.ActiveDocument.ActiveLayer },
+                Owner.BitmapManager.ActiveDocument.Layers.Where(x => x.IsActive && x.IsVisible).ToArray(),
                 Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray(),
                 Owner.BitmapManager.ActiveDocument.Width,
                 Owner.BitmapManager.ActiveDocument.Height);

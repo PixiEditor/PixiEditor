@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels;
+using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Processes;
-using PixiEditor.UpdateModule;
-using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Diagnostics;
+using System.Linq;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor
 {
@@ -18,15 +17,36 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly ViewModelMain viewModel;
+        public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
             InitializeComponent();
+
+            IServiceCollection services = new ServiceCollection()
+                .AddSingleton<IPreferences>(new PreferencesSettings())
+                .AddSingleton(new StylusViewModel());
+
+            DataContext = new ViewModelMain(services.BuildServiceProvider());
+
             StateChanged += MainWindowStateChangeRaised;
+            Activated += MainWindow_Activated;
+
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            viewModel = (ViewModelMain)DataContext;
-            viewModel.CloseAction = Close;
+            DataContext.CloseAction = Close;
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            DataContext.CloseWindow(e);
+            DataContext.DiscordViewModel.Dispose();
+        }
+
+        [Conditional("RELEASE")]
+        private static void CloseHelloThereIfRelease()
+        {
+            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -54,6 +74,11 @@ namespace PixiEditor
             SystemCommands.CloseWindow(this);
         }
 
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            CloseHelloThereIfRelease();
+        }
+
         private void MainWindowStateChangeRaised(object sender, EventArgs e)
         {
             if (WindowState == WindowState.Maximized)
@@ -70,68 +95,7 @@ namespace PixiEditor
 
         private void MainWindow_Initialized(object sender, EventArgs e)
         {
-            string dir = AppDomain.CurrentDomain.BaseDirectory;
-            UpdateDownloader.CreateTempDirectory();
-            bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
-            string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
-            bool updateExeExists = updateExeFiles.Length > 0;
-
-            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
-
-            if (updateZipExists || updateExeExists)
-            {
-                ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-                var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
-                if (result == Models.Enums.ConfirmationType.Yes)
-                {
-                    if (updateZipExists && File.Exists(updaterPath))
-                    {
-                        InstallHeadless(updaterPath);
-                    }
-                    else if (updateExeExists)
-                    {
-                        OpenExeInstaller(updateExeFiles[0]);
-                    }
-                }
-            }
-        }
-
-        private void InstallHeadless(string updaterPath)
-        {
-            try
-            {
-                ProcessHelper.RunAsAdmin(updaterPath);
-                Close();
-            }
-            catch (Win32Exception)
-            {
-                MessageBox.Show(
-                    "Couldn't update without administrator rights.",
-                    "Insufficient permissions",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
-        private void OpenExeInstaller(string updateExeFile)
-        {
-            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
-                    updateExeFile.Split('-')[1].Split(".exe")[0];
-
-            if (!alreadyUpdated)
-            {
-                RestartToUpdate(updateExeFile);
-            }
-            else
-            {
-                File.Delete(updateExeFile);
-            }
-        }
-
-        private void RestartToUpdate(string updateExeFile)
-        {
-            Process.Start(updateExeFile);
-            Close();
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => Helpers.CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
         }
     }
 }

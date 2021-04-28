@@ -16,7 +16,7 @@ namespace PixiEditor.ViewModels
 
         protected void CloseButton(object parameter)
         {
-            ((Window) parameter).Close();
+            ((Window)parameter).Close();
         }
 
         protected void DragMove(object parameter)

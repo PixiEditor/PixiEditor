@@ -1,21 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
-        private Selection oldSelection;
+        private IEnumerable<Coordinates> oldSelectedPoints;
+        private RectangleTool rectangleTool = new RectangleTool();
+
+        private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         public SelectTool()
         {
@@ -28,30 +35,20 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
-            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("SelectMode")?.Value as ComboBoxItem)?.Content as string, out SelectionType selectionType);
-            SelectionType = selectionType;
+            SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
 
-            oldSelection = null;
-            Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
-            if (selection != null && selection.SelectedPoints != null)
-            {
-                oldSelection = selection;
-            }
+            oldSelectedPoints = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
         {
-            if (ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.Count() <= 1)
+            if (ActiveSelection.SelectedPoints.Count <= 1)
             {
                 // If we have not selected multiple points, clear the selection
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.Clear();
+                ActiveSelection.Clear();
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                new Change("ActiveSelection", 
-                oldSelection,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection,
-                "Select pixels", ViewModelMain.Current.SelectionSubViewModel));
+            SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
         }
 
         public override void Use(Coordinates[] pixels)
@@ -61,7 +58,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            RectangleTool rectangleTool = new RectangleTool();
             List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
             selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
             return selection;

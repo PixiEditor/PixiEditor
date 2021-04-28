@@ -29,5 +29,7 @@ namespace PixiEditor.Models.Layers
                 RaisePropertyChanged("Height");
             }
         }
+
+        public Guid LayerGuid { get; protected set; }
     }
 }

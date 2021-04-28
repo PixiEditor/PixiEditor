@@ -1,14 +1,18 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Layers
 {
+    [DebuggerDisplay("'{name,nq}' {width}x{height}")]
     public class Layer : BasicLayer
     {
         private const int SizeOfArgb = 4;
@@ -24,7 +28,9 @@ namespace PixiEditor.Models.Layers
 
         private Thickness offset;
 
-        private float opacity = 1;
+        private float opacity = 1f;
+
+        private string layerHighlightColor = "#666666";
 
         public Layer(string name)
         {
@@ -32,6 +38,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = BitmapFactory.New(0, 0);
             Width = 0;
             Height = 0;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Layer(string name, int width, int height)
@@ -40,6 +47,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = BitmapFactory.New(width, height);
             Width = width;
             Height = height;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Layer(string name, WriteableBitmap layerBitmap)
@@ -48,9 +56,19 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = layerBitmap;
             Width = layerBitmap.PixelWidth;
             Height = layerBitmap.PixelHeight;
+            LayerGuid = Guid.NewGuid();
         }
 
         public Dictionary<Coordinates, Color> LastRelativeCoordinates { get; set; }
+
+        public string LayerHighlightColor
+        {
+            get => IsActive ? layerHighlightColor : "#00000000";
+            set
+            {
+                SetProperty(ref layerHighlightColor, value);
+            }
+        }
 
         public string Name
         {
@@ -58,7 +76,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 name = value;
-                RaisePropertyChanged("Name");
+                RaisePropertyChanged(nameof(Name));
             }
         }
 
@@ -68,7 +86,8 @@ namespace PixiEditor.Models.Layers
             set
             {
                 isActive = value;
-                RaisePropertyChanged("IsActive");
+                RaisePropertyChanged(nameof(IsActive));
+                RaisePropertyChanged(nameof(LayerHighlightColor));
             }
         }
 
@@ -77,8 +96,33 @@ namespace PixiEditor.Models.Layers
             get => isVisible;
             set
             {
-                isVisible = value;
-                RaisePropertyChanged("IsVisible");
+                if (isVisible != value)
+                {
+                    isVisible = value;
+                    RaisePropertyChanged(nameof(IsVisible));
+                    RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
+                }
+            }
+        }
+
+        public bool IsVisibleUndoTriggerable
+        {
+            get => IsVisible;
+            set
+            {
+                if (value != IsVisible)
+                {
+                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
+                        .AddUndoChange(
+                        new Change(
+                            nameof(IsVisible),
+                            isVisible,
+                            value,
+                            LayerHelper.FindLayerByGuidProcess,
+                            new object[] { LayerGuid },
+                            "Change layer visibility"));
+                    IsVisible = value;
+                }
             }
         }
 
@@ -98,7 +142,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 layerBitmap = value;
-                RaisePropertyChanged("LayerBitmap");
+                RaisePropertyChanged(nameof(LayerBitmap));
             }
         }
 
@@ -107,8 +151,33 @@ namespace PixiEditor.Models.Layers
             get => opacity;
             set
             {
-                opacity = value;
-                RaisePropertyChanged("Opacity");
+                if (opacity != value)
+                {
+                    opacity = value;
+                    RaisePropertyChanged(nameof(Opacity));
+                    RaisePropertyChanged(nameof(OpacityUndoTriggerable));
+                }
+            }
+        }
+
+        public float OpacityUndoTriggerable
+        {
+            get => Opacity;
+            set
+            {
+                if (value != Opacity)
+                {
+                    ViewModelMain.Current?.BitmapManager?.ActiveDocument?.UndoManager
+                    .AddUndoChange(
+                                   new Change(
+                                   nameof(Opacity),
+                                   opacity,
+                                   value,
+                                   LayerHelper.FindLayerByGuidProcess,
+                                   new object[] { LayerGuid },
+                                   "Change layer opacity"));
+                    Opacity = value;
+                }
             }
         }
 
@@ -131,9 +200,19 @@ namespace PixiEditor.Models.Layers
         public int MaxHeight { get; set; } = int.MaxValue;
 
         /// <summary>
+        /// Changes Guid of layer.
+        /// </summary>
+        /// <param name="newGuid">Guid to set.</param>
+        /// <remarks>This is potentially destructive operation, use when absolutelly necessary.</remarks>
+        public void ChangeGuid(Guid newGuid)
+        {
+            LayerGuid = newGuid;
+        }
+
+        /// <summary>
         ///     Returns clone of layer.
         /// </summary>
-        public Layer Clone()
+        public Layer Clone(bool generateNewGuid = false)
         {
             return new Layer(Name, LayerBitmap.Clone())
             {
@@ -143,7 +222,8 @@ namespace PixiEditor.Models.Layers
                 MaxWidth = MaxWidth,
                 Opacity = Opacity,
                 IsActive = IsActive,
-                IsRenaming = IsRenaming
+                IsRenaming = IsRenaming,
+                LayerGuid = generateNewGuid ? Guid.NewGuid() : LayerGuid
             };
         }
 
@@ -287,14 +367,14 @@ namespace PixiEditor.Models.Layers
 
             if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.A == 0))
             {
-                if (newMaxX + 1 > Width || newMaxY + 1 > Height)
+                if ((newMaxX + 1 > Width && Width < MaxWidth) || (newMaxY + 1 > Height && Height < MaxHeight))
                 {
-                    IncreaseSizeToBottom(newMaxX, newMaxY);
+                    IncreaseSizeToBottomAndRight(newMaxX, newMaxY);
                 }
 
-                if (newMinX < 0 || newMinY < 0)
+                if ((newMinX < 0 && Width < MaxWidth) || (newMinY < 0 && Height < MaxHeight))
                 {
-                    IncreaseSizeToTop(newMinX, newMinY);
+                    IncreaseSizeToTopAndLeft(newMinX, newMinY);
                 }
             }
 
@@ -413,7 +493,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void IncreaseSizeToBottom(int newMaxX, int newMaxY)
+        private void IncreaseSizeToBottomAndRight(int newMaxX, int newMaxY)
         {
             if (MaxWidth - OffsetX < 0 || MaxHeight - OffsetY < 0)
             {
@@ -426,7 +506,7 @@ namespace PixiEditor.Models.Layers
             ResizeCanvas(0, 0, 0, 0, newMaxX, newMaxY);
         }
 
-        private void IncreaseSizeToTop(int newMinX, int newMinY)
+        private void IncreaseSizeToTopAndLeft(int newMinX, int newMinY)
         {
             newMinX = Math.Clamp(Math.Min(newMinX, Width), Math.Min(-OffsetX, OffsetX), 0);
             newMinY = Math.Clamp(Math.Min(newMinY, Height), Math.Min(-OffsetY, OffsetY), 0);
@@ -458,8 +538,8 @@ namespace PixiEditor.Models.Layers
         {
             if (Width == 0 || Height == 0)
             {
-                int offsetX = pixels.ChangedPixels.Min(x => x.Key.X);
-                int offsetY = pixels.ChangedPixels.Min(x => x.Key.Y);
+                int offsetX = Math.Max(pixels.ChangedPixels.Min(x => x.Key.X), 0);
+                int offsetY = Math.Max(pixels.ChangedPixels.Min(x => x.Key.Y), 0);
                 Offset = new Thickness(offsetX, offsetY, 0, 0);
             }
         }

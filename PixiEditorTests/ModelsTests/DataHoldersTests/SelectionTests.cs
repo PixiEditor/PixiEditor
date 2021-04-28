@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
@@ -54,6 +56,24 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             Assert.Empty(selection.SelectedPoints);
             Assert.Equal(0, selection.SelectionLayer.Width + selection.SelectionLayer.Height);
+        }
+
+        [Fact]
+        public void TestThatUndoWorks()
+        {
+            Document document = new Document(10, 10);
+
+            IEnumerable<Coordinates> oldSelection = new List<Coordinates>(document.ActiveSelection.SelectedPoints);
+
+            document.ActiveSelection.SetSelection(new[] { new Coordinates(0, 0), new Coordinates(5, 7) }, SelectionType.Add);
+
+            Assert.NotEqual(oldSelection, document.ActiveSelection.SelectedPoints);
+
+            SelectionHelpers.AddSelectionUndoStep(document, oldSelection, SelectionType.Add);
+
+            document.UndoManager.Undo();
+
+            Assert.Equal(oldSelection, document.ActiveSelection.SelectedPoints);
         }
     }
 }

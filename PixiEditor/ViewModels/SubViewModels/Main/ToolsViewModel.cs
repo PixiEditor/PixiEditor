@@ -42,7 +42,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(),
                 new ZoomTool()
             };
-            SetActiveTool(typeof(MoveTool));
+            SetActiveTool(typeof(MoveViewportTool));
         }
 
         public void SetActiveTool<T>()
@@ -63,6 +63,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             LastActionTool = Owner.BitmapManager.SelectedTool;
             Owner.BitmapManager.SetActiveTool(tool);
             SetToolCursor(tool.GetType());
+
+            if (Owner.StylusSubViewModel != null)
+            {
+                Owner.StylusSubViewModel.ToolSetByStylus = false;
+            }
         }
 
         public void SetTool(object parameter)

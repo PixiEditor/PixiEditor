@@ -7,9 +7,9 @@ namespace PixiEditor.Models.Controllers
 {
     public class PixelChangesController
     {
-        private Dictionary<int, LayerChange> LastChanges { get; set; }
+        private Dictionary<Guid, LayerChange> LastChanges { get; set; }
 
-        private Dictionary<int, LayerChange> LastOldValues { get; set; }
+        private Dictionary<Guid, LayerChange> LastOldValues { get; set; }
 
         /// <summary>
         ///     Adds layer changes to controller.
@@ -22,10 +22,10 @@ namespace PixiEditor.Models.Controllers
             {
                 if (LastChanges == null)
                 {
-                    LastChanges = new Dictionary<int, LayerChange> { { changes.LayerIndex, changes } };
-                    LastOldValues = new Dictionary<int, LayerChange> { { oldValues.LayerIndex, oldValues } };
+                    LastChanges = new Dictionary<Guid, LayerChange> { { changes.LayerGuid, changes } };
+                    LastOldValues = new Dictionary<Guid, LayerChange> { { oldValues.LayerGuid, oldValues } };
                 }
-                else if (LastChanges.ContainsKey(changes.LayerIndex))
+                else if (LastChanges.ContainsKey(changes.LayerGuid))
                 {
                     AddToExistingLayerChange(changes, oldValues);
                 }
@@ -50,7 +50,7 @@ namespace PixiEditor.Models.Controllers
 
             Tuple<LayerChange, LayerChange>[] result = new Tuple<LayerChange, LayerChange>[LastChanges.Count];
             int i = 0;
-            foreach (KeyValuePair<int, LayerChange> change in LastChanges)
+            foreach (KeyValuePair<Guid, LayerChange> change in LastChanges)
             {
                 Dictionary<Position.Coordinates, System.Windows.Media.Color> pixelChanges =
                     change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
@@ -71,33 +71,33 @@ namespace PixiEditor.Models.Controllers
 
         private void AddNewLayerChange(LayerChange changes, LayerChange oldValues)
         {
-            LastChanges[changes.LayerIndex] = changes;
-            LastOldValues[changes.LayerIndex] = oldValues;
+            LastChanges[changes.LayerGuid] = changes;
+            LastOldValues[changes.LayerGuid] = oldValues;
         }
 
         private void AddToExistingLayerChange(LayerChange layerChange, LayerChange oldValues)
         {
             foreach (KeyValuePair<Position.Coordinates, System.Windows.Media.Color> change in layerChange.PixelChanges.ChangedPixels)
             {
-                if (LastChanges[layerChange.LayerIndex].PixelChanges.ChangedPixels.ContainsKey(change.Key))
+                if (LastChanges[layerChange.LayerGuid].PixelChanges.ChangedPixels.ContainsKey(change.Key))
                 {
                     continue;
                 }
                 else
                 {
-                    LastChanges[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
+                    LastChanges[layerChange.LayerGuid].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
                 }
             }
 
             foreach (KeyValuePair<Position.Coordinates, System.Windows.Media.Color> change in oldValues.PixelChanges.ChangedPixels)
             {
-                if (LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.ContainsKey(change.Key))
+                if (LastOldValues[layerChange.LayerGuid].PixelChanges.ChangedPixels.ContainsKey(change.Key))
                 {
                     continue;
                 }
                 else
                 {
-                    LastOldValues[layerChange.LayerIndex].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
+                    LastOldValues[layerChange.LayerGuid].PixelChanges.ChangedPixels.Add(change.Key, change.Value);
                 }
             }
         }
