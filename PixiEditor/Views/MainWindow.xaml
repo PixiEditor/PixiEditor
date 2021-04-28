@@ -175,8 +175,12 @@
         </DockPanel>
         <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
                      Grid.Row="1">
-            <Label Style="{StaticResource BaseLabel}" Margin="10,0,0,0" FontSize="12" VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.ToolName}"/>
-            <Label Style="{StaticResource BaseLabel}" Padding="0" FontSize="12" VerticalAlignment="Center" Content="tool"/>
+            <Button Command="{Binding UndoSubViewModel.UndoCommand}" Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A7;"/>
+            <Button Command="{Binding UndoSubViewModel.RedoCommand}" Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A6;"/>
+            <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
+            <Label Style="{StaticResource BaseLabel}" FontSize="12"
+                   VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.ToolName}"
+                   ToolTip="{Binding BitmapManager.SelectedTool.ActionDisplay}"/>
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
