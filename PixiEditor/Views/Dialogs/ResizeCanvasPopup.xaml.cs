@@ -25,6 +25,7 @@ namespace PixiEditor.Views
         public ResizeCanvasPopup()
         {
             InitializeComponent();
+            Owner = Application.Current.MainWindow;
         }
 
 

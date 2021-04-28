@@ -21,7 +21,7 @@ namespace PixiEditor.Views.Dialogs
             DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
         public static string VersionText => 
-            $"v{AssemblyHelper.GetCurrentAssemblyVersion(x => $"{x.Major}.{x.Minor}" + (x.Revision != 0 ? $".{x.Revision}" : ""))}";
+            $"v{AssemblyHelper.GetCurrentAssemblyVersion(x => $"{x.Major}.{x.Minor}" + (x.Build != 0 ? $".{x.Build}" : ""))}";
 
         public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
 
@@ -40,6 +40,7 @@ namespace PixiEditor.Views.Dialogs
         public HelloTherePopup(FileViewModel fileViewModel)
         {
             DataContext = this;
+            Owner = Application.Current.MainWindow;
             FileViewModel = fileViewModel;
 
             OpenFileCommand = new RelayCommand(OpenFile);

@@ -20,6 +20,7 @@ namespace PixiEditor.Views
         public SaveFilePopup()
         {
             InitializeComponent();
+            Owner = Application.Current.MainWindow;
             DataContext = dataContext;
         }
 

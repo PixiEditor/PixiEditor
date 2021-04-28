@@ -17,6 +17,7 @@ namespace PixiEditor.Views
         public ResizeDocumentPopup()
         {
             InitializeComponent();
+            Owner = Application.Current.MainWindow;
             DataContext = this;
         }
 
