@@ -124,7 +124,7 @@
            BasedOn="{StaticResource BaseDarkButton}">
         <Setter Property="TextBlock.FontFamily" Value="Segoe MDL2 Assets"/>
         <Setter Property="TextBlock.FontSize" Value="15"/>
-        <Setter Property="TextBlock.Width" Value="50"/>
+        <Setter Property="TextBlock.Width" Value="30"/>
 
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="True">
