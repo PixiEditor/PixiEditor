@@ -8,11 +8,8 @@ namespace PixiEditor.Helpers
 {
     public static class AssemblyHelper
     {
-        public static string GetCurrentAssemblyVersion()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            FileVersionInfo info = FileVersionInfo.GetVersionInfo(assembly.Location);
-            return info.FileVersion;
-        }
+        public static Version GetCurrentAssemblyVersion() => Assembly.GetExecutingAssembly().GetName().Version;
+
+        public static string GetCurrentAssemblyVersion(Func<Version, string> toString) => toString(GetCurrentAssemblyVersion());
     }
 }

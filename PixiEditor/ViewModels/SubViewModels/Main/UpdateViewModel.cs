@@ -129,7 +129,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private static void OpenExeInstaller(string updateExeFile)
         {
-            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
+            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion().ToString() ==
                     updateExeFile.Split('-')[1].Split(".exe")[0];
 
             if (!alreadyUpdated)
@@ -186,7 +186,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void InitUpdateChecker()
         {
-            string version = AssemblyHelper.GetCurrentAssemblyVersion();
+            string version = AssemblyHelper.GetCurrentAssemblyVersion().ToString();
             UpdateChecker = new UpdateChecker(version);
             VersionText = $"Version {version}";
         }
