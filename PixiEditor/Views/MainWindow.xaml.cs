@@ -6,6 +6,9 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Diagnostics;
+using System.Linq;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor
 {
@@ -27,6 +30,8 @@ namespace PixiEditor
             DataContext = new ViewModelMain(services.BuildServiceProvider());
 
             StateChanged += MainWindowStateChangeRaised;
+            Activated += MainWindow_Activated;
+
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -36,6 +41,12 @@ namespace PixiEditor
         {
             DataContext.CloseWindow(e);
             DataContext.DiscordViewModel.Dispose();
+        }
+
+        [Conditional("RELEASE")]
+        private static void CloseHelloThereIfRelease()
+        {
+            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => x.Close());
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -61,6 +72,11 @@ namespace PixiEditor
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
+        }
+
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            CloseHelloThereIfRelease();
         }
 
         private void MainWindowStateChangeRaised(object sender, EventArgs e)

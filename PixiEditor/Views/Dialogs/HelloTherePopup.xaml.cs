@@ -1,8 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
@@ -67,23 +65,9 @@ namespace PixiEditor.Views.Dialogs
             }
         }
 
-        protected override void OnDeactivated(EventArgs e)
-        {
-            CloseIfRelease();
-        }
-
         private void RecentlyOpened_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RecentlyOpenedEmpty = FileViewModel.RecentlyOpened.Count == 0;
-        }
-
-        [Conditional("RELEASE")]
-        private void CloseIfRelease()
-        {
-            if (!isClosing)
-            {
-                Close();
-            }
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
