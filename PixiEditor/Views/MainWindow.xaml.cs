@@ -5,6 +5,10 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Diagnostics;
+using System.Linq;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor
 {
@@ -13,28 +17,36 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly ViewModelMain viewModel;
+        public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
             InitializeComponent();
 
             IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IPreferences>(new PreferencesSettings());
+                .AddSingleton<IPreferences>(new PreferencesSettings())
+                .AddSingleton(new StylusViewModel());
 
             DataContext = new ViewModelMain(services.BuildServiceProvider());
 
             StateChanged += MainWindowStateChangeRaised;
+            Activated += MainWindow_Activated;
+
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            viewModel = (ViewModelMain)DataContext;
-            viewModel.CloseAction = Close;
+            DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            ((ViewModelMain)DataContext).CloseWindow(e);
-            viewModel.DiscordViewModel.Dispose();
+            DataContext.CloseWindow(e);
+            DataContext.DiscordViewModel.Dispose();
+        }
+
+        [Conditional("RELEASE")]
+        private static void CloseHelloThereIfRelease()
+        {
+            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -60,6 +72,11 @@ namespace PixiEditor
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
+        }
+
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            CloseHelloThereIfRelease();
         }
 
         private void MainWindowStateChangeRaised(object sender, EventArgs e)

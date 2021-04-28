@@ -1,8 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
@@ -22,7 +20,8 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty RecentlyOpenedEmptyProperty =
             DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
-        public static string VersionText { get => $"v{Assembly.GetExecutingAssembly().GetName().Version.Major}.{Assembly.GetExecutingAssembly().GetName().Version.Minor}"; }
+        public static string VersionText => 
+            $"v{AssemblyHelper.GetCurrentAssemblyVersion(x => $"{x.Major}.{x.Minor}" + (x.Build != 0 ? $".{x.Build}" : ""))}";
 
         public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
 
@@ -36,11 +35,12 @@ namespace PixiEditor.Views.Dialogs
 
         public RelayCommand OpenHyperlinkCommand { get => FileViewModel.Owner.MiscSubViewModel.OpenHyperlinkCommand; }
 
-        private bool isClosing;
+        public bool IsClosing { get; private set; }
 
         public HelloTherePopup(FileViewModel fileViewModel)
         {
             DataContext = this;
+            Owner = Application.Current.MainWindow;
             FileViewModel = fileViewModel;
 
             OpenFileCommand = new RelayCommand(OpenFile);
@@ -50,7 +50,7 @@ namespace PixiEditor.Views.Dialogs
             RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
             RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
-            Closing += (_, _) => { isClosing = true; };
+            Closing += (_, _) => { IsClosing = true; };
 
             InitializeComponent();
 
@@ -66,23 +66,9 @@ namespace PixiEditor.Views.Dialogs
             }
         }
 
-        protected override void OnDeactivated(EventArgs e)
-        {
-            CloseIfRelease();
-        }
-
         private void RecentlyOpened_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RecentlyOpenedEmpty = FileViewModel.RecentlyOpened.Count == 0;
-        }
-
-        [Conditional("RELEASE")]
-        private void CloseIfRelease()
-        {
-            if (!isClosing)
-            {
-                Close();
-            }
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

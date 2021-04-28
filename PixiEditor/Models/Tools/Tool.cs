@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Text;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
@@ -10,24 +12,14 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
-        protected string name;
         private bool isActive;
         private string actionDisplay = string.Empty;
 
-        public string ToolName
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    return GetType().Name.Replace("Tool", string.Empty);
-                }
+        public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty);
 
-                return name;
-            }
-        }
+        public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
 
-        public string ImagePath => $"/Images/{ToolName}Image.png";
+        public virtual string ImagePath => $"/Images/{ToolName}Image.png";
 
         public bool HideHighlight { get; set; } = false;
 

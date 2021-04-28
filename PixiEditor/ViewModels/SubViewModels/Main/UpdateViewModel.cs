@@ -129,7 +129,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private static void OpenExeInstaller(string updateExeFile)
         {
-            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
+            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion().ToString() ==
                     updateExeFile.Split('-')[1].Split(".exe")[0];
 
             if (!alreadyUpdated)
@@ -161,7 +161,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private async void Owner_OnStartupEvent(object sender, EventArgs e)
+        private void Owner_OnStartupEvent(object sender, EventArgs e)
+        {
+            ConditionalUPDATE();
+        }
+
+        [Conditional("UPDATE")]
+        private async void ConditionalUPDATE()
         {
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
@@ -180,7 +186,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void InitUpdateChecker()
         {
-            string version = AssemblyHelper.GetCurrentAssemblyVersion();
+            string version = AssemblyHelper.GetCurrentAssemblyVersion().ToString();
             UpdateChecker = new UpdateChecker(version);
             VersionText = $"Version {version}";
         }

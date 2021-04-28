@@ -20,6 +20,7 @@ namespace PixiEditor.Views
         public ConfirmationPopup()
         {
             InitializeComponent();
+            Owner = Application.Current.MainWindow;
             CancelCommand = new RelayCommand(Cancel);
             SetResultAndCloseCommand = new RelayCommand(SetResultAndClose);
             DataContext = this;

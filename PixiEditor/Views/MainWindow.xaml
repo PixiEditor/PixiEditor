@@ -1,4 +1,4 @@
-﻿<Window x:Class="PixiEditor.MainWindow" MinHeight="500" MinWidth="1100"
+<Window x:Class="PixiEditor.MainWindow" MinHeight="500" MinWidth="700"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -175,8 +175,15 @@
         </DockPanel>
         <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
                      Grid.Row="1">
-            <Label Style="{StaticResource BaseLabel}" Margin="10,0,0,0" FontSize="12" VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.ToolName}"/>
-            <Label Style="{StaticResource BaseLabel}" Padding="0" FontSize="12" VerticalAlignment="Center" Content="tool"/>
+            <Button Margin="1,0,0,0" Command="{Binding UndoSubViewModel.UndoCommand}"
+                    ToolTip="Undo"
+                    Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A7;"/>
+            <Button Command="{Binding UndoSubViewModel.RedoCommand}" ToolTip="Redo"
+                    Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A6;"/>
+            <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
+            <Label Style="{StaticResource BaseLabel}" FontSize="12"
+                   VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.DisplayName}"
+                   ToolTip="{Binding BitmapManager.SelectedTool.ActionDisplay}"/>
             <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -236,7 +243,8 @@
                                         MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
-                                        MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}">
+                                        MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
+                                        Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="PreviewMouseDown">
                                                 <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>

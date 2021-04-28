@@ -68,6 +68,8 @@ namespace PixiEditor.ViewModels
 
         public ShortcutController ShortcutController { get; set; }
 
+        public StylusViewModel StylusSubViewModel { get; set; }
+
         public IPreferences Preferences { get; set; }
 
         public bool IsDebug
@@ -109,6 +111,10 @@ namespace PixiEditor.ViewModels
             ColorsSubViewModel = new ColorsViewModel(this);
             DocumentSubViewModel = new DocumentViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
+            UpdateSubViewModel = new UpdateViewModel(this);
+
+            StylusSubViewModel = services.GetService<StylusViewModel>();
+            StylusSubViewModel?.SetOwner(this);
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
@@ -152,7 +158,7 @@ namespace PixiEditor.ViewModels
                         new Shortcut(Key.O, FileSubViewModel.OpenFileCommand, "Open a Document", modifier: ModifierKeys.Control),
                         new Shortcut(Key.S, FileSubViewModel.ExportFileCommand, "Export as image", modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
                         new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save Document", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save Docuemnt As New", "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
+                        new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save Document As New", "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
                         new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, "Create new Document", modifier: ModifierKeys.Control)),
                     new ShortcutGroup(
                         "Layers",
@@ -199,7 +205,6 @@ namespace PixiEditor.ViewModels
         [Conditional("RELEASE")]
         private void AddReleaseOnlyViewModels()
         {
-            UpdateSubViewModel = new UpdateViewModel(this);
         }
 
         private Shortcut CreateToolShortcut<T>(Key key, ModifierKeys modifier = ModifierKeys.None)
