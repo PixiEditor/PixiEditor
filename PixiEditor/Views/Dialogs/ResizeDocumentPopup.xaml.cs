@@ -22,7 +22,6 @@ namespace PixiEditor.Views
             DataContext = this;
         }
 
-
         public int NewHeight
         {
             get => (int) GetValue(NewHeightProperty);

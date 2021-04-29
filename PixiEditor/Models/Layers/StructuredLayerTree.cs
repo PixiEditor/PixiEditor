@@ -16,6 +16,11 @@ namespace PixiEditor.Models.Layers
 
         public StructuredLayerTree(ObservableCollection<Layer> layers, LayerStructure structure)
         {
+            if(layers == null || structure == null)
+            {
+                return;
+            }
+
             if (structure.Groups == null || structure.Groups.Count == 0)
             {
                 RootDirectoryItems.AddRange(layers);

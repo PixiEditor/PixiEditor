@@ -69,7 +69,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanDeleteSelected(object parameter)
         {
-            return parameter is not null and (Layer or LayerGroup);
+            return (parameter is not null and(Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
         }
 
         public void DeleteSelected(object parameter)
@@ -77,6 +77,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if(parameter is Layer layer)
             {
                 DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(layer));
+            }
+            else if (Owner.BitmapManager.ActiveDocument.ActiveLayer != null)
+            {
+                DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(Owner.BitmapManager.ActiveDocument.ActiveLayer));
             }
             else if(parameter is LayerGroup group)
             {
@@ -300,6 +304,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (e.LayerChangeType == Models.Enums.LayerAction.SetActive)
             {
                 Owner.BitmapManager.ActiveDocument.UpdateLayersColor();
+            }
+            else
+            {
+                Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
             }
         }
     }

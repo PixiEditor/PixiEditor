@@ -15,7 +15,7 @@ namespace PixiEditor.Helpers.Converters
                 return new StructuredLayerTree(layers, structure).RootDirectoryItems;
             }
 
-            return Binding.DoNothing;
+            return new StructuredLayerTree(null, null);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

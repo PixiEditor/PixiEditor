@@ -76,6 +76,17 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private bool isVisible = true;
+
+        public bool IsVisible
+        {
+            get => isVisible;
+            set
+            {
+                SetProperty(ref isVisible, value);
+            }
+        }
+
         public GuidStructureItem(
             string name,
             Guid startLayerGuid,
@@ -111,7 +122,7 @@ namespace PixiEditor.Models.Layers
         {
             GuidStructureItem item = new(Name, StartLayerGuid, EndLayerGuid, Array.Empty<GuidStructureItem>(), null)
             {
-                GroupGuid = this.GroupGuid,
+                GroupGuid = GroupGuid,
                 IsExpanded = isExpanded,
                 IsRenaming = isRenaming
             };

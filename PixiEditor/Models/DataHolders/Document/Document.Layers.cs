@@ -322,6 +322,7 @@ namespace PixiEditor.Models.DataHolders
             UndoManager.SquashUndoChanges(2, "Removed active layers");
 
             SetNextLayerAsActive(firstIndex);
+
         }
 
         public void AddLayerStructureToUndo(ObservableCollection<GuidStructureItem> oldLayerStructureGroups)
@@ -657,6 +658,8 @@ namespace PixiEditor.Models.DataHolders
                 {
                     SetNextLayerAsActive(index);
                 }
+
+                LayersChanged?.Invoke(this, new LayersChangedEventArgs(layerGuid, LayerAction.Remove));
             }
         }
 
