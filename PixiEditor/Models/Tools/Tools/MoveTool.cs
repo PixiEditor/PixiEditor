@@ -107,7 +107,8 @@ namespace PixiEditor.Models.Tools.Tools
             ResetSelectionValues(startPos);
 
             // Move offset if no selection
-            Selection selection = ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection;
+            var doc = ViewModelMain.Current.BitmapManager.ActiveDocument;
+            Selection selection = doc.ActiveSelection;
             if (selection != null && selection.SelectedPoints.Count > 0)
             {
                 currentSelection = selection.SelectedPoints.ToArray();
@@ -119,13 +120,12 @@ namespace PixiEditor.Models.Tools.Tools
 
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
             {
-                affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Where(x => x.IsVisible)
+                affectedLayers = doc.Layers.Where(x => x.IsVisible)
                     .ToArray();
             }
             else
             {
-                affectedLayers = ViewModelMain.Current.BitmapManager.ActiveDocument
-                    .Layers.Where(x => x.IsActive && x.IsVisible).ToArray();
+                affectedLayers = doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray();
             }
 
             startSelection = currentSelection;

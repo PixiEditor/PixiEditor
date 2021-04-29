@@ -47,14 +47,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                     return;
                 }
             }
+
             Owner.BitmapManager.CloseDocument(document);
         }
 
         private void DeletePixels(object parameter)
         {
+            var doc = Owner.BitmapManager.ActiveDocument;
             Owner.BitmapManager.BitmapOperations.DeletePixels(
-                Owner.BitmapManager.ActiveDocument.Layers.Where(x => x.IsActive && x.IsVisible).ToArray(),
-                Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray());
+                doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray(),
+                doc.ActiveSelection.SelectedPoints.ToArray());
         }
 
         private void OpenResizePopup(object parameter)

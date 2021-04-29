@@ -48,27 +48,7 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for IsVisibleUndoTriggerable.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsVisibleUndoTriggerableProperty =
-            DependencyProperty.Register("IsVisibleUndoTriggerable", typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true, IsVisibleChangedCallback));
-
-        private static void IsVisibleChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            LayerGroupControl control = (LayerGroupControl)d;
-            var doc = control.LayersViewModel.Owner.BitmapManager.ActiveDocument;
-            var layers = doc.LayerStructure.GetGroupLayers(control.GroupData);
-
-            foreach (var layer in layers)
-            {
-                layer.IsVisible = (bool)e.NewValue;
-            }
-
-            doc.UndoManager.AddUndoChange(
-                new Change(
-                    nameof(IsVisibleUndoTriggerable), 
-                    e.OldValue,
-                    e.NewValue,
-                    $"Change {control.GroupName} visibility",
-                    control), true);
-        }
+            DependencyProperty.Register("IsVisibleUndoTriggerable", typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true));
 
         private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -222,6 +202,41 @@ namespace PixiEditor.Views.UserControls
         {
             var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
             doc.SetMainActiveLayer(doc.Layers.IndexOf(doc.Layers.First(x => x.LayerGuid == GroupData.EndLayerGuid)));
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            HandleCheckboxChange(true);
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            HandleCheckboxChange(false);
+        }
+
+        private void HandleCheckboxChange(bool value)
+        {
+            if (LayersViewModel?.Owner?.BitmapManager?.ActiveDocument != null)
+            {
+                var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
+
+                doc.LayerStructure.GetGroupByGuid(GroupGuid).IsVisible = value;
+
+                var layers = doc.LayerStructure.GetGroupLayers(GroupData);
+
+                foreach (var layer in layers)
+                {
+                    layer.RaisePropertyChange(nameof(layer.IsVisible));
+                }
+
+                doc.UndoManager.AddUndoChange(
+                new Change(
+                    nameof(IsVisibleUndoTriggerable),
+                    !value,
+                    value,
+                    $"Change {GroupName} visibility",
+                    this), true) //wip, doesn't work
+            }
         }
     }
 }

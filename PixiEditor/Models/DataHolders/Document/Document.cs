@@ -195,7 +195,7 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void CenterContent()
         {
-            var layersToCenter = Layers.Where(x => x.IsActive && x.IsVisible);
+            var layersToCenter = Layers.Where(x => x.IsActive && GetFinalLayerIsVisible(x));
             if (!layersToCenter.Any())
             {
                 return;

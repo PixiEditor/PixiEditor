@@ -232,6 +232,11 @@ namespace PixiEditor.Models.Layers
             };
         }
 
+        public void RaisePropertyChange(string property)
+        {
+            RaisePropertyChanged(property);
+        }
+
         /// <summary>
         ///     Resizes bitmap with it's content using NearestNeighbor interpolation.
         /// </summary>

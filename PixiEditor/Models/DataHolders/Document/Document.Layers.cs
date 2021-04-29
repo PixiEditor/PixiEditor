@@ -77,6 +77,35 @@ namespace PixiEditor.Models.DataHolders
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
         }
 
+        /// <summary>
+        /// Gets final layer IsVisible taking into consideration group visibility.
+        /// </summary>
+        /// <param name="layer">Layer to check.</param>
+        /// <returns>True if is visible, false if at least parent is not visible or layer itself is invisible</returns>
+        public bool GetFinalLayerIsVisible(Layer layer)
+        {
+            if (!layer.IsVisible)
+            {
+                return false;
+            }
+
+            var group = LayerStructure.GetGroupByLayer(layer.LayerGuid);
+            bool atLeastOneParentIsInvisible = false;
+            GuidStructureItem groupToCheck = group;
+            while(groupToCheck != null)
+            {
+                if (!groupToCheck.IsVisible)
+                {
+                    atLeastOneParentIsInvisible = true;
+                    break;
+                }
+
+                groupToCheck = groupToCheck.Parent;
+            }
+
+            return !atLeastOneParentIsInvisible;
+        }
+
         public void UpdateLayersColor()
         {
             foreach (var layer in Layers)
