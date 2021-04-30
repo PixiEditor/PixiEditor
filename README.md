@@ -58,6 +58,10 @@ Follow these instructions to get PixiEditor working on your machine.
 
 [![Landscape timelapse](https://img.youtube.com/vi/bzC-wy6HCB8/0.jpg)](https://www.youtube.com/watch?v=bzC-wy6HCB8)
 
+### Gallery
+
+Check out some pixel arts made with PixiEditor [here](https://github.com/PixiEditor/PixiEditor/wiki/Gallery).
+
 
 ## Support
 
@@ -67,6 +71,7 @@ Struggling with something? You can find support in a few places:
 
 * Ask on [Discord](https://discord.gg/qSRMYmq)
 * Open new [Issue](https://github.com/flabbet/PixiEditor/issues)
+* Check out [FAQ](https://github.com/PixiEditor/PixiEditor/wiki/FAQ). 
 
 
 
@@ -89,14 +94,6 @@ Struggling with something? You can find support in a few places:
 ## Contributing 
 
 Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## FAQ
-
-You can find [FAQ here](https://github.com/PixiEditor/PixiEditor/wiki/FAQ).
-
-## Gallery
-
-Check out some pixel arts made with PixiEditor [here](https://github.com/PixiEditor/PixiEditor/wiki/Gallery).
 
 ## License
 
