@@ -9,6 +9,10 @@ namespace PixiEditorTests.Mocks
         {
         }
 
+        public void AddCallback<T>(string name, Action<T> action)
+        {
+        }
+
 #nullable enable
 
         public T? GetLocalPreference<T>(string name)

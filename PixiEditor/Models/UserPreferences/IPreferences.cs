@@ -9,7 +9,9 @@ namespace PixiEditor.Models.UserPreferences
 
         public void Save();
 
-        public void AddCallback(string setting, Action<object> action);
+        public void AddCallback(string name, Action<object> action);
+
+        public void AddCallback<T>(string name, Action<T> action);
 
         public void Init();
 

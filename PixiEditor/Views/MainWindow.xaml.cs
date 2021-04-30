@@ -48,9 +48,9 @@ namespace PixiEditor
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             DataContext.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
-            preferences.AddCallback("ImagePreviewInTaskbar", x =>
+            preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
             {
-                if ((bool)x)
+                if (x)
                 {
                     UpdateTaskbarIcon(DataContext.BitmapManager.ActiveDocument);
                 }
