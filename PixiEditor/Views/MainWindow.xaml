@@ -203,16 +203,6 @@
             </ItemsControl>
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
-            <Grid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
-                    <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
-                    <Separator/>
-                    <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
-                    <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
-                    <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
-                </ContextMenu>
-            </Grid.ContextMenu>
             <Grid>
                 <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
@@ -250,6 +240,16 @@
                                                 <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
+                                        <usercontrols:DrawingViewPort.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
+                                                <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
+                                                <Separator/>
+                                                <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
+                                                <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
+                                                <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
+                                            </ContextMenu>
+                                        </usercontrols:DrawingViewPort.ContextMenu>
                                     </usercontrols:DrawingViewPort>
                                 </DataTemplate>
                             </ui:DocumentsTemplateSelector.DocumentsViewTemplate>
@@ -429,6 +429,14 @@
                                                 </ItemsControl>
                                             </ScrollViewer>
                                         </Grid>
+                                    </LayoutAnchorable>
+                                </LayoutAnchorablePane>
+                                <LayoutAnchorablePane>
+                                    <LayoutAnchorable ContentId="navigation" Title="Navigation" 
+                                                      CanHide="True" CanAutoHide="False"
+                                                      CanDockAsTabbedDocument="False" CanFloat="True">
+                                        <usercontrols:PreviewWindow Document="{Binding BitmapManager.ActiveDocument}"
+                                                                    PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>

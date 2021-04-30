@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.PreviewWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="400" x:Name="uc"
+             Foreground="White">
+
+    <UserControl.Resources>
+        <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:NotNullToVisibiltyConverter x:Key="NullToVisibiltyConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Viewbox Margin="30" VerticalAlignment="Top">
+            <Grid Cursor="None" x:Name="imageGrid"
+              Visibility="{Binding Document, Converter={StaticResource NullToVisibiltyConverter}, ElementName=uc}"
+              Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}">
+                <ItemsControl ItemsSource="{Binding Document.Layers, ElementName=uc}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
+                                               Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                                               Opacity="{Binding Opacity}"
+                                               Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}"  />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Border x:Name="colorCursor" Width="1" Height="1"
+                    Margin="{Binding ColorCursorPosition, ElementName=uc}"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    BorderBrush="Black" BorderThickness=".1"
+                    Visibility="{Binding IsMouseOver, ElementName=uc, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border BorderThickness=".1" BorderBrush="White"/>
+                </Border>
+            </Grid>
+        </Viewbox>
+        <Grid Grid.Row="1">
+            <Grid.Background>
+                <SolidColorBrush Color="{Binding ColorCursorColor, ElementName=uc, FallbackValue=Black}"/>
+            </Grid.Background>
+        </Grid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" MinHeight="30"
+                    Background="{StaticResource MainColor}" MaxHeight="60">
+            <StackPanel.Resources>
+                <Style TargetType="local:PrependTextBlock">
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                </Style>
+            </StackPanel.Resources>
+
+            <local:PrependTextBlock Prepend=" X: " Text="{Binding ColorCursorPosition.Left, ElementName=uc}"/>
+            <local:PrependTextBlock Prepend=" Y: " Text="{Binding ColorCursorPosition.Top, ElementName=uc}"/>
+
+            <Grid Width="15"/>
+
+            <local:PrependTextBlock Prepend=" R: " Text="{Binding ColorCursorColor.R, ElementName=uc}"/>
+            <local:PrependTextBlock Prepend=" G: " Text="{Binding ColorCursorColor.G, ElementName=uc}"/>
+            <local:PrependTextBlock Prepend=" B: " Text="{Binding ColorCursorColor.B, ElementName=uc}"/>
+            <local:PrependTextBlock Prepend=" A: " Text="{Binding ColorCursorColor.A, ElementName=uc}"/>
+
+            <local:PrependTextBlock Prepend="  (" Text="{Binding ColorCursorColor, ElementName=uc, FallbackValue=#00000000}" Append=")"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
