@@ -37,6 +37,10 @@ PixiEditor started in 2018 and it's been actively developed since. We continuous
 
 ## Installation
 
+<a href='//www.microsoft.com/store/apps/9NDDRHS8PBRN?cid=storebadge&ocid=badge'><img src='https://developer.microsoft.com/store/badges/images/English_get-it-from-MS.png' alt='Microsoft Store badge' width="184"/></a>
+
+Or
+
 Follow these instructions to get PixiEditor working on your machine.
 
 1. Download the .exe file from [here](https://github.com/flabbet/PixiEditor/releases)
