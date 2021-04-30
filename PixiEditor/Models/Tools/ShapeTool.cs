@@ -18,23 +18,7 @@ namespace PixiEditor.Models.Tools
             Toolbar = new BasicShapeToolbar();
         }
 
-        // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
-
-        protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
-        {
-            List<Coordinates> output = new List<Coordinates>();
-            foreach (Coordinates item in shape)
-            {
-                output.AddRange(
-                    CoordinatesCalculator.RectangleToCoordinates(
-                        CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
-            }
-
-            return output.Distinct();
-        }
-
-        protected DoubleCords CalculateCoordinatesForShapeRotation(
+        public static DoubleCords CalculateCoordinatesForShapeRotation(
             Coordinates startingCords,
             Coordinates secondCoordinates)
         {
@@ -69,6 +53,22 @@ namespace PixiEditor.Models.Tools
             }
 
             return new DoubleCords(startingCords, secondCoordinates);
+        }
+
+        // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
+        public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
+
+        protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
+        {
+            List<Coordinates> output = new List<Coordinates>();
+            foreach (Coordinates item in shape)
+            {
+                output.AddRange(
+                    CoordinatesCalculator.RectangleToCoordinates(
+                        CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
+            }
+
+            return output.Distinct();
         }
     }
 }

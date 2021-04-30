@@ -27,7 +27,7 @@ namespace PixiEditor.Helpers
             {
                 document.UndoManager.AddUndoChange(
                     new Change(
-                        SetSelectionProcess, new object[] { document, new List<Coordinates>(oldPoints) },
+                        SetSelectionProcess, new object[] { document, oldPoints is null ? new List<Coordinates>() : new List<Coordinates>(oldPoints) },
                         SetSelectionProcess, new object[] { document, new List<Coordinates>(document.ActiveSelection.SelectedPoints) }));
 #pragma warning restore SA1117 // Parameters should be on same line or separate lines
             }
