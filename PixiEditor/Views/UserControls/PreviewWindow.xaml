@@ -22,7 +22,8 @@
         <Viewbox Margin="30" VerticalAlignment="Top">
             <Grid Cursor="None" x:Name="imageGrid"
               Visibility="{Binding Document, Converter={StaticResource NullToVisibiltyConverter}, ElementName=uc}"
-              Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}">
+              Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
+                  Background="Transparent">
                 <ItemsControl ItemsSource="{Binding Document.Layers, ElementName=uc}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -43,7 +44,7 @@
                     Margin="{Binding ColorCursorPosition, ElementName=uc}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     BorderBrush="Black" BorderThickness=".1"
-                    Visibility="{Binding IsMouseOver, ElementName=uc, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{Binding IsMouseOver, ElementName=imageGrid, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border BorderThickness=".1" BorderBrush="White"/>
                 </Border>
             </Grid>
