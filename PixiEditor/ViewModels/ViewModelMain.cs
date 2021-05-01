@@ -70,6 +70,8 @@ namespace PixiEditor.ViewModels
 
         public StylusViewModel StylusSubViewModel { get; set; }
 
+        public WindowViewModel WindowViewModel { get; set; }
+
         public IPreferences Preferences { get; set; }
 
         public bool IsDebug
@@ -112,6 +114,7 @@ namespace PixiEditor.ViewModels
             DocumentSubViewModel = new DocumentViewModel(this);
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
             UpdateSubViewModel = new UpdateViewModel(this);
+            WindowViewModel = new WindowViewModel(this);
 
             StylusSubViewModel = services.GetService<StylusViewModel>();
             StylusSubViewModel?.SetOwner(this);
