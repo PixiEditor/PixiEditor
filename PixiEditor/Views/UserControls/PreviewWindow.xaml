@@ -20,7 +20,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Viewbox Margin="30" VerticalAlignment="Top">
-            <Grid Cursor="None" x:Name="imageGrid"
+            <Grid x:Name="imageGrid"
               Visibility="{Binding Document, Converter={StaticResource NullToVisibiltyConverter}, ElementName=uc}"
               Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
                   Background="Transparent">
