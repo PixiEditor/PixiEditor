@@ -1,21 +1,10 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -70,7 +59,31 @@ namespace PixiEditor.Views.UserControls
 
         private void PreviewWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                CopyColorToClipboard();
+            }
+            else
+            {
+                CopyColorToPrimary();
+            }
+        }
+
+        private void CopyColorToPrimary()
+        {
             PrimaryColor = ColorCursorColor;
+        }
+
+        private void CopyColorToClipboard()
+        {
+            if (ColorCursorColor.A == 255)
+            {
+                Clipboard.SetText(string.Format("#{0:X2}{1:X2}{2:X2}", ColorCursorColor.R, ColorCursorColor.G, ColorCursorColor.B));
+            }
+            else
+            {
+                Clipboard.SetText(ColorCursorColor.ToString());
+            }
         }
 
         private void PreviewWindow_MouseMove(object sender, MouseEventArgs e)
