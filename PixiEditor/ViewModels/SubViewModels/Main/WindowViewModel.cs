@@ -5,11 +5,16 @@ using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
-    public class WindowViewModel : SubViewModel<ViewModelMain>
+    public class WindowViewModel : SubViewModel<ViewModelMain>, ISetableOwner<ViewModelMain>
     {
         public MainWindow MainWindow { get; private set; }
 
         public RelayCommand ShowAvalonDockWindowCommand { get; set; }
+
+        public WindowViewModel()
+            : this(null)
+        {
+        }
 
         public WindowViewModel(ViewModelMain owner)
             : base(owner)
@@ -17,6 +22,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ShowAvalonDockWindowCommand = new RelayCommand(ShowAvalonDockWindow);
 
             MainWindow = (MainWindow)System.Windows.Application.Current?.MainWindow;
+        }
+
+        public void SetOwner(ViewModelMain owner)
+        {
+            Owner = owner;
         }
 
         private void ShowAvalonDockWindow(object parameter)

@@ -34,7 +34,8 @@ namespace PixiEditor
 
             IServiceCollection services = new ServiceCollection()
                 .AddSingleton<IPreferences>(preferences)
-                .AddSingleton(new StylusViewModel());
+                .AddSingleton<StylusViewModel>()
+                .AddSingleton<WindowViewModel>();
 
             pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
