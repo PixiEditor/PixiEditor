@@ -57,14 +57,14 @@ namespace PixiEditor.Models.ImageManipulation
                         throw new InvalidOperationException("Layers must not extend beyond canvas borders");
                     }
 
-                    for (int y = 0; y < height; y++)
+                    for (int y = 0; y < layer.Height; y++)
                     {
-                        for (int x = 0; x < width; x++)
+                        for (int x = 0; x < layer.Width; x++)
                         {
-                            Color previousColor = finalBitmap.GetPixel(x, y);
-                            Color color = layer.GetPixelWithOffset(x, y);
+                            Color previousColor = finalBitmap.GetPixel(x + layer.OffsetX, y + layer.OffsetY);
+                            Color color = layer.GetPixel(x, y);
 
-                            finalBitmap.SetPixel(x, y, BlendColor(previousColor, color, layerOpacity));
+                            finalBitmap.SetPixel(x + layer.OffsetX, y + layer.OffsetY, BlendColor(previousColor, color, layerOpacity));
                         }
                     }
                 }
