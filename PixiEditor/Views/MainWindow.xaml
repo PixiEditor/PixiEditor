@@ -243,7 +243,7 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <usercontrols:DrawingViewPort.ContextMenu>
-                                            <ContextMenu>
+                                            <ContextMenu DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
                                                 <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
                                                 <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
                                                 <Separator/>
