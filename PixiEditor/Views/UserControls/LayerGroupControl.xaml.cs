@@ -53,12 +53,12 @@ namespace PixiEditor.Views.UserControls
         private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             LayerGroupControl control = (LayerGroupControl)d;
-            if(e.OldValue is LayersViewModel oldVm && oldVm != e.NewValue)
+            if (e.OldValue is LayersViewModel oldVm && oldVm != e.NewValue)
             {
                 oldVm.Owner.BitmapManager.MouseController.StoppedRecordingChanges -= control.MouseController_StoppedRecordingChanges;
             }
 
-            if(e.NewValue is LayersViewModel vm)
+            if (e.NewValue is LayersViewModel vm)
             {
                 vm.Owner.BitmapManager.MouseController.StoppedRecordingChanges += control.MouseController_StoppedRecordingChanges;
             }
@@ -206,12 +206,7 @@ namespace PixiEditor.Views.UserControls
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            HandleCheckboxChange(true);
-        }
-
-        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            HandleCheckboxChange(false);
+            HandleCheckboxChange(((CheckBox)e.OriginalSource).IsChecked.Value);
         }
 
         private void HandleCheckboxChange(bool value)
@@ -220,22 +215,43 @@ namespace PixiEditor.Views.UserControls
             {
                 var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
 
-                doc.LayerStructure.GetGroupByGuid(GroupGuid).IsVisible = value;
+                IsVisibleUndoTriggerable = value;
 
-                var layers = doc.LayerStructure.GetGroupLayers(GroupData);
+                var processArgs = new object[] { GroupGuid, value };
+                var reverseProcessArgs = new object[] { GroupGuid, !value };
+
+                ChangeGroupVisibilityProcess(processArgs);
+
+                doc.UndoManager.AddUndoChange(
+                new Change(
+                    ChangeGroupVisibilityProcess,
+                    reverseProcessArgs,
+                    ChangeGroupVisibilityProcess,
+                    processArgs,
+                    $"Change {GroupName} visibility"), false);
+            }
+        }
+
+        private void ChangeGroupVisibilityProcess(object[] args)
+        {
+            var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
+            if (args.Length == 2 &&
+                args[0] is Guid groupGuid &&
+                args[1] is bool value
+                && doc != null)
+            {
+
+                var group = doc.LayerStructure.GetGroupByGuid(groupGuid);
+
+                group.IsVisible = value;
+                var layers = doc.LayerStructure.GetGroupLayers(group);
 
                 foreach (var layer in layers)
                 {
                     layer.RaisePropertyChange(nameof(layer.IsVisible));
                 }
 
-                doc.UndoManager.AddUndoChange(
-                new Change(
-                    nameof(IsVisibleUndoTriggerable),
-                    !value,
-                    value,
-                    $"Change {GroupName} visibility",
-                    this), true) //wip, doesn't work
+                IsVisibleUndoTriggerable = value;
             }
         }
     }

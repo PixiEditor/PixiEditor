@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.Views.UserControls;
+using System;
 
 namespace PixiEditor.Models.Layers
 {

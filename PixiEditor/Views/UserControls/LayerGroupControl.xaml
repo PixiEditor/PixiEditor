@@ -27,8 +27,8 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
-                      IsThreeState="False" HorizontalAlignment="Center" 
-                      IsChecked="{Binding Path=IsVisibleUndoTriggerable, ElementName=groupControl}" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked"  Grid.Column="0" Height="16"/>
+                      IsThreeState="False" HorizontalAlignment="Center" Click="CheckBox_Checked"
+                      IsChecked="{Binding Path=IsVisibleUndoTriggerable, ElementName=groupControl}" Grid.Column="0" Height="16"/>
                 
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
