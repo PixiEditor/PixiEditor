@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
-    public class WindowViewModel : SubViewModel<ViewModelMain>, ISetableOwner<ViewModelMain>
+    public class WindowViewModel : SubViewModel<ViewModelMain>, ISettableOwner<ViewModelMain>
     {
         public MainWindow MainWindow { get; private set; }
 
