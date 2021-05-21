@@ -135,9 +135,9 @@
                 <MenuItem Header="_View">
                     <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                               IsCheckable="True" InputGestureText="Ctrl+`"/>
-                    <MenuItem Header="_Open Startup Window" ToolTip="Hello there!"
+                    <MenuItem Header="Open _Startup Window" ToolTip="Hello there!"
                               Command="{Binding MiscSubViewModel.OpenHelloThereWindowCommand}"/>
-                    <MenuItem Header="_Open Navigation Window"
+                    <MenuItem Header="Open _Navigation Window"
                               Command="{Binding WindowSubViewModel.ShowAvalonDockWindowCommand}" CommandParameter="navigation"/>
                 </MenuItem>
                 <MenuItem Header="_Help">
