@@ -13,14 +13,14 @@ namespace PixiEditor.Models.UserPreferences
         public void Save();
 
         /// <summary>
-        /// Add's a callback that will be executed when the setting called <paramref name="name"/> changes.
+        /// Adds a callback that will be executed when the setting called <paramref name="name"/> changes.
         /// </summary>
         /// <param name="name">The name of the setting</param>
         /// <param name="action">The action that will be executed when the setting changes</param>
         public void AddCallback(string name, Action<object> action);
 
         /// <summary>
-        /// Add's a callback that will be executed when the setting called <paramref name="name"/> changes.
+        /// Adds a callback that will be executed when the setting called <paramref name="name"/> changes.
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
         /// <param name="name">The name of the setting</param>
@@ -38,7 +38,7 @@ namespace PixiEditor.Models.UserPreferences
         public void Init(string path, string localPath);
 
         /// <summary>
-        /// Update's a user preference and calls all added callbacks.
+        /// Updates a user preference and calls all added callbacks.
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
         /// <param name="name">The name of the setting.</param>
@@ -46,7 +46,7 @@ namespace PixiEditor.Models.UserPreferences
         public void UpdatePreference<T>(string name, T value);
 
         /// <summary>
-        /// Update's a editor setting and calls all added callbacks.
+        /// Updates a editor setting and calls all added callbacks.
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
         /// <param name="name">The name of the setting</param>
@@ -56,7 +56,7 @@ namespace PixiEditor.Models.UserPreferences
 #nullable enable
 
         /// <summary>
-        /// Read's the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <typeparamref name="T"/> will be used
+        /// Reads the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <typeparamref name="T"/> will be used
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
         /// <param name="name">The name of the setting</param>
@@ -64,7 +64,7 @@ namespace PixiEditor.Models.UserPreferences
         public T? GetPreference<T>(string name);
 
         /// <summary>
-        /// Read's the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <paramref name="fallbackValue"/> will be used
+        /// Reads the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <paramref name="fallbackValue"/> will be used
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
         /// <param name="name">The name of the setting</param>
@@ -72,7 +72,7 @@ namespace PixiEditor.Models.UserPreferences
         public T? GetPreference<T>(string name, T? fallbackValue);
 
         /// <summary>
-        /// Read's the editor setting that is called <paramref name="name"/>, if the setting does not exist the deafult of <typeparamref name="T"/> will be used
+        /// Reads the editor setting that is called <paramref name="name"/>, if the setting does not exist the deafult of <typeparamref name="T"/> will be used
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
         /// <param name="name">The name of the setting</param>
@@ -80,7 +80,7 @@ namespace PixiEditor.Models.UserPreferences
         public T? GetLocalPreference<T>(string name);
 
         /// <summary>
-        /// Read's the editor setting that is called <paramref name="name"/>, if the setting does not exist the <paramref name="fallbackValue"/> will be used
+        /// Reads the editor setting that is called <paramref name="name"/>, if the setting does not exist the <paramref name="fallbackValue"/> will be used
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
         /// <param name="name">The name of the setting</param>
