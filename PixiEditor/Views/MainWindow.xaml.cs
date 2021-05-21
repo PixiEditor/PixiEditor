@@ -28,8 +28,6 @@ namespace PixiEditor
 
         public MainWindow()
         {
-            InitializeComponent();
-
             preferences = new PreferencesSettings();
 
             IServiceCollection services = new ServiceCollection()
@@ -37,9 +35,11 @@ namespace PixiEditor
                 .AddSingleton<StylusViewModel>()
                 .AddSingleton<WindowViewModel>();
 
-            pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
-
             DataContext = new ViewModelMain(services.BuildServiceProvider());
+
+            InitializeComponent();
+
+            pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
             StateChanged += MainWindowStateChangeRaised;
             Activated += MainWindow_Activated;

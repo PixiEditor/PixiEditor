@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PixiEditor"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -224,7 +225,7 @@
                     <DockingManager.LayoutItemTemplateSelector>
                         <ui:DocumentsTemplateSelector>
                             <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
-                                <DataTemplate DataType="{x:Type vm:ViewModelMain}">
+                                <DataTemplate DataType="{x:Type dataHolders:Document}">
                                     <usercontrols:DrawingViewPort
                                         ZoomPercentage="{Binding ZoomPercentage}"
                                         RecenterZoombox="{Binding RecenterZoombox}"
@@ -243,13 +244,13 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <usercontrols:DrawingViewPort.ContextMenu>
-                                            <ContextMenu DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type Window}}}">
-                                                <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
-                                                <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
+                                            <ContextMenu>
+                                                <MenuItem Header="_Select All" Command="{Binding XamlAccesibleViewModel.SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
+                                                <MenuItem Header="_Deselect" Command="{Binding XamlAccesibleViewModel.SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
                                                 <Separator/>
-                                                <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
-                                                <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
-                                                <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
+                                                <MenuItem Header="_Cut" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
+                                                <MenuItem Header="_Copy" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
+                                                <MenuItem Header="_Paste" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
                                             </ContextMenu>
                                         </usercontrols:DrawingViewPort.ContextMenu>
                                     </usercontrols:DrawingViewPort>

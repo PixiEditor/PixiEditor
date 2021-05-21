@@ -17,7 +17,7 @@ namespace PixiEditor.Models.DataHolders
         {
             SetRelayCommands();
             UndoManager = new UndoManager();
-            XamlAccesibleViewModel = ViewModelMain.Current ?? null;
+            XamlAccesibleViewModel = ViewModelMain.Current;
             GeneratePreviewLayer();
         }
     }
