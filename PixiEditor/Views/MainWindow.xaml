@@ -476,7 +476,7 @@
                 <ColumnDefinition Width="290"/>
             </Grid.ColumnDefinitions>
             <DockPanel>
-                <TextBlock Text="{Binding BitmapManager.SelectedTool.ActionDisplay}" Foreground="White" FontSize="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding ActionDisplay}" Foreground="White" FontSize="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock Text="X:" Foreground="White" FontSize="16"/>
                     <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>

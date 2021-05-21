@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="400" x:Name="uc"
-             Foreground="White">
+             Foreground="White" Background="Transparent">
 
     <UserControl.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

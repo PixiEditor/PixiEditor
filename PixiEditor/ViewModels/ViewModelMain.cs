@@ -24,6 +24,9 @@ namespace PixiEditor.ViewModels
 {
     public class ViewModelMain : ViewModelBase
     {
+        private string actionDisplay;
+        private bool overrideActionDisplay;
+
         public static ViewModelMain Current { get; set; }
 
         public Action CloseAction { get; set; }
@@ -73,6 +76,36 @@ namespace PixiEditor.ViewModels
         public WindowViewModel WindowSubViewModel { get; set; }
 
         public IPreferences Preferences { get; set; }
+
+        public string ActionDisplay
+        {
+            get
+            {
+                if (OverrideActionDisplay)
+                {
+                    return actionDisplay;
+                }
+
+                return BitmapManager.SelectedTool.ActionDisplay;
+            }
+            set
+            {
+                actionDisplay = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether a custom action display should be used. If false the action display of the selected tool will be used.
+        /// </summary>
+        public bool OverrideActionDisplay
+        {
+            get => overrideActionDisplay;
+            set
+            {
+                SetProperty(ref overrideActionDisplay, value);
+                RaisePropertyChanged(nameof(ActionDisplay));
+            }
+        }
 
         public bool IsDebug
         {
@@ -181,6 +214,8 @@ namespace PixiEditor.ViewModels
                         new Shortcut(Key.F1, MiscSubViewModel.OpenShortcutWindowCommand, "Open the shortcut window", true)));
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
+
+            BitmapManager.AddPropertyChangedCallback(nameof(BitmapManager.SelectedTool), () => { if (!OverrideActionDisplay) RaisePropertyChanged(nameof(ActionDisplay)); });
         }
 
         /// <summary>

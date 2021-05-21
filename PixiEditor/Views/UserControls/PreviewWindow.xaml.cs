@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
+using PixiEditor.ViewModels;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -55,6 +56,25 @@ namespace PixiEditor.Views.UserControls
 
             MouseMove += PreviewWindow_MouseMove;
             MouseRightButtonDown += PreviewWindow_MouseRightButtonDown;
+            MouseEnter += PreviewWindow_MouseEnter;
+            MouseLeave += PreviewWindow_MouseLeave;
+        }
+
+        private void PreviewWindow_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (ViewModelMain.Current != null)
+            {
+                ViewModelMain.Current.OverrideActionDisplay = false;
+            }
+        }
+
+        private void PreviewWindow_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (ViewModelMain.Current != null)
+            {
+                ViewModelMain.Current.ActionDisplay = "Press right click to copy the color at the color cursor to the main color. Hold shift to copy the color the clipboard.";
+                ViewModelMain.Current.OverrideActionDisplay = true;
+            }
         }
 
         private void PreviewWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
