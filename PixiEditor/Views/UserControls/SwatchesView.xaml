@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.SwatchesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             mc:Ignorable="d" Name="uc"
+             d:DesignHeight="450" d:DesignWidth="300">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Swatches, ElementName=uc}">
+            <d:ItemsControl.ItemsSource>
+                <x:Array Type="{x:Type Color}">
+                    <Color R="0" G="0" B="0" A="255"/>
+                    <Color R="255" G="255" B="255" A="255"/>
+                    <Color R="255" G="255" B="255" A="150"/>
+                    <Color R="255" G="255" B="255" A="0"/>
+                    <Color R="255" G="0" B="0" A="255"/>
+                    <Color R="0" G="255" B="0" A="255"/>
+                    <Color R="0" G="0" B="255" A="255"/>
+                </x:Array>
+            </d:ItemsControl.ItemsSource>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <local:AlignableWrapPanel Margin="10,10,0,10" HorizontalContentAlignment="Center"
+                                              HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="45" Height="45" Margin="0 5 5 5">
+                        <Border CornerRadius="5.5" Width="44" Height="44">
+                            <Border.Background>
+                                <ImageBrush ImageSource="../../Images/transparentbg.png"
+                                                                        Stretch="UniformToFill">
+                                    <ImageBrush.RelativeTransform>
+                                        <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
+                                                                                    CenterY="0.5" />
+                                    </ImageBrush.RelativeTransform>
+                                </ImageBrush>
+                            </Border.Background>
+                        </Border>
+                        <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
+                            <Border.Background>
+                                <SolidColorBrush Color="{Binding}" />
+                            </Border.Background>
+                        </Border>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction 
+                                    Command="{Binding SelectSwatchCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:SwatchesView}}}"
+                                    CommandParameter="{Binding}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <Grid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Remove" Foreground="White"
+                                          Command="{Binding RemoveSwatchCommand, Source={x:Reference uc}}"
+                                          CommandParameter="{Binding}" />
+                            </ContextMenu>
+                        </Grid.ContextMenu>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</UserControl>
