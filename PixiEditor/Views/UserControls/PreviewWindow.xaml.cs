@@ -50,17 +50,26 @@ namespace PixiEditor.Views.UserControls
             set => SetValue(PrimaryColorProperty, value);
         }
 
+        public static readonly DependencyProperty OptionsOpenProperty =
+            DependencyProperty.Register(nameof(OptionsOpen), typeof(bool), typeof(PreviewWindow));
+
+        public bool OptionsOpen
+        {
+            get => (bool)GetValue(OptionsOpenProperty);
+            set => SetValue(OptionsOpenProperty, value);
+        }
+
         public PreviewWindow()
         {
             InitializeComponent();
 
-            MouseMove += PreviewWindow_MouseMove;
-            MouseRightButtonDown += PreviewWindow_MouseRightButtonDown;
-            MouseEnter += PreviewWindow_MouseEnter;
-            MouseLeave += PreviewWindow_MouseLeave;
+            imageGrid.MouseMove += ImageGrid_MouseMove;
+            imageGrid.MouseRightButtonDown += ImageGrid_MouseRightButtonDown;
+            imageGrid.MouseEnter += ImageGrid_MouseEnter;
+            imageGrid.MouseLeave += ImageGrid_MouseLeave;
         }
 
-        private void PreviewWindow_MouseLeave(object sender, MouseEventArgs e)
+        private void ImageGrid_MouseLeave(object sender, MouseEventArgs e)
         {
             if (ViewModelMain.Current != null)
             {
@@ -68,7 +77,7 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void PreviewWindow_MouseEnter(object sender, MouseEventArgs e)
+        private void ImageGrid_MouseEnter(object sender, MouseEventArgs e)
         {
             if (ViewModelMain.Current != null)
             {
@@ -77,7 +86,7 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void PreviewWindow_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void ImageGrid_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.LeftShift))
             {
@@ -106,7 +115,7 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void PreviewWindow_MouseMove(object sender, MouseEventArgs e)
+        private void ImageGrid_MouseMove(object sender, MouseEventArgs e)
         {
             if (Document == null)
             {
