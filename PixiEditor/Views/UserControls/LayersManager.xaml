@@ -11,7 +11,7 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" Name="layersManager">
     <UserControl.Resources>
-        <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
+        <converters:ActiveItemToOpacityConverter x:Key="ActiveItemToOpacityConverter"/>
         <converters:IndexOfConverter x:Key="IndexOfConverter"/>
     </UserControl.Resources>
     <Grid>
@@ -52,8 +52,8 @@
                         IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 
                         Width="40" Height="20"
                         VerticalAlignment="Center"
-                        Value="{Binding LayerOpacity, Mode=TwoWay,
-                        Converter={StaticResource FloatNormalizeConverter}, ElementName=layersManager}" />
+                        Value="{Binding ElementName=treeView, Path=SelectedItem,
+                    Converter={StaticResource ActiveItemToOpacityConverter}}" />
                 <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
             </StackPanel>
         </DockPanel>
@@ -66,7 +66,13 @@
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type layers:LayerGroup}" ItemsSource="{Binding Items}">
-                    <local:LayerGroupControl GroupName="{Binding Name}" IsVisibleUndoTriggerable="{Binding StructureData.IsVisible}" LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" GroupGuid="{Binding GroupGuid}" GroupData="{Binding StructureData}" MouseMove="LayerGroup_MouseMove"/>
+                    <local:LayerGroupControl GroupName="{Binding Name}" 
+                                             IsVisibleUndoTriggerable="{Binding StructureData.IsVisible}" 
+                                             GroupOpacity="{Binding StructureData.Opacity}"
+                                             LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" 
+                                             GroupGuid="{Binding GroupGuid}" 
+                                             GroupData="{Binding StructureData}" 
+                                             MouseMove="LayerGroup_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
                         <local:LayerStructureItemContainer                             

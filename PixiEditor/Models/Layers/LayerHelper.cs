@@ -70,7 +70,7 @@ namespace PixiEditor.Models.Layers
             int height = yCloser.Height + offsetY + yOther.Height;
 
             // Merge both layers into a bitmap
-            WriteableBitmap mergedBitmap = BitmapUtils.CombineLayers((int)documentsSize.X, (int)documentsSize.Y, thisLayer, otherLayer);
+            WriteableBitmap mergedBitmap = BitmapUtils.CombineLayers((int)documentsSize.X, (int)documentsSize.Y, new Layer[] { thisLayer, otherLayer });
             mergedBitmap = mergedBitmap.Crop(xCloser.OffsetX, yCloser.OffsetY, width, height);
 
             // Create the new layer with the merged bitmap

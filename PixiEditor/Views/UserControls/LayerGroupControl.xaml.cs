@@ -50,6 +50,16 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty IsVisibleUndoTriggerableProperty =
             DependencyProperty.Register("IsVisibleUndoTriggerable", typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true));
 
+        public float GroupOpacity
+        {
+            get { return (float)GetValue(GroupOpacityProperty); }
+            set { SetValue(GroupOpacityProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for GroupOpacity.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty GroupOpacityProperty =
+            DependencyProperty.Register("GroupOpacity", typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
+
         private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             LayerGroupControl control = (LayerGroupControl)d;
@@ -86,10 +96,11 @@ namespace PixiEditor.Views.UserControls
 
         public void GeneratePreviewImage()
         {
-            var layers = LayersViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupLayers(GroupData);
+            var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
+            var layers = doc.LayerStructure.GetGroupLayers(GroupData);
             if (layers.Count > 0)
             {
-                PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, 25, 25, true);
+                PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, doc.Width, doc.Height, 25, 25);
             }
         }
 
@@ -240,7 +251,6 @@ namespace PixiEditor.Views.UserControls
                 args[1] is bool value
                 && doc != null)
             {
-
                 var group = doc.LayerStructure.GetGroupByGuid(groupGuid);
 
                 group.IsVisible = value;

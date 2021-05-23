@@ -81,7 +81,7 @@ namespace PixiEditor.Models.DataHolders
         /// Gets final layer IsVisible taking into consideration group visibility.
         /// </summary>
         /// <param name="layer">Layer to check.</param>
-        /// <returns>True if is visible, false if at least parent is not visible or layer itself is invisible</returns>
+        /// <returns>True if is visible, false if at least parent is not visible or layer itself is invisible.</returns>
         public bool GetFinalLayerIsVisible(Layer layer)
         {
             if (!layer.IsVisible)

@@ -25,16 +25,6 @@ namespace PixiEditor.Views.UserControls
                 typeof(LayersManager),
                 new PropertyMetadata(default(ObservableCollection<object>)));
 
-        public float LayerOpacity
-        {
-            get { return (float)GetValue(LayerOpacityProperty); }
-            set { SetValue(LayerOpacityProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for LayerOpacity.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty LayerOpacityProperty =
-            DependencyProperty.Register("LayerOpacity", typeof(float), typeof(LayersManager), new PropertyMetadata(0f));
-
         public LayersViewModel LayerCommandsViewModel
         {
             get { return (LayersViewModel)GetValue(LayerCommandsViewModelProperty); }

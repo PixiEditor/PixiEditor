@@ -87,6 +87,14 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private float opacity = 1;
+
+        public float Opacity
+        {
+            get => opacity;
+            set => SetProperty(ref opacity, value);
+        }
+
         public GuidStructureItem(
             string name,
             Guid startLayerGuid,
