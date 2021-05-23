@@ -21,8 +21,8 @@
             </d:ItemsControl.ItemsSource>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <local:AlignableWrapPanel Margin="10,10,0,10" HorizontalContentAlignment="Center"
-                                              HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
+                               HorizontalAlignment="Center" VerticalAlignment="Top"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
