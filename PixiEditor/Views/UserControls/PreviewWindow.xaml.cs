@@ -81,7 +81,7 @@ namespace PixiEditor.Views.UserControls
         {
             if (ViewModelMain.Current != null)
             {
-                ViewModelMain.Current.ActionDisplay = "Press right-click to select hovered pixel. Hold shift to copy its hex value to the clipboard.";
+                ViewModelMain.Current.ActionDisplay = "Right-click to pick color, Shift-right-click to copy color to clipboard";
                 ViewModelMain.Current.OverrideActionDisplay = true;
             }
         }
