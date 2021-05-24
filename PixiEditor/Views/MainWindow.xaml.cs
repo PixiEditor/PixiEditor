@@ -9,6 +9,9 @@ using PixiEditor.ViewModels.SubViewModels.Main;
 using System.Diagnostics;
 using System.Linq;
 using PixiEditor.Views.Dialogs;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor
 {
@@ -17,17 +20,26 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static WriteableBitmap pixiEditorLogo;
+
+        private PreferencesSettings preferences;
+
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
-            InitializeComponent();
+            preferences = new PreferencesSettings();
 
             IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IPreferences>(new PreferencesSettings())
-                .AddSingleton(new StylusViewModel());
+                .AddSingleton<IPreferences>(preferences)
+                .AddSingleton<StylusViewModel>()
+                .AddSingleton<WindowViewModel>();
 
             DataContext = new ViewModelMain(services.BuildServiceProvider());
+
+            InitializeComponent();
+
+            pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
             StateChanged += MainWindowStateChangeRaised;
             Activated += MainWindow_Activated;
@@ -35,6 +47,19 @@ namespace PixiEditor
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            DataContext.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+            preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
+            {
+                if (x)
+                {
+                    UpdateTaskbarIcon(DataContext.BitmapManager.ActiveDocument);
+                }
+                else
+                {
+                    UpdateTaskbarIcon(null);
+                }
+            });
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -47,6 +72,30 @@ namespace PixiEditor
         private static void CloseHelloThereIfRelease()
         {
             Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
+        }
+
+        private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+        {
+            if (preferences.GetPreference("ImagePreviewInTaskbar", false))
+            {
+                UpdateTaskbarIcon(e.NewDocument);
+            }
+        }
+
+        private void UpdateTaskbarIcon(Document document)
+        {
+            if (document?.PreviewImage == null)
+            {
+                Icon = pixiEditorLogo;
+                return;
+            }
+
+            var previewCopy = document.PreviewImage.Clone()
+                .Resize(512, 512, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+
+            previewCopy.Blit(new Rect(256, 256, 256, 256), pixiEditorLogo, new Rect(0, 0, 512, 512));
+
+            Icon = previewCopy;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -96,6 +145,16 @@ namespace PixiEditor
         private void MainWindow_Initialized(object sender, EventArgs e)
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, e) => Helpers.CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
+        }
+
+        private void MainWindow_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                DataContext.FileSubViewModel.Open(files[0]);
+            }
         }
     }
 }

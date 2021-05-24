@@ -8,6 +8,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         public SelectToolToolbar()
         {
             Settings.Add(new EnumSetting<SelectionType>("SelectMode", "Selection type"));
+            Settings.Add(new EnumSetting<SelectionShape>("SelectShape", "Selection shape"));
         }
     }
 }

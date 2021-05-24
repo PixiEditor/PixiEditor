@@ -94,15 +94,30 @@ namespace PixiEditor.Models.UserPreferences
 
         public Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
 
-        public void AddCallback(string setting, Action<object> action)
+        public void AddCallback(string name, Action<object> action)
         {
-            if (Callbacks.ContainsKey(setting))
+            if (action == null)
             {
-                Callbacks[setting].Add(action);
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            if (Callbacks.ContainsKey(name))
+            {
+                Callbacks[name].Add(action);
                 return;
             }
 
-            Callbacks.Add(setting, new List<Action<object>>() { action });
+            Callbacks.Add(name, new List<Action<object>>() { action });
+        }
+
+        public void AddCallback<T>(string name, Action<T> action)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            AddCallback(name, new Action<object>(o => action((T)o)));
         }
 
 #nullable enable

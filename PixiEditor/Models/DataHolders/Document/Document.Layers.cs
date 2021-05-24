@@ -4,11 +4,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using GalaSoft.MvvmLight.Messaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
@@ -337,6 +338,11 @@ namespace PixiEditor.Models.DataHolders
                 "Undo merge layers"));
 
             return layer;
+        }
+
+        public Color GetColorAtPoint(int x, int y)
+        {
+            return BitmapUtils.GetColorAtPointCombined(x, y, Layers.ToArray());
         }
 
         private void InjectRemoveActiveLayersUndo(object[] guidArgs, StorageBasedChange change)

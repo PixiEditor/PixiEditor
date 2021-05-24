@@ -162,23 +162,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Open((object)null);
         }
 
-        private void Owner_OnStartupEvent(object sender, System.EventArgs e)
-        {
-            var lastArg = Environment.GetCommandLineArgs().Last();
-            if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
-            {
-                Open(lastArg);
-            }
-            else
-            {
-                if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
-                {
-                    OpenHelloTherePopup();
-                }
-            }
-        }
-
-        private void Open(string path)
+        public void Open(string path)
         {
             try
             {
@@ -200,6 +184,22 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             catch (OldFileFormatException)
             {
                 NoticeDialog.Show("This .pixi file uses the old format,\n which is no longer supported and can't be opened.", "Old file format");
+            }
+        }
+
+        private void Owner_OnStartupEvent(object sender, System.EventArgs e)
+        {
+            var lastArg = Environment.GetCommandLineArgs().Last();
+            if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
+            {
+                Open(lastArg);
+            }
+            else
+            {
+                if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
+                {
+                    OpenHelloTherePopup();
+                }
             }
         }
 

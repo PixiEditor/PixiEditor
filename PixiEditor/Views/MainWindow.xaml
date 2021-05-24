@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PixiEditor"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -14,7 +15,8 @@
         xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}" xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        AllowDrop="True" Drop="MainWindow_Drop">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
@@ -134,8 +136,10 @@
                 <MenuItem Header="_View">
                     <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                               IsCheckable="True" InputGestureText="Ctrl+`"/>
-                    <MenuItem Header="_Open Startup Window" ToolTip="Hello there!"
+                    <MenuItem Header="Open _Startup Window" ToolTip="Hello there!"
                               Command="{Binding MiscSubViewModel.OpenHelloThereWindowCommand}"/>
+                    <MenuItem Header="Open _Navigation Window"
+                              Command="{Binding WindowSubViewModel.ShowAvalonDockWindowCommand}" CommandParameter="navigation"/>
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="_Documentation" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
@@ -203,16 +207,6 @@
             </ItemsControl>
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
-            <Grid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
-                    <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
-                    <Separator/>
-                    <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
-                    <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
-                    <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
-                </ContextMenu>
-            </Grid.ContextMenu>
             <Grid>
                 <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
@@ -232,7 +226,7 @@
                     <DockingManager.LayoutItemTemplateSelector>
                         <ui:DocumentsTemplateSelector>
                             <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
-                                <DataTemplate DataType="{x:Type vm:ViewModelMain}">
+                                <DataTemplate DataType="{x:Type dataHolders:Document}">
                                     <usercontrols:DrawingViewPort
                                         ZoomPercentage="{Binding ZoomPercentage}"
                                         RecenterZoombox="{Binding RecenterZoombox}"
@@ -250,6 +244,16 @@
                                                 <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
+                                        <usercontrols:DrawingViewPort.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="_Select All" Command="{Binding XamlAccesibleViewModel.SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
+                                                <MenuItem Header="_Deselect" Command="{Binding XamlAccesibleViewModel.SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
+                                                <Separator/>
+                                                <MenuItem Header="_Cut" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
+                                                <MenuItem Header="_Copy" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
+                                                <MenuItem Header="_Paste" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
+                                            </ContextMenu>
+                                        </usercontrols:DrawingViewPort.ContextMenu>
                                     </usercontrols:DrawingViewPort>
                                 </DataTemplate>
                             </ui:DocumentsTemplateSelector.DocumentsViewTemplate>
@@ -284,54 +288,9 @@
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                              VerticalScrollBarVisibility="Auto">
-                                            <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Swatches}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
-                                                           VerticalAlignment="Top" HorizontalAlignment="Left" />
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Width="45" Height="45" Margin="0 5 5 5">
-                                                            <Border CornerRadius="5.5" Width="44" Height="44">
-                                                                <Border.Background>
-                                                                    <ImageBrush ImageSource="../Images/transparentbg.png"
-                                                                        Stretch="UniformToFill">
-                                                                        <ImageBrush.RelativeTransform>
-                                                                            <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
-                                                                                    CenterY="0.5" />
-                                                                        </ImageBrush.RelativeTransform>
-                                                                    </ImageBrush>
-                                                                </Border.Background>
-                                                            </Border>
-                                                            <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
-                                                                <Border.Background>
-                                                                    <SolidColorBrush Color="{Binding}" />
-                                                                </Border.Background>
-                                                            </Border>
-                                                            <i:Interaction.Triggers>
-                                                                <i:EventTrigger EventName="MouseDown">
-                                                                    <i:InvokeCommandAction
-                                                                Command="{Binding
-                                                                    RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ColorsSubViewModel.SelectColorCommand}"
-                                                                CommandParameter="{Binding}" />
-                                                                </i:EventTrigger>
-                                                            </i:Interaction.Triggers>
-                                                            <Grid.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <MenuItem Header="Remove" Foreground="White"
-                                                                      Command="{Binding ColorsSubViewModel.RemoveSwatchCommand}"
-                                                                      CommandParameter="{Binding}" />
-                                                                </ContextMenu>
-                                                            </Grid.ContextMenu>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </ScrollViewer>
+                                        <usercontrols:SwatchesView
+                                            SelectSwatchCommand="{Binding ColorsSubViewModel.SelectColorCommand}" RemoveSwatchCommand="{Binding ColorsSubViewModel.RemoveSwatchCommand}"
+                                            Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"/>
                                     </avalondock:LayoutAnchorable>
                                 </LayoutAnchorablePane>
                                 <LayoutAnchorablePane>
@@ -431,6 +390,14 @@
                                         </Grid>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
+                                <LayoutAnchorablePane>
+                                    <LayoutAnchorable ContentId="navigation" Title="Navigation" 
+                                                      CanHide="True" CanAutoHide="False"
+                                                      CanDockAsTabbedDocument="False" CanFloat="True">
+                                        <usercontrols:PreviewWindow Document="{Binding BitmapManager.ActiveDocument}"
+                                                                    PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
+                                    </LayoutAnchorable>
+                                </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
                         </LayoutPanel>
                     </avalondock:LayoutRoot>
@@ -465,7 +432,7 @@
                 <ColumnDefinition Width="290"/>
             </Grid.ColumnDefinitions>
             <DockPanel>
-                <TextBlock Text="{Binding BitmapManager.SelectedTool.ActionDisplay}" Foreground="White" FontSize="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding ActionDisplay}" Foreground="White" FontSize="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock Text="X:" Foreground="White" FontSize="16"/>
                     <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
