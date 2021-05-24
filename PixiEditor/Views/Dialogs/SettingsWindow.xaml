@@ -57,6 +57,8 @@
             <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
             ConverterParameter='General'}">
                 <StackPanel Orientation="Vertical">
+                    <CheckBox Content="Show Document Preview in Taskbar" Margin="25,30,0,0"
+                                  IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}"/>
                     <Label Content="File" Style="{StaticResource Header1}"/>
                     <StackPanel Orientation="Vertical" Margin="50 0 50 0">
                         <CheckBox Content="Show Startup Window" 

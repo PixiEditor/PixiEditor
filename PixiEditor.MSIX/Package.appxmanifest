@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="6018c504-49c2-4830-ac0f-fab30b922158"
-    Publisher="CN=PixiEditor"
+    Name="56069PixiEditorOrganizati.PixiEditor"
+    Publisher="CN=0AFA75AD-56A3-481D-B5E4-D3C6274DD38A"
     Version="0.2.0.0" />
 
   <Properties>
     <DisplayName>PixiEditor</DisplayName>
-    <PublisherDisplayName>PixiEditor</PublisherDisplayName>
+    <PublisherDisplayName>PixiEditor Organization</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 

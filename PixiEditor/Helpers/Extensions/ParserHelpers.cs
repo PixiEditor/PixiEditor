@@ -1,11 +1,11 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Layers;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
+using SDColor = System.Drawing.Color;
 
 namespace PixiEditor.Helpers.Extensions
 {
@@ -17,7 +17,7 @@ namespace PixiEditor.Helpers.Extensions
             {
                 Layers = serializableDocument.ToLayers(),
                 Swatches = new ObservableCollection<Color>(serializableDocument.Swatches.Select(x =>
-                    Color.FromArgb(x.Item1, x.Item2, x.Item3, x.Item4)))
+                    Color.FromArgb(x.A, x.R, x.G, x.B)))
             };
 
             if (document.Layers.Count > 0)
@@ -31,7 +31,7 @@ namespace PixiEditor.Helpers.Extensions
         public static ObservableCollection<Layer> ToLayers(this Parser.SerializableDocument serializableDocument)
         {
             ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
-            for (int i = 0; i < serializableDocument.Layers.Length; i++)
+            for (int i = 0; i < serializableDocument.Layers.Count; i++)
             {
                 Parser.SerializableLayer serLayer = serializableDocument.Layers[i];
                 Layer layer =
@@ -55,8 +55,8 @@ namespace PixiEditor.Helpers.Extensions
             {
                 Width = document.Width,
                 Height = document.Height,
-                Layers = document.Layers.Select(x => x.ToSerializable()).ToArray(),
-                Swatches = document.Swatches.Select(x => new Tuple<byte, byte, byte, byte>(x.A, x.R, x.G, x.B)).ToArray()
+                Layers = document.Layers.Select(x => x.ToSerializable()).ToList(),
+                Swatches = document.Swatches.Select(x => SDColor.FromArgb(x.A, x.R, x.G, x.B)).ToList()
             };
 
             return serializable;

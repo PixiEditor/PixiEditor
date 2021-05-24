@@ -5,6 +5,7 @@ using PixiEditor.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -56,36 +57,35 @@ namespace PixiEditor.Models.ImageManipulation
                         throw new InvalidOperationException("Layers must not extend beyond canvas borders");
                     }
 
-                    for (int y = 0; y < layers[i].Height; y++)
+                    for (int y = 0; y < layer.Height; y++)
                     {
-                        for (int x = 0; x < layers[i].Width; x++)
+                        for (int x = 0; x < layer.Width; x++)
                         {
+                            Color previousColor = finalBitmap.GetPixel(x + layer.OffsetX, y + layer.OffsetY);
                             Color color = layer.GetPixel(x, y);
-                            if (i > 0 && ((color.A < 255 && color.A > 0) || (layerOpacity < 1f && layerOpacity > 0 && color.A > 0)))
-                            {
-                                var lastLayerPixel = finalBitmap.GetPixel(x + layer.OffsetX, y + layer.OffsetY);
-                                byte pixelA = (byte)(color.A * layerOpacity);
-                                byte r = (byte)((color.R * pixelA / 255) + (lastLayerPixel.R * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
-                                byte g = (byte)((color.G * pixelA / 255) + (lastLayerPixel.G * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
-                                byte b = (byte)((color.B * pixelA / 255) + (lastLayerPixel.B * lastLayerPixel.A * (255 - pixelA) / (255 * 255)));
-                                byte a = (byte)(pixelA + (lastLayerPixel.A * (255 - pixelA) / 255));
-                                color = Color.FromArgb(a, r, g, b);
-                            }
-                            else
-                            {
-                                color = Color.FromArgb(color.A, color.R, color.G, color.B);
-                            }
 
-                            if (color.A > 0)
-                            {
-                                finalBitmap.SetPixel(x + layer.OffsetX, y + layer.OffsetY, color);
-                            }
+                            finalBitmap.SetPixel(x + layer.OffsetX, y + layer.OffsetY, BlendColor(previousColor, color, layerOpacity));
                         }
                     }
                 }
             }
 
             return finalBitmap;
+        }
+
+        public static Color GetColorAtPointCombined(int x, int y, params Layer[] layers)
+        {
+            Color prevColor = Color.FromArgb(0, 0, 0, 0);
+
+            for (int i = 0; i < layers.Length; i++)
+            {
+                Color color = layers[i].GetPixelWithOffset(x, y);
+                float layerOpacity = layers[i].Opacity;
+
+                prevColor = BlendColor(prevColor, color, layerOpacity);
+            }
+
+            return prevColor;
         }
 
         /// <summary>
@@ -150,6 +150,31 @@ namespace PixiEditor.Models.ImageManipulation
             }
 
             return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Color BlendColor(Color previousColor, Color color, float opacity)
+        {
+            if ((color.A < 255 && color.A > 0) || (opacity < 1f && opacity > 0 && color.A > 0))
+            {
+                byte pixelA = (byte)(color.A * opacity);
+                byte r = (byte)((color.R * pixelA / 255) + (previousColor.R * previousColor.A * (255 - pixelA) / (255 * 255)));
+                byte g = (byte)((color.G * pixelA / 255) + (previousColor.G * previousColor.A * (255 - pixelA) / (255 * 255)));
+                byte b = (byte)((color.B * pixelA / 255) + (previousColor.B * previousColor.A * (255 - pixelA) / (255 * 255)));
+                byte a = (byte)(pixelA + (previousColor.A * (255 - pixelA) / 255));
+                color = Color.FromArgb(a, r, g, b);
+            }
+            else
+            {
+                color = Color.FromArgb(color.A, color.R, color.G, color.B);
+            }
+
+            if (color.A > 0)
+            {
+                return color;
+            }
+
+            return previousColor;
         }
 
         private static WriteableBitmap GeneratePreviewBitmap(

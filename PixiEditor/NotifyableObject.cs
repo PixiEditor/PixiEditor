@@ -11,6 +11,28 @@ namespace PixiEditor.Helpers
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
 
+        public void AddPropertyChangedCallback(string propertyName, Action action)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(propertyName));
+            }
+
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                PropertyChanged += (_, _) => action();
+                return;
+            }
+
+            PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == propertyName)
+                {
+                    action();
+                }
+            };
+        }
+
         protected void RaisePropertyChanged(string property)
         {
             if (property != null)

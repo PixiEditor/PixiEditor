@@ -6,7 +6,7 @@
         xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
-        mc:Ignorable="d"
+        mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="632"
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 

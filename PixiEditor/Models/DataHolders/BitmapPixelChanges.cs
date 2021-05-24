@@ -35,6 +35,11 @@ namespace PixiEditor.Models.DataHolders
             Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
             foreach (Coordinates coordinate in coordinates)
             {
+                if (dict.ContainsKey(coordinate))
+                {
+                    continue;
+                }
+
                 dict.Add(coordinate, color);
             }
 
