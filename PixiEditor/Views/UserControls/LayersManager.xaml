@@ -11,7 +11,6 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" Name="layersManager">
     <UserControl.Resources>
-        <converters:ActiveItemToOpacityConverter x:Key="ActiveItemToOpacityConverter"/>
         <converters:IndexOfConverter x:Key="IndexOfConverter"/>
     </UserControl.Resources>
     <Grid>
@@ -49,16 +48,16 @@
                 <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
                 <vws:NumberInput
                         Min="0" Max="100"
+                        x:Name="numberInput"
                         IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 
                         Width="40" Height="20"
                         VerticalAlignment="Center"
-                        Value="{Binding ElementName=treeView, Path=SelectedItem,
-                    Converter={StaticResource ActiveItemToOpacityConverter}}" />
+                        LostFocus="NumberInput_LostFocus"/>
                 <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
             </StackPanel>
         </DockPanel>
         <Separator Grid.Row="1" Margin="0,-12, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
-        <TreeView Name="treeView" Grid.Row="2" Margin="0, -12, 0, 0" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}">
+        <TreeView Name="treeView" Grid.Row="2" Margin="0, -12, 0, 0" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
@@ -71,7 +70,7 @@
                                              GroupOpacity="{Binding StructureData.Opacity}"
                                              LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" 
                                              GroupGuid="{Binding GroupGuid}" 
-                                             GroupData="{Binding StructureData}" 
+                                             GroupData="{Binding StructureData}"
                                              MouseMove="LayerGroup_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
