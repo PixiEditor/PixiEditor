@@ -90,14 +90,14 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void HandleGroupOpacityChange(GuidStructureItem group, float value)
+        private void HandleGroupOpacityChange(LayerGroup group, float value)
         {
             if (LayerCommandsViewModel.Owner?.BitmapManager?.ActiveDocument != null)
             {
                 var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
-                var processArgs = new object[] { group.GroupGuid, value };
-                var reverseProcessArgs = new object[] { group.GroupGuid, group.Opacity };
+                var processArgs = new object[] { group.StructureData.GroupGuid, value };
+                var reverseProcessArgs = new object[] { group.StructureData.GroupGuid, group.StructureData.Opacity };
 
                 ChangeGroupOpacityProcess(processArgs);
 
@@ -115,7 +115,11 @@ namespace PixiEditor.Views.UserControls
         {
             if (processArgs.Length > 0 && processArgs[0] is Guid groupGuid && processArgs[1] is float opacity)
             {
-                LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(groupGuid).Opacity = opacity;
+                var structure = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure;
+                var group = structure.GetGroupByGuid(groupGuid);
+                group.Opacity = opacity;
+                var layers = structure.GetGroupLayers(group);
+                layers.ForEach(x => x.Opacity = x.Opacity); // This might seems stupid, but it raises property changed, without setting any value. This is used to trigger converters that use group opacity
             }
         }
 
@@ -144,12 +148,7 @@ namespace PixiEditor.Views.UserControls
             }
             else if(item is LayerGroup group)
             {
-                LayerStructure structure = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure;
-                var groupData = structure.GetGroupByGuid(group.GroupGuid);
-                HandleGroupOpacityChange(groupData, val);
-
-                var layers = structure.GetGroupLayers(groupData);
-                layers.ForEach(x => x.Opacity = x.Opacity); // This might seems stupid, but it raises property changed, without setting any value. This is used to trigger converters that use group opacity
+                HandleGroupOpacityChange(group, val);
             }
         }
 
