@@ -154,9 +154,9 @@ namespace PixiEditor.Models.Layers
                 if (opacity != value)
                 {
                     opacity = value;
-                    RaisePropertyChanged(nameof(Opacity));
-                    RaisePropertyChanged(nameof(OpacityUndoTriggerable));
                 }
+                RaisePropertyChanged(nameof(Opacity));
+                RaisePropertyChanged(nameof(OpacityUndoTriggerable));
             }
         }
 

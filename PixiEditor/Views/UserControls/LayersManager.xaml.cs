@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using PixiEditor.Models.Layers;
+using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
@@ -113,8 +114,12 @@ namespace PixiEditor.Views.UserControls
             }
             else if(item is LayerGroup group)
             {
-                var groupData = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(group.GroupGuid);
+                LayerStructure structure = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure;
+                var groupData = structure.GetGroupByGuid(group.GroupGuid);
                 groupData.Opacity = val;
+
+                var layers = structure.GetGroupLayers(groupData);
+                layers.ForEach(x => x.Opacity = x.Opacity); // This might seems stupid, but it raises property changed, without setting any value. This is used to trigger converters that use group opacity
             }
         }
 

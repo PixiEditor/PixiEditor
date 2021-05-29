@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
              xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
-             xmlns:vws="clr-namespace:PixiEditor.Views" 
+             xmlns:vws="clr-namespace:PixiEditor.Views"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Class="PixiEditor.Views.UserControls.DrawingViewPort"
@@ -67,7 +67,6 @@
                         <DataTemplate>
                             <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                               Opacity="{Binding Opacity}"
                                                Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}">
                                 <Image.Visibility>
                                     <MultiBinding Converter="{converters:FinalIsVisibleToVisiblityConverter}">
@@ -75,6 +74,12 @@
                                         <Binding Path="IsVisible"/>
                                     </MultiBinding>
                                 </Image.Visibility>
+                                <Image.Opacity>
+                                    <MultiBinding Converter="{converters:LayerToFinalOpacityConverter}">
+                                        <Binding Path="."/>
+                                        <Binding Path="Opacity"/>
+                                    </MultiBinding>
+                                </Image.Opacity>
                             </Image>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
