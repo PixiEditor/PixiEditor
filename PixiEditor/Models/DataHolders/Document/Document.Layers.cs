@@ -505,6 +505,7 @@ namespace PixiEditor.Models.DataHolders
             LayerStructure.PostMoveReassignBounds(new GroupData(newGroup?.GroupGuid), layerGuid);
 
             RaisePropertyChanged(nameof(LayerStructure));
+        }
 
         public Color GetColorAtPoint(int x, int y)
         {

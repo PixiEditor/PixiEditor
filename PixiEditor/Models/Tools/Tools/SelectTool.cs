@@ -90,7 +90,7 @@ namespace PixiEditor.Models.Tools.Tools
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
         }
 
-        private void Select(Coordinates[] pixels, SelectionShape shape)
+        private void Select(List<Coordinates> pixels, SelectionShape shape)
         {
             IEnumerable<Coordinates> selection;
 

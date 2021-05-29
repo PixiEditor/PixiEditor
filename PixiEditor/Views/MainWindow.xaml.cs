@@ -45,7 +45,7 @@ namespace PixiEditor
             Activated += MainWindow_Activated;
 
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            rawLayerAnchorable.IsVisible = viewModel.IsDebug;
+            rawLayerAnchorable.IsVisible = DataContext.IsDebug;
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 

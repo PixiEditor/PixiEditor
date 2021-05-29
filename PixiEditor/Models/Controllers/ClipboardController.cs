@@ -127,25 +127,5 @@ namespace PixiEditor.Models.Controllers
         {
             ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer("Image", image);
         }
-
-        private static void RemoveLayerProcess(object[] parameters)
-        {
-            if (parameters.Length == 0 || !(parameters[0] is int))
-            {
-                return;
-            }
-
-            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0]);
-        }
-
-        private static void AddLayerProcess(object[] parameters)
-        {
-            if (parameters.Length == 0 || !(parameters[0] is WriteableBitmap))
-            {
-                return;
-            }
-
-            AddImageToLayers((WriteableBitmap)parameters[0]);
-        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -69,22 +69,6 @@ namespace PixiEditor.Models.Tools
             }
 
             return new DoubleCords(startingCords, secondCoordinates);
-        }
-
-        // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
-
-        protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
-        {
-            List<Coordinates> output = new List<Coordinates>();
-            foreach (Coordinates item in shape)
-            {
-                output.AddRange(
-                    CoordinatesCalculator.RectangleToCoordinates(
-                        CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
-            }
-
-            return output.Distinct();
         }
     }
 }

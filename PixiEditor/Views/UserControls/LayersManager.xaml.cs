@@ -35,7 +35,7 @@ namespace PixiEditor.Views.UserControls
         {
             var items = (ObservableCollection<object>)e.NewValue;
             LayersManager manager = (LayersManager)d;
-            if (items != null && items.Count > 0 && ((ObservableCollection<object>)e.OldValue).Count == 0)
+            if (items != null && items.Count > 0 && (e.OldValue == null || ((ObservableCollection<object>)e.OldValue).Count == 0))
             {
                 var item = items[0];
                 manager.cachedItem = item;

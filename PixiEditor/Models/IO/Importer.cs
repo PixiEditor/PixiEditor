@@ -71,22 +71,6 @@ namespace PixiEditor.Models.IO
             }
         }
 
-        public static Document ImportOldDocument(string path)
-        {
-            try
-            {
-                using FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-
-                Document doc = PixiEditor.Parser.PixiParser.DeserializeOld(stream).ToDocument();
-                doc.DocumentFilePath = path;
-                return doc;
-            }
-            catch (SerializationException)
-            {
-                throw new CorruptedFileException();
-            }
-        }
-
         public static bool IsSupportedFile(string path)
         {
             path = path.ToLower();
