@@ -14,7 +14,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SDKManager = new SDKManager();
 
-            SDKManager.AddExtension(new BaseExtension());
+            SDKManager.AddBaseExtension(new BaseExtension());
 
             SDKManager.LoadExtensions(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixiEditor", "Extensions"));
             SDKManager.SetupExtensions();

@@ -9,7 +9,7 @@ namespace PixiEditor.SDK.FileParsers
     {
         public Type ParserType { get; }
 
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = true;
 
         public string[] SupportedFileExtensions { get; set; }
 
@@ -40,6 +40,7 @@ namespace PixiEditor.SDK.FileParsers
                 throw new ParserException(parserType, $"'{parserType}' needs an {nameof(FileParserAttribute)}");
             }
 
+            SupportedFileExtensions = fileParserAttribute.FileExtensions;
             Constructor = parserType.GetConstructor(Type.EmptyTypes);
 
             if (Constructor is null)

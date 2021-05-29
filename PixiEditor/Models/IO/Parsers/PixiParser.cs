@@ -1,13 +1,9 @@
 ﻿using PixiEditor.Parser;
 using PixiEditor.SDK.FileParsers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Models.IO.Parsers
 {
+    [FileParser(".pixi")]
     public class PixiParser : DocumentParser
     {
         public override bool UseBigEndian => true;

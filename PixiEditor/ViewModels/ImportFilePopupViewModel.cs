@@ -112,7 +112,7 @@ namespace PixiEditor.ViewModels
             {
                 Title = "Import path",
                 CheckPathExists = true,
-                Filter = "Image Files|*.png;*.jpeg;*.jpg"
+                Filter = SDKHelper.FileParsers.GetImageFilter()
             };
             if (path.ShowDialog() == true)
             {

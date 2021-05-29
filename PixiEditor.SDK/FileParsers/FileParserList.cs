@@ -7,23 +7,49 @@ namespace PixiEditor.SDK.FileParsers
 {
     internal class FileParserList
     {
+        public List<string> SupportedImageExtensions { get; set; } = new();
+
+        public List<string> SupportedDocumentExtensions { get; set; } = new();
+
+        public List<string> SupportedExtensions { get; set; } = new();
+
         public ListDictionary<string, ImageParserInfo> ImageParsers { get; set; } = new();
 
         public ListDictionary<string, DocumentParserInfo> DocumentParsers { get; set; } = new();
-
-        public void AddImageParser(ImageParserInfo info)
-        {
-            foreach (string ext in info.SupportedFileExtensions)
-            {
-                ImageParsers.Add(ext, info);
-            }
-        }
 
         public void AddDocumentParser(DocumentParserInfo info)
         {
             foreach (string ext in info.SupportedFileExtensions)
             {
                 DocumentParsers.Add(ext, info);
+
+                if (!SupportedDocumentExtensions.Contains(ext))
+                {
+                    SupportedDocumentExtensions.Add(ext);
+                }
+
+                if (!SupportedExtensions.Contains(ext))
+                {
+                    SupportedExtensions.Add(ext);
+                }
+            }
+        }
+
+        public void AddImageParser(ImageParserInfo info)
+        {
+            foreach (string ext in info.SupportedFileExtensions)
+            {
+                ImageParsers.Add(ext, info);
+
+                if (!SupportedImageExtensions.Contains(ext))
+                {
+                    SupportedImageExtensions.Add(ext);
+                }
+
+                if (!SupportedExtensions.Contains(ext))
+                {
+                    SupportedExtensions.Add(ext);
+                }
             }
         }
 

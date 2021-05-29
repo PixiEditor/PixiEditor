@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -166,13 +167,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             try
             {
-                if (path.EndsWith(".pixi"))
+                FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                string extension = Path.GetExtension(path);
+
+                if (SDKHelper.GetCurrentManager().Parsers.DocumentParsers.ContainsKey(extension))
                 {
                     OpenDocument(path);
                 }
-                else
+                else if (SDKHelper.GetCurrentManager().Parsers.ImageParsers.ContainsKey(extension))
                 {
                     OpenFile(path);
+                }
+                else
+                {
+                    throw new Exception("No parser found");
                 }
 
                 Owner.ResetProgramStateValues();
@@ -207,11 +215,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             OpenFileDialog dialog = new OpenFileDialog
             {
-                Filter =
-                "Any|*.pixi;*.png;*.jpg;*.jpeg;|" +
-                "PixiEditor Files | *.pixi|" +
-                "Image Files|*.png;*.jpg;*.jpeg;",
-                DefaultExt = "pixi"
+                Filter = SDKHelper.FileParsers.GetFileFilter(),
+                DefaultExt = ".pixi"
             };
 
             if ((bool)dialog.ShowDialog())

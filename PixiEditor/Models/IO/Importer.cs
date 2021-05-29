@@ -55,7 +55,10 @@ namespace PixiEditor.Models.IO
 
             try
             {
-                return SDKHelper.FileParsers.CreateDocumentParser(Path.GetExtension(path), stream).Parse().ToDocument();
+                Document document = SDKHelper.FileParsers.CreateDocumentParser(Path.GetExtension(path), stream).Parse().ToDocument();
+                document.DocumentFilePath = path;
+
+                return document;
             }
             catch (Exception e)
             {
@@ -65,7 +68,7 @@ namespace PixiEditor.Models.IO
 
         public static bool IsSupportedFile(string path)
         {
-            return SDKHelper.GetCurrentManager().SupportedFileExtensions.Contains(path);
+            return SDKHelper.GetCurrentManager().Parsers.SupportedExtensions.Contains(Path.GetExtension(path));
         }
     }
 }

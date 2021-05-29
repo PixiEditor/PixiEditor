@@ -12,9 +12,7 @@ namespace PixiEditor.SDK
 
         public FileParserList Parsers { get; } = new();
 
-        public List<string> SupportedFileExtensions { get; } = new();
-
-        public void AddExtension(Extension extension)
+        public void AddBaseExtension(Extension extension)
         {
             Extensions.Add(extension);
         }
@@ -72,28 +70,12 @@ namespace PixiEditor.SDK
 
                     foreach (DocumentParserInfo fileParserInformation in information.DocumentParsers)
                     {
-                        foreach (string fileExtension in fileParserInformation.SupportedFileExtensions)
-                        {
-                            Parsers.DocumentParsers.Add(fileExtension, fileParserInformation);
-
-                            if (!SupportedFileExtensions.Contains(fileExtension))
-                            {
-                                SupportedFileExtensions.Add(fileExtension);
-                            }
-                        }
+                        Parsers.AddDocumentParser(fileParserInformation);
                     }
 
                     foreach (ImageParserInfo fileParserInformation in information.ImageParsers)
                     {
-                        foreach (string fileExtension in fileParserInformation.SupportedFileExtensions)
-                        {
-                            Parsers.ImageParsers.Add(fileExtension, fileParserInformation);
-
-                            if (!SupportedFileExtensions.Contains(fileExtension))
-                            {
-                                SupportedFileExtensions.Add(fileExtension);
-                            }
-                        }
+                        Parsers.AddImageParser(fileParserInformation);
                     }
                 }
                 catch

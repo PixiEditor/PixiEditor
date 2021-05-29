@@ -28,6 +28,48 @@ namespace PixiEditor.Helpers
             {
                 return GetCurrentManager().Parsers.CreateImageParser(extension, stream);
             }
+
+            public static string GetFileFilter()
+            {
+                FileFilterBuilder builder = new FileFilterBuilder();
+
+                SDKManager manager = GetCurrentManager();
+
+                builder.AddFilter("Documents", manager.Parsers.SupportedDocumentExtensions);
+                builder.AddFilter("Images", manager.Parsers.SupportedImageExtensions);
+
+                foreach (Extension extension in manager.Extensions)
+                {
+                    builder.AddFilter($"{extension.DisplayName} Documents", extension.SupportedDocumentFileExtensions);
+                    builder.AddFilter($"{extension.DisplayName} Images", extension.SupportedImageFileExtensions);
+                }
+
+                return builder.Build(true);
+            }
+
+            public static string GetDocumentFilter()
+            {
+                FileFilterBuilder builder = new FileFilterBuilder();
+
+                foreach (Extension extension in GetCurrentManager().Extensions)
+                {
+                    builder.AddFilter(extension.DisplayName, extension.SupportedDocumentFileExtensions);
+                }
+
+                return builder.Build(true);
+            }
+
+            public static string GetImageFilter()
+            {
+                FileFilterBuilder builder = new FileFilterBuilder();
+
+                foreach (Extension extension in GetCurrentManager().Extensions)
+                {
+                    builder.AddFilter(extension.DisplayName, extension.SupportedImageFileExtensions);
+                }
+
+                return builder.Build(true);
+            }
         }
     }
 }
