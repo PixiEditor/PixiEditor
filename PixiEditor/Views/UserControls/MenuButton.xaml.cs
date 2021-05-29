@@ -1,6 +1,6 @@
-﻿using System.Windows;
+﻿using PixiEditor.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views
 {
@@ -27,7 +27,7 @@ namespace PixiEditor.Views
 
         public string Text
         {
-            get => (string) GetValue(MenuButtonTextProperty);
+            get => (string)GetValue(MenuButtonTextProperty);
             set => SetValue(MenuButtonTextProperty, value);
         }
 

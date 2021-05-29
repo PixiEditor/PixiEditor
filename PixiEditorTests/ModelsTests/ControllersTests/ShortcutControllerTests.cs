@@ -55,7 +55,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             RelayCommand shortcutCommand = new RelayCommand(arg => { result = (int)arg; });
 
             ShortcutController controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, shortcutCommand);
-            controller.Shortcuts.Add(new Shortcut(Key.A, shortcutCommand, 1, ModifierKeys.Control));
+            controller.ShortcutGroups.Add(new ShortcutGroup(string.Empty, new Shortcut(Key.A, shortcutCommand, 1, ModifierKeys.Control)));
 
             controller.KeyPressed(Key.A, ModifierKeys.Control);
             Assert.Equal(1, result);
@@ -68,13 +68,13 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             Assert.Null(controller.LastShortcut);
             controller.KeyPressed(Key.A, ModifierKeys.None);
-            Assert.Equal(controller.Shortcuts[0], controller.LastShortcut);
+            Assert.Equal(controller.ShortcutGroups[0].Shortcuts[0], controller.LastShortcut);
         }
 
         private static ShortcutController GenerateStandardShortcutController(Key shortcutKey, ModifierKeys modifiers, RelayCommand shortcutCommand)
         {
             ShortcutController controller = new ShortcutController();
-            controller.Shortcuts.Add(new Shortcut(shortcutKey, shortcutCommand, 0, modifiers));
+            controller.ShortcutGroups.Add(new ShortcutGroup(string.Empty, new Shortcut(shortcutKey, shortcutCommand, 0, modifiers)));
             ShortcutController.BlockShortcutExecution = false;
             return controller;
         }

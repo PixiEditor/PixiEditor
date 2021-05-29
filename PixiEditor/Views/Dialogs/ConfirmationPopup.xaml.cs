@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
+using System.Windows;
 
 namespace PixiEditor.Views
 {
@@ -20,6 +20,7 @@ namespace PixiEditor.Views
         public ConfirmationPopup()
         {
             InitializeComponent();
+            Owner = Application.Current.MainWindow;
             CancelCommand = new RelayCommand(Cancel);
             SetResultAndCloseCommand = new RelayCommand(SetResultAndClose);
             DataContext = this;
@@ -30,20 +31,20 @@ namespace PixiEditor.Views
 
         public bool Result
         {
-            get => (bool) GetValue(SaveChangesProperty);
+            get => (bool)GetValue(SaveChangesProperty);
             set => SetValue(SaveChangesProperty, value);
         }
 
 
         public string Body
         {
-            get => (string) GetValue(BodyProperty);
+            get => (string)GetValue(BodyProperty);
             set => SetValue(BodyProperty, value);
         }
 
         private void SetResultAndClose(object property)
         {
-            bool result = (bool) property;
+            bool result = (bool)property;
             Result = result;
             DialogResult = true;
             Close();

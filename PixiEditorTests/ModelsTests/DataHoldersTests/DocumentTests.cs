@@ -3,6 +3,7 @@ using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 using Xunit;
@@ -311,7 +312,43 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             document.DocumentFilePath = testFilePath;
 
-            Assert.Contains(viewModel.FileSubViewModel.RecentlyOpened, x => x == testFilePath);
+            Assert.Contains(viewModel.FileSubViewModel.RecentlyOpened, x => x.FilePath == testFilePath);
+        }
+
+        [Fact]
+        public void TestThatDupliacteLayerWorks()
+        {
+            const string layerName = "New Layer";
+
+            Document document = new (10, 10);
+
+            document.AddNewLayer(layerName);
+            Layer duplicate = document.DuplicateLayer(0);
+
+            Assert.Equal(document.Layers[1], duplicate);
+            Assert.Equal(layerName + " (1)", duplicate.Name);
+            Assert.True(duplicate.IsActive);
+        }
+
+        [Fact]
+        public void TestThatCorrectLayerSuffixIsSet()
+        {
+            const string layerName = "New Layer";
+
+            Document document = new (10, 10);
+
+            document.AddNewLayer(layerName);
+            document.AddNewLayer(layerName);
+            document.AddNewLayer(layerName);
+
+            Assert.Equal(layerName, document.Layers[0].Name);
+            Assert.Equal(layerName + " (1)", document.Layers[1].Name);
+            Assert.Equal(layerName + " (2)", document.Layers[2].Name);
+
+            document.Layers.Add(new Layer(layerName + " (15)"));
+            document.AddNewLayer(layerName);
+
+            Assert.Equal(layerName + " (16)", document.Layers[4].Name);
         }
     }
 }

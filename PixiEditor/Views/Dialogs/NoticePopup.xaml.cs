@@ -22,6 +22,12 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty BodyProperty =
             DependencyProperty.Register(nameof(Body), typeof(string), typeof(NoticePopup));
 
+        public new string Title
+        {
+            get => base.Title;
+            set => base.Title = value;
+        }
+
         public string Body
         {
             get => (string)GetValue(BodyProperty);

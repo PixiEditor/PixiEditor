@@ -94,15 +94,30 @@ namespace PixiEditor.Models.UserPreferences
 
         public Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
 
-        public void AddCallback(string setting, Action<object> action)
+        public void AddCallback(string name, Action<object> action)
         {
-            if (Callbacks.ContainsKey(setting))
+            if (action == null)
             {
-                Callbacks[setting].Add(action);
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            if (Callbacks.ContainsKey(name))
+            {
+                Callbacks[name].Add(action);
                 return;
             }
 
-            Callbacks.Add(setting, new List<Action<object>>() { action });
+            Callbacks.Add(name, new List<Action<object>>() { action });
+        }
+
+        public void AddCallback<T>(string name, Action<T> action)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            AddCallback(name, new Action<object>(o => action((T)o)));
         }
 
 #nullable enable
@@ -119,14 +134,24 @@ namespace PixiEditor.Models.UserPreferences
                 Init();
             }
 
-            return Preferences.ContainsKey(name)
-                ? (T)Preferences[name]
-                : fallbackValue;
+            try
+            {
+                return Preferences.ContainsKey(name)
+                        ? (T)Convert.ChangeType(Preferences[name], typeof(T))
+                        : fallbackValue;
+            }
+            catch (InvalidCastException)
+            {
+                Preferences.Remove(name);
+                Save();
+
+                return fallbackValue;
+            }
         }
 
         public T? GetLocalPreference<T>(string name)
         {
-            return GetPreference(name, default(T));
+            return GetLocalPreference(name, default(T));
         }
 
         public T? GetLocalPreference<T>(string name, T? fallbackValue)
@@ -136,9 +161,19 @@ namespace PixiEditor.Models.UserPreferences
                 Init();
             }
 
-            return LocalPreferences.ContainsKey(name)
-                ? (T)LocalPreferences[name]
-                : fallbackValue;
+            try
+            {
+                return LocalPreferences.ContainsKey(name)
+                    ? (T)Convert.ChangeType(LocalPreferences[name], typeof(T))
+                    : fallbackValue;
+            }
+            catch (InvalidCastException)
+            {
+                LocalPreferences.Remove(name);
+                Save();
+
+                return fallbackValue;
+            }
         }
 
 #nullable disable
@@ -167,7 +202,13 @@ namespace PixiEditor.Models.UserPreferences
             else
             {
                 string json = File.ReadAllText(path);
-                return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+                // dictionary is null if the user deletes the content of the preference file.
+                if (dictionary != null)
+                {
+                    return dictionary;
+                }
             }
 
             return new Dictionary<string, object>();

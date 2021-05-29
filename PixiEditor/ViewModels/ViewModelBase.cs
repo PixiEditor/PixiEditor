@@ -1,22 +1,15 @@
-﻿using System.ComponentModel;
+﻿using PixiEditor.Helpers;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.ViewModels
 {
-    public class ViewModelBase : INotifyPropertyChanged
+    public class ViewModelBase : NotifyableObject
     {
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        protected void RaisePropertyChanged(string property)
-        {
-            if (property != null) PropertyChanged(this, new PropertyChangedEventArgs(property));
-        }
-
         protected void CloseButton(object parameter)
         {
-            ((Window) parameter).Close();
+            ((Window)parameter).Close();
         }
 
         protected void DragMove(object parameter)

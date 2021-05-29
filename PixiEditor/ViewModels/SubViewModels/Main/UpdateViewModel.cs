@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Processes;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.UpdateModule;
@@ -56,49 +57,68 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public async Task<bool> CheckForUpdate()
         {
-            return await Task.Run(async () =>
+            bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
+            bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
+            bool updateFileDoesNotExists = !File.Exists(
+                Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+            bool updateExeDoesNotExists = !File.Exists(
+                Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
+            if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
             {
-                bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
-                bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
-                bool updateFileDoesNotExists = !File.Exists(
-                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
-                bool updateExeDoesNotExists = !File.Exists(
-                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
-                if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
+                VersionText = "Downloading update...";
+                if (updateCompatible)
                 {
-                    VersionText = "Downloading update...";
-                    if (updateCompatible)
-                    {
-                        await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
-                    }
-                    else
-                    {
-                        await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
-                    }
-
-                    UpdateReadyToInstall = true;
-                    return true;
+                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                }
+                else
+                {
+                    await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
                 }
 
-                return false;
-            });
+                UpdateReadyToInstall = true;
+                return true;
+            }
+
+            return false;
         }
 
-        private async void Owner_OnStartupEvent(object sender, EventArgs e)
+        private static void AskToInstall()
         {
 #if RELEASE
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
-                await CheckForUpdate();
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            UpdateDownloader.CreateTempDirectory();
+            bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
+            string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
+            bool updateExeExists = updateExeFiles.Length > 0;
+
+            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+
+            if (updateZipExists || updateExeExists)
+            {
+                ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
+                var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
+                if (result == Models.Enums.ConfirmationType.Yes)
+                {
+                    if (updateZipExists && File.Exists(updaterPath))
+                    {
+                        InstallHeadless(updaterPath);
+                    }
+                    else if (updateExeExists)
+                    {
+                        OpenExeInstaller(updateExeFiles[0]);
+                    }
+                }
             }
 #endif
         }
 
-        private void RestartApplication(object parameter)
+        private static void InstallHeadless(string updaterPath)
         {
             try
             {
-                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+                ProcessHelper.RunAsAdmin(updaterPath);
                 Application.Current.Shutdown();
             }
             catch (Win32Exception)
@@ -111,9 +131,66 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
+        private static void OpenExeInstaller(string updateExeFile)
+        {
+            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion().ToString() ==
+                    updateExeFile.Split('-')[1].Split(".exe")[0];
+
+            if (!alreadyUpdated)
+            {
+                RestartToUpdate(updateExeFile);
+            }
+            else
+            {
+                File.Delete(updateExeFile);
+            }
+        }
+
+        private static void RestartToUpdate(string updateExeFile)
+        {
+            Process.Start(updateExeFile);
+            Application.Current.Shutdown();
+        }
+
+        private static void RestartApplication(object parameter)
+        {
+            try
+            {
+                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+                Application.Current.Shutdown();
+            }
+            catch (Win32Exception)
+            {
+                NoticeDialog.Show("Couldn't update without administrator rights.", "Insufficient permissions");
+            }
+        }
+
+        private void Owner_OnStartupEvent(object sender, EventArgs e)
+        {
+            ConditionalUPDATE();
+        }
+
+        [Conditional("UPDATE")]
+        private async void ConditionalUPDATE()
+        {
+            if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
+            {
+                try
+                {
+                    await CheckForUpdate();
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    NoticeDialog.Show("Could not check if there's an update available");
+                }
+
+                AskToInstall();
+            }
+        }
+
         private void InitUpdateChecker()
         {
-            string version = AssemblyHelper.GetCurrentAssemblyVersion();
+            string version = AssemblyHelper.GetCurrentAssemblyVersion().ToString();
             UpdateChecker = new UpdateChecker(version);
             VersionText = $"Version {version}";
         }

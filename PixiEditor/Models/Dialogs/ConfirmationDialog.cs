@@ -9,7 +9,8 @@ namespace PixiEditor.Models.Dialogs
         {
             ConfirmationPopup popup = new ConfirmationPopup
             {
-                Body = message
+                Body = message,
+                Topmost = true
             };
             if ((bool)popup.ShowDialog())
             {

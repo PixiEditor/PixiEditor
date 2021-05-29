@@ -158,6 +158,31 @@ namespace PixiEditor.Models.Tools.Tools
             return outputCoordinates;
         }
 
+        public IEnumerable<Coordinates> CalculateFillForEllipse(IEnumerable<Coordinates> outlineCoordinates)
+        {
+            List<Coordinates> finalCoordinates = new List<Coordinates>();
+
+            if (!outlineCoordinates.Any())
+            {
+                return finalCoordinates;
+            }
+
+            int bottom = outlineCoordinates.Max(x => x.Y);
+            int top = outlineCoordinates.Min(x => x.Y);
+            for (int i = top + 1; i < bottom; i++)
+            {
+                IEnumerable<Coordinates> rowCords = outlineCoordinates.Where(x => x.Y == i);
+                int right = rowCords.Max(x => x.X);
+                int left = rowCords.Min(x => x.X);
+                for (int j = left + 1; j < right; j++)
+                {
+                    finalCoordinates.Add(new Coordinates(j, i));
+                }
+            }
+
+            return finalCoordinates;
+        }
+
         private Coordinates[] FallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY)
         {
             List<Coordinates> coordinates = new List<Coordinates>();
@@ -174,25 +199,6 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             return coordinates.ToArray();
-        }
-
-        private IEnumerable<Coordinates> CalculateFillForEllipse(IEnumerable<Coordinates> outlineCoordinates)
-        {
-            List<Coordinates> finalCoordinates = new List<Coordinates>();
-            int bottom = outlineCoordinates.Max(x => x.Y);
-            int top = outlineCoordinates.Min(x => x.Y);
-            for (int i = top + 1; i < bottom; i++)
-            {
-                IEnumerable<Coordinates> rowCords = outlineCoordinates.Where(x => x.Y == i);
-                int right = rowCords.Max(x => x.X);
-                int left = rowCords.Min(x => x.X);
-                for (int j = left + 1; j < right; j++)
-                {
-                    finalCoordinates.Add(new Coordinates(j, i));
-                }
-            }
-
-            return finalCoordinates;
         }
 
         private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)

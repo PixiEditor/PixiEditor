@@ -24,6 +24,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand DeleteLayersCommand { get; set; }
 
+        public RelayCommand DuplicateLayerCommand { get; set; }
+
         public RelayCommand RenameLayerCommand { get; set; }
 
         public RelayCommand RenameGroupCommand { get; set; }
@@ -46,6 +48,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             NewGroupCommand = new RelayCommand(NewGroup, CanCreateNewLayer);
             CreateGroupFromActiveLayersCommand = new RelayCommand(CreateGroupFromActiveLayers, CanCreateGroupFromSelected);
             DeleteLayersCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
+            DuplicateLayerCommand = new RelayCommand(DuplicateLayer, CanDuplicateLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
             RenameLayerCommand = new RelayCommand(RenameLayer);
@@ -188,6 +191,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public bool CanDeleteLayer(object property)
         {
             return Owner.BitmapManager.ActiveDocument != null && Owner.BitmapManager.ActiveDocument.Layers.Count > 1;
+        }
+
+        public void DuplicateLayer(object parameter)
+        {
+            Owner.BitmapManager.ActiveDocument.DuplicateLayer((int)parameter);
+        }
+
+        public bool CanDuplicateLayer(object property)
+        {
+            return Owner.BitmapManager.ActiveDocument != null;
         }
 
         public void RenameLayer(object parameter)

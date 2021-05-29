@@ -19,6 +19,8 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
+        private readonly RectangleTool rectangleTool = new RectangleTool();
+        private readonly CircleTool circleTool = new CircleTool();
         private IEnumerable<Coordinates> oldSelectedPoints;
 
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
@@ -52,14 +54,21 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(List<Coordinates> pixels)
         {
-            Select(pixels);
+            Select(pixels, Toolbar.GetEnumSetting<SelectionShape>("SelectShape").Value);
         }
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            RectangleTool rectangleTool = new RectangleTool();
             List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
             selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
+            return selection;
+        }
+
+        public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
+        {
+            DoubleCords fixedCoordinates = ShapeTool.CalculateCoordinatesForShapeRotation(start, end);
+            List<Coordinates> selection = circleTool.CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, 1).ToList();
+            selection.AddRange(circleTool.CalculateFillForEllipse(selection));
             return selection;
         }
 
@@ -81,9 +90,23 @@ namespace PixiEditor.Models.Tools.Tools
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
         }
 
-        private void Select(List<Coordinates> pixels)
+        private void Select(Coordinates[] pixels, SelectionShape shape)
         {
-            IEnumerable<Coordinates> selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
+            IEnumerable<Coordinates> selection;
+
+            if (shape == SelectionShape.Circle)
+            {
+                selection = GetCircleSelectionForPoints(pixels[^1], pixels[0]);
+            }
+            else if (shape == SelectionShape.Rectangle)
+            {
+                selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
+            }
+            else
+            {
+                throw new NotImplementedException($"Selection shape '{shape}' has not been implemented");
+            }
+
             ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
         }
     }

@@ -100,19 +100,14 @@ namespace PixiEditor.Models.ImageManipulation
         {
             var opacityLayers = document.Layers.Where(x => x.IsVisible && x.Opacity > 0.8f);
 
-            return GeneratePreviewBitmap(opacityLayers, document.Width, document.Height, maxPreviewWidth, maxPreviewHeight);
-        }
-
-        public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int width, int height, int maxPreviewWidth, int maxPreviewHeight)
-        {
             return GeneratePreviewBitmap(
-            layers.Select(x => x.LayerBitmap),
-            layers.Select(x => x.OffsetX),
-            layers.Select(x => x.OffsetY),
-            width,
-            height,
-            maxPreviewWidth,
-            maxPreviewHeight);
+                opacityLayers.Select(x => x.LayerBitmap),
+                opacityLayers.Select(x => x.OffsetX),
+                opacityLayers.Select(x => x.OffsetY),
+                document.Width,
+                document.Height,
+                maxPreviewWidth,
+                maxPreviewHeight);
         }
 
         public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<SerializableLayer> layers, int width, int height, int maxPreviewWidth, int maxPreviewHeight)

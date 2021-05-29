@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Layers;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -7,6 +9,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
+using SDColor = System.Drawing.Color;
 
 namespace PixiEditor.Helpers.Extensions
 {
@@ -18,26 +21,32 @@ namespace PixiEditor.Helpers.Extensions
             {
                 Layers = serializableDocument.ToLayers(),
                 Swatches = new ObservableCollection<Color>(serializableDocument.Swatches.Select(x =>
-                    Color.FromArgb(x.Item1, x.Item2, x.Item3, x.Item4)))
+                    Color.FromArgb(x.A, x.R, x.G, x.B)))
             };
 
-            //document.LayerStructure = new LayerStructure(ToGroups(serializableDocument), document);
+            if (document.Layers.Count > 0)
+            {
+                document.SetMainActiveLayer(0);
+            }
 
             return document;
         }
 
         public static ObservableCollection<Layer> ToLayers(this Parser.SerializableDocument serializableDocument)
         {
-            ObservableCollection<Layer> layers = new();
-            for (int i = 0; i < serializableDocument.Layers.Length; i++)
+            ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
+            for (int i = 0; i < serializableDocument.Layers.Count; i++)
             {
                 Parser.SerializableLayer serLayer = serializableDocument.Layers[i];
-                Layer layer = new(serLayer.Name, BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
-                {
-                    IsVisible = serLayer.IsVisible,
-                    Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),
-                    Opacity = serLayer.Opacity
-                };
+                Layer layer =
+                    new Layer(serLayer.Name, BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
+                    {
+                        IsVisible = serLayer.IsVisible,
+                        Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),
+                        Opacity = serLayer.Opacity,
+                        MaxHeight = serializableDocument.Height,
+                        MaxWidth = serializableDocument.Width,
+                    };
                 layers.Add(layer);
             }
 
@@ -77,9 +86,8 @@ namespace PixiEditor.Helpers.Extensions
             {
                 Width = document.Width,
                 Height = document.Height,
-                //Groups = document.LayerStructure.Groups.Select(x => x.ToSerializable()).ToArray(),
-                Layers = document.Layers.Select(x => x.ToSerializable()).ToArray(),
-                Swatches = document.Swatches.Select(x => new Tuple<byte, byte, byte, byte>(x.A, x.R, x.G, x.B)).ToArray()
+                Layers = document.Layers.Select(x => x.ToSerializable()).ToList(),
+                Swatches = document.Swatches.Select(x => SDColor.FromArgb(x.A, x.R, x.G, x.B)).ToList()
             };
 
             return serializable;

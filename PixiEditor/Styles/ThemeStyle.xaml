@@ -120,6 +120,25 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Button" x:Key="ToolSettingsGlyphButton"
+           BasedOn="{StaticResource BaseDarkButton}">
+        <Setter Property="TextBlock.FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="TextBlock.FontSize" Value="15"/>
+        <Setter Property="TextBlock.Width" Value="30"/>
+
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="True">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="White" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#FF515151" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Cursor" Value="Hand" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
 
     <Style TargetType="TextBox" x:Key="DarkTextBoxStyle">
         <Setter Property="Background" Value="#202020" />

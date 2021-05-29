@@ -6,7 +6,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Grid x:Name="LayoutRoot" Background="Transparent" Width="44" Height="30">
+                    <Grid x:Name="LayoutRoot" Background="Transparent" Width="44" Height="35">
                         <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets"
                                    FontSize="10"
                                    Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -43,4 +43,39 @@
         <Setter Property="Content" Value="&#xE106;" />
     </Style>
 
+    <Style x:Key="CaptionToggleButton" TargetType="ToggleButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid x:Name="LayoutRoot" Background="Transparent" Width="44" Height="35">
+                        <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   RenderOptions.ClearTypeHint="Auto" TextOptions.TextRenderingMode="Aliased"
+                                   TextOptions.TextFormattingMode="Display" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="LayoutRoot" Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="White" Opacity="0.1" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="LayoutRoot" Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="White" Opacity=".3"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PinToggleStyle" TargetType="ToggleButton" BasedOn="{StaticResource CaptionToggleButton}">
+        <Setter Property="Content" Value="&#xE840;"/>
+    </Style>
 </ResourceDictionary>

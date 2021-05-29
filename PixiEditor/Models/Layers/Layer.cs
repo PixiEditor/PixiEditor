@@ -1,14 +1,14 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Layers
 {
@@ -377,14 +377,14 @@ namespace PixiEditor.Models.Layers
 
             if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.A == 0))
             {
-                if (newMaxX + 1 > Width || newMaxY + 1 > Height)
+                if ((newMaxX + 1 > Width && Width < MaxWidth) || (newMaxY + 1 > Height && Height < MaxHeight))
                 {
-                    IncreaseSizeToBottom(newMaxX, newMaxY);
+                    IncreaseSizeToBottomAndRight(newMaxX, newMaxY);
                 }
 
-                if (newMinX < 0 || newMinY < 0)
+                if ((newMinX < 0 && Width < MaxWidth) || (newMinY < 0 && Height < MaxHeight))
                 {
-                    IncreaseSizeToTop(newMinX, newMinY);
+                    IncreaseSizeToTopAndLeft(newMinX, newMinY);
                 }
             }
 
@@ -503,7 +503,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void IncreaseSizeToBottom(int newMaxX, int newMaxY)
+        private void IncreaseSizeToBottomAndRight(int newMaxX, int newMaxY)
         {
             if (MaxWidth - OffsetX < 0 || MaxHeight - OffsetY < 0)
             {
@@ -516,7 +516,7 @@ namespace PixiEditor.Models.Layers
             ResizeCanvas(0, 0, 0, 0, newMaxX, newMaxY);
         }
 
-        private void IncreaseSizeToTop(int newMinX, int newMinY)
+        private void IncreaseSizeToTopAndLeft(int newMinX, int newMinY)
         {
             newMinX = Math.Clamp(Math.Min(newMinX, Width), Math.Min(-OffsetX, OffsetX), 0);
             newMinY = Math.Clamp(Math.Min(newMinY, Height), Math.Min(-OffsetY, OffsetY), 0);
@@ -548,8 +548,8 @@ namespace PixiEditor.Models.Layers
         {
             if (Width == 0 || Height == 0)
             {
-                int offsetX = pixels.ChangedPixels.Min(x => x.Key.X);
-                int offsetY = pixels.ChangedPixels.Min(x => x.Key.Y);
+                int offsetX = Math.Max(pixels.ChangedPixels.Min(x => x.Key.X), 0);
+                int offsetY = Math.Max(pixels.ChangedPixels.Min(x => x.Key.Y), 0);
                 Offset = new Thickness(offsetX, offsetY, 0, 0);
             }
         }

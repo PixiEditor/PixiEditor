@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels;
+using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Processes;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.UpdateModule;
-using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Diagnostics;
+using System.Linq;
+using PixiEditor.Views.Dialogs;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor
 {
@@ -20,28 +20,83 @@ namespace PixiEditor
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly ViewModelMain viewModel;
+        private static WriteableBitmap pixiEditorLogo;
+
+        private PreferencesSettings preferences;
+
+        public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
-            InitializeComponent();
+            preferences = new PreferencesSettings();
 
             IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IPreferences>(new PreferencesSettings());
+                .AddSingleton<IPreferences>(preferences)
+                .AddSingleton<StylusViewModel>()
+                .AddSingleton<WindowViewModel>();
 
             DataContext = new ViewModelMain(services.BuildServiceProvider());
 
+            InitializeComponent();
+
+            pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
+
             StateChanged += MainWindowStateChangeRaised;
+            Activated += MainWindow_Activated;
+
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
-            viewModel = (ViewModelMain)DataContext;
-            viewModel.CloseAction = Close;
             rawLayerAnchorable.IsVisible = viewModel.IsDebug;
+            DataContext.CloseAction = Close;
+            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            DataContext.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
+            preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
+            {
+                if (x)
+                {
+                    UpdateTaskbarIcon(DataContext.BitmapManager.ActiveDocument);
+                }
+                else
+                {
+                    UpdateTaskbarIcon(null);
+                }
+            });
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            ((ViewModelMain)DataContext).CloseWindow(e);
-            viewModel.DiscordViewModel.Dispose();
+            DataContext.CloseWindow(e);
+            DataContext.DiscordViewModel.Dispose();
+        }
+
+        [Conditional("RELEASE")]
+        private static void CloseHelloThereIfRelease()
+        {
+            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
+        }
+
+        private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+        {
+            if (preferences.GetPreference("ImagePreviewInTaskbar", false))
+            {
+                UpdateTaskbarIcon(e.NewDocument);
+            }
+        }
+
+        private void UpdateTaskbarIcon(Document document)
+        {
+            if (document?.PreviewImage == null)
+            {
+                Icon = pixiEditorLogo;
+                return;
+            }
+
+            var previewCopy = document.PreviewImage.Clone()
+                .Resize(512, 512, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+
+            previewCopy.Blit(new Rect(256, 256, 256, 256), pixiEditorLogo, new Rect(0, 0, 512, 512));
+
+            Icon = previewCopy;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -69,6 +124,11 @@ namespace PixiEditor
             SystemCommands.CloseWindow(this);
         }
 
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            CloseHelloThereIfRelease();
+        }
+
         private void MainWindowStateChangeRaised(object sender, EventArgs e)
         {
             if (WindowState == WindowState.Maximized)
@@ -86,75 +146,16 @@ namespace PixiEditor
         private void MainWindow_Initialized(object sender, EventArgs e)
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, e) => Helpers.CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
-#if RELEASE
-            CheckForDownloadedUpdates();
-#endif
         }
 
-        private void CheckForDownloadedUpdates()
+        private void MainWindow_Drop(object sender, DragEventArgs e)
         {
-            string dir = AppDomain.CurrentDomain.BaseDirectory;
-            UpdateDownloader.CreateTempDirectory();
-            bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
-            string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
-            bool updateExeExists = updateExeFiles.Length > 0;
-
-            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
-
-            if (updateZipExists || updateExeExists)
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-                var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
-                if (result == Models.Enums.ConfirmationType.Yes)
-                {
-                    if (updateZipExists && File.Exists(updaterPath))
-                    {
-                        InstallHeadless(updaterPath);
-                    }
-                    else if (updateExeExists)
-                    {
-                        OpenExeInstaller(updateExeFiles[0]);
-                    }
-                }
-            }
-        }
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-        private void InstallHeadless(string updaterPath)
-        {
-            try
-            {
-                ProcessHelper.RunAsAdmin(updaterPath);
-                Close();
+                DataContext.FileSubViewModel.Open(files[0]);
             }
-            catch (Win32Exception)
-            {
-                MessageBox.Show(
-                    "Couldn't update without administrator rights.",
-                    "Insufficient permissions",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
-        private void OpenExeInstaller(string updateExeFile)
-        {
-            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion() ==
-                    updateExeFile.Split('-')[1].Split(".exe")[0];
-
-            if (!alreadyUpdated)
-            {
-                RestartToUpdate(updateExeFile);
-            }
-            else
-            {
-                File.Delete(updateExeFile);
-            }
-        }
-
-        private void RestartToUpdate(string updateExeFile)
-        {
-            Process.Start(updateExeFile);
-            Close();
         }
     }
 }

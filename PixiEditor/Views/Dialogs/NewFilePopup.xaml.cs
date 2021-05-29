@@ -18,6 +18,7 @@ namespace PixiEditor.Views
         public NewFilePopup()
         {
             InitializeComponent();
+            Owner = Application.Current.MainWindow;
         }
 
         public int FileHeight

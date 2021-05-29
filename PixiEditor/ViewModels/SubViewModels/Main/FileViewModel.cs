@@ -13,6 +13,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Parser;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -30,6 +31,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand OpenRecentCommand { get; set; }
 
+        public RelayCommand RemoveRecentlyOpenedCommand { get; set; }
+
         public bool HasRecent
         {
             get => hasRecent;
@@ -40,7 +43,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public ObservableCollection<string> RecentlyOpened { get; set; } = new ObservableCollection<string>();
+        public RecentlyOpenedCollection RecentlyOpened { get; set; } = new RecentlyOpenedCollection();
 
         public FileViewModel(ViewModelMain owner)
             : base(owner)
@@ -50,13 +53,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             OpenFileCommand = new RelayCommand(Open);
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             OpenRecentCommand = new RelayCommand(OpenRecent);
+            RemoveRecentlyOpenedCommand = new RelayCommand(RemoveRecentlyOpened);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
-            RecentlyOpened = new ObservableCollection<string>(IPreferences.Current.GetLocalPreference<JArray>(nameof(RecentlyOpened), new JArray()).ToObject<string[]>());
+            RecentlyOpened = new RecentlyOpenedCollection(GetRecentlyOpenedDocuments());
 
             if (RecentlyOpened.Count > 0)
             {
                 HasRecent = true;
             }
+
+            IPreferences.Current.AddCallback("MaxOpenedRecently", UpdateMaxRecentlyOpened);
         }
 
         public void OpenRecent(object parameter)
@@ -82,6 +88,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Open((string)parameter);
         }
 
+        public void RemoveRecentlyOpened(object parameter)
+        {
+            if (RecentlyOpened.Contains((string)parameter))
+            {
+                RecentlyOpened.Remove((string)parameter);
+            }
+        }
+
         /// <summary>
         ///     Generates new Layer and sets it as active one.
         /// </summary>
@@ -93,6 +107,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 NewDocument(newFile.Width, newFile.Height);
             }
+        }
+
+        public void OpenHelloTherePopup()
+        {
+            new HelloTherePopup(this).Show();
         }
 
         public void NewDocument(int width, int height, bool addBaseLayer = true)
@@ -135,23 +154,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SaveDocument(parameter: asNew ? "asnew" : null);
         }
 
-        private void Owner_OnStartupEvent(object sender, System.EventArgs e)
+        public void OpenAny()
         {
-            var lastArg = Environment.GetCommandLineArgs().Last();
-            if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
-            {
-                Open(lastArg);
-            }
-            else
-            {
-                if (IPreferences.Current.GetPreference("ShowNewFilePopupOnStartup", true))
-                {
-                    OpenNewFilePopup(null);
-                }
-            }
+            Open((object)null);
         }
 
-        private void Open(string path)
+        public void Open(string path)
         {
             try
             {
@@ -168,22 +176,26 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             catch (CorruptedFileException ex)
             {
-                MessageBox.Show(ex.Message, "Failed to open file.", MessageBoxButton.OK, MessageBoxImage.Error);
+                NoticeDialog.Show(ex.Message, "Failed to open file.");
             }
             catch (OldFileFormatException)
             {
-                MessageBoxResult result = MessageBox.Show("This pixi file uses the old file format and is insecure.\nOnly continue if you trust the source of the file", "Old file format", MessageBoxButton.OKCancel);
+                NoticeDialog.Show("This .pixi file uses the old format,\n which is no longer supported and can't be opened.", "Old file format");
+            }
+        }
 
-                if (result == MessageBoxResult.OK)
+        private void Owner_OnStartupEvent(object sender, System.EventArgs e)
+        {
+            var lastArg = Environment.GetCommandLineArgs().Last();
+            if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
+            {
+                Open(lastArg);
+            }
+            else
+            {
+                if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
                 {
-                    try
-                    {
-                        OpenDocument(path, true);
-                    }
-                    catch (CorruptedFileException ex)
-                    {
-                        MessageBox.Show(ex.Message, "Failed to open file.", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    OpenHelloTherePopup();
                 }
             }
         }
@@ -192,9 +204,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             OpenFileDialog dialog = new OpenFileDialog
             {
-                Filter = "All Files|*.*|PixiEditor Files | *.pixi|PNG Files|*.png",
+                Filter =
+                "Any|*.pixi;*.png;*.jpg;*.jpeg;|" +
+                "PixiEditor Files | *.pixi|" +
+                "Image Files|*.png;*.jpg;*.jpeg;",
                 DefaultExt = "pixi"
             };
+
             if ((bool)dialog.ShowDialog())
             {
                 if (Importer.IsSupportedFile(dialog.FileName))
@@ -209,18 +225,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void OpenDocument(string path, bool openOld = false)
+        private void OpenDocument(string path)
         {
-            Document document;
-
-            if (openOld)
-            {
-                document = Importer.ImportOldDocument(path);
-            }
-            else
-            {
-                document = Importer.ImportDocument(path);
-            }
+            Document document = Importer.ImportDocument(path);
 
             if (Owner.BitmapManager.Documents.Select(x => x.DocumentFilePath).All(y => y != path))
             {
@@ -266,6 +273,40 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private bool CanSave(object property)
         {
             return Owner.BitmapManager.ActiveDocument != null;
+        }
+
+        private void UpdateMaxRecentlyOpened(object parameter)
+        {
+            int newAmount = (int)parameter;
+
+            if (newAmount >= RecentlyOpened.Count)
+            {
+                return;
+            }
+
+            var recentlyOpeneds = new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
+
+            RecentlyOpened.Clear();
+
+            foreach (var recent in recentlyOpeneds)
+            {
+                RecentlyOpened.Add(recent);
+            }
+        }
+
+        private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
+        {
+            var paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>()
+                .Take(IPreferences.Current.GetPreference("MaxOpenedRecently", 8));
+
+            List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
+
+            foreach (string path in paths)
+            {
+                documents.Add(new RecentlyOpenedDocument(path));
+            }
+
+            return documents;
         }
     }
 }

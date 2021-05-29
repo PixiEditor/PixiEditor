@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixiEditor.Views
 {
@@ -60,7 +52,7 @@ namespace PixiEditor.Views
                 Point currentLocation = Mouse.GetPosition(this);
 
                 // We want to rotate around the center of the knob, not the top corner
-                Point knobCenter = new Point(_width / 2, _height/ 2);
+                Point knobCenter = new Point(_width / 2, _height / 2);
 
                 // Calculate an angle
                 double radians = Math.Atan((currentLocation.Y - knobCenter.Y) /

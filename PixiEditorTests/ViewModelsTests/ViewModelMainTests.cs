@@ -34,7 +34,7 @@ namespace PixiEditorTests.ViewModelsTests
 
             Assert.NotNull(viewModel.ChangesController);
             Assert.NotNull(viewModel.ShortcutController);
-            Assert.NotEmpty(viewModel.ShortcutController.Shortcuts);
+            Assert.NotEmpty(viewModel.ShortcutController.ShortcutGroups);
             Assert.NotNull(viewModel.BitmapManager);
             Assert.Equal(viewModel, ViewModelMain.Current);
         }
