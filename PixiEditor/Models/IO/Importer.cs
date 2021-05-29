@@ -49,14 +49,13 @@ namespace PixiEditor.Models.IO
             }
         }
 
-        public static Document ImportDocument(string path)
+        public static SerializableDocument ImportSerializeDocument(string path)
         {
             FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
 
             try
             {
-                Document document = SDKHelper.FileParsers.CreateDocumentParser(Path.GetExtension(path), stream).Parse().ToDocument();
-                document.DocumentFilePath = path;
+                var document = SDKHelper.FileParsers.CreateDocumentParser(Path.GetExtension(path), stream).Parse();
 
                 return document;
             }
@@ -64,6 +63,14 @@ namespace PixiEditor.Models.IO
             {
                 throw new CorruptedFileException("Selected file is invalid or corrupted.", e);
             }
+        }
+
+        public static Document ImportDocument(string path)
+        {
+            Document document = ImportSerializeDocument(path).ToDocument();
+            document.DocumentFilePath = path;
+
+            return document;
         }
 
         public static bool IsSupportedFile(string path)

@@ -29,6 +29,10 @@ namespace PixiEditor.Helpers
                 return GetCurrentManager().Parsers.CreateImageParser(extension, stream);
             }
 
+            public static bool HasDocumentParser(string extension) => GetCurrentManager().Parsers.SupportedDocumentExtensions.Contains(extension);
+
+            public static bool HasImageParser(string extension) => GetCurrentManager().Parsers.SupportedImageExtensions.Contains(extension);
+
             public static string GetFileFilter()
             {
                 FileFilterBuilder builder = new FileFilterBuilder();

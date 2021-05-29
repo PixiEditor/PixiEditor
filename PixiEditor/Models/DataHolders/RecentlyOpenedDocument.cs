@@ -70,13 +70,13 @@ namespace PixiEditor.Models.DataHolders
 
         private WriteableBitmap LoadPreviewBitmap()
         {
-            if (FileExtension == ".pixi")
+            if (SDKHelper.FileParsers.HasDocumentParser(FileExtension))
             {
-                SerializableDocument serializableDocument = null;
+                SerializableDocument serializableDocument;
 
                 try
                 {
-                    serializableDocument = PixiParser.Deserialize(filePath);
+                    serializableDocument = Importer.ImportSerializeDocument(filePath);
                 }
                 catch
                 {
@@ -86,20 +86,16 @@ namespace PixiEditor.Models.DataHolders
 
                 return BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
             }
-            else if (FileExtension == ".png" || FileExtension == ".jpg" || FileExtension == ".jpeg")
+            else if (SDKHelper.FileParsers.HasImageParser(FileExtension))
             {
-                WriteableBitmap bitmap = null;
-
                 try
                 {
-                    bitmap = Importer.ImportImage(FilePath);
+                    return Importer.ImportImage(FilePath);
                 }
                 catch
                 {
                     corrupt = true;
                 }
-
-                return bitmap;
             }
 
             return null;
