@@ -16,7 +16,7 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatSaveAsPngSavesFile()
         {
-            Exporter.SaveAsPng(FilePath, 10, 10, BitmapFactory.New(10, 10));
+            Exporter.SaveAsImage(FilePath, 10, 10, BitmapFactory.New(10, 10));
             Assert.True(File.Exists(FilePath));
 
             File.Delete(FilePath);
@@ -34,7 +34,7 @@ namespace PixiEditorTests.ModelsTests.IO
 
             document.Swatches.Add(Colors.White);
 
-            Exporter.SaveAsEditableFile(document, filePath);
+            Exporter.SaveAsDocument(document, filePath);
 
             Assert.True(File.Exists(filePath));
 

@@ -22,6 +22,7 @@ namespace PixiEditor.Models.IO
         public static WriteableBitmap ImportImage(string path, int width, int height)
         {
             WriteableBitmap wbmp = ImportImage(path);
+
             if (wbmp.PixelWidth != width || wbmp.PixelHeight != height)
             {
                 return wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
@@ -36,45 +37,35 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path of image.</param>
         public static WriteableBitmap ImportImage(string path)
         {
+            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
             try
             {
-                Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = uri;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-
-                return BitmapFactory.ConvertToPbgra32Format(bitmap);
+                return SDKHelper.FileParsers.CreateImageParser(Path.GetExtension(path), stream).Parse();
             }
-            catch (NotSupportedException)
+            catch (Exception e)
             {
-                throw new CorruptedFileException();
-            }
-            catch (FileFormatException)
-            {
-                throw new CorruptedFileException();
+                throw new CorruptedFileException("Selected file is invalid or corrupted.", e);
             }
         }
 
         public static Document ImportDocument(string path)
         {
+            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
             try
             {
-                Document doc = PixiParser.Deserialize(path).ToDocument();
-                doc.DocumentFilePath = path;
-                return doc;
+                return SDKHelper.FileParsers.CreateDocumentParser(Path.GetExtension(path), stream).Parse().ToDocument();
             }
-            catch (InvalidFileException)
+            catch (Exception e)
             {
-                throw new CorruptedFileException();
+                throw new CorruptedFileException("Selected file is invalid or corrupted.", e);
             }
         }
 
         public static bool IsSupportedFile(string path)
         {
-            path = path.ToLower();
-            return path.EndsWith(".pixi") || path.EndsWith(".png") || path.EndsWith(".jpg") || path.EndsWith(".jpeg");
+            return SDKHelper.GetCurrentManager().SupportedFileExtensions.Contains(path);
         }
     }
 }

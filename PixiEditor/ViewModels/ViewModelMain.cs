@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +18,6 @@ using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels
 {
@@ -36,6 +35,8 @@ namespace PixiEditor.ViewModels
         public RelayCommand OnStartupCommand { get; set; }
 
         public RelayCommand CloseWindowCommand { get; set; }
+
+        public ExtensionViewModel ExtensionSubViewModel { get; set; }
 
         public FileViewModel FileSubViewModel { get; set; }
 
@@ -117,6 +118,8 @@ namespace PixiEditor.ViewModels
 #endif
         }
 
+        [UnsupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows7")]
         public ViewModelMain(IServiceProvider services)
         {
             Current = this;
@@ -156,6 +159,8 @@ namespace PixiEditor.ViewModels
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
+
+            ExtensionSubViewModel = new ExtensionViewModel(this);
 
             ShortcutController = new ShortcutController(
                     new ShortcutGroup(

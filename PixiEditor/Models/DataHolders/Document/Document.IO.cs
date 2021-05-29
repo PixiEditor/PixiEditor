@@ -36,7 +36,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void SaveWithDialog()
         {
-            bool savedSuccessfully = Exporter.SaveAsEditableFileWithDialog(this, out string path);
+            bool savedSuccessfully = Exporter.SaveAsDocumentWithDialog(this, out string path);
             DocumentFilePath = path;
             ChangesSaved = savedSuccessfully;
         }
@@ -48,7 +48,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void Save(string path)
         {
-            DocumentFilePath = Exporter.SaveAsEditableFile(this, path);
+            DocumentFilePath = Exporter.SaveAsDocument(this, path);
             ChangesSaved = true;
         }
 

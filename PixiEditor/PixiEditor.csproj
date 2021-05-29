@@ -184,6 +184,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.SDK\PixiEditor.SDK.csproj" />
     <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
   </ItemGroup>
   <ItemGroup>

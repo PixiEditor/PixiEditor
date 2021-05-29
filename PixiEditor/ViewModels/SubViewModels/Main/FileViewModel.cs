@@ -265,7 +265,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void ExportFile(object parameter)
         {
             WriteableBitmap bitmap = Owner.BitmapManager.GetCombinedLayersBitmap();
-            Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
+            Exporter.SaveAsImage(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
         }
 
         /// <summary>

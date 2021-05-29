@@ -1,12 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Parser;
+using PixiEditor.SDK;
 
 namespace PixiEditor.Models.IO
 {
@@ -17,16 +20,36 @@ namespace PixiEditor.Models.IO
         /// </summary>
         /// <param name="document">Document to save.</param>
         /// <param name="path">Path where file was saved.</param>
-        public static bool SaveAsEditableFileWithDialog(Document document, out string path)
+        public static bool SaveAsDocumentWithDialog(Document document, out string path)
         {
+            StringBuilder filter = new StringBuilder();
+
+            foreach (Extension extension in SDKHelper.GetCurrentManager().Extensions)
+            {
+                if (filter.Length != 0)
+                {
+                    filter.Append('|');
+                }
+
+                filter.Append(extension.DisplayName);
+                filter.Append('|');
+
+                foreach (string ext in extension.SupportedDocumentFileExtensions)
+                {
+                    filter.Append('*');
+                    filter.Append(ext);
+                    filter.Append(';');
+                }
+            }
+
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = "PixiEditor Files | *.pixi",
-                DefaultExt = "pixi"
+                Filter = filter.ToString(),
+                DefaultExt = ".pixi"
             };
             if ((bool)dialog.ShowDialog())
             {
-                path = SaveAsEditableFile(document, dialog.FileName);
+                path = SaveAsDocument(document, dialog.FileName);
                 return true;
             }
 
@@ -40,7 +63,7 @@ namespace PixiEditor.Models.IO
         /// <param name="document">Document to be saved.</param>
         /// <param name="path">Path where to save file.</param>
         /// <returns>Path.</returns>
-        public static string SaveAsEditableFile(Document document, string path)
+        public static string SaveAsDocument(Document document, string path)
         {
             PixiParser.Serialize(document.ToSerializable(), path);
             return path;
@@ -51,8 +74,28 @@ namespace PixiEditor.Models.IO
         /// </summary>
         /// <param name="bitmap">Bitmap to be saved as file.</param>
         /// <param name="fileDimensions">Size of file.</param>
-        public static void Export(WriteableBitmap bitmap, Size fileDimensions)
+        public static void SaveAsImage(WriteableBitmap bitmap, Size fileDimensions)
         {
+            StringBuilder filter = new StringBuilder();
+
+            foreach (Extension extension in SDKHelper.GetCurrentManager().Extensions)
+            {
+                if (filter.Length != 0)
+                {
+                    filter.Append('|');
+                }
+
+                filter.Append(extension.DisplayName);
+                filter.Append('|');
+
+                foreach (string ext in extension.SupportedImageFileExtensions)
+                {
+                    filter.Append('*');
+                    filter.Append(ext);
+                    filter.Append(';');
+                }
+            }
+
             ExportFileDialog info = new ExportFileDialog(fileDimensions);
 
             // If OK on dialog has been clicked
@@ -65,7 +108,7 @@ namespace PixiEditor.Models.IO
                     return;
                 }
 
-                SaveAsPng(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+                SaveAsImage(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
             }
         }
 
@@ -76,7 +119,7 @@ namespace PixiEditor.Models.IO
         /// <param name="exportWidth">File width.</param>
         /// <param name="exportHeight">File height.</param>
         /// <param name="bitmap">Bitmap to save.</param>
-        public static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+        public static void SaveAsImage(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try
             {

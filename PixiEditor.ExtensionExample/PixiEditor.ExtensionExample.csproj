@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows7</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /Y /B $(TargetPath) /B %25LocalAppData%25\PixiEditor\Extensions\$(TargetFileName)" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.SDK\PixiEditor.SDK.csproj" />
+  </ItemGroup>
+
+</Project>
