@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -89,6 +90,35 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
+        private void HandleGroupOpacityChange(GuidStructureItem group, float value)
+        {
+            if (LayerCommandsViewModel.Owner?.BitmapManager?.ActiveDocument != null)
+            {
+                var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
+
+                var processArgs = new object[] { group.GroupGuid, value };
+                var reverseProcessArgs = new object[] { group.GroupGuid, group.Opacity };
+
+                ChangeGroupOpacityProcess(processArgs);
+
+                doc.UndoManager.AddUndoChange(
+                new Change(
+                    ChangeGroupOpacityProcess,
+                    reverseProcessArgs,
+                    ChangeGroupOpacityProcess,
+                    processArgs,
+                    $"Change {group.Name} opacity"), false);
+            }
+        }
+
+        private void ChangeGroupOpacityProcess(object[] processArgs)
+        {
+            if (processArgs.Length > 0 && processArgs[0] is Guid groupGuid && processArgs[1] is float opacity)
+            {
+                LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(groupGuid).Opacity = opacity;
+            }
+        }
+
         private void LayerGroup_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
@@ -110,13 +140,13 @@ namespace PixiEditor.Views.UserControls
 
             if (item is Layer layer)
             {
-                layer.Opacity = val;
+                layer.OpacityUndoTriggerable = val;
             }
             else if(item is LayerGroup group)
             {
                 LayerStructure structure = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure;
                 var groupData = structure.GetGroupByGuid(group.GroupGuid);
-                groupData.Opacity = val;
+                HandleGroupOpacityChange(groupData, val);
 
                 var layers = structure.GetGroupLayers(groupData);
                 layers.ForEach(x => x.Opacity = x.Opacity); // This might seems stupid, but it raises property changed, without setting any value. This is used to trigger converters that use group opacity
