@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
         
         <Viewbox Margin="30" VerticalAlignment="Top">
-            <Grid x:Name="imageGrid"
+            <Grid x:Name="imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor"
               Visibility="{Binding Document, Converter={StaticResource NullToVisibiltyConverter}, ElementName=uc}"
               Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
               Background="{Binding SelectedItem.Tag, ElementName=backgroundComboBox}" d:Width="8" d:Height="8">
@@ -95,7 +95,7 @@
                     </ComboBoxItem>
                     <ComboBoxItem Content="Checkered">
                         <ComboBoxItem.Tag>
-                            <ImageBrush ImageSource="/Images/transparentbg.png"/>
+                            <ImageBrush Viewport="0, 0, 0.05, 0.05" ImageSource="/Images/CheckerTile.png" TileMode="Tile" Stretch="Uniform"/>
                         </ComboBoxItem.Tag>
                     </ComboBoxItem>
                     <ComboBoxItem Content="Black">

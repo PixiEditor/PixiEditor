@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
@@ -31,32 +29,6 @@ namespace PixiEditor.Views.UserControls
                 typeof(ObservableCollection<object>),
                 typeof(LayersManager),
                 new PropertyMetadata(default(ObservableCollection<object>), ItemsChanged));
-
-        private static void ItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var items = (ObservableCollection<object>)e.NewValue;
-            LayersManager manager = (LayersManager)d;
-            if (items != null && items.Count > 0 && (e.OldValue == null || ((ObservableCollection<object>)e.OldValue).Count == 0))
-            {
-                var item = items[0];
-                manager.cachedItem = item;
-                var numberInput = manager.numberInput;
-                SetInputOpacity(item, numberInput);
-            }
-        }
-
-        private static void SetInputOpacity(object item, NumberInput numberInput)
-        {
-            if (item is Layer layer)
-            {
-                numberInput.Value = layer.Opacity * 100f;
-            }
-            else if (item is LayerGroup group)
-            {
-                numberInput.Value = group.StructureData.Opacity * 100f;
-            }
-        }
-
         public LayersViewModel LayerCommandsViewModel
         {
             get { return (LayersViewModel)GetValue(LayerCommandsViewModelProperty); }
@@ -90,6 +62,34 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
+        private static void ItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var items = (ObservableCollection<object>)e.NewValue;
+            LayersManager manager = (LayersManager)d;
+            var numberInput = manager.numberInput;
+            object item = manager.treeView.SelectedItem;
+            if (items != null && items.Count > 0 && (e.OldValue == null || ((ObservableCollection<object>)e.OldValue).Count == 0))
+            {
+                item = items[0];
+                manager.cachedItem = item;
+            }
+
+            SetInputOpacity(item, numberInput);
+        }
+
+        private static void SetInputOpacity(object item, NumberInput numberInput)
+        {
+            if (item is Layer layer)
+            {
+                numberInput.Value = layer.Opacity * 100f;
+            }
+            else if (item is LayerGroup group)
+            {
+                numberInput.Value = group.StructureData.Opacity * 100f;
+            }
+        }
+
+
         private void HandleGroupOpacityChange(LayerGroup group, float value)
         {
             if (LayerCommandsViewModel.Owner?.BitmapManager?.ActiveDocument != null)
@@ -120,6 +120,7 @@ namespace PixiEditor.Views.UserControls
                 group.Opacity = opacity;
                 var layers = structure.GetGroupLayers(group);
                 layers.ForEach(x => x.Opacity = x.Opacity); // This might seems stupid, but it raises property changed, without setting any value. This is used to trigger converters that use group opacity
+                numberInput.Value = opacity * 100;
             }
         }
 
@@ -144,11 +145,28 @@ namespace PixiEditor.Views.UserControls
 
             if (item is Layer layer)
             {
+                float oldOpacity = layer.Opacity;
                 layer.OpacityUndoTriggerable = val;
+                UndoManager undoManager = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.UndoManager;
+                undoManager.AddUndoChange(
+                    new Change(
+                        UpdateNumberInputLayerOpacityProcess,
+                        new object[] { oldOpacity },
+                        UpdateNumberInputLayerOpacityProcess,
+                        new object[] { val }));
+                undoManager.SquashUndoChanges(2);
             }
             else if(item is LayerGroup group)
             {
                 HandleGroupOpacityChange(group, val);
+            }
+        }
+
+        private void UpdateNumberInputLayerOpacityProcess(object[] args)
+        {
+            if(args.Length > 0 && args[0] is float opacity)
+            {
+                numberInput.Value = opacity * 100;
             }
         }
 
