@@ -17,6 +17,8 @@ namespace PixiEditor.SDK
 
         public abstract Version Version { get; }
 
+        public Preferences Preferences { get; internal set; }
+
         internal List<string> SupportedDocumentFileExtensions { get; set; } = new List<string>();
 
         internal List<string> SupportedImageFileExtensions { get; set; } = new List<string>();

@@ -27,7 +27,7 @@ namespace PixiEditor.SDK
                 Directory.CreateDirectory(extensionLocation);
             }
 
-            foreach (string path in Directory.EnumerateFiles(extensionLocation, "*.dll"))
+            foreach (string path in Directory.GetFiles(extensionLocation, "*.dll", SearchOption.AllDirectories))
             {
                 try
                 {
@@ -65,6 +65,8 @@ namespace PixiEditor.SDK
             {
                 try
                 {
+                    extension.Preferences = new Preferences(extension);
+
                     ExtensionLoadingInformation information = new(extension);
                     extension.Load(information);
 

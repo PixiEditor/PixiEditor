@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.UserPreferences
@@ -134,19 +135,7 @@ namespace PixiEditor.Models.UserPreferences
                 Init();
             }
 
-            try
-            {
-                return Preferences.ContainsKey(name)
-                        ? (T)Convert.ChangeType(Preferences[name], typeof(T))
-                        : fallbackValue;
-            }
-            catch (InvalidCastException)
-            {
-                Preferences.Remove(name);
-                Save();
-
-                return fallbackValue;
-            }
+            return GetValueFromDictionary(Preferences, name, fallbackValue);
         }
 
         public T? GetLocalPreference<T>(string name)
@@ -161,15 +150,40 @@ namespace PixiEditor.Models.UserPreferences
                 Init();
             }
 
+            return GetValueFromDictionary(LocalPreferences, name, fallbackValue);
+        }
+
+        private T? GetValueFromDictionary<T>(Dictionary<string, object> preferences, string name, T? fallbackValue)
+        {
+            if (!preferences.ContainsKey(name))
+            {
+                return fallbackValue;
+            }
+
+            object value = preferences[name];
+
+            if (value is JObject obj)
+            {
+                try
+                {
+                    return obj.ToObject<T>();
+                }
+                catch
+                {
+                    preferences.Remove(name);
+                    Save();
+
+                    return fallbackValue;
+                }
+            }
+
             try
             {
-                return LocalPreferences.ContainsKey(name)
-                    ? (T)Convert.ChangeType(LocalPreferences[name], typeof(T))
-                    : fallbackValue;
+                return (T)Convert.ChangeType(value, typeof(T));
             }
             catch (InvalidCastException)
             {
-                LocalPreferences.Remove(name);
+                preferences.Remove(name);
                 Save();
 
                 return fallbackValue;

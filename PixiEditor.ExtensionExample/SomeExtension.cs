@@ -20,6 +20,11 @@ namespace PixiEditor.ExtensionExample
 
         public override void Load(ExtensionLoadingInformation information)
         {
+            if (Preferences.GetLocalPreference("Test", true))
+            {
+                Preferences.UpdateLocalPreference("Test", false);
+            }
+
             information
                 .AddDocumentParser<ExampleDocumentParser>();
         }

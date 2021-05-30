@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y /B $(TargetPath) /B %25LocalAppData%25\PixiEditor\Extensions\$(TargetFileName)" />
+    <Exec Command="echo F|xcopy $(TargetPath) %25LocalAppData%25\PixiEditor\Extensions\$(TargetName)\$(TargetFileName) /y" />
   </Target>
 
   <ItemGroup>

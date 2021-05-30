@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,7 @@ namespace PixiEditor.SDK
         internal static void Init(Action<Extension, string, object, PreferenceStorageLocation> savePreference, Func<Extension, string, PreferenceStorageLocation, object> loadPreference)
         {
             SavePreferenceCallback = savePreference;
+            LoadPreferenceCallback = loadPreference;
         }
 
         internal Preferences(Extension extension)
@@ -111,34 +113,38 @@ namespace PixiEditor.SDK
             return GetLocalPreference(name, default(T));
         }
 
-        public T? GetPreference<T>(string name, T? fallbackValue)
-        {
-            T? obj = (T?)Convert.ChangeType(LoadPreferenceCallback(Extension, name, PreferenceStorageLocation.Roaming), typeof(T));
-
-            if (obj == null)
-            {
-                return fallbackValue;
-            }
-
-            return obj;
-        }
+        public T? GetPreference<T>(string name, T? fallbackValue) =>
+            GetPreference(name, fallbackValue, PreferenceStorageLocation.Roaming);
 
         public T? GetLocalPreference<T>(string name)
         {
             return GetLocalPreference(name, default(T));
         }
 
-        public T? GetLocalPreference<T>(string name, T? fallbackValue)
-        {
-            T? obj = (T?)Convert.ChangeType(LoadPreferenceCallback(Extension, name, PreferenceStorageLocation.Local), typeof(T));
+        public T? GetLocalPreference<T>(string name, T? fallbackValue) => 
+            GetPreference(name, fallbackValue, PreferenceStorageLocation.Local);
 
-            if (obj == null)
+        private T? GetPreference<T>(string name, T? fallbackValue, PreferenceStorageLocation location)
+        {
+            object value;
+
+            try
+            {
+                value = LoadPreferenceCallback(Extension, name, location);
+            }
+            catch (KeyNotFoundException)
             {
                 return fallbackValue;
             }
 
-            return obj;
+            if (value is JObject jObj)
+            {
+                return jObj.ToObject<T>();
+            }
+            else
+            {
+                return (T?)Convert.ChangeType(value, typeof(T));
+            }
         }
-
     }
 }
