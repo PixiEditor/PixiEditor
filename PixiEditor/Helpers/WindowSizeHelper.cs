@@ -7,6 +7,8 @@ namespace PixiEditor.Helpers
     {
         public static IntPtr SetMaxSizeHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
+            // All windows messages (msg) can be found here
+            // https://docs.microsoft.com/de-de/windows/win32/winmsg/window-notifications
             if (msg == WM_GETMINMAXINFO)
             {
                 // We need to tell the system what our size should be when maximized. Otherwise it will

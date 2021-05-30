@@ -18,8 +18,7 @@
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         AllowDrop="True" Drop="MainWindow_Drop">
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="35"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+        <WindowChrome CaptionHeight="35" x:Name="windowsChrome"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>

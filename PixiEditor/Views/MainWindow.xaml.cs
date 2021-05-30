@@ -41,7 +41,8 @@ namespace PixiEditor
 
             pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
-            StateChanged += MainWindowStateChangeRaised;
+            UpdateWindowChromeBorderThickness();
+            StateChanged += MainWindow_StateChanged;
             Activated += MainWindow_Activated;
 
             DataContext.CloseAction = Close;
@@ -133,8 +134,22 @@ namespace PixiEditor
             CloseHelloThereIfRelease();
         }
 
-        private void MainWindowStateChangeRaised(object sender, EventArgs e)
+        private void UpdateWindowChromeBorderThickness()
         {
+            if (WindowState == WindowState.Maximized)
+            {
+                windowsChrome.ResizeBorderThickness = new Thickness(0, 0, 0, 0);
+            }
+            else
+            {
+                windowsChrome.ResizeBorderThickness = new Thickness(5, 5, 5, 5);
+            }
+        }
+
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            UpdateWindowChromeBorderThickness();
+
             if (WindowState == WindowState.Maximized)
             {
                 RestoreButton.Visibility = Visibility.Visible;
