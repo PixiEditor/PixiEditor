@@ -9,9 +9,9 @@ using PixiEditor.ViewModels.SubViewModels.Main;
 using System.Diagnostics;
 using System.Linq;
 using PixiEditor.Views.Dialogs;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
+using System.Windows.Interop;
 
 namespace PixiEditor
 {
@@ -44,7 +44,6 @@ namespace PixiEditor
             StateChanged += MainWindowStateChangeRaised;
             Activated += MainWindow_Activated;
 
-            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
@@ -66,6 +65,12 @@ namespace PixiEditor
         {
             DataContext.CloseWindow(e);
             DataContext.DiscordViewModel.Dispose();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            ((HwndSource)PresentationSource.FromVisual(this)).AddHook(Helpers.WindowSizeHelper.SetMaxSizeHook);
         }
 
         [Conditional("RELEASE")]
