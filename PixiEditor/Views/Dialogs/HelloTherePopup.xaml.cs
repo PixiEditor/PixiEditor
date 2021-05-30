@@ -83,20 +83,23 @@ namespace PixiEditor.Views.Dialogs
 
         private void OpenFile(object parameter)
         {
+            Application.Current.MainWindow.Activate();
             Close();
             FileViewModel.OpenAny();
         }
 
         private void OpenNewFile(object parameter)
         {
+            Application.Current.MainWindow.Activate();
             Close();
             FileViewModel.OpenNewFilePopup(parameter);
         }
 
         private void OpenRecent(object parameter)
         {
-            FileViewModel.OpenRecent(parameter);
+            Application.Current.MainWindow.Activate();
             Close();
+            FileViewModel.OpenRecent(parameter);
         }
     }
 }
