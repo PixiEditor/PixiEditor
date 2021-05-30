@@ -160,7 +160,7 @@
                     <MenuItem Header="_Open Install Location"  Command="{Binding DebugSubViewModel.OpenInstallLocationCommand}"/>
                 </MenuItem>
             </Menu>
-            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal"
+            <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,-5,-5,0"
                         HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True"
                         ToolTip="Minimize"
