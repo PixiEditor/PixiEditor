@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace PixiEditor.SDK
 {
-    [DebuggerDisplay("{DisplayName} ({Name})")]
+    [DebuggerDisplay("{DisplayName,nq} ({Name,nq})")]
     public abstract class Extension
     {
         public abstract string Name { get; }
