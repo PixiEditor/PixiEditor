@@ -153,6 +153,9 @@
                     <MenuItem Header="_Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
                 </MenuItem>
+                <MenuItem Header="_Extensions">
+                    <MenuItem Header="_Manage Extensions" Command="{Binding ExtensionSubViewModel.OpenExtensionsWindowCommand}"/>
+                </MenuItem>
                 <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
                     <MenuItem Header="_Open Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
                               CommandParameter="%LocalAppData%/PixiEditor"/>

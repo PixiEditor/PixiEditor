@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Windows;
+using System.Windows.Media;
 
 namespace PixiEditor.SDK
 {
@@ -12,6 +16,10 @@ namespace PixiEditor.SDK
         public abstract string DisplayName { get; }
 
         public abstract string Description { get; }
+
+        public abstract FrameworkElement ExtensionPage { get; }
+
+        public abstract ImageSource Icon { get; }
 
         public string ExtensionPath { get; internal set; }
 
@@ -26,5 +34,11 @@ namespace PixiEditor.SDK
         public abstract bool IsVersionSupported(Version pixiEditorVersion);
 
         public abstract void Load(ExtensionLoadingInformation information);
+
+        protected static ImageSource LoadImageFromResource(string path)
+        {
+            var assemblyName = Assembly.GetCallingAssembly().GetName();
+            return new ImageSourceConverter().ConvertFromString(Path.Join($"pack://application:,,,/{assemblyName.Name};component/", path)) as ImageSource;
+        }
     }
 }

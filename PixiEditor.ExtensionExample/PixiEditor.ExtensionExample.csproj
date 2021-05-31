@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows7</TargetFramework>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,7 +15,15 @@
   </Target>
 
   <ItemGroup>
+    <None Remove="PixiExampleLogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PixiEditor.SDK\PixiEditor.SDK.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="PixiExampleLogo.png" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,11 @@
-﻿using PixiEditor.Models;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.SDK;
+using PixiEditor.Views.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -10,6 +13,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
     public class ExtensionViewModel : SubViewModel<ViewModelMain>
     {
         internal SDKManager SDKManager { get; set; }
+
+        public RelayCommand OpenExtensionsWindowCommand { get; set; }
+
+        public ReadOnlyCollection<Extension> Extensions => new ReadOnlyCollection<Extension>(SDKManager.Extensions);
 
         public ExtensionViewModel(ViewModelMain owner)
             : base(owner)
@@ -24,6 +31,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SDKManager.LoadExtensions(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixiEditor", "Extensions"));
             SDKManager.SetupExtensions();
 
+            OpenExtensionsWindowCommand = new RelayCommand(OpenExtensionsWindow);
+        }
+
+        public void OpenExtensionsWindow() => OpenExtensionsWindow(null);
+
+        private void OpenExtensionsWindow(object param)
+        {
+            ExtensionWindow window = new ExtensionWindow(this);
+            window.Show();
         }
 
         private void SavePreference(Extension ext, string name, object obj, PreferenceStorageLocation location)

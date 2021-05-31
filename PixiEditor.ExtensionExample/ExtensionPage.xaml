@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="PixiEditor.ExtensionExample.ExtensionPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.ExtensionExample"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel>
+        <TextBlock>This is a example extension, showing off how to make your own extension.</TextBlock>
+        <Grid Height="20"/>
+        <TextBlock>This in particular is the extension page.</TextBlock>
+        <TextBlock>You can make your own extension page by creating a new user control, and setting it as the extension page in your extension</TextBlock>
+    </StackPanel>
+</UserControl>
