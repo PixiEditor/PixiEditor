@@ -55,14 +55,6 @@ namespace PixiEditor.Views.UserControls
             InitializeComponent();
         }
 
-        private void LayerStructureItemContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            if (sender is LayerStructureItemContainer container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
-            {
-                DragDrop.DoDragDrop(container, container, DragDropEffects.Move);
-            }
-        }
-
         private static void ItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var items = (ObservableCollection<object>)e.NewValue;
@@ -90,6 +82,13 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
+        private void LayerStructureItemContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (sender is LayerStructureItemContainer container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                DragDrop.DoDragDrop(container, container, DragDropEffects.Move);
+            }
+        }
 
         private void HandleGroupOpacityChange(LayerGroup group, float value)
         {

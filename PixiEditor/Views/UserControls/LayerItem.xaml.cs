@@ -63,7 +63,7 @@ namespace PixiEditor.Views
 
         public string LayerName
         {
-            get { return (string) GetValue(LayerNameProperty); }
+            get { return (string)GetValue(LayerNameProperty); }
             set { SetValue(LayerNameProperty, value); }
         }
 

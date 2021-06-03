@@ -70,10 +70,7 @@ namespace PixiEditor.Models.Layers
         public bool IsRenaming
         {
             get => isRenaming;
-            set
-            {
-                SetProperty(ref isRenaming, value);
-            }
+            set => SetProperty(ref isRenaming, value);
         }
 
         private bool isVisible = true;
@@ -81,10 +78,7 @@ namespace PixiEditor.Models.Layers
         public bool IsVisible
         {
             get => isVisible;
-            set
-            {
-                SetProperty(ref isVisible, value);
-            }
+            set => SetProperty(ref isVisible, value);
         }
 
         private float opacity = 1;

@@ -5,11 +5,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 using SDColor = System.Drawing.Color;
+using PixiEditor.Parser.Models;
+using System;
 
 namespace PixiEditor.Helpers.Extensions
 {
@@ -24,6 +23,8 @@ namespace PixiEditor.Helpers.Extensions
                     Color.FromArgb(x.A, x.R, x.G, x.B)))
             };
 
+            document.LayerStructure.Groups = serializableDocument.ToGroups();
+
             if (document.Layers.Count > 0)
             {
                 document.SetMainActiveLayer(0);
@@ -32,7 +33,40 @@ namespace PixiEditor.Helpers.Extensions
             return document;
         }
 
-        public static ObservableCollection<Layer> ToLayers(this Parser.SerializableDocument serializableDocument)
+        public static ObservableCollection<GuidStructureItem> ToGroups(this SerializableDocument serializableDocument)
+        {
+            return ToGroups(serializableDocument.Groups);
+        }
+
+        private static ObservableCollection<GuidStructureItem> ToGroups(SerializableGuidStructureItem[] serializableGroups)
+        {
+            ObservableCollection<GuidStructureItem> groups = new ObservableCollection<GuidStructureItem>();
+
+            if (serializableGroups == null)
+            {
+                return groups;
+            }
+
+            foreach (var serializableGroup in serializableGroups)
+            {
+                groups.Add(ToGroup(serializableGroup));
+            }
+            return groups;
+        }
+
+        private static GuidStructureItem ToGroup(SerializableGuidStructureItem group)
+        {
+            if (group == null) return null;
+            return new GuidStructureItem(
+                    group.Name,
+                    group.StartLayerGuid,
+                    group.EndLayerGuid,
+                    ToGroups(group.Subgroups),
+                    ToGroup(group.Parent))
+                    { Opacity = group.Opacity, IsVisible = group.IsVisible, GroupGuid = group.GroupGuid };
+        }
+
+        public static ObservableCollection<Layer> ToLayers(this SerializableDocument serializableDocument)
         {
             ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
             for (int i = 0; i < serializableDocument.Layers.Count; i++)
@@ -47,38 +81,15 @@ namespace PixiEditor.Helpers.Extensions
                         MaxHeight = serializableDocument.Height,
                         MaxWidth = serializableDocument.Width,
                     };
+                if (serLayer.LayerGuid != Guid.Empty)
+                {
+                    layer.ChangeGuid(serLayer.LayerGuid);
+                }
                 layers.Add(layer);
             }
 
             return layers;
         }
-
-        /*public static ObservableCollection<GuidStructureItem> ToGroups(this Parser.SerializableDocument serializableDocument)
-        {
-            return ToGroups(serializableDocument.Groups);
-        }
-
-        private static ObservableCollection<GuidStructureItem> ToGroups(SerializableGuidStructureItem[] items)
-        {
-            ObservableCollection<GuidStructureItem> groups = new();
-
-            for (int i = 0; i < items.Length; i++)
-            {
-                SerializableGuidStructureItem item = items[i];
-                groups.Add(ToGroup(item));
-            }
-            return groups;
-        }
-
-        private static GuidStructureItem ToGroup(SerializableGuidStructureItem item)
-        {
-            return new GuidStructureItem(
-                item.Name,
-                item.StartLayerGuid,
-                item.EndLayerGuid,
-                ToGroups(item.Subgroups),
-                ToGroup(item.Parent));
-        }*/
 
         public static SerializableDocument ToSerializable(this Document document)
         {
@@ -87,13 +98,14 @@ namespace PixiEditor.Helpers.Extensions
                 Width = document.Width,
                 Height = document.Height,
                 Layers = document.Layers.Select(x => x.ToSerializable()).ToList(),
+                Groups = document.LayerStructure.Groups.Select(x => x.ToSerializable()).ToArray(),
                 Swatches = document.Swatches.Select(x => SDColor.FromArgb(x.A, x.R, x.G, x.B)).ToList()
             };
 
             return serializable;
         }
 
-        /*public static SerializableGuidStructureItem ToSerializable(this GuidStructureItem group)
+        public static SerializableGuidStructureItem ToSerializable(this GuidStructureItem group)
         {
             return new(
                     group.GroupGuid,
@@ -101,13 +113,14 @@ namespace PixiEditor.Helpers.Extensions
                     group.StartLayerGuid,
                     group.EndLayerGuid,
                     group.Subgroups.Select(x => x.ToSerializable()).ToArray(),
-                    group.Parent?.ToSerializable());
-        }*/
+                    group.Parent?.ToSerializable(), group.IsVisible, group.Opacity);
+        }
 
         public static Parser.SerializableLayer ToSerializable(this Layer layer)
         {
             Parser.SerializableLayer serializable = new Parser.SerializableLayer
             {
+                LayerGuid = layer.LayerGuid,
                 Name = layer.Name,
                 Width = layer.Width,
                 Height = layer.Height,
