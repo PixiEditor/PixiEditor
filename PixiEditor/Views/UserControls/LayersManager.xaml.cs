@@ -14,7 +14,7 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayersManager : UserControl
     {
-        private object cachedItem = null;
+        private object cachedItem;
 
         public ObservableCollection<object> LayerTreeRoot
         {
@@ -173,6 +173,18 @@ namespace PixiEditor.Views.UserControls
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             SetInputOpacity(treeView.SelectedItem, numberInput);
+        }
+
+        private void TreeView_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ClickCount > 1)
+            {
+                if(sender is TreeView treeView && treeView.SelectedItem is LayerGroup group)
+                {
+                    group.StructureData.IsRenaming = true;
+                    e.Handled = true;
+                }
+            }
         }
     }
 }

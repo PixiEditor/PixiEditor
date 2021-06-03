@@ -57,7 +57,7 @@
             </StackPanel>
         </DockPanel>
         <Separator Grid.Row="1" Margin="0,-12, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
-        <TreeView Name="treeView" Grid.Row="2" Margin="0, -12, 0, 0" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
+        <TreeView TreeViewItem.PreviewMouseLeftButtonDown="TreeView_PreviewMouseLeftButtonDown"  Name="treeView" Grid.Row="2" Margin="0, -12, 0, 0" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
