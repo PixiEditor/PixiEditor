@@ -156,7 +156,7 @@ namespace PixiEditor.Views.UserControls
                         new object[] { val }));
                 undoManager.SquashUndoChanges(2);
             }
-            else if(item is LayerGroup group)
+            else if (item is LayerGroup group)
             {
                 HandleGroupOpacityChange(group, val);
             }
@@ -164,7 +164,7 @@ namespace PixiEditor.Views.UserControls
 
         private void UpdateNumberInputLayerOpacityProcess(object[] args)
         {
-            if(args.Length > 0 && args[0] is float opacity)
+            if (args.Length > 0 && args[0] is float opacity)
             {
                 numberInput.Value = opacity * 100;
             }
@@ -179,12 +179,17 @@ namespace PixiEditor.Views.UserControls
         {
             if (e.ClickCount > 1)
             {
-                if(sender is TreeView treeView && treeView.SelectedItem is LayerGroup group)
+                if (sender is TreeView treeView && treeView.SelectedItem is LayerGroup group)
                 {
                     group.StructureData.IsRenaming = true;
                     e.Handled = true;
                 }
             }
+        }
+
+        private void ReversedOrderStackPanel_Drop(object sender, DragEventArgs e)
+        {
+            
         }
     }
 }

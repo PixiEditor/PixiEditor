@@ -23,11 +23,11 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="10"/>
-                <RowDefinition Height="15"/>
-                <RowDefinition Height="10"/>
+                <RowDefinition Height="25"/>
+ 
             </Grid.RowDefinitions>
             <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
-            <Grid Grid.Row="1" Grid.RowSpan="3" Margin="0,-10,0,0" VerticalAlignment="Center" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave">
+            <Grid Grid.Row="1" Grid.RowSpan="3" Margin="0,-10,0,0" VerticalAlignment="Center" AllowDrop="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="*"/>
@@ -48,8 +48,11 @@
                     VerticalAlignment="Center"
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />
                 </StackPanel>
+                <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Below"  DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="0" AllowDrop="True"  Background="Transparent" Name="dropBelowGrid"/>
+                <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="1" Background="{Binding ElementName=dropBelowGrid, Path=Background}"/>
+                
+                <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Bottom" DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="2" AllowDrop="True"  Background="Transparent"/>
             </Grid>
-            <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom" DragLeave="Grid_DragLeave" Grid.Row="2" AllowDrop="True" Grid.ColumnSpan="3" Background="Transparent"/>
         </Grid>
     </Border>
 </UserControl>

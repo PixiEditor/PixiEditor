@@ -155,7 +155,7 @@ namespace PixiEditor.Views
             RemoveDragEffect(item);
         }
 
-        private void HandleGridDrop(object sender, DragEventArgs e, bool above)
+        private void HandleGridDrop(object sender, DragEventArgs e, bool above, bool dropInParentFolder = false)
         {
             Grid item = sender as Grid;
             RemoveDragEffect(item);
@@ -164,8 +164,14 @@ namespace PixiEditor.Views
             {
                 var data = (LayerStructureItemContainer)e.Data.GetData("PixiEditor.Views.UserControls.LayerStructureItemContainer");
                 Guid layer = data.Layer.LayerGuid;
+                var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
-                data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layer, LayerGuid, above);
+                doc.MoveLayerInStructure(layer, LayerGuid, above);
+                if (dropInParentFolder)
+                {
+                    Guid? groupGuid = doc.LayerStructure.GetGroupByLayer(layer)?.Parent?.GroupGuid;
+                    doc.LayerStructure.AssignParent(layer, groupGuid);
+                }
             }
 
             if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerGroupControl"))
@@ -194,6 +200,11 @@ namespace PixiEditor.Views
         private void Grid_Drop_Bottom(object sender, DragEventArgs e)
         {
             HandleGridDrop(sender, e, false);
+        }
+
+        private void Grid_Drop_Below(object sender, DragEventArgs e)
+        {
+            HandleGridDrop(sender, e, false, true);
         }
     }
 }

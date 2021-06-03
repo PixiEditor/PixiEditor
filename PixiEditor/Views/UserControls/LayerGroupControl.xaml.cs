@@ -23,8 +23,8 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(GroupGuidProperty, value); }
         }
 
-        private const string LayerGroupControlDataName = "PixiEditor.Views.UserControls.LayerGroupControl";
-        private const string LayerContainerDataName = "PixiEditor.Views.UserControls.LayerStructureItemContainer";
+        public const string LayerGroupControlDataName = "PixiEditor.Views.UserControls.LayerGroupControl";
+        public const string LayerContainerDataName = "PixiEditor.Views.UserControls.LayerStructureItemContainer";
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty GroupGuidProperty =
