@@ -142,7 +142,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.51.1" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
