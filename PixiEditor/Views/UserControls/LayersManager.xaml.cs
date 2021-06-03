@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
@@ -187,9 +188,47 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void ReversedOrderStackPanel_Drop(object sender, DragEventArgs e)
+        private void Grid_Drop(object sender, DragEventArgs e)
         {
-            
+            dropBorder.BorderBrush = Brushes.Transparent;
+
+            if (e.Data.GetDataPresent(LayerGroupControl.LayerContainerDataName))
+            {
+                HandleLayerDrop(e.Data);
+            }
+
+            if (e.Data.GetDataPresent(LayerGroupControl.LayerGroupControlDataName))
+            {
+                HandleGroupControlDrop(e.Data);
+            }
+        }
+
+        private void HandleLayerDrop(IDataObject data)
+        {
+            var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
+            if (doc.Layers.Count == 0) return;
+
+            var layerContainer = (LayerStructureItemContainer)data.GetData(LayerGroupControl.LayerContainerDataName);
+            var refLayer = doc.Layers[0].LayerGuid;
+            doc.MoveLayerInStructure(layerContainer.Layer.LayerGuid, refLayer);
+            doc.LayerStructure.AssignParent(layerContainer.Layer.LayerGuid, null);
+        }
+
+        private void HandleGroupControlDrop(IDataObject data)
+        {
+            var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
+            var groupContainer = (LayerGroupControl)data.GetData(LayerGroupControl.LayerGroupControlDataName);
+            doc.LayerStructure.MoveGroup(groupContainer.GroupGuid, 0);
+        }
+
+        private void Grid_DragEnter(object sender, DragEventArgs e)
+        {
+            ((Border)sender).BorderBrush = LayerItem.HighlightColor;
+        }
+
+        private void Grid_DragLeave(object sender, DragEventArgs e)
+        {
+            ((Border)sender).BorderBrush = Brushes.Transparent;
         }
     }
 }

@@ -15,8 +15,7 @@
         xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        AllowDrop="True" Drop="MainWindow_Drop">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
@@ -206,7 +205,7 @@
             </ItemsControl>
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
-            <Grid>
+            <Grid AllowDrop="True" Drop="MainWindow_Drop">
                 <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
                     <DockingManager.Theme>
