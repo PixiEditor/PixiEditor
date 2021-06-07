@@ -9,9 +9,9 @@ using PixiEditor.ViewModels.SubViewModels.Main;
 using System.Diagnostics;
 using System.Linq;
 using PixiEditor.Views.Dialogs;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
+using System.Windows.Interop;
 
 namespace PixiEditor
 {
@@ -41,10 +41,10 @@ namespace PixiEditor
 
             pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
-            StateChanged += MainWindowStateChangeRaised;
+            UpdateWindowChromeBorderThickness();
+            StateChanged += MainWindow_StateChanged;
             Activated += MainWindow_Activated;
 
-            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
@@ -66,6 +66,12 @@ namespace PixiEditor
         {
             DataContext.CloseWindow(e);
             DataContext.DiscordViewModel.Dispose();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            ((HwndSource)PresentationSource.FromVisual(this)).AddHook(Helpers.WindowSizeHelper.SetMaxSizeHook);
         }
 
         [Conditional("RELEASE")]
@@ -128,8 +134,22 @@ namespace PixiEditor
             CloseHelloThereIfRelease();
         }
 
-        private void MainWindowStateChangeRaised(object sender, EventArgs e)
+        private void UpdateWindowChromeBorderThickness()
         {
+            if (WindowState == WindowState.Maximized)
+            {
+                windowsChrome.ResizeBorderThickness = new Thickness(0, 0, 0, 0);
+            }
+            else
+            {
+                windowsChrome.ResizeBorderThickness = new Thickness(5, 5, 5, 5);
+            }
+        }
+
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            UpdateWindowChromeBorderThickness();
+
             if (WindowState == WindowState.Maximized)
             {
                 RestoreButton.Visibility = Visibility.Visible;
