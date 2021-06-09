@@ -317,8 +317,9 @@
                                     <LayoutAnchorable ContentId="navigation" Title="Navigation" 
                                                       CanHide="True" CanAutoHide="False"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:PreviewWindow Document="{Binding BitmapManager.ActiveDocument}"
-                                                                    PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
+                                        <usercontrols:PreviewWindow 
+                                            Document="{Binding BitmapManager.ActiveDocument}"
+                                            PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>

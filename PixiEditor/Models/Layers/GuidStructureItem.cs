@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Layers
@@ -9,7 +10,7 @@ namespace PixiEditor.Models.Layers
     [DebuggerDisplay("{Name} - {GroupGuid}")]
     public class GuidStructureItem : NotifyableObject, ICloneable
     {
-        public event EventHandler GroupsChanged;
+        public event EventHandler<GroupChangedEventArgs> GroupsChanged;
 
         public Guid GroupGuid { get; init; }
 
@@ -149,8 +150,9 @@ namespace PixiEditor.Models.Layers
 
         private void Subgroups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            GroupsChanged?.Invoke(this, EventArgs.Empty);
-            Parent?.GroupsChanged?.Invoke(this, EventArgs.Empty);
+            var args = new GroupChangedEventArgs(e.NewItems != null ? e.NewItems.Cast<GuidStructureItem>().ToList() : new List<GuidStructureItem>());
+            GroupsChanged?.Invoke(this, args);
+            Parent?.GroupsChanged?.Invoke(this, args);
         }
     }
 }

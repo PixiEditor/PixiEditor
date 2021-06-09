@@ -34,7 +34,6 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
-                                               Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                                Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}">
                             <Image.Opacity>
@@ -43,6 +42,12 @@
                                         <Binding Path="Opacity"/>
                                     </MultiBinding>
                             </Image.Opacity>
+                                <Image.Visibility>
+                                    <MultiBinding Converter="{converters:FinalIsVisibleToVisiblityConverter}">
+                                        <Binding Path="."/>
+                                        <Binding Path="IsVisible"/>
+                                    </MultiBinding>
+                                </Image.Visibility>
                             </Image>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

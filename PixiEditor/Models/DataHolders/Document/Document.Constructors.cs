@@ -1,5 +1,7 @@
 ﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
+using System.Linq;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -25,9 +27,15 @@ namespace PixiEditor.Models.DataHolders
             LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
         }
 
-        private void LayerStructure_LayerStructureChanged(object sender, System.EventArgs e)
+        private void LayerStructure_LayerStructureChanged(object sender, LayerStructureChangedEventArgs e)
         {
             RaisePropertyChanged(nameof(LayerStructure));
+            foreach (var layerGuid in e.AffectedLayerGuids)
+            {
+                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+                layer.RaisePropertyChange(nameof(layer.IsVisible));
+                layer.RaisePropertyChange(nameof(layer.Opacity));
+            }
         }
 
         private void Groups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

@@ -66,7 +66,7 @@
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type layers:LayerGroup}" ItemsSource="{Binding Items}">
-                    <local:LayerGroupControl GroupName="{Binding Name}" 
+                        <local:LayerGroupControl GroupName="{Binding Name}" MouseDown="SelectActiveItem"
                                              IsVisibleUndoTriggerable="{Binding StructureData.IsVisible}" 
                                              GroupOpacity="{Binding StructureData.Opacity}"
                                              LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" 
@@ -75,7 +75,8 @@
                                              MouseMove="LayerGroup_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
-                        <local:LayerStructureItemContainer                             
+                        <local:LayerStructureItemContainer    
+                            MouseDown="SelectActiveItem"
                             MouseMove="LayerStructureItemContainer_MouseMove" 
                             ContainerIndex="{Binding Converter={StaticResource IndexOfConverter}}"
                             Layer="{Binding}" LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>

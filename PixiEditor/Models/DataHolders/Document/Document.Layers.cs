@@ -78,7 +78,7 @@ namespace PixiEditor.Models.DataHolders
             }
 
             ActiveLayerGuid = Layers[index].LayerGuid;
-            ActiveLayer!.IsActive = true;
+            ActiveLayer.IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
         }
 
@@ -519,7 +519,7 @@ namespace PixiEditor.Models.DataHolders
 
             if (Layers.Count == 0)
             {
-                Layer layer = new("Base Layer");
+                Layer layer = new("Base Layer", 0, 0) { MaxHeight = Height, MaxWidth = Width };
                 Layers.Add(layer);
                 undoAction = (Layer[] layers, UndoLayer[] undoData) =>
                 {
@@ -626,32 +626,9 @@ namespace PixiEditor.Models.DataHolders
 
             LayerStructure.MoveGroup(groupGuid, newIndex);
 
-            ReassignParent(group, referenceLayerGroup);
+            LayerStructure.ReassignParent(group, referenceLayerGroup);
 
             LayerStructure.PostMoveReassignBounds(new GroupData(group?.Parent?.GroupGuid), new GroupData(group?.GroupGuid));
-        }
-
-        private void ReassignParent(GuidStructureItem folder, GuidStructureItem referenceLayerFolder)
-        {
-            folder.Parent?.Subgroups.Remove(folder);
-            if (LayerStructure.Groups.Contains(folder))
-            {
-                LayerStructure.Groups.Remove(folder);
-            }
-
-            if (referenceLayerFolder == null)
-            {
-                if (!LayerStructure.Groups.Contains(folder))
-                {
-                    LayerStructure.Groups.Add(folder);
-                    folder.Parent = null;
-                }
-            }
-            else
-            {
-                referenceLayerFolder.Subgroups.Add(folder);
-                folder.Parent = referenceLayerFolder;
-            }
         }
 
         private int CalculateNewIndex(int layerIndex, bool above, int oldIndex)

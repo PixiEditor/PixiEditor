@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Layers
     /// </summary>
     public class LayerStructure
     {
-        public event EventHandler LayerStructureChanged;
+        public event EventHandler<LayerStructureChangedEventArgs> LayerStructureChanged;
 
         public ObservableCollection<GuidStructureItem> Groups { get; set; }
 
@@ -136,7 +136,7 @@ namespace PixiEditor.Models.Layers
 
             group.GroupsChanged += Group_GroupsChanged;
 
-            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+            LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(childLayer));
             return group;
         }
 
@@ -173,7 +173,7 @@ namespace PixiEditor.Models.Layers
 
             MoveLayersInGroup(layersInOrder, difference, reverseOrder);
 
-            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+            LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(layersInOrder));
         }
 
         /// <summary>
@@ -218,12 +218,7 @@ namespace PixiEditor.Models.Layers
         {
             var layerParent = GetGroupByLayer(layerGuid);
 
-            if (layerParent == parent)
-            {
-                return true;
-            }
-
-            return IsChildOf(layerParent, parent);
+            return layerParent == parent ? true : IsChildOf(layerParent, parent);
         }
 
         /// <summary>
@@ -274,6 +269,36 @@ namespace PixiEditor.Models.Layers
         public void AssignParent(Guid layer, Guid? parent)
         {
             AssignParent(layer, parent.HasValue ? GetGroupByGuid(parent) : null);
+        }
+
+        /// <summary>
+        /// Assigns group new parent.
+        /// </summary>
+        /// <param name="group">Group to assign parent</param>
+        /// <param name="referenceLayerGroup">Parent of group.</param>
+        public void ReassignParent(GuidStructureItem group, GuidStructureItem referenceLayerGroup)
+        {
+            group.Parent?.Subgroups.Remove(group);
+            if (Groups.Contains(group))
+            {
+                Groups.Remove(group);
+            }
+
+            if (referenceLayerGroup == null)
+            {
+                if (!Groups.Contains(group))
+                {
+                    Groups.Add(group);
+                    group.Parent = null;
+                }
+            }
+            else
+            {
+                referenceLayerGroup.Subgroups.Add(group);
+                group.Parent = referenceLayerGroup;
+            }
+
+            LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(GetGroupLayerGuids(group)));
         }
 
         /// <summary>
@@ -356,6 +381,7 @@ namespace PixiEditor.Models.Layers
                 {
                     ApplyBoundsToParents(parentOfParent, parentGroup, oldStart, oldEnd);
                 }
+                LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(layer));
             }
         }
 
@@ -422,6 +448,19 @@ namespace PixiEditor.Models.Layers
                 {
                     ApplyBoundsToParents(parentGroup.Parent, parentGroup, oldStart, oldEnd);
                 }
+
+                var args = new LayerStructureChangedEventArgs(layerGuid);
+
+                if (topBoundLayer.HasValue)
+                {
+                    args.AffectedLayerGuids.Add(topBoundLayer.Value);
+                }
+                if (bottomBoundLayer.HasValue)
+                {
+                    args.AffectedLayerGuids.Add(bottomBoundLayer.Value);
+                }
+
+                LayerStructureChanged?.Invoke(this, args);
             }
         }
 
@@ -470,17 +509,22 @@ namespace PixiEditor.Models.Layers
 
             PostMoveReassignBounds(parent, layer);
 
-            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+            LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(layer));
         }
 
-        private void Group_GroupsChanged(object sender, EventArgs e)
+        private void Group_GroupsChanged(object sender, GroupChangedEventArgs e)
         {
-            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+            List<Guid> layersAffected = new List<Guid>();
+            e.GroupsAffected.ForEach(x => layersAffected.AddRange(GetGroupLayerGuids(x)));
+            LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(layersAffected));
         }
 
         private void RemoveGroup(GuidStructureItem parentFolder)
         {
             parentFolder.GroupsChanged -= Group_GroupsChanged;
+
+            var layerGuids = GetGroupLayerGuids(parentFolder);
+
             if (parentFolder.Parent == null)
             {
                 Groups.Remove(parentFolder);
@@ -490,7 +534,8 @@ namespace PixiEditor.Models.Layers
                 parentFolder.Parent.Subgroups.Remove(parentFolder);
             }
 
-            LayerStructureChanged?.Invoke(this, EventArgs.Empty);
+            LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(layerGuids));
+
         }
 
         private void ApplyBoundsToParents(GuidStructureItem parent, GuidStructureItem group, Guid? oldStart, Guid? oldEnd)

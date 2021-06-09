@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -29,7 +30,7 @@ namespace PixiEditor.Views.UserControls
                 "LayerTreeRoot",
                 typeof(ObservableCollection<object>),
                 typeof(LayersManager),
-                new PropertyMetadata(default(ObservableCollection<object>), ItemsChanged));
+                new PropertyMetadata(default(ObservableCollection<object>)));
         public LayersViewModel LayerCommandsViewModel
         {
             get { return (LayersViewModel)GetValue(LayerCommandsViewModelProperty); }
@@ -38,7 +39,7 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for LayerCommandsViewModel.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayerCommandsViewModelProperty =
-            DependencyProperty.Register("LayerCommandsViewModel", typeof(LayersViewModel), typeof(LayersManager), new PropertyMetadata(default(LayersViewModel)));
+            DependencyProperty.Register("LayerCommandsViewModel", typeof(LayersViewModel), typeof(LayersManager), new PropertyMetadata(default(LayersViewModel), ViewModelChanged));
 
         public bool OpacityInputEnabled
         {
@@ -55,19 +56,24 @@ namespace PixiEditor.Views.UserControls
             InitializeComponent();
         }
 
-        private static void ItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void ViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var items = (ObservableCollection<object>)e.NewValue;
-            LayersManager manager = (LayersManager)d;
-            var numberInput = manager.numberInput;
-            object item = manager.treeView.SelectedItem;
-            if (items != null && items.Count > 0 && (e.OldValue == null || ((ObservableCollection<object>)e.OldValue).Count == 0))
+            if (e.NewValue is LayersViewModel vm)
             {
-                item = items[0];
-                manager.cachedItem = item;
+                LayersManager manager = (LayersManager)d;
+                vm.Owner.BitmapManager.AddPropertyChangedCallback(nameof(vm.Owner.BitmapManager.ActiveDocument), () =>
+                {
+                    var doc = vm.Owner.BitmapManager.ActiveDocument;
+                    if (doc != null)
+                    {
+                        doc.AddPropertyChangedCallback(nameof(doc.ActiveLayer), () =>
+                        {
+                            manager.cachedItem = doc.ActiveLayer;
+                            SetInputOpacity(manager.cachedItem, manager.numberInput);
+                        });
+                    }
+                });
             }
-
-            SetInputOpacity(item, numberInput);
         }
 
         private static void SetInputOpacity(object item, NumberInput numberInput)
@@ -80,6 +86,10 @@ namespace PixiEditor.Views.UserControls
             {
                 numberInput.Value = group.StructureData.Opacity * 100f;
             }
+            else if (item is LayerGroupControl groupControl)
+            {
+                numberInput.Value = groupControl.GroupData.Opacity * 100f;
+            }
         }
 
         private void LayerStructureItemContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -90,14 +100,14 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void HandleGroupOpacityChange(LayerGroup group, float value)
+        private void HandleGroupOpacityChange(GuidStructureItem group, float value)
         {
             if (LayerCommandsViewModel.Owner?.BitmapManager?.ActiveDocument != null)
             {
                 var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
-                var processArgs = new object[] { group.StructureData.GroupGuid, value };
-                var reverseProcessArgs = new object[] { group.StructureData.GroupGuid, group.StructureData.Opacity };
+                var processArgs = new object[] { group.GroupGuid, value };
+                var reverseProcessArgs = new object[] { group.GroupGuid, group.Opacity };
 
                 ChangeGroupOpacityProcess(processArgs);
 
@@ -136,12 +146,7 @@ namespace PixiEditor.Views.UserControls
         {
             float val = numberInput.Value / 100f;
 
-            object item = treeView.SelectedItem;
-
-            if (item == null && cachedItem != null)
-            {
-                item = cachedItem;
-            }
+            object item = cachedItem;
 
             if (item is Layer layer)
             {
@@ -158,7 +163,11 @@ namespace PixiEditor.Views.UserControls
             }
             else if (item is LayerGroup group)
             {
-                HandleGroupOpacityChange(group, val);
+                HandleGroupOpacityChange(group.StructureData, val);
+            }
+            else if(item is LayerGroupControl groupControl)
+            {
+                HandleGroupOpacityChange(groupControl.GroupData, val);
             }
         }
 
@@ -172,7 +181,7 @@ namespace PixiEditor.Views.UserControls
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            SetInputOpacity(treeView.SelectedItem, numberInput);
+            SetInputOpacity(cachedItem, numberInput);
         }
 
         private void TreeView_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -228,6 +237,11 @@ namespace PixiEditor.Views.UserControls
         private void Grid_DragLeave(object sender, DragEventArgs e)
         {
             ((Border)sender).BorderBrush = Brushes.Transparent;
+        }
+
+        private void SelectActiveItem(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            cachedItem = sender;
         }
     }
 }
