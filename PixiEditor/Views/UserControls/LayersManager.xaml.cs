@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -69,14 +70,14 @@ namespace PixiEditor.Views.UserControls
                         doc.AddPropertyChangedCallback(nameof(doc.ActiveLayer), () =>
                         {
                             manager.cachedItem = doc.ActiveLayer;
-                            SetInputOpacity(manager.cachedItem, manager.numberInput);
+                            manager.SetInputOpacity(manager.cachedItem);
                         });
                     }
                 });
             }
         }
 
-        private static void SetInputOpacity(object item, NumberInput numberInput)
+        private void SetInputOpacity(object item)
         {
             if (item is Layer layer)
             {
@@ -110,6 +111,8 @@ namespace PixiEditor.Views.UserControls
                 var reverseProcessArgs = new object[] { group.GroupGuid, group.Opacity };
 
                 ChangeGroupOpacityProcess(processArgs);
+
+                LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(group);
 
                 doc.UndoManager.AddUndoChange(
                 new Change(
@@ -151,8 +154,18 @@ namespace PixiEditor.Views.UserControls
             if (item is Layer layer)
             {
                 float oldOpacity = layer.Opacity;
+
+                var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
+
                 layer.OpacityUndoTriggerable = val;
-                UndoManager undoManager = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.UndoManager;
+
+                doc.LayerStructure.ExpandParentGroups(layer.LayerGuid);
+
+                doc.RaisePropertyChange(nameof(doc.LayerStructure));
+
+                UndoManager undoManager = doc.UndoManager;
+
+
                 undoManager.AddUndoChange(
                     new Change(
                         UpdateNumberInputLayerOpacityProcess,
@@ -181,7 +194,7 @@ namespace PixiEditor.Views.UserControls
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            SetInputOpacity(cachedItem, numberInput);
+            SetInputOpacity(cachedItem);
         }
 
         private void TreeView_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

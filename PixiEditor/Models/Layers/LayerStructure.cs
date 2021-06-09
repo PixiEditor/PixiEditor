@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using PixiEditor.Helpers.Extensions;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Layers
@@ -316,6 +316,36 @@ namespace PixiEditor.Models.Layers
             }
 
             return layers;
+        }
+
+        /// <summary>
+        /// Sets parent groups IsExpanded to true.
+        /// </summary>
+        /// <param name="layerGuid">Guid of layer which parents will be affected.</param>
+        public void ExpandParentGroups(Guid layerGuid)
+        {
+            var group = GetGroupByLayer(layerGuid);
+
+            while (group != null)
+            {
+                group.IsExpanded = true;
+                group = group.Parent;
+            }
+        }
+
+        /// <summary>
+        /// Sets parent groups IsExpanded to true.
+        /// </summary>
+        /// <param name="group">Group which parents will be affected.</param>
+        public void ExpandParentGroups(GuidStructureItem group)
+        {
+            GuidStructureItem currentGroup = group;
+
+            while (currentGroup != null)
+            {
+                currentGroup.IsExpanded = true;
+                currentGroup = currentGroup.Parent;
+            }
         }
 
         /// <summary>

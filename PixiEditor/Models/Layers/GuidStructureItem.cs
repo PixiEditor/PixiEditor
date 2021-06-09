@@ -59,11 +59,7 @@ namespace PixiEditor.Models.Layers
         public bool IsExpanded
         {
             get => isExpanded;
-            set
-            {
-                isExpanded = value;
-                RaisePropertyChanged(nameof(IsExpanded));
-            }
+            set => SetProperty(ref isExpanded, value);
         }
 
         private bool isRenaming = false;

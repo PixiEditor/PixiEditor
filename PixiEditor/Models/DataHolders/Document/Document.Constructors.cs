@@ -19,7 +19,7 @@ namespace PixiEditor.Models.DataHolders
         {
             SetRelayCommands();
             UndoManager = new UndoManager();
-            LayerStructure = new Layers.LayerStructure(this);
+            LayerStructure = new LayerStructure(this);
             XamlAccesibleViewModel = ViewModelMain.Current;
             GeneratePreviewLayer();
             Layers.CollectionChanged += Layers_CollectionChanged;

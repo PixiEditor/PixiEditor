@@ -60,6 +60,7 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty GroupOpacityProperty =
             DependencyProperty.Register("GroupOpacity", typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
 
+
         private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             LayerGroupControl control = (LayerGroupControl)d;

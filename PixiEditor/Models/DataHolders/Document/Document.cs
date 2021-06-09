@@ -141,6 +141,11 @@ namespace PixiEditor.Models.DataHolders
 
         public UndoManager UndoManager { get; set; }
 
+        public void RaisePropertyChange(string name)
+        {
+            RaisePropertyChanged(name);
+        }
+
         public void CenterViewport()
         {
             RecenterZoombox = false; // It's a trick to trigger change in UserControl

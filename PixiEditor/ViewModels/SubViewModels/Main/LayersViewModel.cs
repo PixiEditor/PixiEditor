@@ -5,6 +5,7 @@ using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -148,9 +149,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
 
             doc.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+
             if (doc.Layers.Count > 1)
             {
                 doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
+                doc.UndoManager.UndoStack.Pop();
             }
         }
 
@@ -163,22 +166,24 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             int index = (int)parameter;
 
-            if (Owner.BitmapManager.ActiveDocument.Layers[index].IsActive && Mouse.RightButton == MouseButtonState.Pressed)
+            var doc = Owner.BitmapManager.ActiveDocument;
+
+            if (doc.Layers[index].IsActive && Mouse.RightButton == MouseButtonState.Pressed)
             {
                 return;
             }
 
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                Owner.BitmapManager.ActiveDocument.ToggleLayer(index);
+                doc.ToggleLayer(index);
             }
             else if (Keyboard.IsKeyDown(Key.LeftShift) && Owner.BitmapManager.ActiveDocument.Layers.Any(x => x.IsActive))
             {
-                Owner.BitmapManager.ActiveDocument.SelectLayersRange(index);
+                doc.SelectLayersRange(index);
             }
             else
             {
-                Owner.BitmapManager.ActiveDocument.SetMainActiveLayer(index);
+                doc.SetMainActiveLayer(index);
             }
         }
 
@@ -317,6 +322,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (e.LayerChangeType == Models.Enums.LayerAction.SetActive)
             {
                 Owner.BitmapManager.ActiveDocument.UpdateLayersColor();
+                Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(e.LayerAffectedGuid);
             }
             else
             {
