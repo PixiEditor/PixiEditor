@@ -635,13 +635,19 @@ namespace PixiEditor.Models.DataHolders
         {
             int newIndex = layerIndex;
 
-            if ((oldIndex - layerIndex == -1 && !above) || (oldIndex - layerIndex == 1 && above))
+            int diff = newIndex - oldIndex;
+
+            if (TriesToMoveAboveBelow(above, diff) || TriesToMoveBelowAbove(above, diff) || (above && newIndex < oldIndex) || (!above && newIndex > oldIndex))
             {
                 newIndex += above ? 1 : -1;
             }
 
             return Math.Clamp(newIndex, 0, Layers.Count - 1);
         }
+
+        private bool TriesToMoveAboveBelow(bool above, int diff) => above && diff == -1;
+
+        private bool TriesToMoveBelowAbove(bool above, int diff) => !above && diff == 1;
 
         private void MoveLayerInStructureProcess(object[] parameter)
         {
