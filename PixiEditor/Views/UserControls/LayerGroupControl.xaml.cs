@@ -137,11 +137,21 @@ namespace PixiEditor.Views.UserControls
             item.Background = LayerItem.HighlightColor;
         }
 
+        private void Grid_CenterEnter(object sender, DragEventArgs e)
+        {
+            centerGrid.Background = LayerItem.HighlightColor;
+        }
+
         private void Grid_DragLeave(object sender, DragEventArgs e)
         {
             Grid grid = (Grid)sender;
 
             LayerItem.RemoveDragEffect(grid);
+        }
+
+        private void Grid_CenterLeave(object sender, DragEventArgs e)
+        {
+            LayerItem.RemoveDragEffect(centerGrid);
         }
 
         private void HandleDrop(IDataObject dataObj, Grid grid, bool above)
@@ -151,25 +161,28 @@ namespace PixiEditor.Views.UserControls
 
             if (dataObj.GetDataPresent(LayerContainerDataName))
             {
-                HandleLayerDrop(dataObj, above, referenceLayer);
+                HandleLayerDrop(dataObj, above, referenceLayer, false);
             }
 
             if (dataObj.GetDataPresent(LayerGroupControlDataName))
             {
-                HandleGroupControlDrop(dataObj, referenceLayer, above);
+                HandleGroupControlDrop(dataObj, referenceLayer, above, false);
             }
         }
 
-        private void HandleLayerDrop(IDataObject dataObj, bool above, Guid referenceLayer)
+        private void HandleLayerDrop(IDataObject dataObj, bool above, Guid referenceLayer, bool putItInside) // step brother
         {
             var data = (LayerStructureItemContainer)dataObj.GetData(LayerContainerDataName);
             Guid group = data.Layer.LayerGuid;
 
             data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(group, referenceLayer, above);
-            data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, GroupData?.Parent?.GroupGuid);
+
+            Guid? refGuid = putItInside ? GroupData?.GroupGuid : GroupData?.Parent?.GroupGuid;
+
+            data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.LayerStructure.AssignParent(group, refGuid);
         }
 
-        private void HandleGroupControlDrop(IDataObject dataObj, Guid referenceLayer, bool above)
+        private void HandleGroupControlDrop(IDataObject dataObj, Guid referenceLayer, bool above, bool putItInside) // daddy
         {
             var data = (LayerGroupControl)dataObj.GetData(LayerGroupControlDataName);
             var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
@@ -185,24 +198,48 @@ namespace PixiEditor.Views.UserControls
 
             Layer layer = document.Layers.First(x => x.LayerGuid == referenceLayer);
             int indexOfReferenceLayer = Math.Clamp(document.Layers.IndexOf(layer) + modifier, 0, document.Layers.Count);
-            MoveGroupWithTempLayer(above, document, group, indexOfReferenceLayer);
+            MoveGroupWithTempLayer(above, document, group, indexOfReferenceLayer, putItInside);
         }
 
-        private void MoveGroupWithTempLayer(bool above, Models.DataHolders.Document document, Guid group, int indexOfReferenceLayer)
+        private void MoveGroupWithTempLayer(bool above, Models.DataHolders.Document document, Guid group, int indexOfReferenceLayer, bool putItInside) // ¯\_(ツ)_/¯
         {
             // The trick here is to insert a temp layer, assign group to it, then delete it.
             Layer tempLayer = new("_temp");
             document.Layers.Insert(indexOfReferenceLayer, tempLayer);
 
-            document.LayerStructure.AssignParent(tempLayer.LayerGuid, GroupData?.Parent?.GroupGuid);
+            Guid? refGuid = putItInside ? GroupData?.GroupGuid : GroupData?.Parent?.GroupGuid;
+
+            document.LayerStructure.AssignParent(tempLayer.LayerGuid, refGuid);
             document.MoveGroupInStructure(group, tempLayer.LayerGuid, above);
             document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
             document.RemoveLayer(tempLayer, false);
         }
 
+        private void HandleDropInside(IDataObject dataObj, Grid grid)
+        {
+            Guid referenceLayer = GroupData.EndLayerGuid;
+            LayerItem.RemoveDragEffect(grid);
+
+            if (dataObj.GetDataPresent(LayerContainerDataName))
+            {
+                HandleLayerDrop(dataObj, true, referenceLayer, true);
+            }
+
+            if (dataObj.GetDataPresent(LayerGroupControlDataName))
+            {
+                HandleGroupControlDrop(dataObj, referenceLayer, true, true);
+            }
+        }
+
         private void Grid_Drop_Top(object sender, DragEventArgs e)
         {
             HandleDrop(e.Data, (Grid)sender, true);
+        }
+
+        private void Grid_Drop_Center(object sender, DragEventArgs e)
+        {
+            HandleDropInside(e.Data, (Grid)sender);
+            LayerItem.RemoveDragEffect(centerGrid);
         }
 
         private void Grid_Drop_Bottom(object sender, DragEventArgs e)
@@ -213,7 +250,11 @@ namespace PixiEditor.Views.UserControls
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
-            doc.SetMainActiveLayer(doc.Layers.IndexOf(doc.Layers.First(x => x.LayerGuid == GroupData.EndLayerGuid)));
+            var layer = doc.Layers.First(x => x.LayerGuid == GroupData.EndLayerGuid);
+            if (GroupData.IsExpanded && doc.ActiveLayerGuid != layer.LayerGuid)
+            {
+                doc.SetMainActiveLayer(doc.Layers.IndexOf(layer));
+            }
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

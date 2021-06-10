@@ -123,7 +123,7 @@ namespace PixiEditor.Models.Layers
         public GuidStructureItem AddNewGroup(string groupName, Guid childLayer)
         {
             var parent = GetGroupByLayer(childLayer);
-            GuidStructureItem group = new(groupName, childLayer);
+            GuidStructureItem group = new(groupName, childLayer) { IsExpanded = true };
             if (parent == null)
             {
                 Groups.Add(group);

@@ -54,9 +54,12 @@ namespace PixiEditor.Models.DataHolders
             get => activeLayerGuid;
             set
             {
-                activeLayerGuid = value;
-                RaisePropertyChanged(nameof(ActiveLayerGuid));
-                RaisePropertyChanged(nameof(ActiveLayer));
+                if (value != activeLayerGuid)
+                {
+                    activeLayerGuid = value;
+                    RaisePropertyChanged(nameof(ActiveLayerGuid));
+                    RaisePropertyChanged(nameof(ActiveLayer));
+                }
             }
         }
 

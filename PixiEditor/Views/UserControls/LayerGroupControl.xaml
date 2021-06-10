@@ -20,8 +20,9 @@
                 <RowDefinition Height="15"/>
                 <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
-            <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
-            <Grid Grid.Row="0" Grid.RowSpan="3">
+            <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
+            <Grid x:Name="middleDropGrid" Grid.Row="1" AllowDrop="True" Panel.ZIndex="2" Background="Transparent" DragEnter="Grid_CenterEnter" Drop="Grid_Drop_Center" DragLeave="Grid_CenterLeave"></Grid>
+            <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="*"/>

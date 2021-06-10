@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -17,7 +15,16 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class LayersManager : UserControl
     {
-        private object cachedItem;
+        public object SelectedItem
+        {
+            get { return (object)GetValue(SelectedItemProperty); }
+            set { SetValue(SelectedItemProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectedItem.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectedItemProperty =
+            DependencyProperty.Register("SelectedItem", typeof(object), typeof(LayersManager), new PropertyMetadata(0));
+
 
         public ObservableCollection<object> LayerTreeRoot
         {
@@ -69,8 +76,8 @@ namespace PixiEditor.Views.UserControls
                     {
                         doc.AddPropertyChangedCallback(nameof(doc.ActiveLayer), () =>
                         {
-                            manager.cachedItem = doc.ActiveLayer;
-                            manager.SetInputOpacity(manager.cachedItem);
+                            manager.SelectedItem = doc.ActiveLayer;
+                            manager.SetInputOpacity(manager.SelectedItem);
                         });
                     }
                 });
@@ -149,7 +156,7 @@ namespace PixiEditor.Views.UserControls
         {
             float val = numberInput.Value / 100f;
 
-            object item = cachedItem;
+            object item = SelectedItem;
 
             if (item is Layer layer)
             {
@@ -194,7 +201,7 @@ namespace PixiEditor.Views.UserControls
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            SetInputOpacity(cachedItem);
+            SetInputOpacity(SelectedItem);
         }
 
         private void TreeView_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -254,7 +261,7 @@ namespace PixiEditor.Views.UserControls
 
         private void SelectActiveItem(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            cachedItem = sender;
+            SelectedItem = sender;
         }
     }
 }

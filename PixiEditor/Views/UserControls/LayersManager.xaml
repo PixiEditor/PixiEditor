@@ -23,20 +23,24 @@
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                 <Button Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" 
                         Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
+                        CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Layer-add.png"/>
                     </Button.Background>
                 </Button>
-                <Button Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" Height="24" Width="24" ToolTip="New Group" Cursor="Hand"
+                <Button Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" 
+                        CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
+                        Height="24" Width="24" ToolTip="New Group" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Folder-add.png"/>
                     </Button.Background>
                 </Button>
-                <Button Command="{Binding LayerCommandsViewModel.DeleteSelectedCommand, ElementName=layersManager}" Height="24" Width="24" ToolTip="Delete selected" CommandParameter="{Binding ElementName=treeView, Path=SelectedItem}" Cursor="Hand"
+                <Button Command="{Binding LayerCommandsViewModel.DeleteSelectedCommand, ElementName=layersManager}"
+                        CommandParameter="{Binding ElementName=layersManager, Path=SelectedItem}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>

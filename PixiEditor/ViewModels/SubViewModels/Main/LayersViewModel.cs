@@ -6,6 +6,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Layers.Utils;
+using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -90,6 +91,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 DeleteGroup(group.GroupGuid);
             }
+            else if (parameter is LayerGroupControl groupControl)
+            {
+                DeleteGroup(groupControl.GroupGuid);
+            }
         }
 
         public void DeleteGroup(object parameter)
@@ -144,6 +149,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewLayer(object parameter)
         {
+            bool isCollapsed = parameter is LayerGroupControl control && !control.GroupData.IsExpanded;
             var doc = Owner.BitmapManager.ActiveDocument;
             var activeLayerParent = doc.LayerStructure.GetGroupByLayer(doc.ActiveLayerGuid);
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
@@ -153,6 +159,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (doc.Layers.Count > 1)
             {
                 doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
+                if (isCollapsed)
+                {
+                    LayerGroupControl groupControl = parameter as LayerGroupControl;
+                    doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, groupControl.GroupData.Parent?.GroupGuid);
+                }
+
                 doc.UndoManager.UndoStack.Pop();
             }
         }
