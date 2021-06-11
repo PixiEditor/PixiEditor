@@ -43,7 +43,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ToolBuilder builder = new ToolBuilder(services);
 
             builder
-                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<MagicWandTool>().Add<FloodFill>()
+                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<FloodFill>()
                 .Add<LineTool>().Add<CircleTool>().Add<RectangleTool>().Add<EraserTool>().Add<ColorPickerTool>().Add<BrightnessTool>()
                 .Add<ZoomTool>();
 
