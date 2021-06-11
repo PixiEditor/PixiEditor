@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Tools;
@@ -35,14 +36,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SelectToolCommand = new RelayCommand(SetTool, Owner.DocumentIsNotNull);
             ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
+        }
 
-            ToolSet = new ObservableCollection<Tool>
-            {
-                new MoveViewportTool(), new MoveTool(), new PenTool(), new SelectTool(), new FloodFill(), new LineTool(),
-                new CircleTool(), new RectangleTool(), new EraserTool(), new ColorPickerTool(), new BrightnessTool(),
-                new ZoomTool()
-            };
-            SetActiveTool(typeof(MoveViewportTool));
+        public void SetupTools(IServiceProvider services)
+        {
+            ToolBuilder builder = new ToolBuilder(services);
+
+            builder
+                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<MagicWandTool>().Add<FloodFill>()
+                .Add<LineTool>().Add<CircleTool>().Add<RectangleTool>().Add<EraserTool>().Add<ColorPickerTool>().Add<BrightnessTool>()
+                .Add<ZoomTool>();
+
+            ToolSet = new(builder.Build());
+
+            SetActiveTool<MoveViewportTool>();
         }
 
         public void SetActiveTool<T>()
@@ -80,6 +87,25 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             Tool tool = (Tool)parameter;
             SetActiveTool(tool.GetType());
+        }
+
+        private static T CreateTool<T>(IServiceProvider provider)
+            where T : new()
+        {
+            T tool = default;
+            Type toolType = typeof(T);
+
+            foreach (PropertyInfo info in toolType.GetProperties(BindingFlags.Public))
+            {
+                if (!info.CanWrite)
+                {
+                    continue;
+                }
+
+                info.SetValue(tool, provider.GetService(info.PropertyType));
+            }
+
+            return tool;
         }
 
         private void ChangeToolSize(object parameter)

@@ -1,14 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Input;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class MoveViewportTool : ReadonlyTool
     {
         private Point clickPoint;
+
+        public BitmapManager BitmapManager { get; set; }
+
+        public ToolsViewModel ToolsViewModel { get; set; }
 
         public MoveViewportTool()
         {
@@ -31,7 +36,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
                 var point = MousePositionConverter.GetCursorPosition();
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ViewportPosition = new System.Windows.Point(
+                BitmapManager.ActiveDocument.ViewportPosition = new System.Windows.Point(
                     point.X - clickPoint.X,
                     point.Y - clickPoint.Y);
             }
@@ -41,7 +46,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (e.MiddleButton == MouseButtonState.Pressed)
             {
-                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool(ViewModelMain.Current.ToolsSubViewModel.LastActionTool);
+                ToolsViewModel.SetActiveTool(ToolsViewModel.LastActionTool);
             }
         }
 

@@ -29,6 +29,8 @@ namespace PixiEditor.ViewModels
 
         public static ViewModelMain Current { get; set; }
 
+        public IServiceProvider Services { get; private set; }
+
         public Action CloseAction { get; set; }
 
         public event EventHandler OnStartupEvent;
@@ -117,15 +119,28 @@ namespace PixiEditor.ViewModels
 #endif
         }
 
-        public ViewModelMain(IServiceProvider services)
+        public ViewModelMain(IServiceCollection services)
         {
             Current = this;
+
+            ConfigureServices(services);
+            Setup(services.BuildServiceProvider());
+        }
+
+        public void ConfigureServices(IServiceCollection collection)
+        {
+            collection.AddSingleton(this);
+        }
+
+        public void Setup(IServiceProvider services)
+        {
+            Services = services;
 
             Preferences = services.GetRequiredService<IPreferences>();
 
             Preferences.Init();
 
-            BitmapManager = new BitmapManager();
+            BitmapManager = services.GetRequiredService<BitmapManager>();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
@@ -137,7 +152,9 @@ namespace PixiEditor.ViewModels
             CloseWindowCommand = new RelayCommand(CloseWindow);
 
             FileSubViewModel = new FileViewModel(this);
-            ToolsSubViewModel = new ToolsViewModel(this);
+            ToolsSubViewModel = GetSubViewModel<ToolsViewModel>(services);
+            ToolsSubViewModel.SetupTools(services);
+
             IoSubViewModel = new IoViewModel(this);
             LayersSubViewModel = new LayersViewModel(this);
             ClipboardSubViewModel = new ClipboardViewModel(this);
@@ -148,11 +165,8 @@ namespace PixiEditor.ViewModels
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
             UpdateSubViewModel = new UpdateViewModel(this);
 
-            WindowSubViewModel = services.GetService<WindowViewModel>();
-            WindowSubViewModel?.SetOwner(this);
-
-            StylusSubViewModel = services.GetService<StylusViewModel>();
-            StylusSubViewModel?.SetOwner(this);
+            WindowSubViewModel = GetSubViewModel<WindowViewModel>(services);
+            StylusSubViewModel = GetSubViewModel<StylusViewModel>(services);
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
@@ -352,6 +366,18 @@ namespace PixiEditor.ViewModels
             {
                 ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);
             }
+        }
+
+        private T GetSubViewModel<T>(IServiceProvider services)
+        {
+            T subViewModel = services.GetRequiredService<T>();
+
+            if (subViewModel is ISettableOwner<ViewModelMain> settable)
+            {
+                settable.SetOwner(this);
+            }
+
+            return subViewModel;
         }
     }
 }

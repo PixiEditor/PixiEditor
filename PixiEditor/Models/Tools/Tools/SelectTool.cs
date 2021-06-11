@@ -23,6 +23,8 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly CircleTool circleTool = new CircleTool();
         private IEnumerable<Coordinates> oldSelectedPoints;
 
+        public BitmapManager BitmapManager { get; set; }
+
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         public SelectTool()
@@ -107,7 +109,7 @@ namespace PixiEditor.Models.Tools.Tools
                 throw new NotImplementedException($"Selection shape '{shape}' has not been implemented");
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
+            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
         }
     }
 }

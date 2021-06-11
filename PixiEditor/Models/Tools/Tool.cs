@@ -49,6 +49,8 @@ namespace PixiEditor.Models.Tools
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
+        public IServiceProvider Services { get; set; }
+
         public bool CanStartOutsideCanvas { get; set; } = false;
 
         public virtual void OnMouseDown(MouseEventArgs e)
@@ -85,6 +87,20 @@ namespace PixiEditor.Models.Tools
 
         public virtual void AfterAddedUndo(UndoManager undoManager)
         {
+        }
+
+        public virtual void SetupSubTools()
+        {
+        }
+
+        /// <summary>
+        /// Creates a sub tool and injects the services in it. <para/>
+        /// Only use this inside <see cref="SetupSubTools"/>!
+        /// </summary>
+        protected T CreateSubTool<T>()
+            where T : Tool, new()
+        {
+            return ToolBuilder.BuildTool<T>(Services);
         }
     }
 }

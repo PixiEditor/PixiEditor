@@ -4,6 +4,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -14,20 +15,22 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand SelectAllCommand { get; set; }
 
+        private SelectTool selectTool;
+
         public SelectionViewModel(ViewModelMain owner)
             : base(owner)
         {
             DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
             SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
+
+            selectTool = ToolBuilder.BuildTool<SelectTool>(Owner.Services);
         }
 
         public void SelectAll(object parameter)
         {
-            SelectTool select = new SelectTool();
-
             var oldSelection = new List<Coordinates>(Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints);
 
-            Owner.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(select.GetAllSelection(), SelectionType.New);
+            Owner.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selectTool.GetAllSelection(), SelectionType.New);
             SelectionHelpers.AddSelectionUndoStep(Owner.BitmapManager.ActiveDocument, oldSelection, SelectionType.New);
         }
 

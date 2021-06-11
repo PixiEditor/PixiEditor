@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -15,6 +15,8 @@ namespace PixiEditor.Models.Tools.Tools
 
         private double workAreaWidth = SystemParameters.WorkArea.Width;
         private double pixelsPerZoomMultiplier;
+
+        public BitmapManager BitmapManager { get; set; }
 
         public ZoomTool()
         {
@@ -44,7 +46,7 @@ namespace PixiEditor.Models.Tools.Tools
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
             startingX = MousePositionConverter.GetCursorPosition().X;
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
+            BitmapManager.ActiveDocument.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
         }
 
         public override void OnMouseMove(MouseEventArgs e)
@@ -77,7 +79,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public void Zoom(double percentage)
         {
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ZoomPercentage = percentage;
+            BitmapManager.ActiveDocument.ZoomPercentage = percentage;
         }
 
         public override void Use(List<Coordinates> pixels)

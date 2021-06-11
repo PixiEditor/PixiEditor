@@ -1,11 +1,11 @@
 ﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
-using PixiEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +18,12 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private readonly SizeSetting toolSizeSetting;
         private readonly BoolSetting pixelPerfectSetting;
-        private readonly LineTool lineTool;
         private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
+        private LineTool lineTool;
         private Coordinates[] lastChangedPixels = new Coordinates[3];
         private byte changedPixelsindex = 0;
+
+        public BitmapManager BitmapManager { get; set; }
 
         public PenTool()
         {
@@ -32,8 +34,6 @@ namespace PixiEditor.Models.Tools.Tools
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
             pixelPerfectSetting.ValueChanged += PixelPerfectSettingValueChanged;
-            RequiresPreviewLayer = pixelPerfectSetting.Value;
-            lineTool = new LineTool();
             ClearPreviewLayerOnEachIteration = false;
         }
 
@@ -54,7 +54,7 @@ namespace PixiEditor.Models.Tools.Tools
                 color,
                 toolSizeSetting.Value,
                 pixelPerfectSetting.Value,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.PreviewLayer);
+                BitmapManager.ActiveDocument.PreviewLayer);
             return Only(pixels, layer);
         }
 
@@ -96,6 +96,11 @@ namespace PixiEditor.Models.Tools.Tools
             var result = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
 
             return result;
+        }
+
+        public override void SetupSubTools()
+        {
+            lineTool = CreateSubTool<LineTool>();
         }
 
         private void MovePixelsToCheck(BitmapPixelChanges changes)
