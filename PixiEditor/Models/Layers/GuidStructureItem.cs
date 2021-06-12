@@ -114,7 +114,17 @@ namespace PixiEditor.Models.Layers
 
         public override int GetHashCode()
         {
-            return GroupGuid.GetHashCode();
+            HashCode hc = default;
+            hc.Add(GroupGuid);
+            hc.Add(EndLayerGuid);
+            hc.Add(StartLayerGuid);
+            hc.Add(Opacity);
+            hc.Add(IsVisible);
+            hc.Add(IsExpanded);
+            hc.Add(IsRenaming);
+            hc.Add(Parent);
+            hc.Add(Subgroups);
+            return hc.ToHashCode();
         }
 
         public GuidStructureItem CloneGroup()

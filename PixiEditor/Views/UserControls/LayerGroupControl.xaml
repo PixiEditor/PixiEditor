@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" Focusable="True"
-             d:DesignHeight="60" d:DesignWidth="250" Name="groupControl">
+             d:DesignHeight="60" d:DesignWidth="250" Name="groupControl" DragEnter="GroupControl_DragEnter" DragLeave="GroupControl_DragLeave" DragDrop.Drop="GroupControl_DragLeave">
     <UserControl.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -21,7 +21,7 @@
                 <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
             <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
-            <Grid x:Name="middleDropGrid" Grid.Row="1" AllowDrop="True" Panel.ZIndex="2" Background="Transparent" DragEnter="Grid_CenterEnter" Drop="Grid_Drop_Center" DragLeave="Grid_CenterLeave"></Grid>
+            <Grid Visibility="Collapsed" x:Name="middleDropGrid" Grid.Row="1" AllowDrop="True" Panel.ZIndex="2" Background="Transparent" DragEnter="Grid_CenterEnter" Drop="Grid_Drop_Center" DragLeave="Grid_CenterLeave"></Grid>
             <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>

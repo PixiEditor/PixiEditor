@@ -328,8 +328,9 @@
             </Grid>
         </Grid>
 
-        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0"
-                    Background="{StaticResource AccentColor}" Grid.RowSpan="2">
+        <Border Grid.Row="2" Grid.Column="0"
+                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5">
+        <StackPanel Orientation="Vertical" Cursor="Arrow" >
 
             <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
                 <ItemsControl.ItemTemplate>
@@ -348,6 +349,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
+        </Border>
 
         <Grid Grid.Row="3" Grid.Column="1">
             <Grid.ColumnDefinitions>

@@ -251,7 +251,7 @@ namespace PixiEditor.Views.UserControls
         {
             var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
             var layer = doc.Layers.First(x => x.LayerGuid == GroupData.EndLayerGuid);
-            if (GroupData.IsExpanded && doc.ActiveLayerGuid != layer.LayerGuid)
+            if (doc.ActiveLayerGuid != layer.LayerGuid)
             {
                 doc.SetMainActiveLayer(doc.Layers.IndexOf(layer));
             }
@@ -305,6 +305,16 @@ namespace PixiEditor.Views.UserControls
 
                 IsVisibleUndoTriggerable = value;
             }
+        }
+
+        private void GroupControl_DragEnter(object sender, DragEventArgs e)
+        {
+            middleDropGrid.Visibility = Visibility.Visible;
+        }
+
+        private void GroupControl_DragLeave(object sender, DragEventArgs e)
+        {
+            middleDropGrid.Visibility = Visibility.Collapsed;
         }
     }
 }
