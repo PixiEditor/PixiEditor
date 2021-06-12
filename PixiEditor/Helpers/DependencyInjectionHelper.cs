@@ -22,7 +22,7 @@ namespace PixiEditor.Helpers
         /// <param name="obj">The object that should get injected</param>
         /// <param name="bindingFlags">The binding flags for the properties</param>
         public static void Inject<T>(this IServiceProvider services, T obj, BindingFlags bindingFlags)
-            => Inject(services, obj, bindingFlags, typeof(T));
+            => Inject(services, obj, bindingFlags, obj.GetType());
 
         public static void Inject(this IServiceProvider services, object obj, BindingFlags bindingFlags, Type type)
         {

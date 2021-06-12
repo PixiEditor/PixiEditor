@@ -165,7 +165,7 @@ namespace PixiEditor.ViewModels
             DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
             UpdateSubViewModel = new UpdateViewModel(this);
 
-            WindowSubViewModel = GetSubViewModel<WindowViewModel>(services);
+            WindowSubViewModel = GetSubViewModel<WindowViewModel>(services, false);
             StylusSubViewModel = GetSubViewModel<StylusViewModel>(services);
 
             AddDebugOnlyViewModels();
@@ -368,9 +368,14 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        private T GetSubViewModel<T>(IServiceProvider services)
+        private T GetSubViewModel<T>(IServiceProvider services, bool isRequired = true)
         {
-            T subViewModel = services.GetRequiredService<T>();
+            T subViewModel = services.GetService<T>();
+
+            if (subViewModel is null && isRequired)
+            {
+                throw new InvalidOperationException($"No required view model for type '{typeof(T)}' has been registered.");
+            }
 
             if (subViewModel is ISettableOwner<ViewModelMain> settable)
             {
