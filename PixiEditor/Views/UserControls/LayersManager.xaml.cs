@@ -167,35 +167,16 @@ namespace PixiEditor.Views.UserControls
 
                 Layer layer = null;
 
-                if(item is Layer lr)
+                if (item is Layer lr)
                 {
                     layer = lr;
                 }
-                else if(item is LayerStructureItemContainer container)
+                else if (item is LayerStructureItemContainer container)
                 {
                     layer = container.Layer;
                 }
 
-                float oldOpacity = layer.Opacity;
-
-                var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
-
-                layer.OpacityUndoTriggerable = val;
-
-                doc.LayerStructure.ExpandParentGroups(layer.LayerGuid);
-
-                doc.RaisePropertyChange(nameof(doc.LayerStructure));
-
-                UndoManager undoManager = doc.UndoManager;
-
-
-                undoManager.AddUndoChange(
-                    new Change(
-                        UpdateNumberInputLayerOpacityProcess,
-                        new object[] { oldOpacity },
-                        UpdateNumberInputLayerOpacityProcess,
-                        new object[] { val }));
-                undoManager.SquashUndoChanges(2);
+                HandleLayerOpacityChange(val, layer);
             }
             else if (item is LayerGroup group)
             {
@@ -205,6 +186,32 @@ namespace PixiEditor.Views.UserControls
             {
                 HandleGroupOpacityChange(groupControl.GroupData, val);
             }
+        }
+
+        private void HandleLayerOpacityChange(float val, Layer layer)
+        {
+            float oldOpacity = layer.Opacity;
+
+            var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
+
+            doc.RaisePropertyChange(nameof(doc.LayerStructure));
+
+            layer.OpacityUndoTriggerable = val;
+
+            doc.LayerStructure.ExpandParentGroups(layer.LayerGuid);
+
+            doc.RaisePropertyChange(nameof(doc.LayerStructure));
+
+            UndoManager undoManager = doc.UndoManager;
+
+
+            undoManager.AddUndoChange(
+                new Change(
+                    UpdateNumberInputLayerOpacityProcess,
+                    new object[] { oldOpacity },
+                    UpdateNumberInputLayerOpacityProcess,
+                    new object[] { val }));
+            undoManager.SquashUndoChanges(2);
         }
 
         private void UpdateNumberInputLayerOpacityProcess(object[] args)
@@ -218,18 +225,6 @@ namespace PixiEditor.Views.UserControls
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             SetInputOpacity(SelectedItem);
-        }
-
-        private void TreeView_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (e.ClickCount > 1)
-            {
-                if (sender is TreeView treeView && treeView.SelectedItem is LayerGroup group)
-                {
-                    group.StructureData.IsRenaming = true;
-                    e.Handled = true;
-                }
-            }
         }
 
         private void Grid_Drop(object sender, DragEventArgs e)

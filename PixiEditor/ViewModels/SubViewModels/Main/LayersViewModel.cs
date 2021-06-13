@@ -127,8 +127,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (doc != null)
             {
                 var lastGroups = doc.LayerStructure.CloneGroups();
-                doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.LayerGuid);
+                GuidStructureItem group = doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.LayerGuid);
+
+                Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(group);
                 doc.AddLayerStructureToUndo(lastGroups);
+                doc.RaisePropertyChange(nameof(doc.LayerStructure));
             }
         }
 
