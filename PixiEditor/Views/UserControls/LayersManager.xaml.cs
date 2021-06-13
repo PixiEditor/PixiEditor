@@ -90,6 +90,10 @@ namespace PixiEditor.Views.UserControls
             {
                 numberInput.Value = layer.Opacity * 100f;
             }
+            else if(item is LayerStructureItemContainer container)
+            {
+                numberInput.Value = container.Layer.Opacity * 100f;
+            }
             else if (item is LayerGroup group)
             {
                 numberInput.Value = group.StructureData.Opacity * 100f;
@@ -158,8 +162,20 @@ namespace PixiEditor.Views.UserControls
 
             object item = SelectedItem;
 
-            if (item is Layer layer)
+            if (item is Layer || item is LayerStructureItemContainer)
             {
+
+                Layer layer = null;
+
+                if(item is Layer lr)
+                {
+                    layer = lr;
+                }
+                else if(item is LayerStructureItemContainer container)
+                {
+                    layer = container.Layer;
+                }
+
                 float oldOpacity = layer.Opacity;
 
                 var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
