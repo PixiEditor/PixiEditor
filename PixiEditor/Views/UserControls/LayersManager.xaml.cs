@@ -1,12 +1,12 @@
-﻿using System;
+﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -90,7 +90,7 @@ namespace PixiEditor.Views.UserControls
             {
                 numberInput.Value = layer.Opacity * 100f;
             }
-            else if(item is LayerStructureItemContainer container)
+            else if (item is LayerStructureItemContainer container)
             {
                 numberInput.Value = container.Layer.Opacity * 100f;
             }
@@ -108,7 +108,7 @@ namespace PixiEditor.Views.UserControls
         {
             if (sender is LayerStructureItemContainer container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                DragDrop.DoDragDrop(container, container, DragDropEffects.Move);
+                Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
             }
         }
 
@@ -152,7 +152,7 @@ namespace PixiEditor.Views.UserControls
         {
             if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
             {
-                DragDrop.DoDragDrop(container, container, DragDropEffects.Move);
+                Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
             }
         }
 
@@ -182,7 +182,7 @@ namespace PixiEditor.Views.UserControls
             {
                 HandleGroupOpacityChange(group.StructureData, val);
             }
-            else if(item is LayerGroupControl groupControl)
+            else if (item is LayerGroupControl groupControl)
             {
                 HandleGroupOpacityChange(groupControl.GroupData, val);
             }
