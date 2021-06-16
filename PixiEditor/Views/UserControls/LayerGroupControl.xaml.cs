@@ -1,14 +1,13 @@
-﻿using System;
+﻿using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -26,7 +25,6 @@ namespace PixiEditor.Views.UserControls
         public const string LayerGroupControlDataName = "PixiEditor.Views.UserControls.LayerGroupControl";
         public const string LayerContainerDataName = "PixiEditor.Views.UserControls.LayerStructureItemContainer";
 
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty GroupGuidProperty =
             DependencyProperty.Register("GroupGuid", typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
 
@@ -36,7 +34,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(LayersViewModelProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayersViewModelProperty =
             DependencyProperty.Register("LayersViewModel", typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel), LayersViewModelCallback));
 
@@ -46,7 +43,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(IsVisibleUndoTriggerableProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for IsVisibleUndoTriggerable.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsVisibleUndoTriggerableProperty =
             DependencyProperty.Register("IsVisibleUndoTriggerable", typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true));
 
@@ -56,7 +52,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(GroupOpacityProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for GroupOpacity.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty GroupOpacityProperty =
             DependencyProperty.Register("GroupOpacity", typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
 
@@ -81,7 +76,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(GroupNameProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for FolderName.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty GroupNameProperty =
             DependencyProperty.Register("GroupName", typeof(string), typeof(LayerGroupControl), new PropertyMetadata(default(string)));
 
@@ -91,7 +85,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(GroupDataProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty GroupDataProperty =
             DependencyProperty.Register("GroupData", typeof(GuidStructureItem), typeof(LayerGroupControl), new PropertyMetadata(default(GuidStructureItem), GroupDataChangedCallback));
 
@@ -116,7 +109,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(PreviewImageProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for PreviewImage.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PreviewImageProperty =
             DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(LayerGroupControl), new PropertyMetadata(default(WriteableBitmap)));
 

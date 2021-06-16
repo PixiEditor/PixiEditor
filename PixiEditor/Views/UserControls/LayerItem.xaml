@@ -24,7 +24,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="25"/>
- 
+
             </Grid.RowDefinitions>
             <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
             <Grid Grid.Row="1" Grid.RowSpan="3" Margin="0,-10,0,0" VerticalAlignment="Center" AllowDrop="False">
@@ -50,7 +50,7 @@
                 </StackPanel>
                 <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Below"  DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="0" AllowDrop="True"  Background="Transparent" Name="dropBelowGrid"/>
                 <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="1" Background="{Binding ElementName=dropBelowGrid, Path=Background}"/>
-                
+
                 <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Bottom" DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="2" AllowDrop="True"  Background="Transparent"/>
             </Grid>
         </Grid>

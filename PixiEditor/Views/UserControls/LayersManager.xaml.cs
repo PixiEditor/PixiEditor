@@ -21,7 +21,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(SelectedItemProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SelectedItem.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register("SelectedItem", typeof(object), typeof(LayersManager), new PropertyMetadata(0));
 
@@ -32,7 +31,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(LayerTreeRootProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for LayerTreeRoot.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayerTreeRootProperty =
             DependencyProperty.Register(
                 "LayerTreeRoot",
@@ -45,7 +43,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(LayerCommandsViewModelProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for LayerCommandsViewModel.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayerCommandsViewModelProperty =
             DependencyProperty.Register("LayerCommandsViewModel", typeof(LayersViewModel), typeof(LayersManager), new PropertyMetadata(default(LayersViewModel), ViewModelChanged));
 
@@ -55,7 +52,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(OpacityInputEnabledProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for OpacityInputEnabled.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty OpacityInputEnabledProperty =
             DependencyProperty.Register("OpacityInputEnabled", typeof(bool), typeof(LayersManager), new PropertyMetadata(false));
 

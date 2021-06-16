@@ -1,12 +1,12 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Views.UserControls;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.Views
 {
@@ -73,7 +73,6 @@ namespace PixiEditor.Views
             set { SetValue(LayerGuidProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for LayerGuid.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayerGuidProperty =
             DependencyProperty.Register("LayerGuid", typeof(Guid), typeof(LayerItem), new PropertyMetadata(default(Guid)));
 
@@ -86,7 +85,6 @@ namespace PixiEditor.Views
             set { SetValue(PreviewImageProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for PreviewImage.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PreviewImageProperty =
             DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(LayerItem), new PropertyMetadata(null));
 
@@ -96,7 +94,6 @@ namespace PixiEditor.Views
             set { SetValue(LayerColorProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for LayerColor.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LayerColorProperty =
             DependencyProperty.Register("LayerColor", typeof(string), typeof(LayerItem), new PropertyMetadata("#00000000"));
 
@@ -112,7 +109,6 @@ namespace PixiEditor.Views
             set { SetValue(MoveToBackCommandProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for MoveToBackCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MoveToBackCommandProperty =
             DependencyProperty.Register("MoveToBackCommand", typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
 

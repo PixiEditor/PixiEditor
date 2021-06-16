@@ -9,7 +9,7 @@
              xmlns:layers="clr-namespace:PixiEditor.Models.Layers"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="250" Name="layersManager">
+             d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <UserControl.Resources>
         <converters:IndexOfConverter x:Key="IndexOfConverter"/>
     </UserControl.Resources>
@@ -62,7 +62,7 @@
         </DockPanel>
         <Separator Grid.Row="1" Margin="0,-12, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
         <DockPanel LastChildFill="True" Grid.Row="2" Margin="0, -12, 0, 0">
-        <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
+            <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding LayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
@@ -87,7 +87,7 @@
                     </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
-        <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
+            <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
     </Grid>
 </UserControl>

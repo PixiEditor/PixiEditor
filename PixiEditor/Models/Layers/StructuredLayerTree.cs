@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Models.Layers
 {
@@ -16,7 +15,7 @@ namespace PixiEditor.Models.Layers
 
         public StructuredLayerTree(ObservableCollection<Layer> layers, LayerStructure structure)
         {
-            if(layers == null || structure == null)
+            if (layers == null || structure == null)
             {
                 return;
             }
@@ -39,8 +38,8 @@ namespace PixiEditor.Models.Layers
         private void PlaceItems(List<LayerGroup> parsedFolders, ObservableCollection<Layer> layers)
         {
             LayerGroup currentFolder = null;
-            List<LayerGroup> groupsAtIndex = new ();
-            Stack<LayerGroup> unfinishedFolders = new ();
+            List<LayerGroup> groupsAtIndex = new();
+            Stack<LayerGroup> unfinishedFolders = new();
 
             for (int i = 0; i < layers.Count; i++)
             {
@@ -145,7 +144,7 @@ namespace PixiEditor.Models.Layers
 
             structureItemLayers.Reverse();
 
-            LayerGroup folder = new (structureItemLayers, subFolders, structureItem.Name,
+            LayerGroup folder = new(structureItemLayers, subFolders, structureItem.Name,
                 structureItem.GroupGuid, displayIndex, displayIndex + structureItemLayers.Count - 1, structureItem)
             {
                 IsExpanded = structureItem.IsExpanded,
@@ -164,7 +163,7 @@ namespace PixiEditor.Models.Layers
             var startLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.StartLayerGuid);
             var endLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.EndLayerGuid);
 
-            if(startLayer == null || endLayer == null)
+            if (startLayer == null || endLayer == null)
             {
                 return Array.Empty<Guid>();
             }
