@@ -97,8 +97,18 @@ namespace PixiEditor.Models.Layers
 
         private int CalculateTopIndex(int displayIndex, GuidStructureItem structureData, ObservableCollection<Layer> layers)
         {
-            int originalTopIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureData.EndLayerGuid));
-            int originalBottomIndex = layers.IndexOf(layers.First(x => x.LayerGuid == structureData.StartLayerGuid));
+            var endLayer = layers.FirstOrDefault(x => x.LayerGuid == structureData.EndLayerGuid);
+            var bottomLayer = layers.FirstOrDefault(x => x.LayerGuid == structureData.StartLayerGuid);
+            int originalTopIndex = 0;
+            int originalBottomIndex = 0;
+            if (endLayer != null)
+            {
+                originalTopIndex = layers.IndexOf(endLayer);
+            }
+            if (bottomLayer != null)
+            {
+                originalBottomIndex = layers.IndexOf(bottomLayer);
+            }
 
             return displayIndex + (originalTopIndex - originalBottomIndex);
         }

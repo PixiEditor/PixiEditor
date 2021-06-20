@@ -150,7 +150,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewLayer(object parameter)
         {
-            bool isCollapsed = parameter is LayerGroupControl control && !control.GroupData.IsExpanded;
+            GuidStructureItem control = GetGroupFromParameter(parameter);
+            bool isCollapsed = false;
+            if (control != null)
+            {
+                isCollapsed = !control.IsExpanded;
+            }
             var doc = Owner.BitmapManager.ActiveDocument;
             var activeLayerParent = doc.LayerStructure.GetGroupByLayer(doc.ActiveLayerGuid);
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
@@ -162,11 +167,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
                 if (isCollapsed)
                 {
-                    LayerGroupControl groupControl = parameter as LayerGroupControl;
-                    doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, groupControl.GroupData.Parent?.GroupGuid);
+                    doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, control.Parent?.GroupGuid);
                 }
 
                 doc.UndoManager.UndoStack.Pop();
+            }
+            if (control != null)
+            {
+                control.IsExpanded = !isCollapsed;
+                doc.RaisePropertyChange(nameof(doc.LayerStructure));
             }
         }
 
@@ -315,6 +324,28 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             int index = (int)property;
             return Owner.DocumentIsNotNull(null) && index != 0 && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
+        }
+
+        private GuidStructureItem GetGroupFromParameter(object parameter)
+        {
+            if (parameter is LayerGroupControl)
+            {
+                return ((LayerGroupControl)parameter).GroupData;
+            }
+            else if (parameter is Layer layer)
+            {
+                var group = Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupByLayer(layer.LayerGuid);
+                if (group != null)
+                {
+                    while (group.IsExpanded && group.Parent != null)
+                    {
+                        group = group.Parent;
+                    }
+                }
+                return group;
+            }
+
+            return null;
         }
 
         private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
