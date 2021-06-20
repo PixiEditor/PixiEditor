@@ -12,6 +12,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 
@@ -703,6 +704,8 @@ namespace PixiEditor.Models.DataHolders
                 bool wasActive = layer.IsActive;
 
                 var layerGroup = LayerStructure.GetGroupByLayer(layer.LayerGuid);
+
+                LayerStructure.ExpandParentGroups(layerGroup);
 
                 LayerStructure.AssignParent(Layers[index].LayerGuid, null);
                 RemoveGroupsIfEmpty(layer, layerGroup);
