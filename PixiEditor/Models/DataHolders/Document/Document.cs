@@ -181,11 +181,11 @@ namespace PixiEditor.Models.DataHolders
             int oldHeight = Height;
 
             MoveOffsets(Layers, moveVector);
-            Width = width;
-            Height = height;
 
             object[] reverseArguments = { oldOffsets, oldWidth, oldHeight };
             object[] processArguments = { Layers.Select(x => x.Offset).ToArray(), width, height };
+
+            ResizeCanvasProcess(processArguments);
 
             UndoManager.AddUndoChange(new Change(
                 ResizeCanvasProcess,

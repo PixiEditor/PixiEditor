@@ -105,7 +105,7 @@ namespace PixiEditor.Models.Controllers
         /// <param name="amount">Amount of changes to squash.</param>
         public void SquashUndoChanges(int amount)
         {
-            string description = UndoStack.ElementAt(UndoStack.Count - amount - 1).Description;
+            string description = UndoStack.ElementAt(UndoStack.Count - amount).Description;
             SquashUndoChanges(amount, description);
         }
 

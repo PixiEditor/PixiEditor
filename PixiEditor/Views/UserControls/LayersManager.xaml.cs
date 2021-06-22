@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels.SubViewModels.Main;
@@ -70,14 +71,23 @@ namespace PixiEditor.Views.UserControls
                     var doc = vm.Owner.BitmapManager.ActiveDocument;
                     if (doc != null)
                     {
+                        if (doc.ActiveLayer != null)
+                        {
+                            manager.SetActiveLayerAsSelectedItem(doc);
+                        }
                         doc.AddPropertyChangedCallback(nameof(doc.ActiveLayer), () =>
                         {
-                            manager.SelectedItem = doc.ActiveLayer;
-                            manager.SetInputOpacity(manager.SelectedItem);
+                            manager.SetActiveLayerAsSelectedItem(doc);
                         });
                     }
                 });
             }
+        }
+
+        private void SetActiveLayerAsSelectedItem(Document doc)
+        {
+            SelectedItem = doc.ActiveLayer;
+            SetInputOpacity(SelectedItem);
         }
 
         private void SetInputOpacity(object item)
