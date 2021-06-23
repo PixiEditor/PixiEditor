@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:coll="clr-namespace:System.Collections.ObjectModel;assembly=System"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="400" x:Name="uc"
              Foreground="White" Background="Transparent">
@@ -19,12 +20,12 @@
             <RowDefinition Height="5"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
+
         <Viewbox Margin="30" VerticalAlignment="Center">
             <Grid x:Name="imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor"
               Visibility="{Binding Document, Converter={StaticResource NullToVisibiltyConverter}, ElementName=uc}"
               Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
-              Background="{Binding SelectedItem.Tag, ElementName=backgroundComboBox}" d:Width="8" d:Height="8">
+              Background="{Binding ActiveItem.Value, ElementName=backgroundButton}" d:Width="8" d:Height="8">
                 <ItemsControl ItemsSource="{Binding Document.Layers, ElementName=uc}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -36,12 +37,12 @@
                             <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                                Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}">
-                            <Image.Opacity>
+                                <Image.Opacity>
                                     <MultiBinding Converter="{converters:LayerToFinalOpacityConverter}">
                                         <Binding Path="."/>
                                         <Binding Path="Opacity"/>
                                     </MultiBinding>
-                            </Image.Opacity>
+                                </Image.Opacity>
                                 <Image.Visibility>
                                     <MultiBinding Converter="{converters:FinalIsVisibleToVisiblityConverter}">
                                         <Binding Path="."/>
@@ -78,7 +79,7 @@
             <local:PrependTextBlock Prepend=" X: " Text="{Binding ColorCursorPosition.Left, ElementName=uc}"/>
             <local:PrependTextBlock Prepend=" Y: " Text="{Binding ColorCursorPosition.Top, ElementName=uc}"/>
 
-            <Grid Width="15"/>
+            <Grid Width="5"/>
 
             <local:PrependTextBlock Prepend=" R: " Text="{Binding ColorCursorColor.R, ElementName=uc}"/>
             <local:PrependTextBlock Prepend=" G: " Text="{Binding ColorCursorColor.G, ElementName=uc}"/>
@@ -87,77 +88,28 @@
 
             <local:PrependTextBlock Prepend="  (" Text="{Binding ColorCursorColor, ElementName=uc, FallbackValue=#00000000}" Append=")"/>
         </StackPanel>
-
-
-        <StackPanel Visibility="{Binding OptionsOpen, ElementName=uc, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Hidden}"
-                    Background="{StaticResource AccentColor}" Grid.RowSpan="3">
-            <Grid Margin="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="50"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Background: " VerticalAlignment="Center"/>
-                <ComboBox SelectedIndex="1" x:Name="backgroundComboBox" Grid.Column="1">
-                    <ComboBoxItem Content="None">
-                        <ComboBoxItem.Tag>
-                            <SolidColorBrush Color="Transparent"/>
-                        </ComboBoxItem.Tag>
-                    </ComboBoxItem>
-                    <ComboBoxItem Content="Checkered">
-                        <ComboBoxItem.Tag>
-                            <ImageBrush Viewport="0, 0.05, 0.05, 0.05" ImageSource="/Images/CheckerTile.png" TileMode="Tile"/>
-                        </ComboBoxItem.Tag>
-                    </ComboBoxItem>
-                    <ComboBoxItem Content="Black">
-                        <ComboBoxItem.Tag>
-                            <SolidColorBrush Color="Black"/>
-                        </ComboBoxItem.Tag>
-                    </ComboBoxItem>
-                    <ComboBoxItem Content="White">
-                        <ComboBoxItem.Tag>
-                            <SolidColorBrush Color="White"/>
-                        </ComboBoxItem.Tag>
-                    </ComboBoxItem>
-                </ComboBox>
-            </Grid>
-        </StackPanel>
-
-        <ToggleButton Height="28" VerticalAlignment="Top" HorizontalAlignment="Right"
-                 Margin="5" Background="Transparent" BorderThickness="0" IsChecked="{Binding OptionsOpen, ElementName=uc, Mode=TwoWay, FallbackValue=True}">
-            <ToggleButton.Style>
-                <Style TargetType="ToggleButton">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ToggleButton">
-                                <Border BorderBrush="{TemplateBinding BorderBrush}" 
-                                        Background="{TemplateBinding Background}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsChecked" Value="False">
-                            <Setter Property="Foreground" Value="LightGray"/>
-                        </Trigger>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter Property="Foreground" Value="White"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Foreground" Value="Gray"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ToggleButton.Style>
-            <Viewbox>
-                <Grid>
-                    <Path Stroke="{Binding Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}, Mode=OneWay}" StrokeThickness="1.5" Data="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    <Ellipse Stroke="{Binding Foreground, RelativeSource={RelativeSource FindAncestor, AncestorType=ToggleButton}, Mode=OneWay}" StrokeThickness="1.5" Height="8" Width="8" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-                </Grid>
-            </Viewbox>
-        </ToggleButton>
-
+        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="5,0,5,0" Width="25" Height="20" RenderOptions.BitmapScalingMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
+            <local:ListSwitchButton x:Name="backgroundButton" ToolTip="Preview background">
+                <local:ListSwitchButton.Items>
+                    <local:SwitchItemObservableCollection>
+                        <local:SwitchItem ScalingMode="NearestNeighbor">
+                            <local:SwitchItem.Background>
+                                <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 1, 1"/>
+                            </local:SwitchItem.Background>
+                            <local:SwitchItem.Value>
+                                <ImageBrush Viewport="0, 0.05, 0.05, 0.05" ImageSource="/Images/CheckerTile.png" TileMode="Tile"/>
+                            </local:SwitchItem.Value>
+                        </local:SwitchItem>
+                        <local:SwitchItem Value="Transparent">
+                            <local:SwitchItem.Background>
+                                <ImageBrush ImageSource="/Images/DiagonalRed.png"/>
+                            </local:SwitchItem.Background>
+                        </local:SwitchItem>
+                        <local:SwitchItem Background="White" Value="White"/>
+                        <local:SwitchItem Background="Black" Value="Black"/>
+                    </local:SwitchItemObservableCollection>
+                </local:ListSwitchButton.Items>
+            </local:ListSwitchButton>
+        </Grid>
     </Grid>
 </UserControl>
