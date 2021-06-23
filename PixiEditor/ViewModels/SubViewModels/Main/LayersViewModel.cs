@@ -332,9 +332,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 return ((LayerGroupControl)parameter).GroupData;
             }
-            else if (parameter is Layer layer)
+            else if (parameter is Layer || parameter is LayerStructureItemContainer)
             {
-                var group = Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupByLayer(layer.LayerGuid);
+                Guid layerGuid = parameter is Layer layer ? layer.LayerGuid : ((LayerStructureItemContainer)parameter).Layer.LayerGuid;
+                var group = Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupByLayer(layerGuid);
                 if (group != null)
                 {
                     while (group.IsExpanded && group.Parent != null)
