@@ -151,13 +151,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void NewLayer(object parameter)
         {
             GuidStructureItem control = GetGroupFromParameter(parameter);
-            bool isCollapsed = false;
-            if (control != null)
-            {
-                isCollapsed = !control.IsExpanded;
-            }
             var doc = Owner.BitmapManager.ActiveDocument;
             var activeLayerParent = doc.LayerStructure.GetGroupByLayer(doc.ActiveLayerGuid);
+
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
 
             doc.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
@@ -165,16 +161,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (doc.Layers.Count > 1)
             {
                 doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
-                if (isCollapsed)
-                {
-                    doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, control.Parent?.GroupGuid);
-                }
-
+                Guid? parent = parameter is Layer or LayerStructureItemContainer ? activeLayerParent?.GroupGuid : activeLayerParent.Parent?.GroupGuid;
+                doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, parent);
                 doc.UndoManager.UndoStack.Pop();
             }
             if (control != null)
             {
-                control.IsExpanded = !isCollapsed;
+                control.IsExpanded = true;
                 doc.RaisePropertyChange(nameof(doc.LayerStructure));
             }
         }
