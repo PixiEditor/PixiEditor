@@ -4,19 +4,23 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PixiEditor.Views"
+             xmlns:userc="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" PreviewMouseDown="MainDrawingPanel_PreviewMouseDown" PreviewMouseUp="MainDrawingPanel_PreviewMouseUp"
              d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel" PreviewMouseWheel="Zoombox_MouseWheel">
-    <xctk:Zoombox PreviewMouseDown="Zoombox_PreviewMouseDown" Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="False"
+    <Grid>
+        <userc:ZoomBox/>
+        <xctk:Zoombox PreviewMouseDown="Zoombox_PreviewMouseDown" Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="False" Visibility="Hidden"
                   Loaded="Zoombox_Loaded" IsAnimated="False" MouseDown="Zoombox_MouseDown"
                   CurrentViewChanged="Zoombox_CurrentViewChanged" DragModifiers="Blocked" ZoomModifiers="None">
-        <i:Interaction.Triggers>
-            <i:EventTrigger EventName="MouseMove">
-                <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=mainDrawingPanel, Mode=OneWay}" />
-            </i:EventTrigger>
-        </i:Interaction.Triggers>
-        <ContentPresenter Content="{Binding Item, ElementName=mainDrawingPanel}" />
-    </xctk:Zoombox>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseMove">
+                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=mainDrawingPanel, Mode=OneWay}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <ContentPresenter Content="{Binding Item, ElementName=mainDrawingPanel}" />
+        </xctk:Zoombox>
+    </Grid>
 </UserControl>
