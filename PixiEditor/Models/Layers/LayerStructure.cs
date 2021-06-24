@@ -639,8 +639,12 @@ namespace PixiEditor.Models.Layers
         {
             foreach (var currentGroup in groups)
             {
-                int topIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == currentGroup.EndLayerGuid));
-                int bottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == currentGroup.StartLayerGuid));
+                var endLayer = Owner.Layers.FirstOrDefault(x => x.LayerGuid == currentGroup.EndLayerGuid);
+                var startLayer = Owner.Layers.FirstOrDefault(x => x.LayerGuid == currentGroup.StartLayerGuid);
+                if (endLayer == null || startLayer == null) continue;
+
+                int topIndex = Owner.Layers.IndexOf(endLayer);
+                int bottomIndex = Owner.Layers.IndexOf(startLayer);
                 var layers = GetLayersInOrder(new GroupData(topIndex, bottomIndex));
 
                 if (currentGroup.Subgroups.Count > 0)
