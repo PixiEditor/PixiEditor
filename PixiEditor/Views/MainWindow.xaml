@@ -207,11 +207,6 @@
             <Grid AllowDrop="True" Drop="MainWindow_Drop">
                 <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
-                    <DockingManager.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="0,5,5,0"/>
-                        </Style>
-                    </DockingManager.Resources>
                     <DockingManager.Theme>
                         <avalonDockTheme:PixiEditorDockTheme />
                     </DockingManager.Theme>

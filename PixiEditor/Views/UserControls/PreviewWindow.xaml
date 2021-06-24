@@ -79,17 +79,6 @@
             <local:PrependTextBlock Prepend=" X: " Text="{Binding ColorCursorPosition.Left, ElementName=uc}"/>
             <local:PrependTextBlock Prepend=" Y: " Text="{Binding ColorCursorPosition.Top, ElementName=uc}"/>
 
-            <Grid Width="15"/>
-
-            <local:ListSwitchButton x:Name="formatButton" Height="20" Width="35" BorderThickness="1">
-                <local:ListSwitchButton.Items>
-                    <local:SwitchItemObservableCollection>
-                        <local:SwitchItem Content="RGBA" Background="{StaticResource AccentColor}" Value="RGBA"/>
-                        <local:SwitchItem Content="HEX" Background="{StaticResource AccentColor}" Value="HEX"/>
-                    </local:SwitchItemObservableCollection>
-                </local:ListSwitchButton.Items>
-            </local:ListSwitchButton>
-
             <TextBlock VerticalAlignment="Center" Margin="10, 0, 0, 0">
                 <TextBlock.Text>
                     <MultiBinding Converter="{converters:FormattedColorConverter}">
@@ -99,28 +88,38 @@
                 </TextBlock.Text>
             </TextBlock>
         </StackPanel>
-        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="5,0,5,0" Width="25" Height="20" RenderOptions.BitmapScalingMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
-            <local:ListSwitchButton x:Name="backgroundButton" ToolTip="Preview background">
-                <local:ListSwitchButton.Items>
-                    <local:SwitchItemObservableCollection>
-                        <local:SwitchItem ScalingMode="NearestNeighbor">
-                            <local:SwitchItem.Background>
-                                <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 1, 1"/>
-                            </local:SwitchItem.Background>
-                            <local:SwitchItem.Value>
-                                <ImageBrush Viewport="0, 0.05, 0.05, 0.05" ImageSource="/Images/CheckerTile.png" TileMode="Tile"/>
-                            </local:SwitchItem.Value>
-                        </local:SwitchItem>
-                        <local:SwitchItem Value="Transparent">
-                            <local:SwitchItem.Background>
-                                <ImageBrush ImageSource="/Images/DiagonalRed.png"/>
-                            </local:SwitchItem.Background>
-                        </local:SwitchItem>
-                        <local:SwitchItem Background="White" Value="White"/>
-                        <local:SwitchItem Background="Black" Value="Black"/>
-                    </local:SwitchItemObservableCollection>
-                </local:ListSwitchButton.Items>
-            </local:ListSwitchButton>
+        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
+            <StackPanel Orientation="Horizontal">
+                <local:ListSwitchButton x:Name="formatButton" Margin="0,0,5,0" Height="20" Width="40" BorderBrush="Black">
+                    <local:ListSwitchButton.Items>
+                        <local:SwitchItemObservableCollection>
+                            <local:SwitchItem Content="RGBA" Background="#353535" Value="RGBA"/>
+                            <local:SwitchItem Content="HEX" Background="#353535" Value="HEX"/>
+                        </local:SwitchItemObservableCollection>
+                    </local:ListSwitchButton.Items>
+                </local:ListSwitchButton>
+                <local:ListSwitchButton BorderBrush="{StaticResource DarkerAccentColor}" Width="25" Height="20" x:Name="backgroundButton" ToolTip="Preview background">
+                    <local:ListSwitchButton.Items>
+                        <local:SwitchItemObservableCollection>
+                            <local:SwitchItem ScalingMode="NearestNeighbor">
+                                <local:SwitchItem.Background>
+                                    <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 1, 1"/>
+                                </local:SwitchItem.Background>
+                                <local:SwitchItem.Value>
+                                    <ImageBrush Viewport="0, 0.05, 0.05, 0.05" ImageSource="/Images/CheckerTile.png" TileMode="Tile"/>
+                                </local:SwitchItem.Value>
+                            </local:SwitchItem>
+                            <local:SwitchItem Value="Transparent">
+                                <local:SwitchItem.Background>
+                                    <ImageBrush ImageSource="/Images/DiagonalRed.png"/>
+                                </local:SwitchItem.Background>
+                            </local:SwitchItem>
+                            <local:SwitchItem Background="White" Value="White"/>
+                            <local:SwitchItem Background="Black" Value="Black"/>
+                        </local:SwitchItemObservableCollection>
+                    </local:ListSwitchButton.Items>
+                </local:ListSwitchButton>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>
