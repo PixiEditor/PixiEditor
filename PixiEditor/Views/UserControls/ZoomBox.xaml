@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Canvas MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnScroll" x:Name="mainCanvas">
+    <Canvas MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnScroll" x:Name="mainCanvas" Background="Transparent">
         <Grid x:Name="mainGrid">
             <Grid.LayoutTransform>
                 <ScaleTransform x:Name="scaleTransform"/>

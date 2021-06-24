@@ -53,7 +53,7 @@ namespace PixiEditor.Views.UserControls
         {
             private ZoomBox parent;
 
-            private int initZoomPower;
+            private double initZoomPower;
             private Point initSpaceOriginPos;
 
             private Point zoomOrigin;
@@ -76,7 +76,7 @@ namespace PixiEditor.Views.UserControls
             {
                 var curScreenPos = e.GetPosition(parent.mainCanvas);
                 double deltaX = screenZoomOrigin.X - curScreenPos.X;
-                int deltaPower = (int)(deltaX / 10.0);
+                double deltaPower = deltaX / 10.0;
                 parent.ZoomPower = initZoomPower - deltaPower;
 
                 parent.SpaceOriginPos = initSpaceOriginPos;
@@ -103,8 +103,8 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private int zoomPower;
-        private int ZoomPower
+        private double zoomPower;
+        private double ZoomPower
         {
             get => zoomPower;
             set
@@ -176,6 +176,8 @@ namespace PixiEditor.Views.UserControls
             var oldZoomboxMousePos = ToZoomboxSpace(oldMousePos);
 
             ZoomPower += e.Delta / 100;
+
+            if (Math.Abs(ZoomPower) < 1) ZoomPower = 0;
 
             var shiftedMousePos = ToScreenSpace(oldZoomboxMousePos);
             var deltaMousePos = oldMousePos - shiftedMousePos;
