@@ -134,7 +134,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
                 else if(control != null)
                 {
-                    doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", control);
+                    doc.LayerStructure.AddNewGroup($"{control.Name} Group", control);
                 }
 
                 doc.AddLayerStructureToUndo(lastGroups);

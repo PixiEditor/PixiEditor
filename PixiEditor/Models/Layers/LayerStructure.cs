@@ -146,7 +146,7 @@ namespace PixiEditor.Models.Layers
             {
                 throw new ArgumentException("Child group can't be null.");
             }
-            GuidStructureItem group = new($"{childGroup.Name} (1)", childGroup.StartLayerGuid, childGroup.EndLayerGuid, new[] { childGroup }, childGroup.Parent) { IsExpanded = true };
+            GuidStructureItem group = new(groupName, childGroup.StartLayerGuid, childGroup.EndLayerGuid, new[] { childGroup }, childGroup.Parent) { IsExpanded = true };
             if (childGroup.Parent == null)
             {
                 Groups.Add(group);
