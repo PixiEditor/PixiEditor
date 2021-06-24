@@ -707,6 +707,10 @@ namespace PixiEditor.Models.DataHolders
 
                 LayerStructure.ExpandParentGroups(layerGroup);
 
+                if (layerGroup?.Parent != null && LayerStructure.GroupContainsOnlyLayer(layer.LayerGuid, layerGroup))
+                {
+                    LayerStructure.PreMoveReassignBounds(new GroupData(layerGroup.Parent.GroupGuid), new GroupData(layerGroup.GroupGuid));
+                }
                 LayerStructure.AssignParent(Layers[index].LayerGuid, null);
                 RemoveGroupsIfEmpty(layer, layerGroup);
 

@@ -284,7 +284,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="group">Group which data should be reassigned.</param>
         public void PostMoveReassignBounds(GroupData parentGroup, GroupData group)
         {
-            PostMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), GetGroupByGuid(group.GroupGuid));
+            PostMoveReassignBounds(GetGroupByGuid(parentGroup?.GroupGuid), GetGroupByGuid(group.GroupGuid));
         }
 
         /// <summary>
