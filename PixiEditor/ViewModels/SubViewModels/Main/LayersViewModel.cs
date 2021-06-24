@@ -72,7 +72,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanDeleteSelected(object parameter)
         {
-            return (parameter is not null and(Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
+            return (parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
         }
 
         public void DeleteSelected(object parameter)
@@ -121,13 +121,22 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void NewGroup(object parameter)
         {
+            GuidStructureItem control = GetGroupFromParameter(parameter);
             var doc = Owner.BitmapManager.ActiveDocument;
             if (doc != null)
             {
                 var lastGroups = doc.LayerStructure.CloneGroups();
-                GuidStructureItem group = doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.LayerGuid);
+                if (parameter is Layer or LayerStructureItemContainer)
+                {
+                    GuidStructureItem group = doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.LayerGuid);
 
-                Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(group);
+                    Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(group);
+                }
+                else if(control != null)
+                {
+                    doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", control);
+                }
+
                 doc.AddLayerStructureToUndo(lastGroups);
                 doc.RaisePropertyChange(nameof(doc.LayerStructure));
             }

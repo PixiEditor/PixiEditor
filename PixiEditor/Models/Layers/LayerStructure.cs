@@ -140,6 +140,32 @@ namespace PixiEditor.Models.Layers
             return group;
         }
 
+        public GuidStructureItem AddNewGroup(string groupName, GuidStructureItem childGroup)
+        {
+            if (childGroup == null)
+            {
+                throw new ArgumentException("Child group can't be null.");
+            }
+            GuidStructureItem group = new($"{childGroup.Name} (1)", childGroup.StartLayerGuid, childGroup.EndLayerGuid, new[] { childGroup }, childGroup.Parent) { IsExpanded = true };
+            if (childGroup.Parent == null)
+            {
+                Groups.Add(group);
+                Groups.Remove(childGroup);
+            }
+            else
+            {
+                childGroup.Parent.Subgroups.Add(group);
+                childGroup.Parent.Subgroups.Remove(childGroup);
+            }
+
+            childGroup.Parent = group;
+
+            group.GroupsChanged += Group_GroupsChanged;
+
+            LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(GetGroupLayerGuids(group)));
+            return group;
+        }
+
 #nullable enable
         /// <summary>
         /// Moves group and it's children from one index to another. This method makes changes in <see cref="Document"/> Layers.
@@ -639,9 +665,8 @@ namespace PixiEditor.Models.Layers
         {
             foreach (var currentGroup in groups)
             {
-                var endLayer = Owner.Layers.FirstOrDefault(x => x.LayerGuid == currentGroup.EndLayerGuid);
-                var startLayer = Owner.Layers.FirstOrDefault(x => x.LayerGuid == currentGroup.StartLayerGuid);
-                if (endLayer == null || startLayer == null) continue;
+                var endLayer = Owner.Layers.First(x => x.LayerGuid == currentGroup.EndLayerGuid);
+                var startLayer = Owner.Layers.First(x => x.LayerGuid == currentGroup.StartLayerGuid);
 
                 int topIndex = Owner.Layers.IndexOf(endLayer);
                 int bottomIndex = Owner.Layers.IndexOf(startLayer);
