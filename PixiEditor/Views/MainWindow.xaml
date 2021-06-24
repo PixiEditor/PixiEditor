@@ -207,6 +207,11 @@
             <Grid AllowDrop="True" Drop="MainWindow_Drop">
                 <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
+                    <DockingManager.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="0,5,5,0"/>
+                        </Style>
+                    </DockingManager.Resources>
                     <DockingManager.Theme>
                         <avalonDockTheme:PixiEditorDockTheme />
                     </DockingManager.Theme>
@@ -335,7 +340,7 @@
             <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button BorderBrush="White"
+                        <Button BorderBrush="White"                                
                                 BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
                                 Style="{StaticResource ToolButtonStyle}"
                                 Command="{Binding Path=DataContext.ToolsSubViewModel.SelectToolCommand,
@@ -344,6 +349,11 @@
                             <Button.Background>
                                 <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
                             </Button.Background>
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="2.5"/>
+                                    </Style>
+                                </Button.Resources>
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

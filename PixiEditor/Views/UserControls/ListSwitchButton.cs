@@ -9,7 +9,7 @@ namespace PixiEditor.Views.UserControls
     /// <summary>
     /// Interaction logic for ListSwitchButton.xaml
     /// </summary>
-    public partial class ListSwitchButton : UserControl
+    public class ListSwitchButton : Button
     {
         public ObservableCollection<SwitchItem> Items
         {
@@ -41,15 +41,20 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for ActiveItem.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ActiveItemProperty =
-            DependencyProperty.Register("ActiveItem", typeof(SwitchItem), typeof(ListSwitchButton), new PropertyMetadata(new SwitchItem(Brushes.Transparent, null)));
+            DependencyProperty.Register("ActiveItem", typeof(SwitchItem), typeof(ListSwitchButton), new PropertyMetadata(new SwitchItem(Brushes.Transparent, "", null)));
 
+
+        static ListSwitchButton()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(ListSwitchButton), new FrameworkPropertyMetadata(typeof(ListSwitchButton)));
+        }
 
         public ListSwitchButton()
         {
-            InitializeComponent();
+            Click += ListSwitchButton_Click;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ListSwitchButton_Click(object sender, RoutedEventArgs e)
         {
             if (!Items.Contains(ActiveItem))
             {

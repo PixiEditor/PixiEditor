@@ -79,14 +79,25 @@
             <local:PrependTextBlock Prepend=" X: " Text="{Binding ColorCursorPosition.Left, ElementName=uc}"/>
             <local:PrependTextBlock Prepend=" Y: " Text="{Binding ColorCursorPosition.Top, ElementName=uc}"/>
 
-            <Grid Width="5"/>
+            <Grid Width="15"/>
 
-            <local:PrependTextBlock Prepend=" R: " Text="{Binding ColorCursorColor.R, ElementName=uc}"/>
-            <local:PrependTextBlock Prepend=" G: " Text="{Binding ColorCursorColor.G, ElementName=uc}"/>
-            <local:PrependTextBlock Prepend=" B: " Text="{Binding ColorCursorColor.B, ElementName=uc}"/>
-            <local:PrependTextBlock Prepend=" A: " Text="{Binding ColorCursorColor.A, ElementName=uc}"/>
+            <local:ListSwitchButton x:Name="formatButton" Height="20" Width="35" BorderThickness="1">
+                <local:ListSwitchButton.Items>
+                    <local:SwitchItemObservableCollection>
+                        <local:SwitchItem Content="RGBA" Background="{StaticResource AccentColor}" Value="RGBA"/>
+                        <local:SwitchItem Content="HEX" Background="{StaticResource AccentColor}" Value="HEX"/>
+                    </local:SwitchItemObservableCollection>
+                </local:ListSwitchButton.Items>
+            </local:ListSwitchButton>
 
-            <local:PrependTextBlock Prepend="  (" Text="{Binding ColorCursorColor, ElementName=uc, FallbackValue=#00000000}" Append=")"/>
+            <TextBlock VerticalAlignment="Center" Margin="10, 0, 0, 0">
+                <TextBlock.Text>
+                    <MultiBinding Converter="{converters:FormattedColorConverter}">
+                        <Binding Path="ColorCursorColor" ElementName="uc"/>
+                        <Binding Path="ActiveItem.Value" ElementName="formatButton"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
         </StackPanel>
         <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="5,0,5,0" Width="25" Height="20" RenderOptions.BitmapScalingMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
             <local:ListSwitchButton x:Name="backgroundButton" ToolTip="Preview background">
