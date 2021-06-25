@@ -15,13 +15,9 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
     </UserControl.Resources>
-    <vws:MainDrawingPanel ZoomPercentage="{Binding ZoomPercentage, Mode=TwoWay, ElementName=uc}"
-                          Center="{Binding RecenterZoombox, Mode=TwoWay, ElementName=uc}" 
-                          x:Name="DrawingPanel"
-                          CenterOnStart="True" Cursor="{Binding Cursor, ElementName=uc}" 
+    <vws:MainDrawingPanel x:Name="DrawingPanel"
                           MiddleMouseClickedCommand="{Binding MiddleMouseClickedCommand, ElementName=uc}" 
-                          MiddleMouseClickedCommandParameter="{x:Type tools:MoveViewportTool}"
-                          ViewportPosition="{Binding ViewportPosition, ElementName=uc, Mode=TwoWay}">
+                          MiddleMouseClickedCommandParameter="{x:Type tools:MoveViewportTool}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />

@@ -1,25 +1,19 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
+using System;
 using System.Buffers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -103,51 +97,8 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private double zoomPercentage = 100;
-
-        public double ZoomPercentage
-        {
-            get => zoomPercentage;
-            set
-            {
-                zoomPercentage = value;
-                RaisePropertyChanged(nameof(ZoomPercentage));
-            }
-        }
-
-        private Point viewPortPosition;
-
-        public Point ViewportPosition
-        {
-            get => viewPortPosition;
-            set
-            {
-                viewPortPosition = value;
-                RaisePropertyChanged(nameof(ViewportPosition));
-            }
-        }
-
-        private bool recenterZoombox = true;
-
-        public bool RecenterZoombox
-        {
-            get => recenterZoombox;
-            set
-            {
-                recenterZoombox = value;
-                RaisePropertyChanged(nameof(RecenterZoombox));
-            }
-        }
-
         public UndoManager UndoManager { get; set; }
 
-        public void CenterViewport()
-        {
-            RecenterZoombox = false; // It's a trick to trigger change in UserControl
-            RecenterZoombox = true;
-            ViewportPosition = default;
-            ZoomPercentage = default;
-        }
 
         public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -37,8 +35,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void ZoomViewport(object parameter)
         {
             double zoom = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.ZoomPercentage = zoom;
-            Owner.BitmapManager.ActiveDocument.ZoomPercentage = 100;
         }
     }
 }

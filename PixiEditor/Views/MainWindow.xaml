@@ -227,12 +227,9 @@
                             <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
                                 <DataTemplate DataType="{x:Type dataHolders:Document}">
                                     <usercontrols:DrawingViewPort
-                                        ZoomPercentage="{Binding ZoomPercentage}"
-                                        RecenterZoombox="{Binding RecenterZoombox}"
                                         GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
                                         Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
                                         MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"
-                                        ViewportPosition="{Binding ViewportPosition}"
                                         MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"

@@ -9,18 +9,17 @@
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" PreviewMouseDown="MainDrawingPanel_PreviewMouseDown" PreviewMouseUp="MainDrawingPanel_PreviewMouseUp"
-             d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel" PreviewMouseWheel="Zoombox_MouseWheel">
+             d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel">
     <Grid>
-        <userc:ZoomBox/>
-        <xctk:Zoombox PreviewMouseDown="Zoombox_PreviewMouseDown" Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="False" Visibility="Hidden"
-                  Loaded="Zoombox_Loaded" IsAnimated="False" MouseDown="Zoombox_MouseDown"
+        <userc:ZoomBox AdditionalContent="{Binding Item, ElementName=mainDrawingPanel}" />
+        <xctk:Zoombox Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="False" Visibility="Hidden"
+                  IsAnimated="False" MouseDown="Zoombox_MouseDown"
                   CurrentViewChanged="Zoombox_CurrentViewChanged" DragModifiers="Blocked" ZoomModifiers="None">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseMove">
                     <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=mainDrawingPanel, Mode=OneWay}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <ContentPresenter Content="{Binding Item, ElementName=mainDrawingPanel}" />
         </xctk:Zoombox>
     </Grid>
 </UserControl>

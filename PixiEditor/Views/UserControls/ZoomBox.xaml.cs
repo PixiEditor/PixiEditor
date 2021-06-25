@@ -2,14 +2,16 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Markup;
 
 namespace PixiEditor.Views.UserControls
 {
+    [ContentProperty(nameof(AdditionalContent))]
     public partial class ZoomBox : ContentControl
     {
         public enum Mode
         {
-            Normal, Move, Zoom
+            Normal, MoveTool, ZoomTool
         }
 
         private interface IDragOperation
@@ -91,6 +93,24 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
+        public static readonly DependencyProperty AdditionalContentProperty =
+            DependencyProperty.Register(nameof(AdditionalContent), typeof(object), typeof(ZoomBox),
+              new PropertyMetadata(null));
+
+        public static readonly DependencyProperty ZoomModeProperty =
+            DependencyProperty.Register(nameof(ZoomMode), typeof(Mode), typeof(ZoomBox),
+              new PropertyMetadata(Mode.Normal, ZoomModeChanged));
+        public object AdditionalContent
+        {
+            get => GetValue(AdditionalContentProperty);
+            set => SetValue(AdditionalContentProperty, value);
+        }
+        public Mode ZoomMode
+        {
+            get => (Mode)GetValue(ZoomModeProperty);
+            set => SetValue(ZoomModeProperty, value);
+        }
+
         private Point spaceOriginPos;
         private Point SpaceOriginPos
         {
@@ -116,14 +136,19 @@ namespace PixiEditor.Views.UserControls
             }
         }
         private double Zoom => Math.Pow(1.1, zoomPower);
-        private Mode mode;
 
         private IDragOperation activeDragOperation = null;
+
+        private static void ZoomModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ZoomBox sender = (ZoomBox)d;
+            sender.activeDragOperation?.Terminate();
+            sender.activeDragOperation = null;
+        }
 
         public ZoomBox()
         {
             InitializeComponent();
-            mode = Mode.Zoom;
         }
 
         private Point ToScreenSpace(Point p)
@@ -146,14 +171,14 @@ namespace PixiEditor.Views.UserControls
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (mode == Mode.Normal)
+            if (ZoomMode == Mode.Normal)
                 return;
 
             activeDragOperation?.Terminate();
 
-            if (mode == Mode.Move)
+            if (ZoomMode == Mode.MoveTool)
                 activeDragOperation = new MoveDragOperation(this);
-            else if (mode == Mode.Zoom)
+            else if (ZoomMode == Mode.ZoomTool)
                 activeDragOperation = new ZoomDragOperation(this);
 
             activeDragOperation.Start(e);

@@ -227,8 +227,6 @@ namespace PixiEditor.ViewModels
             {
                 document.PreviewLayer = null;
             }
-
-            BitmapManager.ActiveDocument?.CenterViewport();
         }
 
         public bool DocumentIsNotNull(object property)
@@ -334,7 +332,6 @@ namespace PixiEditor.ViewModels
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
             BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            BitmapManager.ActiveDocument.CenterViewport();
             BitmapManager.ActiveDocument.ChangesSaved = false;
         }
 
