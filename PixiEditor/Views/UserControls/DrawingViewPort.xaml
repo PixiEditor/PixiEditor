@@ -22,19 +22,19 @@
                           MiddleMouseClickedCommand="{Binding MiddleMouseClickedCommand, ElementName=uc}" 
                           MiddleMouseClickedCommandParameter="{x:Type tools:MoveViewportTool}"
                           ViewportPosition="{Binding ViewportPosition, ElementName=uc, Mode=TwoWay}">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseMove">
-                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
-                </i:EventTrigger>
-                <i:EventTrigger EventName="MouseDown">
-                    <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-            <i:Interaction.Behaviors>
-                <behaviors:MouseBehavior RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseMove">
+                <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseDown">
+                <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        <i:Interaction.Behaviors>
+            <behaviors:MouseBehavior RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
                                                   MouseX="{Binding MouseXOnCanvas, Mode=TwoWay, ElementName=uc}"
                                                   MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
-            </i:Interaction.Behaviors>
+        </i:Interaction.Behaviors>
         <vws:MainDrawingPanel.Item>
             <Canvas Width="{Binding Width}"
                                 Height="{Binding Height}" VerticalAlignment="Center"
@@ -114,5 +114,5 @@
                 </Grid>
             </Canvas>
         </vws:MainDrawingPanel.Item>
-        </vws:MainDrawingPanel>
+    </vws:MainDrawingPanel>
 </UserControl>
