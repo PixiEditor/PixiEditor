@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor"
+        xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:vws="clr-namespace:PixiEditor.Views"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -29,6 +30,8 @@
             <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
             <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
             <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
+            <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:ZoomTool}" x:Key="IsZoomToolConverter"/>
+            <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:MoveViewportTool}" x:Key="IsMoveViewportToolConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -234,6 +237,8 @@
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
+                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsZoomToolConverter}}"
+                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsMoveViewportToolConverter}}"
                                         Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="PreviewMouseDown">

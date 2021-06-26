@@ -138,17 +138,33 @@ namespace PixiEditor.Views.UserControls
         private double Zoom => Math.Pow(1.1, zoomPower);
 
         private IDragOperation activeDragOperation = null;
+        private MouseButtonEventArgs activeMouseDownEventArgs = null;
+        private Point activeMouseDownPos;
 
         private static void ZoomModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             Zoombox sender = (Zoombox)d;
             sender.activeDragOperation?.Terminate();
             sender.activeDragOperation = null;
+            sender.activeMouseDownEventArgs = null;
         }
 
         public Zoombox()
         {
             InitializeComponent();
+        }
+
+        public void ZoomInto(Point mousePos, double delta)
+        {
+            var oldZoomboxMousePos = ToZoomboxSpace(mousePos);
+
+            ZoomPower += delta;
+
+            if (Math.Abs(ZoomPower) < 1) ZoomPower = 0;
+
+            var shiftedMousePos = ToScreenSpace(oldZoomboxMousePos);
+            var deltaMousePos = mousePos - shiftedMousePos;
+            SpaceOriginPos = SpaceOriginPos + deltaMousePos;
         }
 
         private Point ToScreenSpace(Point p)
@@ -171,6 +187,12 @@ namespace PixiEditor.Views.UserControls
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
+            activeMouseDownEventArgs = e;
+            activeMouseDownPos = e.GetPosition(mainCanvas);
+        }
+
+        private void InitiateDrag(MouseButtonEventArgs e)
+        {
             if (ZoomMode == Mode.Normal)
                 return;
 
@@ -186,27 +208,34 @@ namespace PixiEditor.Views.UserControls
 
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
-            activeDragOperation?.Terminate();
-            activeDragOperation = null;
+            if (activeDragOperation != null)
+            {
+                activeDragOperation?.Terminate();
+                activeDragOperation = null;
+            }
+            else
+            {
+                if (ZoomMode == Mode.ZoomTool)
+                    ZoomInto(e.GetPosition(mainCanvas), Keyboard.IsKeyDown(Key.LeftAlt) ? -1 : 1);
+            }
+            activeMouseDownEventArgs = null;
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
+            if (activeDragOperation == null && activeMouseDownEventArgs != null)
+            {
+                var cur = e.GetPosition(mainCanvas);
+
+                if (Math.Abs(cur.X - activeMouseDownPos.X) > 3)
+                    InitiateDrag(activeMouseDownEventArgs);
+            }
             activeDragOperation?.Update(e);
         }
 
         private void OnScroll(object sender, MouseWheelEventArgs e)
         {
-            var oldMousePos = e.GetPosition(mainCanvas);
-            var oldZoomboxMousePos = ToZoomboxSpace(oldMousePos);
-
-            ZoomPower += e.Delta / 100;
-
-            if (Math.Abs(ZoomPower) < 1) ZoomPower = 0;
-
-            var shiftedMousePos = ToScreenSpace(oldZoomboxMousePos);
-            var deltaMousePos = oldMousePos - shiftedMousePos;
-            SpaceOriginPos = SpaceOriginPos + deltaMousePos;
+            ZoomInto(e.GetPosition(mainCanvas), e.Delta / 100);
         }
     }
 }

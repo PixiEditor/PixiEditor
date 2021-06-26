@@ -29,6 +29,12 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty GridLinesVisibleProperty =
             DependencyProperty.Register(nameof(GridLinesVisible), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
 
+        public static readonly DependencyProperty IsUsingZoomToolProperty =
+            DependencyProperty.Register(nameof(IsUsingZoomTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty IsUsingMoveViewportToolProperty =
+            DependencyProperty.Register(nameof(IsUsingMoveViewportTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
+
         public ICommand MiddleMouseClickedCommand
         {
             get => (ICommand)GetValue(MiddleMouseClickedCommandProperty);
@@ -64,12 +70,22 @@ namespace PixiEditor.Views.UserControls
             get => (bool)GetValue(GridLinesVisibleProperty);
             set => SetValue(GridLinesVisibleProperty, value);
         }
+        public bool IsUsingZoomTool
+        {
+            get => (bool)GetValue(IsUsingZoomToolProperty);
+            set => SetValue(IsUsingZoomToolProperty, value);
+        }
+        public bool IsUsingMoveViewportTool
+        {
+            get => (bool)GetValue(IsUsingMoveViewportToolProperty);
+            set => SetValue(IsUsingMoveViewportToolProperty, value);
+        }
 
-        public RelayCommand InternalMouseDownCommand { get; private set; }
+        public RelayCommand PreviewMouseDownCommand { get; private set; }
 
         public DrawingViewPort()
         {
-            InternalMouseDownCommand = new RelayCommand(ProcessMouseDown);
+            PreviewMouseDownCommand = new RelayCommand(ProcessMouseDown);
             InitializeComponent();
         }
 
@@ -77,8 +93,6 @@ namespace PixiEditor.Views.UserControls
         {
             if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(typeof(MoveViewportTool)))
                 MiddleMouseClickedCommand.Execute(typeof(MoveViewportTool));
-            if (MouseDownCommand.CanExecute(null))
-                MouseDownCommand.Execute(null);
         }
     }
 }

@@ -15,13 +15,18 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
     </UserControl.Resources>
-    <vws:MainDrawingPanel x:Name="DrawingPanel">
+    <vws:MainDrawingPanel x:Name="DrawingPanel"
+                          IsUsingMoveViewportTool="{Binding IsUsingMoveViewportTool, ElementName=uc}"
+                          IsUsingZoomTool="{Binding IsUsingZoomTool, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
             </i:EventTrigger>
             <i:EventTrigger EventName="MouseDown">
-                <i:InvokeCommandAction Command="{Binding InternalMouseDownCommand, ElementName=uc}"/>
+                <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="PreviewMouseDown">
+                <i:InvokeCommandAction Command="{Binding PreviewMouseDownCommand, ElementName=uc}"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
         <i:Interaction.Behaviors>
