@@ -187,6 +187,8 @@ namespace PixiEditor.Views.UserControls
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.ChangedButton == MouseButton.Right)
+                return;
             activeMouseDownEventArgs = e;
             activeMouseDownPos = e.GetPosition(mainCanvas);
         }
@@ -208,6 +210,8 @@ namespace PixiEditor.Views.UserControls
 
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (e.ChangedButton == MouseButton.Right)
+                return;
             if (activeDragOperation != null)
             {
                 activeDragOperation?.Terminate();
