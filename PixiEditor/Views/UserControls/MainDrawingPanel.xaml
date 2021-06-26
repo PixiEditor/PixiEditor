@@ -11,7 +11,7 @@
              mc:Ignorable="d" PreviewMouseDown="MainDrawingPanel_PreviewMouseDown" PreviewMouseUp="MainDrawingPanel_PreviewMouseUp"
              d:DesignHeight="450" d:DesignWidth="800" x:Name="mainDrawingPanel">
     <Grid>
-        <userc:ZoomBox AdditionalContent="{Binding Item, ElementName=mainDrawingPanel}" />
+        <userc:Zoombox AdditionalContent="{Binding Item, ElementName=mainDrawingPanel}" />
         <xctk:Zoombox Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="False" Visibility="Hidden"
                   IsAnimated="False" MouseDown="Zoombox_MouseDown"
                   CurrentViewChanged="Zoombox_CurrentViewChanged" DragModifiers="Blocked" ZoomModifiers="None">

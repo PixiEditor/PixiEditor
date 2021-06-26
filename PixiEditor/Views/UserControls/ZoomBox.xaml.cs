@@ -7,7 +7,7 @@ using System.Windows.Markup;
 namespace PixiEditor.Views.UserControls
 {
     [ContentProperty(nameof(AdditionalContent))]
-    public partial class ZoomBox : ContentControl
+    public partial class Zoombox : ContentControl
     {
         public enum Mode
         {
@@ -25,10 +25,10 @@ namespace PixiEditor.Views.UserControls
 
         private class MoveDragOperation : IDragOperation
         {
-            private ZoomBox parent;
+            private Zoombox parent;
             private Point prevMousePos;
 
-            public MoveDragOperation(ZoomBox zoomBox)
+            public MoveDragOperation(Zoombox zoomBox)
             {
                 parent = zoomBox;
             }
@@ -53,7 +53,7 @@ namespace PixiEditor.Views.UserControls
 
         private class ZoomDragOperation : IDragOperation
         {
-            private ZoomBox parent;
+            private Zoombox parent;
 
             private double initZoomPower;
             private Point initSpaceOriginPos;
@@ -61,7 +61,7 @@ namespace PixiEditor.Views.UserControls
             private Point zoomOrigin;
             private Point screenZoomOrigin;
 
-            public ZoomDragOperation(ZoomBox zoomBox)
+            public ZoomDragOperation(Zoombox zoomBox)
             {
                 parent = zoomBox;
             }
@@ -94,11 +94,11 @@ namespace PixiEditor.Views.UserControls
         }
 
         public static readonly DependencyProperty AdditionalContentProperty =
-            DependencyProperty.Register(nameof(AdditionalContent), typeof(object), typeof(ZoomBox),
+            DependencyProperty.Register(nameof(AdditionalContent), typeof(object), typeof(Zoombox),
               new PropertyMetadata(null));
 
         public static readonly DependencyProperty ZoomModeProperty =
-            DependencyProperty.Register(nameof(ZoomMode), typeof(Mode), typeof(ZoomBox),
+            DependencyProperty.Register(nameof(ZoomMode), typeof(Mode), typeof(Zoombox),
               new PropertyMetadata(Mode.Normal, ZoomModeChanged));
         public object AdditionalContent
         {
@@ -141,12 +141,12 @@ namespace PixiEditor.Views.UserControls
 
         private static void ZoomModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ZoomBox sender = (ZoomBox)d;
+            Zoombox sender = (Zoombox)d;
             sender.activeDragOperation?.Terminate();
             sender.activeDragOperation = null;
         }
 
-        public ZoomBox()
+        public Zoombox()
         {
             InitializeComponent();
         }
