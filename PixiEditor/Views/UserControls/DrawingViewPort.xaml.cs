@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Tools.Tools;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -9,11 +11,6 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class DrawingViewPort : UserControl
     {
-        public DrawingViewPort()
-        {
-            InitializeComponent();
-        }
-
         public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
             DependencyProperty.Register(nameof(MiddleMouseClickedCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
@@ -66,6 +63,22 @@ namespace PixiEditor.Views.UserControls
         {
             get => (bool)GetValue(GridLinesVisibleProperty);
             set => SetValue(GridLinesVisibleProperty, value);
+        }
+
+        public RelayCommand InternalMouseDownCommand { get; private set; }
+
+        public DrawingViewPort()
+        {
+            InternalMouseDownCommand = new RelayCommand(ProcessMouseDown);
+            InitializeComponent();
+        }
+
+        private void ProcessMouseDown(object parameter)
+        {
+            if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(typeof(MoveViewportTool)))
+                MiddleMouseClickedCommand.Execute(typeof(MoveViewportTool));
+            if (MouseDownCommand.CanExecute(null))
+                MouseDownCommand.Execute(null);
         }
     }
 }

@@ -15,15 +15,13 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
     </UserControl.Resources>
-    <vws:MainDrawingPanel x:Name="DrawingPanel"
-                          MiddleMouseClickedCommand="{Binding MiddleMouseClickedCommand, ElementName=uc}" 
-                          MiddleMouseClickedCommandParameter="{x:Type tools:MoveViewportTool}">
+    <vws:MainDrawingPanel x:Name="DrawingPanel">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
             </i:EventTrigger>
             <i:EventTrigger EventName="MouseDown">
-                <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
+                <i:InvokeCommandAction Command="{Binding InternalMouseDownCommand, ElementName=uc}"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
         <i:Interaction.Behaviors>

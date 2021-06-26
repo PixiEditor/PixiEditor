@@ -13,7 +13,7 @@
     <Grid>
         <userc:Zoombox AdditionalContent="{Binding Item, ElementName=mainDrawingPanel}" />
         <xctk:Zoombox Cursor="{Binding Cursor}" Name="Zoombox" KeepContentInBounds="False" Visibility="Hidden"
-                  IsAnimated="False" MouseDown="Zoombox_MouseDown"
+                  IsAnimated="False"
                   CurrentViewChanged="Zoombox_CurrentViewChanged" DragModifiers="Blocked" ZoomModifiers="None">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseMove">

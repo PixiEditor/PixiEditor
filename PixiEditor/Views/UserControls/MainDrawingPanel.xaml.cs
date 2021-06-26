@@ -26,12 +26,6 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty IsUsingZoomToolProperty =
             DependencyProperty.Register(nameof(IsUsingZoomTool), typeof(bool), typeof(MainDrawingPanel), new PropertyMetadata(false));
 
-        public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
-            DependencyProperty.Register(nameof(MiddleMouseClickedCommand), typeof(ICommand), typeof(MainDrawingPanel), new PropertyMetadata(default(ICommand)));
-
-        public static readonly DependencyProperty MiddleMouseClickedCommandParameterProperty =
-            DependencyProperty.Register(nameof(MiddleMouseClickedCommandParameter), typeof(object), typeof(MainDrawingPanel), new PropertyMetadata(default(object)));
-
         public double MouseX
         {
             get => (double)GetValue(MouseXProperty);
@@ -62,18 +56,6 @@ namespace PixiEditor.Views
             set => SetValue(IsUsingZoomToolProperty, value);
         }
 
-        public ICommand MiddleMouseClickedCommand
-        {
-            get => (ICommand)GetValue(MiddleMouseClickedCommandProperty);
-            set => SetValue(MiddleMouseClickedCommandProperty, value);
-        }
-
-        public object MiddleMouseClickedCommandParameter
-        {
-            get => GetValue(MiddleMouseClickedCommandParameterProperty);
-            set => SetValue(MiddleMouseClickedCommandParameterProperty, value);
-        }
-
         public Point ClickPosition;
 
         public MainDrawingPanel()
@@ -94,14 +76,6 @@ namespace PixiEditor.Views
             ((IInputElement)sender).ReleaseMouseCapture();
         }
 
-        private void Zoombox_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.MiddleButton == MouseButtonState.Pressed &&
-                MiddleMouseClickedCommand.CanExecute(MiddleMouseClickedCommandParameter))
-            {
-                MiddleMouseClickedCommand.Execute(MiddleMouseClickedCommandParameter);
-            }
-        }
         private void Zoombox_CurrentViewChanged(object sender, ZoomboxViewChangedEventArgs e)
         {
             Zoombox.MinScale = 32 / ((FrameworkElement)Item).Width;
