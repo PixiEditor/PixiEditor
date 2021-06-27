@@ -4,11 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views"
-        mc:Ignorable="d"
+        mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
         Title="ResizeDocumentPopup" WindowStartupLocation="CenterScreen" Height="200" Width="400" WindowStyle="None">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"
+        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 
