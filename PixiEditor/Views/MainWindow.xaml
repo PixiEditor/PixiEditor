@@ -230,6 +230,7 @@
                             <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
                                 <DataTemplate DataType="{x:Type dataHolders:Document}">
                                     <usercontrols:DrawingViewPort
+                                        CenterViewportTrigger="{Binding CenterViewportTrigger}"
                                         GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
                                         Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
                                         MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"

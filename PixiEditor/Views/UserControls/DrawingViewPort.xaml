@@ -36,6 +36,7 @@
 
         <local:Zoombox.AdditionalContent>
             <Canvas Width="{Binding Width}"
+                                Loaded="OnCanvasLoaded"
                                 Height="{Binding Height}" VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
                 <Image Source="/Images/transparentbg.png"

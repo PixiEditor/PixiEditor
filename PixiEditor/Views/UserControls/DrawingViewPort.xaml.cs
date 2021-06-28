@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Tools.Tools;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -34,6 +35,10 @@ namespace PixiEditor.Views.UserControls
 
         public static readonly DependencyProperty IsUsingMoveViewportToolProperty =
             DependencyProperty.Register(nameof(IsUsingMoveViewportTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false, ToolChanged));
+
+        public static readonly DependencyProperty CenterViewportTriggerProperty =
+            DependencyProperty.Register(nameof(CenterViewportTrigger), typeof(ExecutionTrigger<EventArgs>), typeof(DrawingViewPort),
+                new PropertyMetadata(default(ExecutionTrigger<EventArgs>), CenterViewportTriggerChanged));
 
         public ICommand MiddleMouseClickedCommand
         {
@@ -70,15 +75,23 @@ namespace PixiEditor.Views.UserControls
             get => (bool)GetValue(GridLinesVisibleProperty);
             set => SetValue(GridLinesVisibleProperty, value);
         }
+
         public bool IsUsingZoomTool
         {
             get => (bool)GetValue(IsUsingZoomToolProperty);
             set => SetValue(IsUsingZoomToolProperty, value);
         }
+
         public bool IsUsingMoveViewportTool
         {
             get => (bool)GetValue(IsUsingMoveViewportToolProperty);
             set => SetValue(IsUsingMoveViewportToolProperty, value);
+        }
+
+        public ExecutionTrigger<EventArgs> CenterViewportTrigger
+        {
+            get => (ExecutionTrigger<EventArgs>)GetValue(CenterViewportTriggerProperty);
+            set => SetValue(CenterViewportTriggerProperty, value);
         }
 
         public RelayCommand PreviewMouseDownCommand { get; private set; }
@@ -93,16 +106,41 @@ namespace PixiEditor.Views.UserControls
                 panel.zoombox.ZoomMode = Zoombox.Mode.Normal;
         }
 
+        private static void CenterViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var viewport = (DrawingViewPort)sender;
+            if (args.OldValue != null)
+            {
+                ((ExecutionTrigger<EventArgs>)args.OldValue).Triggered -= viewport.CenterZoomboxContent;
+            }
+            ((ExecutionTrigger<EventArgs>)args.NewValue).Triggered += viewport.CenterZoomboxContent;
+        }
+
+        private bool loaded = false;
+
         public DrawingViewPort()
         {
             PreviewMouseDownCommand = new RelayCommand(ProcessMouseDown);
             InitializeComponent();
         }
 
+        private void CenterZoomboxContent(object sender, EventArgs args)
+        {
+            zoombox.CenterContent();
+        }
+
         private void ProcessMouseDown(object parameter)
         {
             if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(typeof(MoveViewportTool)))
                 MiddleMouseClickedCommand.Execute(typeof(MoveViewportTool));
+        }
+
+        private void OnCanvasLoaded(object sender, EventArgs e)
+        {
+            if (loaded)
+                return;
+            zoombox.CenterContent();
+            loaded = true;
         }
     }
 }

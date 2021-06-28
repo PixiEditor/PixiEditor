@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
@@ -333,6 +334,7 @@ namespace PixiEditor.ViewModels
         {
             BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
             BitmapManager.ActiveDocument.ChangesSaved = false;
+            BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, EventArgs.Empty);
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)

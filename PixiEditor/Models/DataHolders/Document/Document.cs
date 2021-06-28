@@ -20,11 +20,8 @@ namespace PixiEditor.Models.DataHolders
     [DebuggerDisplay("'{Name, nq}' {width}x{height} {Layers.Count} Layer(s)")]
     public partial class Document : NotifyableObject
     {
-        private int height;
-        private int width;
 
         private ViewModelMain xamlAccesibleViewModel = null;
-
         public ViewModelMain XamlAccesibleViewModel // Used to access ViewModelMain, without changing DataContext in XAML
         {
             get => xamlAccesibleViewModel;
@@ -41,6 +38,7 @@ namespace PixiEditor.Models.DataHolders
                 + (!ChangesSaved ? " *" : string.Empty);
         }
 
+        private int width;
         public int Width
         {
             get => width;
@@ -51,6 +49,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private int height;
         public int Height
         {
             get => height;
@@ -74,9 +73,6 @@ namespace PixiEditor.Models.DataHolders
         }
 
         private double mouseXonCanvas;
-
-        private double mouseYonCanvas;
-
         public double MouseXOnCanvas // Mouse X coordinate relative to canvas
         {
             get => mouseXonCanvas;
@@ -87,6 +83,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private double mouseYonCanvas;
         public double MouseYOnCanvas // Mouse Y coordinate relative to canvas
         {
             get => mouseYonCanvas;
@@ -97,8 +94,9 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public UndoManager UndoManager { get; set; }
+        public ExecutionTrigger<EventArgs> CenterViewportTrigger { get; } = new();
 
+        public UndoManager UndoManager { get; set; }
 
         public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
 

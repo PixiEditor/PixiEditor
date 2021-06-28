@@ -100,6 +100,8 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty ZoomModeProperty =
             DependencyProperty.Register(nameof(ZoomMode), typeof(Mode), typeof(Zoombox),
               new PropertyMetadata(Mode.Normal, ZoomModeChanged));
+
+        private const double zoomFactor = 1.1;
         public object AdditionalContent
         {
             get => GetValue(AdditionalContentProperty);
@@ -135,7 +137,8 @@ namespace PixiEditor.Views.UserControls
                 scaleTransform.ScaleY = mult;
             }
         }
-        private double Zoom => Math.Pow(1.1, zoomPower);
+
+        private double Zoom => Math.Pow(zoomFactor, zoomPower);
 
         private IDragOperation activeDragOperation = null;
         private MouseButtonEventArgs activeMouseDownEventArgs = null;
@@ -154,6 +157,22 @@ namespace PixiEditor.Views.UserControls
             InitializeComponent();
         }
 
+        public void CenterContent()
+        {
+            const double marginFactor = 1.1;
+            double scaleFactor = Math.Max(
+                mainGrid.ActualWidth * marginFactor / mainCanvas.ActualWidth,
+                mainGrid.ActualHeight * marginFactor / mainCanvas.ActualHeight);
+            ZoomPower = -Math.Log(scaleFactor, zoomFactor);
+            SpaceOriginPos = new Point(
+                mainCanvas.ActualWidth / 2 - mainGrid.ActualWidth * Zoom / 2,
+                mainCanvas.ActualHeight / 2 - mainGrid.ActualHeight * Zoom / 2);
+        }
+
+        public void ZoomIntoCenter(double delta)
+        {
+            ZoomInto(new Point(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2), delta);
+        }
         public void ZoomInto(Point mousePos, double delta)
         {
             var oldZoomboxMousePos = ToZoomboxSpace(mousePos);
