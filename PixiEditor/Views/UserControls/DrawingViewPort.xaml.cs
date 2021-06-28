@@ -40,6 +40,10 @@ namespace PixiEditor.Views.UserControls
             DependencyProperty.Register(nameof(CenterViewportTrigger), typeof(ExecutionTrigger<EventArgs>), typeof(DrawingViewPort),
                 new PropertyMetadata(default(ExecutionTrigger<EventArgs>), CenterViewportTriggerChanged));
 
+        public static readonly DependencyProperty ZoomViewportTriggerProperty =
+            DependencyProperty.Register(nameof(ZoomViewportTrigger), typeof(ExecutionTrigger<double>), typeof(DrawingViewPort),
+                new PropertyMetadata(default(ExecutionTrigger<double>), ZoomViewportTriggerChanged));
+
         public ICommand MiddleMouseClickedCommand
         {
             get => (ICommand)GetValue(MiddleMouseClickedCommandProperty);
@@ -94,6 +98,12 @@ namespace PixiEditor.Views.UserControls
             set => SetValue(CenterViewportTriggerProperty, value);
         }
 
+        public ExecutionTrigger<double> ZoomViewportTrigger
+        {
+            get => (ExecutionTrigger<double>)GetValue(ZoomViewportTriggerProperty);
+            set => SetValue(ZoomViewportTriggerProperty, value);
+        }
+
         public RelayCommand PreviewMouseDownCommand { get; private set; }
         private static void ToolChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
@@ -110,10 +120,16 @@ namespace PixiEditor.Views.UserControls
         {
             var viewport = (DrawingViewPort)sender;
             if (args.OldValue != null)
-            {
                 ((ExecutionTrigger<EventArgs>)args.OldValue).Triggered -= viewport.CenterZoomboxContent;
-            }
             ((ExecutionTrigger<EventArgs>)args.NewValue).Triggered += viewport.CenterZoomboxContent;
+        }
+
+        private static void ZoomViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var viewport = (DrawingViewPort)sender;
+            if (args.OldValue != null)
+                ((ExecutionTrigger<double>)args.OldValue).Triggered -= viewport.ZoomZoomboxContent;
+            ((ExecutionTrigger<double>)args.NewValue).Triggered += viewport.ZoomZoomboxContent;
         }
 
         private bool loaded = false;
@@ -127,6 +143,10 @@ namespace PixiEditor.Views.UserControls
         private void CenterZoomboxContent(object sender, EventArgs args)
         {
             zoombox.CenterContent();
+        }
+        private void ZoomZoomboxContent(object sender, double args)
+        {
+            zoombox.ZoomIntoCenter(args);
         }
 
         private void ProcessMouseDown(object parameter)

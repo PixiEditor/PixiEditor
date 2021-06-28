@@ -95,6 +95,7 @@ namespace PixiEditor.Models.DataHolders
         }
 
         public ExecutionTrigger<EventArgs> CenterViewportTrigger { get; } = new();
+        public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new();
 
         public UndoManager UndoManager { get; set; }
 
