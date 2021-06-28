@@ -216,6 +216,7 @@ namespace PixiEditor.Views.UserControls
                 return;
             activeMouseDownEventArgs = e;
             activeMouseDownPos = e.GetPosition(mainCanvas);
+            Keyboard.Focus(this);
         }
 
         private void InitiateDrag(MouseButtonEventArgs e)
