@@ -15,9 +15,8 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
     </UserControl.Resources>
-    <vws:MainDrawingPanel x:Name="DrawingPanel"
-                          IsUsingMoveViewportTool="{Binding IsUsingMoveViewportTool, ElementName=uc}"
-                          IsUsingZoomTool="{Binding IsUsingZoomTool, ElementName=uc}">
+
+    <local:Zoombox x:Name="zoombox" ClipToBounds="True">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
@@ -30,11 +29,12 @@
             </i:EventTrigger>
         </i:Interaction.Triggers>
         <i:Interaction.Behaviors>
-            <behaviors:MouseBehavior RelativeTo="{Binding ElementName=DrawingPanel, Path=Item}"
+            <behaviors:MouseBehavior RelativeTo="{Binding ElementName=zoombox, Path=AdditionalContent}"
                                                   MouseX="{Binding MouseXOnCanvas, Mode=TwoWay, ElementName=uc}"
                                                   MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
         </i:Interaction.Behaviors>
-        <vws:MainDrawingPanel.Item>
+
+        <local:Zoombox.AdditionalContent>
             <Canvas Width="{Binding Width}"
                                 Height="{Binding Height}" VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
@@ -112,6 +112,6 @@
                     </Rectangle>
                 </Grid>
             </Canvas>
-        </vws:MainDrawingPanel.Item>
-    </vws:MainDrawingPanel>
+        </local:Zoombox.AdditionalContent>
+    </local:Zoombox>
 </UserControl>

@@ -30,10 +30,10 @@ namespace PixiEditor.Views.UserControls
             DependencyProperty.Register(nameof(GridLinesVisible), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
 
         public static readonly DependencyProperty IsUsingZoomToolProperty =
-            DependencyProperty.Register(nameof(IsUsingZoomTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(IsUsingZoomTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false, ToolChanged));
 
         public static readonly DependencyProperty IsUsingMoveViewportToolProperty =
-            DependencyProperty.Register(nameof(IsUsingMoveViewportTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(IsUsingMoveViewportTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false, ToolChanged));
 
         public ICommand MiddleMouseClickedCommand
         {
@@ -82,6 +82,16 @@ namespace PixiEditor.Views.UserControls
         }
 
         public RelayCommand PreviewMouseDownCommand { get; private set; }
+        private static void ToolChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var panel = (DrawingViewPort)sender;
+            if (panel.IsUsingZoomTool)
+                panel.zoombox.ZoomMode = Zoombox.Mode.ZoomTool;
+            else if (panel.IsUsingMoveViewportTool)
+                panel.zoombox.ZoomMode = Zoombox.Mode.MoveTool;
+            else
+                panel.zoombox.ZoomMode = Zoombox.Mode.Normal;
+        }
 
         public DrawingViewPort()
         {
