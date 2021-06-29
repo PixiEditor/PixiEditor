@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,7 +8,7 @@ using System.Windows.Markup;
 namespace PixiEditor.Views.UserControls
 {
     [ContentProperty(nameof(AdditionalContent))]
-    public partial class Zoombox : ContentControl
+    public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         public enum Mode
         {
@@ -115,6 +116,8 @@ namespace PixiEditor.Views.UserControls
             set => SetValue(ZoomModeProperty, value);
         }
 
+        public double Zoom => Math.Pow(zoomFactor, zoomPower);
+
         private Point spaceOriginPos;
         private Point SpaceOriginPos
         {
@@ -141,14 +144,15 @@ namespace PixiEditor.Views.UserControls
                 var mult = Zoom;
                 scaleTransform.ScaleX = mult;
                 scaleTransform.ScaleY = mult;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Zoom)));
             }
         }
-
-        private double Zoom => Math.Pow(zoomFactor, zoomPower);
 
         private IDragOperation activeDragOperation = null;
         private MouseButtonEventArgs activeMouseDownEventArgs = null;
         private Point activeMouseDownPos;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private static void ZoomModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

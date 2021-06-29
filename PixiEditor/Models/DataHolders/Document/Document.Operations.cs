@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
+using System;
+using System.Linq;
+using System.Windows;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -101,7 +97,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void ResizeDocumentProcess(object[] args)
         {
-            if (args.Length > 1 && args[0] is int width && args[1] is int height) 
+            if (args.Length > 1 && args[0] is int width && args[1] is int height)
             {
                 ResizeDocument(width, height);
             }

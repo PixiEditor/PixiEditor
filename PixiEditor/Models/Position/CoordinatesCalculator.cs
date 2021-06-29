@@ -123,40 +123,37 @@ namespace PixiEditor.Models.Position
         public static int FindMaxYNonTransparent(WriteableBitmap bitmap)
         {
             Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int y = (int)bitmap.Height - 1; y >= 0; y--)
+            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
+            for (int y = ctx.Height - 1; y >= 0; y--)
             {
-                for (int x = (int)bitmap.Width - 1; x >= 0; x--)
+                for (int x = ctx.Width - 1; x >= 0; x--)
                 {
                     if (bitmap.GetPixel(x, y) != transparent)
                     {
-                        bitmap.Unlock();
                         return y;
                     }
                 }
             }
 
-            bitmap.Unlock();
             return -1;
         }
 
         public static int FindMaxXNonTransparent(WriteableBitmap bitmap)
         {
             Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int x = (int)bitmap.Width - 1; x >= 0; x--)
+
+            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
+            for (int x = ctx.Width - 1; x >= 0; x--)
             {
-                for (int y = (int)bitmap.Height - 1; y >= 0; y--)
+                for (int y = ctx.Height - 1; y >= 0; y--)
                 {
                     if (bitmap.GetPixel(x, y) != transparent)
                     {
-                        bitmap.Unlock();
                         return x;
                     }
                 }
             }
 
-            bitmap.Unlock();
             return -1;
         }
     }

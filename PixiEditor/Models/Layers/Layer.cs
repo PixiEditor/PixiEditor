@@ -154,9 +154,9 @@ namespace PixiEditor.Models.Layers
                 if (opacity != value)
                 {
                     opacity = value;
-                    RaisePropertyChanged(nameof(Opacity));
-                    RaisePropertyChanged(nameof(OpacityUndoTriggerable));
                 }
+                RaisePropertyChanged(nameof(Opacity));
+                RaisePropertyChanged(nameof(OpacityUndoTriggerable));
             }
         }
 
@@ -209,6 +209,11 @@ namespace PixiEditor.Models.Layers
             LayerGuid = newGuid;
         }
 
+        public IEnumerable<Layer> GetLayers()
+        {
+            return new Layer[] { this };
+        }
+
         /// <summary>
         ///     Returns clone of layer.
         /// </summary>
@@ -225,6 +230,11 @@ namespace PixiEditor.Models.Layers
                 IsRenaming = IsRenaming,
                 LayerGuid = generateNewGuid ? Guid.NewGuid() : LayerGuid
             };
+        }
+
+        public void RaisePropertyChange(string property)
+        {
+            RaisePropertyChanged(property);
         }
 
         /// <summary>

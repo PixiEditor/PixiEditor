@@ -6,29 +6,27 @@
         xmlns:local="clr-namespace:PixiEditor"
         xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:vws="clr-namespace:PixiEditor.Views"
+        xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}" xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
+        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
-        WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        AllowDrop="True" Drop="MainWindow_Drop">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="35" GlassFrameThickness="0.1" x:Name="windowsChrome"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <ResourceDictionary>
-            <!--<vm:ViewModelMain x:Key="ViewModelMain" />-->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
             <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
-            <converters:FloatNormalizeConverter x:Key="FloatNormalizeConverter" />
+            <converters:LayersToStructuredLayersConverter x:Key="LayersToStructuredLayersConverter"/>
             <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:ZoomTool}" x:Key="IsZoomToolConverter"/>
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:MoveViewportTool}" x:Key="IsMoveViewportToolConverter"/>
@@ -209,7 +207,7 @@
             </ItemsControl>
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
-            <Grid>
+            <Grid AllowDrop="True" Drop="MainWindow_Drop">
                 <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
                     <DockingManager.Theme>
@@ -266,6 +264,7 @@
                         <LayoutPanel Orientation="Horizontal">
                             <LayoutDocumentPane/>
                             <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="290">
+
                                 <LayoutAnchorablePane x:Name="colorPane">
                                     <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
                                                              CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
@@ -300,105 +299,30 @@
                                     <LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="40"/>
-                                                <RowDefinition Height="30"/>
-                                                <RowDefinition Height="15"/>
-                                                <RowDefinition Height="1*"/>
-                                            </Grid.RowDefinitions>
-                                            <Button Grid.Row="0" Command="{Binding LayersSubViewModel.NewLayerCommand}" Height="30" Content="New Layer"
-                                            HorizontalAlignment="Stretch" Margin="5"
-                                            Style="{StaticResource DarkRoundButton}" />
-                                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0">
-                                                <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
-                                                <vws:NumberInput 
-                                                    Min="0" Max="100"
-                                                    IsEnabled="{Binding Path=BitmapManager.ActiveDocument, 
-                                                    Converter={StaticResource NotNullToBoolConverter}}" 
-                                                    Width="40" Height="20"
-                                                    VerticalAlignment="Center"
-                                                   Value="{Binding BitmapManager.ActiveDocument.ActiveLayer.OpacityUndoTriggerable, Mode=TwoWay, 
-                                            Converter={StaticResource FloatNormalizeConverter}}" />
-                                                <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                            <Separator Grid.Row="2" Background="{StaticResource BrighterAccentColor}"/>
-                                            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-                                                <ItemsControl ItemsSource="{Binding BitmapManager.ActiveDocument.Layers}"
-                                                      x:Name="layersItemsControl" AlternationCount="9999">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <ui:ReversedOrderStackPanel Orientation="Vertical" />
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <vws:LayerItem Tag="{Binding DataContext, ElementName=mainWindow}" LayerIndex="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" SetActiveLayerCommand="{Binding Path=DataContext.LayersSubViewModel.SetActiveLayerCommand, ElementName=mainWindow}"
-                                                                   LayerName="{Binding Name, Mode=TwoWay}" IsActive="{Binding IsActive, Mode=TwoWay}"
-                                                                   IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                                                   PreviewImage="{Binding LayerBitmap}" 
-                                                                   LayerColor="{Binding LayerHighlightColor}"
-                                                                   MoveToBackCommand="{Binding DataContext.LayersSubViewModel.MoveToBackCommand, ElementName=mainWindow}"
-                                                                   MoveToFrontCommand="{Binding DataContext.LayersSubViewModel.MoveToFrontCommand, ElementName=mainWindow}">
-                                                                <vws:LayerItem.ContextMenu>
-                                                                    <ContextMenu>
-                                                                        <MenuItem Header="Delete"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.DeleteLayersCommand,
-                                                                                    RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                        <MenuItem Header="Duplicate"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.DuplicateLayerCommand,
-                                                                                    RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                        <MenuItem Header="Rename"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.RenameLayerCommand,
-                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                        <MenuItem Header="Move to front"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MoveToFrontCommand, 
-                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                        <MenuItem Header="Move to back"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MoveToBackCommand, 
-                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                        <Separator/>
-                                                                        <MenuItem Header="Merge selected"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MergeSelectedCommand, 
-                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                                                                        <MenuItem Header="Merge with above"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MergeWithAboveCommand, 
-                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                        <MenuItem Header="Merge with below"
-                                                                                  Command="{Binding PlacementTarget.Tag.LayersSubViewModel.MergeWithBelowCommand, 
-                                                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                                                  CommandParameter="{Binding RelativeSource={RelativeSource Mode=TemplatedParent},
-                                Path=(ItemsControl.AlternationIndex)}" />
-                                                                    </ContextMenu>
-                                                                </vws:LayerItem.ContextMenu>
-                                                            </vws:LayerItem>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </ScrollViewer>
-                                        </Grid>
+                                        <usercontrols:LayersManager                                            
+                                            LayerCommandsViewModel="{Binding LayersSubViewModel}"
+                                            OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
+                    Converter={StaticResource NotNullToBoolConverter}}">
+                                            <usercontrols:LayersManager.LayerTreeRoot>
+                                                <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
+                                                    <Binding Path="BitmapManager.ActiveDocument.Layers" />
+                                                    <Binding Path="BitmapManager.ActiveDocument.LayerStructure"/>
+                                                </MultiBinding>
+                                            </usercontrols:LayersManager.LayerTreeRoot>
+                                        </usercontrols:LayersManager>
+                                    </LayoutAnchorable>
+                                    <LayoutAnchorable x:Name="rawLayerAnchorable" ContentId="rawLayer" Title="Raw layers">
+                                        <usercontrols:RawLayersViewer Layers="{Binding BitmapManager.ActiveDocument.Layers}"
+                                                                      Structure="{Binding BitmapManager.ActiveDocument.LayerStructure}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                                 <LayoutAnchorablePane>
                                     <LayoutAnchorable ContentId="navigation" Title="Navigation" 
                                                       CanHide="True" CanAutoHide="False"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:PreviewWindow Document="{Binding BitmapManager.ActiveDocument}"
-                                                                    PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
+                                        <usercontrols:PreviewWindow 
+                                            Document="{Binding BitmapManager.ActiveDocument}"
+                                            PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
@@ -408,13 +332,14 @@
             </Grid>
         </Grid>
 
-        <StackPanel Orientation="Vertical" Cursor="Arrow" Grid.Row="2" Grid.Column="0"
-                    Background="{StaticResource AccentColor}" Grid.RowSpan="2">
+        <Border Grid.Row="2" Grid.Column="0"
+                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5">
+        <StackPanel Orientation="Vertical" Cursor="Arrow" >
 
             <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button BorderBrush="White"
+                        <Button BorderBrush="White"                                
                                 BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
                                 Style="{StaticResource ToolButtonStyle}"
                                 Command="{Binding Path=DataContext.ToolsSubViewModel.SelectToolCommand,
@@ -423,11 +348,17 @@
                             <Button.Background>
                                 <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
                             </Button.Background>
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="2.5"/>
+                                    </Style>
+                                </Button.Resources>
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
+        </Border>
 
         <Grid Grid.Row="3" Grid.Column="1">
             <Grid.ColumnDefinitions>
