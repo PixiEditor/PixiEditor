@@ -15,6 +15,7 @@
                 <ResourceDictionary Source="Styles/DarkScrollBarStyle.xaml" />
                 <ResourceDictionary Source="Styles/ImageCheckBoxStyle.xaml" />
                 <ResourceDictionary Source="Styles/DarkCheckboxStyle.xaml" />
+                <ResourceDictionary Source="Styles/ListSwitchButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/LabelStyles.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/DarkBrushes.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/Themes/Menu/DarkBrushes.xaml" />
@@ -23,6 +24,7 @@
                 <ResourceDictionary Source="Styles/AvalonDock/Themes/Icons/IconGeometry.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/Themes/Generic.xaml" />
                 <ResourceDictionary Source="Styles/AvalonDock/PixiEditorDockTheme.xaml" />
+                <ResourceDictionary Source="Styles/TreeViewStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

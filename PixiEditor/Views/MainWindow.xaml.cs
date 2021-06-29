@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using System;

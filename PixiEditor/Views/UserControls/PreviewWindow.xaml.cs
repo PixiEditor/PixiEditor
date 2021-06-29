@@ -18,7 +18,7 @@ namespace PixiEditor.Views.UserControls
             DependencyProperty.Register(nameof(Document), typeof(Document), typeof(PreviewWindow));
 
         public Document Document
-        { 
+        {
             get => (Document)GetValue(DocumentProperty);
             set => SetValue(DocumentProperty, value);
         }

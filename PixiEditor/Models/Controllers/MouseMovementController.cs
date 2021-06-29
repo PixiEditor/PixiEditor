@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Controllers
             {
                 if (LastMouseMoveCoordinates.Count == 0 || mouseCoordinates != LastMouseMoveCoordinates[^1])
                 {
-                    LastMouseMoveCoordinates.Add(mouseCoordinates);
+                    LastMouseMoveCoordinates.Insert(0, mouseCoordinates);
                     MousePositionChanged?.Invoke(this, new MouseMovementEventArgs(mouseCoordinates));
                 }
             }

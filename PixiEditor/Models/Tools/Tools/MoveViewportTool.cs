@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Input;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
@@ -44,7 +45,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override void Use(Coordinates[] pixels)
+        public override void Use(List<Coordinates> pixels)
         {
         }
     }

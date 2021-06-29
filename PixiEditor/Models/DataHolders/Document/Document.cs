@@ -141,6 +141,11 @@ namespace PixiEditor.Models.DataHolders
 
         public UndoManager UndoManager { get; set; }
 
+        public void RaisePropertyChange(string name)
+        {
+            RaisePropertyChanged(name);
+        }
+
         public void CenterViewport()
         {
             RecenterZoombox = false; // It's a trick to trigger change in UserControl
@@ -176,11 +181,11 @@ namespace PixiEditor.Models.DataHolders
             int oldHeight = Height;
 
             MoveOffsets(Layers, moveVector);
-            Width = width;
-            Height = height;
 
             object[] reverseArguments = { oldOffsets, oldWidth, oldHeight };
             object[] processArguments = { Layers.Select(x => x.Offset).ToArray(), width, height };
+
+            ResizeCanvasProcess(processArguments);
 
             UndoManager.AddUndoChange(new Change(
                 ResizeCanvasProcess,
@@ -195,8 +200,8 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void CenterContent()
         {
-            var layersToCenter = Layers.Where(x => x.IsActive && x.IsVisible);
-            if (layersToCenter.Count() == 0)
+            var layersToCenter = Layers.Where(x => x.IsActive && GetFinalLayerIsVisible(x));
+            if (!layersToCenter.Any())
             {
                 return;
             }

@@ -11,6 +11,7 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
 
@@ -23,6 +24,8 @@ namespace PixiEditor.Models.Controllers
         private List<LayerChange> previewLayerChanges;
 
         private Coordinates lastMousePos;
+
+        private SizeSetting sizeSetting;
 
         public BitmapOperationsUtility(BitmapManager manager)
         {
@@ -57,7 +60,7 @@ namespace PixiEditor.Models.Controllers
         }
 
         /// <summary>
-        ///     Executes tool Use() method with given parameters. NOTE: mouseMove is reversed inside function!.
+        ///     Executes tool Use() method with given parameters. NOTE: [0] is a start point, [^1] is latest.
         /// </summary>
         /// <param name="newPos">Most recent coordinates.</param>
         /// <param name="mouseMove">Last mouse movement coordinates.</param>
@@ -71,7 +74,6 @@ namespace PixiEditor.Models.Controllers
                     return;
                 }
 
-                mouseMove.Reverse();
                 UseTool(mouseMove, tool, Manager.PrimaryColor);
 
                 lastMousePos = newPos;
@@ -118,14 +120,32 @@ namespace PixiEditor.Models.Controllers
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
-            if (Keyboard.IsKeyDown(Key.LeftShift) && !MouseCordsNotInLine(mouseMoveCords))
+            if(sizeSetting == null)
             {
-                mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
+                sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
+            }
+
+            int thickness = sizeSetting != null ? sizeSetting.Value : 1;
+
+            bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
+
+            if (shiftDown)
+            {
+                bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
+
+                if (!mouseInLine)
+                {
+                    mouseMoveCords = GetSquareCoordiantes(mouseMoveCords);
+                }
+                else
+                {
+                    mouseMoveCords = GetLineCoordinates(mouseMoveCords, thickness);
+                }
             }
 
             if (!tool.RequiresPreviewLayer)
             {
-                LayerChange[] modifiedLayers = tool.Use(Manager.ActiveLayer, mouseMoveCords.ToArray(), color);
+                LayerChange[] modifiedLayers = tool.Use(Manager.ActiveLayer, mouseMoveCords, color);
                 LayerChange[] oldPixelsValues = new LayerChange[modifiedLayers.Length];
                 for (int i = 0; i < modifiedLayers.Length; i++)
                 {
@@ -173,9 +193,29 @@ namespace PixiEditor.Models.Controllers
             return oldPixelValues;
         }
 
-        private bool MouseCordsNotInLine(List<Coordinates> cords)
+        private bool MouseCordsNotInLine(List<Coordinates> cords, int thickness)
         {
-            return cords[0].X == cords[^1].X || cords[0].Y == cords[^1].Y;
+            return (cords[0].X > cords[^1].X - thickness && cords[0].X < cords[^1].X + thickness)
+                || (cords[0].Y > cords[^1].Y - thickness && cords[0].Y < cords[^1].Y + thickness);
+        }
+
+        private List<Coordinates> GetLineCoordinates(List<Coordinates> mouseMoveCords, int thickness)
+        {
+            int y = mouseMoveCords[0].Y;
+            int x = mouseMoveCords[0].X;
+
+
+            if (Math.Abs(mouseMoveCords[^1].X - mouseMoveCords[0].X) - thickness > 0)
+            {
+                y = mouseMoveCords[^1].Y;
+            }
+            else
+            {
+                x = mouseMoveCords[^1].X;
+            }
+
+            mouseMoveCords[0] = new Coordinates(x, y);
+            return mouseMoveCords;
         }
 
         /// <summary>
@@ -228,7 +268,7 @@ namespace PixiEditor.Models.Controllers
 
                 modifiedLayers = ((BitmapOperationTool)Manager.SelectedTool).Use(
                     Manager.ActiveDocument.ActiveLayer,
-                    mouseMove.ToArray(),
+                    mouseMove,
                     Manager.PrimaryColor);
 
                 BitmapPixelChanges[] changes = modifiedLayers.Select(x => x.PixelChanges).ToArray();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Models.Position;
@@ -79,7 +80,7 @@ namespace PixiEditor.Models.Tools.Tools
             ViewModelMain.Current.BitmapManager.ActiveDocument.ZoomPercentage = percentage;
         }
 
-        public override void Use(Coordinates[] pixels)
+        public override void Use(List<Coordinates> pixels)
         {
         }
     }

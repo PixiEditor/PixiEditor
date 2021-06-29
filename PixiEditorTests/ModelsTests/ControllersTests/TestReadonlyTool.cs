@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 
@@ -13,7 +14,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
         public Action ToolAction { get; set; }
 
-        public override void Use(Coordinates[] pixels)
+        public override void Use(List<Coordinates> pixels)
         {
             ToolAction();
         }

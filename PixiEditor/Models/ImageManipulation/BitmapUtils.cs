@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using System;
@@ -39,7 +40,7 @@ namespace PixiEditor.Models.ImageManipulation
         /// <param name="height">Height of final bitmap.</param>.
         /// <param name="layers">Layers to combine.</param>
         /// <returns>WriteableBitmap of layered bitmaps.</returns>
-        public static WriteableBitmap CombineLayers(int width, int height, params Layer[] layers)
+        public static WriteableBitmap CombineLayers(int width, int height, Layer[] layers, LayerStructure structure = null)
         {
             WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
 
@@ -47,7 +48,7 @@ namespace PixiEditor.Models.ImageManipulation
             {
                 for (int i = 0; i < layers.Length; i++)
                 {
-                    float layerOpacity = layers[i].Opacity;
+                    float layerOpacity = structure == null ? layers[i].Opacity : LayerStructureUtils.GetFinalLayerOpacity(layers[i], structure);
                     Layer layer = layers[i];
 
                     if (layer.OffsetX < 0 || layer.OffsetY < 0 ||
@@ -105,6 +106,20 @@ namespace PixiEditor.Models.ImageManipulation
                 opacityLayers.Select(x => x.OffsetY),
                 document.Width,
                 document.Height,
+                maxPreviewWidth,
+                maxPreviewHeight);
+        }
+
+        public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<Layer> layers, int width, int height, int maxPreviewWidth, int maxPreviewHeight)
+        {
+            var opacityLayers = layers.Where(x => x.IsVisible && x.Opacity > 0.8f);
+
+            return GeneratePreviewBitmap(
+                opacityLayers.Select(x => x.LayerBitmap),
+                opacityLayers.Select(x => x.OffsetX),
+                opacityLayers.Select(x => x.OffsetY),
+                width,
+                height,
                 maxPreviewWidth,
                 maxPreviewHeight);
         }

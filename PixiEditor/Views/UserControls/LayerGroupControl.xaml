@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.LayerGroupControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
+             mc:Ignorable="d" Focusable="True"
+             d:DesignHeight="60" d:DesignWidth="250" Name="groupControl" DragEnter="GroupControl_DragEnter" DragLeave="GroupControl_DragLeave" DragDrop.Drop="GroupControl_DragLeave">
+    <UserControl.Resources>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </UserControl.Resources>
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" Tag="{Binding ElementName=groupControl}" MouseDown="Border_MouseDown">
+        <i:Interaction.Behaviors>
+            <behaviors:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="15"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+            <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
+            <Grid Visibility="Collapsed" x:Name="middleDropGrid" Grid.Row="1" AllowDrop="True" Panel.ZIndex="2" Background="Transparent" DragEnter="Grid_CenterEnter" Drop="Grid_Drop_Center" DragLeave="Grid_CenterLeave"></Grid>
+            <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
+                      IsThreeState="False" HorizontalAlignment="Center" Click="CheckBox_Checked"
+                      IsChecked="{Binding Path=IsVisibleUndoTriggerable, ElementName=groupControl}" Grid.Column="0" Height="16"/>
+                
+                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
+                    <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
+                
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
+                        <Border Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}"
+                           Margin="5, 0, 10, 0">
+                            <Image Source="{Binding PreviewImage, ElementName=groupControl}" Stretch="Uniform" Width="20" Height="20" 
+                       RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                        </Border>
+                        <userControls:EditableTextBlock
+                    FontSize="16"
+                    VerticalAlignment="Center"
+                    IsEditing="{Binding GroupData.IsRenaming, ElementName=groupControl, Mode=TwoWay}"
+                    Text="{Binding GroupData.Name, ElementName=groupControl, Mode=TwoWay}" />
+                </StackPanel>
+                    <Image Source="/Images/Folder.png" Height="20" Margin="0,0,10,0" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
+            <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom"  DragLeave="Grid_DragLeave" Grid.Row="2" AllowDrop="{Binding  GroupData.IsExpanded, ElementName=groupControl, Converter={StaticResource InverseBooleanConverter}}" Grid.ColumnSpan="2" Background="Transparent"/>
+        </Grid>
+        <Border.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Rename"
+                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.RenameGroupCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.GroupGuid, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+                <MenuItem Header="Delete"
+                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.DeleteGroupCommand, 
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.GroupGuid, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
+            </ContextMenu>
+        </Border.ContextMenu>
+    </Border>
+</UserControl>

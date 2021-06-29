@@ -244,7 +244,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(3, 1, 1)]
         [InlineData(3, 2, -2)]
         [InlineData(10, 9, -5)]
-        public void TestThatMoveLayerIndexByWorks(int layersAmount, int index, int amount)
+        public void TestThatMoveLayerInStructureWorks(int layersAmount, int index, int amount)
         {
             Document document = new Document(10, 10);
             for (int i = 0; i < layersAmount; i++)
@@ -253,20 +253,24 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             }
 
             Guid oldGuid = document.Layers[index].LayerGuid;
-            document.MoveLayerIndexBy(index, amount);
+            Guid referenceGuid = document.Layers[index + amount].LayerGuid;
+            document.MoveLayerInStructure(oldGuid, referenceGuid, amount > 0);
 
             Assert.Equal(oldGuid, document.Layers[index + amount].LayerGuid);
         }
 
         [Fact]
-        public void TestThatMoveLayerIndexByUndoProcessWorks()
+        public void TestThatMoveLayerInStructureUndoProcessWorks()
         {
             Document document = new Document(10, 10);
 
             document.AddNewLayer("Test");
             document.AddNewLayer("Test2");
 
-            document.MoveLayerIndexBy(0, 1);
+            Guid oldGuid = document.Layers[0].LayerGuid;
+            Guid referenceGuid = document.Layers[1].LayerGuid;
+
+            document.MoveLayerInStructure(oldGuid, referenceGuid);
 
             document.UndoManager.Undo();
 
@@ -275,14 +279,17 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         }
 
         [Fact]
-        public void TestThatMoveLayerIndexByRedoProcessWorks()
+        public void TestThatMoveLayerInStructureRedoProcessWorks()
         {
             Document document = new Document(10, 10);
 
             document.AddNewLayer("Test");
             document.AddNewLayer("Test2");
 
-            document.MoveLayerIndexBy(0, 1);
+            Guid oldGuid = document.Layers[0].LayerGuid;
+            Guid referenceGuid = document.Layers[1].LayerGuid;
+
+            document.MoveLayerInStructure(oldGuid, referenceGuid, true);
 
             document.UndoManager.Undo();
             document.UndoManager.Redo();

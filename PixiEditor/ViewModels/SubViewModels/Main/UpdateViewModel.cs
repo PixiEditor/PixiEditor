@@ -84,30 +84,35 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private static void AskToInstall()
         {
-            string dir = AppDomain.CurrentDomain.BaseDirectory;
-            UpdateDownloader.CreateTempDirectory();
-            bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
-            string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
-            bool updateExeExists = updateExeFiles.Length > 0;
-
-            string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
-
-            if (updateZipExists || updateExeExists)
+#if RELEASE
+            if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
-                ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-                var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
-                if (result == Models.Enums.ConfirmationType.Yes)
+                string dir = AppDomain.CurrentDomain.BaseDirectory;
+                UpdateDownloader.CreateTempDirectory();
+                bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
+                string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
+                bool updateExeExists = updateExeFiles.Length > 0;
+
+                string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+
+                if (updateZipExists || updateExeExists)
                 {
-                    if (updateZipExists && File.Exists(updaterPath))
+                    ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
+                    var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
+                    if (result == Models.Enums.ConfirmationType.Yes)
                     {
-                        InstallHeadless(updaterPath);
-                    }
-                    else if (updateExeExists)
-                    {
-                        OpenExeInstaller(updateExeFiles[0]);
+                        if (updateZipExists && File.Exists(updaterPath))
+                        {
+                            InstallHeadless(updaterPath);
+                        }
+                        else if (updateExeExists)
+                        {
+                            OpenExeInstaller(updateExeFiles[0]);
+                        }
                     }
                 }
             }
+#endif
         }
 
         private static void InstallHeadless(string updaterPath)

@@ -1,23 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class ShapeTool : BitmapOperationTool
     {
-        public ShapeTool()
-        {
-            RequiresPreviewLayer = true;
-            Cursor = Cursors.Cross;
-            Toolbar = new BasicShapeToolbar();
-        }
-
         public static DoubleCords CalculateCoordinatesForShapeRotation(
             Coordinates startingCords,
             Coordinates secondCoordinates)
@@ -55,8 +48,15 @@ namespace PixiEditor.Models.Tools
             return new DoubleCords(startingCords, secondCoordinates);
         }
 
+        public ShapeTool()
+        {
+            RequiresPreviewLayer = true;
+            Cursor = Cursors.Cross;
+            Toolbar = new BasicShapeToolbar();
+        }
+
         // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color);
+        public abstract override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color);
 
         protected IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
         {

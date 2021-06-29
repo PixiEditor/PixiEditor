@@ -114,8 +114,13 @@
 
   <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
+    <None Remove="Images\CheckerTile.png" />
+    <None Remove="Images\DiagonalRed.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
+    <None Remove="Images\Folder-add.png" />
+    <None Remove="Images\Folder.png" />
+    <None Remove="Images\Layer-add.png" />
     <None Remove="Images\JpgFile.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
@@ -125,6 +130,7 @@
     <None Remove="Images\PixiParserLogo.png" />
     <None Remove="Images\PngFile.png" />
     <None Remove="Images\SelectImage.png" />
+    <None Remove="Images\Trash.png" />
     <None Remove="Images\UnknownFile.png" />
     <None Remove="Images\ZoomImage.png" />
     <None Include="..\icon.ico">
@@ -137,29 +143,37 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.51.1" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
+      <NoWarn>NU1701</NoWarn>
     </PackageReference>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
+    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
-    <PackageReference Include="PixiEditor.Parser" Version="1.1.2.1" />
+    <PackageReference Include="PixiEditor.Parser" Version="1.1.3.1" />
     <PackageReference Include="WriteableBitmapEx">
       <Version>1.6.7</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\AnchorDot.png" />
+    <Resource Include="Images\CheckerTile.png" />
+    <Resource Include="Images\DiagonalRed.png" />
     <Resource Include="Images\FloodFillImage.png" />
     <Resource Include="Images\CircleImage.png" />
     <Resource Include="Images\EraserImage.png" />
     <Resource Include="Images\BrightnessImage.png" />
     <Resource Include="Images\Eye-off.png" />
     <Resource Include="Images\Eye.png" />
+    <Resource Include="Images\Folder-add.png" />
+    <Resource Include="Images\Folder.png" />
+    <Resource Include="Images\Layer-add.png" />
     <Resource Include="Images\JpgFile.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\MoveImage.png" />
@@ -174,6 +188,7 @@
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\transparentbg.png" />
+    <Resource Include="Images\Trash.png" />
     <Resource Include="Images\UnknownFile.png" />
     <Resource Include="Images\ZoomImage.png" />
   </ItemGroup>

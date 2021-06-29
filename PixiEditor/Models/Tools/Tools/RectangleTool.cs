@@ -37,7 +37,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             BitmapPixelChanges pixels =
@@ -54,7 +54,7 @@ namespace PixiEditor.Models.Tools.Tools
             return new[] { new LayerChange(pixels, layer) };
         }
 
-        public IEnumerable<Coordinates> CreateRectangle(Coordinates[] coordinates, int thickness)
+        public IEnumerable<Coordinates> CreateRectangle(List<Coordinates> coordinates, int thickness)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
             List<Coordinates> output = new List<Coordinates>();
@@ -80,7 +80,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> CreateRectangle(Coordinates start, Coordinates end, int thickness)
         {
-            return CreateRectangle(new[] { end, start }, thickness);
+            return CreateRectangle(new() { end, start }, thickness);
         }
 
         public IEnumerable<Coordinates> CalculateFillForRectangle(Coordinates start, Coordinates end, int thickness)
