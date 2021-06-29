@@ -1,9 +1,8 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Layers
 {
@@ -51,16 +50,6 @@ namespace PixiEditor.Models.Layers
         }
 
         /// <summary>
-        /// Finds <see cref="GuidStructureItem"/> (Group) by it's guid.
-        /// </summary>
-        /// <param name="groupGuid">Guid of group.</param>
-        /// <returns><see cref="GuidStructureItem"/> if group was found or null if not.</returns>
-        public GuidStructureItem GetGroupByGuid(Guid? groupGuid)
-        {
-            return GetGroupByGuid(groupGuid, Groups);
-        }
-
-        /// <summary>
         ///  Finds parent group by layer guid.
         /// </summary>
         /// <param name="layerGuid">Guid of group to check.</param>
@@ -68,6 +57,16 @@ namespace PixiEditor.Models.Layers
         public GuidStructureItem GetGroupByLayer(Guid layerGuid)
         {
             return GetGroupByLayer(layerGuid, Groups);
+        }
+
+        /// <summary>
+        /// Finds <see cref="GuidStructureItem"/> (Group) by it's guid.
+        /// </summary>
+        /// <param name="groupGuid">Guid of group.</param>
+        /// <returns><see cref="GuidStructureItem"/> if group was found or null if not.</returns>
+        public GuidStructureItem GetGroupByGuid(Guid? groupGuid)
+        {
+            return GetGroupByGuid(groupGuid, Groups);
         }
 
         public ObservableCollection<GuidStructureItem> CloneGroups()
@@ -166,7 +165,6 @@ namespace PixiEditor.Models.Layers
             return group;
         }
 
-#nullable enable
         /// <summary>
         /// Moves group and it's children from one index to another. This method makes changes in <see cref="Document"/> Layers.
         /// </summary>
@@ -208,7 +206,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="group">Group to check.</param>
         /// <param name="parent">Parent of that group.</param>
         /// <returns>True if group is nested inside parent, false if not.</returns>
-        public bool IsChildOf(GuidStructureItem? group, GuidStructureItem parent)
+        public bool IsChildOf(GuidStructureItem group, GuidStructureItem parent)
         {
             if (group == null)
             {
@@ -374,6 +372,17 @@ namespace PixiEditor.Models.Layers
             }
         }
 
+        private static Guid GetNextLayerGuid(Guid layer, List<Guid> allLayers, bool above)
+        {
+            int indexOfLayer = allLayers.IndexOf(layer);
+
+            int modifier = above ? 1 : -1;
+
+            int newIndex = Math.Clamp(indexOfLayer + modifier, 0, allLayers.Count - 1);
+
+            return allLayers[newIndex];
+        }
+
         /// <summary>
         /// Gets all layers inside group, including nested groups.
         /// </summary>
@@ -381,10 +390,10 @@ namespace PixiEditor.Models.Layers
         /// <returns>List of layer guids.</returns>
         private List<Guid> GetGroupLayerGuids(GuidStructureItem group)
         {
-            Layer? layerTop = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.EndLayerGuid);
-            Layer? layerBottom = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.StartLayerGuid);
+            Layer layerTop = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.EndLayerGuid);
+            Layer layerBottom = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.StartLayerGuid);
 
-            if(layerTop == null || layerBottom == null)
+            if (layerTop == null || layerBottom == null)
             {
                 return new List<Guid>();
             }
@@ -409,7 +418,7 @@ namespace PixiEditor.Models.Layers
             return layerGuids;
         }
 
-        private void PreMoveReassignBounds(GuidStructureItem? parentGroup, Guid layer)
+        private void PreMoveReassignBounds(GuidStructureItem parentGroup, Guid layer)
         {
             if (parentGroup != null)
             {
@@ -441,7 +450,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void PreMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
+        private void PreMoveReassignBounds(GuidStructureItem parentGroup, GuidStructureItem group)
         {
             if (parentGroup != null)
             {
@@ -472,7 +481,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void PostMoveReassignBounds(GuidStructureItem? parentGroup, Guid layerGuid)
+        private void PostMoveReassignBounds(GuidStructureItem parentGroup, Guid layerGuid)
         {
             if (parentGroup != null)
             {
@@ -520,7 +529,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void PostMoveReassignBounds(GuidStructureItem? parentGroup, GuidStructureItem group)
+        private void PostMoveReassignBounds(GuidStructureItem parentGroup, GuidStructureItem group)
         {
             if (parentGroup != null)
             {
@@ -555,7 +564,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void AssignParent(Guid layer, GuidStructureItem? parent)
+        private void AssignParent(Guid layer, GuidStructureItem parent)
         {
             var currentParent = GetGroupByLayer(layer);
             if (currentParent != null)
@@ -636,17 +645,6 @@ namespace PixiEditor.Models.Layers
             return FindBoundLayer(layerGuid, parentFolderTopIndex, parentFolderBottomIndex, above);
         }
 
-        private static Guid GetNextLayerGuid(Guid layer, List<Guid> allLayers, bool above)
-        {
-            int indexOfLayer = allLayers.IndexOf(layer);
-
-            int modifier = above ? 1 : -1;
-
-            int newIndex = Math.Clamp(indexOfLayer + modifier, 0, allLayers.Count - 1);
-
-            return allLayers[newIndex];
-        }
-
         private void MoveLayersInGroup(List<Guid> layers, int moveBy, bool reverseOrder)
         {
             List<Guid> layerGuids = reverseOrder ? layers.Reverse<Guid>().ToList() : layers;
@@ -660,7 +658,6 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-#nullable disable
         private GuidStructureItem GetGroupByLayer(Guid layerGuid, IEnumerable<GuidStructureItem> groups)
         {
             foreach (var currentGroup in groups)

@@ -1,14 +1,14 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
+using PixiEditor.Parser;
+using PixiEditor.Parser.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using PixiEditor.Parser;
 using SDColor = System.Drawing.Color;
-using PixiEditor.Parser.Models;
-using System;
 
 namespace PixiEditor.Helpers.Extensions
 {
@@ -36,39 +36,6 @@ namespace PixiEditor.Helpers.Extensions
         public static ObservableCollection<GuidStructureItem> ToGroups(this SerializableDocument serializableDocument)
         {
             return ToGroups(serializableDocument.Groups);
-        }
-
-        private static ObservableCollection<GuidStructureItem> ToGroups(SerializableGuidStructureItem[] serializableGroups, GuidStructureItem parent = null)
-        {
-            ObservableCollection<GuidStructureItem> groups = new ObservableCollection<GuidStructureItem>();
-
-            if (serializableGroups == null)
-            {
-                return groups;
-            }
-
-            foreach (var serializableGroup in serializableGroups)
-            {
-                groups.Add(ToGroup(serializableGroup, parent));
-            }
-            return groups;
-        }
-
-        private static GuidStructureItem ToGroup(SerializableGuidStructureItem group, GuidStructureItem parent = null)
-        {
-            if (group == null)
-            {
-                return null;
-            }
-            var parsedGroup = new GuidStructureItem(
-                group.Name,
-                group.StartLayerGuid,
-                group.EndLayerGuid,
-                new ObservableCollection<GuidStructureItem>(),
-                parent)
-            { Opacity = group.Opacity, IsVisible = group.IsVisible, GroupGuid = group.GroupGuid, IsExpanded = true };
-            parsedGroup.Subgroups = ToGroups(group.Subgroups, parsedGroup);
-            return parsedGroup;
         }
 
         public static ObservableCollection<Layer> ToLayers(this SerializableDocument serializableDocument)
@@ -140,6 +107,39 @@ namespace PixiEditor.Helpers.Extensions
             };
 
             return serializable;
+        }
+
+        private static ObservableCollection<GuidStructureItem> ToGroups(SerializableGuidStructureItem[] serializableGroups, GuidStructureItem parent = null)
+        {
+            ObservableCollection<GuidStructureItem> groups = new ObservableCollection<GuidStructureItem>();
+
+            if (serializableGroups == null)
+            {
+                return groups;
+            }
+
+            foreach (var serializableGroup in serializableGroups)
+            {
+                groups.Add(ToGroup(serializableGroup, parent));
+            }
+            return groups;
+        }
+
+        private static GuidStructureItem ToGroup(SerializableGuidStructureItem group, GuidStructureItem parent = null)
+        {
+            if (group == null)
+            {
+                return null;
+            }
+            var parsedGroup = new GuidStructureItem(
+                group.Name,
+                group.StartLayerGuid,
+                group.EndLayerGuid,
+                new ObservableCollection<GuidStructureItem>(),
+                parent)
+            { Opacity = group.Opacity, IsVisible = group.IsVisible, GroupGuid = group.GroupGuid, IsExpanded = true };
+            parsedGroup.Subgroups = ToGroups(group.Subgroups, parsedGroup);
+            return parsedGroup;
         }
     }
 }

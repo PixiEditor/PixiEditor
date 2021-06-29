@@ -1,4 +1,11 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,14 +14,6 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Layers.Utils;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Undo;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -22,11 +21,11 @@ namespace PixiEditor.Models.DataHolders
     {
         public const string MainSelectedLayerColor = "#505056";
         public const string SecondarySelectedLayerColor = "#7D505056";
-        private static readonly Regex reversedLayerSuffixRegex = new (@"(?:\)([0-9]+)*\()? *([\s\S]+)", RegexOptions.Compiled);
+        private static readonly Regex reversedLayerSuffixRegex = new(@"(?:\)([0-9]+)*\()? *([\s\S]+)", RegexOptions.Compiled);
         private Guid activeLayerGuid;
         private LayerStructure layerStructure;
 
-        private ObservableCollection<Layer> layers = new ();
+        private ObservableCollection<Layer> layers = new();
 
         public ObservableCollection<Layer> Layers
         {
@@ -101,7 +100,7 @@ namespace PixiEditor.Models.DataHolders
             var group = LayerStructure.GetGroupByLayer(layer.LayerGuid);
             bool atLeastOneParentIsInvisible = false;
             GuidStructureItem groupToCheck = group;
-            while(groupToCheck != null)
+            while (groupToCheck != null)
             {
                 if (!groupToCheck.IsVisible)
                 {
@@ -165,7 +164,7 @@ namespace PixiEditor.Models.DataHolders
             Guid oldReferenceLayerGuid;
             bool oldAbove = false;
 
-            if(indexOfTopLayer + 1 < Layers.Count)
+            if (indexOfTopLayer + 1 < Layers.Count)
             {
                 oldReferenceLayerGuid = topLayer.LayerGuid;
             }
@@ -247,7 +246,7 @@ namespace PixiEditor.Models.DataHolders
             Layers.Insert(index + 1, duplicate);
             SetMainActiveLayer(index + 1);
 
-            StorageBasedChange storageChange = new (this, new[] { duplicate }, false);
+            StorageBasedChange storageChange = new(this, new[] { duplicate }, false);
             UndoManager.AddUndoChange(
                 storageChange.ToChange(
                     RemoveLayerProcess,
@@ -480,9 +479,14 @@ namespace PixiEditor.Models.DataHolders
             return layer;
         }
 
+        public Color GetColorAtPoint(int x, int y)
+        {
+            return BitmapUtils.GetColorAtPointCombined(x, y, Layers.ToArray());
+        }
+
         private void BuildLayerStructureProcess(object[] parameters)
         {
-            if(parameters.Length > 0 && parameters[0] is ObservableCollection<GuidStructureItem> groups)
+            if (parameters.Length > 0 && parameters[0] is ObservableCollection<GuidStructureItem> groups)
             {
                 LayerStructure.Groups.CollectionChanged -= Groups_CollectionChanged;
                 LayerStructure.Groups = LayerStructure.CloneGroups(groups);
@@ -509,11 +513,6 @@ namespace PixiEditor.Models.DataHolders
             LayerStructure.PostMoveReassignBounds(new GroupData(newGroup?.GroupGuid), layerGuid);
 
             RaisePropertyChanged(nameof(LayerStructure));
-        }
-
-        public Color GetColorAtPoint(int x, int y)
-        {
-            return BitmapUtils.GetColorAtPointCombined(x, y, Layers.ToArray());
         }
 
         private void InjectRemoveActiveLayersUndo(object[] guidArgs, StorageBasedChange change)

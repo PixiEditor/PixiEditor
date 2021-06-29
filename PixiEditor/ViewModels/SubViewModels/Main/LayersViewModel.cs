@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Views;
 using PixiEditor.Views.UserControls;
 using System;
 using System.Linq;
@@ -64,16 +63,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void CreateGroupFromActiveLayers(object parameter)
         {
-            //var doc = Owner.BitmapManager.ActiveDocument;
-            //if (doc != null)
-            //{
+            // var doc = Owner.BitmapManager.ActiveDocument;
+            // if (doc != null)
+            // {
             //    doc.LayerStructure.AddNewGroup($"{Owner.BitmapManager.ActiveLayer.Name} Group", doc.Layers.Where(x => x.IsActive).Reverse(), Owner.BitmapManager.ActiveDocument.ActiveLayerGuid);
-            //}
+            // }
         }
 
         public bool CanDeleteSelected(object parameter)
         {
-            return (parameter is not null and(Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
+            return (parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
         }
 
         public void DeleteSelected(object parameter)
@@ -82,7 +81,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(layer));
             }
-            else if(parameter is LayerStructureItemContainer container)
+            else if (parameter is LayerStructureItemContainer container)
             {
                 DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(container.Layer));
             }
@@ -137,7 +136,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
                     Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(group);
                 }
-                else if(control != null)
+                else if (control != null)
                 {
                     doc.LayerStructure.AddNewGroup($"{control.Name} Group", control);
                 }

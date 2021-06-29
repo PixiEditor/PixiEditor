@@ -1,15 +1,14 @@
-﻿using System;
+﻿using PixiEditor.Models.Layers;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Helpers.Converters
 {
-    //TODO: Implement rebuilding only changed items instead whole tree
+    // TODO: Implement rebuilding only changed items instead whole tree
     public class LayersToStructuredLayersConverter : IMultiValueConverter
     {
         private static StructuredLayerTree cachedTree;
@@ -38,13 +37,15 @@ namespace PixiEditor.Helpers.Converters
 
             return new StructuredLayerTree(null, null);
         }
-
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new ArgumentException("Value is not a StructuredLayerTree");
+        }
         private bool LayerOrderIsDifferent(IList<Layer> layers)
         {
             var guids = layers.Select(x => x.LayerGuid).ToArray();
             return !guids.SequenceEqual(lastLayers);
         }
-
         private bool TryFindStructureDifferences(LayerStructure structure)
         {
             bool structureModified = false;
@@ -59,7 +60,7 @@ namespace PixiEditor.Helpers.Converters
             {
                 var matchingGroup = structure.Groups.FirstOrDefault(x => x.GroupGuid == treeItem.GroupGuid);
                 List<GuidStructureItem> changedGroups = new List<GuidStructureItem>();
-                if(matchingGroup == null || StructureMismatch(treeItem, matchingGroup))
+                if (matchingGroup == null || StructureMismatch(treeItem, matchingGroup))
                 {
                     structureModified = true;
                 }
@@ -84,11 +85,6 @@ namespace PixiEditor.Helpers.Converters
                 }
             }
             return rootMismatch;
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new ArgumentException("Value is not a StructuredLayerTree");
         }
     }
 }

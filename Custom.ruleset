@@ -1,14 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <RuleSet Name="Name" Description="Description" ToolsVersion="16.0">
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp" RuleNamespace="Microsoft.CodeAnalysis.CSharp">
+    <Rule Id="AD0001" Action="None" />
+  </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Features" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Features">
     <Rule Id="IDE0090" Action="None" />
   </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.NetAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.NetAnalyzers">
+    <Rule Id="CA1416" Action="None" />
+  </Rules>
   <Rules AnalyzerId="Microsoft.NetCore.Analyzers" RuleNamespace="Microsoft.NetCore.Analyzers">
     <Rule Id="CA1303" Action="None" />
+    <Rule Id="CA1416" Action="None" />
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA0001" Action="None" />
     <Rule Id="SA1000" Action="None" />
+    <Rule Id="SA1008" Action="None" />
+    <Rule Id="SA1009" Action="None" />
     <Rule Id="SA1101" Action="None" />
     <Rule Id="SA1110" Action="None" />
     <Rule Id="SA1111" Action="None" />

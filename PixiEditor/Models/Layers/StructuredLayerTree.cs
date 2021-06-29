@@ -13,6 +13,13 @@ namespace PixiEditor.Models.Layers
 
         public ObservableCollection<object> RootDirectoryItems { get; } = new ObservableCollection<object>();
 
+        private static void Swap(ref int startIndex, ref int endIndex)
+        {
+            int tmp = startIndex;
+            startIndex = endIndex;
+            endIndex = tmp;
+        }
+
         public StructuredLayerTree(ObservableCollection<Layer> layers, LayerStructure structure)
         {
             if (layers == null || structure == null)
@@ -128,7 +135,7 @@ namespace PixiEditor.Models.Layers
         {
             List<Layer> structureItemLayers = new();
 
-            Guid[] layersInFolder = GetLayersInFolder(layers, structureItem);
+            Guid[] layersInFolder = GetLayersInGroup(layers, structureItem);
 
             var subFolders = new List<LayerGroup>();
 
@@ -163,13 +170,8 @@ namespace PixiEditor.Models.Layers
             return folder;
         }
 
-        private Guid[] GetLayersInFolder(ObservableCollection<Layer> layers, GuidStructureItem structureItem)
+        private Guid[] GetLayersInGroup(ObservableCollection<Layer> layers, GuidStructureItem structureItem)
         {
-            if (structureItem.EndLayerGuid == null || structureItem.StartLayerGuid == null)
-            {
-                return Array.Empty<Guid>();
-            }
-
             var startLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.StartLayerGuid);
             var endLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.EndLayerGuid);
 
@@ -196,13 +198,6 @@ namespace PixiEditor.Models.Layers
             }
 
             return guids;
-        }
-
-        private static void Swap(ref int startIndex, ref int endIndex)
-        {
-            int tmp = startIndex;
-            startIndex = endIndex;
-            endIndex = tmp;
         }
     }
 }
