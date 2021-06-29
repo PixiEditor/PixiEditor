@@ -104,7 +104,7 @@ namespace PixiEditor.Views.UserControls
 
         private const double zoomFactor = 1.1;
         private const double maxZoom = 50;
-        private const double minZoom = -20;
+        private const double minZoom = -28;
         public object AdditionalContent
         {
             get => GetValue(AdditionalContentProperty);
@@ -136,9 +136,8 @@ namespace PixiEditor.Views.UserControls
             get => zoomPower;
             set
             {
-                if (value > maxZoom)
-                    return;
-                if (value < minZoom)
+                value = Math.Clamp(value, minZoom, maxZoom);
+                if (value == zoomPower)
                     return;
                 zoomPower = value;
                 var mult = Zoom;
