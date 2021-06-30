@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -30,6 +31,14 @@ namespace PixiEditor.Models.DataHolders
                 xamlAccesibleViewModel = value;
                 RaisePropertyChanged(nameof(XamlAccesibleViewModel));
             }
+        }
+
+        private Layer referenceLayer;
+
+        public Layer ReferenceLayer
+        {
+            get => referenceLayer;
+            set => SetProperty(ref referenceLayer, value);
         }
 
         public string Name

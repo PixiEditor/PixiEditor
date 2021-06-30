@@ -19,6 +19,8 @@ namespace PixiEditor.Models.DataHolders
             UndoManager = new UndoManager();
             XamlAccesibleViewModel = ViewModelMain.Current;
             GeneratePreviewLayer();
+
+            ReferenceLayer = new Layers.Layer($"_{nameof(ReferenceLayer)}");
         }
     }
 }

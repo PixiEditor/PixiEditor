@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.AvalonDockWindows.ReferenceLayerWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.AvalonDockWindows" xmlns:views="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="200"
+             Name="uc">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter"/>
+    </UserControl.Resources>
+    
+    <StackPanel Margin="5">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Margin="0,0,5,0" VerticalAlignment="Center">Path:</TextBlock>
+            <TextBox Text="{Binding FilePath, ElementName=uc}" Grid.Column="1"
+                     Style="{StaticResource DarkTextBoxStyle}" FontSize="14"/>
+            <Button Grid.Column="2" Content="&#xE838;" VerticalAlignment="Center"
+                    Style="{StaticResource ToolSettingsGlyphButton}" Width="20"
+                    Command="{Binding OpenFilePickerCommand, ElementName=uc}"></Button>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+            <TextBlock Text="Opacity: " Foreground="White" VerticalAlignment="Center"/>
+            <views:NumberInput Min="0" Max="100" Value="{Binding LayerOpacity, ElementName=uc, Mode=TwoWay}"
+                               Width="40" Height="20" VerticalAlignment="Center"/>
+            <TextBlock Text=" %" Foreground="White" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button Command="{Binding UpdateLayerCommand, ElementName=uc}"
+                Style="{StaticResource DarkRoundButton}" FontSize="14" 
+                Height="25" Margin="0,5"
+                IsEnabled="{Binding HasDocument, ElementName=uc}" >Update</Button>
+    </StackPanel>
+</UserControl>

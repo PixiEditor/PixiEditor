@@ -7,8 +7,8 @@
              xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
              xmlns:vws="clr-namespace:PixiEditor.Views" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
-             xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             mc:Ignorable="d" 
+             xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:dataholders="clr-namespace:PixiEditor.Models.DataHolders"
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800" Name="uc">
     <UserControl.Resources>
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
@@ -16,7 +16,7 @@
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
     </UserControl.Resources>
 
-    <local:Zoombox x:Name="zoombox" ClipToBounds="True">
+    <local:Zoombox x:Name="zoombox" ClipToBounds="True" d:DataContext="{d:DesignInstance dataholders:Document}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
@@ -43,6 +43,10 @@
                                    Height="{Binding Height}"
                                    Width="{Binding Width}" Opacity="0.9"
                                    Stretch="UniformToFill" />
+                <Image Source="{Binding ReferenceLayer.LayerBitmap}"
+                       RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                       Opacity="{Binding ReferenceLayer.Opacity}"
+                       Width="{Binding Width}" Height="{Binding Height}"/>
                 <Image Source="{Binding PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                    Width="{Binding PreviewLayer.Width}"
