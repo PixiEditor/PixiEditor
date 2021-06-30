@@ -36,7 +36,6 @@
         </StackPanel>
         <Button Command="{Binding UpdateLayerCommand, ElementName=uc}"
                 Style="{StaticResource DarkRoundButton}" FontSize="14" 
-                Height="25" Margin="0,5"
-                IsEnabled="{Binding HasDocument, ElementName=uc}" >Update</Button>
+                Height="25" Margin="0,5">Update</Button>
     </StackPanel>
 </UserControl>
