@@ -13,6 +13,8 @@
 [![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/PixiEditor?label=%20r%2FPixiEditor&logoColor=%23e3002d)](https://reddit.com/r/PixiEditor)
 [![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
 
+### Check out our website [pixieditor.net](https://pixieditor.net)
+
 ## About PixiEditor
 
 Want to create beautiful pixel arts for your games? PixiEditor can help you! Our goal is to create fully open-source, fast and feature rich pixel art creator. 
