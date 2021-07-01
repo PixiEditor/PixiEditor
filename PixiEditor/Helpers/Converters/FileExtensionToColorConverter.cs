@@ -11,9 +11,9 @@ namespace PixiEditor.Helpers.Converters
 
         private static readonly SolidColorBrush PngBrush = ColorBrush(56, 108, 254);
 
-        private static readonly SolidColorBrush JpgBrush = ColorBrush(52, 130, 8);
+        private static readonly SolidColorBrush JpgBrush = ColorBrush(36, 179, 66);
 
-        private static readonly SolidColorBrush Unknown = ColorBrush(50, 50, 50);
+        private static readonly SolidColorBrush UnknownBrush = ColorBrush(100, 100, 100);
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -32,7 +32,7 @@ namespace PixiEditor.Helpers.Converters
                 return JpgBrush;
             }
 
-            return Unknown;
+            return UnknownBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
