@@ -12,12 +12,16 @@
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <UserControl.Resources>
         <converters:IndexOfConverter x:Key="IndexOfConverter"/>
+        <converters:NotNullToVisibiltyConverter x:Key="NotNullToVisibiltyConverter"/>
+        <converters:NotNullToVisibiltyConverter x:Key="NullToVisibiltyConverter" Inverted="True"/>
+        <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="37.5"/>
             <RowDefinition Height="15"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
@@ -89,5 +93,26 @@
             </TreeView>
             <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
+        <Grid Grid.Row="3">
+            <Grid Visibility="{Binding ReferenceLayer, ElementName=layersManager, Converter={StaticResource NotNullToVisibiltyConverter}}" d:Visibility="Hidden">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <local:LayerStructureItemContainer Layer="{Binding ReferenceLayer, ElementName=layersManager}" DataContext="{Binding ReferenceLayer, ElementName=layersManager}"/>
+                <Button Grid.Column="1" Content="E" Width="20" Command="{Binding ToggleReferenceLayerEditorCommand, ElementName=layersManager}" CommandParameter="true"/>
+            </Grid>
+            <Grid Visibility="{Binding ReferenceLayer, ElementName=layersManager, Converter={StaticResource NullToVisibiltyConverter}}" d:Visibility="Visible">
+                <Button  Style="{StaticResource BaseDarkButton}" Command="{Binding LayerCommandsViewModel.CreateReferenceLayerCommand, ElementName=layersManager}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../../Images/layer-add.png" Height="24" Margin="0,0,5,0"/>
+                        <TextBlock FontSize="15" VerticalAlignment="Center">Add Reference Layer</TextBlock>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+        <local:ReferenceLayerEditor Grid.RowSpan="3" ToggleCommand="{Binding ToggleReferenceLayerEditorCommand, ElementName=layersManager}"
+                                    Visibility="{Binding IsEditingReferenceLayer, ElementName=layersManager, Converter={StaticResource BoolToVisibilityConverter}}" 
+                                    Background="{StaticResource AccentColor}" d:Visibility="Hidden" ReferenceLayer="{Binding ReferenceLayer, ElementName=layersManager}"/>
     </Grid>
 </UserControl>

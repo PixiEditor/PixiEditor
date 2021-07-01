@@ -38,6 +38,14 @@ namespace PixiEditor.Models.DataHolders
                 + (!ChangesSaved ? " *" : string.Empty);
         }
 
+        private ReferenceLayer referenceLayer;
+
+        public ReferenceLayer ReferenceLayer
+        {
+            get => referenceLayer;
+            set => SetProperty(ref referenceLayer, value);
+        }
+
         private int width;
         public int Width
         {

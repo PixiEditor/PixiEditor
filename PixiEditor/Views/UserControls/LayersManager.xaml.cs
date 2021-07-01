@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
@@ -56,8 +57,29 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty OpacityInputEnabledProperty =
             DependencyProperty.Register("OpacityInputEnabled", typeof(bool), typeof(LayersManager), new PropertyMetadata(false));
 
+        public ReferenceLayer ReferenceLayer
+        {
+            get => (ReferenceLayer)GetValue(ReferenceLayerProperty);
+            set => SetValue(ReferenceLayerProperty, value);
+        }
+
+        public static readonly DependencyProperty ReferenceLayerProperty =
+            DependencyProperty.Register(nameof(ReferenceLayer), typeof(ReferenceLayer), typeof(LayersManager));
+
+        public bool IsEditingReferenceLayer
+        {
+            get => (bool)GetValue(IsEditingReferenceLayerProperty);
+            set => SetValue(IsEditingReferenceLayerProperty, value);
+        }
+
+        public static readonly DependencyProperty IsEditingReferenceLayerProperty =
+            DependencyProperty.Register(nameof(IsEditingReferenceLayer), typeof(bool), typeof(LayersManager));
+
+        public RelayCommand ToggleReferenceLayerEditorCommand { get; set; }
+
         public LayersManager()
         {
+            ToggleReferenceLayerEditorCommand = new RelayCommand(ToggleReferenceLayerEditor);
             InitializeComponent();
         }
 
@@ -82,6 +104,11 @@ namespace PixiEditor.Views.UserControls
                     }
                 });
             }
+        }
+
+        private void ToggleReferenceLayerEditor(object obj)
+        {
+            IsEditingReferenceLayer = bool.Parse((string)obj);
         }
 
         private void SetActiveLayerAsSelectedItem(Document doc)
