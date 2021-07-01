@@ -234,6 +234,15 @@ namespace PixiEditor.ViewModels
         {
             return BitmapManager.ActiveDocument != null;
         }
+        public void CloseWindow(object property)
+        {
+            if (!(property is CancelEventArgs))
+            {
+                throw new ArgumentException();
+            }
+
+            ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
+        }
 
         [Conditional("DEBUG")]
         private void AddDebugOnlyViewModels()
@@ -256,16 +265,6 @@ namespace PixiEditor.ViewModels
             where T : Tool
         {
             return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, description, typeof(T), modifier);
-        }
-
-        public void CloseWindow(object property)
-        {
-            if (!(property is CancelEventArgs))
-            {
-                throw new ArgumentException();
-            }
-
-            ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
         }
 
         /// <summary>

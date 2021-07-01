@@ -52,7 +52,7 @@ namespace PixiEditor.Models.Tools.Tools
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
         }
 
-        public override void Use(Coordinates[] pixels)
+        public override void Use(List<Coordinates> pixels)
         {
             Select(pixels, Toolbar.GetEnumSetting<SelectionShape>("SelectShape").Value);
         }
@@ -90,7 +90,7 @@ namespace PixiEditor.Models.Tools.Tools
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
         }
 
-        private void Select(Coordinates[] pixels, SelectionShape shape)
+        private void Select(List<Coordinates> pixels, SelectionShape shape)
         {
             IEnumerable<Coordinates> selection;
 

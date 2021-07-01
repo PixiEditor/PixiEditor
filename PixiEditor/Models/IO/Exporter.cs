@@ -6,7 +6,6 @@ using Microsoft.Win32;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Parser;
 
 namespace PixiEditor.Models.IO
 {
@@ -42,7 +41,7 @@ namespace PixiEditor.Models.IO
         /// <returns>Path.</returns>
         public static string SaveAsEditableFile(Document document, string path)
         {
-            PixiParser.Serialize(document.ToSerializable(), path);
+            Parser.PixiParser.Serialize(document.ToSerializable(), path);
             return path;
         }
 

@@ -1,5 +1,7 @@
 ﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
+using System.Linq;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -17,10 +19,36 @@ namespace PixiEditor.Models.DataHolders
         {
             SetRelayCommands();
             UndoManager = new UndoManager();
+            LayerStructure = new LayerStructure(this);
             XamlAccesibleViewModel = ViewModelMain.Current;
             GeneratePreviewLayer();
+            Layers.CollectionChanged += Layers_CollectionChanged;
+            LayerStructure.Groups.CollectionChanged += Groups_CollectionChanged;
+            LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
+        }
 
-            ReferenceLayer = new Layers.Layer($"_{nameof(ReferenceLayer)}");
+        private void LayerStructure_LayerStructureChanged(object sender, LayerStructureChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(LayerStructure));
+            foreach (var layerGuid in e.AffectedLayerGuids)
+            {
+                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+                layer.RaisePropertyChange(nameof(layer.IsVisible));
+                layer.RaisePropertyChange(nameof(layer.Opacity));
+            }
+        }
+
+        private void Groups_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != e.NewItems)
+            {
+                RaisePropertyChanged(nameof(LayerStructure));
+            }
+        }
+
+        private void Layers_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(Layers));
         }
     }
 }

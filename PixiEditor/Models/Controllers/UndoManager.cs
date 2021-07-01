@@ -99,6 +99,65 @@ namespace PixiEditor.Models.Controllers
             UndoStack.Push(change);
         }
 
+        /// <summary>
+        /// Merges multiple undo changes into one.
+        /// </summary>
+        /// <param name="amount">Amount of changes to squash.</param>
+        public void SquashUndoChanges(int amount)
+        {
+            string description = UndoStack.ElementAt(UndoStack.Count - amount).Description;
+            SquashUndoChanges(amount, description);
+        }
+
+        /// <summary>
+        /// Merges multiple undo changes into one.
+        /// </summary>
+        /// <param name="amount">Amount of changes to squash.</param>
+        /// <param name="description">Final change description.</param>
+        public void SquashUndoChanges(int amount, string description)
+        {
+            Change[] changes = new Change[amount];
+            for (int i = 0; i < amount; i++)
+            {
+                changes[i] = UndoStack.Pop();
+            }
+
+            Action<object[]> reverseProcess = (object[] props) =>
+            {
+                foreach (var prop in props)
+                {
+                    Change change = (Change)prop;
+                    if (change.ReverseProcess == null)
+                    {
+                        SetPropertyValue(GetChangeRoot(change), change.Property, change.OldValue);
+                    }
+                    else
+                    {
+                        change.ReverseProcess(change.ReverseProcessArguments);
+                    }
+                }
+            };
+
+            Action<object[]> process = (object[] props) =>
+            {
+                foreach (var prop in props.Reverse())
+                {
+                    Change change = (Change)prop;
+                    if (change.Process == null)
+                    {
+                        SetPropertyValue(GetChangeRoot(change), change.Property, change.NewValue);
+                    }
+                    else
+                    {
+                        change.Process(change.ProcessArguments);
+                    }
+                }
+            };
+
+            Change change = new(reverseProcess, changes, process, changes, description);
+            AddUndoChange(change);
+        }
+
         private bool ChangeIsBlockedProperty(Change change)
         {
             return (change.Root != null || change.FindRootProcess != null)

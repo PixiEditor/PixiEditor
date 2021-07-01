@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
+using System.Collections.Generic;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
@@ -12,7 +13,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             bool toolUsed = false;
 
             ReadonlyToolUtility util = new ReadonlyToolUtility();
-            util.ExecuteTool(new[] { new Coordinates(0, 0) }, new TestReadonlyTool(() => toolUsed = true));
+            util.ExecuteTool(new List<Coordinates> { new Coordinates(0, 0) }, new TestReadonlyTool(() => toolUsed = true));
             Assert.True(toolUsed);
         }
     }

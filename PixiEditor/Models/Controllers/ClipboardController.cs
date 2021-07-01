@@ -51,6 +51,7 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+
         /// <summary>
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
@@ -103,11 +104,6 @@ namespace PixiEditor.Models.Controllers
             return bitmap.Crop(offsetX, offsetY, width, height);
         }
 
-        private static void AddImageToLayers(WriteableBitmap image)
-        {
-            ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer("Image", image);
-        }
-
         private static void RemoveLayerProcess(object[] parameters)
         {
             if (parameters.Length == 0 || !(parameters[0] is int))
@@ -115,7 +111,7 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0]);
+            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0], true);
         }
 
         private static void AddLayerProcess(object[] parameters)
@@ -126,6 +122,11 @@ namespace PixiEditor.Models.Controllers
             }
 
             AddImageToLayers((WriteableBitmap)parameters[0]);
+        }
+
+        private static void AddImageToLayers(WriteableBitmap image)
+        {
+            ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer("Image", image);
         }
     }
 }

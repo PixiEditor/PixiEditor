@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Windows.Documents;
 using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
@@ -16,7 +18,7 @@ namespace PixiEditor.Models.Tools
 
         private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, Guid.Empty) };
 
-        public abstract LayerChange[] Use(Layer layer, Coordinates[] mouseMove, Color color);
+        public abstract LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, Color color);
 
         protected LayerChange[] Only(BitmapPixelChanges changes, Layer layer)
         {

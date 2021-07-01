@@ -4,8 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:layers="clr-namespace:PixiEditor.Models.Layers" xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="uc"
              MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
@@ -22,32 +21,38 @@
             </i:EventTrigger>
         </i:Interaction.Triggers>
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="30"/>
-                <ColumnDefinition Width="199*"/>
-                <ColumnDefinition Width="20"/>
-            </Grid.ColumnDefinitions>
-            <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="25"/>
+
+            </Grid.RowDefinitions>
+            <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
+            <Grid Grid.Row="1" Grid.RowSpan="3" Margin="0,-10,0,0" VerticalAlignment="Center" AllowDrop="False">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center" 
                       IsChecked="{Binding Path=IsVisibleUndoTriggerable, Mode=TwoWay}" Grid.Column="0" Height="16" />
-            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0">
-                <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform" Width="50" Height="20" Margin="0,0,20,0"
+                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
+                    <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
+                    <Border Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}"
+                           Margin="5, 0, 10, 0">
+                        <Image Source="{Binding PreviewImage,ElementName=uc}" Stretch="Uniform" Width="20" Height="20" 
                        RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-                <local:EditableTextBlock
-                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="16"
+                    </Border>
+
+                    <local:EditableTextBlock
+                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="15"
                     VerticalAlignment="Center"
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />
-            </StackPanel>
-            <StackPanel Visibility="{Binding Path=ControlButtonsVisible, ElementName=uc}" 
-                        Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Width="11" 
-                        Grid.Column="2">
-                <Button CommandParameter="{Binding LayerIndex, ElementName=uc}" Command="{Binding Path=MoveToFrontCommand, ElementName=uc}" Background="Transparent" Style="{StaticResource OpacityButtonStyle}" Foreground="White" HorizontalAlignment="Center" BorderThickness="0">
-                    <TextBlock Text="&#9650;"/>
-                </Button>
-                <Button CommandParameter="{Binding LayerIndex, ElementName=uc}" Command="{Binding Path=MoveToBackCommand, ElementName=uc}" Background="Transparent" HorizontalAlignment="Center" Style="{StaticResource OpacityButtonStyle}" Foreground="White" BorderThickness="0">
-                    <TextBlock Text="&#9660;"/>
-                </Button>
-            </StackPanel>
+                </StackPanel>
+                <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Below"  DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="0" AllowDrop="True"  Background="Transparent" Name="dropBelowGrid"/>
+                <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="1" Background="{Binding ElementName=dropBelowGrid, Path=Background}"/>
+
+                <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Bottom" DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="2" AllowDrop="True"  Background="Transparent"/>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

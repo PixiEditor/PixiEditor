@@ -1,13 +1,11 @@
-﻿using System;
-using System.Buffers.Text;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Models.Undo
 {
@@ -90,7 +88,7 @@ namespace PixiEditor.Models.Undo
                     IsActive = storedLayer.IsActive,
                     Width = storedLayer.Width,
                     Height = storedLayer.Height,
-                    LayerHighlightColor = storedLayer.LayerHighlightColor                    
+                    LayerHighlightColor = storedLayer.LayerHighlightColor
                 };
                 layers[i].ChangeGuid(storedLayer.LayerGuid);
 

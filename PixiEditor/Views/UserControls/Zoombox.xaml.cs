@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,7 +8,7 @@ using System.Windows.Markup;
 namespace PixiEditor.Views.UserControls
 {
     [ContentProperty(nameof(AdditionalContent))]
-    public partial class Zoombox : ContentControl
+    public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         public enum Mode
         {
@@ -103,7 +104,7 @@ namespace PixiEditor.Views.UserControls
 
         private const double zoomFactor = 1.1;
         private const double maxZoom = 50;
-        private const double minZoom = -20;
+        private const double minZoom = -28;
         public object AdditionalContent
         {
             get => GetValue(AdditionalContentProperty);
@@ -114,6 +115,8 @@ namespace PixiEditor.Views.UserControls
             get => (Mode)GetValue(ZoomModeProperty);
             set => SetValue(ZoomModeProperty, value);
         }
+
+        public double Zoom => Math.Pow(zoomFactor, zoomPower);
 
         private Point spaceOriginPos;
         private Point SpaceOriginPos
@@ -133,22 +136,22 @@ namespace PixiEditor.Views.UserControls
             get => zoomPower;
             set
             {
-                if (value > maxZoom)
-                    return;
-                if (value < minZoom)
+                value = Math.Clamp(value, minZoom, maxZoom);
+                if (value == zoomPower)
                     return;
                 zoomPower = value;
                 var mult = Zoom;
                 scaleTransform.ScaleX = mult;
                 scaleTransform.ScaleY = mult;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Zoom)));
             }
         }
-
-        private double Zoom => Math.Pow(zoomFactor, zoomPower);
 
         private IDragOperation activeDragOperation = null;
         private MouseButtonEventArgs activeMouseDownEventArgs = null;
         private Point activeMouseDownPos;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private static void ZoomModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

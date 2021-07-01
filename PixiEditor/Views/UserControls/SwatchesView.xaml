@@ -22,7 +22,7 @@
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
-                               HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                               HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>

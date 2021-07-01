@@ -55,11 +55,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void Copy(object parameter)
         {
+            var doc = Owner.BitmapManager.ActiveDocument;
             ClipboardController.CopyToClipboard(
-                Owner.BitmapManager.ActiveDocument.Layers.Where(x => x.IsActive && x.IsVisible).ToArray(),
-                Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray(),
-                Owner.BitmapManager.ActiveDocument.Width,
-                Owner.BitmapManager.ActiveDocument.Height);
+                doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray(),
+                doc.ActiveSelection.SelectedPoints.ToArray(),
+                doc.Width,
+                doc.Height);
         }
     }
 }

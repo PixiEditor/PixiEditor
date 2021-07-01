@@ -125,18 +125,18 @@ namespace PixiEditor.Models.Controllers
 
                 if (IsOperationTool(SelectedTool))
                 {
-                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates.ToList(), (BitmapOperationTool)SelectedTool);
+                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, (BitmapOperationTool)SelectedTool);
                 }
                 else
                 {
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates.ToArray(), (ReadonlyTool)SelectedTool);
+                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates, (ReadonlyTool)SelectedTool);
                 }
             }
         }
 
         public WriteableBitmap GetCombinedLayersBitmap()
         {
-            return BitmapUtils.CombineLayers(ActiveDocument.Width, ActiveDocument.Height, ActiveDocument.Layers.Where(x => x.IsVisible).ToArray());
+            return BitmapUtils.CombineLayers(ActiveDocument.Width, ActiveDocument.Height, ActiveDocument.Layers.Where(x => ActiveDocument.GetFinalLayerIsVisible(x)).ToArray(), ActiveDocument.LayerStructure);
         }
 
         /// <summary>
