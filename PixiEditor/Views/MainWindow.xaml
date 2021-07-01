@@ -325,13 +325,6 @@
                                             PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
-                                <LayoutAnchorablePane>
-                                    <LayoutAnchorable ContentId="referenceLayer" Title="Reference Layer" 
-                                                      CanHide="False" CanAutoHide="False"
-                                                      CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <avalonDockWindows:ReferenceLayerWindow Document="{Binding BitmapManager.ActiveDocument}"/>
-                                    </LayoutAnchorable>
-                                </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
                         </LayoutPanel>
                     </avalondock:LayoutRoot>
