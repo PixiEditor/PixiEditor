@@ -7,7 +7,9 @@
                 mc:Ignorable="d" 
                 x:Name="uc"
                 d:DesignHeight="450" d:DesignWidth="800">
-    <Canvas MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnScroll" x:Name="mainCanvas" Background="Transparent">
+    <Canvas MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnScroll"
+            IsManipulationEnabled="True" ManipulationDelta="OnManipulationDelta"
+            x:Name="mainCanvas" Background="Transparent">
         <Grid x:Name="mainGrid">
             <Grid.LayoutTransform>
                 <ScaleTransform x:Name="scaleTransform"/>

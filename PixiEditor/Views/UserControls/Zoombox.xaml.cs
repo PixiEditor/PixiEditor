@@ -270,5 +270,13 @@ namespace PixiEditor.Views.UserControls
         {
             ZoomInto(e.GetPosition(mainCanvas), e.Delta / 100);
         }
+
+        private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
+        {
+            e.Handled = true;
+
+            ZoomInto(e.ManipulationOrigin, e.DeltaManipulation.Expansion.X / 5.0);
+            SpaceOriginPos += e.DeltaManipulation.Translation;
+        }
     }
 }
