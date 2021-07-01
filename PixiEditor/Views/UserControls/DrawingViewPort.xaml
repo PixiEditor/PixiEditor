@@ -57,11 +57,6 @@
                                    Width="{Binding PreviewLayer.Width}"
                                    Height="{Binding PreviewLayer.Height}" 
                                    Margin="{Binding PreviewLayer.Offset}"/>
-                <Image Source="{Binding ReferenceLayer.LayerBitmap}" Panel.ZIndex="2"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding ReferenceLayer.ReferenceWidth}"
-                                   Height="{Binding ReferenceLayer.ReferenceHeight}" 
-                                   Margin="{Binding ReferenceLayer.Offset}"/>
 
                 <ItemsControl ItemsSource="{Binding Layers}">
                     <ItemsControl.ItemsPanel>

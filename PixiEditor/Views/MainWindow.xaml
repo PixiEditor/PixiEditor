@@ -302,8 +302,7 @@
                                         <usercontrols:LayersManager                                            
                                             LayerCommandsViewModel="{Binding LayersSubViewModel}"
                                             OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
-                    Converter={StaticResource NotNullToBoolConverter}}"
-                                            ReferenceLayer="{Binding BitmapManager.ActiveDocument.ReferenceLayer}">
+                    Converter={StaticResource NotNullToBoolConverter}}">
                                             <usercontrols:LayersManager.LayerTreeRoot>
                                                 <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
                                                     <Binding Path="BitmapManager.ActiveDocument.Layers" />

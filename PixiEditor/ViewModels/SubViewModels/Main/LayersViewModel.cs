@@ -40,8 +40,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand MergeWithBelowCommand { get; set; }
 
-        public RelayCommand CreateReferenceLayerCommand { get; set; }
-
         public LayersViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -60,7 +58,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             RenameGroupCommand = new RelayCommand(RenameGroup);
             DeleteGroupCommand = new RelayCommand(DeleteGroup);
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, CanDeleteSelected);
-            CreateReferenceLayerCommand = new RelayCommand(CreateReferenceLayer);
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
@@ -333,15 +330,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             int index = (int)property;
             return Owner.DocumentIsNotNull(null) && index != 0 && Owner.BitmapManager.ActiveDocument.Layers.Count(x => x.IsActive) == 1;
-        }
-
-        private void CreateReferenceLayer(object obj)
-        {
-            Owner.BitmapManager.ActiveDocument.ReferenceLayer = new ReferenceLayer("Reference Layer")
-            {
-                ReferenceWidth = Owner.BitmapManager.ActiveDocument.Width,
-                ReferenceHeight = Owner.BitmapManager.ActiveDocument.Height
-            };
         }
 
         private GuidStructureItem GetGroupFromParameter(object parameter)
