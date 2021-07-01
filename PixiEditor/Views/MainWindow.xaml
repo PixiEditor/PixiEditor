@@ -333,7 +333,7 @@
         </Grid>
 
         <Border Grid.Row="2" Grid.Column="0"
-                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5">
+                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5,0,5,5">
         <StackPanel Orientation="Vertical" Cursor="Arrow" >
 
             <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
