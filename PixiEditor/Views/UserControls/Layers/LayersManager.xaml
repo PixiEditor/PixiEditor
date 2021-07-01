@@ -1,13 +1,12 @@
-﻿<UserControl x:Class="PixiEditor.Views.UserControls.LayersManager"
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.Layers.LayersManager"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:vws="clr-namespace:PixiEditor.Views" 
              xmlns:layers="clr-namespace:PixiEditor.Models.Layers"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <UserControl.Resources>
@@ -18,6 +17,7 @@
             <RowDefinition Height="37.5"/>
             <RowDefinition Height="15"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
@@ -70,7 +70,7 @@
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type layers:LayerGroup}" ItemsSource="{Binding Items}">
-                        <local:LayerGroupControl GroupName="{Binding Name}" MouseDown="SelectActiveItem"
+                        <layerUserControls:LayerGroupControl GroupName="{Binding Name}" MouseDown="SelectActiveItem"
                                              IsVisibleUndoTriggerable="{Binding StructureData.IsVisible}" 
                                              GroupOpacity="{Binding StructureData.Opacity}"
                                              LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" 
@@ -79,7 +79,7 @@
                                              MouseMove="LayerGroup_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type layers:Layer}">
-                        <local:LayerStructureItemContainer    
+                        <layerUserControls:LayerStructureItemContainer    
                             MouseDown="SelectActiveItem"
                             MouseMove="LayerStructureItemContainer_MouseMove" 
                             ContainerIndex="{Binding Converter={StaticResource IndexOfConverter}}"
@@ -89,5 +89,6 @@
             </TreeView>
             <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
+        <layerUserControls:ReferenceLayer Background="{StaticResource MainColor}" Grid.Row="3" VerticalAlignment="Bottom"/>
     </Grid>
 </UserControl>

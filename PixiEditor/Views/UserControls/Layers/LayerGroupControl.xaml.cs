@@ -9,7 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditor.Views.UserControls
+namespace PixiEditor.Views.UserControls.Layers
 {
     /// <summary>
     /// Interaction logic for LayerFolder.xaml.

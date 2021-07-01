@@ -13,7 +13,7 @@
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
+        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
@@ -299,20 +299,20 @@
                                     <LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <usercontrols:LayersManager                                            
+                                        <layerUserControls:LayersManager                                            
                                             LayerCommandsViewModel="{Binding LayersSubViewModel}"
                                             OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
                     Converter={StaticResource NotNullToBoolConverter}}">
-                                            <usercontrols:LayersManager.LayerTreeRoot>
+                                            <layerUserControls:LayersManager.LayerTreeRoot>
                                                 <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
                                                     <Binding Path="BitmapManager.ActiveDocument.Layers" />
                                                     <Binding Path="BitmapManager.ActiveDocument.LayerStructure"/>
                                                 </MultiBinding>
-                                            </usercontrols:LayersManager.LayerTreeRoot>
-                                        </usercontrols:LayersManager>
+                                            </layerUserControls:LayersManager.LayerTreeRoot>
+                                        </layerUserControls:LayersManager>
                                     </LayoutAnchorable>
                                     <LayoutAnchorable x:Name="rawLayerAnchorable" ContentId="rawLayer" Title="Raw layers">
-                                        <usercontrols:RawLayersViewer Layers="{Binding BitmapManager.ActiveDocument.Layers}"
+                                        <layerUserControls:RawLayersViewer Layers="{Binding BitmapManager.ActiveDocument.Layers}"
                                                                       Structure="{Binding BitmapManager.ActiveDocument.LayerStructure}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
