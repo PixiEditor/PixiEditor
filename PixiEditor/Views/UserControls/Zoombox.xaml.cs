@@ -43,7 +43,7 @@ namespace PixiEditor.Views.UserControls
             {
                 var curMousePos = e.GetPosition(parent.mainCanvas);
                 parent.SpaceOriginPos += curMousePos - prevMousePos;
-                prevMousePos = e.GetPosition(parent.mainCanvas);
+                prevMousePos = curMousePos;
             }
 
             public void Terminate()
@@ -70,7 +70,7 @@ namespace PixiEditor.Views.UserControls
             {
                 screenZoomOrigin = e.GetPosition(parent.mainCanvas);
                 zoomOrigin = parent.ToZoomboxSpace(screenZoomOrigin);
-                initZoomPower = parent.ZoomPower;
+                initZoomPower = parent.ZoomPowerClamped;
                 initSpaceOriginPos = parent.SpaceOriginPos;
                 parent.mainCanvas.CaptureMouse();
             }
@@ -80,7 +80,7 @@ namespace PixiEditor.Views.UserControls
                 var curScreenPos = e.GetPosition(parent.mainCanvas);
                 double deltaX = screenZoomOrigin.X - curScreenPos.X;
                 double deltaPower = deltaX / 10.0;
-                parent.ZoomPower = initZoomPower - deltaPower;
+                parent.ZoomPowerClamped = initZoomPower - deltaPower;
 
                 parent.SpaceOriginPos = initSpaceOriginPos;
                 var shiftedOriginPos = parent.ToScreenSpace(zoomOrigin);
@@ -131,12 +131,28 @@ namespace PixiEditor.Views.UserControls
         }
 
         private double zoomPower;
-        private double ZoomPower
+        private double ZoomPowerClamped
         {
             get => zoomPower;
             set
             {
                 value = Math.Clamp(value, minZoom, maxZoom);
+                if (value == zoomPower)
+                    return;
+                zoomPower = value;
+                var mult = Zoom;
+                scaleTransform.ScaleX = mult;
+                scaleTransform.ScaleY = mult;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Zoom)));
+            }
+        }
+        private double ZoomPowerTopCapped
+        {
+            get => zoomPower;
+            set
+            {
+                if (value > maxZoom)
+                    value = maxZoom;
                 if (value == zoomPower)
                     return;
                 zoomPower = value;
@@ -166,16 +182,18 @@ namespace PixiEditor.Views.UserControls
             InitializeComponent();
         }
 
-        public void CenterContent()
+        public void CenterContent() => CenterContent(new Size(mainGrid.ActualHeight, mainGrid.ActualHeight));
+
+        public void CenterContent(Size newSize)
         {
             const double marginFactor = 1.1;
             double scaleFactor = Math.Max(
-                mainGrid.ActualWidth * marginFactor / mainCanvas.ActualWidth,
-                mainGrid.ActualHeight * marginFactor / mainCanvas.ActualHeight);
-            ZoomPower = -Math.Log(scaleFactor, zoomFactor);
+                newSize.Width * marginFactor / mainCanvas.ActualWidth,
+                newSize.Height * marginFactor / mainCanvas.ActualHeight);
+            ZoomPowerTopCapped = -Math.Log(scaleFactor, zoomFactor);
             SpaceOriginPos = new Point(
-                mainCanvas.ActualWidth / 2 - mainGrid.ActualWidth * Zoom / 2,
-                mainCanvas.ActualHeight / 2 - mainGrid.ActualHeight * Zoom / 2);
+                mainCanvas.ActualWidth / 2 - newSize.Width * Zoom / 2,
+                mainCanvas.ActualHeight / 2 - newSize.Height * Zoom / 2);
         }
 
         public void ZoomIntoCenter(double delta)
@@ -187,9 +205,9 @@ namespace PixiEditor.Views.UserControls
         {
             var oldZoomboxMousePos = ToZoomboxSpace(mousePos);
 
-            ZoomPower += delta;
+            ZoomPowerClamped += delta;
 
-            if (Math.Abs(ZoomPower) < 1) ZoomPower = 0;
+            if (Math.Abs(ZoomPowerClamped) < 1) ZoomPowerClamped = 0;
 
             var shiftedMousePos = ToScreenSpace(oldZoomboxMousePos);
             var deltaMousePos = mousePos - shiftedMousePos;
@@ -252,7 +270,7 @@ namespace PixiEditor.Views.UserControls
                 return;
             if (activeDragOperation != null)
             {
-                activeDragOperation?.Terminate();
+                activeDragOperation.Terminate();
                 activeDragOperation = null;
             }
             else

@@ -333,7 +333,7 @@ namespace PixiEditor.ViewModels
         {
             BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
             BitmapManager.ActiveDocument.ChangesSaved = false;
-            BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, EventArgs.Empty);
+            BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
