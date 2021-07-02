@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.Layers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,28 +23,6 @@ namespace PixiEditor.Views.UserControls.Layers
     /// </summary>
     public partial class ReferenceLayer : UserControl
     {
-        public WriteableBitmap PreviewImage
-        {
-            get { return (WriteableBitmap)GetValue(PreviewImageProperty); }
-            set { SetValue(PreviewImageProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for PreviewImage.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty PreviewImageProperty =
-            DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(ReferenceLayer), new PropertyMetadata(default(WriteableBitmap)));
-
-
-        public bool IsLayerVisible
-        {
-            get { return (bool)GetValue(IsLayerVisibleProperty); }
-            set { SetValue(IsLayerVisibleProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for IsLayerVisible.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsLayerVisibleProperty =
-            DependencyProperty.Register("IsLayerVisible", typeof(bool), typeof(ReferenceLayer), new PropertyMetadata(true));
-
-
         public bool ReferenceLayerSelected
         {
             get { return (bool)GetValue(ReferenceLayerSelectedProperty); }
@@ -52,6 +33,15 @@ namespace PixiEditor.Views.UserControls.Layers
         public static readonly DependencyProperty ReferenceLayerSelectedProperty =
             DependencyProperty.Register("ReferenceLayerSelected", typeof(bool), typeof(ReferenceLayer), new PropertyMetadata(false));
 
+        public Layer Layer
+        {
+            get { return (Layer)GetValue(ReferenceLayerProperty); }
+            set { SetValue(ReferenceLayerProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ReferenceLayer.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ReferenceLayerProperty =
+            DependencyProperty.Register("Layer", typeof(Layer), typeof(ReferenceLayer), new PropertyMetadata(default(Layer)));
 
 
         public ReferenceLayer()
@@ -61,7 +51,34 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            string path = OpenFilePicker();
+            if (path != null)
+            {
+                var bitmap = Importer.ImportImage(path);
+                Layer = new Layer("_Reference Layer", bitmap);
+                ReferenceLayerSelected = true;
+            }
+        }
 
+        private string OpenFilePicker()
+        {
+            OpenFileDialog dialog = new OpenFileDialog()
+            {
+                Filter = "PNG Files|*.png|JPEG Files|*.jpg;*.jpeg",
+                CheckFileExists = true
+            };
+
+            if ((bool)dialog.ShowDialog())
+            {
+                return dialog.FileName;
+            }
+            return null;
+        }
+
+        private void TrashButton_Click(object sender, RoutedEventArgs e)
+        {
+            Layer = null;
+            ReferenceLayerSelected = false;
         }
     }
 }
