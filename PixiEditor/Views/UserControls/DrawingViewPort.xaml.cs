@@ -44,6 +44,9 @@ namespace PixiEditor.Views.UserControls
             DependencyProperty.Register(nameof(ZoomViewportTrigger), typeof(ExecutionTrigger<double>), typeof(DrawingViewPort),
                 new PropertyMetadata(default(ExecutionTrigger<double>), ZoomViewportTriggerChanged));
 
+        public static readonly DependencyProperty UseTouchGesturesProperty =
+            DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(DrawingViewPort));
+
         public ICommand MiddleMouseClickedCommand
         {
             get => (ICommand)GetValue(MiddleMouseClickedCommandProperty);
@@ -90,6 +93,12 @@ namespace PixiEditor.Views.UserControls
         {
             get => (bool)GetValue(IsUsingMoveViewportToolProperty);
             set => SetValue(IsUsingMoveViewportToolProperty, value);
+        }
+
+        public bool UseTouchGestures
+        {
+            get => (bool)GetValue(UseTouchGesturesProperty);
+            set => SetValue(UseTouchGesturesProperty, value);
         }
 
         public ExecutionTrigger<EventArgs> CenterViewportTrigger

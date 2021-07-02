@@ -123,6 +123,7 @@
     <None Remove="Images\Layer-add.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
+    <None Remove="Images\penMode.png" />
     <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
     <None Remove="Images\PixiParserLogo.png" />
@@ -175,6 +176,7 @@
     <Resource Include="Images\MoveViewportImage.png" />
     <Resource Include="Images\PenImage.png" />
     <Resource Include="Images\ColorPickerImage.png" />
+    <Resource Include="Images\penMode.png" />
     <Resource Include="Images\PixiBotLogo.png" />
     <Resource Include="Images\PixiEditorLogo.png" />
     <Resource Include="Images\PixiParserLogo.png" />

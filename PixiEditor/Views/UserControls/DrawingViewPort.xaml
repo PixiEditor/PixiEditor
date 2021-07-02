@@ -18,7 +18,8 @@
         <converters:ZoomToViewportConverter x:Key="ZoomToViewportConverter" />
     </UserControl.Resources>
 
-    <local:Zoombox x:Name="zoombox" ClipToBounds="True" d:DataContext="{d:DesignInstance dataholders:Document}">
+    <local:Zoombox x:Name="zoombox" ClipToBounds="True" d:DataContext="{d:DesignInstance dataholders:Document}"
+                   UseTouchGestures="{Binding UseTouchGestures, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
