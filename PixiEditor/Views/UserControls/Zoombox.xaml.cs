@@ -104,7 +104,7 @@ namespace PixiEditor.Views.UserControls
 
         private const double zoomFactor = 1.1;
         private const double maxZoom = 50;
-        private const double minZoom = -28;
+        private double minZoom = -28;
         public object AdditionalContent
         {
             get => GetValue(AdditionalContentProperty);
@@ -182,6 +182,7 @@ namespace PixiEditor.Views.UserControls
         {
             ZoomInto(new Point(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2), delta);
         }
+
         public void ZoomInto(Point mousePos, double delta)
         {
             var oldZoomboxMousePos = ToZoomboxSpace(mousePos);
@@ -193,6 +194,14 @@ namespace PixiEditor.Views.UserControls
             var shiftedMousePos = ToScreenSpace(oldZoomboxMousePos);
             var deltaMousePos = mousePos - shiftedMousePos;
             SpaceOriginPos = SpaceOriginPos + deltaMousePos;
+        }
+
+        private void RecalculateMinZoomLevel(object sender, SizeChangedEventArgs args)
+        {
+            double fraction = Math.Max(
+                mainCanvas.ActualWidth / mainGrid.ActualWidth,
+                mainCanvas.ActualHeight / mainGrid.ActualHeight);
+            minZoom = Math.Min(0, Math.Log(fraction / 8, zoomFactor));
         }
 
         private Point ToScreenSpace(Point p)
