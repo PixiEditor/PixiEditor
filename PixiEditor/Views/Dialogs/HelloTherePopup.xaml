@@ -93,7 +93,8 @@
                                                 Width="100" Height="100"
                                                 Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                 CommandParameter="{Binding FilePath}"
-                                                Style="{StaticResource DarkRoundButton}">
+                                                Style="{StaticResource DarkRoundButton}"
+                                                x:Name="fileButton">
                                             <Grid Width="100" Height="100">
                                                 <Image Source="{Binding PreviewBitmap}" Margin="20"/>
                                                 <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
@@ -105,10 +106,10 @@
                                                                 <Trigger Property="IsMouseOver" Value="False">
                                                                     <Setter Property="CornerRadius" Value="2"/>
                                                                 </Trigger>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Trigger.EnterActions>
+                                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
+                                                                    <DataTrigger.EnterActions>
                                                                         <BeginStoryboard Name="open">
-                                                                            <Storyboard>
+                                                                            <Storyboard BeginTime="0:0:.1">
                                                                                 <DoubleAnimation Storyboard.TargetProperty="Height" By="8" To="25" BeginTime="0:0:.1" Duration="0:0:.3">
                                                                                     <DoubleAnimation.EasingFunction>
                                                                                         <ExponentialEase/>
@@ -119,15 +120,15 @@
                                                                                         <ExponentialEase/>
                                                                                     </DoubleAnimation.EasingFunction>
                                                                                 </DoubleAnimation>
-                                                                                <ThicknessAnimation Storyboard.TargetProperty="Margin" By="5" To="0" BeginTime="0:0:.2" Duration="0:0:.1">
+                                                                                <ThicknessAnimation Storyboard.TargetProperty="Margin" By="5" To="0" BeginTime="0:0:.1" Duration="0:0:.25">
                                                                                     <ThicknessAnimation.EasingFunction>
                                                                                         <ExponentialEase/>
                                                                                     </ThicknessAnimation.EasingFunction>
                                                                                 </ThicknessAnimation>
                                                                             </Storyboard>
                                                                         </BeginStoryboard>
-                                                                    </Trigger.EnterActions>
-                                                                    <Trigger.ExitActions>
+                                                                    </DataTrigger.EnterActions>
+                                                                    <DataTrigger.ExitActions>
                                                                         <BeginStoryboard Name="close">
                                                                             <Storyboard>
                                                                                 <DoubleAnimation Storyboard.TargetProperty="Height" By="25" To="8"  Duration="0:0:.2">
@@ -147,9 +148,9 @@
                                                                                 </ThicknessAnimation>
                                                                             </Storyboard>
                                                                         </BeginStoryboard>
-                                                                    </Trigger.ExitActions>
+                                                                    </DataTrigger.ExitActions>
                                                                     <Setter Property="CornerRadius" Value="0,0,4,4"/>
-                                                                </Trigger>
+                                                                </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
@@ -157,13 +158,13 @@
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=extensionBorder}" Value="True">
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
                                                                         <DataTrigger.EnterActions>
                                                                             <BeginStoryboard Name="start">
-                                                                                <Storyboard>
-                                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" By="0" To="1" Duration="0:0:.5">
+                                                                                <Storyboard BeginTime="0:0:.2">
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" By="0" To="1" Duration="0:0:.4">
                                                                                         <DoubleAnimation.EasingFunction>
-                                                                                            <ExponentialEase/>
+                                                                                            <PowerEase/>
                                                                                         </DoubleAnimation.EasingFunction>
                                                                                     </DoubleAnimation>
                                                                                 </Storyboard>
