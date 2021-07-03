@@ -3,9 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Layers" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:local1="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Layers" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:local1="clr-namespace:PixiEditor.Views.UserControls" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" Name="uc">
+    <UserControl.Resources>
+        <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
+        <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter"/>
+    </UserControl.Resources>
     <Border BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="0 2 0 0" MinWidth="60" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
@@ -17,25 +21,25 @@
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Grid  Visibility="{Binding ReferenceLayerSelected, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}"  Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="5">
+                <Grid Visibility="{Binding Layer, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"  Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="5">
                     <Grid MouseDown="Grid_MouseDown" Cursor="Hand" Visibility="{Binding ElementName=visibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}"  Background="Transparent"/>
                 </Grid>
                 <Grid Grid.Column="0" Height="16" Name="layerVisibilityCheckboxGrid">
-                <CheckBox Visibility="{Binding ReferenceLayerSelected, ElementName=uc, Converter={BoolToVisibilityConverter}}" Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
+                    <CheckBox Visibility="{Binding Layer, ElementName=uc, Converter={StaticResource NotNullToVisibilityConverter}}" Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center" 
                       IsChecked="{Binding Path=Layer.IsVisible, Mode=TwoWay, ElementName=uc}"/>
                 </Grid>
                 <StackPanel Name="middleStackPanel" Height="40" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center">
-                    <Border HorizontalAlignment="Left" Visibility="{Binding ReferenceLayerSelected, ElementName=uc, Converter={BoolToVisibilityConverter}}" Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}"
+                    <Border HorizontalAlignment="Left" Visibility="{Binding Layer, ElementName=uc, Converter={StaticResource NotNullToVisibilityConverter}}" Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}"
                            Margin="5, 0, 10, 0">
                         <Image Source="{Binding Layer.LayerBitmap, ElementName=uc}" Stretch="Uniform" Width="25" Height="25" 
                        RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                     </Border>
-                    <Image Margin="0 0 5 0" Width="20" Source="/Images/Layer-add.png"  Visibility="{Binding ReferenceLayerSelected, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}"/>
+                    <Image Margin="0 0 5 0" Width="20" Source="/Images/Layer-add.png"  Visibility="{Binding Layer, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"/>
 
-                    <local1:PrependTextBlock Margin="0 0 5 0" Prepend="Select " Foreground="White" HidePrepend="{Binding ReferenceLayerSelected, ElementName=uc}"
+                    <local1:PrependTextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" Margin="0 0 5 0" Prepend="Add " Foreground="White" HidePrepend="{Binding Layer, ElementName=uc, Converter={StaticResource NotNullToBoolConverter}}"
                                              FontSize="15" VerticalAlignment="Center" Text="Reference Layer" />
-                    <Button Click="TrashButton_Click" Cursor="Hand" Grid.Column="1" Visibility="{Binding ReferenceLayerSelected, ElementName=uc, Converter={BoolToVisibilityConverter}}" Style="{StaticResource ImageButtonStyle}" Width="20" Height="20" HorizontalAlignment="Right">
+                    <Button Click="TrashButton_Click" Cursor="Hand" Grid.Column="1" Visibility="{Binding Layer, ElementName=uc, Converter={BoolToVisibilityConverter}}" Style="{StaticResource ImageButtonStyle}" Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
                             <ImageBrush ImageSource="/Images/Trash.png"/>
                         </Button.Background>

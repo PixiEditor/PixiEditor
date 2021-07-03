@@ -89,6 +89,6 @@
             </TreeView>
             <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
-        <layerUserControls:ReferenceLayer Background="{StaticResource MainColor}" Layer="{Binding LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.ReferenceLayer, ElementName=layersManager, Mode=TwoWay}" Grid.Row="3" VerticalAlignment="Bottom"/>
+        <layerUserControls:ReferenceLayer Visibility="{Binding Path=OpacityInputEnabled, ElementName=layersManager, Converter={BoolToVisibilityConverter}}" Background="{StaticResource MainColor}" Layer="{Binding LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.ReferenceLayer, ElementName=layersManager, Mode=TwoWay}" Grid.Row="3" VerticalAlignment="Bottom"/>
     </Grid>
 </UserControl>

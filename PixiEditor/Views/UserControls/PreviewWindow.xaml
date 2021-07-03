@@ -12,7 +12,7 @@
 
     <UserControl.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:NotNullToVisibiltyConverter x:Key="NullToVisibiltyConverter"/>
+        <converters:NotNullToVisibilityConverter x:Key="NullToVisibiltyConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>

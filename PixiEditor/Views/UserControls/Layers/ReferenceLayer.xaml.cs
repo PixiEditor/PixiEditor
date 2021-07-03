@@ -23,16 +23,6 @@ namespace PixiEditor.Views.UserControls.Layers
     /// </summary>
     public partial class ReferenceLayer : UserControl
     {
-        public bool ReferenceLayerSelected
-        {
-            get { return (bool)GetValue(ReferenceLayerSelectedProperty); }
-            set { SetValue(ReferenceLayerSelectedProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for ReferenceLayerSelected.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ReferenceLayerSelectedProperty =
-            DependencyProperty.Register("ReferenceLayerSelected", typeof(bool), typeof(ReferenceLayer), new PropertyMetadata(false));
-
         public Layer Layer
         {
             get { return (Layer)GetValue(ReferenceLayerProperty); }
@@ -56,7 +46,6 @@ namespace PixiEditor.Views.UserControls.Layers
             {
                 var bitmap = Importer.ImportImage(path);
                 Layer = new Layer("_Reference Layer", bitmap);
-                ReferenceLayerSelected = true;
             }
         }
 
@@ -78,7 +67,6 @@ namespace PixiEditor.Views.UserControls.Layers
         private void TrashButton_Click(object sender, RoutedEventArgs e)
         {
             Layer = null;
-            ReferenceLayerSelected = false;
         }
     }
 }

@@ -8,9 +8,19 @@
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="uc">
     <StackPanel Orientation="Horizontal">
-        <TextBlock Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Prepend, ElementName=uc}"/>
-        
-        <TextBlock>
+        <StackPanel.Resources>
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="Foreground" Value="White" />
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Foreground" Value="#88888A" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </StackPanel.Resources>
+        <TextBlock Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Prepend, ElementName=uc}" IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"/>
+
+        <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}">
             <TextBlock.Text>
                 <PriorityBinding>
                     <Binding Path="Text" ElementName="uc"/>
@@ -19,6 +29,6 @@
             </TextBlock.Text>
         </TextBlock>
 
-        <TextBlock Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Append, ElementName=uc}"/>
+        <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Append, ElementName=uc}"/>
     </StackPanel>
 </UserControl>
