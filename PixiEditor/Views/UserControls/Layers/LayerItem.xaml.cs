@@ -156,9 +156,9 @@ namespace PixiEditor.Views.UserControls.Layers
             Grid item = sender as Grid;
             RemoveDragEffect(item);
 
-            if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerStructureItemContainer"))
+            if (e.Data.GetDataPresent(LayerGroupControl.LayerContainerDataName))
             {
-                var data = (LayerStructureItemContainer)e.Data.GetData("PixiEditor.Views.UserControls.LayerStructureItemContainer");
+                var data = (LayerStructureItemContainer)e.Data.GetData(LayerGroupControl.LayerContainerDataName);
                 Guid layer = data.Layer.LayerGuid;
                 var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
@@ -170,9 +170,9 @@ namespace PixiEditor.Views.UserControls.Layers
                 }
             }
 
-            if (e.Data.GetDataPresent("PixiEditor.Views.UserControls.LayerGroupControl"))
+            if (e.Data.GetDataPresent(LayerGroupControl.LayerGroupControlDataName))
             {
-                var data = (LayerGroupControl)e.Data.GetData("PixiEditor.Views.UserControls.LayerGroupControl");
+                var data = (LayerGroupControl)e.Data.GetData(LayerGroupControl.LayerGroupControlDataName);
                 Guid folder = data.GroupGuid;
 
                 var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
