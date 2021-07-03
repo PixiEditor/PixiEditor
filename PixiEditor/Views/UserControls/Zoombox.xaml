@@ -10,7 +10,7 @@
     <Canvas MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnScroll"
             IsManipulationEnabled="{Binding UseTouchGestures, ElementName=uc}" ManipulationDelta="OnManipulationDelta"
             x:Name="mainCanvas" Background="Transparent">
-        <Grid x:Name="mainGrid">
+        <Grid x:Name="mainGrid" SizeChanged="RecalculateMinZoomLevel">
             <Grid.LayoutTransform>
                 <ScaleTransform x:Name="scaleTransform"/>
             </Grid.LayoutTransform>
