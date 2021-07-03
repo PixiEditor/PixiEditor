@@ -70,6 +70,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
             Owner.BitmapManager.AddPropertyChangedCallback(nameof(Owner.BitmapManager.SelectedTool), UpdateUseTouchGesture);
+
+            UpdateUseTouchGesture();
         }
 
         private void UpdateUseTouchGesture()
