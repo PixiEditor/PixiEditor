@@ -41,10 +41,13 @@ namespace PixiEditor.Models.DataHolders
             {
                 if (Corrupt)
                 {
-                    return "Corrupt";
+                    return "? (Corrupt)";
                 }
 
-                return Path.GetExtension(filePath).ToLower();
+                string extension = Path.GetExtension(filePath).ToLower();
+                return extension is not (".pixi" or ".png" or ".jpg" or ".jpeg")
+                    ? $"? ({extension})"
+                    : extension;
             }
         }
 

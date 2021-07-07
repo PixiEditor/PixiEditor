@@ -8,17 +8,18 @@
              xmlns:vws="clr-namespace:PixiEditor.Views"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Class="PixiEditor.Views.UserControls.DrawingViewPort"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" x:Name="uc">
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:sys="clr-namespace:System;assembly=System.Runtime" xmlns:dataholders="clr-namespace:PixiEditor.Models.DataHolders" x:Class="PixiEditor.Views.UserControls.DrawingViewPort"
+    mc:Ignorable="d"
+    d:DesignHeight="450" d:DesignWidth="800" x:Name="uc">
     <UserControl.Resources>
         <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:IntToViewportRectConverter x:Key="IntToViewportRectConverter" />
-        <converters:ZoomToViewportConverter x:Key="ZoomToViewportConverter"/>
+        <converters:ZoomToViewportConverter x:Key="ZoomToViewportConverter" />
     </UserControl.Resources>
 
-    <local:Zoombox x:Name="zoombox" ClipToBounds="True">
+    <local:Zoombox x:Name="zoombox" ClipToBounds="True" d:DataContext="{d:DesignInstance dataholders:Document}"
+                   UseTouchGestures="{Binding UseTouchGestures, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
                 <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
@@ -57,6 +58,7 @@
                                    Width="{Binding PreviewLayer.Width}"
                                    Height="{Binding PreviewLayer.Height}" 
                                    Margin="{Binding PreviewLayer.Offset}"/>
+
                 <ItemsControl ItemsSource="{Binding Layers}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

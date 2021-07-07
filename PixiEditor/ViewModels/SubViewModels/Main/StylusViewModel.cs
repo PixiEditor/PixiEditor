@@ -2,12 +2,38 @@
 using System.Windows.Input;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class StylusViewModel : SubViewModel<ViewModelMain>
     {
+        private bool isPenModeEnabled;
+        private bool useTouchGestures;
+
         public bool ToolSetByStylus { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether touch gestures are enabled even when the MoveViewportTool and ZoomTool are not selected.
+        /// </summary>
+        public bool IsPenModeEnabled
+        {
+            get => isPenModeEnabled;
+            set
+            {
+                if (SetProperty(ref isPenModeEnabled, value))
+                {
+                    IPreferences.Current.UpdateLocalPreference(nameof(IsPenModeEnabled), value);
+                    UpdateUseTouchGesture();
+                }
+            }
+        }
+
+        public bool UseTouchGestures
+        {
+            get => useTouchGestures;
+            set => SetProperty(ref useTouchGestures, value);
+        }
 
         private Tool PreviousTool { get; set; }
 
@@ -28,6 +54,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 throw new System.Exception("StylusViewModel already has an owner");
             }
+            else if (owner is null)
+            {
+                return;
+            }
 
             Owner = owner;
 
@@ -37,6 +67,23 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             mw.PreviewStylusButtonDown += Mw_StylusButtonDown;
             mw.PreviewStylusButtonUp += Mw_StylusButtonUp;
             mw.PreviewStylusSystemGesture += Mw_PreviewStylusSystemGesture;
+
+            isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
+            Owner.BitmapManager.AddPropertyChangedCallback(nameof(Owner.BitmapManager.SelectedTool), UpdateUseTouchGesture);
+
+            UpdateUseTouchGesture();
+        }
+
+        private void UpdateUseTouchGesture()
+        {
+            if (Owner.BitmapManager.SelectedTool is not (MoveViewportTool or ZoomTool))
+            {
+                UseTouchGestures = IsPenModeEnabled;
+            }
+            else
+            {
+                UseTouchGestures = true;
+            }
         }
 
         private void Mw_PreviewStylusSystemGesture(object sender, StylusSystemGestureEventArgs e)
