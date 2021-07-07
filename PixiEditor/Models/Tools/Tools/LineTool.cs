@@ -13,13 +13,14 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class LineTool : ShapeTool
     {
-        private CircleTool circleTool;
+        private readonly CircleTool circleTool;
 
         public LineTool()
         {
             ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
             Tooltip = "Draws line on canvas (L). Hold Shift to draw even line.";
             Toolbar = new BasicToolbar();
+            circleTool = new CircleTool();
         }
 
         public override void OnKeyDown(KeyEventArgs e)
@@ -58,11 +59,6 @@ namespace PixiEditor.Models.Tools.Tools
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
             return CreateLine(new List<Coordinates>() { end, start }, thickness, startCap, endCap);
-        }
-
-        public override void SetupSubTools()
-        {
-            circleTool = CreateSubTool<CircleTool>();
         }
 
         private IEnumerable<Coordinates> CreateLine(IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)

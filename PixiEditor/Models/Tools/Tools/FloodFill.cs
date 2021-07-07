@@ -9,12 +9,13 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class FloodFill : BitmapOperationTool
     {
-        public BitmapManager BitmapManager { get; set; }
+        private BitmapManager BitmapManager { get; }
 
-        public FloodFill()
+        public FloodFill(BitmapManager bitmapManager)
         {
             ActionDisplay = "Press on a area to fill it.";
             Tooltip = "Fills area with color. (G)";
+            BitmapManager = bitmapManager;
         }
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)

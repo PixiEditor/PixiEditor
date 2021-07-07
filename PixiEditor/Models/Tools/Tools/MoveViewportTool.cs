@@ -11,16 +11,19 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private Point clickPoint;
 
-        public BitmapManager BitmapManager { get; set; }
+        private BitmapManager BitmapManager { get; }
 
-        public ToolsViewModel ToolsViewModel { get; set; }
+        private ToolsViewModel ToolsViewModel { get; }
 
-        public MoveViewportTool()
+        public MoveViewportTool(BitmapManager bitmapManager, ToolsViewModel toolsViewModel)
         {
             HideHighlight = true;
             Cursor = Cursors.SizeAll;
             ActionDisplay = "Click and move to pan viewport.";
             Tooltip = "Move viewport. (H)";
+
+            BitmapManager = bitmapManager;
+            ToolsViewModel = toolsViewModel;
         }
 
         public override void OnMouseDown(MouseEventArgs e)

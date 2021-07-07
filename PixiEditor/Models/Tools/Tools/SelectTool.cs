@@ -19,19 +19,23 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class SelectTool : ReadonlyTool
     {
-        private readonly RectangleTool rectangleTool = new RectangleTool();
-        private readonly CircleTool circleTool = new CircleTool();
+        private readonly RectangleTool rectangleTool;
+        private readonly CircleTool circleTool;
         private IEnumerable<Coordinates> oldSelectedPoints;
-
-        public BitmapManager BitmapManager { get; set; }
 
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
-        public SelectTool()
+        private BitmapManager BitmapManager { get; }
+
+        public SelectTool(BitmapManager bitmapManager)
         {
             ActionDisplay = "Click and move to select an area.";
             Tooltip = "Selects area. (M)";
             Toolbar = new SelectToolToolbar();
+            BitmapManager = bitmapManager;
+
+            rectangleTool = new RectangleTool();
+            circleTool = new CircleTool();
         }
 
         public SelectionType SelectionType { get; set; } = SelectionType.Add;

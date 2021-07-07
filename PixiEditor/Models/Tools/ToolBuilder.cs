@@ -31,11 +31,7 @@ namespace PixiEditor.Models.Tools
         /// </summary>
         public static Tool BuildTool(Type type, IServiceProvider services)
         {
-            Tool tool = (Tool)type.GetConstructor(Type.EmptyTypes).Invoke(null);
-
-            services.Inject(tool, BindingFlags.Public | BindingFlags.Instance, type);
-
-            tool.SetupSubTools();
+            Tool tool = (Tool)services.Inject(type);
 
             return tool;
         }
@@ -44,7 +40,7 @@ namespace PixiEditor.Models.Tools
         /// Adds a new tool of type <typeparamref name="T"/> to the building chain.
         /// </summary>
         public ToolBuilder Add<T>()
-            where T : Tool, new()
+            where T : Tool
             => Add(typeof(T));
 
         /// <summary>

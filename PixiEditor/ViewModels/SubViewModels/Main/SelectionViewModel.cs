@@ -15,7 +15,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand SelectAllCommand { get; set; }
 
-        private SelectTool selectTool;
+        private readonly SelectTool selectTool;
 
         public SelectionViewModel(ViewModelMain owner)
             : base(owner)
@@ -23,7 +23,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             DeselectCommand = new RelayCommand(Deselect, SelectionIsNotEmpty);
             SelectAllCommand = new RelayCommand(SelectAll, CanSelectAll);
 
-            selectTool = ToolBuilder.BuildTool<SelectTool>(Owner.Services);
+            selectTool = new SelectTool(Owner.BitmapManager);
         }
 
         public void SelectAll(object parameter)

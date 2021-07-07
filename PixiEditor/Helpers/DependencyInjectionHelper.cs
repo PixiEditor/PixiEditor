@@ -1,47 +1,61 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace PixiEditor.Helpers
 {
     public static class DependencyInjectionHelper
     {
-        /// <summary>
-        /// Injects all services from <paramref name="services"/> into the public properties of <paramref name="obj"/>
-        /// </summary>
-        /// <typeparam name="T">The type of the object to inject</typeparam>
-        /// <param name="services">The <see cref="IServiceProvider"/></param>
-        /// <param name="obj">The object that should get injected</param>
-        public static void Inject<T>(this IServiceProvider services, T obj)
-            => Inject(services, obj, BindingFlags.Public | BindingFlags.Instance);
+        public static T Inject<T>(this IServiceProvider provider)
+            => (T)Inject(provider, typeof(T));
 
-        /// <summary>
-        /// Injects all services from <paramref name="services"/> into the properties of <paramref name="obj"/>
-        /// </summary>
-        /// <typeparam name="T">The type of the object to inject</typeparam>
-        /// <param name="services">The <see cref="IServiceProvider"/></param>
-        /// <param name="obj">The object that should get injected</param>
-        /// <param name="bindingFlags">The binding flags for the properties</param>
-        public static void Inject<T>(this IServiceProvider services, T obj, BindingFlags bindingFlags)
-            => Inject(services, obj, bindingFlags, obj.GetType());
+#nullable enable
 
-        public static void Inject(this IServiceProvider services, object obj, BindingFlags bindingFlags, Type type)
+        public static object Inject(this IServiceProvider provider, Type type)
         {
-            foreach (PropertyInfo info in type.GetProperties(bindingFlags))
+            ConstructorInfo constructor = FindConstructorOrDefault(provider, type);
+
+            List<object?> parameters = new List<object?>();
+
+            foreach (Type argumentType in constructor.GetParameters().Select(x => x.ParameterType))
             {
-                if (!info.CanWrite)
-                {
-                    continue;
-                }
-
-                object value = services.GetService(info.PropertyType);
-
-                if (value is null)
-                {
-                    continue;
-                }
-
-                info.SetValue(obj, value);
+                parameters.Add(provider.GetRequiredService(argumentType));
             }
+
+            return constructor.Invoke(parameters.ToArray());
+        }
+
+#nullable disable
+
+        private static ConstructorInfo FindConstructorOrDefault(IServiceProvider provider, Type type)
+        {
+            ConstructorInfo foundConstructor = default;
+
+            foreach (ConstructorInfo info in type.GetConstructors())
+            {
+                if (HasParameters(provider, info.GetParameters()))
+                {
+                    foundConstructor = info;
+                    break;
+                }
+            }
+
+            return foundConstructor;
+        }
+
+        private static bool HasParameters(IServiceProvider provider, IEnumerable<ParameterInfo> parameters)
+        {
+            foreach (ParameterInfo parameter in parameters)
+            {
+                if (provider.GetService(parameter.ParameterType) is null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

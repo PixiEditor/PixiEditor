@@ -19,13 +19,13 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly SizeSetting toolSizeSetting;
         private readonly BoolSetting pixelPerfectSetting;
         private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
-        private LineTool lineTool;
+        private readonly LineTool lineTool;
         private Coordinates[] lastChangedPixels = new Coordinates[3];
         private byte changedPixelsindex = 0;
 
-        public BitmapManager BitmapManager { get; set; }
+        private BitmapManager BitmapManager { get; }
 
-        public PenTool()
+        public PenTool(BitmapManager bitmapManager)
         {
             Cursor = Cursors.Pen;
             ActionDisplay = "Click and move to draw.";
@@ -35,6 +35,8 @@ namespace PixiEditor.Models.Tools.Tools
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
             pixelPerfectSetting.ValueChanged += PixelPerfectSettingValueChanged;
             ClearPreviewLayerOnEachIteration = false;
+            BitmapManager = bitmapManager;
+            lineTool = new LineTool();
         }
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
@@ -96,11 +98,6 @@ namespace PixiEditor.Models.Tools.Tools
             var result = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
 
             return result;
-        }
-
-        public override void SetupSubTools()
-        {
-            lineTool = CreateSubTool<LineTool>();
         }
 
         private void MovePixelsToCheck(BitmapPixelChanges changes)

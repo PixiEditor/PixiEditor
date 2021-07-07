@@ -29,7 +29,7 @@ namespace PixiEditor.Models.Tools.Tools
         private Coordinates[] startSelection;
         private bool updateViewModelSelection = true;
 
-        public MoveTool()
+        public MoveTool(BitmapManager bitmapManager)
         {
             ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
             Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers.";
@@ -37,11 +37,13 @@ namespace PixiEditor.Models.Tools.Tools
             HideHighlight = true;
             RequiresPreviewLayer = true;
             UseDefaultUndoMethod = true;
+
+            BitmapManager = bitmapManager;
         }
 
         public bool MoveAll { get; set; } = false;
 
-        public BitmapManager BitmapManager { get; set; }
+        private BitmapManager BitmapManager { get; }
 
         public override void OnKeyDown(KeyEventArgs e)
         {
@@ -111,7 +113,7 @@ namespace PixiEditor.Models.Tools.Tools
             ResetSelectionValues(startPos);
 
             // Move offset if no selection
-            Document doc = ViewModelMain.Current.BitmapManager.ActiveDocument;
+            Document doc = BitmapManager.ActiveDocument;
             Selection selection = doc.ActiveSelection;
             if (selection != null && selection.SelectedPoints.Count > 0)
             {

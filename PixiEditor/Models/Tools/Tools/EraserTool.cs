@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -10,13 +11,14 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class EraserTool : BitmapOperationTool
     {
-        private PenTool pen = new PenTool();
+        private readonly PenTool pen;
 
-        public EraserTool()
+        public EraserTool(BitmapManager bitmapManager)
         {
             ActionDisplay = "Draw to remove color from a pixel.";
             Tooltip = "Erasers color from pixel. (E)";
             Toolbar = new BasicToolbar();
+            pen = new PenTool(bitmapManager);
         }
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
@@ -29,11 +31,6 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
             BitmapPixelChanges pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
             return Only(pixels, layer);
-        }
-
-        public override void SetupSubTools()
-        {
-            pen = CreateSubTool<PenTool>();
         }
     }
 }

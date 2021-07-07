@@ -16,15 +16,17 @@ namespace PixiEditor.Models.Tools.Tools
         private double workAreaWidth = SystemParameters.WorkArea.Width;
         private double pixelsPerZoomMultiplier;
 
-        public BitmapManager BitmapManager { get; set; }
+        private BitmapManager BitmapManager { get; }
 
-        public ZoomTool()
+        public ZoomTool(BitmapManager bitmapManager)
         {
             HideHighlight = true;
             CanStartOutsideCanvas = true;
             ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
             Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
             pixelsPerZoomMultiplier = workAreaWidth / ZoomSensitivityMultiplier;
+
+            BitmapManager = bitmapManager;
         }
 
         public override void OnKeyDown(KeyEventArgs e)
