@@ -100,7 +100,7 @@ namespace PixiEditor.Views.UserControls
             set => SetValue(UseTouchGesturesProperty, value);
         }
 
-        public ExecutionTrigger<EventArgs> CenterViewportTrigger
+        public ExecutionTrigger<Size> CenterViewportTrigger
         {
             get => (ExecutionTrigger<Size>)GetValue(CenterViewportTriggerProperty);
             set => SetValue(CenterViewportTriggerProperty, value);
