@@ -37,6 +37,5 @@ namespace PixiEditorTests.HelpersTests
 
             Assert.NotNull(injectable.TestService);
         }
-
     }
 }
