@@ -22,8 +22,8 @@ namespace PixiEditor.Views.UserControls.Layers
             set { SetValue(GroupGuidProperty, value); }
         }
 
-        public const string LayerGroupControlDataName = "PixiEditor.Views.UserControls.Layers.LayerGroupControl";
-        public const string LayerContainerDataName = "PixiEditor.Views.UserControls.Layers.LayerStructureItemContainer";
+        public static string LayerGroupControlDataName = typeof(LayerGroupControl).FullName;
+        public static string LayerContainerDataName = typeof(LayerStructureItemContainer).FullName;
 
         public static readonly DependencyProperty GroupGuidProperty =
             DependencyProperty.Register("GroupGuid", typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
