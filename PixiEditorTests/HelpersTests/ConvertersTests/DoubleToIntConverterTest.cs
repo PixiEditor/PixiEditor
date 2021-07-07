@@ -2,7 +2,7 @@
 using PixiEditor.Helpers.Converters;
 using Xunit;
 
-namespace PixiEditorTests.HelpersTests.ConvertersTests
+namespace PixiEditorTests.Helpers
 {
     public class DoubleToIntConverterTest
     {

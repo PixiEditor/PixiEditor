@@ -6,6 +6,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
+using PixiEditorTests.HelpersTests;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -301,7 +302,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [StaFact]
         public void TestThatDocumentGetsAddedToRecentlyOpenedList()
         {
-            ViewModelMain viewModel = Helpers.MockedViewModelMain();
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             Document document = new Document(1, 1)
             {

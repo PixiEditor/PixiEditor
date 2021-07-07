@@ -23,7 +23,7 @@ namespace PixiEditor.Models.Tools
         /// Constructs a new tool of type <typeparamref name="T"/> and injects all services of <paramref name="services"/>
         /// </summary>
         public static T BuildTool<T>(IServiceProvider services)
-            where T : Tool, new()
+            where T : Tool
             => (T)BuildTool(typeof(T), services);
 
         /// <summary>
