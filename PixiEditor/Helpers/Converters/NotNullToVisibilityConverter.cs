@@ -5,17 +5,21 @@ using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class ZoomToViewportConverter : IValueConverter
+    [ValueConversion(typeof(object), typeof(Visibility))]
+    public class NotNullToVisibilityConverter : IValueConverter
     {
+        public bool Inverted { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is double scale)
+            bool isNull = value != null;
+
+            if (Inverted)
             {
-                double newSize = Math.Clamp((double)parameter / scale, 1, 9999);
-                return new Rect(0, 0, newSize, newSize);
+                isNull = !isNull;
             }
 
-            return Binding.DoNothing;
+            return isNull ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

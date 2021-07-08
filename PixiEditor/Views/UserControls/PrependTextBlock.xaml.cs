@@ -65,6 +65,18 @@ namespace PixiEditor.Views.UserControls
             set => SetValue(AppendColorProperty, value);
         }
 
+        public bool HidePrepend
+        {
+            get { return (bool)GetValue(HidePrependProperty); }
+            set { SetValue(HidePrependProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for HidePrepend.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HidePrependProperty =
+            DependencyProperty.Register("HidePrepend", typeof(bool), typeof(PrependTextBlock), new PropertyMetadata(false));
+
+
+
         public PrependTextBlock()
         {
             InitializeComponent();

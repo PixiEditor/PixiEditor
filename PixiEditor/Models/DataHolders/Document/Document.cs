@@ -1,36 +1,28 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
+using System;
 using System.Buffers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
     [DebuggerDisplay("'{Name, nq}' {width}x{height} {Layers.Count} Layer(s)")]
     public partial class Document : NotifyableObject
     {
-        private int height;
-        private int width;
 
         private ViewModelMain xamlAccesibleViewModel = null;
-
         public ViewModelMain XamlAccesibleViewModel // Used to access ViewModelMain, without changing DataContext in XAML
         {
             get => xamlAccesibleViewModel;
@@ -41,12 +33,21 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private Layer referenceLayer;
+
+        public Layer ReferenceLayer
+        {
+            get => referenceLayer;
+            set => SetProperty(ref referenceLayer, value);
+        }
+
         public string Name
         {
             get => (string.IsNullOrEmpty(DocumentFilePath) ? "Untitled" : Path.GetFileName(DocumentFilePath))
                 + (!ChangesSaved ? " *" : string.Empty);
         }
 
+        private int width;
         public int Width
         {
             get => width;
@@ -57,6 +58,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private int height;
         public int Height
         {
             get => height;
@@ -80,9 +82,6 @@ namespace PixiEditor.Models.DataHolders
         }
 
         private double mouseXonCanvas;
-
-        private double mouseYonCanvas;
-
         public double MouseXOnCanvas // Mouse X coordinate relative to canvas
         {
             get => mouseXonCanvas;
@@ -93,6 +92,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private double mouseYonCanvas;
         public double MouseYOnCanvas // Mouse Y coordinate relative to canvas
         {
             get => mouseYonCanvas;
@@ -103,58 +103,17 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private double zoomPercentage = 100;
-
-        public double ZoomPercentage
-        {
-            get => zoomPercentage;
-            set
-            {
-                zoomPercentage = value;
-                RaisePropertyChanged(nameof(ZoomPercentage));
-            }
-        }
-
-        private Point viewPortPosition;
-
-        public Point ViewportPosition
-        {
-            get => viewPortPosition;
-            set
-            {
-                viewPortPosition = value;
-                RaisePropertyChanged(nameof(ViewportPosition));
-            }
-        }
-
-        private bool recenterZoombox = true;
-
-        public bool RecenterZoombox
-        {
-            get => recenterZoombox;
-            set
-            {
-                recenterZoombox = value;
-                RaisePropertyChanged(nameof(RecenterZoombox));
-            }
-        }
+        public ExecutionTrigger<Size> CenterViewportTrigger { get; } = new();
+        public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new();
 
         public UndoManager UndoManager { get; set; }
+
+        public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
 
         public void RaisePropertyChange(string name)
         {
             RaisePropertyChanged(name);
         }
-
-        public void CenterViewport()
-        {
-            RecenterZoombox = false; // It's a trick to trigger change in UserControl
-            RecenterZoombox = true;
-            ViewportPosition = default;
-            ZoomPercentage = default;
-        }
-
-        public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
 
         /// <summary>
         ///     Resizes canvas, so it fits exactly the size of drawn content, without any transparent pixels outside.

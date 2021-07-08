@@ -10,44 +10,43 @@
         xmlns:converters="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450"
-        DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize" Height="600" Width="450" Name="newFilePopup">
+        DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen" MinHeight="300" MinWidth="400" Height="600" Width="450" Name="newFilePopup" BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
         <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
-    <Border BorderBrush="Black" BorderThickness="1">
-        <Grid Background="{StaticResource AccentColor}" Focusable="True">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="32*" />
-                <RowDefinition Height="577*" />
-            </Grid.RowDefinitions>
-            <i:Interaction.Behaviors>
-                <helpers:ClearFocusOnClickBehavior/>
-            </i:Interaction.Behaviors>
-            <Grid Grid.Row="0" Background="{StaticResource MainColor}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseDown">
-                        <i:InvokeCommandAction Command="{Binding DragMoveCommand}" />
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-                <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                        Command="{Binding CloseCommand}"
-                        CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
-            </Grid>
-            <Label Content="New File" Grid.Row="1" Margin="0,10,0,0" HorizontalAlignment="Center"
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed_Close" />
+    </Window.CommandBindings>
+
+    <Grid Background="{StaticResource AccentColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
+            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
+        </DockPanel>
+        <Label Content="New File" Grid.Row="1" Margin="0,10,0,0" HorizontalAlignment="Center"
                    VerticalAlignment="Top" Foreground="White" FontSize="24" />
-            <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Background="{StaticResource MainColor}"
+        <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Background="{StaticResource MainColor}"
                         VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
-                <local:SizePicker Margin="0,20" HorizontalAlignment="Center" Height="110"
+            <local:SizePicker Margin="0,20" HorizontalAlignment="Center" Height="110"
                                   ChosenHeight="{Binding FileHeight,Mode=TwoWay, ElementName=newFilePopup}"
                                   ChosenWidth="{Binding FileWidth,Mode=TwoWay, ElementName=newFilePopup}" />
-            </StackPanel>
-            <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="60"
+        </StackPanel>
+        <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="60"
                     Style="{StaticResource DarkRoundButton}" Content="OK" Margin="0,0,10,10" Grid.Row="1"
                     Command="{Binding OkCommand}"
                     CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
-        </Grid>
-    </Border>
+    </Grid>
 </Window>

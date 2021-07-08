@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    class NotNullToVisibiltyConverter : IValueConverter
+    [ValueConversion(typeof(object), typeof(bool))]
+    public class IsSpecifiedTypeConverter : IValueConverter
     {
+        public Type SpecifiedType { get; set; }
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value != null ? Visibility.Visible : Visibility.Hidden;
+            return value != null && value.GetType() == SpecifiedType;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

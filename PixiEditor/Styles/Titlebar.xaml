@@ -39,8 +39,30 @@
         <Setter Property="Content" Value="&#xE923;" />
     </Style>
 
-    <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+    <Style x:Key="CloseButtonStyle" TargetType="Button">
         <Setter Property="Content" Value="&#xE106;" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="LayoutRoot" Background="Transparent" Width="44" Height="35">
+                        <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   RenderOptions.ClearTypeHint="Auto" TextOptions.TextRenderingMode="Aliased"
+                                   TextOptions.TextFormattingMode="Display" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="LayoutRoot" Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="#CD1A2B"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="CaptionToggleButton" TargetType="ToggleButton">

@@ -115,20 +115,19 @@
   <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\CheckerTile.png" />
+    <None Remove="Images\ChevronDown.png" />
     <None Remove="Images\DiagonalRed.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
     <None Remove="Images\Folder-add.png" />
     <None Remove="Images\Folder.png" />
     <None Remove="Images\Layer-add.png" />
-    <None Remove="Images\JpgFile.png" />
     <None Remove="Images\MoveImage.png" />
     <None Remove="Images\MoveViewportImage.png" />
+    <None Remove="Images\penMode.png" />
     <None Remove="Images\PixiBotLogo.png" />
     <None Remove="Images\PixiEditorLogo.png" />
-    <None Remove="Images\PixiFile.png" />
     <None Remove="Images\PixiParserLogo.png" />
-    <None Remove="Images\PngFile.png" />
     <None Remove="Images\SelectImage.png" />
     <None Remove="Images\Trash.png" />
     <None Remove="Images\UnknownFile.png" />
@@ -149,7 +148,6 @@
       <Version>1.0.2</Version>
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="3.8.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
       <NoWarn>NU1701</NoWarn>
@@ -164,6 +162,7 @@
   <ItemGroup>
     <Resource Include="Images\AnchorDot.png" />
     <Resource Include="Images\CheckerTile.png" />
+    <Resource Include="Images\ChevronDown.png" />
     <Resource Include="Images\DiagonalRed.png" />
     <Resource Include="Images\FloodFillImage.png" />
     <Resource Include="Images\CircleImage.png" />
@@ -174,17 +173,15 @@
     <Resource Include="Images\Folder-add.png" />
     <Resource Include="Images\Folder.png" />
     <Resource Include="Images\Layer-add.png" />
-    <Resource Include="Images\JpgFile.png" />
     <Resource Include="Images\LineImage.png" />
     <Resource Include="Images\MoveImage.png" />
     <Resource Include="Images\MoveViewportImage.png" />
     <Resource Include="Images\PenImage.png" />
     <Resource Include="Images\ColorPickerImage.png" />
+    <Resource Include="Images\penMode.png" />
     <Resource Include="Images\PixiBotLogo.png" />
     <Resource Include="Images\PixiEditorLogo.png" />
-    <Resource Include="Images\PixiFile.png" />
     <Resource Include="Images\PixiParserLogo.png" />
-    <Resource Include="Images\PngFile.png" />
     <Resource Include="Images\RectangleImage.png" />
     <Resource Include="Images\SelectImage.png" />
     <Resource Include="Images\transparentbg.png" />

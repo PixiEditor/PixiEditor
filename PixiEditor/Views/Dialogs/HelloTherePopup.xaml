@@ -11,8 +11,8 @@
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <converters:EqualityBoolToVisibilityConverter x:Key="EqualBoolToVisibilty"/>
-        <converters:FileExtensionToImageSourceConverter x:Key="FileExtensionToImageSource"/>
+        <converters:EqualityBoolToVisibilityConverter x:Key="EqualityBoolToVisibilityConverter"/>
+        <converters:FileExtensionToColorConverter x:Key="FileExtensionToColorConverter"/>
 
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
@@ -28,7 +28,7 @@
     </Window.Resources>
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="35"
+        <WindowChrome CaptionHeight="35"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}"/>
     </WindowChrome.WindowChrome>
 
@@ -76,7 +76,7 @@
                     <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center">
                         <TextBlock.Visibility>
                             <Binding Path="RecentlyOpened.Count"
-                                     Converter="{StaticResource EqualBoolToVisibilty}">
+                                     Converter="{StaticResource EqualityBoolToVisibilityConverter}">
                                 <Binding.ConverterParameter>
                                     <sys:Int32/>
                                 </Binding.ConverterParameter>
@@ -88,24 +88,104 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type dataHolders:RecentlyOpenedDocument}">
                                 <Grid>
-                                    <StackPanel Margin="8,5,8,0" ToolTip="{Binding FilePath}">
+                                    <StackPanel Margin="8,5,8,0">
                                         <Button Margin="0,10,0,0" HorizontalAlignment="Center"
                                                 Width="100" Height="100"
                                                 Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                 CommandParameter="{Binding FilePath}"
-                                                Style="{StaticResource DarkRoundButton}">
-                                            <Image Source="{Binding PreviewBitmap}" Margin="20"/>
+                                                Style="{StaticResource DarkRoundButton}"
+                                                x:Name="fileButton">
+                                            <Grid Width="100" Height="100">
+                                                <Image Source="{Binding PreviewBitmap}" Margin="20"/>
+                                                <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
+                                                        Background="{Binding FileExtension, Converter={StaticResource FileExtensionToColorConverter}}" 
+                                                        VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="False">
+                                                                    <Setter Property="CornerRadius" Value="2"/>
+                                                                </Trigger>
+                                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
+                                                                    <DataTrigger.EnterActions>
+                                                                        <BeginStoryboard Name="open">
+                                                                            <Storyboard BeginTime="0:0:.1">
+                                                                                <DoubleAnimation Storyboard.TargetProperty="Height" By="8" To="25" BeginTime="0:0:.1" Duration="0:0:.3">
+                                                                                    <DoubleAnimation.EasingFunction>
+                                                                                        <ExponentialEase/>
+                                                                                    </DoubleAnimation.EasingFunction>
+                                                                                </DoubleAnimation>
+                                                                                <DoubleAnimation Storyboard.TargetProperty="Width" By="8" To="100" Duration="0:0:.1">
+                                                                                    <DoubleAnimation.EasingFunction>
+                                                                                        <ExponentialEase/>
+                                                                                    </DoubleAnimation.EasingFunction>
+                                                                                </DoubleAnimation>
+                                                                                <ThicknessAnimation Storyboard.TargetProperty="Margin" By="5" To="0" BeginTime="0:0:.1" Duration="0:0:.25">
+                                                                                    <ThicknessAnimation.EasingFunction>
+                                                                                        <ExponentialEase/>
+                                                                                    </ThicknessAnimation.EasingFunction>
+                                                                                </ThicknessAnimation>
+                                                                            </Storyboard>
+                                                                        </BeginStoryboard>
+                                                                    </DataTrigger.EnterActions>
+                                                                    <DataTrigger.ExitActions>
+                                                                        <BeginStoryboard Name="close">
+                                                                            <Storyboard>
+                                                                                <DoubleAnimation Storyboard.TargetProperty="Height" By="25" To="8"  Duration="0:0:.2">
+                                                                                    <DoubleAnimation.EasingFunction>
+                                                                                        <ExponentialEase/>
+                                                                                    </DoubleAnimation.EasingFunction>
+                                                                                </DoubleAnimation>
+                                                                                <DoubleAnimation Storyboard.TargetProperty="Width" By="100" To="8" BeginTime="0:0:.2" Duration="0:0:.1">
+                                                                                    <DoubleAnimation.EasingFunction>
+                                                                                        <ExponentialEase/>
+                                                                                    </DoubleAnimation.EasingFunction>
+                                                                                </DoubleAnimation>
+                                                                                <ThicknessAnimation Storyboard.TargetProperty="Margin" By="0" To="5" Duration="0:0:.1">
+                                                                                    <ThicknessAnimation.EasingFunction>
+                                                                                        <ExponentialEase/>
+                                                                                    </ThicknessAnimation.EasingFunction>
+                                                                                </ThicknessAnimation>
+                                                                            </Storyboard>
+                                                                        </BeginStoryboard>
+                                                                    </DataTrigger.ExitActions>
+                                                                    <Setter Property="CornerRadius" Value="0,0,4,4"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock x:Name="extension" Text="{Binding FileExtension}" FontSize="15" TextAlignment="Center" VerticalAlignment="Center" Opacity="0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
+                                                                        <DataTrigger.EnterActions>
+                                                                            <BeginStoryboard Name="start">
+                                                                                <Storyboard BeginTime="0:0:.2">
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" By="0" To="1" Duration="0:0:.4">
+                                                                                        <DoubleAnimation.EasingFunction>
+                                                                                            <PowerEase/>
+                                                                                        </DoubleAnimation.EasingFunction>
+                                                                                    </DoubleAnimation>
+                                                                                </Storyboard>
+                                                                            </BeginStoryboard>
+                                                                        </DataTrigger.EnterActions>
+                                                                        <DataTrigger.ExitActions>
+                                                                            <RemoveStoryboard BeginStoryboardName="start"/>
+                                                                        </DataTrigger.ExitActions>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Border>
+                                            </Grid>
                                         </Button>
 
-                                        <TextBlock Text="{Binding FileName}" Width="110" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                        <TextBlock Text="{Binding FileName}" ToolTip="{Binding FilePath}"
+                                                   Width="110" TextAlignment="Center" TextTrimming="CharacterEllipsis"
                                                    FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" Foreground="White"/>
                                     </StackPanel>
-                                    <Image Source="{Binding FileExtension, Converter={StaticResource FileExtensionToImageSource}, ConverterParameter=../..}" Width="33"
-                                           ToolTip="{Binding FileExtension}">
-                                        <Image.RenderTransform>
-                                            <TranslateTransform X="38" Y="23"/>
-                                        </Image.RenderTransform>
-                                    </Image>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

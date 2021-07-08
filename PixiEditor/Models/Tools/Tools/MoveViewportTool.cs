@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Input;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class MoveViewportTool : ReadonlyTool
     {
-        private Point clickPoint;
-
         private BitmapManager BitmapManager { get; }
 
         private ToolsViewModel ToolsViewModel { get; }
@@ -24,25 +21,6 @@ namespace PixiEditor.Models.Tools.Tools
 
             BitmapManager = bitmapManager;
             ToolsViewModel = toolsViewModel;
-        }
-
-        public override void OnMouseDown(MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
-            {
-                clickPoint = MousePositionConverter.GetCursorPosition();
-            }
-        }
-
-        public override void OnMouseMove(MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
-            {
-                var point = MousePositionConverter.GetCursorPosition();
-                BitmapManager.ActiveDocument.ViewportPosition = new System.Windows.Point(
-                    point.X - clickPoint.X,
-                    point.Y - clickPoint.Y);
-            }
         }
 
         public override void OnMouseUp(MouseEventArgs e)

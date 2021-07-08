@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor"
+        xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -12,12 +13,12 @@
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
+        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="35" x:Name="windowsChrome"/>
+        <WindowChrome CaptionHeight="35" GlassFrameThickness="0.1" x:Name="windowsChrome"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -27,6 +28,8 @@
             <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
             <converters:LayersToStructuredLayersConverter x:Key="LayersToStructuredLayersConverter"/>
             <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
+            <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:ZoomTool}" x:Key="IsZoomToolConverter"/>
+            <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:MoveViewportTool}" x:Key="IsMoveViewportToolConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -181,6 +184,37 @@
                     Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A7;"/>
             <Button Command="{Binding UndoSubViewModel.RedoCommand}" ToolTip="Redo"
                     Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A6;"/>
+            <ToggleButton Width="30" BorderThickness="0"
+                          ToolTip="Pen Mode"
+                          IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                                            Background="{TemplateBinding Background}">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#606060"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#707070"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+                <Image Height="20" Source="../Images/penMode.png"/>
+            </ToggleButton>
             <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
             <Label Style="{StaticResource BaseLabel}" FontSize="12"
                    VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.DisplayName}"
@@ -225,16 +259,18 @@
                             <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
                                 <DataTemplate DataType="{x:Type dataHolders:Document}">
                                     <usercontrols:DrawingViewPort
-                                        ZoomPercentage="{Binding ZoomPercentage}"
-                                        RecenterZoombox="{Binding RecenterZoombox}"
+                                        CenterViewportTrigger="{Binding CenterViewportTrigger}"
+                                        ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
                                         GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
                                         Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
                                         MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"
-                                        ViewportPosition="{Binding ViewportPosition}"
                                         MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
+                                        UseTouchGestures="{Binding XamlAccesibleViewModel.StylusSubViewModel.UseTouchGestures}"
+                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsZoomToolConverter}}"
+                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsMoveViewportToolConverter}}"
                                         Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="PreviewMouseDown">
@@ -295,20 +331,20 @@
                                     <LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"
                                                          CanClose="False" CanAutoHide="False"
                                                          CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <usercontrols:LayersManager                                            
+                                        <layerUserControls:LayersManager                                            
                                             LayerCommandsViewModel="{Binding LayersSubViewModel}"
                                             OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
                     Converter={StaticResource NotNullToBoolConverter}}">
-                                            <usercontrols:LayersManager.LayerTreeRoot>
+                                            <layerUserControls:LayersManager.LayerTreeRoot>
                                                 <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
                                                     <Binding Path="BitmapManager.ActiveDocument.Layers" />
                                                     <Binding Path="BitmapManager.ActiveDocument.LayerStructure"/>
                                                 </MultiBinding>
-                                            </usercontrols:LayersManager.LayerTreeRoot>
-                                        </usercontrols:LayersManager>
+                                            </layerUserControls:LayersManager.LayerTreeRoot>
+                                        </layerUserControls:LayersManager>
                                     </LayoutAnchorable>
                                     <LayoutAnchorable x:Name="rawLayerAnchorable" ContentId="rawLayer" Title="Raw layers">
-                                        <usercontrols:RawLayersViewer Layers="{Binding BitmapManager.ActiveDocument.Layers}"
+                                        <layerUserControls:RawLayersViewer Layers="{Binding BitmapManager.ActiveDocument.Layers}"
                                                                       Structure="{Binding BitmapManager.ActiveDocument.LayerStructure}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
@@ -329,7 +365,7 @@
         </Grid>
 
         <Border Grid.Row="2" Grid.Column="0"
-                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5">
+                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5,0,5,5">
         <StackPanel Orientation="Vertical" Cursor="Arrow" >
 
             <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">

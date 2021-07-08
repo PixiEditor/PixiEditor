@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
@@ -186,8 +187,8 @@ namespace PixiEditor.ViewModels
                         CreateToolShortcut<SelectTool>(Key.M, "Select Select Tool"),
                         CreateToolShortcut<ZoomTool>(Key.Z, "Select Zoom Tool"),
                         CreateToolShortcut<MoveViewportTool>(Key.H, "Select Viewport Move Tool"),
-                        new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, "Zoom in", 115),
-                        new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, "Zoom out", 85),
+                        new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, "Zoom in", 1),
+                        new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, "Zoom out", -1),
                         new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, "Decrease Tool Size", -1),
                         new Shortcut(Key.OemCloseBrackets, ToolsSubViewModel.ChangeToolSizeCommand, "Increase Tool Size", 1)),
                     new ShortcutGroup(
@@ -241,8 +242,6 @@ namespace PixiEditor.ViewModels
             {
                 document.PreviewLayer = null;
             }
-
-            BitmapManager.ActiveDocument?.CenterViewport();
         }
 
         public bool DocumentIsNotNull(object property)
@@ -347,8 +346,8 @@ namespace PixiEditor.ViewModels
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
             BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            BitmapManager.ActiveDocument.CenterViewport();
             BitmapManager.ActiveDocument.ChangesSaved = false;
+            BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
