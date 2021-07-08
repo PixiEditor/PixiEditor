@@ -22,9 +22,6 @@ namespace PixiEditor.Views.UserControls.Layers
             set { SetValue(GroupGuidProperty, value); }
         }
 
-        public static string LayerGroupControlDataName = typeof(LayerGroupControl).FullName;
-        public static string LayerContainerDataName = typeof(LayerStructureItemContainer).FullName;
-
         public static readonly DependencyProperty GroupGuidProperty =
             DependencyProperty.Register("GroupGuid", typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
 
@@ -55,6 +52,9 @@ namespace PixiEditor.Views.UserControls.Layers
         public static readonly DependencyProperty GroupOpacityProperty =
             DependencyProperty.Register("GroupOpacity", typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
 
+
+        public static string LayerGroupControlDataName = typeof(LayerGroupControl).FullName;
+        public static string LayerContainerDataName = typeof(LayerStructureItemContainer).FullName;
 
         private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

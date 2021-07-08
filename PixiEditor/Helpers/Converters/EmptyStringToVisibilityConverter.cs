@@ -9,7 +9,7 @@ using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    class EmptyStringToVisibilityConverter : IValueConverter
+    public class EmptyStringToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

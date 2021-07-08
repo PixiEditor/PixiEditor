@@ -301,7 +301,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [StaFact]
         public void TestThatDocumentGetsAddedToRecentlyOpenedList()
         {
-            ViewModelMain viewModel = Helpers.MockedViewModelMain();
+            ViewModelMain viewModel = TestHelpers.MockedViewModelMain();
 
             Document document = new Document(1, 1)
             {

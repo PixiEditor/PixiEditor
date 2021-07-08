@@ -5,7 +5,7 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditorTests
 {
-    public static class Helpers
+    public static class TestHelpers
     {
         public static ViewModelMain MockedViewModelMain()
         {

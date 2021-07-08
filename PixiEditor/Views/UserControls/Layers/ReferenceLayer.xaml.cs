@@ -51,17 +51,15 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private string OpenFilePicker()
         {
-            OpenFileDialog dialog = new OpenFileDialog()
+
+            OpenFileDialog dialog = new OpenFileDialog
             {
-                Filter = "PNG Files|*.png|JPEG Files|*.jpg;*.jpeg",
-                CheckFileExists = true
+                Title = "Reference layer path",
+                CheckPathExists = true,
+                Filter = "Image Files|*.png;*.jpeg;*.jpg|PNG Files|*.png|JPG Files|*.jpeg;*.jpg"
             };
 
-            if ((bool)dialog.ShowDialog())
-            {
-                return dialog.FileName;
-            }
-            return null;
+            return (bool)dialog.ShowDialog() ? dialog.FileName : null;
         }
 
         private void TrashButton_Click(object sender, RoutedEventArgs e)
