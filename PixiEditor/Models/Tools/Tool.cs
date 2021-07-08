@@ -49,8 +49,6 @@ namespace PixiEditor.Models.Tools
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
-        public IServiceProvider Services { get; set; }
-
         public bool CanStartOutsideCanvas { get; set; } = false;
 
         public virtual void OnMouseDown(MouseEventArgs e)

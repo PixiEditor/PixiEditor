@@ -123,13 +123,17 @@ namespace PixiEditor.Models.Controllers
                     startPosition = newPosition;
                 }
 
-                if (IsOperationTool(SelectedTool))
+                if (SelectedTool is BitmapOperationTool operationTool)
                 {
-                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, (BitmapOperationTool)SelectedTool);
+                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, operationTool);
+                }
+                else if (SelectedTool is ReadonlyTool readonlyTool)
+                {
+                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates, readonlyTool);
                 }
                 else
                 {
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates, (ReadonlyTool)SelectedTool);
+                    throw new InvalidOperationException($"'{SelectedTool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
                 }
             }
         }
