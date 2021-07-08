@@ -184,6 +184,37 @@
                     Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A7;"/>
             <Button Command="{Binding UndoSubViewModel.RedoCommand}" ToolTip="Redo"
                     Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A6;"/>
+            <ToggleButton Width="30" BorderThickness="0"
+                          ToolTip="Pen Mode"
+                          IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                                            Background="{TemplateBinding Background}">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#606060"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#707070"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+                <Image Height="20" Source="../Images/penMode.png"/>
+            </ToggleButton>
             <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
             <Label Style="{StaticResource BaseLabel}" FontSize="12"
                    VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.DisplayName}"
@@ -237,6 +268,7 @@
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
+                                        UseTouchGestures="{Binding XamlAccesibleViewModel.StylusSubViewModel.UseTouchGestures}"
                                         IsUsingZoomTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsZoomToolConverter}}"
                                         IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsMoveViewportToolConverter}}"
                                         Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
@@ -333,7 +365,7 @@
         </Grid>
 
         <Border Grid.Row="2" Grid.Column="0"
-                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5">
+                    Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5,0,5,5">
         <StackPanel Orientation="Vertical" Cursor="Arrow" >
 
             <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">

@@ -102,6 +102,9 @@ namespace PixiEditor.Views.UserControls
             DependencyProperty.Register(nameof(ZoomMode), typeof(Mode), typeof(Zoombox),
               new PropertyMetadata(Mode.Normal, ZoomModeChanged));
 
+        public static readonly DependencyProperty UseTouchGesturesProperty =
+            DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(Zoombox));
+
         private const double zoomFactor = 1.1;
         private const double maxZoom = 50;
         private double minZoom = -28;
@@ -114,6 +117,12 @@ namespace PixiEditor.Views.UserControls
         {
             get => (Mode)GetValue(ZoomModeProperty);
             set => SetValue(ZoomModeProperty, value);
+        }
+
+        public bool UseTouchGestures
+        {
+            get => (bool)GetValue(UseTouchGesturesProperty);
+            set => SetValue(UseTouchGesturesProperty, value);
         }
 
         public double Zoom => Math.Pow(zoomFactor, zoomPower);
@@ -300,10 +309,11 @@ namespace PixiEditor.Views.UserControls
 
         private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
         {
-            e.Handled = true;
-
-            ZoomInto(e.ManipulationOrigin, e.DeltaManipulation.Expansion.X / 5.0);
-            SpaceOriginPos += e.DeltaManipulation.Translation;
+            if (e.Handled = UseTouchGestures)
+            {
+                ZoomInto(e.ManipulationOrigin, e.DeltaManipulation.Expansion.X / 5.0);
+                SpaceOriginPos += e.DeltaManipulation.Translation;
+            }
         }
     }
 }

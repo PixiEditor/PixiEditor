@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
