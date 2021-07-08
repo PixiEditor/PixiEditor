@@ -6,7 +6,7 @@ using System.Windows.Data;
 namespace PixiEditor.Helpers.Converters
 {
     [ValueConversion(typeof(object), typeof(Visibility))]
-    class NotNullToVisibiltyConverter : IValueConverter
+    public class NotNullToVisibilityConverter : IValueConverter
     {
         public bool Inverted { get; set; }
 
