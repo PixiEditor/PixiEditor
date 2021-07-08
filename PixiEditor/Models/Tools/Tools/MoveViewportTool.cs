@@ -33,6 +33,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(List<Coordinates> pixels)
         {
+            // Implemented inside Zoombox.xaml.cs
         }
     }
 }
