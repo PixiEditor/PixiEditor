@@ -191,7 +191,7 @@ namespace PixiEditor.Views.UserControls
             InitializeComponent();
         }
 
-        public void CenterContent() => CenterContent(new Size(mainGrid.ActualHeight, mainGrid.ActualHeight));
+        public void CenterContent() => CenterContent(new Size(mainGrid.ActualWidth, mainGrid.ActualHeight));
 
         public void CenterContent(Size newSize)
         {
