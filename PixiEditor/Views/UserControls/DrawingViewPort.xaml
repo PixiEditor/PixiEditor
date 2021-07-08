@@ -53,6 +53,12 @@
                         </ImageBrush.Viewport>
                     </ImageBrush>
                 </Canvas.Background>
+                <Image Source="{Binding ReferenceLayer.LayerBitmap}"
+                       VerticalAlignment="Center" Stretch="Uniform"
+                       Visibility="{Binding ReferenceLayer.IsVisible, Converter={BoolToVisibilityConverter}}"
+                       HorizontalAlignment="Center" Width="{Binding Width}"
+                       Height="{Binding Height}"
+                       RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                 <Image Source="{Binding PreviewLayer.LayerBitmap}" Panel.ZIndex="2"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                    Width="{Binding PreviewLayer.Width}"

@@ -8,8 +8,8 @@
              d:DesignHeight="280" d:DesignWidth="300"
              x:Name="uc">
     <UserControl.Resources>
-        <converters:EmptyStringToVisibiltyConverter x:Key="EmptyStringToVisibilty"/>
-        <BoolToVisibilityConverter x:Key="BoolToVisibilty"/>
+        <converters:EmptyStringToVisibilityConverter x:Key="EmptyStringToVisibility"/>
+        <BoolToVisibilityConverter x:Key="BoolToVisibility"/>
         <converters:BoolToBrushConverter x:Key="BoolToBrush"/>
         <converters:BrushTuple FirstBrush="#7289da" SecondBrush="#202225" x:Key="BackgroundBrushTuple"/>
         <converters:BrushTuple FirstBrush="White" SecondBrush="#7289da" x:Key="BotLabelTuple"/>
@@ -49,15 +49,15 @@
                         </StackPanel>
                     </StackPanel>
                 </Grid>
-                <Grid Grid.Row="1" Background="#0D000000" Visibility="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToVisibilty}}">
+                <Grid Grid.Row="1" Background="#0D000000" Visibility="{Binding ElementName=uc, Path=IsPlaying, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel Orientation="Vertical" Margin="15">
                         <TextBlock FontWeight="Bold" FontSize="12" Foreground="White" Margin="0,0,0,10">PLAYING A "GAME"</TextBlock>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="../../Images/PixiEditorLogo.png" Height="70"/>
                             <StackPanel Margin="15,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Foreground="White" FontSize="12" FontWeight="SemiBold">PixiEditor</TextBlock>
-                            <TextBlock Foreground="White" FontSize="12" Text="{Binding ElementName=uc, Path=Detail}" Visibility="{Binding ElementName=uc, Path=Detail, Converter={StaticResource EmptyStringToVisibilty}}"/>
-                            <TextBlock Foreground="White" FontSize="12" Text="{Binding ElementName=uc, Path=State}" Visibility="{Binding ElementName=uc, Path=State, Converter={StaticResource EmptyStringToVisibilty}}"/>
+                            <TextBlock Foreground="White" FontSize="12" Text="{Binding ElementName=uc, Path=Detail}" Visibility="{Binding ElementName=uc, Path=Detail, Converter={StaticResource EmptyStringToVisibility}}"/>
+                            <TextBlock Foreground="White" FontSize="12" Text="{Binding ElementName=uc, Path=State}" Visibility="{Binding ElementName=uc, Path=State, Converter={StaticResource EmptyStringToVisibility}}"/>
                             <TextBlock Foreground="White" FontSize="12">00:00 elapsed</TextBlock>
                             </StackPanel>
                         </StackPanel>

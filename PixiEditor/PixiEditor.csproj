@@ -115,6 +115,7 @@
   <ItemGroup>
     <None Remove="Images\AnchorDot.png" />
     <None Remove="Images\CheckerTile.png" />
+    <None Remove="Images\ChevronDown.png" />
     <None Remove="Images\DiagonalRed.png" />
     <None Remove="Images\Eye-off.png" />
     <None Remove="Images\Eye.png" />
@@ -161,6 +162,7 @@
   <ItemGroup>
     <Resource Include="Images\AnchorDot.png" />
     <Resource Include="Images\CheckerTile.png" />
+    <Resource Include="Images\ChevronDown.png" />
     <Resource Include="Images\DiagonalRed.png" />
     <Resource Include="Images\FloodFillImage.png" />
     <Resource Include="Images\CircleImage.png" />

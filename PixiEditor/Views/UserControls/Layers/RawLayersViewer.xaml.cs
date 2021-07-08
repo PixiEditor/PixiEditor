@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using PixiEditor.Models.Layers;
 
-namespace PixiEditor.Views.UserControls
+namespace PixiEditor.Views.UserControls.Layers
 {
     /// <summary>
     /// Interaction logic for RawLayersViewer.xaml.

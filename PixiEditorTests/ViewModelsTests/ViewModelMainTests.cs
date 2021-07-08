@@ -18,7 +18,9 @@ namespace PixiEditorTests.ViewModelsTests
     [Collection("Application collection")]
     public class ViewModelMainTests
     {
-        public static IServiceProvider Services;
+        private static IServiceProvider services;
+
+        public static IServiceProvider Services { get => services; set => services = value; }
 
         public ViewModelMainTests()
         {

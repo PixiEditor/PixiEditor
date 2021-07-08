@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
-namespace PixiEditor.Views.UserControls
+namespace PixiEditor.Views.UserControls.Layers
 {
     /// <summary>
     /// Interaction logic for LayerStructureItemContainer.xaml.

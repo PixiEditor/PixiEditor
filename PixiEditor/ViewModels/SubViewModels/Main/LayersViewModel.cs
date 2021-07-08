@@ -2,6 +2,7 @@
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Views.UserControls;
+using PixiEditor.Views.UserControls.Layers;
 using System;
 using System.Linq;
 using System.Windows.Input;

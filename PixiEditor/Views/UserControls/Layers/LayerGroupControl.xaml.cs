@@ -9,7 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditor.Views.UserControls
+namespace PixiEditor.Views.UserControls.Layers
 {
     /// <summary>
     /// Interaction logic for LayerFolder.xaml.
@@ -21,9 +21,6 @@ namespace PixiEditor.Views.UserControls
             get { return (Guid)GetValue(GroupGuidProperty); }
             set { SetValue(GroupGuidProperty, value); }
         }
-
-        public const string LayerGroupControlDataName = "PixiEditor.Views.UserControls.LayerGroupControl";
-        public const string LayerContainerDataName = "PixiEditor.Views.UserControls.LayerStructureItemContainer";
 
         public static readonly DependencyProperty GroupGuidProperty =
             DependencyProperty.Register("GroupGuid", typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
@@ -55,6 +52,9 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty GroupOpacityProperty =
             DependencyProperty.Register("GroupOpacity", typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
 
+
+        public static string LayerGroupControlDataName = typeof(LayerGroupControl).FullName;
+        public static string LayerContainerDataName = typeof(LayerStructureItemContainer).FullName;
 
         private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

@@ -11,7 +11,7 @@
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <converters:EqualityBoolToVisibilityConverter x:Key="EqualBoolToVisibilty"/>
+        <converters:EqualityBoolToVisibilityConverter x:Key="EqualityBoolToVisibilityConverter"/>
         <converters:FileExtensionToColorConverter x:Key="FileExtensionToColorConverter"/>
 
         <Style TargetType="TextBlock">
@@ -76,7 +76,7 @@
                     <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center">
                         <TextBlock.Visibility>
                             <Binding Path="RecentlyOpened.Count"
-                                     Converter="{StaticResource EqualBoolToVisibilty}">
+                                     Converter="{StaticResource EqualityBoolToVisibilityConverter}">
                                 <Binding.ConverterParameter>
                                     <sys:Int32/>
                                 </Binding.ConverterParameter>
