@@ -1,5 +1,8 @@
-﻿using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
+﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Position;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {

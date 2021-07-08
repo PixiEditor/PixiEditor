@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Position;
 using System.Collections.Generic;
 using System.Windows.Input;
 
