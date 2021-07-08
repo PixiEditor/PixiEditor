@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Tools
 
         public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
 
-        public virtual string ImagePath => $"/Images/{ToolName}Image.png";
+        public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
 
         public bool HideHighlight { get; set; } = false;
 
