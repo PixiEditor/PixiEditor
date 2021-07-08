@@ -17,6 +17,8 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private readonly FloodFill floodFill;
 
+        public override string ImagePath => $"/Images/Tools/{nameof(FloodFill)}Image.png";
+
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         private BitmapManager BitmapManager { get; }
