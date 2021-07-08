@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
@@ -10,14 +11,17 @@ namespace PixiEditor.Helpers
     {
         public static void AddSelectionUndoStep(Document document, IEnumerable<Coordinates> oldPoints, SelectionType mode)
         {
-#pragma warning disable SA1117 // Parameters should be on same line or separate lines. Justification: Making it readable
             if (mode == SelectionType.New && document.ActiveSelection.SelectedPoints.Count != 0)
             {
-                // Add empty selection as the old one get's fully deleted first
-                document.UndoManager.AddUndoChange(
-                    new Change(
-                        SetSelectionProcess, new object[] { document, new List<Coordinates>(oldPoints) },
-                        SetSelectionProcess, new object[] { document, new List<Coordinates>() }));
+                if (oldPoints.Any())
+                {
+                    // Add empty selection as the old one get's fully deleted first
+                    document.UndoManager.AddUndoChange(
+                        new Change(
+                            SetSelectionProcess, new object[] { document, new List<Coordinates>(oldPoints) },
+                            SetSelectionProcess, new object[] { document, new List<Coordinates>() }));
+                }
+
                 document.UndoManager.AddUndoChange(
                     new Change(
                         SetSelectionProcess, new object[] { document, new List<Coordinates>() },
@@ -29,7 +33,6 @@ namespace PixiEditor.Helpers
                     new Change(
                         SetSelectionProcess, new object[] { document, oldPoints is null ? new List<Coordinates>() : new List<Coordinates>(oldPoints) },
                         SetSelectionProcess, new object[] { document, new List<Coordinates>(document.ActiveSelection.SelectedPoints) }));
-#pragma warning restore SA1117 // Parameters should be on same line or separate lines
             }
         }
 
