@@ -1,16 +1,11 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.Tools;
+using PixiEditor.ViewModels;
+using PixiEditorTests.HelpersTests;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
-using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.ViewModels;
 using Xunit;
 
 namespace PixiEditorTests.ViewModelsTests
@@ -18,19 +13,10 @@ namespace PixiEditorTests.ViewModelsTests
     [Collection("Application collection")]
     public class ViewModelMainTests
     {
-        public static IServiceProvider Services;
-
-        public ViewModelMainTests()
-        {
-            Services = new ServiceCollection()
-                .AddSingleton<IPreferences>(new Mocks.PreferenceSettingsMock())
-                .BuildServiceProvider();
-        }
-
         [StaFact]
         public void TestThatConstructorSetsUpControllersCorrectly()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             Assert.NotNull(viewModel.ChangesController);
             Assert.NotNull(viewModel.ShortcutController);
@@ -42,7 +28,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatSwapColorsCommandSwapsColors()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             viewModel.ColorsSubViewModel.PrimaryColor = Colors.Black;
             viewModel.ColorsSubViewModel.SecondaryColor = Colors.White;
@@ -56,7 +42,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatNewDocumentCreatesNewDocumentWithBaseLayer()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             viewModel.FileSubViewModel.NewDocument(5, 5);
 
@@ -67,7 +53,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatMouseMoveCommandUpdatesCurrentCoordinates()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
             viewModel.BitmapManager.ActiveDocument = new Document(10, 10);
 
             Assert.Equal(new Coordinates(0, 0), MousePositionConverter.CurrentCoordinates);
@@ -83,7 +69,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatSelectToolCommandSelectsNewTool()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             Assert.Equal(typeof(MoveViewportTool), viewModel.BitmapManager.SelectedTool.GetType());
 
@@ -95,7 +81,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatMouseUpCommandStopsRecordingMouseMovements()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             viewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
 
@@ -109,7 +95,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatNewLayerCommandCreatesNewLayer()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
@@ -123,7 +109,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatSaveDocumentCommandSavesFile()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
             string fileName = "testFile.pixi";
 
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1)
@@ -141,7 +127,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatAddSwatchAddsNonDuplicateSwatch()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
             viewModel.ColorsSubViewModel.AddSwatch(Colors.Green);
@@ -161,10 +147,10 @@ namespace PixiEditorTests.ViewModelsTests
         [InlineData(120, 150)]
         public void TestThatSelectAllCommandSelectsWholeDocument(int docWidth, int docHeight)
         {
-            ViewModelMain viewModel = new ViewModelMain(Services)
-            {
-                BitmapManager = { ActiveDocument = new Document(docWidth, docHeight) }
-            };
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
+
+            viewModel.BitmapManager.ActiveDocument = new Document(docWidth, docHeight);
+
             viewModel.BitmapManager.ActiveDocument.AddNewLayer("layer");
 
             viewModel.SelectionSubViewModel.SelectAllCommand.Execute(null);
@@ -177,7 +163,7 @@ namespace PixiEditorTests.ViewModelsTests
         [StaFact]
         public void TestThatDocumentIsNotNullReturnsTrue()
         {
-            ViewModelMain viewModel = new ViewModelMain(Services);
+            ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 

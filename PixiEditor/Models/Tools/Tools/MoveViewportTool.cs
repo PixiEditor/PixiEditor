@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Input;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -10,12 +11,19 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private Point clickPoint;
 
-        public MoveViewportTool()
+        private BitmapManager BitmapManager { get; }
+
+        private ToolsViewModel ToolsViewModel { get; }
+
+        public MoveViewportTool(BitmapManager bitmapManager, ToolsViewModel toolsViewModel)
         {
             HideHighlight = true;
             Cursor = Cursors.SizeAll;
             ActionDisplay = "Click and move to pan viewport.";
             Tooltip = "Move viewport. (H)";
+
+            BitmapManager = bitmapManager;
+            ToolsViewModel = toolsViewModel;
         }
 
         public override void OnMouseDown(MouseEventArgs e)
@@ -31,7 +39,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
             {
                 var point = MousePositionConverter.GetCursorPosition();
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ViewportPosition = new System.Windows.Point(
+                BitmapManager.ActiveDocument.ViewportPosition = new System.Windows.Point(
                     point.X - clickPoint.X,
                     point.Y - clickPoint.Y);
             }
@@ -41,7 +49,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (e.MiddleButton == MouseButtonState.Pressed)
             {
-                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool(ViewModelMain.Current.ToolsSubViewModel.LastActionTool);
+                ToolsViewModel.SetActiveTool(ToolsViewModel.LastActionTool);
             }
         }
 

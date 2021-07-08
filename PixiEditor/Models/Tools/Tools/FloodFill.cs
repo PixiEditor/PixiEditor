@@ -1,18 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class FloodFill : BitmapOperationTool
     {
-        public FloodFill()
+        private BitmapManager BitmapManager { get; }
+
+        public FloodFill(BitmapManager bitmapManager)
         {
             ActionDisplay = "Press on a area to fill it.";
             Tooltip = "Fills area with color. (G)";
+            BitmapManager = bitmapManager;
         }
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
@@ -20,12 +23,12 @@ namespace PixiEditor.Models.Tools.Tools
             return Only(ForestFire(layer, coordinates[0], color), layer);
         }
 
-        private BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)
+        public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)
         {
             List<Coordinates> changedCoords = new List<Coordinates>();
 
-            int width = ViewModelMain.Current.BitmapManager.ActiveDocument.Width;
-            int height = ViewModelMain.Current.BitmapManager.ActiveDocument.Height;
+            int width = BitmapManager.ActiveDocument.Width;
+            int height = BitmapManager.ActiveDocument.Height;
 
             var visited = new bool[width, height];
 

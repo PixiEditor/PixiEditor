@@ -12,6 +12,7 @@ using PixiEditor.Views.Dialogs;
 using System.Windows.Media.Imaging;
 using PixiEditor.Models.DataHolders;
 using System.Windows.Interop;
+using PixiEditor.Models.Controllers;
 
 namespace PixiEditor
 {
@@ -22,7 +23,7 @@ namespace PixiEditor
     {
         private static WriteableBitmap pixiEditorLogo;
 
-        private PreferencesSettings preferences;
+        private readonly PreferencesSettings preferences;
 
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
@@ -30,12 +31,9 @@ namespace PixiEditor
         {
             preferences = new PreferencesSettings();
 
-            IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IPreferences>(preferences)
-                .AddSingleton<StylusViewModel>()
-                .AddSingleton<WindowViewModel>();
+            IServiceCollection services = ConfigureServices(new ServiceCollection());
 
-            DataContext = new ViewModelMain(services.BuildServiceProvider());
+            DataContext = new ViewModelMain(services);
 
             InitializeComponent();
 
@@ -78,6 +76,18 @@ namespace PixiEditor
         private static void CloseHelloThereIfRelease()
         {
             Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
+        }
+
+        private IServiceCollection ConfigureServices(IServiceCollection services)
+        {
+            services
+                .AddSingleton<IPreferences>(preferences)
+                .AddSingleton<StylusViewModel>()
+                .AddSingleton<WindowViewModel>()
+                .AddSingleton<BitmapManager>()
+                .AddSingleton<ToolsViewModel>();
+
+            return services;
         }
 
         private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)

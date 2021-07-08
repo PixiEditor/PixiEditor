@@ -58,13 +58,13 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
-            return CreateLine(new() { end, start }, thickness, startCap, endCap);
+            return CreateLine(new List<Coordinates>() { end, start }, thickness, startCap, endCap);
         }
 
-        private IEnumerable<Coordinates> CreateLine(List<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
+        private IEnumerable<Coordinates> CreateLine(IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
         {
-            Coordinates startingCoordinates = coordinates[^1];
-            Coordinates latestCoordinates = coordinates[0];
+            Coordinates startingCoordinates = coordinates.Last();
+            Coordinates latestCoordinates = coordinates.First();
             if (thickness == 1)
             {
                 return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);

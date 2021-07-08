@@ -1,11 +1,11 @@
 ﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
-using PixiEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +18,14 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private readonly SizeSetting toolSizeSetting;
         private readonly BoolSetting pixelPerfectSetting;
-        private readonly LineTool lineTool;
         private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
+        private readonly LineTool lineTool;
         private Coordinates[] lastChangedPixels = new Coordinates[3];
         private byte changedPixelsindex = 0;
 
-        public PenTool()
+        private BitmapManager BitmapManager { get; }
+
+        public PenTool(BitmapManager bitmapManager)
         {
             Cursor = Cursors.Pen;
             ActionDisplay = "Click and move to draw.";
@@ -32,9 +34,9 @@ namespace PixiEditor.Models.Tools.Tools
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
             pixelPerfectSetting.ValueChanged += PixelPerfectSettingValueChanged;
-            RequiresPreviewLayer = pixelPerfectSetting.Value;
-            lineTool = new LineTool();
             ClearPreviewLayerOnEachIteration = false;
+            BitmapManager = bitmapManager;
+            lineTool = new LineTool();
         }
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
@@ -54,7 +56,7 @@ namespace PixiEditor.Models.Tools.Tools
                 color,
                 toolSizeSetting.Value,
                 pixelPerfectSetting.Value,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.PreviewLayer);
+                BitmapManager.ActiveDocument.PreviewLayer);
             return Only(pixels, layer);
         }
 
