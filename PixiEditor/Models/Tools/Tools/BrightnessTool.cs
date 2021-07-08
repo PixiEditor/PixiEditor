@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Colors;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -53,8 +54,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
-            Enum.TryParse((Toolbar.GetSetting<DropdownSetting>("BrightnessMode")?.Value as ComboBoxItem)?.Content as string, out BrightnessMode mode);
-            Mode = mode;
+            Mode = Toolbar.GetEnumSetting<BrightnessMode>("BrightnessMode").Value;
 
             LayerChange[] layersChanges = new LayerChange[1];
             if (Keyboard.IsKeyDown(Key.LeftCtrl))

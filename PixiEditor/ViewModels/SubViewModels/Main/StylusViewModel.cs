@@ -45,14 +45,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public StylusViewModel(ViewModelMain owner)
             : base(owner)
         {
-            SetOwner(owner);
         }
 
         public void SetOwner(ViewModelMain owner)
         {
             if (Owner is not null)
             {
-                throw new System.Exception("StylusViewModel already has an owner");
+                throw new System.Exception($"{nameof(StylusViewModel)} already has an owner");
             }
             else if (owner is null)
             {

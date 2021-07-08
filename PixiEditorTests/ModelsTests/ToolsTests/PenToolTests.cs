@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditorTests.HelpersTests;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ToolsTests
@@ -10,7 +11,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
         [StaFact]
         public void TestThatPixelPerfectPenReturnsShapeWithoutLShapePixels()
         {
-            PenTool pen = new PenTool();
+            PenTool pen = ViewModelHelper.BuildMockedTool<PenTool>();
 
             Coordinates start = new Coordinates(0, 0);
             Coordinates end = new Coordinates(0, 0);

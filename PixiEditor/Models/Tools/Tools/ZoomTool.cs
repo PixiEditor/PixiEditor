@@ -6,12 +6,15 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class ZoomTool : ReadonlyTool
     {
-        public ZoomTool()
+        private BitmapManager BitmapManager { get; }
+
+        public ZoomTool(BitmapManager bitmapManager)
         {
             HideHighlight = true;
             CanStartOutsideCanvas = true;
             ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
             Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
+            BitmapManager = bitmapManager;
         }
 
         public override void OnKeyDown(KeyEventArgs e)
