@@ -40,6 +40,8 @@ namespace PixiEditor.Models.Controllers
 
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
 
+        public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
+
         public MouseMovementController MouseController { get; set; }
 
         public Tool SelectedTool
@@ -47,8 +49,11 @@ namespace PixiEditor.Models.Controllers
             get => selectedTool;
             private set
             {
-                selectedTool = value;
-                RaisePropertyChanged("SelectedTool");
+                Tool previousTool = selectedTool;
+                if (SetProperty(ref selectedTool, value))
+                {
+                    SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(previousTool, value));
+                }
             }
         }
 
