@@ -38,8 +38,15 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             get => (TEnum)(SettingControl.SelectedItem as ComboBoxItem).Tag;
             set
             {
-                SettingControl.SelectedItem = SettingControl.Items.Cast<ComboBoxItem>().First(x => x.Tag == (object)value);
-                RaisePropertyChanged(nameof(Value));
+                for (int i = 0; i < SettingControl.Items.Count; i++)
+                {
+                    ComboBoxItem item = SettingControl.Items[i] as ComboBoxItem;
+
+                    if (item.Tag.Equals(value))
+                    {
+                        SelectedIndex = i;
+                    }
+                }
             }
         }
 
