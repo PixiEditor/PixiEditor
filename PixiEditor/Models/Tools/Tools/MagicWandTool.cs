@@ -6,8 +6,6 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
 using System.Collections.Generic;
@@ -73,61 +71,11 @@ namespace PixiEditor.Models.Tools.Tools
 
             Toolbar = new MagicWandToolbar();
 
-            var selectionTypeSetting = Toolbar.GetEnumSetting<SelectionType>("SelectMode");
-
-            selectionTypeSetting.ValueChanged += MagicWandTool_ValueChanged;
-
-            UpdateActionDisplay(selectionTypeSetting);
+            ActionDisplay = "Click to flood the selection.";
         }
 
         public override void Use(List<Coordinates> pixels)
         {
-            return;
-        }
-
-        public override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Key != Key.LeftShift || e.IsRepeat)
-            {
-                return;
-            }
-
-            EnumSetting<SelectionType> enumSetting = Toolbar.GetEnumSetting<SelectionType>("SelectMode");
-            previousSelectionType = enumSetting.Value;
-            enumSetting.Value = SelectionType.Add;
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            if (e.Key != Key.LeftShift)
-            {
-                return;
-            }
-
-            Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value = previousSelectionType;
-        }
-
-        private void MagicWandTool_ValueChanged(object sender, SettingValueChangedEventArgs<SelectionType> e)
-        {
-            UpdateActionDisplay(sender as EnumSetting<SelectionType>);
-        }
-
-        private void UpdateActionDisplay(EnumSetting<SelectionType> setting)
-        {
-            if (setting.Value == SelectionType.Add)
-            {
-                if (Keyboard.IsKeyDown(Key.LeftShift))
-                {
-                    ActionDisplay = $"Click to flood the selection. Release shift to revert the selection type to {previousSelectionType}";
-                    return;
-                }
-
-                ActionDisplay = "Click to flood the selection";
-            }
-            else
-            {
-                ActionDisplay = $"Click to flood the selection. Hold shift to set the selection type to {nameof(SelectionType.Add)}";
-            }
         }
     }
 }
