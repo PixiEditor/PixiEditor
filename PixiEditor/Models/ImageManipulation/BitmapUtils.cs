@@ -40,16 +40,16 @@ namespace PixiEditor.Models.ImageManipulation
         /// <param name="height">Height of final bitmap.</param>.
         /// <param name="layers">Layers to combine.</param>
         /// <returns>WriteableBitmap of layered bitmaps.</returns>
-        public static WriteableBitmap CombineLayers(int width, int height, Layer[] layers, LayerStructure structure = null)
+        public static WriteableBitmap CombineLayers(int width, int height, IEnumerable<Layer> layers, LayerStructure structure = null)
         {
             WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
 
             using (finalBitmap.GetBitmapContext())
             {
-                for (int i = 0; i < layers.Length; i++)
+                for (int i = 0; i < layers.Count(); i++)
                 {
-                    float layerOpacity = structure == null ? layers[i].Opacity : LayerStructureUtils.GetFinalLayerOpacity(layers[i], structure);
-                    Layer layer = layers[i];
+                    float layerOpacity = structure == null ? layers.ElementAt(i).Opacity : LayerStructureUtils.GetFinalLayerOpacity(layers.ElementAt(i), structure);
+                    Layer layer = layers.ElementAt(i);
 
                     if (layer.OffsetX < 0 || layer.OffsetY < 0 ||
                         layer.Width + layer.OffsetX > layer.MaxWidth ||
