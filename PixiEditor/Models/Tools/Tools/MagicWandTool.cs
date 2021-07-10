@@ -19,8 +19,6 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly FloodFill floodFill;
         private SelectionType previousSelectionType;
 
-        public override string ImagePath => $"/Images/Tools/{nameof(FloodFill)}Image.png";
-
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         private BitmapManager BitmapManager { get; }
@@ -71,6 +69,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             Toolbar = new MagicWandToolbar();
 
+            Tooltip = "Magic Wand. Flood's the selection";
             ActionDisplay = "Click to flood the selection.";
         }
 

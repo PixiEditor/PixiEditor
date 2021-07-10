@@ -135,6 +135,7 @@
     <None Remove="Images\Tools\EraserImage.png" />
     <None Remove="Images\Tools\FloodFillImage.png" />
     <None Remove="Images\Tools\LineImage.png" />
+    <None Remove="Images\Tools\MagicWandImage.png" />
     <None Remove="Images\Tools\MoveImage.png" />
     <None Remove="Images\Tools\MoveViewportImage.png" />
     <None Remove="Images\Tools\PenImage.png" />
@@ -191,6 +192,7 @@
     <Resource Include="Images\Tools\EraserImage.png" />
     <Resource Include="Images\Tools\FloodFillImage.png" />
     <Resource Include="Images\Tools\LineImage.png" />
+    <Resource Include="Images\Tools\MagicWandImage.png" />
     <Resource Include="Images\Tools\MoveImage.png" />
     <Resource Include="Images\Tools\MoveViewportImage.png" />
     <Resource Include="Images\Tools\PenImage.png" />
