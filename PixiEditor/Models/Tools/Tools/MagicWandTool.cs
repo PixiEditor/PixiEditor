@@ -17,7 +17,6 @@ namespace PixiEditor.Models.Tools.Tools
     public class MagicWandTool : ReadonlyTool
     {
         private readonly FloodFill floodFill;
-        private SelectionType previousSelectionType;
 
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
@@ -69,7 +68,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             Toolbar = new MagicWandToolbar();
 
-            Tooltip = "Magic Wand. Flood's the selection";
+            Tooltip = "Magic Wand (W). Flood's the selection";
             ActionDisplay = "Click to flood the selection.";
         }
 
