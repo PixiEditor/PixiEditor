@@ -48,8 +48,8 @@ namespace PixiEditor.Models.ImageManipulation
             {
                 for (int i = 0; i < layers.Count(); i++)
                 {
-                    float layerOpacity = structure == null ? layers.ElementAt(i).Opacity : LayerStructureUtils.GetFinalLayerOpacity(layers.ElementAt(i), structure);
                     Layer layer = layers.ElementAt(i);
+                    float layerOpacity = structure == null ? layer.Opacity : LayerStructureUtils.GetFinalLayerOpacity(layer, structure);
 
                     if (layer.OffsetX < 0 || layer.OffsetY < 0 ||
                         layer.Width + layer.OffsetX > layer.MaxWidth ||
