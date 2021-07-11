@@ -42,9 +42,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             ToolSet = new ObservableCollection<Tool>(
                 new ToolBuilder(services)
-                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<FloodFill>()
+                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<MagicWandTool>().Add<FloodFill>()
                 .Add<LineTool>().Add<CircleTool>().Add<RectangleTool>().Add<EraserTool>().Add<ColorPickerTool>()
-                .Add<BrightnessTool>().Add<ZoomTool>().Add<MagicWandTool>()
+                .Add<BrightnessTool>().Add<ZoomTool>()
                 .Build());
 
             SetActiveTool<MoveViewportTool>();
