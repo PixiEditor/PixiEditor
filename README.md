@@ -45,7 +45,7 @@ PixiEditor started in 2018 and it's been actively developed since. We continuous
 
 Follow these instructions to get PixiEditor working on your machine.
 
-1. Download the zipped installer from our official website
+1. Download the zipped installer from our [official website](https://pixieditor.net/download)
 2. Extract the installer from the archive
 3. Launch it
 4. Follow the steps in the installer to finish the installation
