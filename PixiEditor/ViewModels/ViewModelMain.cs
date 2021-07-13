@@ -187,6 +187,7 @@ namespace PixiEditor.ViewModels
                         CreateToolShortcut<SelectTool>(Key.M, "Select Select Tool"),
                         CreateToolShortcut<ZoomTool>(Key.Z, "Select Zoom Tool"),
                         CreateToolShortcut<MoveViewportTool>(Key.H, "Select Viewport Move Tool"),
+                        CreateToolShortcut<MagicWandTool>(Key.W, "Select Magic Wand Tool"),
                         new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, "Zoom in", 1),
                         new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, "Zoom out", -1),
                         new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, "Decrease Tool Size", -1),
@@ -230,7 +231,7 @@ namespace PixiEditor.ViewModels
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
 
-            BitmapManager.AddPropertyChangedCallback(nameof(BitmapManager.SelectedTool), () => { if (!OverrideActionDisplay) RaisePropertyChanged(nameof(ActionDisplay)); });
+            BitmapManager.SelectedToolChanged += BitmapManager_SelectedToolChanged;
         }
 
         /// <summary>
@@ -256,6 +257,27 @@ namespace PixiEditor.ViewModels
             }
 
             ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
+        }
+
+        private void BitmapManager_SelectedToolChanged(object sender, SelectedToolEventArgs e)
+        {
+            e.OldTool.PropertyChanged -= SelectedTool_PropertyChanged;
+            e.NewTool.PropertyChanged += SelectedTool_PropertyChanged;
+
+            NotifyToolActionDisplayChanged();
+        }
+
+        private void SelectedTool_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Tool.ActionDisplay))
+            {
+                NotifyToolActionDisplayChanged();
+            }
+        }
+
+        private void NotifyToolActionDisplayChanged()
+        {
+            if (!OverrideActionDisplay) RaisePropertyChanged(nameof(ActionDisplay));
         }
 
         [Conditional("DEBUG")]

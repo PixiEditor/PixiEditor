@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Tools
 
         public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
 
-        public virtual string ImagePath => $"/Images/{ToolName}Image.png";
+        public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
 
         public bool HideHighlight { get; set; } = false;
 
@@ -48,8 +48,6 @@ namespace PixiEditor.Models.Tools
         public Cursor Cursor { get; set; } = Cursors.Arrow;
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
-
-        public IServiceProvider Services { get; set; }
 
         public bool CanStartOutsideCanvas { get; set; } = false;
 

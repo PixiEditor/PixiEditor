@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.Helpers.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,8 +39,15 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             get => (TEnum)(SettingControl.SelectedItem as ComboBoxItem).Tag;
             set
             {
-                SettingControl.SelectedItem = SettingControl.Items.Cast<ComboBoxItem>().First(x => x.Tag == (object)value);
-                RaisePropertyChanged(nameof(Value));
+                for (int i = 0; i < SettingControl.Items.Count; i++)
+                {
+                    ComboBoxItem item = SettingControl.Items[i] as ComboBoxItem;
+
+                    if (item.Tag.Equals(value))
+                    {
+                        SelectedIndex = i;
+                    }
+                }
             }
         }
 
@@ -78,15 +86,14 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
 
         private static void GenerateItems(ComboBox comboBox)
         {
-            string[] names = Enum.GetNames<TEnum>();
             TEnum[] values = Enum.GetValues<TEnum>();
 
-            for (int i = 0; i < names.Length; i++)
+            foreach (TEnum value in values)
             {
                 ComboBoxItem item = new ComboBoxItem
                 {
-                    Content = names[i],
-                    Tag = values[i]
+                    Content = value.GetDescription(),
+                    Tag = value
                 };
 
                 comboBox.Items.Add(item);
