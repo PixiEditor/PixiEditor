@@ -96,11 +96,10 @@ namespace PixiEditor.Models.Layers
             get => isVisible;
             set
             {
-                if (isVisible != value)
+                if (SetProperty(ref isVisible, value))
                 {
-                    isVisible = value;
-                    RaisePropertyChanged(nameof(IsVisible));
                     RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
+                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
                 }
             }
         }
@@ -151,12 +150,11 @@ namespace PixiEditor.Models.Layers
             get => opacity;
             set
             {
-                if (opacity != value)
+                if (SetProperty(ref opacity, value))
                 {
-                    opacity = value;
+                    RaisePropertyChanged(nameof(OpacityUndoTriggerable));
+                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
                 }
-                RaisePropertyChanged(nameof(Opacity));
-                RaisePropertyChanged(nameof(OpacityUndoTriggerable));
             }
         }
 

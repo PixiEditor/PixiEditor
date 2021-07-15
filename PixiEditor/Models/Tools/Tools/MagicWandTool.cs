@@ -8,13 +8,14 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class MagicWandTool : ReadonlyTool
+    public class MagicWandTool : ReadonlyTool, ICachedDocumentTool
     {
         private readonly FloodFill floodFill;
 
@@ -23,6 +24,8 @@ namespace PixiEditor.Models.Tools.Tools
         private BitmapManager BitmapManager { get; }
 
         private IEnumerable<Coordinates> oldSelection;
+
+        private Layer cachedDocument;
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
@@ -45,7 +48,8 @@ namespace PixiEditor.Models.Tools.Tools
             }
             else
             {
-                layer = new Layer("_CombinedLayers", BitmapUtils.CombineLayers(document.Width, document.Height, document.Layers, document.LayerStructure));
+                ValidateCache(document);
+                layer = cachedDocument;
             }
 
             Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
@@ -74,6 +78,16 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(List<Coordinates> pixels)
         {
+        }
+
+        public void DocumentChanged()
+        {
+            cachedDocument = null;
+        }
+
+        private void ValidateCache(Document document)
+        {
+            cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(document.Width, document.Height, document.Layers, document.LayerStructure));
         }
     }
 }

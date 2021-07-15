@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using PixiEditor.Helpers;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Layers
 {
@@ -75,7 +76,13 @@ namespace PixiEditor.Models.Layers
         public bool IsVisible
         {
             get => isVisible;
-            set => SetProperty(ref isVisible, value);
+            set
+            {
+                if (SetProperty(ref isVisible, value))
+                {
+                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
+                }
+            }
         }
 
         private float opacity = 1;
@@ -83,7 +90,13 @@ namespace PixiEditor.Models.Layers
         public float Opacity
         {
             get => opacity;
-            set => SetProperty(ref opacity, value);
+            set
+            {
+                if (SetProperty(ref opacity, value))
+                {
+                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
+                }
+            }
         }
 
         public GuidStructureItem(
