@@ -49,7 +49,7 @@ namespace PixiEditor.Views.Dialogs
             OpenFileCommand = new RelayCommand(OpenFile);
             OpenNewFileCommand = new RelayCommand(OpenNewFile);
             OpenRecentCommand = new RelayCommand(OpenRecent);
-            OpenInExplorerCommand = new RelayCommand(OpenInExplorer);
+            OpenInExplorerCommand = new RelayCommand(OpenInExplorer, CanOpenInExplorer);
 
             RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
             RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
@@ -112,5 +112,7 @@ namespace PixiEditor.Views.Dialogs
 
             Process.Start("explorer.exe", $"/select,\"{path}\"");
         }
+
+        private bool CanOpenInExplorer(object parameter) => File.Exists((string)parameter);
     }
 }
