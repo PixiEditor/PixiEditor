@@ -107,7 +107,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (e.OldDocument != null)
             {
                 e.OldDocument.DocumentSizeChanged -= Document_DocumentSizeChanged;
-                e.NewDocument.LayersChanged -= Document_LayersChanged;
+                e.OldDocument.LayersChanged -= Document_LayersChanged;
             }
 
             if (e.NewDocument != null)
