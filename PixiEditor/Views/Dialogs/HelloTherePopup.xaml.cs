@@ -1,6 +1,8 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -34,6 +36,8 @@ namespace PixiEditor.Views.Dialogs
 
         public RelayCommand OpenHyperlinkCommand { get => FileViewModel.Owner.MiscSubViewModel.OpenHyperlinkCommand; }
 
+        public RelayCommand OpenInExplorerCommand { get; set; }
+
         public bool IsClosing { get; private set; }
 
         public HelloTherePopup(FileViewModel fileViewModel)
@@ -45,6 +49,7 @@ namespace PixiEditor.Views.Dialogs
             OpenFileCommand = new RelayCommand(OpenFile);
             OpenNewFileCommand = new RelayCommand(OpenNewFile);
             OpenRecentCommand = new RelayCommand(OpenRecent);
+            OpenInExplorerCommand = new RelayCommand(OpenInExplorer);
 
             RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
             RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
@@ -99,6 +104,13 @@ namespace PixiEditor.Views.Dialogs
             Application.Current.MainWindow.Activate();
             Close();
             FileViewModel.OpenRecent(parameter);
+        }
+
+        private void OpenInExplorer(object parameter)
+        {
+            string path = Path.GetFullPath((string)parameter);
+
+            Process.Start("explorer.exe", $"/select,\"{path}\"");
         }
     }
 }
