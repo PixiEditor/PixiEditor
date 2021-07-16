@@ -32,16 +32,18 @@ namespace PixiEditor.Models.Tools.Tools
         public MoveTool(BitmapManager bitmapManager)
         {
             ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
-            Tooltip = "Moves selected pixels (V). Hold Ctrl to move all layers.";
             Cursor = Cursors.Arrow;
-            HideHighlight = true;
             RequiresPreviewLayer = true;
             UseDefaultUndoMethod = true;
 
             BitmapManager = bitmapManager;
         }
 
-        public bool MoveAll { get; set; } = false;
+        public override string Tooltip => "Moves selected pixels (V). Hold Ctrl to move all layers.";
+
+        public override bool HideHighlight => true;
+
+        public bool MoveAll { get; set; }
 
         private BitmapManager BitmapManager { get; }
 

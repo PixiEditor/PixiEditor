@@ -16,8 +16,9 @@ namespace PixiEditor.Models.Tools.Tools
         public RectangleTool()
         {
             ActionDisplay = "Click and move to draw a rectangle.  Hold Shift to draw square.";
-            Tooltip = "Draws rectangle on canvas (R). Hold Shift to draw square.";
         }
+
+        public override string Tooltip => "Draws rectangle on canvas (R). Hold Shift to draw square.";
 
         public bool Filled { get; set; } = false;
 

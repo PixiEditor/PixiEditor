@@ -21,7 +21,7 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
         private readonly LineTool lineTool;
         private Coordinates[] lastChangedPixels = new Coordinates[3];
-        private byte changedPixelsindex = 0;
+        private byte changedPixelsindex;
 
         private BitmapManager BitmapManager { get; }
 
@@ -29,7 +29,6 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Cursor = Cursors.Pen;
             ActionDisplay = "Click and move to draw.";
-            Tooltip = "Standard brush. (B)";
             Toolbar = new PenToolbar();
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
@@ -38,6 +37,8 @@ namespace PixiEditor.Models.Tools.Tools
             BitmapManager = bitmapManager;
             lineTool = new LineTool();
         }
+
+        public override string Tooltip => "Standard brush. (B)";
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {

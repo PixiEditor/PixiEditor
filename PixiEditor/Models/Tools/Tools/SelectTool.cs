@@ -30,7 +30,6 @@ namespace PixiEditor.Models.Tools.Tools
         public SelectTool(BitmapManager bitmapManager)
         {
             ActionDisplay = "Click and move to select an area.";
-            Tooltip = "Selects area. (M)";
             Toolbar = new SelectToolToolbar();
             BitmapManager = bitmapManager;
 
@@ -39,6 +38,8 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public SelectionType SelectionType { get; set; } = SelectionType.Add;
+
+        public override string Tooltip => "Selects area. (M)";
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {

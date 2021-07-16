@@ -21,9 +21,9 @@ namespace PixiEditor.Models.Tools
 
         public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
 
-        public bool HideHighlight { get; set; } = false;
+        public virtual bool HideHighlight { get; }
 
-        public string Tooltip { get; set; }
+        public abstract string Tooltip { get; }
 
         public string ActionDisplay
         {

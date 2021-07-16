@@ -12,13 +12,14 @@ namespace PixiEditor.Models.Tools.Tools
 
         public MoveViewportTool(ToolsViewModel toolsViewModel)
         {
-            HideHighlight = true;
             Cursor = Cursors.SizeAll;
             ActionDisplay = "Click and move to pan viewport.";
-            Tooltip = "Move viewport. (H)";
 
             ToolsViewModel = toolsViewModel;
         }
+
+        public override bool HideHighlight => true;
+        public override string Tooltip => "Move viewport. (H)";
 
         public override void OnMouseUp(MouseEventArgs e)
         {

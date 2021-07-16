@@ -18,14 +18,15 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private const float CorrectionFactor = 5f; // Initial correction factor
 
-        private List<Coordinates> pixelsVisited = new List<Coordinates>();
+        private readonly List<Coordinates> pixelsVisited = new List<Coordinates>();
 
         public BrightnessTool()
         {
             ActionDisplay = "Draw on pixel to make it brighter. Hold Ctrl to darken.";
-            Tooltip = "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
+
+        public override string Tooltip => "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
 
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 

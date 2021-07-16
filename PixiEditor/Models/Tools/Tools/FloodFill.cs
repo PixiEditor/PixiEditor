@@ -14,9 +14,10 @@ namespace PixiEditor.Models.Tools.Tools
         public FloodFill(BitmapManager bitmapManager)
         {
             ActionDisplay = "Press on a area to fill it.";
-            Tooltip = "Fills area with color. (G)";
             BitmapManager = bitmapManager;
         }
+
+        public override string Tooltip => "Fills area with color. (G)";
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {

@@ -25,6 +25,8 @@ namespace PixiEditor.Models.Tools.Tools
 
         private IEnumerable<Coordinates> oldSelection;
 
+        public override string Tooltip => "Magic Wand (W). Flood's the selection";
+
         private Layer cachedDocument;
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
@@ -72,7 +74,6 @@ namespace PixiEditor.Models.Tools.Tools
 
             Toolbar = new MagicWandToolbar();
 
-            Tooltip = "Magic Wand (W). Flood's the selection";
             ActionDisplay = "Click to flood the selection.";
         }
 

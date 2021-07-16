@@ -11,10 +11,12 @@ namespace PixiEditor.Models.Tools.Tools
     {
         public ColorPickerTool()
         {
-            HideHighlight = true;
             ActionDisplay = "Press on pixel to make it the primary color.";
-            Tooltip = "Swaps primary color with selected on canvas. (O)";
         }
+
+        public override bool HideHighlight => true;
+
+        public override string Tooltip => "Swaps primary color with selected on canvas. (O)";
 
         public override void OnMouseDown(MouseEventArgs e)
         {
