@@ -16,10 +16,11 @@ namespace PixiEditor.Models.Tools.Tools
         public EraserTool(BitmapManager bitmapManager)
         {
             ActionDisplay = "Draw to remove color from a pixel.";
-            Tooltip = "Erasers color from pixel. (E)";
             Toolbar = new BasicToolbar();
             pen = new PenTool(bitmapManager);
         }
+
+        public override string Tooltip => "Erasers color from pixel. (E)";
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {

@@ -18,10 +18,11 @@ namespace PixiEditor.Models.Tools.Tools
         public LineTool()
         {
             ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
-            Tooltip = "Draws line on canvas (L). Hold Shift to draw even line.";
             Toolbar = new BasicToolbar();
             circleTool = new CircleTool();
         }
+
+        public override string Tooltip => "Draws line on canvas (L). Hold Shift to draw even line.";
 
         public override void OnKeyDown(KeyEventArgs e)
         {

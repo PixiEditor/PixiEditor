@@ -110,7 +110,7 @@
                                                                     <DataTrigger.EnterActions>
                                                                         <BeginStoryboard Name="open">
                                                                             <Storyboard BeginTime="0:0:.1">
-                                                                                <DoubleAnimation Storyboard.TargetProperty="Height" By="8" To="25" BeginTime="0:0:.1" Duration="0:0:.3">
+                                                                                <DoubleAnimation Storyboard.TargetProperty="Height" By="8" To="70" BeginTime="0:0:.1" Duration="0:0:.3">
                                                                                     <DoubleAnimation.EasingFunction>
                                                                                         <ExponentialEase/>
                                                                                     </DoubleAnimation.EasingFunction>
@@ -131,7 +131,7 @@
                                                                     <DataTrigger.ExitActions>
                                                                         <BeginStoryboard Name="close">
                                                                             <Storyboard>
-                                                                                <DoubleAnimation Storyboard.TargetProperty="Height" By="25" To="8"  Duration="0:0:.2">
+                                                                                <DoubleAnimation Storyboard.TargetProperty="Height" By="70" To="8"  Duration="0:0:.2">
                                                                                     <DoubleAnimation.EasingFunction>
                                                                                         <ExponentialEase/>
                                                                                     </DoubleAnimation.EasingFunction>
@@ -154,9 +154,9 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock x:Name="extension" Text="{Binding FileExtension}" FontSize="15" TextAlignment="Center" VerticalAlignment="Center" Opacity="0">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
+                                                    <Grid HorizontalAlignment="Center" Margin="0,10,0,0" Opacity="0">
+                                                        <Grid.Style>
+                                                            <Style TargetType="Grid">
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
                                                                         <DataTrigger.EnterActions>
@@ -176,8 +176,30 @@
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
+                                                        </Grid.Style>
+                                                        <TextBlock x:Name="extension" VerticalAlignment="Top" Text="{Binding FileExtension}" FontSize="15" TextAlignment="Center"/>
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                                                            <Button Margin="0,0,0,5" Height="25" Width="25"
+                                                                    Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
+                                                                    CommandParameter="{Binding FilePath}"
+                                                                    ToolTip="Open in File Explorer">
+                                                                <TextBlock Text="&#xEC50;" FontFamily="Segoe MDL2 Assets"
+                                                                           TextAlignment="Center" FontSize="18"/>
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource BaseDarkButton}">
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="False">
+                                                                                <Setter Property="Background" Value="Transparent"/>
+                                                                            </Trigger>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#70FFFFFF"/>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </Grid>
                                                 </Border>
                                             </Grid>
                                         </Button>

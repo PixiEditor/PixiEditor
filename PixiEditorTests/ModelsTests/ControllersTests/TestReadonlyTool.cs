@@ -7,6 +7,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class TestReadonlyTool : ReadonlyTool
     {
+        public override string Tooltip => "";
+    
         public TestReadonlyTool(Action toolAction)
         {
             ToolAction = toolAction;

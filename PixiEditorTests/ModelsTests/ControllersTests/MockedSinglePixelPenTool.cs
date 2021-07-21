@@ -9,6 +9,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class MockedSinglePixelPenTool : BitmapOperationTool
     {
+        public override string Tooltip => "";
+    
         public override LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, Color color)
         {
             return Only(BitmapPixelChanges.FromSingleColoredArray(new[] { mouseMove[0] }, color), layer.LayerGuid);

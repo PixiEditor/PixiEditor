@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 
@@ -36,18 +37,19 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             SelectToolCommand = new RelayCommand(SetTool, Owner.DocumentIsNotNull);
             ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
+
+            Owner.BitmapManager.BitmapOperations.BitmapChanged += (_, _) => TriggerCacheOutdated();
+            Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
         public void SetupTools(IServiceProvider services)
         {
-            ToolBuilder builder = new ToolBuilder(services);
-
-            builder
-                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<FloodFill>()
-                .Add<LineTool>().Add<CircleTool>().Add<RectangleTool>().Add<EraserTool>().Add<ColorPickerTool>().Add<BrightnessTool>()
-                .Add<ZoomTool>();
-
-            ToolSet = new(builder.Build());
+            ToolSet = new ObservableCollection<Tool>(
+                new ToolBuilder(services)
+                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<MagicWandTool>().Add<FloodFill>()
+                .Add<LineTool>().Add<CircleTool>().Add<RectangleTool>().Add<EraserTool>().Add<ColorPickerTool>()
+                .Add<BrightnessTool>().Add<ZoomTool>()
+                .Build());
 
             SetActiveTool<MoveViewportTool>();
         }
@@ -89,23 +91,45 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SetActiveTool(tool.GetType());
         }
 
-        private static T CreateTool<T>(IServiceProvider provider)
-            where T : new()
+        public void TriggerCacheOutdated()
         {
-            T tool = default;
-            Type toolType = typeof(T);
-
-            foreach (PropertyInfo info in toolType.GetProperties(BindingFlags.Public))
+            foreach (Tool tool in ToolSet)
             {
-                if (!info.CanWrite)
+                if (tool is ICachedDocumentTool cachedTool)
                 {
-                    continue;
+                    cachedTool.DocumentChanged();
                 }
+            }
+        }
 
-                info.SetValue(tool, provider.GetService(info.PropertyType));
+        private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+        {
+            if (e.OldDocument != null)
+            {
+                e.OldDocument.DocumentSizeChanged -= Document_DocumentSizeChanged;
+                e.OldDocument.LayersChanged -= Document_LayersChanged;
             }
 
-            return tool;
+            if (e.NewDocument != null)
+            {
+                e.NewDocument.DocumentSizeChanged += Document_DocumentSizeChanged;
+                e.NewDocument.LayersChanged += Document_LayersChanged;
+            }
+
+            TriggerCacheOutdated();
+
+            void Document_DocumentSizeChanged(object sender, Models.DataHolders.DocumentSizeChangedEventArgs e)
+            {
+                TriggerCacheOutdated();
+            }
+
+            void Document_LayersChanged(object sender, Models.Controllers.LayersChangedEventArgs e)
+            {
+                if (e.LayerChangeType is LayerAction.Add or LayerAction.Remove or LayerAction.Move)
+                {
+                    TriggerCacheOutdated();
+                }
+            }
         }
 
         private void ChangeToolSize(object parameter)

@@ -16,8 +16,9 @@ namespace PixiEditor.Models.Tools.Tools
         public CircleTool()
         {
             ActionDisplay = "Click and move mouse to draw a circle. Hold Shift to draw an even one.";
-            Tooltip = "Draws circle on canvas (C). Hold Shift to draw even circle.";
         }
+
+        public override string Tooltip => "Draws circle on canvas (C). Hold Shift to draw even circle.";
 
         public override void OnKeyDown(KeyEventArgs e)
         {

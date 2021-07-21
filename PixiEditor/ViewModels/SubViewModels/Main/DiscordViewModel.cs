@@ -1,5 +1,6 @@
 ﻿using System;
 using DiscordRPC;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
 
@@ -116,7 +117,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
-                richPresence.Details = ShowDocumentName ? $"Editing {document.Name}" : "Editing something (incognito)";
+                richPresence.Details = ShowDocumentName ? $"Editing {document.Name}".Limit(128) : "Editing something (incognito)";
 
                 string state = string.Empty;
 
