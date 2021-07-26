@@ -217,6 +217,19 @@
                 </StackPanel>
 
                 <uc:AlignableWrapPanel Grid.Row="3" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,5,0,15">
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
+                            Content="Website">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#e3002d"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://discord.gg/tzkQFDkqQS"
                             Content="Discord">
                         <Button.Style>
