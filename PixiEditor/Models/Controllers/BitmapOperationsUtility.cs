@@ -128,8 +128,8 @@ namespace PixiEditor.Models.Controllers
             int thickness = sizeSetting != null ? sizeSetting.Value : 1;
 
             bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
-
-            if (shiftDown)
+            var isShapeTool = tool is ShapeTool;
+            if (shiftDown && !isShapeTool)
             {
                 bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
 
