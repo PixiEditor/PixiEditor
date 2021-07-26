@@ -57,7 +57,7 @@ namespace PixiEditor.Models.Tools.Tools
             Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
 
             selection.SetSelection(
-                floodFill.ForestFire(
+                floodFill.LinearFill(
                     layer,
                     new Coordinates((int)document.MouseXOnCanvas, (int)document.MouseYOnCanvas),
                     System.Windows.Media.Colors.White
