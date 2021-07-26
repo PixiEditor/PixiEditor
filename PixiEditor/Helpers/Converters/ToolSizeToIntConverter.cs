@@ -4,17 +4,18 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
 
-namespace PixiEditor.Helpers
+namespace PixiEditor.Helpers.Converters
 {
     [ValueConversion(typeof(string), typeof(int))]
-    internal class ToolSizeToIntConverter : IValueConverter
+    internal class ToolSizeToIntConverter
+        : SingleInstanceConverter<ToolSizeToIntConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return string.Format("{0} {1}", value, "px");
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (string.IsNullOrWhiteSpace(value as string))
             {

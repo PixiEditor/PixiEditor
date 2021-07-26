@@ -5,20 +5,17 @@ using System.Windows.Data;
 namespace PixiEditor.Helpers.Converters
 {
     [ValueConversion(typeof(object), typeof(bool))]
-    public class NotNullToBoolConverter : IValueConverter
+    public class NotNullToBoolConverter
+        : SingleInstanceConverter<NotNullToBoolConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool result = value != null;
-            if (parameter != null)
-            {
-                return !result;
-            }
+            bool result = value is not null;
 
-            return result;
+            return parameter is null ? result : !result;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value;
         }

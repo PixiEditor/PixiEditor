@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
 using System.Windows.Media;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class FileExtensionToColorConverter : IValueConverter
+    public class FileExtensionToColorConverter :
+        SingleInstanceConverter<FileExtensionToColorConverter>
     {
         private static readonly SolidColorBrush PixiBrush = ColorBrush(226, 1, 45);
 
@@ -15,7 +15,7 @@ namespace PixiEditor.Helpers.Converters
 
         private static readonly SolidColorBrush UnknownBrush = ColorBrush(100, 100, 100);
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string extension = (string)value;
 
@@ -35,11 +35,9 @@ namespace PixiEditor.Helpers.Converters
             return UnknownBrush;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        private static SolidColorBrush ColorBrush(byte r, byte g, byte b)
         {
-            throw new NotImplementedException();
+            return new SolidColorBrush(Color.FromRgb(r, g, b));
         }
-
-        private static SolidColorBrush ColorBrush(byte r, byte g, byte b) => new SolidColorBrush(Color.FromRgb(r, g, b));
     }
 }
