@@ -4,6 +4,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System.Collections.Generic;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -32,16 +33,23 @@ namespace PixiEditor.Models.Tools.Tools
             Color colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
             int width = BitmapManager.ActiveDocument.Width;
             int height = BitmapManager.ActiveDocument.Height;
+            if (startingCoords.X < 0 || startingCoords.Y < 0 || startingCoords.X >= width || startingCoords.Y >= height)
+                return BitmapPixelChanges.Empty;
             var visited = new bool[width * height];
 
-
-            PerformLinearFill(ref changedCoords, ref floodFillQueue, ref layer, startingCoords, width, ref colorToReplace, ref visited);
-            PerformFloodFIll(ref changedCoords, ref floodFillQueue, ref layer, ref colorToReplace, width, height, ref visited);
+            using (BitmapContext ctx = layer.LayerBitmap.GetBitmapContext())
+            {
+                PerformLinearFill(layer, changedCoords, floodFillQueue, startingCoords, width, ref colorToReplace, visited);
+                PerformFloodFIll(layer, changedCoords, floodFillQueue, ref colorToReplace, width, height, visited);
+            }
 
             return BitmapPixelChanges.FromSingleColoredArray(changedCoords, newColor);
         }
 
-        private void PerformLinearFill(ref List<Coordinates> changedCoords, ref Queue<FloodFillRange> floodFillQueue, ref Layer layer, Coordinates coords, int width, ref Color colorToReplace, ref bool[] visited)
+        private void PerformLinearFill(
+            Layer layer,
+            List<Coordinates> changedCoords, Queue<FloodFillRange> floodFillQueue,
+            Coordinates coords, int width, ref Color colorToReplace, bool[] visited)
         {
             // Find the Left Edge of the Color Area
             int fillXLeft = coords.X;
@@ -83,7 +91,10 @@ namespace PixiEditor.Models.Tools.Tools
             floodFillQueue.Enqueue(range);
         }
 
-        private void PerformFloodFIll(ref List<Coordinates> changedCords, ref Queue<FloodFillRange> floodFillQueue, ref Layer layer, ref Color colorToReplace, int width, int height, ref bool[] pixelsVisited)
+        private void PerformFloodFIll(
+            Layer layer,
+            List<Coordinates> changedCords, Queue<FloodFillRange> floodFillQueue,
+            ref Color colorToReplace, int width, int height, bool[] pixelsVisited)
         {
             while (floodFillQueue.Count > 0)
             {
@@ -99,10 +110,10 @@ namespace PixiEditor.Models.Tools.Tools
                     //START LOOP UPWARDS
                     //if we're not above the top of the bitmap and the pixel above this one is within the color tolerance
                     if (range.Y > 0 && (!pixelsVisited[upPixelIndex]) && layer.GetPixelWithOffset(i, upY) == colorToReplace)
-                        PerformLinearFill(ref changedCords, ref floodFillQueue, ref layer, new Coordinates(i, upY), width, ref colorToReplace, ref pixelsVisited);
+                        PerformLinearFill(layer, changedCords, floodFillQueue, new Coordinates(i, upY), width, ref colorToReplace, pixelsVisited);
                     //START LOOP DOWNWARDS
                     if (range.Y < (height - 1) && (!pixelsVisited[downPixelxIndex]) && layer.GetPixelWithOffset(i, downY) == colorToReplace)
-                        PerformLinearFill(ref changedCords, ref floodFillQueue, ref layer, new Coordinates(i, downY), width, ref colorToReplace, ref pixelsVisited);
+                        PerformLinearFill(layer, changedCords, floodFillQueue, new Coordinates(i, downY), width, ref colorToReplace, pixelsVisited);
                     downPixelxIndex++;
                     upPixelIndex++;
                 }

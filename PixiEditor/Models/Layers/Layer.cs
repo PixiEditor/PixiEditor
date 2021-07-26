@@ -29,6 +29,7 @@ namespace PixiEditor.Models.Layers
         private Thickness offset;
 
         private float opacity = 1f;
+        private readonly Color transparent = Color.FromArgb(0, 0, 0, 0);
 
         private string layerHighlightColor = "#666666";
 
@@ -267,8 +268,8 @@ namespace PixiEditor.Models.Layers
         /// <returns>Color of a pixel.</returns>
         public Color GetPixelWithOffset(int x, int y)
         {
-            Coordinates cords = GetRelativePosition(new Coordinates(x, y));
-            return GetPixel(cords.X, cords.Y);
+            //This does not use GetRelativePosition for better performance
+            return GetPixel(x - OffsetX, y - OffsetY);
         }
 
         /// <summary>
@@ -281,7 +282,7 @@ namespace PixiEditor.Models.Layers
         {
             if (x > Width - 1 || x < 0 || y > Height - 1 || y < 0)
             {
-                return Color.FromArgb(0, 0, 0, 0);
+                return transparent;
             }
 
             return LayerBitmap.GetPixel(x, y);
