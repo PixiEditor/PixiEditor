@@ -15,6 +15,7 @@ namespace PixiEditor.Models.Tools
         public bool ClearPreviewLayerOnEachIteration { get; set; } = true;
 
         public bool UseDefaultUndoMethod { get; set; } = true;
+        public virtual bool UsesShift { get => true; }
 
         private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, Guid.Empty) };
 

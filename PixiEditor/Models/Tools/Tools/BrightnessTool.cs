@@ -26,7 +26,8 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-        public override string Tooltip => "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
+		public override bool UsesShift => false;
+		public override string Tooltip => "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
 
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 
