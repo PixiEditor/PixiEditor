@@ -28,9 +28,9 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid Width="45" Height="45" Margin="0 5 5 5">
-                        <Border CornerRadius="5.5" Width="44" Height="44">
+                        <Border CornerRadius="5.5" Width="44" Height="44" RenderOptions.BitmapScalingMode="NearestNeighbor">
                             <Border.Background>
-                                <ImageBrush ImageSource="../../Images/transparentbg.png"
+                                <ImageBrush TileMode="Tile" Viewport="0, 0, 0.05, 0.05" ImageSource="../../Images/CheckerTile.png"
                                                                         Stretch="UniformToFill">
                                     <ImageBrush.RelativeTransform>
                                         <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
