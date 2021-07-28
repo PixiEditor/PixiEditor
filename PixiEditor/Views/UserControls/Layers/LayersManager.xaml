@@ -9,9 +9,6 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
-    <UserControl.Resources>
-        <converters:IndexOfConverter x:Key="IndexOfConverter"/>
-    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="37.5"/>
@@ -82,7 +79,7 @@
                         <layerUserControls:LayerStructureItemContainer    
                             MouseDown="SelectActiveItem"
                             MouseMove="LayerStructureItemContainer_MouseMove" 
-                            ContainerIndex="{Binding Converter={StaticResource IndexOfConverter}}"
+                            ContainerIndex="{Binding Converter={converters:IndexOfConverter}}"
                             Layer="{Binding}" LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
                     </DataTemplate>
                 </TreeView.Resources>

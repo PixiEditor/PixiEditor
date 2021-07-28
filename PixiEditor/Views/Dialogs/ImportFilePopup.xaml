@@ -4,16 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
-        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
         Title="ImportFilePopup" Topmost="True" ShowInTaskbar="False" Height="350" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen" Name="importFilePopup" MinHeight="350" MinWidth="300"
         DataContext="{DynamicResource ImportFilePopupViewModel}">
     <Window.Resources>
         <vm:ImportFilePopupViewModel x:Key="ImportFilePopupViewModel" />
-        <helpers:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"

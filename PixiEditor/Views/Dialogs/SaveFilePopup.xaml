@@ -5,14 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:helpers1="clr-namespace:PixiEditor.Helpers"
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
         Title="SaveFilePopup" Height="300" Width="400" WindowStyle="None" MinHeight="300" MinWidth="400"
         WindowStartupLocation="CenterScreen" Name="saveFilePopup">
-    <Window.Resources>
-        <helpers1:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
-    </Window.Resources>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
@@ -29,7 +25,7 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <i:Interaction.Behaviors>
-            <helpers:ClearFocusOnClickBehavior/>
+            <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
 
         <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">

@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class KeyToStringConverter : IValueConverter
+    public class KeyToStringConverter
+        : SingleInstanceConverter<KeyToStringConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is Key key)
             {
@@ -25,11 +21,6 @@ namespace PixiEditor.Helpers.Converters
             {
                 return string.Empty;
             }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -1,27 +1,22 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Data;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
+using System;
+using System.Globalization;
+using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class IndexOfConverter : IValueConverter
+    public class IndexOfConverter
+        : SingleInstanceConverter<IndexOfConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Layer layer && ViewModelMain.Current.BitmapManager.ActiveDocument != null)
-            {
-                return ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
-            }
+            BitmapManager bitmapManager = ViewModelMain.Current.BitmapManager;
 
-            return Binding.DoNothing;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
+            return value is Layer layer && bitmapManager.ActiveDocument != null
+                   ? bitmapManager.ActiveDocument.Layers.IndexOf(layer)
+                   : Binding.DoNothing;
         }
     }
 }

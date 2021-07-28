@@ -1,48 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class FormattedColorConverter : MarkupExtension, IMultiValueConverter
+    public class FormattedColorConverter
+        : SingleInstanceMultiValueConverter<FormattedColorConverter>
     {
-        private static FormattedColorConverter converter;
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if(values != null && values.Length > 1 && values[0] is Color color && values[1] is string format)
+            if (values == null ||
+                values.Length <= 1 ||
+                values[0] is not Color color ||
+                values[1] is not string format)
             {
-                switch (format.ToLower())
-                {
-                    case "hex":
-                        return color.ToString();
-                    case "rgba":
-                        return $"({color.R}, {color.G}, {color.B}, {color.A})";
-                    default:
-                        break;
-                }
+                return "";
             }
 
-            return "";
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override object ProvideValue(IServiceProvider serviceProvider)
-        {
-            if(converter == null)
+            return format.ToLowerInvariant() switch
             {
-                converter = new FormattedColorConverter();
-            }
-            return converter;
+                "hex" => color.ToString(),
+                "rgba" => $"({color.R}, {color.G}, {color.B}, {color.A})",
+                _ => "",
+            };
         }
     }
 }

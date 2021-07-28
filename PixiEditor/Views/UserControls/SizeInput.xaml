@@ -5,19 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
              mc:Ignorable="d"
              d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="UserControlLayoutUpdated">
-    <UserControl.Resources>
-        <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
-    </UserControl.Resources>
     <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Center"
              Style="{StaticResource DarkTextBoxStyle}" MaxLength="4" InputScope="Number">
         <TextBox.Text>
             <Binding ElementName="uc"
                      Path="Size" Mode="TwoWay"
-                     Converter="{StaticResource ToolSizeToIntConverter}">
+                     Converter="{converters:ToolSizeToIntConverter}">
                 <Binding.ValidationRules>
                     <validators:SizeValidationRule ValidatesOnTargetUpdated="True" />
                 </Binding.ValidationRules>

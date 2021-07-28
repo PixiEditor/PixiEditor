@@ -5,9 +5,10 @@ using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class ZoomToViewportConverter : IValueConverter
+    public class ZoomToViewportConverter
+        : SingleInstanceConverter<ZoomToViewportConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is double scale)
             {
@@ -16,11 +17,6 @@ namespace PixiEditor.Helpers.Converters
             }
 
             return Binding.DoNothing;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
         }
     }
 }

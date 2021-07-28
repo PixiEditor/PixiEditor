@@ -12,7 +12,6 @@
         BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
-        <converters:EqualityBoolToVisibilityConverter x:Key="EqualityBoolToVisibilityConverter"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
     <WindowChrome.WindowChrome>
@@ -54,7 +53,7 @@
                     Command="{Binding SelectCategoryCommand}" CommandParameter="Discord">Discord</Button>
         </StackPanel>
         <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource AccentColor}">
-            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='General'}">
                 <StackPanel Orientation="Vertical">
                     <CheckBox Content="Show Document Preview in Taskbar" Margin="25,30,0,0"
@@ -77,7 +76,7 @@
                     </StackPanel>
                 </StackPanel>
             </Grid>
-            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='Updates'}">
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource Header1}" Content="Auto-updates"/>
@@ -86,7 +85,7 @@
                     </StackPanel>
                 </StackPanel>
             </Grid>
-            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='Discord'}">
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource Header1}" Content="Rich Presence"/>

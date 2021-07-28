@@ -4,16 +4,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:PixiEditor.Views"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:helpers="clr-namespace:PixiEditor.Helpers.Behaviours"
-        xmlns:converters="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450"
         DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen" MinHeight="300" MinWidth="400" Height="600" Width="450" Name="newFilePopup" BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
-        <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
     </Window.Resources>
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"

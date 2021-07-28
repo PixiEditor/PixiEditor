@@ -1,39 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace PixiEditor.Helpers.Converters
 {
     public class BrushTuple : NotifyableObject, ITuple
     {
-        public object this[int index]
+        public object this[int index] => index switch
         {
-            get
-            {
-                return index switch
-                {
-                    0 => FirstBrush,
-                    1 => SecondBrush,
-                    _ => throw new IndexOutOfRangeException("Index was out of range")
-                };
-            }
-        }
+            0 => FirstBrush,
+            1 => SecondBrush,
+            _ => throw new ArgumentOutOfRangeException(nameof(index))
+        };
 
         private Brush item1;
 
         public Brush FirstBrush
         {
             get => item1;
-            set
-            {
-                item1 = value;
-                RaisePropertyChanged(nameof(FirstBrush));
-            }
+            set => SetProperty(ref item1, value);
         }
 
         private Brush item2;
@@ -41,11 +26,7 @@ namespace PixiEditor.Helpers.Converters
         public Brush SecondBrush
         {
             get => item2;
-            set
-            {
-                item2 = value;
-                RaisePropertyChanged(nameof(SecondBrush));
-            }
+            set => SetProperty(ref item2, value);
         }
 
         public int Length => 2;

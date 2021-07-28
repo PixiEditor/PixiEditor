@@ -6,9 +6,6 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:ui="clr-namespace:PixiEditor.Helpers.UI" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="250" Name="rawLayersControl">
-    <UserControl.Resources>
-        <converters:LayerStructureToGroupsConverter x:Key="LayerStructureToGroupsConverter"/>
-    </UserControl.Resources>
     <StackPanel DataContext="{Binding ElementName=rawLayersControl}">
         <ItemsControl ItemsSource="{Binding Layers}">
             <ItemsControl.ItemsPanel>
@@ -28,7 +25,7 @@
         <Separator/>
         <ItemsControl>
             <ItemsControl.ItemsSource>
-                <MultiBinding Converter="{StaticResource LayerStructureToGroupsConverter}">
+                <MultiBinding Converter="{converters:LayerStructureToGroupsConverter}">
                     <Binding Path="Structure"/>
                     <Binding Path="Structure.Groups.Count"/>
                     <Binding Path="Layers.Count"/>

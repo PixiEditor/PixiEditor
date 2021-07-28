@@ -9,21 +9,17 @@ using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class LayerStructureToGroupsConverter : IMultiValueConverter
+    public class LayerStructureToGroupsConverter
+        : SingleInstanceMultiValueConverter<LayerStructureToGroupsConverter>
     {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values[0] is LayerStructure structure)
+            if (values[0] is not LayerStructure structure)
             {
-                return GetSubGroups(structure.Groups);
+                return Binding.DoNothing;
             }
 
-            return Binding.DoNothing;
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
+            return GetSubGroups(structure.Groups);
         }
 
         private ObservableCollection<GuidStructureItem> GetSubGroups(IEnumerable<GuidStructureItem> groups)

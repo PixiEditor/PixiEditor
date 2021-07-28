@@ -11,9 +11,6 @@
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <converters:EqualityBoolToVisibilityConverter x:Key="EqualityBoolToVisibilityConverter"/>
-        <converters:FileExtensionToColorConverter x:Key="FileExtensionToColorConverter"/>
-
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="16"/>
@@ -76,7 +73,7 @@
                     <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center">
                         <TextBlock.Visibility>
                             <Binding Path="RecentlyOpened.Count"
-                                     Converter="{StaticResource EqualityBoolToVisibilityConverter}">
+                                     Converter="{converters:EqualityBoolToVisibilityConverter}">
                                 <Binding.ConverterParameter>
                                     <sys:Int32/>
                                 </Binding.ConverterParameter>
@@ -98,7 +95,7 @@
                                             <Grid Width="100" Height="100">
                                                 <Image Source="{Binding PreviewBitmap}" Margin="20"/>
                                                 <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
-                                                        Background="{Binding FileExtension, Converter={StaticResource FileExtensionToColorConverter}}" 
+                                                        Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}" 
                                                         VerticalAlignment="Bottom" HorizontalAlignment="Right">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
