@@ -1,10 +1,11 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -23,7 +24,12 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
-            return Only(LinearFill(layer, coordinates[0], color), layer);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var res = Only(LinearFill(layer, coordinates[0], color), layer);
+            sw.Stop();
+            Trace.WriteLine($"Elapsed: {sw.ElapsedMilliseconds}");
+            return res;
         }
 
         public BitmapPixelChanges LinearFill(Layer layer, Coordinates startingCoords, Color newColor)
@@ -37,17 +43,20 @@ namespace PixiEditor.Models.Tools.Tools
                 return BitmapPixelChanges.Empty;
             var visited = new bool[width * height];
 
-            using (BitmapContext ctx = layer.LayerBitmap.GetBitmapContext())
+            using (LayerBitmapContext ctx = new LayerBitmapContext(layer))
             {
-                PerformLinearFill(layer, changedCoords, floodFillQueue, startingCoords, width, ref colorToReplace, visited);
-                PerformFloodFIll(layer, changedCoords, floodFillQueue, ref colorToReplace, width, height, visited);
+                float fraction = newColor.A / 255f;
+                Color premult = Color.FromArgb(colorToReplace.A, (byte)(colorToReplace.R * fraction), (byte)(colorToReplace.G * fraction), (byte)(colorToReplace.B * fraction));
+                PerformLinearFill(ctx, changedCoords, floodFillQueue, startingCoords, width, ref premult, visited);
+                PerformFloodFIll(ctx, changedCoords, floodFillQueue, ref premult, width, height, visited);
+
             }
 
             return BitmapPixelChanges.FromSingleColoredArray(changedCoords, newColor);
         }
 
         private void PerformLinearFill(
-            Layer layer,
+            LayerBitmapContext layer,
             List<Coordinates> changedCoords, Queue<FloodFillRange> floodFillQueue,
             Coordinates coords, int width, ref Color colorToReplace, bool[] visited)
         {
@@ -65,7 +74,7 @@ namespace PixiEditor.Models.Tools.Tools
                 // Move one pixel to the left
                 fillXLeft--;
                 // Exit the loop if we're at edge of the bitmap or the color area
-                if (fillXLeft < 0 || visited[pixelIndex - 1] || layer.GetPixelWithOffset(fillXLeft, coords.Y) != colorToReplace)
+                if (fillXLeft < 0 || visited[pixelIndex - 1] || !layer.IsPixelMatching(fillXLeft, coords.Y, colorToReplace))
                     break;
             }
             int lastFilledPixelLeft = fillXLeft + 1;
@@ -81,7 +90,7 @@ namespace PixiEditor.Models.Tools.Tools
                 visited[pixelIndex] = true;
 
                 fillXRight++;
-                if (fillXRight >= width || visited[pixelIndex + 1] || layer.GetPixelWithOffset(fillXRight, coords.Y) != colorToReplace)
+                if (fillXRight >= width || visited[pixelIndex + 1] || !layer.IsPixelMatching(fillXRight, coords.Y, colorToReplace))
                     break;
             }
             int lastFilledPixelRight = fillXRight - 1;
@@ -92,7 +101,7 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         private void PerformFloodFIll(
-            Layer layer,
+            LayerBitmapContext layer,
             List<Coordinates> changedCords, Queue<FloodFillRange> floodFillQueue,
             ref Color colorToReplace, int width, int height, bool[] pixelsVisited)
         {
@@ -109,10 +118,10 @@ namespace PixiEditor.Models.Tools.Tools
                 {
                     //START LOOP UPWARDS
                     //if we're not above the top of the bitmap and the pixel above this one is within the color tolerance
-                    if (range.Y > 0 && (!pixelsVisited[upPixelIndex]) && layer.GetPixelWithOffset(i, upY) == colorToReplace)
+                    if (range.Y > 0 && (!pixelsVisited[upPixelIndex]) && layer.IsPixelMatching(i, upY, colorToReplace))
                         PerformLinearFill(layer, changedCords, floodFillQueue, new Coordinates(i, upY), width, ref colorToReplace, pixelsVisited);
                     //START LOOP DOWNWARDS
-                    if (range.Y < (height - 1) && (!pixelsVisited[downPixelxIndex]) && layer.GetPixelWithOffset(i, downY) == colorToReplace)
+                    if (range.Y < (height - 1) && (!pixelsVisited[downPixelxIndex]) && layer.IsPixelMatching(i, downY, colorToReplace))
                         PerformLinearFill(layer, changedCords, floodFillQueue, new Coordinates(i, downY), width, ref colorToReplace, pixelsVisited);
                     downPixelxIndex++;
                     upPixelIndex++;
