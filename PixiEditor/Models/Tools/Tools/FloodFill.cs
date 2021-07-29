@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public FloodFill(BitmapManager bitmapManager)
         {
-            ActionDisplay = "Press on a area to fill it.";
+            ActionDisplay = "Press on an area to fill it.";
             BitmapManager = bitmapManager;
         }
 
