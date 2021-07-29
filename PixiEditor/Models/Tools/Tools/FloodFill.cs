@@ -4,7 +4,6 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -24,12 +23,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            var res = Only(LinearFill(layer, coordinates[0], color), layer);
-            sw.Stop();
-            Trace.WriteLine($"Elapsed: {sw.ElapsedMilliseconds}");
-            return res;
+            return Only(LinearFill(layer, coordinates[0], color), layer);
         }
 
         public BitmapPixelChanges LinearFill(Layer layer, Coordinates startingCoords, Color newColor)

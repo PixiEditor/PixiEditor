@@ -29,10 +29,6 @@ namespace PixiEditor.Helpers
             {
                 int pos = (realY * ctx.Width + realX) * 4;
                 byte* pixels = (byte*)ctx.Pixels;
-                byte R = pixels[pos + 2];
-                byte G = pixels[pos + 1];
-                byte B = pixels[pos];
-                byte A = pixels[pos + 3];
                 return pixels[pos] == premult.B && pixels[pos + 1] == premult.G && pixels[pos + 2] == premult.R && pixels[pos + 3] == premult.A;
             }
         }
