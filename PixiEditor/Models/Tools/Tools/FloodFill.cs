@@ -4,6 +4,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -23,7 +24,12 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
-            return Only(LinearFill(layer, coordinates[0], color), layer);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var res = Only(LinearFill(layer, coordinates[0], color), layer);
+            sw.Stop();
+            Trace.WriteLine(sw.ElapsedMilliseconds);
+            return res;
         }
 
         public BitmapPixelChanges LinearFill(Layer layer, Coordinates startingCoords, Color newColor)
@@ -31,6 +37,10 @@ namespace PixiEditor.Models.Tools.Tools
             List<Coordinates> changedCoords = new List<Coordinates>();
             Queue<FloodFillRange> floodFillQueue = new Queue<FloodFillRange>();
             Color colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
+            if ((colorToReplace.A == 0 && newColor.A == 0) ||
+                colorToReplace == newColor)
+                return BitmapPixelChanges.Empty;
+
             int width = BitmapManager.ActiveDocument.Width;
             int height = BitmapManager.ActiveDocument.Height;
             if (startingCoords.X < 0 || startingCoords.Y < 0 || startingCoords.X >= width || startingCoords.Y >= height)
