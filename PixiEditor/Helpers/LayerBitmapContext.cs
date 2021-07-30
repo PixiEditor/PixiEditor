@@ -7,6 +7,12 @@ namespace PixiEditor.Helpers
 {
     class LayerBitmapContext : IDisposable
     {
+        public static Color Premultiply(Color c)
+        {
+            float fraction = c.A / 255f;
+            return Color.FromArgb(c.A, (byte)Math.Round(c.R * fraction), (byte)Math.Round(c.G * fraction), (byte)Math.Round(c.B * fraction));
+        }
+
         private Layer layer;
         private BitmapContext ctx;
         public LayerBitmapContext(Layer layer)

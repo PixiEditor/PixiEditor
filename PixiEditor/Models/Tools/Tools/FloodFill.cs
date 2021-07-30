@@ -49,11 +49,9 @@ namespace PixiEditor.Models.Tools.Tools
 
             using (LayerBitmapContext ctx = new LayerBitmapContext(layer))
             {
-                float fraction = newColor.A / 255f;
-                Color premult = Color.FromArgb(colorToReplace.A, (byte)(colorToReplace.R * fraction), (byte)(colorToReplace.G * fraction), (byte)(colorToReplace.B * fraction));
+                Color premult = LayerBitmapContext.Premultiply(colorToReplace);
                 PerformLinearFill(ctx, changedCoords, floodFillQueue, startingCoords, width, ref premult, visited);
                 PerformFloodFIll(ctx, changedCoords, floodFillQueue, ref premult, width, height, visited);
-
             }
 
             return BitmapPixelChanges.FromSingleColoredArray(changedCoords, newColor);
