@@ -17,20 +17,6 @@ namespace PixiEditor.Models.Tools
         public bool UseDefaultUndoMethod { get; set; } = true;
         public virtual bool UsesShift => true;
 
-        private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, Guid.Empty) };
-
-        public abstract LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, Color color);
-
-        protected LayerChange[] Only(BitmapPixelChanges changes, Layer layer)
-        {
-            onlyLayerArr[0] = new LayerChange(changes, layer);
-            return onlyLayerArr;
-        }
-
-        protected LayerChange[] Only(BitmapPixelChanges changes, Guid layerGuid)
-        {
-            onlyLayerArr[0] = new LayerChange(changes, layerGuid);
-            return onlyLayerArr;
-        }
+        public abstract void Use(Layer layer, List<Coordinates> mouseMove, Color color);
     }
 }

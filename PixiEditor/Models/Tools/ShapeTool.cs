@@ -56,7 +56,7 @@ namespace PixiEditor.Models.Tools
         }
 
         // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color);
+        public abstract override void Use(Layer layer, List<Coordinates> coordinates, Color color);
 
         protected static IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
         {

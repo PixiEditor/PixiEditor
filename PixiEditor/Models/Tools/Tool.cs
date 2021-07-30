@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using PixiEditor.Models.Undo;
 
 namespace PixiEditor.Models.Tools
 {
@@ -31,7 +35,7 @@ namespace PixiEditor.Models.Tools
             set
             {
                 actionDisplay = value;
-                RaisePropertyChanged("ActionDisplay");
+                RaisePropertyChanged(nameof(ActionDisplay));
             }
         }
 
@@ -41,7 +45,7 @@ namespace PixiEditor.Models.Tools
             set
             {
                 isActive = value;
-                RaisePropertyChanged("IsActive");
+                RaisePropertyChanged(nameof(IsActive));
             }
         }
 
@@ -81,6 +85,18 @@ namespace PixiEditor.Models.Tools
 
         public virtual void OnMouseMove(MouseEventArgs e)
         {
+        }
+
+        public virtual void AddUndoProcess(Document document)
+        {
+            //StorageBasedChange change = new StorageBasedChange(document, affectedLayers, false);
+
+            //manager.AddUndoChange(change.ToChange(), )
+        }
+
+        public virtual void RedoProcess(UndoManager manager)
+        {
+
         }
 
         public virtual void AfterAddedUndo(UndoManager undoManager)

@@ -36,7 +36,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
@@ -49,8 +49,6 @@ namespace PixiEditor.Models.Tools.Tools
                     BitmapPixelChanges.FromSingleColoredArray(CalculateFillForEllipse(outline), fillColor)
                         .ChangedPixels);
             }
-
-            return new[] { new LayerChange(pixels, layer) };
         }
 
         /// <summary>

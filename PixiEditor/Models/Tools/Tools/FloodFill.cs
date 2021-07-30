@@ -19,9 +19,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override string Tooltip => "Fills area with color. (G)";
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
-            return Only(ForestFire(layer, coordinates[0], color), layer);
+            ForestFire(layer, coordinates[0], color);
         }
 
         public BitmapPixelChanges ForestFire(Layer layer, Coordinates startingCoords, Color newColor)

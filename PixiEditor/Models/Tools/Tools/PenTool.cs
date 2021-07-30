@@ -48,7 +48,7 @@ namespace PixiEditor.Models.Tools.Tools
             confirmedPixels.Clear();
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
             BitmapPixelChanges pixels = Draw(
@@ -58,7 +58,6 @@ namespace PixiEditor.Models.Tools.Tools
                 toolSizeSetting.Value,
                 pixelPerfectSetting.Value,
                 BitmapManager.ActiveDocument.PreviewLayer);
-            return Only(pixels, layer);
         }
 
         public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)

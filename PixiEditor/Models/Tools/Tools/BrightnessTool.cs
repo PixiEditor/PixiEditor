@@ -52,7 +52,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
@@ -67,8 +67,6 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor), layer);
             }
-
-            return layersChanges;
         }
 
         public BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)

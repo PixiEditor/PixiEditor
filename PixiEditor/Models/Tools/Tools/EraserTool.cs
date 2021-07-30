@@ -21,18 +21,18 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public override bool UsesShift => false;
-		public override string Tooltip => "Erasers color from pixel. (E)";
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override string Tooltip => "Erasers color from pixel. (E)";
+
+        public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
-            return Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
+            Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
         }
 
-        public LayerChange[] Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
+        public void Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
             BitmapPixelChanges pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
-            return Only(pixels, layer);
         }
     }
 }

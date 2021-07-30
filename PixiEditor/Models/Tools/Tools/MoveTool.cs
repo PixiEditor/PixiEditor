@@ -141,7 +141,7 @@ namespace PixiEditor.Models.Tools.Tools
             startingOffsets = GetOffsets(affectedLayers);
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, Color color)
+        public override void Use(Layer layer, List<Coordinates> mouseMove, Color color)
         {
             LayerChange[] result = new LayerChange[affectedLayers.Length];
             var end = mouseMove[0];

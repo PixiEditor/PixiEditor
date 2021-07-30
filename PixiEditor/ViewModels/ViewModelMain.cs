@@ -70,8 +70,6 @@ namespace PixiEditor.ViewModels
 
         public BitmapManager BitmapManager { get; set; }
 
-        public PixelChangesController ChangesController { get; set; }
-
         public ShortcutController ShortcutController { get; set; }
 
         public StylusViewModel StylusSubViewModel { get; set; }
@@ -148,7 +146,6 @@ namespace PixiEditor.ViewModels
 
             SelectionSubViewModel = new SelectionViewModel(this);
 
-            ChangesController = new PixelChangesController();
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
 
@@ -379,9 +376,6 @@ namespace PixiEditor.ViewModels
 
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
-            ChangesController.AddChanges(
-                new LayerChange(e.PixelsChanged, e.ChangedLayerGuid),
-                new LayerChange(e.OldPixelsValues, e.ChangedLayerGuid));
             BitmapManager.ActiveDocument.ChangesSaved = false;
             if (BitmapManager.IsOperationTool())
             {
