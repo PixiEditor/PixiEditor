@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Colors;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -26,8 +25,9 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-		public override bool UsesShift => false;
-		public override string Tooltip => "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
+        public override bool UsesShift => false;
+
+        public override string Tooltip => "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
 
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 
@@ -58,18 +58,17 @@ namespace PixiEditor.Models.Tools.Tools
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
             Mode = Toolbar.GetEnumSetting<BrightnessMode>("BrightnessMode").Value;
 
-            LayerChange[] layersChanges = new LayerChange[1];
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor), layer);
+                ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor);
             }
             else
             {
-                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor), layer);
+                ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor);
             }
         }
 
-        public BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
+        public void ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
         {
             DoubleCords centeredCoords = CoordinatesCalculator.CalculateThicknessCenter(coordinates, toolSize);
             IEnumerable<Coordinates> rectangleCoordinates = CoordinatesCalculator.RectangleToCoordinates(
@@ -77,7 +76,8 @@ namespace PixiEditor.Models.Tools.Tools
                 centeredCoords.Coords1.Y,
                 centeredCoords.Coords2.X,
                 centeredCoords.Coords2.Y);
-            BitmapPixelChanges changes = new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
+
+            using var ctx = layer.LayerBitmap.GetBitmapContext();
 
             foreach (Coordinates coordinate in rectangleCoordinates)
             {
@@ -95,12 +95,9 @@ namespace PixiEditor.Models.Tools.Tools
                 Color newColor = ExColor.ChangeColorBrightness(
                     Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
                     correctionFactor);
-                changes.ChangedPixels.Add(
-                    new Coordinates(coordinate.X, coordinate.Y),
-                    newColor);
+                layer.SetPixel(new Coordinates(coordinate.X, coordinate.Y), newColor);
             }
 
-            return changes;
         }
     }
 }

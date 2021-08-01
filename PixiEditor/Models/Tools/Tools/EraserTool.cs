@@ -32,7 +32,7 @@ namespace PixiEditor.Models.Tools.Tools
         public void Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
-            BitmapPixelChanges pixels = pen.Draw(startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
+            pen.Draw(layer, startingCords, coordinates[0], System.Windows.Media.Colors.Transparent, toolSize);
         }
     }
 }

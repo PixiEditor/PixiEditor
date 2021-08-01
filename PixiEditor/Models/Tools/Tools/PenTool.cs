@@ -39,6 +39,8 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public override string Tooltip => "Standard brush. (B)";
+        public override bool UsesShift => false;
+
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
@@ -74,12 +76,13 @@ namespace PixiEditor.Models.Tools.Tools
                 confirmedPixels.Add(latestCords);
             }
 
-            var latestPixels = lineTool.CreateLine(startingCoords, latestCords, 1);
+            var latestPixels = lineTool.CreateLine(layer, color, startingCoords, latestCords, 1);
             SetPixelToCheck(latestPixels);
 
             if (changedPixelsindex == 2)
             {
-                ApplyPixelPerfectToPixels(
+                var changes = ApplyPixelPerfectToPixels(
+                    layer,
                     lastChangedPixels[0],
                     lastChangedPixels[1],
                     lastChangedPixels[2],
@@ -88,14 +91,15 @@ namespace PixiEditor.Models.Tools.Tools
 
                 MovePixelsToCheck(changes);
 
-                ThickenShape(latestPixels, toolSize);
+                ThickenShape(layer, color, latestPixels, toolSize);
+                return;
             }
 
             changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
 
-            ThickenShape(latestPixels, toolSize);
+            ThickenShape(layer, color, latestPixels, toolSize);
         }
-        public override bool UsesShift => false;
+
         private void MovePixelsToCheck(BitmapPixelChanges changes)
         {
             if (changes.ChangedPixels[lastChangedPixels[1]].A != 0)
@@ -123,15 +127,15 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private void ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
+        private BitmapPixelChanges ApplyPixelPerfectToPixels(Layer layer, Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
         {
             if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {
-                ThickenShape(new Coordinates[] { p1, p3 }, toolSize);
-                ThickenShape(new[] { p2 }, toolSize);
+                ThickenShape(layer, color, new Coordinates[] { p1, p3 }, toolSize);
+                ThickenShape(layer, color, new[] { p2 }, toolSize);
             }
 
-            ThickenShape(new Coordinates[] { p2, p3 }.Distinct(), toolSize);
+            ThickenShape(layer, color, new Coordinates[] { p2, p3 }.Distinct(), toolSize);
         }
 
         private void PixelPerfectSettingValueChanged(object sender, SettingValueChangedEventArgs<bool> e)

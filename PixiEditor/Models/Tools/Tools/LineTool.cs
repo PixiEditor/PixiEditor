@@ -51,9 +51,9 @@ namespace PixiEditor.Models.Tools.Tools
                 CapType.Square);
         }
 
-        public void CreateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
+        public List<Coordinates> CreateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
         {
-            CreateLineFastest(layer, color, start, end, thickness);
+            return CreateLineFastest(layer, color, start, end, thickness);
         }
 
         public void CreateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
@@ -61,35 +61,36 @@ namespace PixiEditor.Models.Tools.Tools
             CreateLine(layer, color, new List<Coordinates>() { end, start }, thickness, startCap, endCap);
         }
 
-        private void CreateLine(Layer layer, Color color, IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
+        private List<Coordinates> CreateLine(Layer layer, Color color, IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
         {
             Coordinates startingCoordinates = coordinates.Last();
             Coordinates latestCoordinates = coordinates.First();
             if (thickness == 1)
             {
-                BresenhamLine(layer, color, startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
+                return BresenhamLine(layer, color, startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
             }
 
-            GenerateLine(layer, color, startingCoordinates, latestCoordinates, thickness, startCap, endCap);
+            return GenerateLine(layer, color, startingCoordinates, latestCoordinates, thickness, startCap, endCap);
         }
 
-        private void CreateLineFastest(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
+        private List<Coordinates> CreateLineFastest(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
         {
             var line = BresenhamLine(layer, color, start.X, start.Y, end.X, end.Y);
             if (thickness == 1)
             {
-                return;
+                return line;
             }
 
             ThickenShape(layer, color, line, thickness);
+            return line;
         }
 
-        private void GenerateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
+        private List<Coordinates> GenerateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
             ApplyCap(layer, color, startCap, start, thickness);
             if (start == end)
             {
-                return;
+                return new List<Coordinates>() { start };
             }
 
             var line = BresenhamLine(layer, color, start.X, start.Y, end.X, end.Y);
@@ -99,6 +100,8 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 ThickenShape(layer, color, line.Except(new[] { start, end }), thickness);
             }
+
+            return line;
         }
 
         private void ApplyCap(Layer layer, Color color, CapType cap, Coordinates position, int thickness)
