@@ -149,7 +149,7 @@ namespace PixiEditor.Models.Layers
                 IsRenaming = isRenaming
             };
 
-            if(Subgroups.Count > 0)
+            if (Subgroups.Count > 0)
             {
                 item.Subgroups = new ObservableCollection<GuidStructureItem>();
                 for (int i = 0; i < Subgroups.Count; i++)

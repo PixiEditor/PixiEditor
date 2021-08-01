@@ -31,7 +31,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private static void OpenShellExecute(string path)
         {
-            ProcessStartInfo startInfo = new (Environment.ExpandEnvironmentVariables(path));
+            ProcessStartInfo startInfo = new(Environment.ExpandEnvironmentVariables(path));
 
             startInfo.UseShellExecute = true;
 

@@ -21,7 +21,7 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public override bool UsesShift => false;
-		public override string Tooltip => "Erasers color from pixel. (E)";
+        public override string Tooltip => "Erasers color from pixel. (E)";
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
         {

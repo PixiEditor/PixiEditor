@@ -100,8 +100,8 @@ namespace PixiEditor.Models.Tools.Tools
 
             return result;
         }
-		public override bool UsesShift => false;
-		private void MovePixelsToCheck(BitmapPixelChanges changes)
+        public override bool UsesShift => false;
+        private void MovePixelsToCheck(BitmapPixelChanges changes)
         {
             if (changes.ChangedPixels[lastChangedPixels[1]].A != 0)
             {

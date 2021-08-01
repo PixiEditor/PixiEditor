@@ -67,8 +67,7 @@ namespace PixiEditor.Views
             IsEditing = true;
             Dispatcher.BeginInvoke(
                 DispatcherPriority.Input,
-                new Action(delegate()
-                {
+                new Action(delegate () {
                     textBox.Focus();         // Set Logical Focus
                     Keyboard.Focus(textBox); // Set Keyboard Focus
                 }));

@@ -120,7 +120,7 @@ namespace PixiEditor.Models.Controllers
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
-            if(sizeSetting == null)
+            if (sizeSetting == null)
             {
                 sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
             }
@@ -128,7 +128,7 @@ namespace PixiEditor.Models.Controllers
             int thickness = sizeSetting != null ? sizeSetting.Value : 1;
 
             bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
-           
+
             if (shiftDown && tool.UsesShift)
             {
                 bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);

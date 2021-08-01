@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
@@ -14,6 +15,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
     {
         private Cursor toolCursor;
 
+        [Shortcut(Key.B, typeof(PenTool), "Select pen tool", "PixiEditer:Tool.Pen")]
+        [Shortcut(Key.E, typeof(EraserTool), "Select Eraser Tool", "PixiEditer:Tool.Eraser")]
         public RelayCommand SelectToolCommand { get; set; } // Command that handles tool switching.
 
         public RelayCommand ChangeToolSizeCommand { get; set; }

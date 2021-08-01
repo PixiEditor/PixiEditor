@@ -6,7 +6,7 @@ namespace PixiEditor.Models.Dialogs
     {
         public static void Show(string message)
         {
-            NoticePopup popup = new ()
+            NoticePopup popup = new()
             {
                 Body = message,
                 Title = string.Empty,
@@ -18,7 +18,7 @@ namespace PixiEditor.Models.Dialogs
 
         public static void Show(string message, string title)
         {
-            NoticePopup popup = new ()
+            NoticePopup popup = new()
             {
                 Body = message,
                 Title = title,

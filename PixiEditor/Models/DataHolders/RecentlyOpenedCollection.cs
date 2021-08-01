@@ -52,7 +52,7 @@ namespace PixiEditor.Models.DataHolders
             Insert(index, Create(path));
         }
 
-        private static RecentlyOpenedDocument Create(string path) => new (path);
+        private static RecentlyOpenedDocument Create(string path) => new(path);
 
         private RecentlyOpenedDocument Get(string path) => this.FirstOrDefault(x => x.FilePath == path);
     }

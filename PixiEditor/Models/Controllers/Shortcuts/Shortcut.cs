@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows.Input;
 using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Models.Controllers.Shortcuts
 {
+
     public class Shortcut
     {
         public Shortcut(Key shortcutKey, ICommand command, object commandParameter = null, ModifierKeys modifier = ModifierKeys.None)
@@ -42,5 +44,32 @@ namespace PixiEditor.Models.Controllers.Shortcuts
                 Command.Execute(CommandParameter);
             }
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
+    public class ShortcutAttribute : Attribute
+    {
+        public ShortcutAttribute(Key key, Type type, string description, string bindingId, object commandParameter = null, ModifierKeys modifier = ModifierKeys.None)
+        {
+            Key = key;
+            Type = type;
+            Description = description;
+            CommandParameter = commandParameter;
+            Modifier = modifier;
+        }
+        public ShortcutAttribute(Key key, string description, string bindingId, object commandParameter = null, ModifierKeys modifier = ModifierKeys.None)
+        {
+            Key = key;
+
+            Description = description;
+            CommandParameter = commandParameter;
+            Modifier = modifier;
+        }
+
+        public Key Key { get; }
+        public Type? Type { get; }
+        public string Description { get; }
+        public object CommandParameter { get; }
+        public ModifierKeys Modifier { get; }
     }
 }

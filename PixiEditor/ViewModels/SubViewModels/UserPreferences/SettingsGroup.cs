@@ -27,7 +27,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
             IPreferences.Current.UpdatePreference(name, value);
         }
 
-        protected void RaiseAndUpdatePreference<T>(ref T backingStore, T value, [CallerMemberName]string name = "")
+        protected void RaiseAndUpdatePreference<T>(ref T backingStore, T value, [CallerMemberName] string name = "")
         {
             SetProperty(ref backingStore, value, name);
             IPreferences.Current.UpdatePreference(name, value);
