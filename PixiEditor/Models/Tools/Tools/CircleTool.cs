@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
@@ -79,33 +80,25 @@ namespace PixiEditor.Models.Tools.Tools
         /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
         /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
         /// <param name="thickness">Thickness of ellipse.</param>
-        /// <returns>Coordinates for ellipse.</returns>
-        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
+        public void CreateEllipse(Layer layer, Color color, Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
             double radiusX = (endCoordinates.X - startCoordinates.X) / 2.0;
             double radiusY = (endCoordinates.Y - startCoordinates.Y) / 2.0;
             double centerX = (startCoordinates.X + endCoordinates.X + 1) / 2.0;
             double centerY = (startCoordinates.Y + endCoordinates.Y + 1) / 2.0;
 
-            List<Coordinates> output = new List<Coordinates>();
-            IEnumerable<Coordinates> ellipse = MidpointEllipse(radiusX, radiusY, centerX, centerY);
-            if (thickness == 1)
+            IEnumerable<Coordinates> ellipse = GenerateMidpointEllipse(radiusX, radiusY, centerX, centerY);
+            if (thickness > 1)
             {
-                output.AddRange(ellipse);
+                ThickenShape(layer, color, ellipse, thickness);
             }
-            else
-            {
-                output.AddRange(GetThickShape(ellipse, thickness));
-            }
-
-            return output.Distinct();
         }
 
-        public IEnumerable<Coordinates> MidpointEllipse(double halfWidth, double halfHeight, double centerX, double centerY)
+        public List<Coordinates> GenerateMidpointEllipse(Layer layer, Color color, double halfWidth, double halfHeight, double centerX, double centerY)
         {
             if (halfWidth < 1 || halfHeight < 1)
             {
-                return FallbackRectangle(halfWidth, halfHeight, centerX, centerY);
+                return FallbackRectangle(layer, color, halfWidth, halfHeight, centerX, centerY);
             }
 
             // ellipse formula: halfHeight^2 * x^2 + halfWidth^2 * y^2 - halfHeight^2 * halfWidth^2 = 0
@@ -182,22 +175,35 @@ namespace PixiEditor.Models.Tools.Tools
             return finalCoordinates;
         }
 
-        private Coordinates[] FallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY)
+        private List<Coordinates> FallbackRectangle(Layer layer, Color color, double halfWidth, double halfHeight, double centerX, double centerY)
         {
+            using var ctx = layer.LayerBitmap.GetBitmapContext();
+
             List<Coordinates> coordinates = new List<Coordinates>();
+
             for (double x = centerX - halfWidth; x <= centerX + halfWidth; x++)
             {
-                coordinates.Add(new Coordinates((int)x, (int)(centerY - halfHeight)));
-                coordinates.Add(new Coordinates((int)x, (int)(centerY + halfHeight)));
+                var cords = new Coordinates((int)x, (int)(centerY - halfHeight));
+                coordinates.Add(cords);
+                layer.SetPixel(cords, color);
+
+                cords = new Coordinates((int)x, (int)(centerY + halfHeight));
+                coordinates.Add(cords);
+                layer.SetPixel(cords, color);
             }
 
             for (double y = centerY - halfHeight + 1; y <= centerY + halfHeight - 1; y++)
             {
-                coordinates.Add(new Coordinates((int)(centerX - halfWidth), (int)y));
-                coordinates.Add(new Coordinates((int)(centerX + halfWidth), (int)y));
+                var cords = new Coordinates((int)(centerX - halfWidth), (int)y);
+                coordinates.Add(cords);
+                layer.SetPixel(cords, color);
+
+                cords = new Coordinates((int)(centerX + halfWidth), (int)y);
+                coordinates.Add(cords);
+                layer.SetPixel(cords, color);
             }
 
-            return coordinates.ToArray();
+            return coordinates;
         }
 
         private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)

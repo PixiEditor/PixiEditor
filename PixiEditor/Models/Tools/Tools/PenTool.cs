@@ -51,7 +51,8 @@ namespace PixiEditor.Models.Tools.Tools
         public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
-            BitmapPixelChanges pixels = Draw(
+            Draw(
+                layer,
                 startingCords,
                 coordinates[0],
                 color,
@@ -60,12 +61,12 @@ namespace PixiEditor.Models.Tools.Tools
                 BitmapManager.ActiveDocument.PreviewLayer);
         }
 
-        public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)
+        public void Draw(Layer layer, Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)
         {
             if (!pixelPerfect)
             {
-                return BitmapPixelChanges.FromSingleColoredArray(
-                    lineTool.CreateLine(startingCoords, latestCords, toolSize), color);
+                lineTool.CreateLine(layer, color, startingCoords, latestCords, toolSize);
+                return;
             }
 
             if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).A > 0)
@@ -78,7 +79,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             if (changedPixelsindex == 2)
             {
-                var changes = ApplyPixelPerfectToPixels(
+                ApplyPixelPerfectToPixels(
                     lastChangedPixels[0],
                     lastChangedPixels[1],
                     lastChangedPixels[2],
@@ -87,20 +88,15 @@ namespace PixiEditor.Models.Tools.Tools
 
                 MovePixelsToCheck(changes);
 
-                changes.ChangedPixels.AddRangeNewOnly(
-                    BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color).ChangedPixels);
-
-                return changes;
+                ThickenShape(latestPixels, toolSize);
             }
 
             changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
 
-            var result = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
-
-            return result;
+            ThickenShape(latestPixels, toolSize);
         }
-		public override bool UsesShift => false;
-		private void MovePixelsToCheck(BitmapPixelChanges changes)
+        public override bool UsesShift => false;
+        private void MovePixelsToCheck(BitmapPixelChanges changes)
         {
             if (changes.ChangedPixels[lastChangedPixels[1]].A != 0)
             {
@@ -127,19 +123,15 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private BitmapPixelChanges ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
+        private void ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
         {
             if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {
-                var changes = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(new Coordinates[] { p1, p3 }, toolSize), color);
-                changes.ChangedPixels.AddRangeNewOnly(
-                    BitmapPixelChanges.FromSingleColoredArray(
-                        GetThickShape(new[] { p2 }, toolSize),
-                        System.Windows.Media.Colors.Transparent).ChangedPixels);
-                return changes;
+                ThickenShape(new Coordinates[] { p1, p3 }, toolSize);
+                ThickenShape(new[] { p2 }, toolSize);
             }
 
-            return BitmapPixelChanges.FromSingleColoredArray(GetThickShape(new Coordinates[] { p2, p3 }.Distinct(), toolSize), color);
+            ThickenShape(new Coordinates[] { p2, p3 }.Distinct(), toolSize);
         }
 
         private void PixelPerfectSettingValueChanged(object sender, SettingValueChangedEventArgs<bool> e)
