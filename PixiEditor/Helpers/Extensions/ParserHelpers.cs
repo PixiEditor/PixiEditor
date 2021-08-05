@@ -2,7 +2,6 @@
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,7 +13,7 @@ namespace PixiEditor.Helpers.Extensions
 {
     public static class ParserHelpers
     {
-        public static Document ToDocument(this Parser.SerializableDocument serializableDocument)
+        public static Document ToDocument(this SerializableDocument serializableDocument)
         {
             Document document = new Document(serializableDocument.Width, serializableDocument.Height)
             {
@@ -43,7 +42,7 @@ namespace PixiEditor.Helpers.Extensions
             ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
             for (int i = 0; i < serializableDocument.Layers.Count; i++)
             {
-                Parser.SerializableLayer serLayer = serializableDocument.Layers[i];
+                SerializableLayer serLayer = serializableDocument.Layers[i];
                 Layer layer =
                     new Layer(serLayer.Name, BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
                     {
@@ -65,7 +64,7 @@ namespace PixiEditor.Helpers.Extensions
 
         public static SerializableDocument ToSerializable(this Document document)
         {
-            Parser.SerializableDocument serializable = new Parser.SerializableDocument
+            SerializableDocument serializable = new SerializableDocument
             {
                 Width = document.Width,
                 Height = document.Height,
@@ -89,9 +88,9 @@ namespace PixiEditor.Helpers.Extensions
             return serializedGroup;
         }
 
-        public static Parser.SerializableLayer ToSerializable(this Layer layer)
+        public static SerializableLayer ToSerializable(this Layer layer)
         {
-            Parser.SerializableLayer serializable = new Parser.SerializableLayer
+            SerializableLayer serializable = new SerializableLayer
             {
                 LayerGuid = layer.LayerGuid,
                 Name = layer.Name,
