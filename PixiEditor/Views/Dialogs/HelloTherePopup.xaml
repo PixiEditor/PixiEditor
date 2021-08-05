@@ -17,10 +17,34 @@
         </Style>
 
         <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}" x:Key="SocialMediaButton">
-            <Setter Property="Width" Value="150"/>
+            <Setter Property="Width" Value="50"/>
             <Setter Property="Margin" Value="5,8,5,0"/>
             <Setter Property="FontSize" Value="18"/>
-            <Setter Property="Height" Value="28"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource Self}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                        <Border
+                            x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" 
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            CornerRadius="5">
+                            <ContentControl>
+                                <Image Margin="8" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}"
+                                       RenderOptions.BitmapScalingMode="Fant"/>
+                            </ContentControl>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
 
@@ -217,67 +241,24 @@
                 </StackPanel>
 
                 <uc:AlignableWrapPanel Grid.Row="3" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,5,0,15">
+                    <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://pixieditor.net"
+                            Style="{StaticResource SocialMediaButton}" Tag="#e3002d" ToolTip="Website"
+                            Content="../../Images/SocialMedia/WebsiteIcon.png"/>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://discord.gg/tzkQFDkqQS"
-                            Content="Discord">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#7289DA"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" ToolTip="Discord"
+                            Content="../../Images/SocialMedia/DiscordIcon.png"/>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://reddit.com/r/PixiEditor"
-                            Content="r/PixiEditor">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FF4500"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ToolTip="Reddit"
+                            Content="../../Images/SocialMedia/RedditIcon.png"/>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
-                            Content="GitHub">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="White"/>
-                                        <Setter Property="Foreground" Value="Black"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                            Style="{StaticResource SocialMediaButton}" Tag="Black" ToolTip="GitHub"
+                            Content="../../Images/SocialMedia/GithubIcon.png"/>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
-                            Content="YouTube">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FF0000"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ToolTip="YouTube"
+                            Content="../../Images/SocialMedia/YouTubeIcon.png"/>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://opencollective.com/pixieditor"
-                            Content="Donate" ToolTip="And subscribe to PixiEditor's OnlyFans please">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SocialMediaButton}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#DB61A2"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ToolTip="Donate"
+                            Content="../../Images/SocialMedia/DonateIcon.png"/>
                 </uc:AlignableWrapPanel>
             </Grid>
         </ScrollViewer>

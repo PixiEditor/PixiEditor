@@ -137,7 +137,9 @@
                 </MenuItem>
                 <MenuItem Header="_Help">
                     <MenuItem Header="_Documentation" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki"/>
+                              CommandParameter="https://pixieditor.net/docs/introduction"/>
+                    <MenuItem Header="_Website" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
+                              CommandParameter="https://pixieditor.net"/>
                     <MenuItem Header="_Repository" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor"/>
                     <MenuItem Header="_Shortcuts" Command="{Binding MiscSubViewModel.OpenShortcutWindowCommand}"/>
@@ -145,7 +147,7 @@
                     <MenuItem Header="_License" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
                               CommandParameter="https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE"/>
                     <MenuItem Header="_Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/PixiEditor/PixiEditor/wiki/Third-party-licenses"/>
+                              CommandParameter="https://pixieditor.net/docs/Third-party-licenses"/>
                 </MenuItem>
                 <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
                     <MenuItem Header="_Open Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
