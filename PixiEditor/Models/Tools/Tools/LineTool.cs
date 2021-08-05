@@ -109,7 +109,7 @@ namespace PixiEditor.Models.Tools.Tools
             switch (cap)
             {
                 case CapType.Round:
-                    ApplyRoundCap(position, thickness); // Round cap is not working very well, circle tool must be improved
+                    ApplyRoundCap(layer, color, position, thickness); // Round cap is not working very well, circle tool must be improved
                     break;
 
                 default:
@@ -123,11 +123,11 @@ namespace PixiEditor.Models.Tools.Tools
         /// </summary>
         /// <param name="position">Starting position of cap.</param>
         /// <param name="thickness">Thickness of cap.</param>
-        private void ApplyRoundCap(Coordinates position, int thickness)
+        private void ApplyRoundCap(Layer layer, Color color, Coordinates position, int thickness)
         {
             IEnumerable<Coordinates> rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
-            circleTool.CreateEllipse(rectangleCords.First(), rectangleCords.Last(), 1, true);
+            circleTool.CreateEllipse(layer, color, rectangleCords.First(), rectangleCords.Last(), 1, true);
         }
 
         private List<Coordinates> BresenhamLine(Layer layer, Color color, int x1, int y1, int x2, int y2)

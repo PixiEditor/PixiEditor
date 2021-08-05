@@ -136,6 +136,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             ThickenShape(layer, color, new Coordinates[] { p2, p3 }.Distinct(), toolSize);
+            return BitmapPixelChanges.Empty;
         }
 
         private void PixelPerfectSettingValueChanged(object sender, SettingValueChangedEventArgs<bool> e)

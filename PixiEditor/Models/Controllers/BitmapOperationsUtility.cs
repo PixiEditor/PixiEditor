@@ -39,12 +39,12 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            for (int i = 0; i < layers.Length; i++)
-            {
-                layers[i].SetPixels(changes);
-            }
+            //TODO: Fix for (int i = 0; i < layers.Length; i++)
+            //{
+            //    layers[i].SetPixels(changes);
+            //}
 
-            Manager.ActiveDocument.UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
+            //Manager.ActiveDocument.UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
         }
 
         /// <summary>

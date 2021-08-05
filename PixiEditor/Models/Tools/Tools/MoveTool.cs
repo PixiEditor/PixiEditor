@@ -65,34 +65,34 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void AfterAddedUndo(UndoManager undoManager)
         {
-            if (currentSelection == null || currentSelection.Length == 0)
-            {
-                return;
-            }
+            //if (currentSelection == null || currentSelection.Length == 0)
+            //{
+            //    return;
+            //}
 
-            Change changes = undoManager.UndoStack.Peek();
+            //Change changes = undoManager.UndoStack.Peek();
 
-            // Inject to default undo system change custom changes made by this tool
-            foreach (var item in startPixelColors)
-            {
-                BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
-                BitmapPixelChanges afterMovePixels = BitmapPixelChanges.FromArrays(currentSelection, endPixelColors[item.Key]);
-                Guid layerGuid = item.Key;
-                var oldValue = (LayerChange[])changes.OldValue;
+            //// Inject to default undo system change custom changes made by this tool
+            //foreach (var item in startPixelColors)
+            //{
+            //    BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
+            //    BitmapPixelChanges afterMovePixels = BitmapPixelChanges.FromArrays(currentSelection, endPixelColors[item.Key]);
+            //    Guid layerGuid = item.Key;
+            //    var oldValue = (LayerChange[])changes.OldValue;
 
-                if (oldValue.Any(x => x.LayerGuid == layerGuid))
-                {
-                    var layer = oldValue.First(x => x.LayerGuid == layerGuid);
-                    layer.PixelChanges.ChangedPixels.AddRangeOverride(afterMovePixels.ChangedPixels);
-                    layer.PixelChanges.ChangedPixels
-                        .AddRangeOverride(beforeMovePixels.ChangedPixels);
+            //    if (oldValue.Any(x => x.LayerGuid == layerGuid))
+            //    {
+            //        var layer = oldValue.First(x => x.LayerGuid == layerGuid);
+            //        layer.PixelChanges.ChangedPixels.AddRangeOverride(afterMovePixels.ChangedPixels);
+            //        layer.PixelChanges.ChangedPixels
+            //            .AddRangeOverride(beforeMovePixels.ChangedPixels);
 
-                    ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
-                        .AddRangeNewOnly(BitmapPixelChanges
-                            .FromSingleColoredArray(startSelection, System.Windows.Media.Colors.Transparent)
-                            .ChangedPixels);
-                }
-            }
+            //        ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
+            //            .AddRangeNewOnly(BitmapPixelChanges
+            //                .FromSingleColoredArray(startSelection, System.Windows.Media.Colors.Transparent)
+            //                .ChangedPixels);
+            //    }
+            //}
         }
 
         // This adds undo if there is no selection, reason why this isn't in AfterUndoAdded,
@@ -143,32 +143,32 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Layer layer, List<Coordinates> mouseMove, Color color)
         {
-            LayerChange[] result = new LayerChange[affectedLayers.Length];
-            var end = mouseMove[0];
-            var lastSelection = currentSelection.ToArray();
-            for (int i = 0; i < affectedLayers.Length; i++)
-            {
-                if (currentSelection.Length > 0)
-                {
-                    endPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, currentSelection);
-                    var changes = MoveSelection(affectedLayers[i], mouseMove);
-                    ClearSelectedPixels(affectedLayers[i], lastSelection);
+            //LayerChange[] result = new LayerChange[affectedLayers.Length];
+            //var end = mouseMove[0];
+            //var lastSelection = currentSelection.ToArray();
+            //for (int i = 0; i < affectedLayers.Length; i++)
+            //{
+            //    if (currentSelection.Length > 0)
+            //    {
+            //        endPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, currentSelection);
+            //        var changes = MoveSelection(affectedLayers[i], mouseMove);
+            //        ClearSelectedPixels(affectedLayers[i], lastSelection);
 
-                    changes = RemoveTransparentPixels(changes);
+            //        changes = RemoveTransparentPixels(changes);
 
-                    result[i] = new LayerChange(changes, affectedLayers[i]);
-                }
-                else
-                {
-                    var vector = Transform.GetTranslation(lastMouseMove, end);
-                    affectedLayers[i].Offset = new Thickness(affectedLayers[i].OffsetX + vector.X, affectedLayers[i].OffsetY + vector.Y, 0, 0);
-                    result[i] = new LayerChange(BitmapPixelChanges.Empty, affectedLayers[i]);
-                }
-            }
+            //        result[i] = new LayerChange(changes, affectedLayers[i]);
+            //    }
+            //    else
+            //    {
+            //        var vector = Transform.GetTranslation(lastMouseMove, end);
+            //        affectedLayers[i].Offset = new Thickness(affectedLayers[i].OffsetX + vector.X, affectedLayers[i].OffsetY + vector.Y, 0, 0);
+            //        result[i] = new LayerChange(BitmapPixelChanges.Empty, affectedLayers[i]);
+            //    }
+            //}
 
-            lastMouseMove = end;
+            //lastMouseMove = end;
 
-            return result;
+            // return result;
         }
 
         public BitmapPixelChanges MoveSelection(Layer layer, IEnumerable<Coordinates> mouseMove)
