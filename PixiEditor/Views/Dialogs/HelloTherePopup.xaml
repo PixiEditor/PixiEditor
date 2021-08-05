@@ -21,6 +21,7 @@
             <Setter Property="Margin" Value="5,8,5,0"/>
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="Height" Value="50"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -257,7 +258,7 @@
                             Content="../../Images/SocialMedia/YouTubeIcon.png"/>
                     <Button Command="{Binding OpenHyperlinkCommand}" CommandParameter="https://opencollective.com/pixieditor"
                             Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ToolTip="Donate"
-                            Content="../../Images/Placeholder.png"/>
+                            Content="../../Images/SocialMedia/DonateIcon.png"/>
                 </uc:AlignableWrapPanel>
             </Grid>
         </ScrollViewer>

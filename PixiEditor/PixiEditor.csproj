@@ -131,6 +131,7 @@
     <None Remove="Images\Placeholder.png" />
     <None Remove="Images\SelectImage.png" />
     <None Remove="Images\SocialMedia\DiscordIcon.png" />
+    <None Remove="Images\SocialMedia\DonateIcon.png" />
     <None Remove="Images\SocialMedia\GitHubIcon.png" />
     <None Remove="Images\SocialMedia\RedditIcon.png" />
     <None Remove="Images\SocialMedia\WebsiteIcon.png" />
@@ -194,6 +195,7 @@
     <Resource Include="Images\PixiParserLogo.png" />
     <Resource Include="Images\Placeholder.png" />
     <Resource Include="Images\SocialMedia\DiscordIcon.png" />
+    <Resource Include="Images\SocialMedia\DonateIcon.png" />
     <Resource Include="Images\SocialMedia\GitHubIcon.png" />
     <Resource Include="Images\SocialMedia\RedditIcon.png" />
     <Resource Include="Images\SocialMedia\WebsiteIcon.png" />
