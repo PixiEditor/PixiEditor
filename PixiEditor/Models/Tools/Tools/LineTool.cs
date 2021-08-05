@@ -15,6 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
     public class LineTool : ShapeTool
     {
         private readonly CircleTool circleTool;
+        private List<Coordinates> linePoints = new List<Coordinates>();
 
         public LineTool()
         {
@@ -56,21 +57,22 @@ namespace PixiEditor.Models.Tools.Tools
             return CreateLineFastest(layer, color, start, end, thickness);
         }
 
-        public void CreateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
-        {
-            CreateLine(layer, color, new List<Coordinates>() { end, start }, thickness, startCap, endCap);
-        }
-
         private List<Coordinates> CreateLine(Layer layer, Color color, IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
         {
             Coordinates startingCoordinates = coordinates.Last();
             Coordinates latestCoordinates = coordinates.First();
+
+            return CreateLine(layer, color, startingCoordinates, latestCoordinates, thickness, startCap, endCap);
+        }
+
+        private List<Coordinates> CreateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
+        {
             if (thickness == 1)
             {
-                return BresenhamLine(layer, color, startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
+                return BresenhamLine(layer, color, start.X, start.Y, end.X, end.Y);
             }
 
-            return GenerateLine(layer, color, startingCoordinates, latestCoordinates, thickness, startCap, endCap);
+            return GenerateLine(layer, color, start, end, thickness, startCap, endCap);
         }
 
         private List<Coordinates> CreateLineFastest(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
@@ -133,8 +135,8 @@ namespace PixiEditor.Models.Tools.Tools
         private List<Coordinates> BresenhamLine(Layer layer, Color color, int x1, int y1, int x2, int y2)
         {
             using BitmapContext context = layer.LayerBitmap.GetBitmapContext();
+            linePoints.Clear();
             Coordinates cords;
-            List<Coordinates> linePoints = new List<Coordinates>();
             if (x1 == x2 && y1 == y2)
             {
                 cords = new Coordinates(x1, y1);
