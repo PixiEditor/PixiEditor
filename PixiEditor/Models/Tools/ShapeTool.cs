@@ -62,11 +62,14 @@ namespace PixiEditor.Models.Tools
         {
             foreach (Coordinates item in shape)
             {
-                var changes = BitmapPixelChanges.FromSingleColoredArray(
-                    CoordinatesCalculator.RectangleToCoordinates(
-                   CoordinatesCalculator.CalculateThicknessCenter(item, thickness)), color);
-                layer.SetPixels(changes);
+                ThickenShape(layer, color, item, thickness);
             }
+        }
+
+        protected static void ThickenShape(Layer layer, Color color, Coordinates coords, int thickness)
+        {
+            var dcords = CoordinatesCalculator.CalculateThicknessCenter(coords, thickness);
+            CoordinatesCalculator.DrawRectangle(layer, color, dcords.Coords1.X, dcords.Coords1.Y, dcords.Coords2.X, dcords.Coords2.Y);
         }
     }
 }

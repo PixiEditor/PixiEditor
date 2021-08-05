@@ -53,6 +53,7 @@ namespace PixiEditor.Models.Tools.Tools
         public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
+            layer.DynamicResize(coordinates.Max(x => x.X), coordinates.Max(x => x.Y), coordinates.Min(x => x.X), coordinates.Min(x => x.Y));
             Draw(
                 layer,
                 startingCords,

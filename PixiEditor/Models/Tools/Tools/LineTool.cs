@@ -44,6 +44,8 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Layer layer, List<Coordinates> coordinates, Color color)
         {
+            layer.DynamicResize(coordinates.Max(x => x.X), coordinates.Max(x => x.Y), coordinates.Min(x => x.X), coordinates.Min(x => x.Y));
+
             CreateLine(
                 layer, color,
                 coordinates,
@@ -115,7 +117,7 @@ namespace PixiEditor.Models.Tools.Tools
                     break;
 
                 default:
-                    ThickenShape(layer, color, new[] { position }, thickness);
+                    ThickenShape(layer, color, position, thickness);
                     break;
             }
         }
@@ -140,7 +142,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (x1 == x2 && y1 == y2)
             {
                 cords = new Coordinates(x1, y1);
-                layer.SetPixel(cords, color);
+                layer.SetPixelWithOffset(cords, color);
                 linePoints.Add(cords);
             }
 
@@ -170,7 +172,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             cords = new Coordinates(x, y);
-            layer.SetPixel(cords, color);
+            layer.SetPixelWithOffset(cords, color);
             linePoints.Add(cords);
 
             if (dx > dy)
@@ -194,7 +196,7 @@ namespace PixiEditor.Models.Tools.Tools
                     }
 
                     cords = new Coordinates(x, y);
-                    layer.SetPixel(cords, color);
+                    layer.SetPixelWithOffset(cords, color);
                     linePoints.Add(cords);
                 }
             }
@@ -219,7 +221,7 @@ namespace PixiEditor.Models.Tools.Tools
                     }
 
                     cords = new Coordinates(x, y);
-                    layer.SetPixel(cords, color);
+                    layer.SetPixelWithOffset(cords, color);
                     linePoints.Add(cords);
                 }
             }
