@@ -41,37 +41,29 @@ namespace PixiEditor.Models.Tools.Tools
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
-            IEnumerable<Coordinates> outline = CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, thickness);
-            BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(outline, color);
+            CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, thickness);
+
             if (Toolbar.GetSetting<BoolSetting>("Fill").Value)
             {
                 Color fillColor = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
-                pixels.ChangedPixels.AddRangeNewOnly(
-                    BitmapPixelChanges.FromSingleColoredArray(CalculateFillForEllipse(outline), fillColor)
-                        .ChangedPixels);
+                DrawEllipseFill(outline);
             }
         }
 
         /// <summary>
-        ///     Calculates ellipse points for specified coordinates and thickness.
+        ///     Draws ellipse for specified coordinates and thickness.
         /// </summary>
         /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
         /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
         /// <param name="thickness">Thickness of ellipse.</param>
         /// <param name="filled">Should ellipse be filled.</param>
-        /// <returns>Coordinates for ellipse.</returns>
-        public IEnumerable<Coordinates> CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, int thickness, bool filled)
+        public void CreateEllipse(Layer layer, Color color, Coordinates startCoordinates, Coordinates endCoordinates, int thickness, bool filled)
         {
-            List<Coordinates> output = new List<Coordinates>();
-            IEnumerable<Coordinates> outline = CreateEllipse(startCoordinates, endCoordinates, thickness);
-            output.AddRange(outline);
+            IEnumerable<Coordinates> outline = CreateEllipse(layer, color, startCoordinates, endCoordinates, thickness);
             if (filled)
             {
-                output.AddRange(CalculateFillForEllipse(outline));
-                return output.Distinct();
+                DrawEllipseFill(outline);
             }
-
-            return output;
         }
 
         /// <summary>
@@ -98,7 +90,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (halfWidth < 1 || halfHeight < 1)
             {
-                return FallbackRectangle(layer, color, halfWidth, halfHeight, centerX, centerY);
+                DrawFallbackRectangle(layer, color, halfWidth, halfHeight, centerX, centerY);
             }
 
             // ellipse formula: halfHeight^2 * x^2 + halfWidth^2 * y^2 - halfHeight^2 * halfWidth^2 = 0
@@ -114,7 +106,7 @@ namespace PixiEditor.Models.Tools.Tools
             // from PI/2 to middle
             do
             {
-                outputCoordinates.AddRange(GetRegionPoints(currentX, centerX, currentY, centerY));
+                DrawRegionPoints(currentX, centerX, currentY, centerY);
 
                 // calculate next pixel coords
                 currentX++;
@@ -136,7 +128,7 @@ namespace PixiEditor.Models.Tools.Tools
             // from middle to 0
             while (currentY - centerY >= 0)
             {
-                outputCoordinates.AddRange(GetRegionPoints(currentX, centerX, currentY, centerY));
+                outputCoordinates.AddRange(DrawRegionPoints(currentX, centerX, currentY, centerY));
 
                 currentY--;
                 if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2)) +
@@ -150,13 +142,13 @@ namespace PixiEditor.Models.Tools.Tools
             return outputCoordinates;
         }
 
-        public IEnumerable<Coordinates> CalculateFillForEllipse(IEnumerable<Coordinates> outlineCoordinates)
+        public void DrawEllipseFill(Layer layer, Color color, IEnumerable<Coordinates> outlineCoordinates)
         {
-            List<Coordinates> finalCoordinates = new List<Coordinates>();
+            using var ctx = layer.LayerBitmap.GetBitmapContext();
 
             if (!outlineCoordinates.Any())
             {
-                return finalCoordinates;
+                return;
             }
 
             int bottom = outlineCoordinates.Max(x => x.Y);
@@ -168,14 +160,12 @@ namespace PixiEditor.Models.Tools.Tools
                 int left = rowCords.Min(x => x.X);
                 for (int j = left + 1; j < right; j++)
                 {
-                    finalCoordinates.Add(new Coordinates(j, i));
+                    layer.SetPixel(new Coordinates(j, i), color);
                 }
             }
-
-            return finalCoordinates;
         }
 
-        private List<Coordinates> FallbackRectangle(Layer layer, Color color, double halfWidth, double halfHeight, double centerX, double centerY)
+        private void DrawFallbackRectangle(Layer layer, Color color, double halfWidth, double halfHeight, double centerX, double centerY)
         {
             using var ctx = layer.LayerBitmap.GetBitmapContext();
 
@@ -202,11 +192,9 @@ namespace PixiEditor.Models.Tools.Tools
                 coordinates.Add(cords);
                 layer.SetPixel(cords, color);
             }
-
-            return coordinates;
         }
 
-        private Coordinates[] GetRegionPoints(double x, double xc, double y, double yc)
+        private void DrawRegionPoints(double x, double xc, double y, double yc)
         {
             Coordinates[] outputCoordinates = new Coordinates[4];
             outputCoordinates[0] = new Coordinates((int)Math.Floor(x), (int)Math.Floor(y));
