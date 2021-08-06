@@ -17,8 +17,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand NewGroupCommand { get; set; }
 
-        public RelayCommand CreateGroupFromActiveLayersCommand { get; set; }
-
         public RelayCommand DeleteSelectedCommand { get; set; }
 
         public RelayCommand DeleteGroupCommand { get; set; }
@@ -47,7 +45,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
             NewGroupCommand = new RelayCommand(NewGroup, CanCreateNewLayer);
-            CreateGroupFromActiveLayersCommand = new RelayCommand(CreateGroupFromActiveLayers, CanCreateGroupFromSelected);
             DeleteLayersCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
             DuplicateLayerCommand = new RelayCommand(DuplicateLayer, CanDuplicateLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
@@ -60,15 +57,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             DeleteGroupCommand = new RelayCommand(DeleteGroup);
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, CanDeleteSelected);
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
-        }
-
-        public void CreateGroupFromActiveLayers(object parameter)
-        {
-            // var doc = Owner.BitmapManager.ActiveDocument;
-            // if (doc != null)
-            // {
-            //    doc.LayerStructure.AddNewGroup($"{Owner.BitmapManager.ActiveLayer.Name} Group", doc.Layers.Where(x => x.IsActive).Reverse(), Owner.BitmapManager.ActiveDocument.ActiveLayerGuid);
-            // }
         }
 
         public bool CanDeleteSelected(object parameter)
@@ -131,15 +119,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (doc != null)
             {
                 var lastGroups = doc.LayerStructure.CloneGroups();
-                if (parameter is Layer or LayerStructureItemContainer)
+                var selectedLayers = doc.Layers.Where(x => x.IsActive).Reverse().ToArray();
+                if (control != null && selectedLayers.Length == 0)
+                {
+                    doc.LayerStructure.AddNewGroup($"{control.Name} Group", control);
+                }
+                else if(selectedLayers.Length > 0)
+                {
+
+                }
+                else if (parameter is Layer or LayerStructureItemContainer)
                 {
                     GuidStructureItem group = doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.LayerGuid);
 
                     Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(group);
-                }
-                else if (control != null)
-                {
-                    doc.LayerStructure.AddNewGroup($"{control.Name} Group", control);
                 }
 
                 doc.AddLayerStructureToUndo(lastGroups);
@@ -155,11 +148,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public bool CanMergeSelected(object obj)
         {
             return Owner.BitmapManager.ActiveDocument?.Layers.Count(x => x.IsActive) > 1;
-        }
-
-        public bool CanCreateGroupFromSelected(object obj)
-        {
-            return Owner.BitmapManager.ActiveDocument?.Layers.Count(x => x.IsActive) > 0;
         }
 
         public void NewLayer(object parameter)
