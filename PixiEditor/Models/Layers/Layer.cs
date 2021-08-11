@@ -16,6 +16,7 @@ namespace PixiEditor.Models.Layers
     public class Layer : BasicLayer
     {
         private const int SizeOfArgb = 4;
+        private readonly Color transparent = Color.FromArgb(0, 0, 0, 0);
         private bool clipRequested;
 
         private bool isActive;
@@ -29,7 +30,6 @@ namespace PixiEditor.Models.Layers
         private Thickness offset;
 
         private float opacity = 1f;
-        private readonly Color transparent = Color.FromArgb(0, 0, 0, 0);
 
         private string layerHighlightColor = "#666666";
 
@@ -136,7 +136,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public WriteableBitmap LayerBitmap
+        private WriteableBitmap LayerBitmap
         {
             get => layerBitmap;
             set
