@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
@@ -13,7 +6,11 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -120,7 +117,7 @@ namespace PixiEditor.Models.Controllers
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
         {
-            if(sizeSetting == null)
+            if (sizeSetting == null)
             {
                 sizeSetting = tool.Toolbar.GetSetting<SizeSetting>("ToolSize");
             }
@@ -242,14 +239,15 @@ namespace PixiEditor.Models.Controllers
         private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)
         {
             Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
-            using (Manager.ActiveLayer.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
+            //using (Manager.ActiveLayer.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 Coordinates[] relativeCoords = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
                 for (int i = 0; i < coordinates.Length; i++)
                 {
+                    var cl = Manager.ActiveLayer.GetPixel(relativeCoords[i].X, relativeCoords[i].Y);
                     values.Add(
                         coordinates[i],
-                        Manager.ActiveLayer.GetPixel(relativeCoords[i].X, relativeCoords[i].Y));
+                        Color.FromArgb(cl.Alpha, cl.Red, cl.Green, cl.Blue));
                 }
             }
 

@@ -18,7 +18,7 @@ namespace PixiEditor.Helpers
         public LayerBitmapContext(Layer layer)
         {
             this.layer = layer;
-            ctx = layer.LayerBitmap.GetBitmapContext();
+            //ctx = layer.LayerBitmap.GetBitmapContext();
         }
 
         public void Dispose() => ctx.Dispose();

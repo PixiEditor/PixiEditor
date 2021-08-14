@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Models;
@@ -45,7 +44,7 @@ namespace PixiEditor.Helpers.Extensions
             {
                 Parser.SerializableLayer serLayer = serializableDocument.Layers[i];
                 Layer layer =
-                    new Layer(serLayer.Name, BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
+                    new Layer(serLayer.Name, new Surface(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
                     {
                         IsVisible = serLayer.IsVisible,
                         Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),

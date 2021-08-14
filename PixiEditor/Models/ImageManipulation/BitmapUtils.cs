@@ -3,11 +3,11 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Position;
 using PixiEditor.Parser;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -40,51 +40,41 @@ namespace PixiEditor.Models.ImageManipulation
         /// <param name="height">Height of final bitmap.</param>.
         /// <param name="layers">Layers to combine.</param>
         /// <returns>WriteableBitmap of layered bitmaps.</returns>
-        public static WriteableBitmap CombineLayers(int width, int height, IEnumerable<Layer> layers, LayerStructure structure = null)
+        public static Surface CombineLayers(int width, int height, IEnumerable<Layer> layers, LayerStructure structure = null)
         {
-            WriteableBitmap finalBitmap = BitmapFactory.New(width, height);
+            Surface finalSurface = new(width, height);
+            using SKPaint paint = new();
 
-            using (finalBitmap.GetBitmapContext())
+            for (int i = 0; i < layers.Count(); i++)
             {
-                for (int i = 0; i < layers.Count(); i++)
+                Layer layer = layers.ElementAt(i);
+                float layerOpacity = structure == null ? layer.Opacity : LayerStructureUtils.GetFinalLayerOpacity(layer, structure);
+                paint.Color = new(255, 255, 255, (byte)(layerOpacity * 255));
+
+                if (layer.OffsetX < 0 || layer.OffsetY < 0 ||
+                    layer.Width + layer.OffsetX > layer.MaxWidth ||
+                    layer.Height + layer.OffsetY > layer.MaxHeight)
                 {
-                    Layer layer = layers.ElementAt(i);
-                    float layerOpacity = structure == null ? layer.Opacity : LayerStructureUtils.GetFinalLayerOpacity(layer, structure);
-
-                    if (layer.OffsetX < 0 || layer.OffsetY < 0 ||
-                        layer.Width + layer.OffsetX > layer.MaxWidth ||
-                        layer.Height + layer.OffsetY > layer.MaxHeight)
-                    {
-                        throw new InvalidOperationException("Layers must not extend beyond canvas borders");
-                    }
-
-                    for (int y = 0; y < layer.Height; y++)
-                    {
-                        for (int x = 0; x < layer.Width; x++)
-                        {
-                            Color previousColor = finalBitmap.GetPixel(x + layer.OffsetX, y + layer.OffsetY);
-                            Color color = layer.GetPixel(x, y);
-
-                            finalBitmap.SetPixel(x + layer.OffsetX, y + layer.OffsetY, BlendColor(previousColor, color, layerOpacity));
-                        }
-                    }
+                    throw new InvalidOperationException("Layers must not extend beyond canvas borders");
                 }
+
+                layer.LayerBitmap.SkiaSurface.Draw(finalSurface.SkiaSurface.Canvas, layer.OffsetX, layer.OffsetY, paint);
             }
 
-            return finalBitmap;
+            return finalSurface;
         }
 
         public static Color GetColorAtPointCombined(int x, int y, params Layer[] layers)
         {
             Color prevColor = Color.FromArgb(0, 0, 0, 0);
-
+            /*
             for (int i = 0; i < layers.Length; i++)
             {
                 Color color = layers[i].GetPixelWithOffset(x, y);
                 float layerOpacity = layers[i].Opacity;
 
                 prevColor = BlendColor(prevColor, color, layerOpacity);
-            }
+            }*/
 
             return prevColor;
         }
@@ -129,7 +119,7 @@ namespace PixiEditor.Models.ImageManipulation
             var opacityLayers = layers.Where(x => x.IsVisible && x.Opacity > 0.8f);
 
             return GeneratePreviewBitmap(
-                opacityLayers.Select(x => BytesToWriteableBitmap(x.Width, x.Height, x.BitmapBytes)),
+                opacityLayers.Select(x => new Surface(x.Width, x.Height, x.BitmapBytes)),
                 opacityLayers.Select(x => x.OffsetX),
                 opacityLayers.Select(x => x.OffsetY),
                 width,
@@ -146,21 +136,18 @@ namespace PixiEditor.Models.ImageManipulation
             {
                 Color[] pixels = new Color[selection.Length];
 
-                using (layer.LayerBitmap.GetBitmapContext())
+                for (int j = 0; j < pixels.Length; j++)
                 {
-                    for (int j = 0; j < pixels.Length; j++)
+                    Coordinates position = layer.GetRelativePosition(selection[j]);
+                    if (position.X < 0 || position.X > layer.Width - 1 || position.Y < 0 ||
+                        position.Y > layer.Height - 1)
                     {
-                        Coordinates position = layer.GetRelativePosition(selection[j]);
-                        if (position.X < 0 || position.X > layer.Width - 1 || position.Y < 0 ||
-                            position.Y > layer.Height - 1)
-                        {
-                            continue;
-                        }
-
-                        pixels[j] = layer.GetPixel(position.X, position.Y);
+                        continue;
                     }
-                }
 
+                    var cl = layer.GetPixel(position.X, position.Y);
+                    pixels[j] = Color.FromArgb(cl.Alpha, cl.Red, cl.Green, cl.Blue);
+                }
                 result[layer.LayerGuid] = pixels;
             }
 
@@ -193,7 +180,7 @@ namespace PixiEditor.Models.ImageManipulation
         }
 
         private static WriteableBitmap GeneratePreviewBitmap(
-            IEnumerable<WriteableBitmap> layerBitmaps,
+            IEnumerable<Surface> layerBitmaps,
             IEnumerable<int> offsetsX,
             IEnumerable<int> offsetsY,
             int width,
@@ -208,6 +195,9 @@ namespace PixiEditor.Models.ImageManipulation
                 throw new ArgumentException("There were not the same amount of bitmaps and offsets", nameof(layerBitmaps));
             }
 
+            using Surface previewSurface = new Surface(maxPreviewWidth, maxPreviewHeight);
+            return previewSurface.ToWriteableBitmap();
+            /*
             WriteableBitmap previewBitmap = BitmapFactory.New(width, height);
 
             var layerBitmapsEnumerator = layerBitmaps.GetEnumerator();
@@ -231,7 +221,7 @@ namespace PixiEditor.Models.ImageManipulation
 
             int newWidth = width >= height ? maxPreviewWidth : (int)Math.Ceiling(width / ((float)height / maxPreviewHeight));
             int newHeight = height > width ? maxPreviewHeight : (int)Math.Ceiling(height / ((float)width / maxPreviewWidth));
-            return previewBitmap.Resize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            return previewBitmap.Resize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);*/
         }
     }
 }

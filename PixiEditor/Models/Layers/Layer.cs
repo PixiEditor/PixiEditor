@@ -418,7 +418,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public void Clear()
         {
-            LayerBitmap.SKSurface.Canvas.Clear();
+            LayerBitmap.SkiaSurface.Canvas.Clear();
             ClipCanvas();
         }
 
@@ -427,7 +427,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public byte[] ConvertBitmapToBytes()
         {
-            return LayerBitmap.ToSRGBByteArray();
+            return LayerBitmap.ToPbgra32ByteArray();
         }
 
         private Dictionary<Coordinates, Color> GetRelativePosition(Dictionary<Coordinates, Color> changedPixels)
@@ -557,7 +557,7 @@ namespace PixiEditor.Models.Layers
 
             Surface result = new Surface(newWidth, newHeight);
 
-            LayerBitmap.SKSurface.Draw(result.SKSurface.Canvas, offsetX - offsetXSrc, offsetY - offsetYSrc, Surface.ReplacingPaint);
+            LayerBitmap.SkiaSurface.Draw(result.SkiaSurface.Canvas, offsetX - offsetXSrc, offsetY - offsetYSrc, Surface.ReplacingPaint);
             /*for (int line = 0; line < iteratorHeight; line++)
             {
                 int srcOff = (((offsetYSrc + line) * Width) + offsetXSrc) * SizeOfArgb;
