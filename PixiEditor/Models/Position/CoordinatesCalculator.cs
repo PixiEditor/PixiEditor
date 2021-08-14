@@ -1,7 +1,7 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using SkiaSharp;
+using System;
 using System.Collections.Generic;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Position
 {
@@ -71,7 +71,7 @@ namespace PixiEditor.Models.Position
         /// <summary>
         ///     Returns first pixel coordinates in bitmap that is most top left on canvas.
         /// </summary>
-        public static Coordinates FindMinEdgeNonTransparentPixel(WriteableBitmap bitmap)
+        public static Coordinates FindMinEdgeNonTransparentPixel(Surface bitmap)
         {
             return new Coordinates(FindMinXNonTransparent(bitmap), FindMinYNonTransparent(bitmap));
         }
@@ -79,20 +79,18 @@ namespace PixiEditor.Models.Position
         /// <summary>
         ///     Returns last pixel coordinates that is most bottom right.
         /// </summary>
-        public static Coordinates FindMostEdgeNonTransparentPixel(WriteableBitmap bitmap)
+        public static Coordinates FindMostEdgeNonTransparentPixel(Surface bitmap)
         {
             return new Coordinates(FindMaxXNonTransparent(bitmap), FindMaxYNonTransparent(bitmap));
         }
 
-        public static int FindMinYNonTransparent(WriteableBitmap bitmap)
+        public static int FindMinYNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
-            for (int y = 0; y < ctx.Height; y++)
+            for (int y = 0; y < bitmap.Height; y++)
             {
-                for (int x = 0; x < ctx.Width; x++)
+                for (int x = 0; x < bitmap.Width; x++)
                 {
-                    if (ctx.WriteableBitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
                     {
                         return y;
                     }
@@ -102,15 +100,13 @@ namespace PixiEditor.Models.Position
             return -1;
         }
 
-        public static int FindMinXNonTransparent(WriteableBitmap bitmap)
+        public static int FindMinXNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
-            for (int x = 0; x < ctx.Width; x++)
+            for (int x = 0; x < bitmap.Width; x++)
             {
-                for (int y = 0; y < ctx.Height; y++)
+                for (int y = 0; y < bitmap.Height; y++)
                 {
-                    if (bitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
                     {
                         return x;
                     }
@@ -120,15 +116,13 @@ namespace PixiEditor.Models.Position
             return -1;
         }
 
-        public static int FindMaxYNonTransparent(WriteableBitmap bitmap)
+        public static int FindMaxYNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
-            for (int y = ctx.Height - 1; y >= 0; y--)
+            for (int y = bitmap.Height - 1; y >= 0; y--)
             {
-                for (int x = ctx.Width - 1; x >= 0; x--)
+                for (int x = bitmap.Width - 1; x >= 0; x--)
                 {
-                    if (bitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
                     {
                         return y;
                     }
@@ -138,16 +132,13 @@ namespace PixiEditor.Models.Position
             return -1;
         }
 
-        public static int FindMaxXNonTransparent(WriteableBitmap bitmap)
+        public static int FindMaxXNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-
-            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
-            for (int x = ctx.Width - 1; x >= 0; x--)
+            for (int x = bitmap.Width - 1; x >= 0; x--)
             {
-                for (int y = ctx.Height - 1; y >= 0; y--)
+                for (int y = bitmap.Height - 1; y >= 0; y--)
                 {
-                    if (bitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
                     {
                         return x;
                     }

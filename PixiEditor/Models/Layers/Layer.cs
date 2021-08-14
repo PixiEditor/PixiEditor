@@ -2,13 +2,13 @@
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Layers
 {
@@ -23,7 +23,7 @@ namespace PixiEditor.Models.Layers
 
         private bool isRenaming;
         private bool isVisible = true;
-        private WriteableBitmap layerBitmap;
+        private Surface layerBitmap;
 
         private string name;
 
@@ -36,27 +36,27 @@ namespace PixiEditor.Models.Layers
         public Layer(string name)
         {
             Name = name;
-            LayerBitmap = BitmapFactory.New(0, 0);
-            Width = 0;
-            Height = 0;
+            LayerBitmap = new Surface(1, 1);
+            Width = 1;
+            Height = 1;
             LayerGuid = Guid.NewGuid();
         }
 
         public Layer(string name, int width, int height)
         {
             Name = name;
-            LayerBitmap = BitmapFactory.New(width, height);
+            LayerBitmap = new Surface(width, height);
             Width = width;
             Height = height;
             LayerGuid = Guid.NewGuid();
         }
 
-        public Layer(string name, WriteableBitmap layerBitmap)
+        public Layer(string name, Surface layerBitmap)
         {
             Name = name;
             LayerBitmap = layerBitmap;
-            Width = layerBitmap.PixelWidth;
-            Height = layerBitmap.PixelHeight;
+            Width = layerBitmap.Width;
+            Height = layerBitmap.Height;
             LayerGuid = Guid.NewGuid();
         }
 
@@ -136,7 +136,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private WriteableBitmap LayerBitmap
+        public Surface LayerBitmap
         {
             get => layerBitmap;
             set
@@ -218,7 +218,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public Layer Clone(bool generateNewGuid = false)
         {
-            return new Layer(Name, LayerBitmap.Clone())
+            return new Layer(Name, new Surface(LayerBitmap))
             {
                 IsVisible = IsVisible,
                 Offset = Offset,
@@ -245,7 +245,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="newMaxHeight">New layer maximum height, this should be document height.</param>
         public void Resize(int width, int height, int newMaxWidth, int newMaxHeight)
         {
-            LayerBitmap = LayerBitmap.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            LayerBitmap = LayerBitmap.ResizeNearestNeighbor(width, height);
             Width = width;
             Height = height;
             MaxWidth = newMaxWidth;
@@ -266,7 +266,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="x">Viewport relative X.</param>
         /// <param name="y">Viewport relative Y.</param>
         /// <returns>Color of a pixel.</returns>
-        public Color GetPixelWithOffset(int x, int y)
+        public SKColor GetPixelWithOffset(int x, int y)
         {
             //This does not use GetRelativePosition for better performance
             return GetPixel(x - OffsetX, y - OffsetY);
@@ -278,14 +278,14 @@ namespace PixiEditor.Models.Layers
         /// <param name="x">X coordinate.</param>
         /// <param name="y">Y Coordinate.</param>
         /// <returns>Color of pixel, if out of bounds, returns transparent pixel.</returns>
-        public Color GetPixel(int x, int y)
+        public SKColor GetPixel(int x, int y)
         {
             if (x > Width - 1 || x < 0 || y > Height - 1 || y < 0)
             {
-                return transparent;
+                return SKColors.Empty;
             }
 
-            return LayerBitmap.GetPixel(x, y);
+            return LayerBitmap.GetSRGBPixel(x, y);
         }
 
         /// <summary>
@@ -325,17 +325,14 @@ namespace PixiEditor.Models.Layers
 
             LastRelativeCoordinates = pixels.ChangedPixels;
 
-            using (BitmapContext ctx = LayerBitmap.GetBitmapContext())
+            foreach (KeyValuePair<Coordinates, Color> coords in pixels.ChangedPixels)
             {
-                foreach (KeyValuePair<Coordinates, Color> coords in pixels.ChangedPixels)
+                if (OutOfBounds(coords.Key))
                 {
-                    if (OutOfBounds(coords.Key))
-                    {
-                        continue;
-                    }
-
-                    ctx.WriteableBitmap.SetPixel(coords.Key.X, coords.Key.Y, coords.Value);
+                    continue;
                 }
+
+                LayerBitmap.SetSRGBPixel(coords.Key.X, coords.Key.Y, new SKColor(coords.Value.R, coords.Value.G, coords.Value.B, coords.Value.A));
             }
 
             ClipIfNecessary();
@@ -421,7 +418,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public void Clear()
         {
-            LayerBitmap.Clear();
+            LayerBitmap.SKSurface.Canvas.Clear();
             ClipCanvas();
         }
 
@@ -430,10 +427,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public byte[] ConvertBitmapToBytes()
         {
-            LayerBitmap.Lock();
-            byte[] byteArray = LayerBitmap.ToByteArray();
-            LayerBitmap.Unlock();
-            return byteArray;
+            return LayerBitmap.ToSRGBByteArray();
         }
 
         private Dictionary<Coordinates, Color> GetRelativePosition(Dictionary<Coordinates, Color> changedPixels)
@@ -561,23 +555,19 @@ namespace PixiEditor.Models.Layers
             int iteratorHeight = Height > newHeight ? newHeight : Height;
             int count = Width > newWidth ? newWidth : Width;
 
-            using (BitmapContext srcContext = LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
-            {
-                WriteableBitmap result = BitmapFactory.New(newWidth, newHeight);
-                using (BitmapContext destContext = result.GetBitmapContext())
-                {
-                    for (int line = 0; line < iteratorHeight; line++)
-                    {
-                        int srcOff = (((offsetYSrc + line) * Width) + offsetXSrc) * SizeOfArgb;
-                        int dstOff = (((offsetY + line) * newWidth) + offsetX) * SizeOfArgb;
-                        BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * SizeOfArgb);
-                    }
+            Surface result = new Surface(newWidth, newHeight);
 
-                    LayerBitmap = result;
-                    Width = newWidth;
-                    Height = newHeight;
-                }
-            }
+            LayerBitmap.SKSurface.Draw(result.SKSurface.Canvas, offsetX - offsetXSrc, offsetY - offsetYSrc, Surface.ReplacingPaint);
+            /*for (int line = 0; line < iteratorHeight; line++)
+            {
+                int srcOff = (((offsetYSrc + line) * Width) + offsetXSrc) * SizeOfArgb;
+                int dstOff = (((offsetY + line) * newWidth) + offsetX) * SizeOfArgb;
+                BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * SizeOfArgb);
+            }*/
+
+            LayerBitmap = result;
+            Width = newWidth;
+            Height = newHeight;
         }
     }
 }
