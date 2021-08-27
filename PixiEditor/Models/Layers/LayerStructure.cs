@@ -77,37 +77,24 @@ namespace PixiEditor.Models.Layers
         // This will allow to add new group with multiple layers and groups at once. Not working well, todo fix
         public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers, Guid activeLayer)
         {
-            var activeLayerParent = GetGroupByLayer(activeLayer);
+            var topmostLayer = layers.First();
 
-            List<GuidStructureItem> sameLevelGroups = new List<GuidStructureItem>();
-
-            var group = AddNewGroup(groupName, activeLayer);
-
-            if (activeLayerParent == null)
-            {
-                sameLevelGroups.AddRange(Groups);
-            }
-            else
-            {
-                sameLevelGroups.AddRange(activeLayerParent.Subgroups);
-            }
-
-            sameLevelGroups.Remove(group);
-            group.Subgroups = new ObservableCollection<GuidStructureItem>(sameLevelGroups);
-
-            sameLevelGroups = new(sameLevelGroups.Where(x => IsChildOf(activeLayer, x)));
-
-            Guid lastLayer = activeLayer;
+            var group = AddNewGroup(groupName, topmostLayer.LayerGuid);
 
             foreach (var layer in layers)
             {
-                if (layer.LayerGuid == activeLayer)
+                if (layer == topmostLayer) continue;
+                var layerGroup = GetGroupByLayer(layer.LayerGuid);
+                if (layerGroup == group.Parent)
                 {
-                    continue;
+                    AssignParent(layer.LayerGuid, group);
                 }
-
-                Owner.MoveLayerInStructure(layer.LayerGuid, lastLayer, false);
-                lastLayer = layer.LayerGuid;
+                else if(layerGroup.Parent == group.Parent) //TODO: Doesn't work if folder is the topmost
+                {
+                    AssignParent(layer.LayerGuid, group);
+                    layerGroup.Parent = group;
+                    group.Subgroups.Add(layerGroup);
+                }
             }
 
             return group;

@@ -126,7 +126,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
                 else if(selectedLayers.Length > 0)
                 {
-
+                    doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", selectedLayers, doc.ActiveLayerGuid);
                 }
                 else if (parameter is Layer or LayerStructureItemContainer)
                 {
