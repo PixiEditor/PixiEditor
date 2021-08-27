@@ -58,7 +58,7 @@ namespace PixiEditor.Models.Undo
                 UndoLayer storedLayer = StoredLayers[i];
                 if (Directory.Exists(Path.GetDirectoryName(storedLayer.StoredPngLayerName)))
                 {
-                    Exporter.SaveAsPng(storedLayer.StoredPngLayerName, storedLayer.Width, storedLayer.Height, layer.LayerBitmap);
+                    Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, layer.LayerBitmap);
                 }
 
                 i++;
@@ -77,7 +77,7 @@ namespace PixiEditor.Models.Undo
             for (int i = 0; i < StoredLayers.Length; i++)
             {
                 UndoLayer storedLayer = StoredLayers[i];
-                var bitmap = Importer.ImportImage(storedLayer.StoredPngLayerName, storedLayer.Width, storedLayer.Height);
+                var bitmap = Importer.LoadFromGZippedBytes(storedLayer.StoredPngLayerName);
                 layers[i] = new Layer(storedLayer.Name, bitmap)
                 {
                     Offset = new System.Windows.Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0),

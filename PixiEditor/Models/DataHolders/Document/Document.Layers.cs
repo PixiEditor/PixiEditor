@@ -13,7 +13,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -34,16 +33,28 @@ namespace PixiEditor.Models.DataHolders
             {
                 layers = value;
                 Layers.CollectionChanged += Layers_CollectionChanged;
+                Renderer.SetNewLayersCollection(value);
             }
         }
 
         public LayerStructure LayerStructure
         {
             get => layerStructure;
-            set
+            private set
             {
                 layerStructure = value;
                 RaisePropertyChanged(nameof(LayerStructure));
+            }
+        }
+
+        private DocumentRenderer renderer;
+        public DocumentRenderer Renderer
+        {
+            get => renderer;
+            private set
+            {
+                renderer = value;
+                RaisePropertyChanged(nameof(Renderer));
             }
         }
 
@@ -190,9 +201,9 @@ namespace PixiEditor.Models.DataHolders
             UndoManager.SquashUndoChanges(2, "Move group");
         }
 
-        public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
+        public void AddNewLayer(string name, Surface bitmap, bool setAsActive = true)
         {
-            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
+            AddNewLayer(name, bitmap.Width, bitmap.Height, setAsActive);
             Layers.Last().LayerBitmap = bitmap;
         }
 

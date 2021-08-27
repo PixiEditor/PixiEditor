@@ -1,11 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using SkiaSharp;
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.IO
 {
@@ -75,7 +78,7 @@ namespace PixiEditor.Models.IO
         /// <param name="exportWidth">File width.</param>
         /// <param name="exportHeight">File height.</param>
         /// <param name="bitmap">Bitmap to save.</param>
-        public static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+        private static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try
             {
@@ -91,6 +94,28 @@ namespace PixiEditor.Models.IO
             {
                 MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public static void SaveAsGZippedBytes(string path, Surface surface)
+        {
+            var imageInfo = new SKImageInfo(surface.Width, surface.Height, SKColorType.RgbaF16);
+            var unmanagedBuffer = Marshal.AllocHGlobal(surface.Width * surface.Height * 8);
+            //+8 bytes for width and height
+            var bytes = new byte[surface.Width * surface.Height * 8 + 8];
+            try
+            {
+                surface.SkiaSurface.ReadPixels(imageInfo, unmanagedBuffer, surface.Width * 8, 0, 0);
+                Marshal.Copy(unmanagedBuffer, bytes, 8, surface.Width * surface.Height * 8);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(unmanagedBuffer);
+            }
+            BitConverter.GetBytes((int)surface.Width).CopyTo(bytes, 0);
+            BitConverter.GetBytes((int)surface.Height).CopyTo(bytes, 4);
+            using FileStream outputStream = new(path, FileMode.Create);
+            using GZipStream compressedStream = new GZipStream(outputStream, CompressionLevel.Fastest);
+            compressedStream.Write(bytes);
         }
     }
 }

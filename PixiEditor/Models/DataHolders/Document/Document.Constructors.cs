@@ -25,6 +25,7 @@ namespace PixiEditor.Models.DataHolders
             Layers.CollectionChanged += Layers_CollectionChanged;
             LayerStructure.Groups.CollectionChanged += Groups_CollectionChanged;
             LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
+            Renderer = new DocumentRenderer(layers, layerStructure, Width, Height);
         }
 
         private void LayerStructure_LayerStructureChanged(object sender, LayerStructureChangedEventArgs e)

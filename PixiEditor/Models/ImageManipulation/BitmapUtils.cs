@@ -15,31 +15,6 @@ namespace PixiEditor.Models.ImageManipulation
 {
     public static class BitmapUtils
     {
-        /// <summary>
-        ///     Converts pixel bytes to WriteableBitmap.
-        /// </summary>
-        /// <param name="currentBitmapWidth">Width of bitmap.</param>
-        /// <param name="currentBitmapHeight">Height of bitmap.</param>
-        /// <param name="byteArray">Bitmap byte array.</param>
-        /// <returns>WriteableBitmap.</returns>
-        public static WriteableBitmap BytesToWriteableBitmap(int currentBitmapWidth, int currentBitmapHeight, byte[] byteArray)
-        {
-            WriteableBitmap bitmap = BitmapFactory.New(currentBitmapWidth, currentBitmapHeight);
-            if (byteArray != null)
-            {
-                bitmap.FromByteArray(byteArray);
-            }
-
-            return bitmap;
-        }
-
-        /// <summary>
-        ///     Converts layers bitmaps into one bitmap.
-        /// </summary>
-        /// <param name="width">Width of final bitmap.</param>
-        /// <param name="height">Height of final bitmap.</param>.
-        /// <param name="layers">Layers to combine.</param>
-        /// <returns>WriteableBitmap of layered bitmaps.</returns>
         public static Surface CombineLayers(int width, int height, IEnumerable<Layer> layers, LayerStructure structure = null)
         {
             Surface finalSurface = new(width, height);

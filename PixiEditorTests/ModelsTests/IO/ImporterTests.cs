@@ -1,8 +1,11 @@
-﻿using System;
+﻿using PixiEditor.Exceptions;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.IO;
+using SkiaSharp;
+using System;
+using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Exceptions;
-using PixiEditor.Models.IO;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.IO
@@ -69,6 +72,24 @@ namespace PixiEditorTests.ModelsTests.IO
 
             Assert.Equal(10, image.PixelWidth);
             Assert.Equal(10, image.PixelHeight);
+        }
+
+        [Fact]
+        public void TestSaveAndLoadGZippedBytes()
+        {
+            using Surface original = new Surface(123, 456);
+            original.SkiaSurface.Canvas.Clear(SKColors.Red);
+            using SKPaint paint = new SKPaint();
+            paint.BlendMode = SKBlendMode.Src;
+            paint.Color = new SKColor(128, 64, 32, 16);
+            original.SkiaSurface.Canvas.DrawRect(10, 10, 20, 20, paint);
+            Exporter.SaveAsGZippedBytes("pleasedontoverwritethings", original);
+            using var loaded = Importer.LoadFromGZippedBytes("pleasedontoverwritethings");
+            File.Delete("pleasedontoverwritethings");
+            Assert.Equal(original.Width, loaded.Width);
+            Assert.Equal(original.Height, loaded.Height);
+            Assert.Equal(original.GetSRGBPixel(0, 0), loaded.GetSRGBPixel(0, 0));
+            Assert.Equal(original.GetSRGBPixel(15, 15), loaded.GetSRGBPixel(15, 15));
         }
     }
 }

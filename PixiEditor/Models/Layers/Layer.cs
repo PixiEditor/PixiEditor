@@ -198,6 +198,14 @@ namespace PixiEditor.Models.Layers
 
         public int MaxHeight { get; set; } = int.MaxValue;
 
+        public event EventHandler<Int32Rect> LayerBitmapChanged;
+
+        public void InvokeLayerBitmapChange(Int32Rect dirtyArea)
+        {
+            LayerBitmapChanged?.Invoke(this, dirtyArea);
+        }
+
+
         /// <summary>
         /// Changes Guid of layer.
         /// </summary>

@@ -14,7 +14,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -47,22 +46,22 @@ namespace PixiEditor.Models.DataHolders
                 + (!ChangesSaved ? " *" : string.Empty);
         }
 
-        private int width;
+        private int width = 1;
         public int Width
         {
             get => width;
-            set
+            private set
             {
                 width = value;
                 RaisePropertyChanged("Width");
             }
         }
 
-        private int height;
+        private int height = 1;
         public int Height
         {
             get => height;
-            set
+            private set
             {
                 height = value;
                 RaisePropertyChanged("Height");

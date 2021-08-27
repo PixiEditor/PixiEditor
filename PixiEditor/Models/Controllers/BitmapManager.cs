@@ -1,4 +1,12 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Events;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -6,16 +14,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Events;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -141,11 +139,6 @@ namespace PixiEditor.Models.Controllers
                     throw new InvalidOperationException($"'{SelectedTool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
                 }
             }
-        }
-
-        public WriteableBitmap GetCombinedLayersBitmap()
-        {
-            return BitmapUtils.CombineLayers(ActiveDocument.Width, ActiveDocument.Height, ActiveDocument.Layers.Where(x => ActiveDocument.GetFinalLayerIsVisible(x)).ToArray(), ActiveDocument.LayerStructure);
         }
 
         /// <summary>

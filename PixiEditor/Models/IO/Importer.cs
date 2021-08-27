@@ -1,12 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Windows.Media.Imaging;
-using PixiEditor.Exceptions;
+﻿using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Parser;
+using SkiaSharp;
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Runtime.InteropServices;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.IO
 {
@@ -19,12 +21,14 @@ namespace PixiEditor.Models.IO
         /// <param name="width">New width of image.</param>
         /// <param name="height">New height of image.</param>
         /// <returns>WriteableBitmap of imported image.</returns>
-        public static WriteableBitmap ImportImage(string path, int width, int height)
+        public static Surface ImportImage(string path, int width, int height)
         {
-            WriteableBitmap wbmp = ImportImage(path);
-            if (wbmp.PixelWidth != width || wbmp.PixelHeight != height)
+            Surface wbmp = ImportImage(path);
+            if (wbmp.Width != width || wbmp.Height != height)
             {
-                return wbmp.Resize(width, height, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+                var resized = wbmp.ResizeNearestNeighbor(width, height);
+                wbmp.Dispose();
+                return resized;
             }
 
             return wbmp;
@@ -34,7 +38,7 @@ namespace PixiEditor.Models.IO
         ///     Imports image from path and resizes it to given dimensions.
         /// </summary>
         /// <param name="path">Path of image.</param>
-        public static WriteableBitmap ImportImage(string path)
+        public static Surface ImportImage(string path)
         {
             try
             {
@@ -75,6 +79,34 @@ namespace PixiEditor.Models.IO
         {
             path = path.ToLower();
             return path.EndsWith(".pixi") || path.EndsWith(".png") || path.EndsWith(".jpg") || path.EndsWith(".jpeg");
+        }
+
+        public static Surface LoadFromGZippedBytes(string path)
+        {
+            using FileStream compressedData = new(path, FileMode.Open);
+            using GZipStream uncompressedData = new(compressedData, CompressionMode.Decompress);
+            using MemoryStream resultBytes = new();
+            uncompressedData.CopyTo(resultBytes);
+
+            byte[] bytes = resultBytes.ToArray();
+            int width = BitConverter.ToInt32(bytes, 0);
+            int height = BitConverter.ToInt32(bytes, 4);
+
+            SKImageInfo info = new SKImageInfo(width, height, SKColorType.RgbaF16);
+            var ptr = Marshal.AllocHGlobal(bytes.Length - 8);
+            try
+            {
+                Marshal.Copy(bytes, 8, ptr, bytes.Length - 8);
+                SKPixmap map = new(info, ptr);
+                SKSurface surface = SKSurface.Create(map);
+                var finalSurface = new Surface(width, height);
+                surface.Draw(finalSurface.SkiaSurface.Canvas, 0, 0, Surface.ReplacingPaint);
+                return finalSurface;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
     }
 }

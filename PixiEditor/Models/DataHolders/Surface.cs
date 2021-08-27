@@ -10,6 +10,7 @@ namespace PixiEditor.Models.DataHolders
     public class Surface : IDisposable
     {
         public static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+
         private static readonly SKPaint nearestNeighborReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Low };
 
         public SKSurface SkiaSurface { get; }
@@ -46,6 +47,8 @@ namespace PixiEditor.Models.DataHolders
                 var newSurface = CreateSurface(w, h);
                 surface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
                 SkiaSurface = newSurface;
+                Width = w;
+                Height = h;
             }
             finally
             {
@@ -61,9 +64,13 @@ namespace PixiEditor.Models.DataHolders
             return newSurface;
         }
 
-        /// <summary>
-        /// probably doesn't work correctly
-        /// </summary>
+        public Surface Crop(int x, int y, int width, int height)
+        {
+            Surface result = new Surface(width, height);
+            SkiaSurface.Draw(result.SkiaSurface.Canvas, x, y, ReplacingPaint);
+            return result;
+        }
+
         public SKColor GetSRGBPixel(int x, int y)
         {
             var imageInfo = new SKImageInfo(1, 1, SKColorType.Bgra8888, SKAlphaType.Premul);
@@ -72,6 +79,24 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.ReadPixels(imageInfo, dstpixels, imageInfo.RowBytes, x, y);
             return bitmap.GetPixel(0, 0);
         }
+        /*
+        public FloatColor GetFloatPixel(int x, int y)
+        {
+            var imageInfo = new SKImageInfo(1, 1, SKColorType.RgbaF32, SKAlphaType.Unpremul);
+            var buffer = Marshal.AllocHGlobal(16);
+            try
+            {
+                using SKSurface dstSurface = SKSurface.Create(imageInfo, buffer, 16);
+                SkiaSurface.Draw(dstSurface.Canvas, -x, -y, ReplacingPaint);
+                float[] output = new float[4];
+                Marshal.Copy(buffer, output, 0, 4);
+                return new FloatColor(output[0], output[1], output[2], output[3]);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buffer);
+            }
+        }*/
 
         public void SetSRGBPixel(int x, int y, SKColor color)
         {
@@ -79,20 +104,31 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.Canvas.DrawPoint(x, y, drawingPaint);
         }
 
-        /// <summary>
-        /// probably doesn't work correctly
-        /// </summary>
         public byte[] ToPbgra32ByteArray()
         {
-            return SkiaSurface.Snapshot().Encode(SKEncodedImageFormat.Bmp, 100).ToArray();
+            var imageInfo = new SKImageInfo(Width, Height, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb());
+            var buffer = Marshal.AllocHGlobal(Width * Height * 4);
+            try
+            {
+                using SKSurface surface = SKSurface.Create(imageInfo, buffer, Width * 4);
+                SkiaSurface.Draw(surface.Canvas, 0, 0, ReplacingPaint);
+                byte[] managed = new byte[Width * Height * 4];
+                Marshal.Copy(buffer, managed, 0, Width * Height * 4);
+                return managed;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buffer);
+            }
         }
 
         public WriteableBitmap ToWriteableBitmap()
         {
             WriteableBitmap result = new WriteableBitmap(Width, Height, 96, 96, PixelFormats.Pbgra32, null);
             result.Lock();
-            result.CopyPixels(ToPbgra32ByteArray(), Width * 4, 0);
-            result.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
+            var dirty = new Int32Rect(0, 0, Width, Height);
+            result.WritePixels(dirty, ToPbgra32ByteArray(), Width * 4, 0);
+            result.AddDirtyRect(dirty);
             result.Unlock();
             return result;
         }
@@ -104,7 +140,7 @@ namespace PixiEditor.Models.DataHolders
 
         private static SKSurface CreateSurface(int w, int h)
         {
-            return SKSurface.Create(new SKImageInfo(0, 0, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
+            return SKSurface.Create(new SKImageInfo(w, h, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
         }
 
     }
