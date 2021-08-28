@@ -245,7 +245,14 @@ namespace PixiEditor.Views.UserControls.Layers
             var layer = doc.Layers.First(x => x.LayerGuid == GroupData.EndLayerGuid);
             if (doc.ActiveLayerGuid != layer.LayerGuid)
             {
-                doc.SetMainActiveLayer(doc.Layers.IndexOf(layer));
+                if(Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.LeftCtrl))
+                {
+                    doc.LayerStructure.GetGroupLayers(GroupData).ForEach(x => x.IsActive = true);
+                }
+                else
+                {
+                    doc.SetMainActiveLayer(doc.Layers.IndexOf(layer));
+                }
             }
         }
 
