@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels.SubViewModels.Main;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -74,12 +75,14 @@ namespace PixiEditor.Models.Layers
             return CloneGroups(Groups);
         }
 
-        // This will allow to add new group with multiple layers and groups at once. Not working well, todo fix
-        public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers, Guid activeLayer)
+        // idk if it works good for every scenario, there are too many scenarios to consider, that I won't ever bother test
+        public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers)
         {
-            var topmostLayer = layers.First();
+            var topmostLayer = GetTopmostLayer(layers);
 
             var group = AddNewGroup(groupName, topmostLayer.LayerGuid);
+
+            Guid lastLayer = layers.First().LayerGuid;
 
             foreach (var layer in layers)
             {
@@ -87,17 +90,58 @@ namespace PixiEditor.Models.Layers
                 var layerGroup = GetGroupByLayer(layer.LayerGuid);
                 if (layerGroup == group.Parent)
                 {
+                    Owner.MoveLayerInStructure(layer.LayerGuid, lastLayer);
                     AssignParent(layer.LayerGuid, group);
                 }
-                else if(layerGroup.Parent == group.Parent) //TODO: Doesn't work if folder is the topmost
+                else if(layerGroup.Parent == group.Parent)
                 {
                     AssignParent(layer.LayerGuid, group);
                     layerGroup.Parent = group;
                     group.Subgroups.Add(layerGroup);
                 }
+
+                lastLayer = layer.LayerGuid;
             }
 
             return group;
+        }
+
+        /// <summary>
+        /// Finds layer which is topmost in layer tree.
+        /// </summary>
+        /// <param name="layers">Layers to check.</param>
+        /// <returns>Layer found.</returns>
+        public Layer GetTopmostLayer(IEnumerable<Layer> layers)
+        {
+            Layer maxLevelLayer = layers.First();
+            int maxLevel = 0;
+
+            foreach (var layer in layers)
+            {
+                int currentLevel = 0;
+
+                var group = GetGroupByLayer(layer.LayerGuid);
+                if(group == null)
+                {
+                    return layer;
+                }
+
+                GuidStructureItem currentParent = group.Parent;
+
+                while(currentParent != null)
+                {
+                    currentLevel++;
+                    currentParent = currentParent.Parent;
+                }
+
+                if(currentLevel < maxLevel)
+                {
+                    maxLevel = currentLevel;
+                    maxLevelLayer = layer;
+                }
+            }
+
+            return maxLevelLayer;
         }
 
         /// <summary>
