@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Documents;
-using System.Windows.Media;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
 
 namespace PixiEditor.Models.Tools
 {
@@ -18,7 +17,7 @@ namespace PixiEditor.Models.Tools
 
         private readonly LayerChange[] onlyLayerArr = new LayerChange[] { new LayerChange(BitmapPixelChanges.Empty, Guid.Empty) };
 
-        public abstract LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, Color color);
+        public abstract LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, SKColor color);
 
         protected LayerChange[] Only(BitmapPixelChanges changes, Layer layer)
         {

@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using SkiaSharp;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             BitmapPixelChanges pixels =
                 BitmapPixelChanges.FromSingleColoredArray(

@@ -6,11 +6,11 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -48,7 +48,7 @@ namespace PixiEditor.Models.Tools.Tools
             confirmedPixels.Clear();
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
             BitmapPixelChanges pixels = Draw(
@@ -61,7 +61,7 @@ namespace PixiEditor.Models.Tools.Tools
             return Only(pixels, layer);
         }
 
-        public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)
+        public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, SKColor color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)
         {
             if (!pixelPerfect)
             {
@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Tools.Tools
                     lineTool.CreateLine(startingCoords, latestCords, toolSize), color);
             }
 
-            if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).A > 0)
+            if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).Alpha > 0)
             {
                 confirmedPixels.Add(latestCords);
             }
@@ -103,7 +103,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void MovePixelsToCheck(BitmapPixelChanges changes)
         {
-            if (changes.ChangedPixels[lastChangedPixels[1]].A != 0)
+            if (changes.ChangedPixels[lastChangedPixels[1]].Alpha != 0)
             {
                 lastChangedPixels[0] = lastChangedPixels[1];
                 lastChangedPixels[1] = lastChangedPixels[2];
@@ -128,7 +128,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private BitmapPixelChanges ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
+        private BitmapPixelChanges ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, SKColor color, int toolSize)
         {
             if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {
@@ -136,7 +136,7 @@ namespace PixiEditor.Models.Tools.Tools
                 changes.ChangedPixels.AddRangeNewOnly(
                     BitmapPixelChanges.FromSingleColoredArray(
                         GetThickShape(new[] { p2 }, toolSize),
-                        System.Windows.Media.Colors.Transparent).ChangedPixels);
+                        SKColors.Transparent).ChangedPixels);
                 return changes;
             }
 

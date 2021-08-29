@@ -6,11 +6,11 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Undo;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -40,8 +40,8 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, Color.FromArgb(0, 0, 0, 0));
-            Dictionary<Guid, Color[]> oldValues = BitmapUtils.GetPixelsForSelection(layers, pixels);
+            BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, SKColors.Empty);
+            Dictionary<Guid, SKColor[]> oldValues = BitmapUtils.GetPixelsForSelection(layers, pixels);
             LayerChange[] old = new LayerChange[layers.Length];
             LayerChange[] newChange = new LayerChange[layers.Length];
             for (int i = 0; i < layers.Length; i++)
@@ -115,7 +115,7 @@ namespace PixiEditor.Models.Controllers
             previewLayerChanges = null;
         }
 
-        private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, Color color)
+        private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, SKColor color)
         {
             if (sizeSetting == null)
             {
@@ -238,7 +238,7 @@ namespace PixiEditor.Models.Controllers
 
         private BitmapPixelChanges GetOldPixelsValues(Coordinates[] coordinates)
         {
-            Dictionary<Coordinates, Color> values = new Dictionary<Coordinates, Color>();
+            Dictionary<Coordinates, SKColor> values = new Dictionary<Coordinates, SKColor>();
             //using (Manager.ActiveLayer.LayerBitmap.GetBitmapContext(ReadWriteMode.ReadOnly))
             {
                 Coordinates[] relativeCoords = Manager.ActiveLayer.ConvertToRelativeCoordinates(coordinates);
@@ -247,7 +247,7 @@ namespace PixiEditor.Models.Controllers
                     var cl = Manager.ActiveLayer.GetPixel(relativeCoords[i].X, relativeCoords[i].Y);
                     values.Add(
                         coordinates[i],
-                        Color.FromArgb(cl.Alpha, cl.Red, cl.Green, cl.Blue));
+                        cl);
                 }
             }
 

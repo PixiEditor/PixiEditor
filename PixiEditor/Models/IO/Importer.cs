@@ -23,7 +23,7 @@ namespace PixiEditor.Models.IO
         /// <returns>WriteableBitmap of imported image.</returns>
         public static Surface ImportImage(string path, int width, int height)
         {
-            Surface wbmp = ImportImage(path);
+            Surface wbmp = ImportSurface(path);
             if (wbmp.Width != width || wbmp.Height != height)
             {
                 var resized = wbmp.ResizeNearestNeighbor(width, height);
@@ -38,7 +38,26 @@ namespace PixiEditor.Models.IO
         ///     Imports image from path and resizes it to given dimensions.
         /// </summary>
         /// <param name="path">Path of image.</param>
-        public static Surface ImportImage(string path)
+        public static Surface ImportSurface(string path)
+        {
+            try
+            {
+                using var image = SKImage.FromEncodedData(path);
+                Surface surface = new Surface(image.Width, image.Height);
+                surface.SkiaSurface.Canvas.DrawImage(image, new SKPoint(0, 0));
+                return surface;
+            }
+            catch (NotSupportedException)
+            {
+                throw new CorruptedFileException();
+            }
+            catch (FileFormatException)
+            {
+                throw new CorruptedFileException();
+            }
+        }
+
+        public static WriteableBitmap ImportWriteableBitmap(string path)
         {
             try
             {

@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Layers
 {
@@ -16,7 +15,6 @@ namespace PixiEditor.Models.Layers
     public class Layer : BasicLayer
     {
         private const int SizeOfArgb = 4;
-        private readonly Color transparent = Color.FromArgb(0, 0, 0, 0);
         private bool clipRequested;
 
         private bool isActive;
@@ -60,7 +58,7 @@ namespace PixiEditor.Models.Layers
             LayerGuid = Guid.NewGuid();
         }
 
-        public Dictionary<Coordinates, Color> LastRelativeCoordinates { get; set; }
+        public Dictionary<Coordinates, SKColor> LastRelativeCoordinates { get; set; }
 
         public string LayerHighlightColor
         {
@@ -303,7 +301,7 @@ namespace PixiEditor.Models.Layers
         /// <param name="color">Color of pixel.</param>
         /// <param name="dynamicResize">Resizes bitmap to fit content.</param>
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap.</param>
-        public void SetPixel(Coordinates coordinates, Color color, bool dynamicResize = true, bool applyOffset = true)
+        public void SetPixel(Coordinates coordinates, SKColor color, bool dynamicResize = true, bool applyOffset = true)
         {
             SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { coordinates }, color), dynamicResize, applyOffset);
         }
@@ -333,14 +331,14 @@ namespace PixiEditor.Models.Layers
 
             LastRelativeCoordinates = pixels.ChangedPixels;
 
-            foreach (KeyValuePair<Coordinates, Color> coords in pixels.ChangedPixels)
+            foreach (KeyValuePair<Coordinates, SKColor> coords in pixels.ChangedPixels)
             {
                 if (OutOfBounds(coords.Key))
                 {
                     continue;
                 }
 
-                LayerBitmap.SetSRGBPixel(coords.Key.X, coords.Key.Y, new SKColor(coords.Value.R, coords.Value.G, coords.Value.B, coords.Value.A));
+                LayerBitmap.SetSRGBPixel(coords.Key.X, coords.Key.Y, coords.Value);
             }
 
             ClipIfNecessary();
@@ -379,7 +377,7 @@ namespace PixiEditor.Models.Layers
             int newMinX = minMaxCords.Coords1.X - OffsetX;
             int newMinY = minMaxCords.Coords1.Y - OffsetY;
 
-            if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.A == 0))
+            if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.Alpha == 0))
             {
                 if ((newMaxX + 1 > Width && Width < MaxWidth) || (newMaxY + 1 > Height && Height < MaxHeight))
                 {
@@ -438,7 +436,7 @@ namespace PixiEditor.Models.Layers
             return LayerBitmap.ToPbgra32ByteArray();
         }
 
-        private Dictionary<Coordinates, Color> GetRelativePosition(Dictionary<Coordinates, Color> changedPixels)
+        private Dictionary<Coordinates, SKColor> GetRelativePosition(Dictionary<Coordinates, SKColor> changedPixels)
         {
             return changedPixels.ToDictionary(
                 d => new Coordinates(d.Key.X - OffsetX, d.Key.Y - OffsetY),
@@ -454,7 +452,7 @@ namespace PixiEditor.Models.Layers
             int maxY = minY;
             bool clipRequested = false;
 
-            foreach (KeyValuePair<Coordinates, Color> pixel in pixels.ChangedPixels)
+            foreach (KeyValuePair<Coordinates, SKColor> pixel in pixels.ChangedPixels)
             {
                 if (pixel.Key.X < minX)
                 {
@@ -474,7 +472,7 @@ namespace PixiEditor.Models.Layers
                     maxY = pixel.Key.Y;
                 }
 
-                if (clipRequested == false && IsBorderPixel(pixel.Key) && pixel.Value.A == 0)
+                if (clipRequested == false && IsBorderPixel(pixel.Key) && pixel.Value.Alpha == 0)
                 {
                     clipRequested = true;
                 }

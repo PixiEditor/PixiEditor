@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -36,7 +37,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
@@ -44,7 +45,8 @@ namespace PixiEditor.Models.Tools.Tools
             BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(outline, color);
             if (Toolbar.GetSetting<BoolSetting>("Fill").Value)
             {
-                Color fillColor = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
+                Color temp = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
+                SKColor fillColor = new SKColor(temp.R, temp.G, temp.B, temp.A);
                 pixels.ChangedPixels.AddRangeNewOnly(
                     BitmapPixelChanges.FromSingleColoredArray(CalculateFillForEllipse(outline), fillColor)
                         .ChangedPixels);

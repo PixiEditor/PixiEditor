@@ -1,38 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Exceptions;
+﻿using PixiEditor.Exceptions;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PixiEditor.Models.DataHolders
 {
     public struct BitmapPixelChanges
     {
-        public BitmapPixelChanges(Dictionary<Coordinates, Color> changedPixels)
+        public BitmapPixelChanges(Dictionary<Coordinates, SKColor> changedPixels)
         {
             ChangedPixels = changedPixels;
             WasBuiltAsSingleColored = false;
         }
 
-        public static BitmapPixelChanges Empty => new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
+        public static BitmapPixelChanges Empty => new BitmapPixelChanges(new Dictionary<Coordinates, SKColor>());
 
         public bool WasBuiltAsSingleColored { get; private set; }
 
-        public Dictionary<Coordinates, Color> ChangedPixels { get; set; }
+        public Dictionary<Coordinates, SKColor> ChangedPixels { get; set; }
 
         /// <summary>
         ///     Builds BitmapPixelChanges with only one color for specified coordinates.
         /// </summary>
         /// <returns>Single-colored BitmapPixelChanges.</returns>
-        public static BitmapPixelChanges FromSingleColoredArray(IEnumerable<Coordinates> coordinates, Color color)
+        public static BitmapPixelChanges FromSingleColoredArray(IEnumerable<Coordinates> coordinates, SKColor color)
         {
-            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
+            Dictionary<Coordinates, SKColor> dict = new Dictionary<Coordinates, SKColor>();
             foreach (Coordinates coordinate in coordinates)
             {
                 if (dict.ContainsKey(coordinate))
@@ -76,16 +72,16 @@ namespace PixiEditor.Models.DataHolders
         /// <summary>
         ///     Builds BitmapPixelChanges using 2 same-length enumerables of coordinates and colors.
         /// </summary>
-        public static BitmapPixelChanges FromArrays(IEnumerable<Coordinates> coordinates, IEnumerable<Color> color)
+        public static BitmapPixelChanges FromArrays(IEnumerable<Coordinates> coordinates, IEnumerable<SKColor> color)
         {
             Coordinates[] coordinateArray = coordinates.ToArray();
-            Color[] colorArray = color.ToArray();
+            SKColor[] colorArray = color.ToArray();
             if (coordinateArray.Length != colorArray.Length)
             {
                 throw new ArrayLengthMismatchException();
             }
 
-            Dictionary<Coordinates, Color> dict = new Dictionary<Coordinates, Color>();
+            Dictionary<Coordinates, SKColor> dict = new Dictionary<Coordinates, SKColor>();
             for (int i = 0; i < coordinateArray.Length; i++)
             {
                 dict.Add(coordinateArray[i], colorArray[i]);
@@ -96,7 +92,7 @@ namespace PixiEditor.Models.DataHolders
 
         public BitmapPixelChanges WithoutTransparentPixels()
         {
-            return new BitmapPixelChanges(ChangedPixels.Where(x => x.Value.A > 0).ToDictionary(y => y.Key, y => y.Value));
+            return new BitmapPixelChanges(ChangedPixels.Where(x => x.Value.Alpha > 0).ToDictionary(y => y.Key, y => y.Value));
         }
     }
 }

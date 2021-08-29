@@ -6,6 +6,7 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,7 +14,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -57,7 +57,7 @@ namespace PixiEditor.Models.Controllers
 
         public Layer ActiveLayer => ActiveDocument.ActiveLayer;
 
-        public Color PrimaryColor { get; set; }
+        public SKColor PrimaryColor { get; set; }
 
         public int ToolSize
         {
@@ -231,7 +231,7 @@ namespace PixiEditor.Models.Controllers
             {
                 ActiveDocument.GeneratePreviewLayer();
                 ActiveDocument.PreviewLayer.SetPixels(
-                    BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
+                    BitmapPixelChanges.FromSingleColoredArray(highlightArea, new SKColor(0, 0, 0, 77)));
             }
         }
 

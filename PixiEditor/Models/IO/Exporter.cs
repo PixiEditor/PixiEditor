@@ -71,6 +71,28 @@ namespace PixiEditor.Models.IO
             }
         }
 
+        public static void SaveAsGZippedBytes(string path, Surface surface)
+        {
+            var imageInfo = new SKImageInfo(surface.Width, surface.Height, SKColorType.RgbaF16);
+            var unmanagedBuffer = Marshal.AllocHGlobal(surface.Width * surface.Height * 8);
+            //+8 bytes for width and height
+            var bytes = new byte[surface.Width * surface.Height * 8 + 8];
+            try
+            {
+                surface.SkiaSurface.ReadPixels(imageInfo, unmanagedBuffer, surface.Width * 8, 0, 0);
+                Marshal.Copy(unmanagedBuffer, bytes, 8, surface.Width * surface.Height * 8);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(unmanagedBuffer);
+            }
+            BitConverter.GetBytes((int)surface.Width).CopyTo(bytes, 0);
+            BitConverter.GetBytes((int)surface.Height).CopyTo(bytes, 4);
+            using FileStream outputStream = new(path, FileMode.Create);
+            using GZipStream compressedStream = new GZipStream(outputStream, CompressionLevel.Fastest);
+            compressedStream.Write(bytes);
+        }
+
         /// <summary>
         ///     Saves image to PNG file.
         /// </summary>
@@ -94,28 +116,6 @@ namespace PixiEditor.Models.IO
             {
                 MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        public static void SaveAsGZippedBytes(string path, Surface surface)
-        {
-            var imageInfo = new SKImageInfo(surface.Width, surface.Height, SKColorType.RgbaF16);
-            var unmanagedBuffer = Marshal.AllocHGlobal(surface.Width * surface.Height * 8);
-            //+8 bytes for width and height
-            var bytes = new byte[surface.Width * surface.Height * 8 + 8];
-            try
-            {
-                surface.SkiaSurface.ReadPixels(imageInfo, unmanagedBuffer, surface.Width * 8, 0, 0);
-                Marshal.Copy(unmanagedBuffer, bytes, 8, surface.Width * surface.Height * 8);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(unmanagedBuffer);
-            }
-            BitConverter.GetBytes((int)surface.Width).CopyTo(bytes, 0);
-            BitConverter.GetBytes((int)surface.Height).CopyTo(bytes, 4);
-            using FileStream outputStream = new(path, FileMode.Create);
-            using GZipStream compressedStream = new GZipStream(outputStream, CompressionLevel.Fastest);
-            compressedStream.Write(bytes);
         }
     }
 }

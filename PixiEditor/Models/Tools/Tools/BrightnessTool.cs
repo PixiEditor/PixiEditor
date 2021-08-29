@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Colors;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -11,6 +6,9 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using SkiaSharp;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -51,7 +49,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
@@ -78,7 +76,7 @@ namespace PixiEditor.Models.Tools.Tools
                 centeredCoords.Coords1.Y,
                 centeredCoords.Coords2.X,
                 centeredCoords.Coords2.Y);
-            BitmapPixelChanges changes = new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
+            BitmapPixelChanges changes = new BitmapPixelChanges(new Dictionary<Coordinates, SKColor>());
 
             foreach (Coordinates coordinate in rectangleCoordinates)
             {
@@ -92,9 +90,9 @@ namespace PixiEditor.Models.Tools.Tools
                     pixelsVisited.Add(coordinate);
                 }
 
-                Color pixel = layer.GetPixelWithOffset(coordinate.X, coordinate.Y);
-                Color newColor = ExColor.ChangeColorBrightness(
-                    Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
+                SKColor pixel = layer.GetPixelWithOffset(coordinate.X, coordinate.Y);
+                SKColor newColor = ExColor.ChangeColorBrightness(
+                    pixel,
                     correctionFactor);
                 changes.ChangedPixels.Add(
                     new Coordinates(coordinate.X, coordinate.Y),

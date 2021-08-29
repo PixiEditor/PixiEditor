@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -13,6 +7,12 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
 using Transform = PixiEditor.Models.ImageManipulation.Transform;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -23,8 +23,8 @@ namespace PixiEditor.Models.Tools.Tools
         private Dictionary<Guid, bool> clearedPixels = new Dictionary<Guid, bool>();
         private Coordinates[] currentSelection;
         private Coordinates lastMouseMove;
-        private Dictionary<Guid, Color[]> startPixelColors;
-        private Dictionary<Guid, Color[]> endPixelColors;
+        private Dictionary<Guid, SKColor[]> startPixelColors;
+        private Dictionary<Guid, SKColor[]> endPixelColors;
         private Dictionary<Guid, Thickness> startingOffsets;
         private Coordinates[] startSelection;
         private bool updateViewModelSelection = true;
@@ -89,7 +89,7 @@ namespace PixiEditor.Models.Tools.Tools
 
                     ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
                         .AddRangeNewOnly(BitmapPixelChanges
-                            .FromSingleColoredArray(startSelection, System.Windows.Media.Colors.Transparent)
+                            .FromSingleColoredArray(startSelection, SKColors.Transparent)
                             .ChangedPixels);
                 }
             }
@@ -141,7 +141,7 @@ namespace PixiEditor.Models.Tools.Tools
             startingOffsets = GetOffsets(affectedLayers);
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, Color color)
+        public override LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, SKColor color)
         {
             LayerChange[] result = new LayerChange[affectedLayers.Length];
             var end = mouseMove[0];
@@ -209,7 +209,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         private BitmapPixelChanges RemoveTransparentPixels(BitmapPixelChanges pixels)
         {
-            foreach (var item in pixels.ChangedPixels.Where(x => x.Value.A == 0).ToList())
+            foreach (var item in pixels.ChangedPixels.Where(x => x.Value.Alpha == 0).ToList())
             {
                 pixels.ChangedPixels.Remove(item.Key);
             }
@@ -221,7 +221,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             lastMouseMove = start;
             clearedPixels = new Dictionary<Guid, bool>();
-            endPixelColors = new Dictionary<Guid, Color[]>();
+            endPixelColors = new Dictionary<Guid, SKColor[]>();
             currentSelection = null;
             affectedLayers = null;
             updateViewModelSelection = true;
@@ -241,7 +241,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (!clearedPixels.ContainsKey(layerGuid) || clearedPixels[layerGuid] == false)
             {
                 BitmapManager.ActiveDocument.Layers.First(x => x == layer)
-                    .SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, System.Windows.Media.Colors.Transparent));
+                    .SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, SKColors.Transparent));
 
                 clearedPixels[layerGuid] = true;
             }

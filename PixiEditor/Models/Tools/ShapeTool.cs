@@ -2,10 +2,10 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using SkiaSharp;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools
 {
@@ -56,7 +56,7 @@ namespace PixiEditor.Models.Tools
         }
 
         // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color);
+        public abstract override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color);
 
         protected static IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
         {

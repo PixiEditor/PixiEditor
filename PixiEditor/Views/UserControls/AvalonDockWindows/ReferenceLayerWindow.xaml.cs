@@ -61,7 +61,7 @@ namespace PixiEditor.Views.UserControls.AvalonDockWindows
 
         private void UpdateLayer(object obj)
         {
-            Document.ReferenceLayer.LayerBitmap = Importer.ImportImage(FilePath);
+            Document.ReferenceLayer.LayerBitmap = Importer.ImportSurface(FilePath);
             Document.ReferenceLayer.Opacity = LayerOpacity;
         }
 

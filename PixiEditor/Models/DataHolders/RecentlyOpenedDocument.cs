@@ -1,12 +1,10 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
+using System.Diagnostics;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -95,7 +93,7 @@ namespace PixiEditor.Models.DataHolders
 
                 try
                 {
-                    bitmap = Importer.ImportImage(FilePath);
+                    bitmap = Importer.ImportWriteableBitmap(FilePath);
                 }
                 catch
                 {

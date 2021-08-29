@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.ImageManipulation;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
@@ -19,7 +20,8 @@ namespace PixiEditor.Models.Controllers
         public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight)
         {
             Clipboard.Clear();
-            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(originalImageWidth, originalImageHeight, layers);
+            using var tempSurface = BitmapUtils.CombineLayers(originalImageWidth, originalImageHeight, layers);
+            WriteableBitmap combinedBitmaps = tempSurface.ToWriteableBitmap();
             using (MemoryStream pngStream = new MemoryStream())
             {
                 DataObject data = new DataObject();
@@ -41,7 +43,7 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void PasteFromClipboard()
         {
-            WriteableBitmap image = GetImageFromClipboard();
+            Surface image = GetImageFromClipboard();
             if (image != null)
             {
                 AddImageToLayers(image);
@@ -56,7 +58,7 @@ namespace PixiEditor.Models.Controllers
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
         /// <returns>WriteableBitmap.</returns>
-        public static WriteableBitmap GetImageFromClipboard()
+        public static Surface GetImageFromClipboard()
         {
             DataObject dao = (DataObject)Clipboard.GetDataObject();
             WriteableBitmap finalImage = null;
@@ -80,7 +82,7 @@ namespace PixiEditor.Models.Controllers
                 finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource)!);
             }
 
-            return finalImage;
+            return new Surface(finalImage);
         }
 
         public static bool IsImageInClipboard()
@@ -116,15 +118,15 @@ namespace PixiEditor.Models.Controllers
 
         private static void AddLayerProcess(object[] parameters)
         {
-            if (parameters.Length == 0 || !(parameters[0] is WriteableBitmap))
+            if (parameters.Length == 0 || !(parameters[0] is Surface))
             {
                 return;
             }
 
-            AddImageToLayers((WriteableBitmap)parameters[0]);
+            AddImageToLayers((Surface)parameters[0]);
         }
 
-        private static void AddImageToLayers(WriteableBitmap image)
+        private static void AddImageToLayers(Surface image)
         {
             ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer("Image", image);
         }

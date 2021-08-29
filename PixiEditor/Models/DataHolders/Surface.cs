@@ -37,23 +37,21 @@ namespace PixiEditor.Models.DataHolders
 
         public Surface(int w, int h, byte[] pbgra32Bytes)
         {
-            SKImageInfo info = new SKImageInfo(w, h, SKColorType.Bgra8888, SKAlphaType.Premul);
-            var ptr = Marshal.AllocHGlobal(pbgra32Bytes.Length);
-            try
-            {
-                Marshal.Copy(pbgra32Bytes, 0, ptr, pbgra32Bytes.Length);
-                SKPixmap map = new(info, ptr);
-                SKSurface surface = SKSurface.Create(map);
-                var newSurface = CreateSurface(w, h);
-                surface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
-                SkiaSurface = newSurface;
-                Width = w;
-                Height = h;
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
+            Width = w;
+            Height = h;
+            SkiaSurface = Pbgra32BytesToSkSurface(w, h, pbgra32Bytes);
+        }
+
+        public Surface(WriteableBitmap original)
+        {
+            if (original.Format != PixelFormats.Pbgra32)
+                throw new ArgumentException("This method only supports Pbgra32 bitmaps");
+            byte[] pixels = new byte[original.PixelWidth * original.PixelHeight * 4];
+            original.CopyPixels(pixels, original.PixelWidth * 4, 0);
+
+            Width = original.PixelWidth;
+            Height = original.PixelHeight;
+            SkiaSurface = Pbgra32BytesToSkSurface(Width, Height, pixels);
         }
 
         public Surface ResizeNearestNeighbor(int newW, int newH)
@@ -136,6 +134,25 @@ namespace PixiEditor.Models.DataHolders
         public void Dispose()
         {
             SkiaSurface.Dispose();
+        }
+
+        private static SKSurface Pbgra32BytesToSkSurface(int w, int h, byte[] pbgra32Bytes)
+        {
+            SKImageInfo info = new SKImageInfo(w, h, SKColorType.Bgra8888, SKAlphaType.Premul);
+            var ptr = Marshal.AllocHGlobal(pbgra32Bytes.Length);
+            try
+            {
+                Marshal.Copy(pbgra32Bytes, 0, ptr, pbgra32Bytes.Length);
+                using SKPixmap map = new(info, ptr);
+                using SKSurface surface = SKSurface.Create(map);
+                var newSurface = CreateSurface(w, h);
+                surface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
+                return newSurface;
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
         }
 
         private static SKSurface CreateSurface(int w, int h)

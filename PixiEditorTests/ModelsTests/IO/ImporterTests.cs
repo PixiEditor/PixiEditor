@@ -37,7 +37,7 @@ namespace PixiEditorTests.ModelsTests.IO
         public void TestThatImportImageImportsImage()
         {
             Color color = Color.FromArgb(255, 255, 0, 0);
-            WriteableBitmap image = Importer.ImportImage(testImagePath);
+            WriteableBitmap image = Importer.ImportSurface(testImagePath);
 
             Assert.NotNull(image);
             Assert.Equal(5, image.PixelWidth);
@@ -62,7 +62,7 @@ namespace PixiEditorTests.ModelsTests.IO
         public void TestThatImporterThrowsCorruptedFileExceptionOnWrongImageFileWithSupportedExtension(string fileName)
         {
             string imagePath = $"{Environment.CurrentDirectory}\\..\\..\\..\\ModelsTests\\IO\\{fileName}";
-            Assert.Throws<CorruptedFileException>(() => { Importer.ImportImage(imagePath); });
+            Assert.Throws<CorruptedFileException>(() => { Importer.ImportSurface(imagePath); });
         }
 
         [Fact]
