@@ -88,22 +88,42 @@ namespace PixiEditor.Models.Layers
             {
                 if (layer == topmostLayer) continue;
                 var layerGroup = GetGroupByLayer(layer.LayerGuid);
-                if (layerGroup == group.Parent)
+
+                if (layerGroup != group.Parent)
                 {
-                    Owner.MoveLayerInStructure(layer.LayerGuid, lastLayer);
-                    AssignParent(layer.LayerGuid, group);
+                    GuidStructureItem sameLevelGroupParent = GetLevelGroup(layerGroup, group.Parent);
+                    if (GetGroupLayers(sameLevelGroupParent).TrueForAll(x => x.IsActive))
+                    {
+                        Owner.MoveGroupInStructure(sameLevelGroupParent.GroupGuid, lastLayer);
+                        lastLayer = sameLevelGroupParent.EndLayerGuid; // Todo: Shift click on group, select other layers in between
+                        continue;
+                    }
                 }
-                else if(layerGroup.Parent == group.Parent)
-                {
-                    AssignParent(layer.LayerGuid, group);
-                    layerGroup.Parent = group;
-                    group.Subgroups.Add(layerGroup);
-                }
+
+                Owner.MoveLayerInStructure(layer.LayerGuid, lastLayer);
+                AssignParent(layer.LayerGuid, group);
 
                 lastLayer = layer.LayerGuid;
             }
 
             return group;
+        }
+
+        private GuidStructureItem GetLevelGroup(GuidStructureItem group, GuidStructureItem levelGroup)
+        {
+            GuidStructureItem currentGroup = group;
+
+            while(currentGroup != null && currentGroup.Parent != null)
+            {
+                if(currentGroup == null)
+                {
+                    return null;
+                }
+
+                currentGroup = group.Parent;
+            }
+
+            return currentGroup;
         }
 
         /// <summary>
