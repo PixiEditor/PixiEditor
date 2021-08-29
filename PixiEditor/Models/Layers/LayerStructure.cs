@@ -78,7 +78,7 @@ namespace PixiEditor.Models.Layers
         // idk if it works good for every scenario, there are too many scenarios to consider, that I won't ever bother test
         public GuidStructureItem AddNewGroup(string groupName, IEnumerable<Layer> layers)
         {
-            var topmostLayer = GetTopmostLayer(layers);
+            var topmostLayer = GetTopmostLayer(layers); // Test with bottom most
 
             var group = AddNewGroup(groupName, topmostLayer.LayerGuid);
 
@@ -95,7 +95,7 @@ namespace PixiEditor.Models.Layers
                     if (GetGroupLayers(sameLevelGroupParent).TrueForAll(x => x.IsActive))
                     {
                         Owner.MoveGroupInStructure(sameLevelGroupParent.GroupGuid, lastLayer);
-                        lastLayer = sameLevelGroupParent.EndLayerGuid; // Todo: Shift click on group, select other layers in between
+                        lastLayer = sameLevelGroupParent.StartLayerGuid; // Todo: fix if group is on top
                         continue;
                     }
                 }
