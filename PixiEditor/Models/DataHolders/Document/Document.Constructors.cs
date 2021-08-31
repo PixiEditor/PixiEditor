@@ -12,7 +12,8 @@ namespace PixiEditor.Models.DataHolders
         {
             Width = width;
             Height = height;
-            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(0, 0, width, height));
+            Renderer = new DocumentRenderer(layers, layerStructure, Width, Height);
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(1, 1, width, height));
         }
 
         private Document()
@@ -25,7 +26,6 @@ namespace PixiEditor.Models.DataHolders
             Layers.CollectionChanged += Layers_CollectionChanged;
             LayerStructure.Groups.CollectionChanged += Groups_CollectionChanged;
             LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
-            Renderer = new DocumentRenderer(layers, layerStructure, Width, Height);
         }
 
         private void LayerStructure_LayerStructureChanged(object sender, LayerStructureChangedEventArgs e)

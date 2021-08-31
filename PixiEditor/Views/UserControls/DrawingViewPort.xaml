@@ -65,33 +65,8 @@
                                    Height="{Binding PreviewLayer.Height}" 
                                    Margin="{Binding PreviewLayer.Offset}"/>
 
-                <ItemsControl ItemsSource="{Binding Layers}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Grid />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
-                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                               Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}">
-                                <Image.Visibility>
-                                    <MultiBinding Converter="{converters:FinalIsVisibleToVisiblityConverter}">
-                                        <Binding Path="."/>
-                                        <Binding Path="IsVisible"/>
-                                    </MultiBinding>
-                                </Image.Visibility>
-                                <Image.Opacity>
-                                    <MultiBinding Converter="{converters:LayerToFinalOpacityConverter}">
-                                        <Binding Path="."/>
-                                        <Binding Path="Opacity"/>
-                                    </MultiBinding>
-                                </Image.Opacity>
-                            </Image>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Renderer.FinalBitmap}"
+                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" />
                 <Image VerticalAlignment="Top" HorizontalAlignment="Left" 
                            Source="{Binding ActiveSelection.SelectionLayer.LayerBitmap}"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
