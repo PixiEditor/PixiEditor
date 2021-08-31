@@ -1,9 +1,9 @@
+using PixiEditor.Models.Position;
+using PixiEditor.ViewModels;
+using SkiaSharp;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Input;
-using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
-using Color = System.Windows.Media.Color;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -29,7 +29,7 @@ namespace PixiEditor.Models.Tools.Tools
             ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();
         }
 
-        public Color GetColorUnderMouse()
+        public SKColor GetColorUnderMouse()
         {
             System.Drawing.Color color;
             using (Bitmap bitmap = new Bitmap(1, 1))
@@ -42,7 +42,7 @@ namespace PixiEditor.Models.Tools.Tools
                 color = bitmap.GetPixel(0, 0);
             }
 
-            return Color.FromArgb(color.A, color.R, color.G, color.B);
+            return new SKColor(color.R, color.G, color.B, color.A);
         }
     }
 }

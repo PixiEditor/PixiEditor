@@ -1,7 +1,8 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using SkiaSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -52,9 +53,9 @@ namespace PixiEditor.Models.Controllers
             int i = 0;
             foreach (KeyValuePair<Guid, LayerChange> change in LastChanges)
             {
-                Dictionary<Position.Coordinates, System.Windows.Media.Color> pixelChanges =
+                Dictionary<Position.Coordinates, SKColor> pixelChanges =
                     change.Value.PixelChanges.ChangedPixels.ToDictionary(entry => entry.Key, entry => entry.Value);
-                Dictionary<Position.Coordinates, System.Windows.Media.Color> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels
+                Dictionary<Position.Coordinates, SKColor> oldValues = LastOldValues[change.Key].PixelChanges.ChangedPixels
                     .ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 LayerChange tmp = new LayerChange(new BitmapPixelChanges(pixelChanges), change.Key);
@@ -77,7 +78,7 @@ namespace PixiEditor.Models.Controllers
 
         private void AddToExistingLayerChange(LayerChange layerChange, LayerChange oldValues)
         {
-            foreach (KeyValuePair<Position.Coordinates, System.Windows.Media.Color> change in layerChange.PixelChanges.ChangedPixels)
+            foreach (KeyValuePair<Position.Coordinates, SKColor> change in layerChange.PixelChanges.ChangedPixels)
             {
                 if (LastChanges[layerChange.LayerGuid].PixelChanges.ChangedPixels.ContainsKey(change.Key))
                 {
@@ -89,7 +90,7 @@ namespace PixiEditor.Models.Controllers
                 }
             }
 
-            foreach (KeyValuePair<Position.Coordinates, System.Windows.Media.Color> change in oldValues.PixelChanges.ChangedPixels)
+            foreach (KeyValuePair<Position.Coordinates, SKColor> change in oldValues.PixelChanges.ChangedPixels)
             {
                 if (LastOldValues[layerChange.LayerGuid].PixelChanges.ChangedPixels.ContainsKey(change.Key))
                 {

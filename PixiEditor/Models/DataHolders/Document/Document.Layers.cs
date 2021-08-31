@@ -209,7 +209,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void AddNewLayer(string name, bool setAsActive = true)
         {
-            AddNewLayer(name, 0, 0, setAsActive);
+            AddNewLayer(name, 1, 1, setAsActive);
         }
 
         public void AddNewLayer(string name, int width, int height, bool setAsActive = true)

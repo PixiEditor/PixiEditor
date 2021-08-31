@@ -2,12 +2,12 @@
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Models;
+using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
-using SDColor = System.Drawing.Color;
 
 namespace PixiEditor.Helpers.Extensions
 {
@@ -18,8 +18,7 @@ namespace PixiEditor.Helpers.Extensions
             Document document = new Document(serializableDocument.Width, serializableDocument.Height)
             {
                 Layers = serializableDocument.ToLayers(),
-                Swatches = new ObservableCollection<Color>(serializableDocument.Swatches.Select(x =>
-                    Color.FromArgb(x.A, x.R, x.G, x.B)))
+                Swatches = new ObservableCollection<SKColor>(serializableDocument.Swatches.Select(x => new SKColor(x.R, x.G, x.B, x.A)))
             };
 
             document.LayerStructure.Groups = serializableDocument.ToGroups();
@@ -70,7 +69,7 @@ namespace PixiEditor.Helpers.Extensions
                 Height = document.Height,
                 Layers = document.Layers.Select(x => x.ToSerializable()).ToList(),
                 Groups = document.LayerStructure.Groups.Select(x => x.ToSerializable()).ToArray(),
-                Swatches = document.Swatches.Select(x => SDColor.FromArgb(x.A, x.R, x.G, x.B)).ToList()
+                Swatches = document.Swatches.Select(x => Color.FromArgb(x.Alpha, x.Red, x.Green, x.Blue)).ToList()
             };
 
             return serializable;

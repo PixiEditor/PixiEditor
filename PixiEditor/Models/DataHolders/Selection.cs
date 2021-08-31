@@ -1,26 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows.Media;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using SkiaSharp;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 
 namespace PixiEditor.Models.DataHolders
 {
     [DebuggerDisplay("{SelectedPoints.Count} selected Pixels")]
     public class Selection : NotifyableObject
     {
-        private readonly Color selectionBlue;
+        private readonly SKColor selectionBlue;
         private Layer selectionLayer;
 
         public Selection(Coordinates[] selectedPoints)
         {
             SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
             SelectionLayer = new Layer("_selectionLayer");
-            selectionBlue = Color.FromArgb(127, 142, 202, 255);
+            selectionBlue = new SKColor(142, 202, 255, 127);
         }
 
         public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
@@ -37,7 +37,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void SetSelection(IEnumerable<Coordinates> selection, SelectionType mode)
         {
-            Color selectionColor = selectionBlue;
+            SKColor selectionColor = selectionBlue;
             switch (mode)
             {
                 case SelectionType.New:
@@ -49,7 +49,7 @@ namespace PixiEditor.Models.DataHolders
                     break;
                 case SelectionType.Subtract:
                     SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
-                    selectionColor = System.Windows.Media.Colors.Transparent;
+                    selectionColor = SKColors.Transparent;
                     break;
             }
 

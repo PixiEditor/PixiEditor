@@ -21,6 +21,8 @@ namespace PixiEditor.Models.DataHolders
 
         public Surface(int w, int h)
         {
+            if (w <= 0 || h <= 0)
+                throw new ArgumentException("Surface dimensions must be non-zero");
             SkiaSurface = CreateSurface(w, h);
             Width = w;
             Height = h;
@@ -37,6 +39,8 @@ namespace PixiEditor.Models.DataHolders
 
         public Surface(int w, int h, byte[] pbgra32Bytes)
         {
+            if (w <= 0 || h <= 0)
+                throw new ArgumentException("Surface dimensions must be non-zero");
             Width = w;
             Height = h;
             SkiaSurface = Pbgra32BytesToSkSurface(w, h, pbgra32Bytes);
@@ -46,6 +50,9 @@ namespace PixiEditor.Models.DataHolders
         {
             if (original.Format != PixelFormats.Pbgra32)
                 throw new ArgumentException("This method only supports Pbgra32 bitmaps");
+            if (original.PixelWidth <= 0 || original.PixelHeight <= 0)
+                throw new ArgumentException("Surface dimensions must be non-zero");
+
             byte[] pixels = new byte[original.PixelWidth * original.PixelHeight * 4];
             original.CopyPixels(pixels, original.PixelWidth * 4, 0);
 
@@ -157,7 +164,10 @@ namespace PixiEditor.Models.DataHolders
 
         private static SKSurface CreateSurface(int w, int h)
         {
-            return SKSurface.Create(new SKImageInfo(w, h, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
+            var surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
+            if (surface == null)
+                throw new Exception("Could not create surface");
+            return surface;
         }
 
     }

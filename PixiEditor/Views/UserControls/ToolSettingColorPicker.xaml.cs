@@ -1,10 +1,9 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using ColorPicker;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.ViewModels;
+using SkiaSharp;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace PixiEditor.Views
 {
@@ -14,7 +13,7 @@ namespace PixiEditor.Views
     public partial class ToolSettingColorPicker : UserControl
     {
         public static readonly DependencyProperty SelectedColorProperty =
-            DependencyProperty.Register(nameof(SelectedColor), typeof(Color), typeof(ToolSettingColorPicker));
+            DependencyProperty.Register(nameof(SelectedColor), typeof(SKColor), typeof(ToolSettingColorPicker));
 
         public Color SelectedColor
         {
@@ -44,7 +43,11 @@ namespace PixiEditor.Views
 
         public void CopyMainColor(object parameter)
         {
-            SelectedColor = ViewModelMain.Current.ColorsSubViewModel.PrimaryColor;
+            SelectedColor = Color.FromArgb(
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Alpha,
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Red,
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Green,
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Blue);
         }
     }
 }

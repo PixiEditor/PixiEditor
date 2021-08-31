@@ -103,13 +103,13 @@ namespace PixiEditor.Models.ImageManipulation
                 maxPreviewHeight);
         }
 
-        public static Dictionary<Guid, Color[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
+        public static Dictionary<Guid, SKColor[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
         {
-            Dictionary<Guid, Color[]> result = new();
+            Dictionary<Guid, SKColor[]> result = new();
 
             foreach (Layer layer in layers)
             {
-                Color[] pixels = new Color[selection.Length];
+                SKColor[] pixels = new SKColor[selection.Length];
 
                 for (int j = 0; j < pixels.Length; j++)
                 {
@@ -121,7 +121,7 @@ namespace PixiEditor.Models.ImageManipulation
                     }
 
                     var cl = layer.GetPixel(position.X, position.Y);
-                    pixels[j] = Color.FromArgb(cl.Alpha, cl.Red, cl.Green, cl.Blue);
+                    pixels[j] = cl;
                 }
                 result[layer.LayerGuid] = pixels;
             }

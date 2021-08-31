@@ -5,6 +5,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
+using SkiaSharp;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -13,7 +14,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -107,7 +107,7 @@ namespace PixiEditor.Models.DataHolders
 
         public UndoManager UndoManager { get; set; }
 
-        public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
+        public ObservableCollection<SKColor> Swatches { get; set; } = new ObservableCollection<SKColor>();
 
         public void RaisePropertyChange(string name)
         {
