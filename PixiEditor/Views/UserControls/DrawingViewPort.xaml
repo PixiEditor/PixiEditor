@@ -53,7 +53,7 @@
                         </ImageBrush.Viewport>
                     </ImageBrush>
                 </Canvas.Background>
-                <Image Source="{Binding ReferenceLayer.LayerBitmap}"
+                <Image Source="{Binding ReferenceLayerRenderer.FinalBitmap}"
                        VerticalAlignment="Center" Stretch="Uniform"
                        Visibility="{Binding ReferenceLayer.IsVisible, Converter={BoolToVisibilityConverter}}"
                        HorizontalAlignment="Center" Width="{Binding Width}"

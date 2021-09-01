@@ -32,14 +32,6 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private Layer referenceLayer;
-
-        public Layer ReferenceLayer
-        {
-            get => referenceLayer;
-            set => SetProperty(ref referenceLayer, value);
-        }
-
         public string Name
         {
             get => (string.IsNullOrEmpty(DocumentFilePath) ? "Untitled" : Path.GetFileName(DocumentFilePath))

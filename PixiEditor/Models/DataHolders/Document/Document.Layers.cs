@@ -58,6 +58,26 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private Layer referenceLayer;
+        private SingleLayerRenderer referenceLayerRenderer;
+        public Layer ReferenceLayer
+        {
+            get => referenceLayer;
+            set
+            {
+                referenceLayer = value;
+                referenceLayerRenderer?.Dispose();
+                referenceLayerRenderer = referenceLayer == null ? null : new SingleLayerRenderer(referenceLayer, referenceLayer.Width, referenceLayer.Height);
+                RaisePropertyChanged(nameof(ReferenceLayer));
+                RaisePropertyChanged(nameof(ReferenceLayerRenderer));
+            }
+        }
+
+        public SingleLayerRenderer ReferenceLayerRenderer
+        {
+            get => referenceLayerRenderer;
+        }
+
         public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.LayerGuid == ActiveLayerGuid) : null;
 
         public Guid ActiveLayerGuid

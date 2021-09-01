@@ -1,5 +1,4 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using SkiaSharp;
 using System;
 using System.ComponentModel;
@@ -14,7 +13,6 @@ namespace PixiEditor.Models.Controllers
         private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
         private Layer layer;
 
-        private Surface finalSurface;
         private SKSurface backingSurface;
         private WriteableBitmap finalBitmap;
         public WriteableBitmap FinalBitmap
@@ -37,10 +35,8 @@ namespace PixiEditor.Models.Controllers
 
         public void Resize(int newWidth, int newHeight)
         {
-            finalSurface?.Dispose();
             backingSurface?.Dispose();
 
-            finalSurface = new Surface(newWidth, newHeight);
             finalBitmap = new WriteableBitmap(newWidth, newHeight, 96, 96, PixelFormats.Pbgra32, null);
             var imageInfo = new SKImageInfo(newWidth, newHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb());
             backingSurface = SKSurface.Create(imageInfo, finalBitmap.BackBuffer, finalBitmap.BackBufferStride);
@@ -49,7 +45,6 @@ namespace PixiEditor.Models.Controllers
 
         public void Dispose()
         {
-            finalSurface.Dispose();
             backingSurface.Dispose();
             BlendingPaint.Dispose();
             layer.LayerBitmapChanged -= OnLayerBitmapChanged;
@@ -57,18 +52,17 @@ namespace PixiEditor.Models.Controllers
 
         private void Update(Int32Rect dirtyRectangle)
         {
-            finalSurface.SkiaSurface.Canvas.Clear();
+            backingSurface.Canvas.Clear();
+            finalBitmap.Lock();
             if (layer.IsVisible)
             {
                 BlendingPaint.Color = new SKColor(255, 255, 255, (byte)(layer.Opacity * 255));
                 layer.LayerBitmap.SkiaSurface.Draw(
-                    finalSurface.SkiaSurface.Canvas,
+                    backingSurface.Canvas,
                     layer.OffsetX,
                     layer.OffsetY,
                     BlendingPaint);
             }
-            finalBitmap.Lock();
-            finalSurface.SkiaSurface.Draw(backingSurface.Canvas, 0, 0, Surface.ReplacingPaint);
             finalBitmap.AddDirtyRect(dirtyRectangle);
             finalBitmap.Unlock();
         }
