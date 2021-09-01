@@ -98,6 +98,7 @@ namespace PixiEditor.Models.Layers
                 if (SetProperty(ref isVisible, value))
                 {
                     RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
+                    InvokeLayerBitmapChange();
                     ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
                 }
             }
@@ -137,10 +138,11 @@ namespace PixiEditor.Models.Layers
         public Surface LayerBitmap
         {
             get => layerBitmap;
-            set
+            private set
             {
                 layerBitmap = value;
                 RaisePropertyChanged(nameof(LayerBitmap));
+                InvokeLayerBitmapChange();
             }
         }
 
@@ -152,6 +154,7 @@ namespace PixiEditor.Models.Layers
                 if (SetProperty(ref opacity, value))
                 {
                     RaisePropertyChanged(nameof(OpacityUndoTriggerable));
+                    InvokeLayerBitmapChange();
                     ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
                 }
             }
@@ -197,6 +200,11 @@ namespace PixiEditor.Models.Layers
         public int MaxHeight { get; set; } = int.MaxValue;
 
         public event EventHandler<Int32Rect> LayerBitmapChanged;
+
+        public void InvokeLayerBitmapChange()
+        {
+            LayerBitmapChanged?.Invoke(this, new Int32Rect(OffsetX, OffsetY, Width, Height));
+        }
 
         public void InvokeLayerBitmapChange(Int32Rect dirtyArea)
         {
@@ -331,6 +339,11 @@ namespace PixiEditor.Models.Layers
 
             LastRelativeCoordinates = pixels.ChangedPixels;
 
+            int minX = int.MaxValue;
+            int maxX = int.MinValue;
+            int minY = int.MaxValue;
+            int maxY = int.MinValue;
+
             foreach (KeyValuePair<Coordinates, SKColor> coords in pixels.ChangedPixels)
             {
                 if (OutOfBounds(coords.Key))
@@ -339,9 +352,15 @@ namespace PixiEditor.Models.Layers
                 }
 
                 LayerBitmap.SetSRGBPixel(coords.Key.X, coords.Key.Y, coords.Value);
+                minX = Math.Min(minX, coords.Key.X);
+                minY = Math.Min(minY, coords.Key.Y);
+                maxX = Math.Max(maxX, coords.Key.X);
+                maxY = Math.Max(maxY, coords.Key.Y);
             }
 
             ClipIfNecessary();
+            if (minX != int.MaxValue)
+                InvokeLayerBitmapChange(new Int32Rect(minX + OffsetX, minY + OffsetY, maxX - minX + 1, maxY - minY + 1));
         }
 
         /// <summary>

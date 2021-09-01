@@ -47,8 +47,8 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private DocumentRenderer renderer;
-        public DocumentRenderer Renderer
+        private LayerStackRenderer renderer;
+        public LayerStackRenderer Renderer
         {
             get => renderer;
             private set
@@ -203,8 +203,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void AddNewLayer(string name, Surface bitmap, bool setAsActive = true)
         {
-            AddNewLayer(name, bitmap.Width, bitmap.Height, setAsActive);
-            Layers.Last().LayerBitmap = bitmap;
+            AddNewLayer(name, bitmap.Width, bitmap.Height, setAsActive, bitmap);
         }
 
         public void AddNewLayer(string name, bool setAsActive = true)
@@ -212,15 +211,23 @@ namespace PixiEditor.Models.DataHolders
             AddNewLayer(name, 1, 1, setAsActive);
         }
 
-        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
+        public void AddNewLayer(string name, int width, int height, bool setAsActive = true, Surface bitmap = null)
         {
             Layer layer;
 
-            Layers.Add(layer = new Layer(name, width, height)
+            if (bitmap != null)
             {
-                MaxHeight = Height,
-                MaxWidth = Width
-            });
+                if (width != bitmap.Width || height != bitmap.Height)
+                    throw new ArgumentException("Inconsistent width and height");
+            }
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Dimensions must be greater than 0");
+
+            layer = bitmap == null ? new Layer(name, width, height) : new Layer(name, bitmap);
+            layer.MaxHeight = Height;
+            layer.MaxWidth = Width;
+
+            Layers.Add(layer);
 
             layer.Name = GetLayerSuffix(layer);
 
@@ -533,7 +540,7 @@ namespace PixiEditor.Models.DataHolders
 
             if (Layers.Count == 0)
             {
-                Layer layer = new("Base Layer", 0, 0) { MaxHeight = Height, MaxWidth = Width };
+                Layer layer = new("Base Layer", 1, 1) { MaxHeight = Height, MaxWidth = Width };
                 Layers.Add(layer);
                 undoAction = (Layer[] layers, UndoLayer[] undoData) =>
                 {

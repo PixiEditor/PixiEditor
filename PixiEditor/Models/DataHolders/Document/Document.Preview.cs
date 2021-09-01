@@ -1,6 +1,7 @@
-﻿using System.Windows.Media.Imaging;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -14,6 +15,7 @@ namespace PixiEditor.Models.DataHolders
         }
 
         private Layer previewLayer;
+        private SingleLayerRenderer previewLayerRenderer;
 
         public Layer PreviewLayer
         {
@@ -21,8 +23,16 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 previewLayer = value;
+                previewLayerRenderer?.Dispose();
+                previewLayerRenderer = previewLayer == null ? null : new SingleLayerRenderer(previewLayer, Width, Height);
                 RaisePropertyChanged(nameof(PreviewLayer));
+                RaisePropertyChanged(nameof(PreviewLayerRenderer));
             }
+        }
+
+        public SingleLayerRenderer PreviewLayerRenderer
+        {
+            get => previewLayerRenderer;
         }
 
         public void UpdatePreviewImage()

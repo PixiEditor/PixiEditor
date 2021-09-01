@@ -36,8 +36,11 @@
                     <Grid Width="45" Height="45" Margin="0 5 5 5">
                         <Border CornerRadius="5.5" Width="44" Height="44">
                             <Border.Background>
-                                <ImageBrush ImageSource="../../Images/CheckerTile.png"
-                                                                        Stretch="UniformToFill" />
+                                <VisualBrush>
+                                    <VisualBrush.Visual>
+                                        <Image Source="../../Images/CheckerTile.png" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
                             </Border.Background>
                         </Border>
                         <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">

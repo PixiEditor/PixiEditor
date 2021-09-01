@@ -12,7 +12,7 @@ namespace PixiEditor.Models.DataHolders
         {
             Width = width;
             Height = height;
-            Renderer = new DocumentRenderer(layers, layerStructure, Width, Height);
+            Renderer = new LayerStackRenderer(layers, layerStructure, Width, Height);
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(1, 1, width, height));
         }
 

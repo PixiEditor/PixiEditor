@@ -1,9 +1,7 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
-using PixiEditor.Models.Layers.Utils;
 using SkiaSharp;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
@@ -11,12 +9,10 @@ using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Controllers
 {
-    public class DocumentRenderer : INotifyPropertyChanged, IDisposable
+    public class SingleLayerRenderer : INotifyPropertyChanged, IDisposable
     {
         private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
-
-        private ObservableCollection<Layer> layers;
-        private LayerStructure structure;
+        private Layer layer;
 
         private Surface finalSurface;
         private SKSurface backingSurface;
@@ -32,11 +28,10 @@ namespace PixiEditor.Models.Controllers
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public DocumentRenderer(ObservableCollection<Layer> layers, LayerStructure structure, int width, int height)
+        public SingleLayerRenderer(Layer layer, int width, int height)
         {
-            this.layers = layers;
-            this.structure = structure;
-            layers.CollectionChanged += OnLayersChanged;
+            this.layer = layer;
+            layer.LayerBitmapChanged += OnLayerBitmapChanged;
             Resize(width, height);
         }
 
@@ -44,6 +39,7 @@ namespace PixiEditor.Models.Controllers
         {
             finalSurface?.Dispose();
             backingSurface?.Dispose();
+
             finalSurface = new Surface(newWidth, newHeight);
             finalBitmap = new WriteableBitmap(newWidth, newHeight, 96, 96, PixelFormats.Pbgra32, null);
             var imageInfo = new SKImageInfo(newWidth, newHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb());
@@ -51,28 +47,20 @@ namespace PixiEditor.Models.Controllers
             Update(new Int32Rect(0, 0, newWidth, newHeight));
         }
 
-        public void SetNewLayersCollection(ObservableCollection<Layer> layers)
-        {
-            layers.CollectionChanged -= OnLayersChanged;
-            this.layers = layers;
-            layers.CollectionChanged += OnLayersChanged;
-            Update(new Int32Rect(0, 0, finalSurface.Width, finalSurface.Height));
-        }
-
         public void Dispose()
         {
             finalSurface.Dispose();
             backingSurface.Dispose();
             BlendingPaint.Dispose();
-            layers.CollectionChanged -= OnLayersChanged;
+            layer.LayerBitmapChanged -= OnLayerBitmapChanged;
         }
 
         private void Update(Int32Rect dirtyRectangle)
         {
             finalSurface.SkiaSurface.Canvas.Clear();
-            foreach (var layer in layers)
+            if (layer.IsVisible)
             {
-                BlendingPaint.Color = new SKColor(255, 255, 255, (byte)(LayerStructureUtils.GetFinalLayerOpacity(layer, structure) * 255));
+                BlendingPaint.Color = new SKColor(255, 255, 255, (byte)(layer.Opacity * 255));
                 layer.LayerBitmap.SkiaSurface.Draw(
                     finalSurface.SkiaSurface.Canvas,
                     layer.OffsetX,
@@ -83,26 +71,6 @@ namespace PixiEditor.Models.Controllers
             finalSurface.SkiaSurface.Draw(backingSurface.Canvas, 0, 0, Surface.ReplacingPaint);
             finalBitmap.AddDirtyRect(dirtyRectangle);
             finalBitmap.Unlock();
-        }
-
-        private void OnLayersChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.NewItems != null)
-            {
-                foreach (var obj in e.NewItems)
-                {
-                    Layer layer = (Layer)obj;
-                    layer.LayerBitmapChanged += OnLayerBitmapChanged;
-                }
-            }
-            if (e.OldItems != null)
-            {
-                foreach (var obj in e.OldItems)
-                {
-                    ((Layer)obj).LayerBitmapChanged -= OnLayerBitmapChanged;
-                }
-            }
-            Update(new Int32Rect(0, 0, finalSurface.Width, finalSurface.Height));
         }
 
         private void OnLayerBitmapChanged(object sender, Int32Rect e)
