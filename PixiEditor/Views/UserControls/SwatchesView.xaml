@@ -4,8 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" Name="uc"
              d:DesignHeight="450" d:DesignWidth="300">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <conv:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding Swatches, ElementName=uc}">
             <d:ItemsControl.ItemsSource>
@@ -30,18 +36,13 @@
                     <Grid Width="45" Height="45" Margin="0 5 5 5">
                         <Border CornerRadius="5.5" Width="44" Height="44">
                             <Border.Background>
-                                <ImageBrush ImageSource="../../Images/transparentbg.png"
-                                                                        Stretch="UniformToFill">
-                                    <ImageBrush.RelativeTransform>
-                                        <ScaleTransform ScaleX="6" ScaleY="6" CenterX="0.5"
-                                                                                    CenterY="0.5" />
-                                    </ImageBrush.RelativeTransform>
-                                </ImageBrush>
+                                <ImageBrush ImageSource="../../Images/CheckerTile.png"
+                                                                        Stretch="UniformToFill" />
                             </Border.Background>
                         </Border>
                         <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
                             <Border.Background>
-                                <SolidColorBrush Color="{Binding}" />
+                                <SolidColorBrush Color="{Binding Converter={StaticResource SKColorToMediaColorConverter}}" />
                             </Border.Background>
                         </Border>
                         <i:Interaction.Triggers>

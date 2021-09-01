@@ -30,6 +30,7 @@
             <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:ZoomTool}" x:Key="IsZoomToolConverter"/>
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:MoveViewportTool}" x:Key="IsMoveViewportToolConverter"/>
+            <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -301,8 +302,8 @@
                                     <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
                                                              CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                              CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
-                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" 
+                                        <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"
+                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" 
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
                                             <i:Interaction.Behaviors>
                                                 <behaviours:GlobalShortcutFocusBehavior/>
@@ -354,7 +355,7 @@
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                         <usercontrols:PreviewWindow 
                                             Document="{Binding BitmapManager.ActiveDocument}"
-                                            PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
+                                            PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
@@ -366,30 +367,30 @@
 
         <Border Grid.Row="2" Grid.Column="0"
                     Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5,0,5,5">
-        <StackPanel Orientation="Vertical" Cursor="Arrow" >
+            <StackPanel Orientation="Vertical" Cursor="Arrow" >
 
-            <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button BorderBrush="White"                                
+                <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button BorderBrush="White"                                
                                 BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
                                 Style="{StaticResource ToolButtonStyle}"
                                 Command="{Binding Path=DataContext.ToolsSubViewModel.SelectToolCommand,
                             RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}" ToolTip="{Binding Tooltip}">
-                            <Button.Background>
-                                <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
-                            </Button.Background>
+                                <Button.Background>
+                                    <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
+                                </Button.Background>
                                 <Button.Resources>
                                     <Style TargetType="Border">
                                         <Setter Property="CornerRadius" Value="2.5"/>
                                     </Style>
                                 </Button.Resources>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </Border>
 
         <Grid Grid.Row="3" Grid.Column="1">

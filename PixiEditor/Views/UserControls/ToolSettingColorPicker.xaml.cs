@@ -1,6 +1,5 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.ViewModels;
-using SkiaSharp;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -13,7 +12,7 @@ namespace PixiEditor.Views
     public partial class ToolSettingColorPicker : UserControl
     {
         public static readonly DependencyProperty SelectedColorProperty =
-            DependencyProperty.Register(nameof(SelectedColor), typeof(SKColor), typeof(ToolSettingColorPicker));
+            DependencyProperty.Register(nameof(SelectedColor), typeof(Color), typeof(ToolSettingColorPicker));
 
         public Color SelectedColor
         {
