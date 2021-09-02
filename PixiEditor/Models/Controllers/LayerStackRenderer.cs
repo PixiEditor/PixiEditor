@@ -31,6 +31,8 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public Surface FinalSurface { get => finalSurface; }
+
         public event PropertyChangedEventHandler PropertyChanged;
         public LayerStackRenderer(ObservableCollection<Layer> layers, LayerStructure structure, int width, int height)
         {

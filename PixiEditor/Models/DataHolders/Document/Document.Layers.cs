@@ -1,10 +1,10 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
+using SkiaSharp;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -517,9 +516,9 @@ namespace PixiEditor.Models.DataHolders
             return layer;
         }
 
-        public Color GetColorAtPoint(int x, int y)
+        public SKColor GetColorAtPoint(int x, int y)
         {
-            return BitmapUtils.GetColorAtPointCombined(x, y, Layers.ToArray());
+            return Renderer.FinalSurface.GetSRGBPixel(x, y);
         }
 
         private void BuildLayerStructureProcess(object[] parameters)

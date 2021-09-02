@@ -26,7 +26,7 @@
               Visibility="{Binding Document, Converter={StaticResource NullToVisibilityConverter}, ElementName=uc}"
               Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
               Background="{Binding ActiveItem.Value, ElementName=backgroundButton}" d:Width="8" d:Height="8">
-                <ItemsControl ItemsSource="{Binding Document.Layers, ElementName=uc}">
+                <!--<ItemsControl ItemsSource="{Binding Document.Layers, ElementName=uc}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Grid/>
@@ -52,7 +52,9 @@
                             </Image>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                </ItemsControl>-->
+                <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Document.Renderer.FinalBitmap, ElementName=uc}"
+                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" />
                 <Border x:Name="colorCursor" Width="1" Height="1"
                     Margin="{Binding ColorCursorPosition, ElementName=uc}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"

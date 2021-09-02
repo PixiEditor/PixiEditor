@@ -39,21 +39,6 @@ namespace PixiEditor.Models.ImageManipulation
             return finalSurface;
         }
 
-        public static Color GetColorAtPointCombined(int x, int y, params Layer[] layers)
-        {
-            Color prevColor = Color.FromArgb(0, 0, 0, 0);
-            /*
-            for (int i = 0; i < layers.Length; i++)
-            {
-                Color color = layers[i].GetPixelWithOffset(x, y);
-                float layerOpacity = layers[i].Opacity;
-
-                prevColor = BlendColor(prevColor, color, layerOpacity);
-            }*/
-
-            return prevColor;
-        }
-
         /// <summary>
         /// Generates simplified preview from Document, very fast, great for creating small previews. Creates uniform streched image.
         /// </summary>
