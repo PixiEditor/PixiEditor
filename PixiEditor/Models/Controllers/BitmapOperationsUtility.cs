@@ -185,7 +185,6 @@ namespace PixiEditor.Models.Controllers
                 Layer layer = layers[i];
                 LayerChange change = changes.First(x => x.LayerGuid == layer.LayerGuid);
                 layer.SetPixels(change.PixelChanges, false);
-                layer.InvokeLayerBitmapChange(new System.Windows.Int32Rect(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height));
             }
 
             return oldPixelValues;

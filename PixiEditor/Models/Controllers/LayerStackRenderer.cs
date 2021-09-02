@@ -45,7 +45,7 @@ namespace PixiEditor.Models.Controllers
             finalSurface?.Dispose();
             backingSurface?.Dispose();
             finalSurface = new Surface(newWidth, newHeight);
-            finalBitmap = new WriteableBitmap(newWidth, newHeight, 96, 96, PixelFormats.Pbgra32, null);
+            FinalBitmap = new WriteableBitmap(newWidth, newHeight, 96, 96, PixelFormats.Pbgra32, null);
             var imageInfo = new SKImageInfo(newWidth, newHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb());
             backingSurface = SKSurface.Create(imageInfo, finalBitmap.BackBuffer, finalBitmap.BackBufferStride);
             Update(new Int32Rect(0, 0, newWidth, newHeight));
