@@ -11,6 +11,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
+using PixiEditorTests.ModelsTests.ColorsTests;
 using PixiEditorTests.ModelsTests.LayersTests;
 using Xunit;
 
@@ -31,10 +32,10 @@ namespace PixiEditorTests.ModelsTests.UndoTests
         public Document GenerateTestDocument()
         {
             Document testDocument = new Document(10, 10);
-            WriteableBitmap testBitmap = BitmapFactory.New(10, 10);
-            WriteableBitmap testBitmap2 = BitmapFactory.New(5, 8);
-            testBitmap.SetPixel(0, 0, Colors.Black);
-            testBitmap2.SetPixel(4, 4, Colors.Beige);
+            using Surface testBitmap = new Surface(10, 10);
+            using Surface testBitmap2 = new Surface(5, 8);
+            testBitmap.SetSRGBPixel(0, 0, ExtendedColorTests.black);
+            testBitmap2.SetSRGBPixel(4, 4, ExtendedColorTests.blue);
             Random random = new Random();
             testDocument.Layers = new ObservableCollection<Layer>()
             {

@@ -7,6 +7,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 using PixiEditorTests.HelpersTests;
+using PixiEditorTests.ModelsTests.ColorsTests;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -54,9 +55,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             manager.ActiveLayer.SetPixel(
                 new Coordinates(
                 (int)Math.Ceiling(initialWidth / 2f),
-                (int)Math.Ceiling(initialHeight / 2f)), Colors.Black);
+                (int)Math.Ceiling(initialHeight / 2f)), ExtendedColorTests.black);
 
-            manager.ActiveLayer.SetPixel(new Coordinates(additionalPixelX, additionalPixelY), Colors.Black);
+            manager.ActiveLayer.SetPixel(new Coordinates(additionalPixelX, additionalPixelY), ExtendedColorTests.black);
 
             document.ClipCanvas();
 
@@ -80,11 +81,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             manager.ActiveLayer.SetPixel(
                 new Coordinates(
                 (int)Math.Ceiling(initialWidth / 2f),
-                (int)Math.Ceiling(initialHeight / 2f)), Colors.Black); // Set pixel in center
+                (int)Math.Ceiling(initialHeight / 2f)), ExtendedColorTests.black); // Set pixel in center
 
             manager.ActiveDocument.AddNewLayer("test2");
 
-            manager.ActiveLayer.SetPixel(new Coordinates(secondLayerPixelX, secondLayerPixelY), Colors.Black);
+            manager.ActiveLayer.SetPixel(new Coordinates(secondLayerPixelX, secondLayerPixelY), ExtendedColorTests.black);
 
             document.ClipCanvas();
 
@@ -113,7 +114,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             };
             manager.ActiveDocument.AddNewLayer("test");
 
-            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), Colors.Green);
+            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), ExtendedColorTests.green);
 
             doc.CenterContent();
 
@@ -133,10 +134,10 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
                 ActiveDocument = doc
             };
             manager.ActiveDocument.AddNewLayer("test");
-            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), Colors.Green);
+            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), ExtendedColorTests.green);
 
             manager.ActiveDocument.AddNewLayer("test2");
-            manager.ActiveLayer.SetPixel(new Coordinates(1, 1), Colors.Green);
+            manager.ActiveLayer.SetPixel(new Coordinates(1, 1), ExtendedColorTests.green);
 
             foreach (var layer in manager.ActiveDocument.Layers)
             {

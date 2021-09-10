@@ -54,7 +54,7 @@ namespace PixiEditor.Models.DataHolders
         {
             get
             {
-                if (previewBitmap == null)
+                if (previewBitmap == null && !Corrupt)
                 {
                     PreviewBitmap = LoadPreviewBitmap();
                 }

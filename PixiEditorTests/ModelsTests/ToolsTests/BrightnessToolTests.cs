@@ -2,6 +2,7 @@
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditorTests.ModelsTests.ColorsTests;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ToolsTests
@@ -21,7 +22,7 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
             BrightnessTool tool = new BrightnessTool();
 
             Layer layer = new Layer("test", 1, 1);
-            layer.SetPixel(new Coordinates(0, 0), correctionFactor < 0 ? Colors.White : Colors.Black);
+            layer.SetPixel(new Coordinates(0, 0), correctionFactor < 0 ? ExtendedColorTests.white : ExtendedColorTests.black);
 
             PixiEditor.Models.DataHolders.BitmapPixelChanges changes = tool.ChangeBrightness(layer, new Coordinates(0, 0), 1, correctionFactor);
             layer.SetPixels(changes);

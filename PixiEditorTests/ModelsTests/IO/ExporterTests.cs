@@ -5,6 +5,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditorTests.ModelsTests.ColorsTests;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.IO
@@ -30,9 +31,9 @@ namespace PixiEditorTests.ModelsTests.IO
             string filePath = "testFile.pixi";
 
             document.Layers.Add(new Layer("layer1"));
-            document.Layers[0].SetPixel(new Coordinates(1, 1), Colors.White);
+            document.Layers[0].SetPixel(new Coordinates(1, 1), ExtendedColorTests.white);
 
-            document.Swatches.Add(Colors.White);
+            document.Swatches.Add(ExtendedColorTests.white);
 
             Exporter.SaveAsEditableFile(document, filePath);
 

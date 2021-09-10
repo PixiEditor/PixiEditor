@@ -4,6 +4,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Undo;
+using PixiEditorTests.ModelsTests.ColorsTests;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
@@ -83,7 +84,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             bitmapManager.ActiveDocument.AddNewLayer("Layer");
             bitmapManager.SetActiveTool(new MockedSinglePixelPenTool());
-            bitmapManager.PrimaryColor = Colors.Green;
+            bitmapManager.PrimaryColor = ExtendedColorTests.black;
 
             bitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
             bitmapManager.MouseController.RecordMouseMovementChange(new Coordinates(1, 1));
@@ -91,7 +92,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             bitmapManager.ExecuteTool(new Coordinates(1, 1), true);
 
-            Assert.Equal(Colors.Green, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
+            Assert.Equal(ExtendedColorTests.black, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
         }
     }
 }
