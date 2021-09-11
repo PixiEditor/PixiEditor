@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
-using PixiEditorTests.ModelsTests.ColorsTests;
 using PixiEditorTests.ModelsTests.LayersTests;
+using SkiaSharp;
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.UndoTests
@@ -34,8 +28,8 @@ namespace PixiEditorTests.ModelsTests.UndoTests
             Document testDocument = new Document(10, 10);
             using Surface testBitmap = new Surface(10, 10);
             using Surface testBitmap2 = new Surface(5, 8);
-            testBitmap.SetSRGBPixel(0, 0, ExtendedColorTests.black);
-            testBitmap2.SetSRGBPixel(4, 4, ExtendedColorTests.blue);
+            testBitmap.SetSRGBPixel(0, 0, SKColors.Black);
+            testBitmap2.SetSRGBPixel(4, 4, SKColors.Blue);
             Random random = new Random();
             testDocument.Layers = new ObservableCollection<Layer>()
             {

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Windows.Media;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 using PixiEditorTests.HelpersTests;
-using PixiEditorTests.ModelsTests.ColorsTests;
+using SkiaSharp;
+using System;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -55,9 +54,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             manager.ActiveLayer.SetPixel(
                 new Coordinates(
                 (int)Math.Ceiling(initialWidth / 2f),
-                (int)Math.Ceiling(initialHeight / 2f)), ExtendedColorTests.black);
+                (int)Math.Ceiling(initialHeight / 2f)), SKColors.Black);
 
-            manager.ActiveLayer.SetPixel(new Coordinates(additionalPixelX, additionalPixelY), ExtendedColorTests.black);
+            manager.ActiveLayer.SetPixel(new Coordinates(additionalPixelX, additionalPixelY), SKColors.Black);
 
             document.ClipCanvas();
 
@@ -81,11 +80,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             manager.ActiveLayer.SetPixel(
                 new Coordinates(
                 (int)Math.Ceiling(initialWidth / 2f),
-                (int)Math.Ceiling(initialHeight / 2f)), ExtendedColorTests.black); // Set pixel in center
+                (int)Math.Ceiling(initialHeight / 2f)), SKColors.Black); // Set pixel in center
 
             manager.ActiveDocument.AddNewLayer("test2");
 
-            manager.ActiveLayer.SetPixel(new Coordinates(secondLayerPixelX, secondLayerPixelY), ExtendedColorTests.black);
+            manager.ActiveLayer.SetPixel(new Coordinates(secondLayerPixelX, secondLayerPixelY), SKColors.Black);
 
             document.ClipCanvas();
 
@@ -114,7 +113,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             };
             manager.ActiveDocument.AddNewLayer("test");
 
-            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), ExtendedColorTests.green);
+            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), SKColors.Lime);
 
             doc.CenterContent();
 
@@ -134,10 +133,10 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
                 ActiveDocument = doc
             };
             manager.ActiveDocument.AddNewLayer("test");
-            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), ExtendedColorTests.green);
+            manager.ActiveLayer.SetPixel(new Coordinates(0, 0), SKColors.Lime);
 
             manager.ActiveDocument.AddNewLayer("test2");
-            manager.ActiveLayer.SetPixel(new Coordinates(1, 1), ExtendedColorTests.green);
+            manager.ActiveLayer.SetPixel(new Coordinates(1, 1), SKColors.Lime);
 
             foreach (var layer in manager.ActiveDocument.Layers)
             {
@@ -322,7 +321,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         {
             const string layerName = "New Layer";
 
-            Document document = new (10, 10);
+            Document document = new(10, 10);
 
             document.AddNewLayer(layerName);
             Layer duplicate = document.DuplicateLayer(0);
@@ -337,7 +336,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         {
             const string layerName = "New Layer";
 
-            Document document = new (10, 10);
+            Document document = new(10, 10);
 
             document.AddNewLayer(layerName);
             document.AddNewLayer(layerName);

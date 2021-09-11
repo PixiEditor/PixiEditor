@@ -27,7 +27,7 @@ namespace PixiEditorSkiaRewrite
         public void TestSurfaceSRGBPixelManipulation()
         {
             using Surface surface = new Surface(128, 200);
-            surface.SkiaSurface.Canvas.Clear(SKExtendedColorTests.red);
+            surface.SkiaSurface.Canvas.Clear(SKColors.Red);
             surface.SkiaSurface.Canvas.DrawRect(new SKRect(10, 10, 70, 70), redPaint);
             surface.SetSRGBPixel(73, 21, greenColor);
             Assert.Equal(redColor, surface.GetSRGBPixel(14, 14));
@@ -79,12 +79,12 @@ namespace PixiEditorSkiaRewrite
         }
 
         [Fact]
-        public void TestSurfaceToSurface()
+        public void TestSurfaceToWriteableBitmap()
         {
             using Surface original = new Surface(30, 40);
             original.SkiaSurface.Canvas.Clear(redColor);
             original.SkiaSurface.Canvas.DrawRect(5, 5, 20, 20, greenPaint);
-            var bitmap = original.ToSurface();
+            var bitmap = original.ToWriteableBitmap();
             byte[] pixels = new byte[30 * 40 * 4];
             bitmap.CopyPixels(pixels, 30 * 4, 0);
             Assert.Equal(redColor, new SKColor(pixels[2], pixels[1], pixels[0], pixels[3]));
