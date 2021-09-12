@@ -112,8 +112,8 @@ namespace PixiEditor.Models.DataHolders
             {
                 float widthRatio = (float)newWidth / Width;
                 float heightRatio = (float)newHeight / Height;
-                int layerWidth = (int)(Layers[i].Width * widthRatio);
-                int layerHeight = (int)(Layers[i].Height * heightRatio);
+                int layerWidth = Math.Max(1, (int)(Layers[i].Width * widthRatio));
+                int layerHeight = Math.Max(1, (int)(Layers[i].Height * heightRatio));
 
                 Layers[i].Resize(layerWidth, layerHeight, newWidth, newHeight);
                 Layers[i].Offset = new Thickness(Math.Floor(Layers[i].OffsetX * widthRatio), Math.Floor(Layers[i].OffsetY * heightRatio), 0, 0);
