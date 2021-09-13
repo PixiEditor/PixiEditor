@@ -65,7 +65,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.Equal(2, img.Width);
             Assert.Equal(2, img.Height);
 
-            Surface bmp = new Surface(img);
+            using Surface bmp = new Surface(new WriteableBitmap(img));
             Assert.Equal(testColor, bmp.GetSRGBPixel(0, 0));
             Assert.Equal(testColor, bmp.GetSRGBPixel(1, 1));
         }
@@ -76,27 +76,27 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Clipboard.Clear();
             using Surface bmp = new Surface(10, 10);
             bmp.SetSRGBPixel(4, 4, testColor);
-            Clipboard.SetImage(bmp);
+            Clipboard.SetImage(bmp.ToWriteableBitmap());
 
             Surface img = ClipboardController.GetImageFromClipboard();
             Assert.NotNull(img);
             Assert.Equal(10, img.Width);
             Assert.Equal(10, img.Height);
-            Assert.Equal(testColor, bmp.GetPixel(4, 4));
+            Assert.Equal(testColor, bmp.GetSRGBPixel(4, 4));
         }
 
         [StaFact]
         public void TestThatClipboardControllerGetsCorrectImageInPngFormatFromClipboard()
         {
             Clipboard.Clear();
-            Surface bmp = BitmapFactory.New(10, 10);
-            bmp.SetPixel(4, 4, testColor);
+            using Surface bmp = new Surface(10, 10);
+            bmp.SetSRGBPixel(4, 4, testColor);
             using (MemoryStream pngStream = new MemoryStream())
             {
                 DataObject data = new DataObject();
 
                 PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bmp));
+                encoder.Frames.Add(BitmapFrame.Create(bmp.ToWriteableBitmap()));
                 encoder.Save(pngStream);
                 data.SetData("PNG", pngStream, false); // PNG, supports transparency
                 Clipboard.SetDataObject(data, true);
@@ -106,15 +106,15 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.NotNull(img);
             Assert.Equal(10, img.Width);
             Assert.Equal(10, img.Height);
-            Assert.Equal(testColor, bmp.GetPixel(4, 4));
+            Assert.Equal(testColor, bmp.GetSRGBPixel(4, 4));
         }
 
         [StaFact]
         public void TestThatClipboardControllerGetsCorrectImageInBitmapFormatFromClipboard()
         {
             Clipboard.Clear();
-            Surface bmp = BitmapFactory.New(10, 10);
-            bmp.SetPixel(4, 4, testColor);
+            using Surface bmp = new Surface(10, 10);
+            bmp.SetSRGBPixel(4, 4, testColor);
 
             DataObject data = new DataObject();
             data.SetData(DataFormats.Bitmap, bmp, false); // PNG, supports transparency
@@ -124,7 +124,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             Assert.NotNull(img);
             Assert.Equal(10, img.Width);
             Assert.Equal(10, img.Height);
-            Assert.Equal(testColor, bmp.GetPixel(4, 4));
+            Assert.Equal(testColor, bmp.GetSRGBPixel(4, 4));
         }
     }
 }
