@@ -74,7 +74,7 @@ namespace PixiEditor.Models.Controllers
             finalSurface.SkiaSurface.Canvas.Clear();
             foreach (var layer in layers)
             {
-                if (!layer.IsVisible)
+                if (!LayerStructureUtils.GetFinalLayerIsVisible(layer, structure))
                     continue;
                 BlendingPaint.Color = new SKColor(255, 255, 255, (byte)(LayerStructureUtils.GetFinalLayerOpacity(layer, structure) * 255));
                 layer.LayerBitmap.SkiaSurface.Draw(

@@ -95,12 +95,11 @@ namespace PixiEditor.Models.Layers
             get => isVisible;
             set
             {
-                if (SetProperty(ref isVisible, value))
-                {
-                    RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
-                    InvokeLayerBitmapChange();
-                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
-                }
+                isVisible = value;
+                RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
+                RaisePropertyChanged(nameof(IsVisible));
+                ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
+                InvokeLayerBitmapChange();
             }
         }
 
@@ -121,6 +120,7 @@ namespace PixiEditor.Models.Layers
                             new object[] { LayerGuid },
                             "Change layer visibility"));
                     IsVisible = value;
+                    InvokeLayerBitmapChange();
                 }
             }
         }
@@ -151,12 +151,9 @@ namespace PixiEditor.Models.Layers
             get => opacity;
             set
             {
-                if (SetProperty(ref opacity, value))
-                {
-                    RaisePropertyChanged(nameof(OpacityUndoTriggerable));
-                    InvokeLayerBitmapChange();
-                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
-                }
+                RaisePropertyChanged(nameof(OpacityUndoTriggerable));
+                ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
+                InvokeLayerBitmapChange();
             }
         }
 

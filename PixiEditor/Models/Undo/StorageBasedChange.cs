@@ -20,14 +20,14 @@ namespace PixiEditor.Models.Undo
 
         public UndoLayer[] StoredLayers { get; set; }
 
-        private IEnumerable<Guid> layersToStore;
+        private List<Guid> layersToStore;
 
         private Document document;
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool saveOnStartup = true)
         {
             document = doc;
-            layersToStore = layers.Select(x => x.LayerGuid);
+            layersToStore = layers.Select(x => x.LayerGuid).ToList();
             UndoChangeLocation = DefaultUndoChangeLocation;
             GenerateUndoLayers();
             if (saveOnStartup)
@@ -39,7 +39,7 @@ namespace PixiEditor.Models.Undo
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
         {
             document = doc;
-            layersToStore = layers.Select(x => x.LayerGuid);
+            layersToStore = layers.Select(x => x.LayerGuid).ToList();
             UndoChangeLocation = undoChangeLocation;
             GenerateUndoLayers();
 
@@ -64,7 +64,7 @@ namespace PixiEditor.Models.Undo
                 i++;
             }
 
-            layersToStore = Array.Empty<Guid>();
+            layersToStore = new List<Guid>();
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace PixiEditor.Models.Undo
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
 
-            layersToStore = layers.Select(x => x.LayerGuid);
+            layersToStore = layers.Select(x => x.LayerGuid).ToList();
             return layers;
         }
 
