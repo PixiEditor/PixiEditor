@@ -2,7 +2,7 @@ using PixiEditor.Models.DataHolders;
 using SkiaSharp;
 using Xunit;
 
-namespace PixiEditorSkiaRewrite
+namespace PixiEditorTests.ModelsTests.DataHoldersTests
 {
     public class SurfaceTests
     {

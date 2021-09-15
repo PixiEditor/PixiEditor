@@ -29,7 +29,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             BitmapPixelChanges output = BitmapPixelChanges.CombineOverride(new[] { changes, changes2 });
             Assert.Equal(4, output.ChangedPixels.Count);
             Assert.Equal(SKColors.Red, output.ChangedPixels[new Coordinates(3, 2)]);
-            Assert.Equal(SKColors.Black, output.ChangedPixels[new Coordinates(0, 0)]);
+            Assert.Equal(SKColors.Red, output.ChangedPixels[new Coordinates(0, 0)]);
             Assert.Equal(SKColors.Lime, output.ChangedPixels[new Coordinates(1, 0)]);
         }
 
