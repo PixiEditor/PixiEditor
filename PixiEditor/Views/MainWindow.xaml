@@ -31,6 +31,7 @@
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:ZoomTool}" x:Key="IsZoomToolConverter"/>
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:MoveViewportTool}" x:Key="IsMoveViewportToolConverter"/>
             <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter"/>
+            <converters:DockingManagerActiveContentConverter x:Key="DockingManagerActiveContentConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -240,7 +241,7 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
             <Grid AllowDrop="True" Drop="MainWindow_Drop">
-                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
+                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay, Converter={StaticResource DockingManagerActiveContentConverter}}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
                     <DockingManager.Theme>
                         <avalonDockTheme:PixiEditorDockTheme />

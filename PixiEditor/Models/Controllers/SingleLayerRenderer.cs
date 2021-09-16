@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Layers;
 using SkiaSharp;
 using System;
 using System.ComponentModel;
@@ -63,6 +64,8 @@ namespace PixiEditor.Models.Controllers
                     layer.OffsetY,
                     BlendingPaint);
             }
+            dirtyRectangle = dirtyRectangle.Intersect(new Int32Rect(0, 0, finalBitmap.PixelWidth, finalBitmap.PixelHeight));
+
             finalBitmap.AddDirtyRect(dirtyRectangle);
             finalBitmap.Unlock();
         }

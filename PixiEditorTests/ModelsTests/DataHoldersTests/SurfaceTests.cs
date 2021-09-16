@@ -91,5 +91,18 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             int offset = (30 * 5 + 5) * 4;
             Assert.Equal(greenColor, new SKColor(pixels[2 + offset], pixels[1 + offset], pixels[0 + offset], pixels[3 + offset]));
         }
+
+        [Fact]
+        public void TestSurfaceFromWriteableBitmap()
+        {
+            using Surface original = new Surface(30, 30);
+            original.SkiaSurface.Canvas.Clear(SKColors.Transparent);
+            original.SkiaSurface.Canvas.DrawRect(5, 5, 20, 20, redPaint);
+            original.SkiaSurface.Canvas.DrawRect(10, 10, 20, 20, greenPaint);
+            using Surface fromWriteable = new Surface(original.ToWriteableBitmap());
+            Assert.Equal(original.GetSRGBPixel(0, 0), fromWriteable.GetSRGBPixel(0, 0));
+            Assert.Equal(original.GetSRGBPixel(6, 6), fromWriteable.GetSRGBPixel(6, 6));
+            Assert.Equal(original.GetSRGBPixel(15, 15), fromWriteable.GetSRGBPixel(15, 15));
+        }
     }
 }

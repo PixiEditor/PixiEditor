@@ -204,12 +204,12 @@ namespace PixiEditor.Models.DataHolders
         {
             if (anchor.HasFlag(AnchorPoint.Center))
             {
-                return Math.Abs((destWidth / 2) - (srcWidth / 2));
+                return (destWidth / 2) - (srcWidth / 2);
             }
 
             if (anchor.HasFlag(AnchorPoint.Right))
             {
-                return Math.Abs(destWidth - srcWidth);
+                return destWidth - srcWidth;
             }
 
             return 0;
@@ -219,12 +219,12 @@ namespace PixiEditor.Models.DataHolders
         {
             if (anchor.HasFlag(AnchorPoint.Middle))
             {
-                return Math.Abs((destHeight / 2) - (srcHeight / 2));
+                return (destHeight / 2) - (srcHeight / 2);
             }
 
             if (anchor.HasFlag(AnchorPoint.Bottom))
             {
-                return Math.Abs(destHeight - srcHeight);
+                return destHeight - srcHeight;
             }
 
             return 0;

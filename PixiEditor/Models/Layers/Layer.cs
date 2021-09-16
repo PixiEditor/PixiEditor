@@ -14,7 +14,6 @@ namespace PixiEditor.Models.Layers
     [DebuggerDisplay("'{name,nq}' {width}x{height}")]
     public class Layer : BasicLayer
     {
-        private const int SizeOfArgb = 4;
         private bool clipRequested;
 
         private bool isActive;
@@ -151,6 +150,7 @@ namespace PixiEditor.Models.Layers
             get => opacity;
             set
             {
+                opacity = value;
                 RaisePropertyChanged(nameof(OpacityUndoTriggerable));
                 ViewModelMain.Current?.ToolsSubViewModel?.TriggerCacheOutdated();
                 InvokeLayerBitmapChange();
@@ -189,6 +189,7 @@ namespace PixiEditor.Models.Layers
             {
                 offset = value;
                 RaisePropertyChanged("Offset");
+                InvokeLayerBitmapChange();
             }
         }
 
