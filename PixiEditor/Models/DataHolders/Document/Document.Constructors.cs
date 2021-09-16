@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
+using System;
 using System.Linq;
 
 namespace PixiEditor.Models.DataHolders
@@ -10,6 +11,8 @@ namespace PixiEditor.Models.DataHolders
         public Document(int width, int height)
             : this()
         {
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Document dimensions must be greater than 0");
             Width = width;
             Height = height;
             Renderer = new LayerStackRenderer(layers, layerStructure, Width, Height);

@@ -98,7 +98,7 @@ namespace PixiEditor.Models.Layers
                 isVisible = value;
                 RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
                 RaisePropertyChanged(nameof(IsVisible));
-                ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
+                ViewModelMain.Current?.ToolsSubViewModel?.TriggerCacheOutdated();
                 InvokeLayerBitmapChange();
             }
         }
@@ -152,7 +152,7 @@ namespace PixiEditor.Models.Layers
             set
             {
                 RaisePropertyChanged(nameof(OpacityUndoTriggerable));
-                ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
+                ViewModelMain.Current?.ToolsSubViewModel?.TriggerCacheOutdated();
                 InvokeLayerBitmapChange();
             }
         }

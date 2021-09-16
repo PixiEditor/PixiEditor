@@ -237,11 +237,10 @@ namespace PixiEditor.Models.DataHolders
                 throw new ArgumentException("Not enough layers");
             }
 
-            Layer firstLayer = layers.First();
-            int smallestX = firstLayer.OffsetX;
-            int smallestY = firstLayer.OffsetY;
-            int biggestX = smallestX + firstLayer.Width;
-            int biggestY = smallestY + firstLayer.Height;
+            int smallestX = int.MaxValue;
+            int smallestY = int.MaxValue;
+            int biggestX = int.MinValue;
+            int biggestY = int.MinValue;
 
             foreach (Layer layer in layers)
             {

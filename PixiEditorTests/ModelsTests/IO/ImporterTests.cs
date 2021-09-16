@@ -34,7 +34,7 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatImportImageImportsImage()
         {
-            SKColor color = new SKColor(255, 255, 0, 0);
+            SKColor color = new SKColor(255, 0, 0, 255);
             Surface image = Importer.ImportSurface(testImagePath);
 
             Assert.NotNull(image);

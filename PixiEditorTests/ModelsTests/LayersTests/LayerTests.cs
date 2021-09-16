@@ -14,8 +14,8 @@ namespace PixiEditorTests.ModelsTests.LayersTests
             Layer layer = new Layer("layer");
 
             Assert.Equal("layer", layer.Name);
-            Assert.Equal(0, layer.Width);
-            Assert.Equal(0, layer.Height);
+            Assert.Equal(1, layer.Width);
+            Assert.Equal(1, layer.Height);
             Assert.Equal(1, layer.LayerBitmap.Width);
             Assert.Equal(1, layer.LayerBitmap.Height);
         }

@@ -26,8 +26,8 @@ namespace PixiEditorTests.ModelsTests.UndoTests
         public Document GenerateTestDocument()
         {
             Document testDocument = new Document(10, 10);
-            using Surface testBitmap = new Surface(10, 10);
-            using Surface testBitmap2 = new Surface(5, 8);
+            Surface testBitmap = new Surface(10, 10);
+            Surface testBitmap2 = new Surface(5, 8);
             testBitmap.SetSRGBPixel(0, 0, SKColors.Black);
             testBitmap2.SetSRGBPixel(4, 4, SKColors.Blue);
             Random random = new Random();
