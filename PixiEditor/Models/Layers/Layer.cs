@@ -443,6 +443,7 @@ namespace PixiEditor.Models.Layers
         {
             LayerBitmap.SkiaSurface.Canvas.Clear();
             ClipCanvas();
+            InvokeLayerBitmapChange();
         }
 
         /// <summary>
