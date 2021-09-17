@@ -1,36 +1,26 @@
-﻿using System;
-using System.Windows.Media;
-using PixiEditor.Models.Colors;
+﻿using PixiEditor.Models.Colors;
 using SkiaSharp;
+using System;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ColorsTests
 {
     public class ExtendedColorTests
     {
-
-        public static readonly SKColor white = new SKColor(255, 255, 255);
-        public static readonly SKColor black = new SKColor(0, 0, 0);
-        public static readonly SKColor transparent = new SKColor(0, 0, 0, 0);
-        public static readonly SKColor red = new SKColor(255, 0, 0);
-        public static readonly SKColor green = new SKColor(0, 255, 0);
-        public static readonly SKColor blue = new SKColor(0, 0, 255);
-
         private const int AcceptableMaringOfError = 1;
-
 
         [Fact]
         public void ChangeColorBrightnessIsNotTheSameTest()
         {
-            SKColor newColor = ExColor.ChangeColorBrightness(white, -1);
-            Assert.NotEqual(white, newColor);
+            SKColor newColor = ExColor.ChangeColorBrightness(SKColors.White, -1);
+            Assert.NotEqual(SKColors.White, newColor);
         }
 
         [Fact]
         public void ChangeColorBrightnessNewValueTest()
         {
-            SKColor newColor = ExColor.ChangeColorBrightness(white, -100);
-            Assert.Equal(black, newColor);
+            SKColor newColor = ExColor.ChangeColorBrightness(SKColors.White, -100);
+            Assert.Equal(SKColors.Black, newColor);
         }
 
         // Acceptable margin of error is 1

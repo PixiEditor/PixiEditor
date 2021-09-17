@@ -3,7 +3,7 @@ using PixiEditor.ViewModels;
 using SkiaSharp;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Input;
+using System.Linq;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -18,15 +18,17 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override string Tooltip => "Swaps primary color with selected on canvas. (O)";
 
-        public override void OnMouseDown(MouseEventArgs e)
-        {
-            base.OnMouseDown(e);
-            ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();
-        }
 
         public override void Use(List<Coordinates> coordinates)
         {
-            ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorUnderMouse();
+            var coords = coordinates.First();
+            ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorAt(coords.X, coords.Y);
+        }
+
+        public SKColor GetColorAt(int x, int y)
+        {
+            var color = ViewModelMain.Current.BitmapManager?.ActiveDocument?.Renderer?.FinalSurface.GetSRGBPixel(x, y);
+            return color.HasValue ? color.Value : SKColors.Transparent;
         }
 
         public SKColor GetColorUnderMouse()

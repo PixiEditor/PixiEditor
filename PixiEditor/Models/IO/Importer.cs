@@ -40,21 +40,12 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path of image.</param>
         public static Surface ImportSurface(string path)
         {
-            try
-            {
-                using var image = SKImage.FromEncodedData(path);
-                Surface surface = new Surface(image.Width, image.Height);
-                surface.SkiaSurface.Canvas.DrawImage(image, new SKPoint(0, 0));
-                return surface;
-            }
-            catch (NotSupportedException)
-            {
+            using var image = SKImage.FromEncodedData(path);
+            if (image == null)
                 throw new CorruptedFileException();
-            }
-            catch (FileFormatException)
-            {
-                throw new CorruptedFileException();
-            }
+            Surface surface = new Surface(image.Width, image.Height);
+            surface.SkiaSurface.Canvas.DrawImage(image, new SKPoint(0, 0));
+            return surface;
         }
 
         public static WriteableBitmap ImportWriteableBitmap(string path)

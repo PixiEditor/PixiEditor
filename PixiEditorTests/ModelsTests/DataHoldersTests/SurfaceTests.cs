@@ -2,7 +2,7 @@ using PixiEditor.Models.DataHolders;
 using SkiaSharp;
 using Xunit;
 
-namespace PixiEditorSkiaRewrite
+namespace PixiEditorTests.ModelsTests.DataHoldersTests
 {
     public class SurfaceTests
     {
@@ -27,7 +27,7 @@ namespace PixiEditorSkiaRewrite
         public void TestSurfaceSRGBPixelManipulation()
         {
             using Surface surface = new Surface(128, 200);
-            surface.SkiaSurface.Canvas.Clear(SKExtendedColorTests.red);
+            surface.SkiaSurface.Canvas.Clear(SKColors.Red);
             surface.SkiaSurface.Canvas.DrawRect(new SKRect(10, 10, 70, 70), redPaint);
             surface.SetSRGBPixel(73, 21, greenColor);
             Assert.Equal(redColor, surface.GetSRGBPixel(14, 14));
@@ -79,17 +79,30 @@ namespace PixiEditorSkiaRewrite
         }
 
         [Fact]
-        public void TestSurfaceToSurface()
+        public void TestSurfaceToWriteableBitmap()
         {
             using Surface original = new Surface(30, 40);
             original.SkiaSurface.Canvas.Clear(redColor);
             original.SkiaSurface.Canvas.DrawRect(5, 5, 20, 20, greenPaint);
-            var bitmap = original.ToSurface();
+            var bitmap = original.ToWriteableBitmap();
             byte[] pixels = new byte[30 * 40 * 4];
             bitmap.CopyPixels(pixels, 30 * 4, 0);
             Assert.Equal(redColor, new SKColor(pixels[2], pixels[1], pixels[0], pixels[3]));
             int offset = (30 * 5 + 5) * 4;
             Assert.Equal(greenColor, new SKColor(pixels[2 + offset], pixels[1 + offset], pixels[0 + offset], pixels[3 + offset]));
+        }
+
+        [Fact]
+        public void TestSurfaceFromWriteableBitmap()
+        {
+            using Surface original = new Surface(30, 30);
+            original.SkiaSurface.Canvas.Clear(SKColors.Transparent);
+            original.SkiaSurface.Canvas.DrawRect(5, 5, 20, 20, redPaint);
+            original.SkiaSurface.Canvas.DrawRect(10, 10, 20, 20, greenPaint);
+            using Surface fromWriteable = new Surface(original.ToWriteableBitmap());
+            Assert.Equal(original.GetSRGBPixel(0, 0), fromWriteable.GetSRGBPixel(0, 0));
+            Assert.Equal(original.GetSRGBPixel(6, 6), fromWriteable.GetSRGBPixel(6, 6));
+            Assert.Equal(original.GetSRGBPixel(15, 15), fromWriteable.GetSRGBPixel(15, 15));
         }
     }
 }

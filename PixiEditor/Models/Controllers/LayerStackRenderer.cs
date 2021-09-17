@@ -40,6 +40,7 @@ namespace PixiEditor.Models.Controllers
             this.layers = layers;
             this.structure = structure;
             layers.CollectionChanged += OnLayersChanged;
+            SubscribeToAllLayers(layers);
             Resize(width, height);
         }
 
@@ -57,7 +58,9 @@ namespace PixiEditor.Models.Controllers
         public void SetNewLayersCollection(ObservableCollection<Layer> layers)
         {
             layers.CollectionChanged -= OnLayersChanged;
+            UnsubscribeFromAllLayers(this.layers);
             this.layers = layers;
+            SubscribeToAllLayers(layers);
             layers.CollectionChanged += OnLayersChanged;
             Update(new Int32Rect(0, 0, finalSurface.Width, finalSurface.Height));
         }
@@ -70,12 +73,28 @@ namespace PixiEditor.Models.Controllers
             layers.CollectionChanged -= OnLayersChanged;
         }
 
+        private void SubscribeToAllLayers(ObservableCollection<Layer> layers)
+        {
+            foreach (var layer in layers)
+            {
+                layer.LayerBitmapChanged += OnLayerBitmapChanged;
+            }
+        }
+
+        private void UnsubscribeFromAllLayers(ObservableCollection<Layer> layers)
+        {
+            foreach (var layer in layers)
+            {
+                layer.LayerBitmapChanged -= OnLayerBitmapChanged;
+            }
+        }
+
         private void Update(Int32Rect dirtyRectangle)
         {
             finalSurface.SkiaSurface.Canvas.Clear();
             foreach (var layer in layers)
             {
-                if (!layer.IsVisible)
+                if (!LayerStructureUtils.GetFinalLayerIsVisible(layer, structure))
                     continue;
                 BlendingPaint.Color = new SKColor(255, 255, 255, (byte)(LayerStructureUtils.GetFinalLayerOpacity(layer, structure) * 255));
                 layer.LayerBitmap.SkiaSurface.Draw(
@@ -86,7 +105,10 @@ namespace PixiEditor.Models.Controllers
             }
             finalBitmap.Lock();
             finalSurface.SkiaSurface.Draw(backingSurface.Canvas, 0, 0, Surface.ReplacingPaint);
-            finalBitmap.AddDirtyRect(dirtyRectangle.Min(new Int32Rect(0, 0, finalBitmap.PixelWidth, finalBitmap.PixelHeight)));
+
+            dirtyRectangle = dirtyRectangle.Intersect(new Int32Rect(0, 0, finalBitmap.PixelWidth, finalBitmap.PixelHeight));
+
+            finalBitmap.AddDirtyRect(dirtyRectangle);
             finalBitmap.Unlock();
         }
 

@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Windows.Media;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditorTests.ModelsTests.ColorsTests;
+using SkiaSharp;
+using System.Collections.Generic;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
@@ -19,7 +18,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             Layer testLayer = new Layer("test layer", 10, 10);
             Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };
-            BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(cords, ExtendedColorTests.black);
+            BitmapPixelChanges pixels = BitmapPixelChanges.FromSingleColoredArray(cords, SKColors.Black);
             testLayer.SetPixels(pixels);
 
             util.DeletePixels(new[] { testLayer }, cords);
@@ -34,7 +33,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             BitmapManager manager = new BitmapManager
             {
                 ActiveDocument = new Document(10, 10),
-                PrimaryColor = ExtendedColorTests.black
+                PrimaryColor = SKColors.Black
             };
             manager.ActiveDocument.AddNewLayer("Test layer", 10, 10);
 
@@ -43,7 +42,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             List<Coordinates> mouseMove = new List<Coordinates>(new[] { new Coordinates(0, 0) });
 
             util.ExecuteTool(new Coordinates(0, 0), mouseMove, new MockedSinglePixelPenTool());
-            Assert.Equal(manager.ActiveLayer.GetPixel(0, 0), ExtendedColorTests.black);
+            Assert.Equal(manager.ActiveLayer.GetPixel(0, 0), SKColors.Black);
         }
     }
 }

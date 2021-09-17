@@ -1,9 +1,8 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Windows.Data;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
+using System;
+using System.Globalization;
+using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
@@ -13,7 +12,8 @@ namespace PixiEditor.Helpers.Converters
         {
             if (value is Layer layer && ViewModelMain.Current.BitmapManager.ActiveDocument != null)
             {
-                return ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
+                int index = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
+                return index;
             }
 
             return Binding.DoNothing;

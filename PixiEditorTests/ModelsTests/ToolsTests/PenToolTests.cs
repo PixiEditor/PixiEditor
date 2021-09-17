@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditorTests.HelpersTests;
-using PixiEditorTests.ModelsTests.ColorsTests;
+using SkiaSharp;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ToolsTests
@@ -19,9 +19,9 @@ namespace PixiEditorTests.ModelsTests.ToolsTests
             Coordinates end2 = new Coordinates(1, 0);
             Coordinates start2 = new Coordinates(1, 1);
 
-            pen.Draw(start, end, ExtendedColorTests.black, 1, true);
-            pen.Draw(end, end2, ExtendedColorTests.black, 1, true);
-            var points = pen.Draw(end2, start2, ExtendedColorTests.black, 1, true);
+            pen.Draw(start, end, SKColors.Black, 1, true);
+            pen.Draw(end, end2, SKColors.Black, 1, true);
+            var points = pen.Draw(end2, start2, SKColors.Black, 1, true);
 
             Assert.Contains(points.ChangedPixels, x => x.Value.Alpha == 0);
         }

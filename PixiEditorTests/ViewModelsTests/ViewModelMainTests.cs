@@ -3,10 +3,9 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels;
 using PixiEditorTests.HelpersTests;
-using PixiEditorTests.ModelsTests.ColorsTests;
+using SkiaSharp;
 using System.IO;
 using System.Windows.Input;
-using System.Windows.Media;
 using Xunit;
 
 namespace PixiEditorTests.ViewModelsTests
@@ -31,13 +30,13 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
-            viewModel.ColorsSubViewModel.PrimaryColor = ExtendedColorTests.black;
-            viewModel.ColorsSubViewModel.SecondaryColor = ExtendedColorTests.white;
+            viewModel.ColorsSubViewModel.PrimaryColor = SKColors.Black;
+            viewModel.ColorsSubViewModel.SecondaryColor = SKColors.White;
 
             viewModel.ColorsSubViewModel.SwapColorsCommand.Execute(null);
 
-            Assert.Equal(ExtendedColorTests.white, viewModel.ColorsSubViewModel.PrimaryColor);
-            Assert.Equal(ExtendedColorTests.black, viewModel.ColorsSubViewModel.SecondaryColor);
+            Assert.Equal(SKColors.White, viewModel.ColorsSubViewModel.PrimaryColor);
+            Assert.Equal(SKColors.Black, viewModel.ColorsSubViewModel.SecondaryColor);
         }
 
         [StaFact]
@@ -131,11 +130,11 @@ namespace PixiEditorTests.ViewModelsTests
             ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
-            viewModel.ColorsSubViewModel.AddSwatch(ExtendedColorTests.green);
-            viewModel.ColorsSubViewModel.AddSwatch(ExtendedColorTests.green);
+            viewModel.ColorsSubViewModel.AddSwatch(SKColors.Lime);
+            viewModel.ColorsSubViewModel.AddSwatch(SKColors.Lime);
 
             Assert.Single(viewModel.BitmapManager.ActiveDocument.Swatches);
-            Assert.Equal(ExtendedColorTests.green, viewModel.BitmapManager.ActiveDocument.Swatches[0]);
+            Assert.Equal(SKColors.Lime, viewModel.BitmapManager.ActiveDocument.Swatches[0]);
         }
 
         [StaTheory]

@@ -14,7 +14,6 @@ namespace PixiEditor.Models.Layers
     [DebuggerDisplay("'{name,nq}' {width}x{height}")]
     public class Layer : BasicLayer
     {
-        private const int SizeOfArgb = 4;
         private bool clipRequested;
 
         private bool isActive;
@@ -95,12 +94,11 @@ namespace PixiEditor.Models.Layers
             get => isVisible;
             set
             {
-                if (SetProperty(ref isVisible, value))
-                {
-                    RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
-                    InvokeLayerBitmapChange();
-                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
-                }
+                isVisible = value;
+                RaisePropertyChanged(nameof(IsVisibleUndoTriggerable));
+                RaisePropertyChanged(nameof(IsVisible));
+                ViewModelMain.Current?.ToolsSubViewModel?.TriggerCacheOutdated();
+                InvokeLayerBitmapChange();
             }
         }
 
@@ -121,6 +119,7 @@ namespace PixiEditor.Models.Layers
                             new object[] { LayerGuid },
                             "Change layer visibility"));
                     IsVisible = value;
+                    InvokeLayerBitmapChange();
                 }
             }
         }
@@ -151,12 +150,10 @@ namespace PixiEditor.Models.Layers
             get => opacity;
             set
             {
-                if (SetProperty(ref opacity, value))
-                {
-                    RaisePropertyChanged(nameof(OpacityUndoTriggerable));
-                    InvokeLayerBitmapChange();
-                    ViewModelMain.Current.ToolsSubViewModel.TriggerCacheOutdated();
-                }
+                opacity = value;
+                RaisePropertyChanged(nameof(OpacityUndoTriggerable));
+                ViewModelMain.Current?.ToolsSubViewModel?.TriggerCacheOutdated();
+                InvokeLayerBitmapChange();
             }
         }
 
@@ -192,6 +189,7 @@ namespace PixiEditor.Models.Layers
             {
                 offset = value;
                 RaisePropertyChanged("Offset");
+                InvokeLayerBitmapChange();
             }
         }
 
@@ -445,6 +443,7 @@ namespace PixiEditor.Models.Layers
         {
             LayerBitmap.SkiaSurface.Canvas.Clear();
             ClipCanvas();
+            InvokeLayerBitmapChange();
         }
 
         /// <summary>

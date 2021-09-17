@@ -1,12 +1,9 @@
 ﻿using PixiEditor.Exceptions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
-using PixiEditorTests.ModelsTests.ColorsTests;
 using SkiaSharp;
 using System;
 using System.IO;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.IO
@@ -37,7 +34,7 @@ namespace PixiEditorTests.ModelsTests.IO
         [Fact]
         public void TestThatImportImageImportsImage()
         {
-            SKColor color = new SKColor(255, 255, 0, 0);
+            SKColor color = new SKColor(255, 0, 0, 255);
             Surface image = Importer.ImportSurface(testImagePath);
 
             Assert.NotNull(image);
@@ -79,7 +76,7 @@ namespace PixiEditorTests.ModelsTests.IO
         public void TestSaveAndLoadGZippedBytes()
         {
             using Surface original = new Surface(123, 456);
-            original.SkiaSurface.Canvas.Clear(ExtendedColorTests.red);
+            original.SkiaSurface.Canvas.Clear(SKColors.Red);
             using SKPaint paint = new SKPaint();
             paint.BlendMode = SKBlendMode.Src;
             paint.Color = new SKColor(128, 64, 32, 16);

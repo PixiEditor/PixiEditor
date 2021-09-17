@@ -2,6 +2,7 @@
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
@@ -120,30 +121,7 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         /// <param name="layer">Layer to check.</param>
         /// <returns>True if is visible, false if at least parent is not visible or layer itself is invisible.</returns>
-        public bool GetFinalLayerIsVisible(Layer layer)
-        {
-            if (!layer.IsVisible)
-            {
-                return false;
-            }
-
-            var group = LayerStructure.GetGroupByLayer(layer.LayerGuid);
-            bool atLeastOneParentIsInvisible = false;
-            GuidStructureItem groupToCheck = group;
-            while (groupToCheck != null)
-            {
-                if (!groupToCheck.IsVisible)
-                {
-                    atLeastOneParentIsInvisible = true;
-                    break;
-                }
-
-                groupToCheck = groupToCheck.Parent;
-            }
-
-            return !atLeastOneParentIsInvisible;
-        }
-
+        public bool GetFinalLayerIsVisible(Layer layer) => LayerStructureUtils.GetFinalLayerIsVisible(layer, LayerStructure);
         public void UpdateLayersColor()
         {
             foreach (var layer in Layers)

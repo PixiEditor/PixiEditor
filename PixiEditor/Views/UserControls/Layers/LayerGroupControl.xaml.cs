@@ -292,7 +292,7 @@ namespace PixiEditor.Views.UserControls.Layers
 
                 foreach (var layer in layers)
                 {
-                    layer.RaisePropertyChange(nameof(layer.IsVisible));
+                    layer.IsVisible = layer.IsVisible;
                 }
 
                 IsVisibleUndoTriggerable = value;

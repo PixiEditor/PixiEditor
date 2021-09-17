@@ -2,6 +2,7 @@
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
@@ -150,7 +151,7 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void CenterContent()
         {
-            var layersToCenter = Layers.Where(x => x.IsActive && GetFinalLayerIsVisible(x));
+            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure));
             if (!layersToCenter.Any())
             {
                 return;
@@ -187,7 +188,7 @@ namespace PixiEditor.Models.DataHolders
         private void SetAsActiveOnClick(object obj)
         {
             XamlAccesibleViewModel.BitmapManager.MouseController.StopRecordingMouseMovementChanges();
-            XamlAccesibleViewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
+            //XamlAccesibleViewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
             if (XamlAccesibleViewModel.BitmapManager.ActiveDocument != this)
             {
                 XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
@@ -203,12 +204,12 @@ namespace PixiEditor.Models.DataHolders
         {
             if (anchor.HasFlag(AnchorPoint.Center))
             {
-                return Math.Abs((destWidth / 2) - (srcWidth / 2));
+                return (destWidth / 2) - (srcWidth / 2);
             }
 
             if (anchor.HasFlag(AnchorPoint.Right))
             {
-                return Math.Abs(destWidth - srcWidth);
+                return destWidth - srcWidth;
             }
 
             return 0;
@@ -218,12 +219,12 @@ namespace PixiEditor.Models.DataHolders
         {
             if (anchor.HasFlag(AnchorPoint.Middle))
             {
-                return Math.Abs((destHeight / 2) - (srcHeight / 2));
+                return (destHeight / 2) - (srcHeight / 2);
             }
 
             if (anchor.HasFlag(AnchorPoint.Bottom))
             {
-                return Math.Abs(destHeight - srcHeight);
+                return destHeight - srcHeight;
             }
 
             return 0;
@@ -236,11 +237,10 @@ namespace PixiEditor.Models.DataHolders
                 throw new ArgumentException("Not enough layers");
             }
 
-            Layer firstLayer = layers.First();
-            int smallestX = firstLayer.OffsetX;
-            int smallestY = firstLayer.OffsetY;
-            int biggestX = smallestX + firstLayer.Width;
-            int biggestY = smallestY + firstLayer.Height;
+            int smallestX = int.MaxValue;
+            int smallestY = int.MaxValue;
+            int biggestX = int.MinValue;
+            int biggestY = int.MinValue;
 
             foreach (Layer layer in layers)
             {

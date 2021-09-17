@@ -13,6 +13,7 @@
     <UserControl.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:NotNullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:ViewboxInverseTransformConverter x:Key="ViewboxToScaleConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -21,38 +22,20 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Viewbox Margin="30" VerticalAlignment="Center">
+        <Viewbox Margin="30" VerticalAlignment="Center" x:Name="previewWindowViewbox">
             <Grid x:Name="imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor"
               Visibility="{Binding Document, Converter={StaticResource NullToVisibilityConverter}, ElementName=uc}"
               Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
-              Background="{Binding ActiveItem.Value, ElementName=backgroundButton}" d:Width="8" d:Height="8">
-                <!--<ItemsControl ItemsSource="{Binding Document.Layers, ElementName=uc}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Grid/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LayerBitmap}"
-                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                               Width="{Binding Width}" Height="{Binding Height}" Margin="{Binding Offset}">
-                                <Image.Opacity>
-                                    <MultiBinding Converter="{converters:LayerToFinalOpacityConverter}">
-                                        <Binding Path="."/>
-                                        <Binding Path="Opacity"/>
-                                    </MultiBinding>
-                                </Image.Opacity>
-                                <Image.Visibility>
-                                    <MultiBinding Converter="{converters:FinalIsVisibleToVisiblityConverter}">
-                                        <Binding Path="."/>
-                                        <Binding Path="IsVisible"/>
-                                    </MultiBinding>
-                                </Image.Visibility>
-                            </Image>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>-->
+              d:Width="8" d:Height="8">
+                <Grid Background="{Binding ActiveItem.Value, ElementName=backgroundButton}">
+                    <Grid.LayoutTransform>
+                        <MultiBinding Converter="{StaticResource ViewboxToScaleConverter}">
+                            <Binding ElementName="previewWindowViewbox" Path="." />
+                            <Binding ElementName="imageGrid" Path="ActualWidth" />
+                            <Binding ElementName="imageGrid" Path="ActualHeight" />
+                        </MultiBinding>
+                    </Grid.LayoutTransform>
+                </Grid>
                 <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Document.Renderer.FinalBitmap, ElementName=uc}"
                                                RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" />
                 <Border x:Name="colorCursor" Width="1" Height="1"
@@ -108,7 +91,7 @@
                                     <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 1, 1"/>
                                 </local:SwitchItem.Background>
                                 <local:SwitchItem.Value>
-                                    <ImageBrush Viewport="0, 0.05, 0.05, 0.05" ImageSource="/Images/CheckerTile.png" TileMode="Tile"/>
+                                    <ImageBrush Viewport="0, 10, 10, 10" ImageSource="/Images/CheckerTile.png" TileMode="Tile" ViewportUnits="Absolute"/>
                                 </local:SwitchItem.Value>
                             </local:SwitchItem>
                             <local:SwitchItem Value="Transparent">

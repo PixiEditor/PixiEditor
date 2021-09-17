@@ -11,7 +11,7 @@
                                        LayerName="{Binding Name, Mode=TwoWay}" 
                                        IsActive="{Binding IsActive, Mode=TwoWay}"
                                        IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                       PreviewImage="{Binding LayerBitmap}"
+                                       LayerForPreview="{Binding}"
                                        LayerGuid="{Binding LayerGuid}"
                                        LayerColor="{Binding LayerHighlightColor}"
                                        LayerIndex="{Binding ContainerIndex, ElementName=layerStructureContainer}"

@@ -100,7 +100,7 @@ namespace PixiEditor.Models.IO
         /// <param name="exportWidth">File width.</param>
         /// <param name="exportHeight">File height.</param>
         /// <param name="bitmap">Bitmap to save.</param>
-        private static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+        public static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try
             {

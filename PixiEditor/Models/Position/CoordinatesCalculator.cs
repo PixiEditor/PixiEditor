@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Models.DataHolders;
-using SkiaSharp;
 using System;
 using System.Collections.Generic;
 
@@ -90,7 +89,7 @@ namespace PixiEditor.Models.Position
             {
                 for (int x = 0; x < bitmap.Width; x++)
                 {
-                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
                         return y;
                     }
@@ -106,7 +105,7 @@ namespace PixiEditor.Models.Position
             {
                 for (int y = 0; y < bitmap.Height; y++)
                 {
-                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
                         return x;
                     }
@@ -122,7 +121,7 @@ namespace PixiEditor.Models.Position
             {
                 for (int x = bitmap.Width - 1; x >= 0; x--)
                 {
-                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
                         return y;
                     }
@@ -138,7 +137,7 @@ namespace PixiEditor.Models.Position
             {
                 for (int y = bitmap.Height - 1; y >= 0; y--)
                 {
-                    if (bitmap.GetSRGBPixel(x, y) != SKColors.Transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
                         return x;
                     }

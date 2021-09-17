@@ -31,7 +31,7 @@ namespace PixiEditor.Models.DataHolders
             set
             {
                 selectionLayer = value;
-                RaisePropertyChanged("SelectionLayer");
+                RaisePropertyChanged(nameof(SelectionLayer));
             }
         }
 

@@ -32,6 +32,7 @@ namespace PixiEditor.Models.Controllers
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             MouseController.OnMouseDown += MouseController_OnMouseDown;
             MouseController.OnMouseUp += MouseController_OnMouseUp;
+            MouseController.OnMouseDownCoordinates += MouseController_OnMouseDownCoordinates;
             BitmapOperations = new BitmapOperationsUtility(this);
             ReadonlyToolUtility = new ReadonlyToolUtility();
         }
@@ -132,7 +133,9 @@ namespace PixiEditor.Models.Controllers
                 }
                 else if (SelectedTool is ReadonlyTool readonlyTool)
                 {
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates, readonlyTool);
+                    ReadonlyToolUtility.ExecuteTool(
+                        MouseController.LastMouseMoveCoordinates,
+                        readonlyTool);
                 }
                 else
                 {
@@ -164,11 +167,7 @@ namespace PixiEditor.Models.Controllers
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
             SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
-            {
-                ExecuteTool(e.NewPosition, MouseController.ClickedOnCanvas);
-            }
-            else if (Mouse.LeftButton == MouseButtonState.Released)
+            if (!MaybeExecuteTool(e.NewPosition) && Mouse.LeftButton == MouseButtonState.Released)
             {
                 HighlightPixels(e.NewPosition);
             }
@@ -182,6 +181,20 @@ namespace PixiEditor.Models.Controllers
         private void MouseController_OnMouseUp(object sender, MouseEventArgs e)
         {
             SelectedTool.OnMouseUp(e);
+        }
+        private void MouseController_OnMouseDownCoordinates(object sender, MouseMovementEventArgs e)
+        {
+            MaybeExecuteTool(e.NewPosition);
+        }
+
+        private bool MaybeExecuteTool(Coordinates newPosition)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
+            {
+                ExecuteTool(newPosition, MouseController.ClickedOnCanvas);
+                return true;
+            }
+            return false;
         }
 
         private bool IsDraggingViewport()
