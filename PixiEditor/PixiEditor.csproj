@@ -161,14 +161,15 @@
       <Version>1.0.2</Version>
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
+    <PackageReference Include="MessagePack" Version="2.3.75" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
-    <PackageReference Include="PixiEditor.Parser" Version="1.1.3.1" />
     <PackageReference Include="SkiaSharp" Version="2.80.3" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="WriteableBitmapEx">
       <Version>1.6.7</Version>
     </PackageReference>
@@ -210,6 +211,14 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PixiParser">
+      <HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.dll</HintPath>
+    </Reference>
+    <Reference Include="PixiParser.Skia">
+      <HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.Skia.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">

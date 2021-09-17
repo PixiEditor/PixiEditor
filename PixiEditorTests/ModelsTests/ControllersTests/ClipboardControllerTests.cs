@@ -22,7 +22,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             Clipboard.Clear();
             Clipboard.SetText(Text);
-            Surface img = ClipboardController.GetImageFromClipboard();
+            Surface img = ClipboardController.GetImagesFromClipboard();
             Assert.Null(img);
         }
 
@@ -78,7 +78,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             bmp.SetSRGBPixel(4, 4, testColor);
             Clipboard.SetImage(bmp);
 
-            Surface img = ClipboardController.GetImageFromClipboard();
+            Surface img = ClipboardController.GetImagesFromClipboard();
             Assert.NotNull(img);
             Assert.Equal(10, img.Width);
             Assert.Equal(10, img.Height);
@@ -102,7 +102,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
                 Clipboard.SetDataObject(data, true);
             }
 
-            Surface img = ClipboardController.GetImageFromClipboard();
+            Surface img = ClipboardController.GetImagesFromClipboard();
             Assert.NotNull(img);
             Assert.Equal(10, img.Width);
             Assert.Equal(10, img.Height);
@@ -120,7 +120,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             data.SetData(DataFormats.Bitmap, bmp, false); // PNG, supports transparency
             Clipboard.SetDataObject(data, true);
 
-            Surface img = ClipboardController.GetImageFromClipboard();
+            Surface img = ClipboardController.GetImagesFromClipboard();
             Assert.NotNull(img);
             Assert.Equal(10, img.Width);
             Assert.Equal(10, img.Height);

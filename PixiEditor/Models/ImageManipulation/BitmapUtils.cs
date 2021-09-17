@@ -3,6 +3,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Position;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Skia;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -76,11 +77,11 @@ namespace PixiEditor.Models.ImageManipulation
 
         public static WriteableBitmap GeneratePreviewBitmap(IEnumerable<SerializableLayer> layers, int width, int height, int maxPreviewWidth, int maxPreviewHeight)
         {
-            var opacityLayers = layers.Where(x => x.IsVisible && x.Opacity > 0.8f 
+            var opacityLayers = layers.Where(x => x.IsVisible && x.Opacity > 0.8f
             && x.Height > 0 && x.Width > 0);
 
             return GeneratePreviewBitmap(
-                opacityLayers.Select(x => new Surface(x.Width, x.Height, x.BitmapBytes)),
+                opacityLayers.Select(x => new Surface(x.ToSKImage())),
                 opacityLayers.Select(x => x.OffsetX),
                 opacityLayers.Select(x => x.OffsetY),
                 width,

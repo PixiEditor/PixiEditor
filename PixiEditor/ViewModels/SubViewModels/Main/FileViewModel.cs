@@ -261,6 +261,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandProperty.</param>
         private void ExportFile(object parameter)
         {
+            ViewModelMain.Current.ActionDisplay = "";
             WriteableBitmap bitmap = Owner.BitmapManager.ActiveDocument.Renderer.FinalBitmap;
             Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
         }

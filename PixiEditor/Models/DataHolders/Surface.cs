@@ -46,7 +46,7 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface = Pbgra32BytesToSkSurface(w, h, pbgra32Bytes);
         }
 
-        public Surface(WriteableBitmap original)
+        public Surface(BitmapSource original)
         {
             if (original.Format != PixelFormats.Pbgra32)
                 throw new ArgumentException("This method only supports Pbgra32 bitmaps");
@@ -59,6 +59,14 @@ namespace PixiEditor.Models.DataHolders
             Width = original.PixelWidth;
             Height = original.PixelHeight;
             SkiaSurface = Pbgra32BytesToSkSurface(Width, Height, pixels);
+        }
+
+        public Surface(SKImage image)
+        {
+            Width = image.Width;
+            Height = image.Height;
+            SkiaSurface = CreateSurface(Width, Height);
+            SkiaSurface.Canvas.DrawImage(image, 0, 0);
         }
 
         public Surface ResizeNearestNeighbor(int newW, int newH)
@@ -143,22 +151,17 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.Dispose();
         }
 
-        private static SKSurface Pbgra32BytesToSkSurface(int w, int h, byte[] pbgra32Bytes)
+        private static unsafe SKSurface Pbgra32BytesToSkSurface(int w, int h, byte[] pbgra32Bytes)
         {
             SKImageInfo info = new SKImageInfo(w, h, SKColorType.Bgra8888, SKAlphaType.Premul);
-            var ptr = Marshal.AllocHGlobal(pbgra32Bytes.Length);
-            try
+
+            fixed (void* pointer = pbgra32Bytes)
             {
-                Marshal.Copy(pbgra32Bytes, 0, ptr, pbgra32Bytes.Length);
-                using SKPixmap map = new(info, ptr);
+                using SKPixmap map = new(info, new IntPtr(pointer));
                 using SKSurface surface = SKSurface.Create(map);
                 var newSurface = CreateSurface(w, h);
                 surface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
                 return newSurface;
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
             }
         }
 

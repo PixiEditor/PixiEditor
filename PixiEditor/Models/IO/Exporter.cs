@@ -44,7 +44,7 @@ namespace PixiEditor.Models.IO
         /// <returns>Path.</returns>
         public static string SaveAsEditableFile(Document document, string path)
         {
-            Parser.PixiParser.Serialize(document.ToSerializable(), path);
+            Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
             return path;
         }
 

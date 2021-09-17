@@ -14,6 +14,11 @@ namespace PixiEditor.Models.Position
 
         public int Y { get; set; }
 
+        public static implicit operator Coordinates((int width, int height) tuple)
+        {
+            return new Coordinates(tuple.width, tuple.height);
+        }
+
         public static bool operator ==(Coordinates c1, Coordinates c2)
         {
             return c2.X == c1.X && c2.Y == c1.Y;

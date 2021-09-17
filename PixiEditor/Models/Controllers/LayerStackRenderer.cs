@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Layers.Utils;
 using SkiaSharp;
@@ -85,7 +86,7 @@ namespace PixiEditor.Models.Controllers
             }
             finalBitmap.Lock();
             finalSurface.SkiaSurface.Draw(backingSurface.Canvas, 0, 0, Surface.ReplacingPaint);
-            finalBitmap.AddDirtyRect(dirtyRectangle);
+            finalBitmap.AddDirtyRect(dirtyRectangle.Min(new Int32Rect(0, 0, finalBitmap.PixelWidth, finalBitmap.PixelHeight)));
             finalBitmap.Unlock();
         }
 
