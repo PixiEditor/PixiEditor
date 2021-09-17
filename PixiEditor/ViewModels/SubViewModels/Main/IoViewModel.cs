@@ -1,9 +1,9 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.Position;
+using System;
+using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -78,6 +78,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.MouseController.MouseDown(new MouseEventArgs(
                 Mouse.PrimaryDevice,
                 (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+
+            Coordinates cords = new Coordinates(
+                (int)Owner.BitmapManager.ActiveDocument.MouseXOnCanvas,
+                (int)Owner.BitmapManager.ActiveDocument.MouseYOnCanvas);
+            Owner.BitmapManager.MouseController.MouseDownCoordinates(cords);
 
             // Mouse down is guaranteed to only be raised from within this application, so by subscribing here we
             // only listen for mouse up events that occurred as a result of a mouse down within this application.

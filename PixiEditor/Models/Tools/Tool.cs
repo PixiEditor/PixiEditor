@@ -1,12 +1,10 @@
-﻿using System;
-using System.Text;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools
 {

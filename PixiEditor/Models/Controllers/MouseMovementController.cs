@@ -1,7 +1,7 @@
-﻿using System;
+﻿using PixiEditor.Models.Position;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
-using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -10,6 +10,7 @@ namespace PixiEditor.Models.Controllers
         public event EventHandler StartedRecordingChanges;
 
         public event EventHandler<MouseEventArgs> OnMouseDown;
+        public event EventHandler<MouseMovementEventArgs> OnMouseDownCoordinates;
 
         public event EventHandler<MouseEventArgs> OnMouseUp;
 
@@ -60,6 +61,11 @@ namespace PixiEditor.Models.Controllers
         public void MouseDown(MouseEventArgs args)
         {
             OnMouseDown?.Invoke(this, args);
+        }
+
+        public void MouseDownCoordinates(Coordinates mouseCoordinates)
+        {
+            OnMouseDownCoordinates?.Invoke(this, new MouseMovementEventArgs(mouseCoordinates));
         }
 
         /// <summary>
