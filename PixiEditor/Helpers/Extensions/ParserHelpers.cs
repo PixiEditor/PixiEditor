@@ -1,15 +1,11 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Collections;
 using PixiEditor.Parser.Skia;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Windows;
 
 namespace PixiEditor.Helpers.Extensions
 {
