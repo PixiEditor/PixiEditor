@@ -66,17 +66,17 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
-            selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
-            return selection;
+            //List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
+            //selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
+            return Array.Empty<Coordinates>(); //selection;
         }
 
         public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            DoubleCords fixedCoordinates = ShapeTool.CalculateCoordinatesForShapeRotation(start, end);
-            List<Coordinates> selection = circleTool.CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, 1).ToList();
-            selection.AddRange(circleTool.CalculateFillForEllipse(selection));
-            return selection;
+            //DoubleCords fixedCoordinates = ShapeTool.CalculateCoordinatesForShapeRotation(start, end);
+            //List<Coordinates> selection = circleTool.CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, 1).ToList();
+            //selection.AddRange(circleTool.CalculateFillForEllipse(selection));
+            return Array.Empty<Coordinates>(); //selection;
         }
 
         /// <summary>

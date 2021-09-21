@@ -34,7 +34,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid Width="45" Height="45" Margin="0 5 5 5">
-                        <Border CornerRadius="5.5" Width="44" Height="44">
+                        <Border CornerRadius="5.5" Width="44" Height="44" RenderOptions.BitmapScalingMode="NearestNeighbor">
                             <Border.Background>
                                 <VisualBrush>
                                     <VisualBrush.Visual>

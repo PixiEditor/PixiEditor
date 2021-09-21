@@ -6,9 +6,10 @@ using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class IndexOfConverter : IValueConverter
+    public class IndexOfConverter
+        : SingleInstanceConverter<IndexOfConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is Layer layer && ViewModelMain.Current.BitmapManager.ActiveDocument != null)
             {
@@ -16,12 +17,9 @@ namespace PixiEditor.Helpers.Converters
                 return index;
             }
 
-            return Binding.DoNothing;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
+            return value is Layer layer && bitmapManager.ActiveDocument != null
+                   ? bitmapManager.ActiveDocument.Layers.IndexOf(layer)
+                   : Binding.DoNothing;
         }
     }
 }

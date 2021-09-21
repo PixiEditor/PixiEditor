@@ -10,14 +10,15 @@ using System.Windows.Data;
 namespace PixiEditor.Helpers.Converters
 {
     // TODO: Implement rebuilding only changed items instead whole tree
-    public class LayersToStructuredLayersConverter : IMultiValueConverter
+    public class LayersToStructuredLayersConverter
+        : MultiValueMarkupConverter
     {
         private static StructuredLayerTree cachedTree;
         private List<Guid> lastLayerGuids = new List<Guid>();
         private IList<Layer> lastLayers = new List<Layer>();
         private ObservableCollection<GuidStructureItem> lastStructure = new ObservableCollection<GuidStructureItem>();
 
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values[0] is ObservableCollection<Layer> layers && values[1] is LayerStructure structure)
             {
@@ -42,10 +43,12 @@ namespace PixiEditor.Helpers.Converters
 
             return DependencyProperty.UnsetValue;
         }
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+
+        public override object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new ArgumentException("Value is not a StructuredLayerTree");
         }
+
         private bool LayerOrderIsDifferent(IList<Layer> layers)
         {
             var guids = layers.Select(x => x.LayerGuid).ToArray();
@@ -65,6 +68,7 @@ namespace PixiEditor.Helpers.Converters
             }
             return false;
         }
+
         private bool TryFindStructureDifferences(LayerStructure structure)
         {
             bool structureModified = false;

@@ -30,6 +30,8 @@ namespace PixiEditor.Models.Layers
 
         private string layerHighlightColor = "#666666";
 
+        private BitmapPixelChanges singleCache = BitmapPixelChanges.Empty;
+
         public Layer(string name)
         {
             Name = name;
@@ -300,6 +302,16 @@ namespace PixiEditor.Models.Layers
             return LayerBitmap.GetSRGBPixel(x, y);
         }
 
+        public void SetPixelWithOffset(Coordinates coordinates, Color color)
+        {
+            LayerBitmap.SetPixel(coordinates.X - OffsetX, coordinates.Y - OffsetY, color);
+        }
+
+        public void SetPixelWithOffset(int x, int y, Color color)
+        {
+            LayerBitmap.SetPixel(x - OffsetX, y - OffsetY, color);
+        }
+
         /// <summary>
         ///     Applies pixel to layer.
         /// </summary>
@@ -309,7 +321,8 @@ namespace PixiEditor.Models.Layers
         /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap.</param>
         public void SetPixel(Coordinates coordinates, SKColor color, bool dynamicResize = true, bool applyOffset = true)
         {
-            SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { coordinates }, color), dynamicResize, applyOffset);
+            singleCache.ChangedPixels[coordinates] = color;
+            SetPixels(singleCache, dynamicResize, applyOffset);
         }
 
         /// <summary>
@@ -396,21 +409,29 @@ namespace PixiEditor.Models.Layers
 
             if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.Alpha == 0))
             {
-                if ((newMaxX + 1 > Width && Width < MaxWidth) || (newMaxY + 1 > Height && Height < MaxHeight))
-                {
-                    IncreaseSizeToBottomAndRight(newMaxX, newMaxY);
-                }
-
-                if ((newMinX < 0 && Width < MaxWidth) || (newMinY < 0 && Height < MaxHeight))
-                {
-                    IncreaseSizeToTopAndLeft(newMinX, newMinY);
-                }
+                DynamicResize(newMaxX, newMaxY, newMinX, newMinY);
             }
 
             // if clip is requested
             if (borderData.Item2)
             {
                 clipRequested = true;
+            }
+        }
+
+        /// <summary>
+        ///     Resizes canvas to fit pixels outside current bounds. Clamped to MaxHeight and MaxWidth.
+        /// </summary>
+        public void DynamicResize(int newMaxX, int newMaxY, int newMinX, int newMinY)
+        {
+            if ((newMaxX + 1 > Width && Width < MaxWidth) || (newMaxY + 1 > Height && Height < MaxHeight))
+            {
+                IncreaseSizeToBottomAndRight(newMaxX, newMaxY);
+            }
+
+            if ((newMinX < 0 && Width < MaxWidth) || (newMinY < 0 && Height < MaxHeight))
+            {
+                IncreaseSizeToTopAndLeft(newMinX, newMinY);
             }
         }
 

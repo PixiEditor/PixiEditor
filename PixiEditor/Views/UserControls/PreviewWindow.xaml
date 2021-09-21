@@ -24,7 +24,7 @@
 
         <Viewbox Margin="30" VerticalAlignment="Center" x:Name="previewWindowViewbox">
             <Grid x:Name="imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor"
-              Visibility="{Binding Document, Converter={StaticResource NullToVisibilityConverter}, ElementName=uc}"
+              Visibility="{Binding Document, Converter={converters:NullToVisibilityConverter}, ElementName=uc}"
               Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
               d:Width="8" d:Height="8">
                 <Grid Background="{Binding ActiveItem.Value, ElementName=backgroundButton}">

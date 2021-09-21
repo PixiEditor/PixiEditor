@@ -18,20 +18,21 @@ namespace PixiEditor.Models.Tools.Tools
             ActionDisplay = "Draw to remove color from a pixel.";
             Toolbar = new BasicToolbar();
             pen = new PenTool(bitmapManager);
-        }
-
+        }
+
+        public override bool UsesShift => false;
+
         public override string Tooltip => "Erasers color from pixel. (E)";
 
         public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
-            return Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
+            Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
         }
 
-        public LayerChange[] Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
+        public void Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
-            BitmapPixelChanges pixels = pen.Draw(startingCords, coordinates[0], SKColors.Transparent, toolSize);
-            return Only(pixels, layer);
+            pen.Draw(layer, startingCords, coordinates[0], SKColors.Transparent, toolSize);
         }
     }
 }

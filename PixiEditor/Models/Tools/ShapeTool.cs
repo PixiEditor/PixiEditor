@@ -58,17 +58,18 @@ namespace PixiEditor.Models.Tools
         // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
         public abstract override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color);
 
-        protected static IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
+        protected static void ThickenShape(Layer layer, Color color, IEnumerable<Coordinates> shape, int thickness)
         {
-            List<Coordinates> output = new List<Coordinates>();
             foreach (Coordinates item in shape)
             {
-                output.AddRange(
-                    CoordinatesCalculator.RectangleToCoordinates(
-                        CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
+                ThickenShape(layer, color, item, thickness);
             }
+        }
 
-            return output.Distinct();
+        protected static void ThickenShape(Layer layer, Color color, Coordinates coords, int thickness)
+        {
+            var dcords = CoordinatesCalculator.CalculateThicknessCenter(coords, thickness);
+            CoordinatesCalculator.DrawRectangle(layer, color, dcords.Coords1.X, dcords.Coords1.Y, dcords.Coords2.X, dcords.Coords2.Y);
         }
     }
 }

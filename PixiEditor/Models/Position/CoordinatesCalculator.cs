@@ -62,6 +62,20 @@ namespace PixiEditor.Models.Position
             return coordinates;
         }
 
+        public static void DrawRectangle(Layer layer, Color color, int x1, int y1, int x2, int y2)
+        {
+            using var ctx = layer.LayerBitmap.GetBitmapContext();
+            x2++;
+            y2++;
+            for (int y = y1; y < y1 + (y2 - y1); y++)
+            {
+                for (int x = x1; x < x1 + (x2 - x1); x++)
+                {
+                    layer.SetPixelWithOffset(x, y, color);
+                }
+            }
+        }
+
         public static IEnumerable<Coordinates> RectangleToCoordinates(DoubleCords coordinates)
         {
             return RectangleToCoordinates(coordinates.Coords1.X, coordinates.Coords1.Y, coordinates.Coords2.X, coordinates.Coords2.Y);

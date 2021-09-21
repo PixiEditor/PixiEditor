@@ -7,7 +7,6 @@
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="groupControl" DragEnter="GroupControl_DragEnter" DragLeave="GroupControl_DragLeave" DragDrop.Drop="GroupControl_DragLeave">
     <UserControl.Resources>
-        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" Tag="{Binding ElementName=groupControl}" MouseDown="Border_MouseDown">
@@ -49,7 +48,12 @@
                     <Image Source="/Images/Folder.png" Height="20" Margin="0,0,10,0" HorizontalAlignment="Right"/>
                 </StackPanel>
             </Grid>
-            <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom"  DragLeave="Grid_DragLeave" Grid.Row="2" AllowDrop="{Binding  GroupData.IsExpanded, ElementName=groupControl, Converter={StaticResource InverseBooleanConverter}}" Grid.ColumnSpan="2" Background="Transparent"/>
+            <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom" 
+                  DragLeave="Grid_DragLeave" Grid.Row="2"
+                  AllowDrop="{Binding GroupData.IsExpanded,
+                                      ElementName=groupControl,
+                                      Converter={converters:InverseBooleanConverter}}"
+                  Grid.ColumnSpan="2" Background="Transparent"/>
         </Grid>
         <Border.ContextMenu>
             <ContextMenu>

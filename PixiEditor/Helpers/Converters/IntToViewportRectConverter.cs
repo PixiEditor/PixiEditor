@@ -5,21 +5,14 @@ using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class IntToViewportRectConverter : IValueConverter
+    public class IntToViewportRectConverter
+        : SingleInstanceConverter<IntToViewportRectConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (parameter is string and "vertical")
-            {
-                return new Rect(0, 0, 1d / (int)value, 1d);
-            }
-
-            return new Rect(0, 0, 1d, 1d / (int)value);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
+            return parameter is string and "vertical"
+                   ? new Rect(0, 0, 1d / (int)value, 1d)
+                   : (object)new Rect(0, 0, 1d, 1d / (int)value);
         }
     }
 }

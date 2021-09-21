@@ -19,18 +19,14 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <conv:IntToPickerTypeConverter x:Key="IntToPickerTypeConverter"/>
-            <conv:FloorConverter x:Key="FloorConverter"/>
-            <conv:ThresholdVisibilityConverter x:Key="ShowWhenBig" CheckIfLess="False" Threshold="380"/>
-            <conv:ThresholdVisibilityConverter x:Key="ShowWhenSmall" CheckIfLess="True" Threshold="380"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
         <colorpicker:StandardColorPicker ColorState="{Binding ElementName=uc, Path=ColorState, Mode=TwoWay, Delay=10}"
                                          SecondColorState="{Binding ElementName=uc, Path=SecondColorState, Mode=TwoWay, Delay=10}"
-                                         Visibility="{Binding ElementName=uc, Path=ActualHeight, Converter={StaticResource ShowWhenBig}}"
+                                         Visibility="{Binding ElementName=uc, Path=ActualHeight, Converter={conv:ThresholdVisibilityConverter CheckIfLess=False, Threshold=380}}"
                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker" />
-        <Grid Visibility="{Binding ElementName=uc, Path=ActualHeight, Converter={StaticResource ShowWhenSmall}}">
+        <Grid Visibility="{Binding ElementName=uc, Path=ActualHeight, Converter={conv:ThresholdVisibilityConverter CheckIfLess=True, Threshold=380}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MaxWidth="80" Width="1*"/>
                 <ColumnDefinition Width="3*"/>
@@ -43,7 +39,7 @@
             </Grid.RowDefinitions>
             <colorpicker:SquarePicker Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="3"
                                 ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"
-                                PickerType="{Binding ElementName=colorSpaceComboBox, Path=SelectedIndex, Converter={StaticResource IntToPickerTypeConverter}}"/>
+                                PickerType="{Binding ElementName=colorSpaceComboBox, Path=SelectedIndex, Converter={conv:IntToPickerTypeConverter}}"/>
             <colorpicker:ColorDisplay Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3,0,0,0"
                                 ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}" 
                                 SecondColorState="{Binding SecondColorState, Mode=TwoWay, ElementName=uc}"/>
@@ -68,7 +64,7 @@
                     Min="0" Max="255"
                     Width="40" Height="20"
                     VerticalAlignment="Center"
-                    Value="{Binding ElementName=uc, Path=Color.A, Mode=TwoWay, Delay=10, Converter={StaticResource FloorConverter}}" />
+                    Value="{Binding ElementName=uc, Path=Color.A, Mode=TwoWay, Delay=10, Converter={conv:FloorConverter}}" />
             </Grid>
         </Grid>
     </Grid>

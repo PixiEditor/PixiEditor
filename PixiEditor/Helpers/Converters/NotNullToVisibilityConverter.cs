@@ -6,13 +6,14 @@ using System.Windows.Data;
 namespace PixiEditor.Helpers.Converters
 {
     [ValueConversion(typeof(object), typeof(Visibility))]
-    public class NotNullToVisibilityConverter : IValueConverter
+    public class NotNullToVisibilityConverter
+        : MarkupConverter
     {
         public bool Inverted { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool isNull = value != null;
+            bool isNull = value is not null;
 
             if (Inverted)
             {
@@ -20,11 +21,6 @@ namespace PixiEditor.Helpers.Converters
             }
 
             return isNull ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
         }
     }
 }

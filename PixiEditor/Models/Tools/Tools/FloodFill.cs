@@ -55,7 +55,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void PerformLinearFill(
             Layer layer,
             List<Coordinates> changedCoords, Queue<FloodFillRange> floodFillQueue,
-            Coordinates coords, int width, SKColor colorToReplace, bool[] visited)
+        public override LayderChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             // Find the Left Edge of the Color Area
             int fillXLeft = coords.X;

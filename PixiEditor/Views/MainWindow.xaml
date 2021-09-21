@@ -271,8 +271,8 @@
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
                                         UseTouchGestures="{Binding XamlAccesibleViewModel.StylusSubViewModel.UseTouchGestures}"
-                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsZoomToolConverter}}"
-                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={StaticResource IsMoveViewportToolConverter}}"
+                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
+                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"
                                         Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="PreviewMouseDown">
@@ -336,9 +336,9 @@
                                         <layerUserControls:LayersManager                                            
                                             LayerCommandsViewModel="{Binding LayersSubViewModel}"
                                             OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
-                    Converter={StaticResource NotNullToBoolConverter}}">
+                    Converter={converters:NotNullToBoolConverter}}">
                                             <layerUserControls:LayersManager.LayerTreeRoot>
-                                                <MultiBinding Converter="{StaticResource LayersToStructuredLayersConverter}">
+                                                <MultiBinding Converter="{converters:LayersToStructuredLayersConverter}">
                                                     <Binding Path="BitmapManager.ActiveDocument.Layers" />
                                                     <Binding Path="BitmapManager.ActiveDocument.LayerStructure"/>
                                                 </MultiBinding>
@@ -377,7 +377,7 @@
                                 BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
                                 Style="{StaticResource ToolButtonStyle}"
                                 Command="{Binding Path=DataContext.ToolsSubViewModel.SelectToolCommand,
-                            RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}" ToolTip="{Binding Tooltip}">
                                 <Button.Background>
                                     <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
@@ -403,9 +403,9 @@
                 <TextBlock Text="{Binding ActionDisplay}" Foreground="White" FontSize="15" Margin="10,0,0,0" VerticalAlignment="Center"/>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock Text="X:" Foreground="White" FontSize="16"/>
-                    <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseXOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                    <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseXOnCanvas, Converter={converters:DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
                     <TextBlock Text="Y:" Foreground="White" FontSize="16"/>
-                    <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseYOnCanvas, Converter={StaticResource DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
+                    <TextBlock Margin="4,0,10,0" Text="{Binding BitmapManager.ActiveDocument.MouseYOnCanvas, Converter={converters:DoubleToIntConverter}}" Foreground="White" FontSize="16"/>
                 </StackPanel>
             </DockPanel>
             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Grid.Row="3"
