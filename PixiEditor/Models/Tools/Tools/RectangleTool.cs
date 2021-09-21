@@ -55,11 +55,11 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public void CreateRectangle(Layer layer, Color color, List<Coordinates> coordinates, int thickness)
+        public void CreateRectangle(Layer layer, SKColor color, List<Coordinates> coordinates, int thickness)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
 
-            using var ctx = layer.LayerBitmap.GetBitmapContext();
+            //using var ctx = layer.LayerBitmap.GetBitmapContext();
 
             DrawRectangle(layer, color, fixedCoordinates);
 
@@ -78,12 +78,12 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public void CreateRectangle(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
+        public void CreateRectangle(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
         {
             CreateRectangle(layer, color, new() { end, start }, thickness);
         }
 
-        public void DrawRectangleFill(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
+        public void DrawRectangleFill(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
         {
             int offset = (int)Math.Ceiling(thickness / 2f);
             DoubleCords fixedCords = CalculateCoordinatesForShapeRotation(start, end);
@@ -113,7 +113,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private void DrawRectangle(Layer layer, Color color, DoubleCords coordinates)
+        private void DrawRectangle(Layer layer, SKColor color, DoubleCords coordinates)
         {
             for (int i = coordinates.Coords1.X; i < coordinates.Coords2.X + 1; i++)
             {

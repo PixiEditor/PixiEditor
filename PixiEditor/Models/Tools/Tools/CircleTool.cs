@@ -1,6 +1,4 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
@@ -9,12 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -43,7 +35,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
@@ -64,7 +56,7 @@ namespace PixiEditor.Models.Tools.Tools
         /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
         /// <param name="thickness">Thickness of ellipse.</param>
         /// <param name="filled">Should ellipse be filled.</param>
-        public void CreateEllipse(Layer layer, Color color, Coordinates startCoordinates, Coordinates endCoordinates, int thickness, bool filled)
+        public void CreateEllipse(Layer layer, SKColor color, Coordinates startCoordinates, Coordinates endCoordinates, int thickness, bool filled)
         {
             IEnumerable<Coordinates> outline = CreateEllipse(layer, color, startCoordinates, endCoordinates, thickness);
             if (filled)
@@ -79,7 +71,7 @@ namespace PixiEditor.Models.Tools.Tools
         /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
         /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
         /// <param name="thickness">Thickness of ellipse.</param>
-        public IEnumerable<Coordinates> CreateEllipse(Layer layer, Color color, Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
+        public IEnumerable<Coordinates> CreateEllipse(Layer layer, SKColor color, Coordinates startCoordinates, Coordinates endCoordinates, int thickness)
         {
             double radiusX = (endCoordinates.X - startCoordinates.X) / 2.0;
             double radiusY = (endCoordinates.Y - startCoordinates.Y) / 2.0;
@@ -95,9 +87,9 @@ namespace PixiEditor.Models.Tools.Tools
             return ellipse;
         }
 
-        public List<Coordinates> GenerateMidpointEllipse(Layer layer, Color color, double halfWidth, double halfHeight, double centerX, double centerY)
+        public List<Coordinates> GenerateMidpointEllipse(Layer layer, SKColor color, double halfWidth, double halfHeight, double centerX, double centerY)
         {
-            using var ctx = layer.LayerBitmap.GetBitmapContext();
+            //using var ctx = layer.LayerBitmap.GetBitmapContext();
 
             if (halfWidth < 1 || halfHeight < 1)
             {
@@ -153,9 +145,9 @@ namespace PixiEditor.Models.Tools.Tools
             return outputCoordinates;
         }
 
-        public void DrawEllipseFill(Layer layer, Color color, IEnumerable<Coordinates> outlineCoordinates)
+        public void DrawEllipseFill(Layer layer, SKColor color, IEnumerable<Coordinates> outlineCoordinates)
         {
-            using var ctx = layer.LayerBitmap.GetBitmapContext();
+            //using var ctx = layer.LayerBitmap.GetBitmapContext();
 
             if (!outlineCoordinates.Any())
             {
@@ -176,9 +168,9 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private List<Coordinates> DrawFallbackRectangle(Layer layer, Color color, double halfWidth, double halfHeight, double centerX, double centerY)
+        private List<Coordinates> DrawFallbackRectangle(Layer layer, SKColor color, double halfWidth, double halfHeight, double centerX, double centerY)
         {
-            using var ctx = layer.LayerBitmap.GetBitmapContext();
+            //using var ctx = layer.LayerBitmap.GetBitmapContext();
 
             List<Coordinates> coordinates = new List<Coordinates>();
 
@@ -207,7 +199,7 @@ namespace PixiEditor.Models.Tools.Tools
             return coordinates;
         }
 
-        private Coordinates[] DrawRegionPoints(Layer layer, Color color, double x, double xc, double y, double yc)
+        private Coordinates[] DrawRegionPoints(Layer layer, SKColor color, double x, double xc, double y, double yc)
         {
             Coordinates[] outputCoordinates = new Coordinates[4];
             outputCoordinates[0] = new Coordinates((int)Math.Floor(x), (int)Math.Floor(y));

@@ -56,9 +56,9 @@ namespace PixiEditor.Models.Tools
         }
 
         // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color);
+        public abstract override void Use(Layer layer, List<Coordinates> coordinates, SKColor color);
 
-        protected static void ThickenShape(Layer layer, Color color, IEnumerable<Coordinates> shape, int thickness)
+        protected static void ThickenShape(Layer layer, SKColor color, IEnumerable<Coordinates> shape, int thickness)
         {
             foreach (Coordinates item in shape)
             {
@@ -66,7 +66,7 @@ namespace PixiEditor.Models.Tools
             }
         }
 
-        protected static void ThickenShape(Layer layer, Color color, Coordinates coords, int thickness)
+        protected static void ThickenShape(Layer layer, SKColor color, Coordinates coords, int thickness)
         {
             var dcords = CoordinatesCalculator.CalculateThicknessCenter(coords, thickness);
             CoordinatesCalculator.DrawRectangle(layer, color, dcords.Coords1.X, dcords.Coords1.Y, dcords.Coords2.X, dcords.Coords2.Y);

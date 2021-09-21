@@ -1,4 +1,6 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 
@@ -62,9 +64,9 @@ namespace PixiEditor.Models.Position
             return coordinates;
         }
 
-        public static void DrawRectangle(Layer layer, Color color, int x1, int y1, int x2, int y2)
+        public static void DrawRectangle(Layer layer, SKColor color, int x1, int y1, int x2, int y2)
         {
-            using var ctx = layer.LayerBitmap.GetBitmapContext();
+            //TODO: use some kind of context
             x2++;
             y2++;
             for (int y = y1; y < y1 + (y2 - y1); y++)

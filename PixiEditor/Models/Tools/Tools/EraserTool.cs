@@ -24,7 +24,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override string Tooltip => "Erasers color from pixel. (E)";
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
         }

@@ -21,14 +21,13 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override string Tooltip => "Fills area with color. (G)";
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var res = Only(LinearFill(layer, coordinates[0], color), layer);
+            LinearFill(layer, coordinates[0], color);
             sw.Stop();
             Trace.WriteLine(sw.ElapsedMilliseconds);
-            return res;
         }
 
         public BitmapPixelChanges LinearFill(Layer layer, Coordinates startingCoords, SKColor newColor)
@@ -55,7 +54,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void PerformLinearFill(
             Layer layer,
             List<Coordinates> changedCoords, Queue<FloodFillRange> floodFillQueue,
-        public override LayderChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+            Coordinates coords, int width, SKColor colorToReplace, bool[] visited)
         {
             // Find the Left Edge of the Color Area
             int fillXLeft = coords.X;

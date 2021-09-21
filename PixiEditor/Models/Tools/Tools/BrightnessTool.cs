@@ -55,7 +55,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
@@ -79,9 +79,8 @@ namespace PixiEditor.Models.Tools.Tools
                 centeredCoords.Coords1.Y,
                 centeredCoords.Coords2.X,
                 centeredCoords.Coords2.Y);
-            BitmapPixelChanges changes = new BitmapPixelChanges(new Dictionary<Coordinates, SKColor>());
 
-            using var ctx = layer.LayerBitmap.GetBitmapContext();
+            //using var ctx = layer.LayerBitmap.GetBitmapContext();
 
             foreach (Coordinates coordinate in rectangleCoordinates)
             {

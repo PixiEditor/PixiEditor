@@ -21,13 +21,21 @@ namespace PixiEditor.Models.Tools
 
         public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty);
 
-        public bool IsActive
+        public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
+
+        public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
+
+        public virtual bool HideHighlight { get; }
+
+        public abstract string Tooltip { get; }
+
+        public string ActionDisplay
         {
-            get => isActive;
+            get => actionDisplay;
             set
             {
                 actionDisplay = value;
-                RaisePropertyChanged(nameof(ActionDisplay));
+                RaisePropertyChanged("ActionDisplay");
             }
         }
 
@@ -37,7 +45,7 @@ namespace PixiEditor.Models.Tools
             set
             {
                 isActive = value;
-                RaisePropertyChanged(nameof(IsActive));
+                RaisePropertyChanged("IsActive");
             }
         }
 
@@ -51,12 +59,31 @@ namespace PixiEditor.Models.Tools
         {
         }
 
-        public virtual void OnKeyUp(KeyEventArgs e)
-        {
+        public virtual void AddUndoProcess(Document document)
+        {
+            //StorageBasedChange change = new StorageBasedChange(document, affectedLayers, false);
+
+            //manager.AddUndoChange(change.ToChange(), )
         }
 
-        public virtual void OnStart(Coordinates clickPosition)
-        {
+        public virtual void OnMouseUp(MouseEventArgs e)
+        {
+        }
+
+        public virtual void OnKeyDown(KeyEventArgs e)
+        {
+        }
+
+        public virtual void OnKeyUp(KeyEventArgs e)
+        {
+        }
+
+        public virtual void OnStart(Coordinates clickPosition)
+        {
+        }
+
+        public virtual void OnRecordingLeftMouseDown(MouseEventArgs e)
+        {
         }
 
         public virtual void OnStoppedRecordingMouseUp(MouseEventArgs e)
@@ -65,18 +92,6 @@ namespace PixiEditor.Models.Tools
 
         public virtual void OnMouseMove(MouseEventArgs e)
         {
-        }
-
-        public virtual void AddUndoProcess(Document document)
-        {
-            //StorageBasedChange change = new StorageBasedChange(document, affectedLayers, false);
-
-            //manager.AddUndoChange(change.ToChange(), )
-        }
-
-        public virtual void RedoProcess(UndoManager manager)
-        {
-
         }
 
         public virtual void AfterAddedUndo(UndoManager undoManager)

@@ -5,6 +5,7 @@ using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Tools
 {
@@ -17,6 +18,6 @@ namespace PixiEditor.Models.Tools
         public bool UseDefaultUndoMethod { get; set; } = true;
         public virtual bool UsesShift => true;
 
-        public abstract void Use(Layer layer, List<Coordinates> mouseMove, Color color);
+        public abstract void Use(Layer layer, List<Coordinates> mouseMove, SKColor color);
     }
 }

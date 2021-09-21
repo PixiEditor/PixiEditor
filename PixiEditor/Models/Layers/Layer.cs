@@ -302,14 +302,14 @@ namespace PixiEditor.Models.Layers
             return LayerBitmap.GetSRGBPixel(x, y);
         }
 
-        public void SetPixelWithOffset(Coordinates coordinates, Color color)
+        public void SetPixelWithOffset(Coordinates coordinates, SKColor color)
         {
-            LayerBitmap.SetPixel(coordinates.X - OffsetX, coordinates.Y - OffsetY, color);
+            LayerBitmap.SetSRGBPixel(coordinates.X - OffsetX, coordinates.Y - OffsetY, color);
         }
 
-        public void SetPixelWithOffset(int x, int y, Color color)
+        public void SetPixelWithOffset(int x, int y, SKColor color)
         {
-            LayerBitmap.SetPixel(x - OffsetX, y - OffsetY, color);
+            LayerBitmap.SetSRGBPixel(x - OffsetX, y - OffsetY, color);
         }
 
         /// <summary>

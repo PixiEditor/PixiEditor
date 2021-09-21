@@ -128,7 +128,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private BitmapPixelChanges ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, SKColor color, int toolSize)
+        private BitmapPixelChanges ApplyPixelPerfectToPixels(Layer layer, Coordinates p1, Coordinates p2, Coordinates p3, SKColor color, int toolSize)
         {
             if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {

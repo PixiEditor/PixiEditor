@@ -17,9 +17,7 @@ namespace PixiEditor.Helpers.Converters
                 return index;
             }
 
-            return value is Layer layer && bitmapManager.ActiveDocument != null
-                   ? bitmapManager.ActiveDocument.Layers.IndexOf(layer)
-                   : Binding.DoNothing;
+            return Binding.DoNothing;
         }
     }
 }

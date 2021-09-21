@@ -46,7 +46,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             layer.DynamicResize(coordinates.Max(x => x.X), coordinates.Max(x => x.Y), coordinates.Min(x => x.X), coordinates.Min(x => x.Y));
 
@@ -58,12 +58,12 @@ namespace PixiEditor.Models.Tools.Tools
                 CapType.Square);
         }
 
-        public List<Coordinates> CreateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
+        public List<Coordinates> CreateLine(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
         {
             return CreateLineFastest(layer, color, start, end, thickness);
         }
 
-        private List<Coordinates> CreateLine(Layer layer, Color color, IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
+        private List<Coordinates> CreateLine(Layer layer, SKColor color, IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
         {
             Coordinates startingCoordinates = coordinates.Last();
             Coordinates latestCoordinates = coordinates.First();
@@ -71,7 +71,7 @@ namespace PixiEditor.Models.Tools.Tools
             return CreateLine(layer, color, startingCoordinates, latestCoordinates, thickness, startCap, endCap);
         }
 
-        private List<Coordinates> CreateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
+        private List<Coordinates> CreateLine(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
             if (thickness == 1)
             {
@@ -81,7 +81,7 @@ namespace PixiEditor.Models.Tools.Tools
             return GenerateLine(layer, color, start, end, thickness, startCap, endCap);
         }
 
-        private List<Coordinates> CreateLineFastest(Layer layer, Color color, Coordinates start, Coordinates end, int thickness)
+        private List<Coordinates> CreateLineFastest(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
         {
             var line = BresenhamLine(layer, color, start.X, start.Y, end.X, end.Y);
             if (thickness == 1)
@@ -93,7 +93,7 @@ namespace PixiEditor.Models.Tools.Tools
             return line;
         }
 
-        private List<Coordinates> GenerateLine(Layer layer, Color color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
+        private List<Coordinates> GenerateLine(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
         {
             ApplyCap(layer, color, startCap, start, thickness);
             if (start == end)
@@ -112,7 +112,7 @@ namespace PixiEditor.Models.Tools.Tools
             return line;
         }
 
-        private void ApplyCap(Layer layer, Color color, CapType cap, Coordinates position, int thickness)
+        private void ApplyCap(Layer layer, SKColor color, CapType cap, Coordinates position, int thickness)
         {
             switch (cap)
             {
@@ -131,16 +131,16 @@ namespace PixiEditor.Models.Tools.Tools
         /// </summary>
         /// <param name="position">Starting position of cap.</param>
         /// <param name="thickness">Thickness of cap.</param>
-        private void ApplyRoundCap(Layer layer, Color color, Coordinates position, int thickness)
+        private void ApplyRoundCap(Layer layer, SKColor color, Coordinates position, int thickness)
         {
             IEnumerable<Coordinates> rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
                 CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
             circleTool.CreateEllipse(layer, color, rectangleCords.First(), rectangleCords.Last(), 1, true);
         }
 
-        private List<Coordinates> BresenhamLine(Layer layer, Color color, int x1, int y1, int x2, int y2)
+        private List<Coordinates> BresenhamLine(Layer layer, SKColor color, int x1, int y1, int x2, int y2)
         {
-            using BitmapContext context = layer.LayerBitmap.GetBitmapContext();
+            //using BitmapContext context = layer.LayerBitmap.GetBitmapContext();
             linePoints.Clear();
             Coordinates cords;
             if (x1 == x2 && y1 == y2)
