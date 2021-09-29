@@ -92,24 +92,6 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.ReadPixels(imageInfo, dstpixels, imageInfo.RowBytes, x, y);
             return bitmap.GetPixel(0, 0);
         }
-        /*
-        public FloatColor GetFloatPixel(int x, int y)
-        {
-            var imageInfo = new SKImageInfo(1, 1, SKColorType.RgbaF32, SKAlphaType.Unpremul);
-            var buffer = Marshal.AllocHGlobal(16);
-            try
-            {
-                using SKSurface dstSurface = SKSurface.Create(imageInfo, buffer, 16);
-                SkiaSurface.Draw(dstSurface.Canvas, -x, -y, ReplacingPaint);
-                float[] output = new float[4];
-                Marshal.Copy(buffer, output, 0, 4);
-                return new FloatColor(output[0], output[1], output[2], output[3]);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(buffer);
-            }
-        }*/
 
         public void SetSRGBPixel(int x, int y, SKColor color)
         {

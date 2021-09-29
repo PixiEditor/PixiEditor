@@ -597,19 +597,9 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int newWidth, int newHeight)
         {
-            int iteratorHeight = Height > newHeight ? newHeight : Height;
-            int count = Width > newWidth ? newWidth : Width;
-
             Surface result = new Surface(newWidth, newHeight);
 
             LayerBitmap.SkiaSurface.Draw(result.SkiaSurface.Canvas, offsetX - offsetXSrc, offsetY - offsetYSrc, Surface.ReplacingPaint);
-            /*for (int line = 0; line < iteratorHeight; line++)
-            {
-                int srcOff = (((offsetYSrc + line) * Width) + offsetXSrc) * SizeOfArgb;
-                int dstOff = (((offsetY + line) * newWidth) + offsetX) * SizeOfArgb;
-                BitmapContext.BlockCopy(srcContext, srcOff, destContext, dstOff, count * SizeOfArgb);
-            }*/
-
             LayerBitmap = result;
             Width = newWidth;
             Height = newHeight;

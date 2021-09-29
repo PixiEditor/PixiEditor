@@ -23,7 +23,6 @@ namespace PixiEditor.Views.UserControls
         {
             InitializeComponent();
             SizeChanged += OnControlSizeChanged;
-            Unloaded += OnControlUnloaded;
         }
 
         private static void OnLayerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
@@ -49,15 +48,6 @@ namespace PixiEditor.Views.UserControls
         private void Update()
         {
             renderer.Draw(TargetLayer.LayerBitmap, (byte)(TargetLayer.Opacity * 255));
-        }
-
-        private void OnControlUnloaded(object sender, RoutedEventArgs e)
-        {
-            /*
-            if (LogicalTreeHelper.GetParent(this) != null)
-                return;
-            renderer?.Dispose();
-            TargetLayer.LayerBitmapChanged -= OnLayerBitmapChanged;*/
         }
 
         private void OnControlSizeChanged(object sender, SizeChangedEventArgs e)
