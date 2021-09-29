@@ -240,9 +240,15 @@ namespace PixiEditor.Models.Controllers
             {
                 ActiveDocument.PreviewLayer = null;
             }
-            else
+            else if (ActiveDocument.PreviewLayer == null)
             {
                 ActiveDocument.GeneratePreviewLayer();
+                ActiveDocument.PreviewLayer.SetPixels(
+                    BitmapPixelChanges.FromSingleColoredArray(highlightArea, new SKColor(0, 0, 0, 77)));
+            }
+            else
+            {
+                ActiveDocument.PreviewLayer.Clear();
                 ActiveDocument.PreviewLayer.SetPixels(
                     BitmapPixelChanges.FromSingleColoredArray(highlightArea, new SKColor(0, 0, 0, 77)));
             }
