@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -47,85 +40,54 @@ namespace PixiEditor.Models.Tools.Tools
         public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
-            CreateRectangle(layer, color, coordinates, thickness);
+            SKColor? fillColor = null;
             if (Toolbar.GetSetting<BoolSetting>("Fill").Value)
             {
-                Color fillColor = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
-                DrawRectangleFill(layer, color, coordinates[^1], coordinates[0], thickness);
+                var temp = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
+                fillColor = new SKColor(temp.R, temp.G, temp.B, temp.A);
             }
+            CreateRectangle(layer, color, fillColor, coordinates, thickness);
         }
 
-        public void CreateRectangle(Layer layer, SKColor color, List<Coordinates> coordinates, int thickness)
+        public void CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, List<Coordinates> coordinates, int thickness)
         {
             DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
 
-            //using var ctx = layer.LayerBitmap.GetBitmapContext();
+            int halfThickness = (int)Math.Ceiling(thickness / 2.0);
+            Int32Rect dirtyRect = new Int32Rect(
+                fixedCoordinates.Coords1.X - halfThickness,
+                fixedCoordinates.Coords1.Y - halfThickness,
+                fixedCoordinates.Coords2.X + halfThickness * 2 - fixedCoordinates.Coords1.X,
+                fixedCoordinates.Coords2.Y + halfThickness * 2 - fixedCoordinates.Coords1.Y);
+            Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
+            Int32Rect expanded = dirtyRect.Expand(curLayerRect);
+            layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
 
-            DrawRectangle(layer, color, fixedCoordinates);
-
-            for (int i = 1; i < (int)Math.Floor(thickness / 2f) + 1; i++)
+            using (SKPaint paint = new SKPaint())
             {
-                DrawRectangle(layer, color, new DoubleCords(
-                    new Coordinates(fixedCoordinates.Coords1.X - i, fixedCoordinates.Coords1.Y - i),
-                    new Coordinates(fixedCoordinates.Coords2.X + i, fixedCoordinates.Coords2.Y + i)));
-            }
+                int x = fixedCoordinates.Coords1.X - layer.OffsetX;
+                int y = fixedCoordinates.Coords1.Y - layer.OffsetY;
+                int w = fixedCoordinates.Coords2.X - fixedCoordinates.Coords1.X;
+                int h = fixedCoordinates.Coords2.Y - fixedCoordinates.Coords1.Y;
 
-            for (int i = 1; i < (int)Math.Ceiling(thickness / 2f); i++)
-            {
-                DrawRectangle(layer, color, new DoubleCords(
-                    new Coordinates(fixedCoordinates.Coords1.X + i, fixedCoordinates.Coords1.Y + i),
-                    new Coordinates(fixedCoordinates.Coords2.X - i, fixedCoordinates.Coords2.Y - i)));
-            }
-        }
-
-        public void CreateRectangle(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
-        {
-            CreateRectangle(layer, color, new() { end, start }, thickness);
-        }
-
-        public void DrawRectangleFill(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
-        {
-            int offset = (int)Math.Ceiling(thickness / 2f);
-            DoubleCords fixedCords = CalculateCoordinatesForShapeRotation(start, end);
-
-            DoubleCords innerCords = new DoubleCords
-            {
-                Coords1 = new Coordinates(fixedCords.Coords1.X + offset, fixedCords.Coords1.Y + offset),
-                Coords2 = new Coordinates(fixedCords.Coords2.X - (offset - 1), fixedCords.Coords2.Y - (offset - 1))
-            };
-
-            int height = innerCords.Coords2.Y - innerCords.Coords1.Y;
-            int width = innerCords.Coords2.X - innerCords.Coords1.X;
-
-            if (height < 1 || width < 1)
-            {
-                return;
-            }
-
-            int i = 0;
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
+                if (fillColor.HasValue)
                 {
-                    layer.SetPixel(new Coordinates(innerCords.Coords1.X + x, innerCords.Coords1.Y + y), color);
-                    i++;
+                    paint.Color = fillColor.Value;
+                    paint.Style = SKPaintStyle.StrokeAndFill;
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawRect(x, y, w, h, paint);
                 }
+
+                paint.StrokeWidth = thickness;
+                paint.Style = SKPaintStyle.Stroke;
+                paint.Color = color;
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawRect(x, y, w, h, paint);
             }
+            layer.InvokeLayerBitmapChange(dirtyRect);
         }
 
-        private void DrawRectangle(Layer layer, SKColor color, DoubleCords coordinates)
+        public void CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, Coordinates start, Coordinates end, int thickness)
         {
-            for (int i = coordinates.Coords1.X; i < coordinates.Coords2.X + 1; i++)
-            {
-                layer.SetPixel(new Coordinates(i, coordinates.Coords1.Y), color);
-                layer.SetPixel(new Coordinates(i, coordinates.Coords2.Y), color);
-            }
-
-            for (int i = coordinates.Coords1.Y + 1; i <= coordinates.Coords2.Y - 1; i++)
-            {
-                layer.SetPixel(new Coordinates(coordinates.Coords1.X, i), color);
-                layer.SetPixel(new Coordinates(coordinates.Coords2.X, i), color);
-            }
+            CreateRectangle(layer, color, fillColor, new() { end, start }, thickness);
         }
     }
 }

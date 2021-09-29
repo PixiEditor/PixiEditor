@@ -15,6 +15,7 @@ namespace PixiEditor.Models.Controllers
     public class LayerStackRenderer : INotifyPropertyChanged, IDisposable
     {
         private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+        private SKPaint ClearPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
         private ObservableCollection<Layer> layers;
         private LayerStructure structure;
@@ -70,6 +71,7 @@ namespace PixiEditor.Models.Controllers
             finalSurface.Dispose();
             backingSurface.Dispose();
             BlendingPaint.Dispose();
+            ClearPaint.Dispose();
             layers.CollectionChanged -= OnLayersChanged;
         }
 
@@ -91,22 +93,48 @@ namespace PixiEditor.Models.Controllers
 
         private void Update(Int32Rect dirtyRectangle)
         {
-            finalSurface.SkiaSurface.Canvas.Clear();
+            //finalSurface.SkiaSurface.Canvas.Clear();
+
+            dirtyRectangle = dirtyRectangle.Intersect(new Int32Rect(0, 0, finalBitmap.PixelWidth, finalBitmap.PixelHeight));
+            finalSurface.SkiaSurface.Canvas.DrawRect(
+                new SKRect(
+                    dirtyRectangle.X, dirtyRectangle.Y,
+                    dirtyRectangle.X + dirtyRectangle.Width,
+                    dirtyRectangle.Y + dirtyRectangle.Height
+                    ),
+                ClearPaint
+                );
             foreach (var layer in layers)
             {
                 if (!LayerStructureUtils.GetFinalLayerIsVisible(layer, structure))
                     continue;
                 BlendingPaint.Color = new SKColor(255, 255, 255, (byte)(LayerStructureUtils.GetFinalLayerOpacity(layer, structure) * 255));
+
+                Int32Rect layerRect = new Int32Rect(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
+                Int32Rect layerPortion = layerRect.Intersect(dirtyRectangle);
+
+                finalSurface.SkiaSurface.Canvas.DrawImage(
+                    layer.LayerBitmap.SkiaSurface.Snapshot(),
+                    new SKRect(
+                        layerPortion.X - layer.OffsetX,
+                        layerPortion.Y - layer.OffsetY,
+                        layerPortion.X - layer.OffsetX + layerPortion.Width,
+                        layerPortion.Y - layer.OffsetY + layerPortion.Height),
+                    new SKRect(
+                        layerPortion.X,
+                        layerPortion.Y,
+                        layerPortion.X + layerPortion.Width,
+                        layerPortion.Y + layerPortion.Height
+                    ),
+                    BlendingPaint);/*
                 layer.LayerBitmap.SkiaSurface.Draw(
                     finalSurface.SkiaSurface.Canvas,
                     layer.OffsetX,
                     layer.OffsetY,
-                    BlendingPaint);
+                    BlendingPaint);*/
             }
             finalBitmap.Lock();
             finalSurface.SkiaSurface.Draw(backingSurface.Canvas, 0, 0, Surface.ReplacingPaint);
-
-            dirtyRectangle = dirtyRectangle.Intersect(new Int32Rect(0, 0, finalBitmap.PixelWidth, finalBitmap.PixelHeight));
 
             finalBitmap.AddDirtyRect(dirtyRectangle);
             finalBitmap.Unlock();

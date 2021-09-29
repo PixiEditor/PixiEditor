@@ -1,5 +1,4 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
@@ -65,33 +64,29 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void AfterAddedUndo(UndoManager undoManager)
         {
-            //if (currentSelection == null || currentSelection.Length == 0)
-            //{
-            //    return;
-            //}
-
+            //if (currentSelection == null || currentSelection.Length == 0)
+            //{
+            //    return;
+            //}
             //Change changes = undoManager.UndoStack.Peek();
-
-            //// Inject to default undo system change custom changes made by this tool
-            //foreach (var item in startPixelColors)
-            //{
-            //    BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
-            //    BitmapPixelChanges afterMovePixels = BitmapPixelChanges.FromArrays(currentSelection, endPixelColors[item.Key]);
-            //    Guid layerGuid = item.Key;
+            //// Inject to default undo system change custom changes made by this tool
+            //foreach (var item in startPixelColors)
+            //{
+            //    BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
+            //    BitmapPixelChanges afterMovePixels = BitmapPixelChanges.FromArrays(currentSelection, endPixelColors[item.Key]);
+            //    Guid layerGuid = item.Key;
             //    var oldValue = (LayerChange[])changes.OldValue;
-
-            //    if (oldValue.Any(x => x.LayerGuid == layerGuid))
-            //    {
-            //        var layer = oldValue.First(x => x.LayerGuid == layerGuid);
-            //        layer.PixelChanges.ChangedPixels.AddRangeOverride(afterMovePixels.ChangedPixels);
-            //        layer.PixelChanges.ChangedPixels
+            //    if (oldValue.Any(x => x.LayerGuid == layerGuid))
+            //    {
+            //        var layer = oldValue.First(x => x.LayerGuid == layerGuid);
+            //        layer.PixelChanges.ChangedPixels.AddRangeOverride(afterMovePixels.ChangedPixels);
+            //        layer.PixelChanges.ChangedPixels
             //            .AddRangeOverride(beforeMovePixels.ChangedPixels);
-
-            //        ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
-            //            .AddRangeNewOnly(BitmapPixelChanges
+            //        ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
+            //            .AddRangeNewOnly(BitmapPixelChanges
             //                .FromSingleColoredArray(startSelection, SKColors.Transparent)
-            //                .ChangedPixels);
-            //    }
+            //                .ChangedPixels);
+            //    }
             //}
         }
 
@@ -101,44 +96,40 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (currentSelection != null && currentSelection.Length == 0)
             {
-                BitmapManager.ActiveDocument.UndoManager.AddUndoChange(new Change(
-                    ApplyOffsets,
-                    new object[] { startingOffsets },
-                    ApplyOffsets,
-                    new object[] { GetOffsets(affectedLayers) },
+                BitmapManager.ActiveDocument.UndoManager.AddUndoChange(new Change(
+                    ApplyOffsets,
+                    new object[] { startingOffsets },
+                    ApplyOffsets,
+                    new object[] { GetOffsets(affectedLayers) },
                     "Move layers"));
             }
         }
 
-        public override void OnStart(Coordinates startPos)
-        {
+        public override void OnStart(Coordinates startPos)
+        {
             ResetSelectionValues(startPos);
-
-            // Move offset if no selection
-            Document doc = BitmapManager.ActiveDocument;
-            Selection selection = doc.ActiveSelection;
-            if (selection != null && selection.SelectedPoints.Count > 0)
-            {
-                currentSelection = selection.SelectedPoints.ToArray();
+            // Move offset if no selection
+            Document doc = BitmapManager.ActiveDocument;
+            Selection selection = doc.ActiveSelection;
+            if (selection != null && selection.SelectedPoints.Count > 0)
+            {
+                currentSelection = selection.SelectedPoints.ToArray();
+            }
+            else
+            {
+                currentSelection = Array.Empty<Coordinates>();
             }
-            else
-            {
-                currentSelection = Array.Empty<Coordinates>();
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
+            {
+                affectedLayers = doc.Layers.Where(x => x.IsVisible).ToArray();
+            }
+            else
+            {
+                affectedLayers = doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray();
             }
-
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
-            {
-                affectedLayers = doc.Layers.Where(x => x.IsVisible)
-                    .ToArray();
-            }
-            else
-            {
-                affectedLayers = doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray();
-            }
-
-            startSelection = currentSelection;
-            startPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, startSelection);
-            startingOffsets = GetOffsets(affectedLayers);
+            startSelection = currentSelection;
+            startPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, startSelection);
+            startingOffsets = GetOffsets(affectedLayers);
         }
 
         public override void Use(Layer layer, List<Coordinates> mouseMove, SKColor color)
@@ -170,21 +161,18 @@ namespace PixiEditor.Models.Tools.Tools
 
             // return result;
         }
-
         public BitmapPixelChanges MoveSelection(Layer layer, IEnumerable<Coordinates> mouseMove)
         {
             Coordinates end = mouseMove.First();
 
             currentSelection = TranslateSelection(end);
-            if (updateViewModelSelection)
-            {
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
-            }
-
+            if (updateViewModelSelection)
+            {
+                ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
+            }
             lastMouseMove = end;
             return BitmapPixelChanges.FromArrays(currentSelection, startPixelColors[layer.LayerGuid]);
         }
-
         private void ApplyOffsets(object[] parameters)
         {
             Dictionary<Guid, Thickness> offsets = (Dictionary<Guid, Thickness>)parameters[0];
@@ -209,11 +197,10 @@ namespace PixiEditor.Models.Tools.Tools
 
         private BitmapPixelChanges RemoveTransparentPixels(BitmapPixelChanges pixels)
         {
-            foreach (var item in pixels.ChangedPixels.Where(x => x.Value.Alpha == 0).ToList())
-            {
-                pixels.ChangedPixels.Remove(item.Key);
-            }
-
+            foreach (var item in pixels.ChangedPixels.Where(x => x.Value.Alpha == 0).ToList())
+            {
+                pixels.ChangedPixels.Remove(item.Key);
+            }
             return pixels;
         }
 

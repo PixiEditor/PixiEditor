@@ -1,15 +1,11 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
-using PixiEditor.Models.Undo;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Controllers
@@ -92,7 +88,7 @@ namespace PixiEditor.Models.Controllers
             int thickness = sizeSetting != null ? sizeSetting.Value : 1;
 
             bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
-           
+
             if (shiftDown && tool.UsesShift)
             {
                 bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
@@ -189,6 +185,7 @@ namespace PixiEditor.Models.Controllers
                 {
                     Manager.ActiveDocument.GeneratePreviewLayer();
                 }
+
                 // TODO: Use on preview layer
                 ((BitmapOperationTool)Manager.SelectedTool).Use(
                     Manager.ActiveDocument.ActiveLayer,
