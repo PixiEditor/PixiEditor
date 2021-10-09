@@ -50,32 +50,34 @@ namespace PixiEditor.Models.Tools.Tools
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
 
-            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
+            Coordinates start = coordinates[0];
+            Coordinates end = coordinates[^1];
 
             int halfThickness = (int)Math.Ceiling(thickness / 2.0);
             Int32Rect dirtyRect = new Int32Rect(
-                fixedCoordinates.Coords1.X - halfThickness,
-                fixedCoordinates.Coords1.Y - halfThickness,
-                fixedCoordinates.Coords2.X + (halfThickness * 2) - fixedCoordinates.Coords1.X,
-                fixedCoordinates.Coords2.Y + (halfThickness * 2) - fixedCoordinates.Coords1.Y);
+                start.X - halfThickness,
+                start.Y - halfThickness,
+                end.X + halfThickness,
+                end.Y + halfThickness);
             Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
             Int32Rect expanded = dirtyRect.Expand(curLayerRect);
 
-            layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
+            layer.DynamicResize(expanded.X + expanded.Width, expanded.Y + expanded.Height, expanded.X, expanded.Y);
 
             using (SKPaint paint = new SKPaint())
             {
-                int x = fixedCoordinates.Coords1.X;
-                int y = fixedCoordinates.Coords1.Y;
-                int x1 = fixedCoordinates.Coords2.X;
-                int y1 = fixedCoordinates.Coords2.Y;
+                int x = start.X;
+                int y = start.Y;
+                int x1 = end.X;
+                int y1 = end.Y;
 
 
                 paint.StrokeWidth = thickness;
-                paint.Style = SKPaintStyle.Stroke;
+                paint.Style = SKPaintStyle.StrokeAndFill;
                 paint.Color = color;
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
             }
+
             layer.InvokeLayerBitmapChange(dirtyRect);
         }
 
