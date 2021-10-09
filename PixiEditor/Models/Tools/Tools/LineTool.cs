@@ -53,25 +53,25 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates start = coordinates[0];
             Coordinates end = coordinates[^1];
 
-            int x1 = start.X;
-            int y1 = start.Y;
-            int x = end.X;
-            int y = end.Y;
+            int x = start.X;
+            int y = start.Y;
+            int x1 = end.X;
+            int y1 = end.Y;
 
-            Int32Rect dirtyRect = new Int32Rect( // Idk why it sometimes doesn't add one x or y, @Equbuxu hulp
+            Int32Rect dirtyRect = new Int32Rect(
                 Math.Min(x, x1) - thickness,
                 Math.Min(y, y1) - thickness,
-                Math.Max(x1, x) + thickness, 
+                Math.Max(x1, x) + thickness,
                 Math.Max(y1, y) + thickness);
             Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
             Int32Rect expanded = dirtyRect.Expand(curLayerRect);
 
-            layer.DynamicResize(expanded.X + expanded.Width, expanded.Y + expanded.Height, expanded.X, expanded.Y);
+            layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
 
             using (SKPaint paint = new SKPaint())
             {
                 paint.StrokeWidth = thickness;
-                paint.Style = SKPaintStyle.StrokeAndFill;
+                paint.Style = SKPaintStyle.Stroke;
                 paint.Color = color;
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
             }
