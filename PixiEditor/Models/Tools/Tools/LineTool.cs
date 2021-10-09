@@ -53,12 +53,16 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates start = coordinates[0];
             Coordinates end = coordinates[^1];
 
-            int halfThickness = (int)Math.Ceiling(thickness / 2.0);
-            Int32Rect dirtyRect = new Int32Rect(
-                start.X - halfThickness,
-                start.Y - halfThickness,
-                end.X + halfThickness,
-                end.Y + halfThickness);
+            int x1 = start.X;
+            int y1 = start.Y;
+            int x = end.X;
+            int y = end.Y;
+
+            Int32Rect dirtyRect = new Int32Rect( // Idk why it sometimes doesn't add one x or y, @Equbuxu hulp
+                Math.Min(x, x1) - thickness,
+                Math.Min(y, y1) - thickness,
+                Math.Max(x1, x) + thickness, 
+                Math.Max(y1, y) + thickness);
             Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
             Int32Rect expanded = dirtyRect.Expand(curLayerRect);
 
@@ -66,12 +70,6 @@ namespace PixiEditor.Models.Tools.Tools
 
             using (SKPaint paint = new SKPaint())
             {
-                int x = start.X;
-                int y = start.Y;
-                int x1 = end.X;
-                int y1 = end.Y;
-
-
                 paint.StrokeWidth = thickness;
                 paint.Style = SKPaintStyle.StrokeAndFill;
                 paint.Color = color;
