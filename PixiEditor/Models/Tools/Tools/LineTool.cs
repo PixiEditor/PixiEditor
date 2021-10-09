@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
@@ -10,9 +13,6 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -48,14 +48,35 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
-            layer.DynamicResize(coordinates.Max(x => x.X), coordinates.Max(x => x.Y), coordinates.Min(x => x.X), coordinates.Min(x => x.Y));
+            int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
 
-            CreateLine(
-                layer, color,
-                coordinates,
-                Toolbar.GetSetting<SizeSetting>("ToolSize").Value,
-                CapType.Square,
-                CapType.Square);
+            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
+
+            int halfThickness = (int)Math.Ceiling(thickness / 2.0);
+            Int32Rect dirtyRect = new Int32Rect(
+                fixedCoordinates.Coords1.X - halfThickness,
+                fixedCoordinates.Coords1.Y - halfThickness,
+                fixedCoordinates.Coords2.X + (halfThickness * 2) - fixedCoordinates.Coords1.X,
+                fixedCoordinates.Coords2.Y + (halfThickness * 2) - fixedCoordinates.Coords1.Y);
+            Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
+            Int32Rect expanded = dirtyRect.Expand(curLayerRect);
+
+            layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
+
+            using (SKPaint paint = new SKPaint())
+            {
+                int x = fixedCoordinates.Coords1.X;
+                int y = fixedCoordinates.Coords1.Y;
+                int x1 = fixedCoordinates.Coords2.X;
+                int y1 = fixedCoordinates.Coords2.Y;
+
+
+                paint.StrokeWidth = thickness;
+                paint.Style = SKPaintStyle.Stroke;
+                paint.Color = color;
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
+            }
+            layer.InvokeLayerBitmapChange(dirtyRect);
         }
 
         public List<Coordinates> CreateLine(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
