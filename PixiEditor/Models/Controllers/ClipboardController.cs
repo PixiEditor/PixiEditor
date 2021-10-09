@@ -127,6 +127,11 @@ namespace PixiEditor.Models.Controllers
                     yield return (tempSurface.Crop(crop.OffsetX, crop.OffsetY, crop.Width, crop.Height), layer.Name);
                 }
             }
+            else if (TryFromSingleImage(data, out Surface singleImage))
+            {
+                yield return (singleImage, "Copied");
+                yield break;
+            }
             else if(data.GetDataPresent(DataFormats.FileDrop))
             {
                 foreach (string path in data.GetFileDropList())
@@ -134,11 +139,6 @@ namespace PixiEditor.Models.Controllers
                     yield return (Importer.ImportSurface(path), Path.GetFileName(path));
                 }
 
-                yield break;
-            }
-            else if (TryFromSingleImage(data, out Surface singleImage))
-            {
-                yield return (singleImage, "Copied");
                 yield break;
             }
             else
@@ -213,7 +213,7 @@ namespace PixiEditor.Models.Controllers
                 return false;
             }
 
-            if (source.Format == PixelFormats.Pbgra32)
+            if (source.Format.IsSkiaSupported())
             {
                 result = new Surface(source);
             }
@@ -222,7 +222,7 @@ namespace PixiEditor.Models.Controllers
                 FormatConvertedBitmap newFormat = new FormatConvertedBitmap();
                 newFormat.BeginInit();
                 newFormat.Source = source;
-                newFormat.DestinationFormat = PixelFormats.Pbgra32;
+                newFormat.DestinationFormat = PixelFormats.Rgba64;
                 newFormat.EndInit();
 
                 result = new Surface(newFormat);

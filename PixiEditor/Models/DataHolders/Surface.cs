@@ -1,6 +1,6 @@
-﻿using SkiaSharp;
+﻿using PixiEditor.Helpers.Extensions;
+using SkiaSharp;
 using System;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -43,13 +43,12 @@ namespace PixiEditor.Models.DataHolders
                 throw new ArgumentException("Surface dimensions must be non-zero");
             Width = w;
             Height = h;
-            SkiaSurface = Pbgra32BytesToSkSurface(w, h, pbgra32Bytes);
+            SkiaSurface = BytesToSkSurface(w, h, pbgra32Bytes, SKColorType.Bgra8888, SKAlphaType.Premul);
         }
 
         public Surface(BitmapSource original)
         {
-            if (original.Format != PixelFormats.Pbgra32)
-                throw new ArgumentException("This method only supports Pbgra32 bitmaps");
+            SKColorType color = original.Format.ToSkia(out SKAlphaType alpha);
             if (original.PixelWidth <= 0 || original.PixelHeight <= 0)
                 throw new ArgumentException("Surface dimensions must be non-zero");
 
@@ -58,7 +57,7 @@ namespace PixiEditor.Models.DataHolders
 
             Width = original.PixelWidth;
             Height = original.PixelHeight;
-            SkiaSurface = Pbgra32BytesToSkSurface(Width, Height, pixels);
+            SkiaSurface = BytesToSkSurface(Width, Height, pixels, color, alpha);
         }
 
         public Surface(SKImage image)
@@ -99,22 +98,20 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.Canvas.DrawPoint(x, y, drawingPaint);
         }
 
-        public byte[] ToPbgra32ByteArray()
+        public unsafe byte[] ToPbgra32ByteArray()
         {
             var imageInfo = new SKImageInfo(Width, Height, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb());
-            var buffer = Marshal.AllocHGlobal(Width * Height * 4);
-            try
+
+            byte[] buffer = new byte[Width * Height * 4];
+            fixed (void* pointer = buffer)
             {
-                using SKSurface surface = SKSurface.Create(imageInfo, buffer, Width * 4);
-                SkiaSurface.Draw(surface.Canvas, 0, 0, ReplacingPaint);
-                byte[] managed = new byte[Width * Height * 4];
-                Marshal.Copy(buffer, managed, 0, Width * Height * 4);
-                return managed;
+                using SKPixmap map = new(imageInfo, new IntPtr(pointer));
+                using SKSurface surface = SKSurface.Create(map);
+                var newSurface = CreateSurface(Width, Height);
+                surface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
             }
-            finally
-            {
-                Marshal.FreeHGlobal(buffer);
-            }
+
+            return buffer;
         }
 
         public WriteableBitmap ToWriteableBitmap()
@@ -133,11 +130,11 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.Dispose();
         }
 
-        private static unsafe SKSurface Pbgra32BytesToSkSurface(int w, int h, byte[] pbgra32Bytes)
+        private static unsafe SKSurface BytesToSkSurface(int w, int h, byte[] bytes, SKColorType colorType, SKAlphaType alphaType)
         {
-            SKImageInfo info = new SKImageInfo(w, h, SKColorType.Bgra8888, SKAlphaType.Premul);
+            SKImageInfo info = new SKImageInfo(w, h, colorType, alphaType);
 
-            fixed (void* pointer = pbgra32Bytes)
+            fixed (void* pointer = bytes)
             {
                 using SKPixmap map = new(info, new IntPtr(pointer));
                 using SKSurface surface = SKSurface.Create(map);
