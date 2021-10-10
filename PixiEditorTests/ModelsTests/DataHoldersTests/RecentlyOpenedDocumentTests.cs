@@ -28,5 +28,33 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
 
             Assert.NotNull(smallEnoughFilePreviewImage);
         }
+
+        [Theory]
+        [InlineData("png")]
+        [InlineData("jpg")]
+        [InlineData("jpeg")]
+        public void TestThatForBigImageFilesPreviewImageIsNotLoaded(string imageFormat)
+        {
+            string bigImageFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\BigImage.{imageFormat}";
+            RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(bigImageFilePath);
+
+            var bigImagePreviewImage = recentlyOpenedDocument.PreviewBitmap;
+
+            Assert.Null(bigImagePreviewImage);
+        }
+
+        [Theory]
+        [InlineData("png")]
+        [InlineData("jpg")]
+        [InlineData("jpeg")]
+        public void TestThatForSmallEnoughImageFilesPreviewImageIsLoaded(string imageFormat)
+        {
+            string smallEnoughImageFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\SmallEnoughImage.{imageFormat}";
+            RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(smallEnoughImageFilePath);
+
+            var smallEnoughImagePreviewImage = recentlyOpenedDocument.PreviewBitmap;
+
+            Assert.NotNull(smallEnoughImagePreviewImage);
+        }
     }
 }

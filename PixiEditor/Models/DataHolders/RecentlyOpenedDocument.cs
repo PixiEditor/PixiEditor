@@ -89,7 +89,7 @@ namespace PixiEditor.Models.DataHolders
                     BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50)
                     : null;
             }
-            else if (FileExtension == ".png" || FileExtension == ".jpg" || FileExtension == ".jpeg")
+            else if (FileExtension is ".png" or ".jpg" or ".jpeg")
             {
                 WriteableBitmap bitmap = null;
 
@@ -102,7 +102,7 @@ namespace PixiEditor.Models.DataHolders
                     corrupt = true;
                 }
 
-                return bitmap;
+                return ImageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ? bitmap : null;
             }
 
             return null;
