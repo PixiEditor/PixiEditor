@@ -75,7 +75,7 @@ namespace PixiEditor.Models.DataHolders
         {
             if (FileExtension == ".pixi")
             {
-                SerializableDocument serializableDocument = null;
+                SerializableDocument serializableDocument;
 
                 try
                 {
