@@ -87,7 +87,9 @@ namespace PixiEditor.Models.DataHolders
                     return null;
                 }
 
-                return BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
+                return PixiFileMaxSizeChecker.IsFileUnderMaxSize(serializableDocument) ?
+                    BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50)
+                    : null;
             }
             else if (FileExtension == ".png" || FileExtension == ".jpg" || FileExtension == ".jpeg")
             {
