@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 
 namespace PixiEditor.Models.DataHolders
