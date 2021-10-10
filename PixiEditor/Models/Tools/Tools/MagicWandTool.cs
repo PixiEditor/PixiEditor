@@ -56,13 +56,13 @@ namespace PixiEditor.Models.Tools.Tools
 
             Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
 
-            selection.SetSelection(
+            /*selection.SetSelection(
                 floodFill.LinearFill(
                     layer,
                     new Coordinates((int)document.MouseXOnCanvas, (int)document.MouseYOnCanvas),
                     SKColors.White
                     ).ChangedPixels.Keys,
-                selectionType);
+                selectionType);*/
 
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelection, selectionType);
         }

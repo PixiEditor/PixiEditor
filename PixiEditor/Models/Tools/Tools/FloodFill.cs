@@ -30,25 +30,23 @@ namespace PixiEditor.Models.Tools.Tools
             Trace.WriteLine(sw.ElapsedMilliseconds);
         }
 
-        public BitmapPixelChanges LinearFill(Layer layer, Coordinates startingCoords, SKColor newColor)
+        public void LinearFill(Layer layer, Coordinates startingCoords, SKColor newColor)
         {
             List<Coordinates> changedCoords = new List<Coordinates>();
             Queue<FloodFillRange> floodFillQueue = new Queue<FloodFillRange>();
             SKColor colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);
             if ((colorToReplace.Alpha == 0 && newColor.Alpha == 0) ||
                 colorToReplace == newColor)
-                return BitmapPixelChanges.Empty;
+                return;
 
             int width = BitmapManager.ActiveDocument.Width;
             int height = BitmapManager.ActiveDocument.Height;
             if (startingCoords.X < 0 || startingCoords.Y < 0 || startingCoords.X >= width || startingCoords.Y >= height)
-                return BitmapPixelChanges.Empty;
+                return;
             var visited = new bool[width * height];
 
             PerformLinearFill(layer, changedCoords, floodFillQueue, startingCoords, width, colorToReplace, visited);
             PerformFloodFIll(layer, changedCoords, floodFillQueue, colorToReplace, width, height, visited);
-
-            return BitmapPixelChanges.FromSingleColoredArray(changedCoords, newColor);
         }
 
         private void PerformLinearFill(

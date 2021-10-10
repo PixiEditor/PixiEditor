@@ -53,6 +53,11 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates start = coordinates[0];
             Coordinates end = coordinates[^1];
 
+            DrawLine(layer, start, end, color, thickness);
+        }
+
+        public void DrawLine(Layer layer, Coordinates start, Coordinates end, SKColor color, int thickness, SKStrokeCap strokeCap = SKStrokeCap.Butt)
+        {
             int x = start.X;
             int y = start.Y;
             int x1 = end.X;
@@ -73,185 +78,11 @@ namespace PixiEditor.Models.Tools.Tools
                 paint.StrokeWidth = thickness;
                 paint.Style = SKPaintStyle.Stroke;
                 paint.Color = color;
+                paint.StrokeCap = strokeCap;
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
             }
 
             layer.InvokeLayerBitmapChange(dirtyRect);
-        }
-
-        public List<Coordinates> CreateLine(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
-        {
-            return CreateLineFastest(layer, color, start, end, thickness);
-        }
-
-        private List<Coordinates> CreateLine(Layer layer, SKColor color, IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
-        {
-            Coordinates startingCoordinates = coordinates.Last();
-            Coordinates latestCoordinates = coordinates.First();
-
-            return CreateLine(layer, color, startingCoordinates, latestCoordinates, thickness, startCap, endCap);
-        }
-
-        private List<Coordinates> CreateLine(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
-        {
-            if (thickness == 1)
-            {
-                return BresenhamLine(layer, color, start.X, start.Y, end.X, end.Y);
-            }
-
-            return GenerateLine(layer, color, start, end, thickness, startCap, endCap);
-        }
-
-        private List<Coordinates> CreateLineFastest(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness)
-        {
-            var line = BresenhamLine(layer, color, start.X, start.Y, end.X, end.Y);
-            if (thickness == 1)
-            {
-                return line;
-            }
-
-            ThickenShape(layer, color, line, thickness);
-            return line;
-        }
-
-        private List<Coordinates> GenerateLine(Layer layer, SKColor color, Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
-        {
-            ApplyCap(layer, color, startCap, start, thickness);
-            if (start == end)
-            {
-                return new List<Coordinates>() { start };
-            }
-
-            var line = BresenhamLine(layer, color, start.X, start.Y, end.X, end.Y);
-
-            ApplyCap(layer, color, endCap, end, thickness);
-            if (line.Count() > 2)
-            {
-                ThickenShape(layer, color, line.Except(new[] { start, end }), thickness);
-            }
-
-            return line;
-        }
-
-        private void ApplyCap(Layer layer, SKColor color, CapType cap, Coordinates position, int thickness)
-        {
-            switch (cap)
-            {
-                case CapType.Round:
-                    ApplyRoundCap(layer, color, position, thickness); // Round cap is not working very well, circle tool must be improved
-                    break;
-
-                default:
-                    ThickenShape(layer, color, position, thickness);
-                    break;
-            }
-        }
-
-        /// <summary>
-        ///     Gets points for rounded cap on specified position and thickness.
-        /// </summary>
-        /// <param name="position">Starting position of cap.</param>
-        /// <param name="thickness">Thickness of cap.</param>
-        private void ApplyRoundCap(Layer layer, SKColor color, Coordinates position, int thickness)
-        {
-            IEnumerable<Coordinates> rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
-                CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
-            circleTool.CreateEllipse(layer, color, rectangleCords.First(), rectangleCords.Last(), 1, true);
-        }
-
-        private List<Coordinates> BresenhamLine(Layer layer, SKColor color, int x1, int y1, int x2, int y2)
-        {
-            //using BitmapContext context = layer.LayerBitmap.GetBitmapContext();
-            linePoints.Clear();
-            Coordinates cords;
-            if (x1 == x2 && y1 == y2)
-            {
-                cords = new Coordinates(x1, y1);
-                layer.SetPixelWithOffset(cords, color);
-                linePoints.Add(cords);
-            }
-
-            int d, dx, dy, ai, bi, xi, yi;
-            int x = x1, y = y1;
-
-            if (x1 < x2)
-            {
-                xi = 1;
-                dx = x2 - x1;
-            }
-            else
-            {
-                xi = -1;
-                dx = x1 - x2;
-            }
-
-            if (y1 < y2)
-            {
-                yi = 1;
-                dy = y2 - y1;
-            }
-            else
-            {
-                yi = -1;
-                dy = y1 - y2;
-            }
-
-            cords = new Coordinates(x, y);
-            layer.SetPixelWithOffset(cords, color);
-            linePoints.Add(cords);
-
-            if (dx > dy)
-            {
-                ai = (dy - dx) * 2;
-                bi = dy * 2;
-                d = bi - dx;
-
-                while (x != x2)
-                {
-                    if (d >= 0)
-                    {
-                        x += xi;
-                        y += yi;
-                        d += ai;
-                    }
-                    else
-                    {
-                        d += bi;
-                        x += xi;
-                    }
-
-                    cords = new Coordinates(x, y);
-                    layer.SetPixelWithOffset(cords, color);
-                    linePoints.Add(cords);
-                }
-            }
-            else
-            {
-                ai = (dx - dy) * 2;
-                bi = dx * 2;
-                d = bi - dy;
-
-                while (y != y2)
-                {
-                    if (d >= 0)
-                    {
-                        x += xi;
-                        y += yi;
-                        d += ai;
-                    }
-                    else
-                    {
-                        d += bi;
-                        y += yi;
-                    }
-
-                    cords = new Coordinates(x, y);
-                    layer.SetPixelWithOffset(cords, color);
-                    linePoints.Add(cords);
-                }
-            }
-
-            return linePoints;
         }
     }
 }

@@ -68,7 +68,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (!pixelPerfect)
             {
-                lineTool.CreateLine(layer, color, startingCoords, latestCords, toolSize);
+                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, SKStrokeCap.Square);
                 return;
             }
 
@@ -77,10 +77,10 @@ namespace PixiEditor.Models.Tools.Tools
                 confirmedPixels.Add(latestCords);
             }
 
-            var latestPixels = lineTool.CreateLine(layer, color, startingCoords, latestCords, 1);
-            SetPixelToCheck(latestPixels);
+            lineTool.DrawLine(layer, startingCoords, latestCords, color, 1, SKStrokeCap.Square);
+            //SetPixelToCheck(latestPixels);
 
-            if (changedPixelsindex == 2)
+            /*if (changedPixelsindex == 2)
             {
                 var changes = ApplyPixelPerfectToPixels(
                     layer,
@@ -98,7 +98,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
 
-            ThickenShape(layer, color, latestPixels, toolSize);
+            ThickenShape(layer, color, latestPixels, toolSize);*/
         }
 
         private void MovePixelsToCheck(BitmapPixelChanges changes)
