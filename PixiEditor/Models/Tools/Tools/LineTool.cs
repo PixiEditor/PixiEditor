@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Enums;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -53,21 +48,26 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates start = coordinates[0];
             Coordinates end = coordinates[^1];
 
-            DrawLine(layer, start, end, color, thickness);
+            DrawLine(layer, start, end, color, thickness, SKBlendMode.SrcOver);
         }
 
-        public void DrawLine(Layer layer, Coordinates start, Coordinates end, SKColor color, int thickness, SKStrokeCap strokeCap = SKStrokeCap.Butt)
+        public void DrawLine(
+            Layer layer, Coordinates start, Coordinates end, SKColor color, int thickness, SKBlendMode blendMode,
+            SKStrokeCap strokeCap = SKStrokeCap.Butt)
         {
             int x = start.X;
             int y = start.Y;
             int x1 = end.X;
             int y1 = end.Y;
 
+            int dirtyX = Math.Min(x, x1) - thickness;
+            int dirtyY = Math.Min(y, y1) - thickness;
+
             Int32Rect dirtyRect = new Int32Rect(
-                Math.Min(x, x1) - thickness,
-                Math.Min(y, y1) - thickness,
-                Math.Max(x1, x) + thickness,
-                Math.Max(y1, y) + thickness);
+                dirtyX,
+                dirtyY,
+                Math.Max(x1, x) + thickness - dirtyX,
+                Math.Max(y1, y) + thickness - dirtyY);
             Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
             Int32Rect expanded = dirtyRect.Expand(curLayerRect);
 
@@ -78,6 +78,7 @@ namespace PixiEditor.Models.Tools.Tools
                 paint.StrokeWidth = thickness;
                 paint.Style = SKPaintStyle.Stroke;
                 paint.Color = color;
+                paint.BlendMode = blendMode;
                 paint.StrokeCap = strokeCap;
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
             }

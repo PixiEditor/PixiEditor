@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
@@ -32,7 +31,7 @@ namespace PixiEditor.Models.Tools.Tools
         public void Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
-            pen.Draw(layer, startingCords, coordinates[0], SKColors.Transparent, toolSize);
+            pen.Draw(layer, startingCords, coordinates[0], SKColors.Transparent, toolSize, false, null, SKBlendMode.Src);
         }
     }
 }

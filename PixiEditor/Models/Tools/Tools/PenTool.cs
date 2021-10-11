@@ -1,5 +1,4 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -64,11 +63,15 @@ namespace PixiEditor.Models.Tools.Tools
                 BitmapManager.ActiveDocument.PreviewLayer);
         }
 
-        public void Draw(Layer layer, Coordinates startingCoords, Coordinates latestCords, SKColor color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)
+        public void Draw(
+            Layer layer, Coordinates startingCoords, Coordinates latestCords, SKColor color, int toolSize,
+            bool pixelPerfect = false,
+            Layer previewLayer = null,
+            SKBlendMode blendMode = SKBlendMode.SrcOver)
         {
             if (!pixelPerfect)
             {
-                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, SKStrokeCap.Square);
+                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, SKStrokeCap.Square);
                 return;
             }
 
@@ -77,7 +80,7 @@ namespace PixiEditor.Models.Tools.Tools
                 confirmedPixels.Add(latestCords);
             }
 
-            lineTool.DrawLine(layer, startingCoords, latestCords, color, 1, SKStrokeCap.Square);
+            lineTool.DrawLine(layer, startingCoords, latestCords, color, 1, blendMode, SKStrokeCap.Square);
             //SetPixelToCheck(latestPixels);
 
             /*if (changedPixelsindex == 2)
