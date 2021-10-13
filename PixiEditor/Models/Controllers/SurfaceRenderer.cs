@@ -30,8 +30,8 @@ namespace PixiEditor.Models.Controllers
             BackingSurface.Canvas.Clear();
             FinalBitmap.Lock();
             BlendingPaint.Color = new SKColor(255, 255, 255, opacity);
-            //otherSurface.SkiaSurface.Draw(BackingSurface.Canvas, 0, 0, BlendingPaint);
-            BackingSurface.Canvas.DrawImage(otherSurface.SkiaSurface.Snapshot(), new SKRect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight));
+            using (var snapshot = otherSurface.SkiaSurface.Snapshot())
+                BackingSurface.Canvas.DrawImage(snapshot, new SKRect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight));
             FinalBitmap.AddDirtyRect(new Int32Rect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight));
             FinalBitmap.Unlock();
         }

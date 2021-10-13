@@ -77,7 +77,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).Alpha > 0)
             {
-                confirmedPixels.Add(latestCords);
+                //confirmedPixels.Add(latestCords);
             }
 
             lineTool.DrawLine(layer, startingCoords, latestCords, color, 1, blendMode, SKStrokeCap.Square);

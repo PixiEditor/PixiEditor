@@ -132,7 +132,11 @@ namespace PixiEditor.Models.Controllers
                 }
             }
             finalBitmap.Lock();
-            finalSurface.SkiaSurface.Draw(backingSurface.Canvas, 0, 0, Surface.ReplacingPaint);
+            using (var snapshot = finalSurface.SkiaSurface.Snapshot())
+            {
+                SKRect rect = new(dirtyRectangle.X, dirtyRectangle.Y, dirtyRectangle.X + dirtyRectangle.Width, dirtyRectangle.Y + dirtyRectangle.Height);
+                backingSurface.Canvas.DrawImage(snapshot, rect, rect, Surface.ReplacingPaint);
+            }
 
             finalBitmap.AddDirtyRect(dirtyRectangle);
             finalBitmap.Unlock();

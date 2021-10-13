@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Controllers
@@ -246,11 +245,9 @@ namespace PixiEditor.Models.Controllers
                 cachedPixels = BitmapPixelChanges.FromSingleColoredArray(cachedHighlight, new SKColor(0, 0, 0, 77));
 
                 ActiveDocument.PreviewLayer.SetPixels(cachedPixels);
-                ActiveDocument.PreviewLayer.ClipCanvas();
             }
 
             Coordinates start = newPosition - halfSize;
-            ActiveDocument.PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
 
             if (!IsInsideBounds(cachedHighlight))
             {

@@ -18,6 +18,8 @@ namespace PixiEditor.Views.UserControls
         }
 
         private SurfaceRenderer renderer;
+        private int prevLayerWidth = -1;
+        private int prevLayerHeight = -1;
 
         public PlainLayerView()
         {
@@ -54,14 +56,13 @@ namespace PixiEditor.Views.UserControls
         {
             if (TargetLayer == null)
                 return;
-            MaybeResize(e.NewSize);
+            ResizeWithOptimized(e.NewSize);
         }
 
-        private bool MaybeResize(Size newSize)
+        private void ResizeWithOptimized(Size newSize)
         {
             var (w, h) = GetOptimizedDimensions(TargetLayer.Width, TargetLayer.Height, newSize.Width, newSize.Height);
             Resize(w, h);
-            return true;
         }
 
         private (int, int) GetOptimizedDimensions(int width, int height, double viewWidth, double viewHeight)
@@ -88,8 +89,16 @@ namespace PixiEditor.Views.UserControls
 
         private void OnLayerBitmapChanged(object sender, Int32Rect e)
         {
-            if (!MaybeResize(RenderSize))
+            if (TargetLayer.Width != prevLayerWidth || TargetLayer.Height != prevLayerHeight)
+            {
+                ResizeWithOptimized(RenderSize);
+                prevLayerWidth = TargetLayer.Width;
+                prevLayerHeight = TargetLayer.Height;
+            }
+            else
+            {
                 Update();
+            }
         }
     }
 }

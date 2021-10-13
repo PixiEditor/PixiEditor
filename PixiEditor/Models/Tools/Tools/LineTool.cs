@@ -15,6 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private readonly CircleTool circleTool;
         private List<Coordinates> linePoints = new List<Coordinates>();
+        private SKPaint paint = new SKPaint() { Style = SKPaintStyle.Stroke };
 
         public LineTool()
         {
@@ -73,15 +74,11 @@ namespace PixiEditor.Models.Tools.Tools
 
             layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
 
-            using (SKPaint paint = new SKPaint())
-            {
-                paint.StrokeWidth = thickness;
-                paint.Style = SKPaintStyle.Stroke;
-                paint.Color = color;
-                paint.BlendMode = blendMode;
-                paint.StrokeCap = strokeCap;
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
-            }
+            paint.StrokeWidth = thickness;
+            paint.Color = color;
+            paint.BlendMode = blendMode;
+            paint.StrokeCap = strokeCap;
+            layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
 
             layer.InvokeLayerBitmapChange(dirtyRect);
         }

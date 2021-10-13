@@ -428,6 +428,11 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public void DynamicResize(int newMaxX, int newMaxY, int newMinX, int newMinY)
         {
+            if (newMinX < 0) newMinX = 0;
+            if (newMinY < 0) newMinY = 0;
+            if (newMaxX > MaxWidth) newMaxX = MaxWidth;
+            if (newMaxY > MaxHeight) newMaxY = MaxHeight;
+
             if ((newMaxX + 1 > Width && Width < MaxWidth) || (newMaxY + 1 > Height && Height < MaxHeight))
             {
                 IncreaseSizeToBottomAndRight(newMaxX, newMaxY);
@@ -466,10 +471,14 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public void Clear()
         {
+            var dirtyRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
+            LayerBitmap?.Dispose();
+            LayerBitmap = new Surface(1, 1);
+            Width = 1;
+            Height = 1;
+            Offset = new Thickness(0, 0, 0, 0);
             IsCleared = true;
-            LayerBitmap.SkiaSurface.Canvas.Clear();
-            ClipCanvas();
-            InvokeLayerBitmapChange();
+            LayerBitmapChanged?.Invoke(this, dirtyRect);
         }
 
         /// <summary>
@@ -605,6 +614,7 @@ namespace PixiEditor.Models.Layers
             Surface result = new Surface(newWidth, newHeight);
 
             LayerBitmap.SkiaSurface.Draw(result.SkiaSurface.Canvas, offsetX - offsetXSrc, offsetY - offsetYSrc, Surface.ReplacingPaint);
+            LayerBitmap?.Dispose();
             LayerBitmap = result;
             Width = newWidth;
             Height = newHeight;
