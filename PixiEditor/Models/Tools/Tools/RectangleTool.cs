@@ -1,5 +1,4 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
@@ -59,9 +58,7 @@ namespace PixiEditor.Models.Tools.Tools
                 fixedCoordinates.Coords1.Y - halfThickness,
                 fixedCoordinates.Coords2.X + halfThickness * 2 - fixedCoordinates.Coords1.X,
                 fixedCoordinates.Coords2.Y + halfThickness * 2 - fixedCoordinates.Coords1.Y);
-            Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
-            Int32Rect expanded = dirtyRect.Expand(curLayerRect);
-            layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
+            layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
 
             using (SKPaint paint = new SKPaint())
             {

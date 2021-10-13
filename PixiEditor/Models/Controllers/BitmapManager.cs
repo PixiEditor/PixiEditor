@@ -166,7 +166,7 @@ namespace PixiEditor.Models.Controllers
 
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
-            e.NewDocument.GeneratePreviewLayer();
+            e.NewDocument?.GeneratePreviewLayer();
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)

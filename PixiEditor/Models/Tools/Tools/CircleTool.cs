@@ -1,11 +1,9 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -49,16 +47,14 @@ namespace PixiEditor.Models.Tools.Tools
                 fixedCoordinates.Coords1.Y - halfThickness,
                 fixedCoordinates.Coords2.X + halfThickness * 2 - fixedCoordinates.Coords1.X,
                 fixedCoordinates.Coords2.Y + halfThickness * 2 - fixedCoordinates.Coords1.Y);
-            Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
-            Int32Rect expanded = dirtyRect.Expand(curLayerRect);
-            layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
+            layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
 
             using (SKPaint paint = new SKPaint())
             {
                 float radiusX = (fixedCoordinates.Coords2.X - fixedCoordinates.Coords1.X) / 2.0f;
                 float radiusY = (fixedCoordinates.Coords2.Y - fixedCoordinates.Coords1.Y) / 2.0f;
-                float centerX = (fixedCoordinates.Coords1.X + fixedCoordinates.Coords2.X + 1) / 2.0f;
-                float centerY = (fixedCoordinates.Coords1.Y + fixedCoordinates.Coords2.Y + 1) / 2.0f;
+                float centerX = (fixedCoordinates.Coords1.X + fixedCoordinates.Coords2.X + 1) / 2.0f - layer.OffsetX;
+                float centerY = (fixedCoordinates.Coords1.Y + fixedCoordinates.Coords2.Y + 1) / 2.0f - layer.OffsetY;
 
                 if (hasFillColor)
                 {

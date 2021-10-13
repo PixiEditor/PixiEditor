@@ -36,6 +36,7 @@ namespace PixiEditor.Models.Layers
         {
             Name = name;
             LayerBitmap = new Surface(1, 1);
+            IsCleared = true;
             Width = 1;
             Height = 1;
             LayerGuid = Guid.NewGuid();
@@ -45,6 +46,7 @@ namespace PixiEditor.Models.Layers
         {
             Name = name;
             LayerBitmap = new Surface(width, height);
+            IsCleared = true;
             Width = width;
             Height = height;
             LayerGuid = Guid.NewGuid();
@@ -413,7 +415,7 @@ namespace PixiEditor.Models.Layers
 
             if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.Alpha == 0))
             {
-                DynamicResize(newMaxX, newMaxY, newMinX, newMinY);
+                DynamicResizeRelative(newMaxX, newMaxY, newMinX, newMinY);
             }
 
             // if clip is requested
@@ -423,23 +425,37 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        /// <summary>
-        ///     Resizes canvas to fit pixels outside current bounds. Clamped to MaxHeight and MaxWidth.
-        /// </summary>
-        public void DynamicResize(int newMaxX, int newMaxY, int newMinX, int newMinY)
+        public void DynamicResizeAbsolute(int newMaxX, int newMaxY, int newMinX, int newMinY)
         {
             if (newMinX < 0) newMinX = 0;
             if (newMinY < 0) newMinY = 0;
-            if (newMaxX > MaxWidth) newMaxX = MaxWidth;
-            if (newMaxY > MaxHeight) newMaxY = MaxHeight;
+            if (newMaxX >= MaxWidth) newMaxX = MaxWidth - 1;
+            if (newMaxY >= MaxHeight) newMaxY = MaxHeight - 1;
 
+            if (IsCleared)
+            {
+                Offset = new Thickness(newMinX, newMinY, 0, 0);
+            }
+
+            DynamicResizeRelative(newMaxX - OffsetX, newMaxY - OffsetY, newMinX - OffsetX, newMinY - OffsetY);
+        }
+
+        /// <summary>
+        ///     Resizes canvas to fit pixels outside current bounds. Clamped to MaxHeight and MaxWidth.
+        /// </summary>
+        public void DynamicResizeRelative(int newMaxX, int newMaxY, int newMinX, int newMinY)
+        {
             if ((newMaxX + 1 > Width && Width < MaxWidth) || (newMaxY + 1 > Height && Height < MaxHeight))
             {
+                newMaxX = Math.Max(newMaxX, (int)(Width * 1.5f));
+                newMaxY = Math.Max(newMaxY, (int)(Height * 1.5f));
                 IncreaseSizeToBottomAndRight(newMaxX, newMaxY);
             }
 
             if ((newMinX < 0 && Width < MaxWidth) || (newMinY < 0 && Height < MaxHeight))
             {
+                newMinX = Math.Min(newMinX, Width - (int)(Width * 1.5f));
+                newMinY = Math.Min(newMinY, Height - (int)(Height * 1.5f));
                 IncreaseSizeToTopAndLeft(newMinX, newMinY);
             }
         }
@@ -471,6 +487,8 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public void Clear()
         {
+            if (IsCleared)
+                return;
             var dirtyRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
             LayerBitmap?.Dispose();
             LayerBitmap = new Surface(1, 1);
@@ -612,7 +630,6 @@ namespace PixiEditor.Models.Layers
         private void ResizeCanvas(int offsetX, int offsetY, int offsetXSrc, int offsetYSrc, int newWidth, int newHeight)
         {
             Surface result = new Surface(newWidth, newHeight);
-
             LayerBitmap.SkiaSurface.Draw(result.SkiaSurface.Canvas, offsetX - offsetXSrc, offsetY - offsetYSrc, Surface.ReplacingPaint);
             LayerBitmap?.Dispose();
             LayerBitmap = result;

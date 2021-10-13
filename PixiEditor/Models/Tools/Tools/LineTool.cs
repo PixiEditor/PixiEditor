@@ -1,5 +1,4 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
@@ -69,10 +68,12 @@ namespace PixiEditor.Models.Tools.Tools
                 dirtyY,
                 Math.Max(x1, x) + thickness - dirtyX,
                 Math.Max(y1, y) + thickness - dirtyY);
-            Int32Rect curLayerRect = new(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
-            Int32Rect expanded = dirtyRect.Expand(curLayerRect);
+            layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
 
-            layer.DynamicResize(expanded.X + expanded.Width - 1, expanded.Y + expanded.Height - 1, expanded.X, expanded.Y);
+            x -= layer.OffsetX;
+            y -= layer.OffsetY;
+            x1 -= layer.OffsetX;
+            y1 -= layer.OffsetY;
 
             paint.StrokeWidth = thickness;
             paint.Color = color;
