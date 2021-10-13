@@ -181,9 +181,9 @@ namespace PixiEditor.Models.Controllers
         {
             if (mouseMove.Count > 0 && mouseMove[0] != lastMousePos)
             {
-                if (clearPreviewLayer || Manager.ActiveDocument.PreviewLayer == null)
+                if (clearPreviewLayer || !Manager.ActiveDocument.PreviewLayer.IsCleared)
                 {
-                    Manager.ActiveDocument.GeneratePreviewLayer();
+                    Manager.ActiveDocument.PreviewLayer.Clear();
                 }
 
                 // TODO: Use on preview layer

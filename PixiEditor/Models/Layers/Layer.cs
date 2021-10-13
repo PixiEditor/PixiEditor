@@ -199,15 +199,19 @@ namespace PixiEditor.Models.Layers
 
         public int MaxHeight { get; set; } = int.MaxValue;
 
+        public bool IsCleared { get; private set; }
+
         public event EventHandler<Int32Rect> LayerBitmapChanged;
 
         public void InvokeLayerBitmapChange()
         {
+            IsCleared = false;
             LayerBitmapChanged?.Invoke(this, new Int32Rect(OffsetX, OffsetY, Width, Height));
         }
 
         public void InvokeLayerBitmapChange(Int32Rect dirtyArea)
         {
+            IsCleared = false;
             LayerBitmapChanged?.Invoke(this, dirtyArea);
         }
 
@@ -462,6 +466,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public void Clear()
         {
+            IsCleared = true;
             LayerBitmap.SkiaSurface.Canvas.Clear();
             ClipCanvas();
             InvokeLayerBitmapChange();

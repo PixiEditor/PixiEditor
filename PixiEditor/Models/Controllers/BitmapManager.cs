@@ -20,9 +20,13 @@ namespace PixiEditor.Models.Controllers
     [DebuggerDisplay("{Documents.Count} Document(s)")]
     public class BitmapManager : NotifyableObject
     {
+        private int previewLayerSize;
         private Document activeDocument;
         private Tool selectedTool;
         private Coordinates? startPosition = null;
+        private IEnumerable<Coordinates> cachedHighlight;
+        private int halfSize;
+        private BitmapPixelChanges cachedPixels;
 
         public BitmapManager()
         {
@@ -35,6 +39,7 @@ namespace PixiEditor.Models.Controllers
             MouseController.OnMouseDownCoordinates += MouseController_OnMouseDownCoordinates;
             BitmapOperations = new BitmapOperationsUtility(this);
             ReadonlyToolUtility = new ReadonlyToolUtility();
+            DocumentChanged += BitmapManager_DocumentChanged;
         }
 
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
@@ -154,14 +159,15 @@ namespace PixiEditor.Models.Controllers
 
         public void SetActiveTool(Tool tool)
         {
-            if (ActiveDocument != null)
-            {
-                ActiveDocument.PreviewLayer = null;
-            }
-
+            ActiveDocument?.PreviewLayer?.Clear();
             SelectedTool?.Toolbar.SaveToolbarSettings();
             SelectedTool = tool;
             SelectedTool.Toolbar.LoadSharedSettings();
+        }
+
+        private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
+        {
+            e.NewDocument.GeneratePreviewLayer();
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
@@ -207,7 +213,7 @@ namespace PixiEditor.Models.Controllers
             SelectedTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (ActiveDocument != null)
             {
-                ActiveDocument.PreviewLayer = null;
+                ActiveDocument.PreviewLayer.Clear();
             }
         }
 
@@ -229,36 +235,28 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            IEnumerable<Coordinates> highlightArea = CoordinatesCalculator.RectangleToCoordinates(
-                CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
-            if (CanChangeHighlightOffset(highlightArea))
+            if (ToolSize != previewLayerSize)
             {
-                Coordinates start = highlightArea.First();
-                ActiveDocument.PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
+                cachedHighlight = CoordinatesCalculator.RectangleToCoordinates(
+                    CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
+
+                previewLayerSize = ToolSize;
+                halfSize = (int)Math.Floor(ToolSize / 2f);
+
+                cachedPixels = BitmapPixelChanges.FromSingleColoredArray(cachedHighlight, new SKColor(0, 0, 0, 77));
+
+                ActiveDocument.PreviewLayer.SetPixels(cachedPixels);
+                ActiveDocument.PreviewLayer.ClipCanvas();
             }
-            else if (!IsInsideBounds(highlightArea))
-            {
-                ActiveDocument.PreviewLayer = null;
-            }
-            else if (ActiveDocument.PreviewLayer == null)
-            {
-                ActiveDocument.GeneratePreviewLayer();
-                ActiveDocument.PreviewLayer.SetPixels(
-                    BitmapPixelChanges.FromSingleColoredArray(highlightArea, new SKColor(0, 0, 0, 77)));
-            }
-            else
+
+            Coordinates start = newPosition - halfSize;
+            ActiveDocument.PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
+
+            if (!IsInsideBounds(cachedHighlight))
             {
                 ActiveDocument.PreviewLayer.Clear();
-                ActiveDocument.PreviewLayer.SetPixels(
-                    BitmapPixelChanges.FromSingleColoredArray(highlightArea, new SKColor(0, 0, 0, 77)));
+                previewLayerSize = -1;
             }
-        }
-
-        private bool CanChangeHighlightOffset(IEnumerable<Coordinates> highlightArea)
-        {
-            int count = highlightArea.Count();
-            return count > 0 && ActiveDocument.PreviewLayer != null &&
-                   IsInsideBounds(highlightArea) && count == ActiveDocument.PreviewLayer.Width * ActiveDocument.PreviewLayer.Height;
         }
 
         private bool IsInsideBounds(IEnumerable<Coordinates> highlightArea)

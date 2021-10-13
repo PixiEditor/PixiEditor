@@ -238,7 +238,7 @@ namespace PixiEditor.ViewModels
         {
             foreach (var document in BitmapManager.Documents)
             {
-                document.PreviewLayer = null;
+                document.PreviewLayer.Clear();
             }
         }
 
