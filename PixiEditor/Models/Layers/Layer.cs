@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
@@ -36,7 +37,7 @@ namespace PixiEditor.Models.Layers
         {
             Name = name;
             LayerBitmap = new Surface(1, 1);
-            IsCleared = true;
+            IsReset = true;
             Width = 1;
             Height = 1;
             LayerGuid = Guid.NewGuid();
@@ -46,7 +47,7 @@ namespace PixiEditor.Models.Layers
         {
             Name = name;
             LayerBitmap = new Surface(width, height);
-            IsCleared = true;
+            IsReset = true;
             Width = width;
             Height = height;
             LayerGuid = Guid.NewGuid();
@@ -143,9 +144,13 @@ namespace PixiEditor.Models.Layers
             get => layerBitmap;
             private set
             {
+                Int32Rect prevRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
                 layerBitmap = value;
+                Width = layerBitmap.Width;
+                Height = layerBitmap.Height;
+                Int32Rect curRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
                 RaisePropertyChanged(nameof(LayerBitmap));
-                InvokeLayerBitmapChange();
+                InvokeLayerBitmapChange(prevRect.Expand(curRect));
             }
         }
 
@@ -191,9 +196,11 @@ namespace PixiEditor.Models.Layers
             get => offset;
             set
             {
+                Int32Rect prevRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
                 offset = value;
-                RaisePropertyChanged("Offset");
-                InvokeLayerBitmapChange();
+                Int32Rect curRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
+                RaisePropertyChanged(nameof(Offset));
+                InvokeLayerBitmapChange(prevRect.Expand(curRect));
             }
         }
 
@@ -201,19 +208,19 @@ namespace PixiEditor.Models.Layers
 
         public int MaxHeight { get; set; } = int.MaxValue;
 
-        public bool IsCleared { get; private set; }
+        public bool IsReset { get; private set; }
 
         public event EventHandler<Int32Rect> LayerBitmapChanged;
 
         public void InvokeLayerBitmapChange()
         {
-            IsCleared = false;
+            IsReset = false;
             LayerBitmapChanged?.Invoke(this, new Int32Rect(OffsetX, OffsetY, Width, Height));
         }
 
         public void InvokeLayerBitmapChange(Int32Rect dirtyArea)
         {
-            IsCleared = false;
+            IsReset = false;
             LayerBitmapChanged?.Invoke(this, dirtyArea);
         }
 
@@ -432,7 +439,7 @@ namespace PixiEditor.Models.Layers
             if (newMaxX >= MaxWidth) newMaxX = MaxWidth - 1;
             if (newMaxY >= MaxHeight) newMaxY = MaxHeight - 1;
 
-            if (IsCleared)
+            if (IsReset)
             {
                 Offset = new Thickness(newMinX, newMinY, 0, 0);
             }
@@ -482,12 +489,9 @@ namespace PixiEditor.Models.Layers
             Offset = new Thickness(OffsetX + smallestX, OffsetY + smallestY, 0, 0);
         }
 
-        /// <summary>
-        ///     Clears bitmap.
-        /// </summary>
-        public void Clear()
+        public void Reset()
         {
-            if (IsCleared)
+            if (IsReset)
                 return;
             var dirtyRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
             LayerBitmap?.Dispose();
@@ -495,8 +499,14 @@ namespace PixiEditor.Models.Layers
             Width = 1;
             Height = 1;
             Offset = new Thickness(0, 0, 0, 0);
-            IsCleared = true;
+            IsReset = true;
             LayerBitmapChanged?.Invoke(this, dirtyRect);
+        }
+
+        public void ClearCanvas()
+        {
+            LayerBitmap.SkiaSurface.Canvas.Clear();
+            InvokeLayerBitmapChange();
         }
 
         /// <summary>

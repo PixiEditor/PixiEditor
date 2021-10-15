@@ -6,12 +6,15 @@ using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Controllers
 {
     public class BitmapOperationsUtility
     {
+        private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+
         private Coordinates lastMousePos;
 
         private SizeSetting sizeSetting;
@@ -74,8 +77,20 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public void ApplyPreviewLayer()
         {
+            var previewLayer = Manager.ActiveDocument.PreviewLayer;
+            var activeLayer = Manager.ActiveLayer;
+
+            activeLayer.DynamicResizeAbsolute(previewLayer.OffsetX + previewLayer.Width, previewLayer.OffsetY + previewLayer.Height, previewLayer.OffsetX, previewLayer.OffsetY);
+            previewLayer.LayerBitmap.SkiaSurface.Draw(
+                    activeLayer.LayerBitmap.SkiaSurface.Canvas,
+                    previewLayer.OffsetX,
+                    previewLayer.OffsetY,
+                    BlendingPaint
+                );
+            Manager.ActiveLayer.InvokeLayerBitmapChange(new Int32Rect(previewLayer.OffsetX, previewLayer.OffsetY, previewLayer.Width, previewLayer.Height));
             // Don't forget about firing BitmapChanged
-            Manager.ActiveDocument.GeneratePreviewLayer();
+            BitmapChanged?.Invoke(this, null);
+            Manager.ActiveDocument.PreviewLayer.Reset();
         }
 
         private void UseTool(List<Coordinates> mouseMoveCords, BitmapOperationTool tool, SKColor color)
@@ -183,12 +198,11 @@ namespace PixiEditor.Models.Controllers
             {
                 if (clearPreviewLayer)
                 {
-                    Manager.ActiveDocument.PreviewLayer.Clear();
+                    Manager.ActiveDocument.PreviewLayer.ClearCanvas();
                 }
 
-                // TODO: Use on preview layer
                 ((BitmapOperationTool)Manager.SelectedTool).Use(
-                    Manager.ActiveDocument.ActiveLayer,
+                    Manager.ActiveDocument.PreviewLayer,
                     mouseMove,
                     Manager.PrimaryColor);
             }

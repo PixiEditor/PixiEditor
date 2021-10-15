@@ -93,8 +93,6 @@ namespace PixiEditor.Models.Controllers
 
         private void Update(Int32Rect dirtyRectangle)
         {
-            //finalSurface.SkiaSurface.Canvas.Clear();
-
             dirtyRectangle = dirtyRectangle.Intersect(new Int32Rect(0, 0, finalBitmap.PixelWidth, finalBitmap.PixelHeight));
             finalSurface.SkiaSurface.Canvas.DrawRect(
                 new SKRect(

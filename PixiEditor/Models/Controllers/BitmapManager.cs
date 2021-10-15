@@ -159,7 +159,7 @@ namespace PixiEditor.Models.Controllers
 
         public void SetActiveTool(Tool tool)
         {
-            ActiveDocument?.PreviewLayer?.Clear();
+            ActiveDocument?.PreviewLayer?.Reset();
             SelectedTool?.Toolbar.SaveToolbarSettings();
             SelectedTool = tool;
             SelectedTool.Toolbar.LoadSharedSettings();
@@ -213,7 +213,7 @@ namespace PixiEditor.Models.Controllers
             SelectedTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (ActiveDocument != null)
             {
-                ActiveDocument.PreviewLayer.Clear();
+                ActiveDocument.PreviewLayer.Reset();
             }
         }
 
@@ -235,18 +235,19 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            if (ToolSize != previewLayerSize || ActiveDocument.PreviewLayer.IsCleared)
+            if (ToolSize != previewLayerSize || ActiveDocument.PreviewLayer.IsReset)
             {
-                cachedHighlight = CoordinatesCalculator.RectangleToCoordinates(
-                    CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
+
+                cachedHighlight = CoordinatesCalculator.RectangleToCoordinates(0, 0, ToolSize - 1, ToolSize - 1);
+                var center = CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize);
 
                 previewLayerSize = ToolSize;
                 halfSize = (int)Math.Floor(ToolSize / 2f);
 
                 cachedPixels = BitmapPixelChanges.FromSingleColoredArray(cachedHighlight, new SKColor(0, 0, 0, 77));
 
-                if (!ActiveDocument.PreviewLayer.IsCleared)
-                    ActiveDocument.PreviewLayer.Clear();
+                if (!ActiveDocument.PreviewLayer.IsReset)
+                    ActiveDocument.PreviewLayer.Reset();
                 ActiveDocument.PreviewLayer.SetPixels(cachedPixels);
             }
 
@@ -255,7 +256,7 @@ namespace PixiEditor.Models.Controllers
 
             if (!IsInsideBounds(cachedHighlight))
             {
-                ActiveDocument.PreviewLayer.Clear();
+                ActiveDocument.PreviewLayer.Reset();
                 previewLayerSize = -1;
             }
         }

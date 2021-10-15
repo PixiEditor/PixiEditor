@@ -42,7 +42,7 @@ namespace PixiEditor.Models.DataHolders
             {
                 case SelectionType.New:
                     SelectedPoints = new ObservableCollection<Coordinates>(selection);
-                    SelectionLayer.Clear();
+                    SelectionLayer.Reset();
                     break;
                 case SelectionType.Add:
                     SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Concat(selection).Distinct());
@@ -58,7 +58,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void Clear()
         {
-            SelectionLayer.Clear();
+            SelectionLayer.Reset();
             SelectedPoints.Clear();
         }
     }
