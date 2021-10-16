@@ -1,5 +1,8 @@
 ﻿using PixiEditor.Models.Enums;
 using PixiEditor.Views;
+using System;
+using System.IO;
+using System.Windows;
 
 namespace PixiEditor.Models.Dialogs
 {
@@ -12,7 +15,7 @@ namespace PixiEditor.Models.Dialogs
                 Body = message,
                 Topmost = true
             };
-            if ((bool)popup.ShowDialog())
+            if (popup.ShowDialog().GetValueOrDefault())
             {
                 return popup.Result ? ConfirmationType.Yes : ConfirmationType.No;
             }
