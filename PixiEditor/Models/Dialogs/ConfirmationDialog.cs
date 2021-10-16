@@ -12,7 +12,7 @@ namespace PixiEditor.Models.Dialogs
                 Body = message,
                 Topmost = true
             };
-            if ((bool)popup.ShowDialog())
+            if (popup.ShowDialog().GetValueOrDefault())
             {
                 return popup.Result ? ConfirmationType.Yes : ConfirmationType.No;
             }
