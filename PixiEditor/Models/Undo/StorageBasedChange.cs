@@ -22,11 +22,11 @@ namespace PixiEditor.Models.Undo
 
         private List<Guid> layersToStore;
 
-        private Document document;
+        public Document Document { get; }
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool saveOnStartup = true)
         {
-            document = doc;
+            Document = doc;
             layersToStore = layers.Select(x => x.LayerGuid).ToList();
             UndoChangeLocation = DefaultUndoChangeLocation;
             GenerateUndoLayers();
@@ -38,7 +38,7 @@ namespace PixiEditor.Models.Undo
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
         {
-            document = doc;
+            Document = doc;
             layersToStore = layers.Select(x => x.LayerGuid).ToList();
             UndoChangeLocation = undoChangeLocation;
             GenerateUndoLayers();
@@ -54,7 +54,7 @@ namespace PixiEditor.Models.Undo
             int i = 0;
             foreach (var layerGuid in layersToStore)
             {
-                Layer layer = document.Layers.First(x => x.LayerGuid == layerGuid);
+                Layer layer = Document.Layers.First(x => x.LayerGuid == layerGuid);
                 UndoLayer storedLayer = StoredLayers[i];
                 if (Directory.Exists(Path.GetDirectoryName(storedLayer.StoredPngLayerName)))
                 {
@@ -123,6 +123,25 @@ namespace PixiEditor.Models.Undo
             };
 
             return new Change(finalUndoProcess, processArgs, finalRedoProcess, redoProcessParameters, description);
+        }
+
+        /// <summary>
+        ///     Creates UndoManager ready Change instance, where undo and redo is the same, before process images are loaded from disk and current ones are saved.
+        /// </summary>
+        /// <param name="undoRedoProcess">Process that is invoked on redo and undo.</param>
+        /// <param name="processArgs">Custom parameters for undo and redo process.</param>
+        /// <param name="description">Undo change description.</param>
+        /// <returns>UndoManager ready Change instance.</returns>
+        public Change ToChange(Action<Layer[], UndoLayer[], object[]> undoRedoProcess, object[] processArgs, string description = "")
+        {
+            Action<object[]> finalProcess = processParameters =>
+            {
+                Layer[] layers = LoadLayersFromDevice();
+                SaveLayersOnDevice();
+                undoRedoProcess(layers, StoredLayers, processParameters);
+            };
+
+            return new Change(finalProcess, processArgs, finalProcess, processArgs, description);
         }
 
         /// <summary>
@@ -210,15 +229,15 @@ namespace PixiEditor.Models.Undo
             int i = 0;
             foreach (var layerGuid in layersToStore)
             {
-                Layer layer = document.Layers.First(x => x.LayerGuid == layerGuid);
-                if (!document.Layers.Contains(layer))
+                Layer layer = Document.Layers.First(x => x.LayerGuid == layerGuid);
+                if (!Document.Layers.Contains(layer))
                 {
                     throw new ArgumentException("Provided document doesn't contain selected layer");
                 }
 
                 layer.ClipCanvas();
 
-                int index = document.Layers.IndexOf(layer);
+                int index = Document.Layers.IndexOf(layer);
                 string pngName = layer.Name + Guid.NewGuid().ToString();
                 StoredLayers[i] = new UndoLayer(
                     Path.Join(

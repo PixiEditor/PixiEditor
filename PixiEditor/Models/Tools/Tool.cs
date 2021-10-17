@@ -16,9 +16,6 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
-        private bool isActive;
-        private string actionDisplay = string.Empty;
-
         public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty);
 
         public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
@@ -55,15 +52,39 @@ namespace PixiEditor.Models.Tools
 
         public bool CanStartOutsideCanvas { get; set; } = false;
 
+        private bool isActive;
+        private string actionDisplay = string.Empty;
+        private StorageBasedChange _change;
+
         public virtual void OnMouseDown(MouseEventArgs e)
         {
+            Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
+            _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
         }
 
         public virtual void AddUndoProcess(Document document)
         {
-            //StorageBasedChange change = new StorageBasedChange(document, affectedLayers, false);
+            var args = new object[] { _change.Document };
+            document.UndoManager.AddUndoChange(_change.ToChange(UndoProcess, args));
+        }
 
-            //manager.AddUndoChange(change.ToChange(), )
+        private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            if(args.Length > 0 && args[0] is Document document)
+            {
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    Layer layer = layers[i];
+                    document.Layers.RemoveAt(data[i].LayerIndex);
+
+                    document.Layers.Insert(data[i].LayerIndex, layer);
+                    if (data[i].IsActive)
+                    {
+                        document.SetMainActiveLayer(data[i].LayerIndex);
+                    }
+                    layer.InvokeLayerBitmapChange();
+                }
+            }
         }
 
         public virtual void OnMouseUp(MouseEventArgs e)
