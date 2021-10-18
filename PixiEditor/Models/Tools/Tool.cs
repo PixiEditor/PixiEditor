@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
@@ -58,14 +59,13 @@ namespace PixiEditor.Models.Tools
 
         public virtual void OnMouseDown(MouseEventArgs e)
         {
-            Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-            _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
         }
 
         public virtual void AddUndoProcess(Document document)
         {
             var args = new object[] { _change.Document };
             document.UndoManager.AddUndoChange(_change.ToChange(UndoProcess, args));
+            _change = null;
         }
 
         private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
@@ -82,8 +82,8 @@ namespace PixiEditor.Models.Tools
                     {
                         document.SetMainActiveLayer(data[i].LayerIndex);
                     }
-                    layer.InvokeLayerBitmapChange();
                 }
+
             }
         }
 
@@ -105,6 +105,10 @@ namespace PixiEditor.Models.Tools
 
         public virtual void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+
+            Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
+            _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
         }
 
         public virtual void OnStoppedRecordingMouseUp(MouseEventArgs e)

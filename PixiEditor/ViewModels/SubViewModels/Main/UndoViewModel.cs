@@ -34,6 +34,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (activeDoc is null) return;
 
             selectedTool.AddUndoProcess(activeDoc);
+            selectedTool.AfterAddedUndo(activeDoc.UndoManager);
         }
 
         /// <summary>

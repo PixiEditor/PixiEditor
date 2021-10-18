@@ -138,6 +138,7 @@ namespace PixiEditor.Models.Undo
             {
                 Layer[] layers = LoadLayersFromDevice();
                 SaveLayersOnDevice();
+
                 undoRedoProcess(layers, StoredLayers, processParameters);
             };
 
@@ -225,7 +226,7 @@ namespace PixiEditor.Models.Undo
         /// </summary>
         private void GenerateUndoLayers()
         {
-            StoredLayers = new UndoLayer[layersToStore.Count()];
+            StoredLayers = new UndoLayer[layersToStore.Count];
             int i = 0;
             foreach (var layerGuid in layersToStore)
             {
