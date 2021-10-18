@@ -18,7 +18,7 @@ namespace PixiEditor
             if (ViewModelMain.Current.BitmapManager.Documents.Any(x => !x.ChangesSaved))
             {
                 ConfirmationType confirmation = ConfirmationDialog.Show($"{e.ReasonSessionEnding} with unsaved data. Are you sure?", $"{e.ReasonSessionEnding}");
-                e.Cancel = (confirmation == ConfirmationType.Canceled || confirmation == ConfirmationType.No);
+                e.Cancel = confirmation != ConfirmationType.Yes
             }
         }
     }
