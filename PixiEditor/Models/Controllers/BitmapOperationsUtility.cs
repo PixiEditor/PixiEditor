@@ -83,8 +83,8 @@ namespace PixiEditor.Models.Controllers
             activeLayer.DynamicResizeAbsolute(previewLayer.OffsetX + previewLayer.Width, previewLayer.OffsetY + previewLayer.Height, previewLayer.OffsetX, previewLayer.OffsetY);
             previewLayer.LayerBitmap.SkiaSurface.Draw(
                     activeLayer.LayerBitmap.SkiaSurface.Canvas,
-                    previewLayer.OffsetX,
-                    previewLayer.OffsetY,
+                    previewLayer.OffsetX - activeLayer.OffsetX,
+                    previewLayer.OffsetY - activeLayer.OffsetY,
                     BlendingPaint
                 );
             Manager.ActiveLayer.InvokeLayerBitmapChange(new Int32Rect(previewLayer.OffsetX, previewLayer.OffsetY, previewLayer.Width, previewLayer.Height));
