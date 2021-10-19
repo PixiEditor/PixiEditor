@@ -136,7 +136,10 @@ namespace PixiEditor.Models.Undo
         {
             Action<object[]> finalProcess = processParameters =>
             {
+
                 Layer[] layers = LoadLayersFromDevice();
+                GenerateUndoLayers();
+
                 SaveLayersOnDevice();
 
                 undoRedoProcess(layers, StoredLayers, processParameters);
