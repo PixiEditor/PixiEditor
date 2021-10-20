@@ -36,6 +36,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
+            base.OnRecordingLeftMouseDown(e);
             pixelsVisited.Clear();
         }
 
