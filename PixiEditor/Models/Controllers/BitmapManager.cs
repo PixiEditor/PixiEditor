@@ -120,6 +120,7 @@ namespace PixiEditor.Models.Controllers
 
             Documents.Remove(document);
             ActiveDocument = nextIndex >= 0 ? Documents[nextIndex] : null;
+            document.DisposeLayerBitmaps();
         }
 
         public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)

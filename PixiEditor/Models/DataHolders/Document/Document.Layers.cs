@@ -494,6 +494,20 @@ namespace PixiEditor.Models.DataHolders
             return layer;
         }
 
+        public void DisposeLayerBitmaps()
+        {
+            foreach (var layer in layers)
+            {
+                layer.LayerBitmap.Dispose();
+            }
+            referenceLayer?.LayerBitmap.Dispose();
+            previewLayer?.LayerBitmap.Dispose();
+
+            previewLayerRenderer?.Dispose();
+            referenceLayerRenderer?.Dispose();
+            renderer?.Dispose();
+        }
+
         public SKColor GetColorAtPoint(int x, int y)
         {
             return Renderer.FinalSurface.GetSRGBPixel(x, y);

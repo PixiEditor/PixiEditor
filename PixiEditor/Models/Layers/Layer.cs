@@ -505,6 +505,8 @@ namespace PixiEditor.Models.Layers
 
         public void ClearCanvas()
         {
+            if (IsReset)
+                return;
             LayerBitmap.SkiaSurface.Canvas.Clear();
             InvokeLayerBitmapChange();
         }
