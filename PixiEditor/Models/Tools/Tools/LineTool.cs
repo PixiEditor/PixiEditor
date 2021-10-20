@@ -79,9 +79,99 @@ namespace PixiEditor.Models.Tools.Tools
             paint.Color = color;
             paint.BlendMode = blendMode;
             paint.StrokeCap = strokeCap;
-            layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
+
+            if (thickness == 1)
+            {
+                BresenhamLine(layer, x, y, x1, y1, paint);
+            }
+            else
+            {
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
+            }
 
             layer.InvokeLayerBitmapChange(dirtyRect);
+        }
+
+        private void BresenhamLine(Layer layer, int x1, int y1, int x2, int y2, SKPaint paint)
+        {
+            if (x1 == x2 && y1 == y2)
+            {
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x1, y1, paint);
+            }
+
+            int d, dx, dy, ai, bi, xi, yi;
+            int x = x1, y = y1;
+
+            if (x1 < x2)
+            {
+                xi = 1;
+                dx = x2 - x1;
+            }
+            else
+            {
+                xi = -1;
+                dx = x1 - x2;
+            }
+
+            if (y1 < y2)
+            {
+                yi = 1;
+                dy = y2 - y1;
+            }
+            else
+            {
+                yi = -1;
+                dy = y1 - y2;
+            }
+
+            layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x, y, paint);
+
+            if (dx > dy)
+            {
+                ai = (dy - dx) * 2;
+                bi = dy * 2;
+                d = bi - dx;
+
+                while (x != x2)
+                {
+                    if (d >= 0)
+                    {
+                        x += xi;
+                        y += yi;
+                        d += ai;
+                    }
+                    else
+                    {
+                        d += bi;
+                        x += xi;
+                    }
+
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x, y, paint);
+                }
+            }
+            else
+            {
+                ai = (dx - dy) * 2;
+                bi = dx * 2;
+                d = bi - dy;
+
+                while (y != y2)
+                {
+                    if (d >= 0)
+                    {
+                        x += xi;
+                        y += yi;
+                        d += ai;
+                    }
+                    else
+                    {
+                        d += bi;
+                        y += yi;
+                    }
+
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x, y, paint);
+                }
+            }
         }
     }
 }
