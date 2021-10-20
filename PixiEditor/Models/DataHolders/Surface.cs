@@ -1,6 +1,8 @@
 ﻿using PixiEditor.Helpers.Extensions;
 using SkiaSharp;
 using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -13,17 +15,18 @@ namespace PixiEditor.Models.DataHolders
 
         private static readonly SKPaint nearestNeighborReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.None };
 
-        public SKSurface SkiaSurface { get; }
+        public SKSurface SkiaSurface { get; private set; }
         public int Width { get; }
         public int Height { get; }
 
         private SKPaint drawingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+        private IntPtr surfaceBuffer;
 
         public Surface(int w, int h)
         {
             if (w <= 0 || h <= 0)
                 throw new ArgumentException("Surface dimensions must be non-zero");
-            SkiaSurface = CreateSurface(w, h);
+            InitSurface(w, h);
             Width = w;
             Height = h;
         }
@@ -32,9 +35,8 @@ namespace PixiEditor.Models.DataHolders
         {
             Width = original.Width;
             Height = original.Height;
-            var newSurface = CreateSurface(Width, Height);
-            original.SkiaSurface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
-            SkiaSurface = newSurface;
+            InitSurface(Width, Height);
+            original.SkiaSurface.Draw(SkiaSurface.Canvas, 0, 0, ReplacingPaint);
         }
 
         public Surface(int w, int h, byte[] pbgra32Bytes)
@@ -43,7 +45,8 @@ namespace PixiEditor.Models.DataHolders
                 throw new ArgumentException("Surface dimensions must be non-zero");
             Width = w;
             Height = h;
-            SkiaSurface = BytesToSkSurface(w, h, pbgra32Bytes, SKColorType.Bgra8888, SKAlphaType.Premul);
+            InitSurface(w, h);
+            DrawBytes(w, h, pbgra32Bytes, SKColorType.Bgra8888, SKAlphaType.Premul);
         }
 
         public Surface(BitmapSource original)
@@ -57,7 +60,8 @@ namespace PixiEditor.Models.DataHolders
 
             Width = original.PixelWidth;
             Height = original.PixelHeight;
-            SkiaSurface = BytesToSkSurface(Width, Height, pixels, color, alpha);
+            InitSurface(Width, Height);
+            DrawBytes(Width, Height, pixels, color, alpha);
         }
 
         public Surface(SKImage image)
@@ -83,17 +87,16 @@ namespace PixiEditor.Models.DataHolders
             return result;
         }
 
-        public SKColor GetSRGBPixel(int x, int y)
+        public unsafe SKColor GetSRGBPixel(int x, int y)
         {
-            var imageInfo = new SKImageInfo(1, 1, SKColorType.Bgra8888, SKAlphaType.Premul);
-            using SKBitmap bitmap = new SKBitmap(imageInfo);
-            IntPtr dstpixels = bitmap.GetPixels();
-            SkiaSurface.ReadPixels(imageInfo, dstpixels, imageInfo.RowBytes, x, y);
-            return bitmap.GetPixel(0, 0);
+            Half* ptr = (Half*)(surfaceBuffer + (x + y * Width) * 8);
+            SKColor color = (SKColor)new SKColorF((float)ptr[0], (float)ptr[1], (float)ptr[2], (float)ptr[3]);
+            return SKPMColor.UnPreMultiply(new SKPMColor((uint)color));
         }
 
         public void SetSRGBPixel(int x, int y, SKColor color)
         {
+            // It's possible that this function can be sped up by writing into surfaceBuffer, not sure if skia will like it though
             drawingPaint.Color = color;
             SkiaSurface.Canvas.DrawPoint(x, y, drawingPaint);
         }
@@ -128,22 +131,23 @@ namespace PixiEditor.Models.DataHolders
         public void Dispose()
         {
             SkiaSurface.Dispose();
+            drawingPaint.Dispose();
+            Marshal.FreeHGlobal(surfaceBuffer);
+            GC.SuppressFinalize(this);
         }
 
-        private static unsafe SKSurface BytesToSkSurface(int w, int h, byte[] bytes, SKColorType colorType, SKAlphaType alphaType)
+        ~Surface()
         {
-            SKImageInfo info = new SKImageInfo(w, h, colorType, alphaType);
-
-            fixed (void* pointer = bytes)
-            {
-                using SKPixmap map = new(info, new IntPtr(pointer));
-                using SKSurface surface = SKSurface.Create(map);
-                var newSurface = CreateSurface(w, h);
-                surface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
-                return newSurface;
-            }
+            Marshal.FreeHGlobal(surfaceBuffer);
         }
 
+        private static SKSurface CreateSurface(int w, int h, IntPtr buffer)
+        {
+            var surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()), buffer);
+            if (surface == null)
+                throw new Exception("Could not create surface");
+            return surface;
+        }
         private static SKSurface CreateSurface(int w, int h)
         {
             var surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
@@ -152,5 +156,24 @@ namespace PixiEditor.Models.DataHolders
             return surface;
         }
 
+        private unsafe void InitSurface(int w, int h)
+        {
+            int byteC = w * h * 8;
+            surfaceBuffer = Marshal.AllocHGlobal(byteC);
+            Unsafe.InitBlockUnaligned((byte*)surfaceBuffer, 0, (uint)byteC);
+            SkiaSurface = CreateSurface(w, h, surfaceBuffer);
+        }
+
+        private unsafe void DrawBytes(int w, int h, byte[] bytes, SKColorType colorType, SKAlphaType alphaType)
+        {
+            SKImageInfo info = new SKImageInfo(w, h, colorType, alphaType);
+
+            fixed (void* pointer = bytes)
+            {
+                using SKPixmap map = new(info, new IntPtr(pointer));
+                using SKSurface surface = SKSurface.Create(map);
+                surface.Draw(SkiaSurface.Canvas, 0, 0, ReplacingPaint);
+            }
+        }
     }
 }
