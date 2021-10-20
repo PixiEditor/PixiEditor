@@ -178,7 +178,7 @@ namespace PixiEditor.ViewModels
                         CreateToolShortcut<RectangleTool>(Key.R, "Select Rectangle Tool"),
                         CreateToolShortcut<CircleTool>(Key.C, "Select Circle Tool"),
                         CreateToolShortcut<LineTool>(Key.L, "Select Line Tool"),
-                        CreateToolShortcut<FloodFill>(Key.G, "Select Flood Fill Tool"),
+                        CreateToolShortcut<FloodFillTool>(Key.G, "Select Flood Fill Tool"),
                         CreateToolShortcut<BrightnessTool>(Key.U, "Select Brightness Tool"),
                         CreateToolShortcut<MoveTool>(Key.V, "Select Move Tool"),
                         CreateToolShortcut<SelectTool>(Key.M, "Select Select Tool"),

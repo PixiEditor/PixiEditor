@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class MagicWandTool : ReadonlyTool, ICachedDocumentTool
     {
-        private readonly FloodFill floodFill;
+        private readonly FloodFillTool floodFill;
 
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public MagicWandTool(BitmapManager manager)
         {
-            floodFill = new FloodFill(manager);
+            floodFill = new FloodFillTool(manager);
             BitmapManager = manager;
 
             Toolbar = new MagicWandToolbar();
