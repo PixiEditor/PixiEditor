@@ -19,6 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
         private readonly BoolSetting pixelPerfectSetting;
         private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
         private readonly LineTool lineTool;
+        private SKPaint paint = new SKPaint() { Style = SKPaintStyle.Stroke };
         private Coordinates[] lastChangedPixels = new Coordinates[3];
         private byte changedPixelsindex;
 
@@ -69,44 +70,44 @@ namespace PixiEditor.Models.Tools.Tools
             Layer previewLayer = null,
             SKBlendMode blendMode = SKBlendMode.SrcOver)
         {
+
+            SKStrokeCap cap = toolSize == 1 ? SKStrokeCap.Square : SKStrokeCap.Round;
             if (!pixelPerfect)
             {
-                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, SKStrokeCap.Square);
+                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
                 return;
             }
 
             if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).Alpha > 0)
             {
-                //confirmedPixels.Add(latestCords);
+                confirmedPixels.Add(latestCords);
             }
 
-            lineTool.DrawLine(layer, startingCoords, latestCords, color, 1, blendMode, SKStrokeCap.Square);
-            //SetPixelToCheck(latestPixels);
+            lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
+            SetPixelToCheck(LineTool.GetBresenhamLine(startingCoords, latestCords));
 
-            /*if (changedPixelsindex == 2)
+            if (changedPixelsindex == 2)
             {
-                var changes = ApplyPixelPerfectToPixels(
+                byte alpha = ApplyPixelPerfectToPixels(
                     layer,
                     lastChangedPixels[0],
                     lastChangedPixels[1],
                     lastChangedPixels[2],
                     color,
-                    toolSize);
+                    toolSize,
+                    paint);
 
-                MovePixelsToCheck(changes);
+                MovePixelsToCheck(alpha);
 
-                ThickenShape(layer, color, latestPixels, toolSize);
                 return;
             }
 
             changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
-
-            ThickenShape(layer, color, latestPixels, toolSize);*/
         }
 
-        private void MovePixelsToCheck(BitmapPixelChanges changes)
+        private void MovePixelsToCheck(byte alpha)
         {
-            if (changes.ChangedPixels[lastChangedPixels[1]].Alpha != 0)
+            if (alpha != 0)
             {
                 lastChangedPixels[0] = lastChangedPixels[1];
                 lastChangedPixels[1] = lastChangedPixels[2];
@@ -131,16 +132,30 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private BitmapPixelChanges ApplyPixelPerfectToPixels(Layer layer, Coordinates p1, Coordinates p2, Coordinates p3, SKColor color, int toolSize)
+        private byte ApplyPixelPerfectToPixels(Layer layer, Coordinates p1, Coordinates p2, Coordinates p3, SKColor color, int toolSize, SKPaint paint)
         {
+            byte alpha = color.Alpha;
+            paint.StrokeWidth = toolSize;
             if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {
-                ThickenShape(layer, color, new Coordinates[] { p1, p3 }, toolSize);
-                ThickenShape(layer, color, new[] { p2 }, toolSize);
-            }
+                paint.Color = SKColors.Transparent;
+                paint.BlendMode = SKBlendMode.Src;
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X, p2.Y, paint);
+                paint.Color = color;
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p1.X, p1.Y, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X, p3.Y, paint);
 
-            ThickenShape(layer, color, new Coordinates[] { p2, p3 }.Distinct(), toolSize);
-            return BitmapPixelChanges.Empty;
+                if (lastChangedPixels.Length > 1 && p2 == lastChangedPixels[1] /*Here might be a bug, I don't remember if it should be p2*/)
+                {
+                    alpha = 0;
+                }
+            }
+            else
+            {
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X, p2.Y, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X, p3.Y, paint);
+            }
+            return alpha;
         }
 
         private void PixelPerfectSettingValueChanged(object sender, SettingValueChangedEventArgs<bool> e)
