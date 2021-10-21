@@ -60,13 +60,18 @@ namespace PixiEditor.Views.Dialogs
 
             if (RecentlyOpenedEmpty)
             {
+                Width = 400;
                 Height = 500;
-                Width = 520;
+            }
+            else if (RecentlyOpened.Count < 4)
+            {
+                Width = 445;
+                Height = 500;
             }
             else if (RecentlyOpened.Count < 7)
             {
-                Height = 676;
-                Width = 545;
+                Width = 475;
+                Height = 670;
             }
         }
 

@@ -35,7 +35,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void ZoomViewport(object parameter)
         {
             double zoom = (int)parameter;
-            Owner.BitmapManager.ActiveDocument.ZoomViewportTrigger.Execute(this, zoom);
+            if (Owner.BitmapManager.ActiveDocument is not null)
+            {
+                Owner.BitmapManager.ActiveDocument.ZoomViewportTrigger.Execute(this, zoom);
+            }
         }
     }
 }
