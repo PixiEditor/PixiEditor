@@ -66,6 +66,7 @@ namespace PixiEditor.Models.Tools.Tools
                 int y = fixedCoordinates.Coords1.Y - layer.OffsetY;
                 int w = fixedCoordinates.Coords2.X - fixedCoordinates.Coords1.X;
                 int h = fixedCoordinates.Coords2.Y - fixedCoordinates.Coords1.Y;
+                paint.BlendMode = SKBlendMode.Src;
 
                 if (fillColor.HasValue)
                 {

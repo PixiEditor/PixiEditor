@@ -55,6 +55,7 @@ namespace PixiEditor.Models.Tools.Tools
                 float radiusY = (fixedCoordinates.Coords2.Y - fixedCoordinates.Coords1.Y) / 2.0f;
                 float centerX = (fixedCoordinates.Coords1.X + fixedCoordinates.Coords2.X + 1) / 2.0f - layer.OffsetX;
                 float centerY = (fixedCoordinates.Coords1.Y + fixedCoordinates.Coords2.Y + 1) / 2.0f - layer.OffsetY;
+                paint.BlendMode = SKBlendMode.Src;
 
                 if (hasFillColor)
                 {

@@ -1,8 +1,6 @@
 ﻿using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
@@ -32,15 +30,13 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new PenToolbar();
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
-            pixelPerfectSetting.ValueChanged += PixelPerfectSettingValueChanged;
             ClearPreviewLayerOnEachIteration = false;
             BitmapManager = bitmapManager;
             lineTool = new LineTool();
         }
 
         public override string Tooltip => "Standard brush. (B)";
-        public override bool UsesShift => false;
-
+        public override bool UsesShift => false;
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
@@ -68,7 +64,7 @@ namespace PixiEditor.Models.Tools.Tools
             Layer layer, Coordinates startingCoords, Coordinates latestCords, SKColor color, int toolSize,
             bool pixelPerfect = false,
             Layer previewLayer = null,
-            SKBlendMode blendMode = SKBlendMode.SrcOver)
+            SKBlendMode blendMode = SKBlendMode.Src)
         {
 
             SKStrokeCap cap = toolSize == 1 ? SKStrokeCap.Square : SKStrokeCap.Round;
@@ -156,11 +152,6 @@ namespace PixiEditor.Models.Tools.Tools
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X, p3.Y, paint);
             }
             return alpha;
-        }
-
-        private void PixelPerfectSettingValueChanged(object sender, SettingValueChangedEventArgs<bool> e)
-        {
-            RequiresPreviewLayer = e.NewValue;
         }
     }
 }

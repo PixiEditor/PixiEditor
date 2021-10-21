@@ -139,7 +139,7 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates start = coordinates[0];
             Coordinates end = coordinates[^1];
 
-            DrawLine(layer, start, end, color, thickness, SKBlendMode.SrcOver);
+            DrawLine(layer, start, end, color, thickness, SKBlendMode.Src);
         }
 
         public void DrawLine(
