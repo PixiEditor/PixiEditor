@@ -162,20 +162,20 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.51.1" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.60.0" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="MessagePack" Version="2.3.75" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="MessagePack" Version="2.3.85" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
-    <PackageReference Include="PixiEditor.Parser" Version="1.2.0.1" />
+    <PackageReference Include="PixiEditor.Parser" Version="2.0.0" />
     <PackageReference Include="PixiEditor.Parser.Skia" Version="2.0.0" />
     <PackageReference Include="SkiaSharp" Version="2.80.3" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
