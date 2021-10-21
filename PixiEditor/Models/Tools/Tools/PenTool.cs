@@ -7,6 +7,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -32,6 +33,7 @@ namespace PixiEditor.Models.Tools.Tools
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
             ClearPreviewLayerOnEachIteration = false;
             BitmapManager = bitmapManager;
+            paint.BlendMode = SKBlendMode.Src;
             lineTool = new LineTool();
         }
 
@@ -132,14 +134,14 @@ namespace PixiEditor.Models.Tools.Tools
         {
             byte alpha = color.Alpha;
             paint.StrokeWidth = toolSize;
+
             if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {
                 paint.Color = SKColors.Transparent;
-                paint.BlendMode = SKBlendMode.Src;
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X, p2.Y, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X - layer.OffsetX, p2.Y - layer.OffsetY, paint);
                 paint.Color = color;
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p1.X, p1.Y, paint);
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X, p3.Y, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p1.X - layer.OffsetX, p1.Y - layer.OffsetY, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X - layer.OffsetX, p3.Y - layer.OffsetY, paint);
 
                 if (lastChangedPixels.Length > 1 && p2 == lastChangedPixels[1] /*Here might be a bug, I don't remember if it should be p2*/)
                 {
@@ -148,9 +150,17 @@ namespace PixiEditor.Models.Tools.Tools
             }
             else
             {
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X, p2.Y, paint);
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X, p3.Y, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X - layer.OffsetX, p2.Y - layer.OffsetY, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X - layer.OffsetX, p3.Y - layer.OffsetY, paint);
             }
+
+            Int32Rect dirtyRect = new Int32Rect(
+               p2.X,
+               p2.Y,
+               2,
+               2);
+
+            layer.InvokeLayerBitmapChange(dirtyRect);
             return alpha;
         }
     }
