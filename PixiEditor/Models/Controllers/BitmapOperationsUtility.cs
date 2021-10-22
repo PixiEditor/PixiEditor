@@ -15,7 +15,6 @@ namespace PixiEditor.Models.Controllers
     {
         private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
 
-        private Coordinates lastMousePos;
 
         private SizeSetting sizeSetting;
 
@@ -67,8 +66,6 @@ namespace PixiEditor.Models.Controllers
                 }
 
                 UseTool(mouseMove, tool, Manager.PrimaryColor);
-
-                lastMousePos = newPos;
             }
         }
 
@@ -214,7 +211,7 @@ namespace PixiEditor.Models.Controllers
 
         private void UseToolOnPreviewLayer(List<Coordinates> mouseMove, bool clearPreviewLayer = true)
         {
-            if (mouseMove.Count > 0 && mouseMove[0] != lastMousePos)
+            if (mouseMove.Count > 0)
             {
                 if (clearPreviewLayer)
                 {

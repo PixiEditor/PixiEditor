@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.Position;
 using System;
@@ -64,14 +65,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                if (!Owner.BitmapManager.MouseController.IsRecordingChanges)
+                BitmapManager bitmapManager = Owner.BitmapManager;
+                var activeDocument = bitmapManager.ActiveDocument;
+                if (!bitmapManager.MouseController.IsRecordingChanges)
                 {
-                    bool clickedOnCanvas = Owner.BitmapManager.ActiveDocument.MouseXOnCanvas >= 0 &&
-                        Owner.BitmapManager.ActiveDocument.MouseXOnCanvas <= Owner.BitmapManager.ActiveDocument.Width &&
-                        Owner.BitmapManager.ActiveDocument.MouseYOnCanvas >= 0 &&
-                        Owner.BitmapManager.ActiveDocument.MouseYOnCanvas <= Owner.BitmapManager.ActiveDocument.Height;
-                    Owner.BitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
-                    Owner.BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
+                    bool clickedOnCanvas = activeDocument.MouseXOnCanvas >= 0 &&
+                        activeDocument.MouseXOnCanvas <= activeDocument.Width &&
+                        activeDocument.MouseYOnCanvas >= 0 &&
+                        activeDocument.MouseYOnCanvas <= activeDocument.Height;
+                    bitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
+                    bitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }
 
