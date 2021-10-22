@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -54,6 +55,37 @@ namespace PixiEditor.Models.DataHolders
             }
 
             SelectionLayer.SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, selectionColor));
+        }
+
+        public void SetSelection(Int32Rect rect, bool isCirclular, SelectionType mode)
+        {
+            using SKPaint paint = new()
+            {
+                Color = selectionBlue,
+                BlendMode = SKBlendMode.Src,
+                Style = SKPaintStyle.StrokeAndFill,
+            };
+            switch (mode)
+            {
+                case SelectionType.New:
+                    SelectionLayer.Reset();
+                    break;
+                case SelectionType.Subtract:
+                    paint.Color = SKColors.Transparent;
+                    break;
+            }
+
+            SelectionLayer.DynamicResizeAbsolute(rect.X + rect.Width - 1, rect.Y + rect.Height - 1, rect.X, rect.Y);
+            if (isCirclular)
+            {
+                float cx = rect.X + rect.Width / 2f;
+                float cy = rect.Y + rect.Height / 2f;
+                SelectionLayer.LayerBitmap.SkiaSurface.Canvas.DrawOval(cx, cy, rect.Width / 2f, rect.Height / 2f, paint);
+            }
+            else
+            {
+                SelectionLayer.LayerBitmap.SkiaSurface.Canvas.DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
+            }
         }
 
         public void Clear()
