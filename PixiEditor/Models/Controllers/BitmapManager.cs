@@ -240,7 +240,6 @@ namespace PixiEditor.Models.Controllers
             {
 
                 cachedHighlight = CoordinatesCalculator.RectangleToCoordinates(0, 0, ToolSize - 1, ToolSize - 1);
-                var center = CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize);
 
                 previewLayerSize = ToolSize;
                 halfSize = (int)Math.Floor(ToolSize / 2f);
