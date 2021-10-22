@@ -106,7 +106,7 @@ namespace PixiEditor.Models.Controllers
 
             if (shiftDown && tool.UsesShift)
             {
-                bool mouseInLine = MouseCordsNotInLine(mouseMoveCords, thickness);
+                bool mouseInLine = DoCoordsFormLine(mouseMoveCords, thickness);
 
                 if (!mouseInLine)
                 {
@@ -128,10 +128,23 @@ namespace PixiEditor.Models.Controllers
                 UseToolOnPreviewLayer(mouseMoveCords, tool.ClearPreviewLayerOnEachIteration);
             }
         }
-        private bool MouseCordsNotInLine(List<Coordinates> cords, int thickness)
+
+        private bool DoCoordsFormLine(List<Coordinates> coords, int thickness)
         {
-            return (cords[0].X > cords[^1].X - thickness && cords[0].X < cords[^1].X + thickness)
-                || (cords[0].Y > cords[^1].Y - thickness && cords[0].Y < cords[^1].Y + thickness);
+            var p1 = coords[0];
+            var p2 = coords[^1];
+            //find delta and mirror to first quadrant
+            float dX = Math.Abs(p2.X - p1.X);
+            float dY = Math.Abs(p2.Y - p1.Y);
+
+            //normalize
+            float length = (float)Math.Sqrt(dX * dX + dY * dY);
+            if (length == 0)
+                return false;
+            dX = dX / length;
+            dY = dY / length;
+
+            return dX < 0.25f || dY < 0.25f; //angle < 15 deg or angle > 75 deg (sin 15 ~= 0.25)
         }
 
         private List<Coordinates> GetLineCoordinates(List<Coordinates> mouseMoveCords, int thickness)
@@ -139,8 +152,7 @@ namespace PixiEditor.Models.Controllers
             int y = mouseMoveCords[0].Y;
             int x = mouseMoveCords[0].X;
 
-
-            if (Math.Abs(mouseMoveCords[^1].X - mouseMoveCords[0].X) - thickness > 0)
+            if (Math.Abs(mouseMoveCords[^1].X - mouseMoveCords[0].X) > Math.Abs(mouseMoveCords[^1].Y - mouseMoveCords[0].Y))
             {
                 y = mouseMoveCords[^1].Y;
             }
@@ -158,19 +170,27 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         private List<Coordinates> GetSquareCoordiantes(List<Coordinates> mouseMoveCords)
         {
-            int xLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
-            int yLength = mouseMoveCords[0].Y - mouseMoveCords[^1].Y;
-            if (mouseMoveCords[^1].Y > mouseMoveCords[0].Y)
-            {
-                xLength *= -1;
-            }
+            var p1 = mouseMoveCords[0];
+            var p2 = mouseMoveCords[^1];
 
-            if (mouseMoveCords[^1].X > mouseMoveCords[0].X)
-            {
-                xLength *= -1;
-            }
+            //find delta and mirror to first quadrant
+            var dX = Math.Abs(p2.X - p1.X);
+            var dY = Math.Abs(p2.Y - p1.Y);
 
-            mouseMoveCords[0] = new Coordinates(mouseMoveCords[^1].X + xLength, mouseMoveCords[^1].Y + yLength);
+            float sqrt2 = (float)Math.Sqrt(2);
+            //vector of length 1 at 45 degrees;
+            float diagX, diagY;
+            diagX = diagY = 1 / sqrt2;
+
+            //dot product of delta and diag, returns length of [delta projected onto diag]
+            float projectedLength = diagX * dX + diagY * dY;
+            //project above onto axes
+            float axisLength = projectedLength / sqrt2;
+
+            //final coords
+            float x = -Math.Sign(p2.X - p1.X) * axisLength;
+            float y = -Math.Sign(p2.Y - p1.Y) * axisLength;
+            mouseMoveCords[0] = new Coordinates((int)x + p2.X, (int)y + p2.Y);
             return mouseMoveCords;
         }
 
