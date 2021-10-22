@@ -25,8 +25,15 @@ namespace PixiEditor.Models.Tools
 
         public abstract void Use(Layer layer, List<Coordinates> mouseMove, SKColor color);
 
+        /// <summary>
+        /// Executes undo adding procedure.
+        /// </summary>
+        /// <param name="document">Active document</param>
+        /// <remarks>When overriding, set UseDefaultUndoMethod to false.</remarks>
         public override void AddUndoProcess(Document document)
         {
+            if (!UseDefaultUndoMethod) return;
+
             var args = new object[] { _change.Document };
             document.UndoManager.AddUndoChange(_change.ToChange(UndoProcess, args));
             _change = null;
@@ -34,10 +41,11 @@ namespace PixiEditor.Models.Tools
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
-            if (e.LeftButton != MouseButtonState.Pressed) return;
-
-            Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-            _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
+            if (UseDefaultUndoMethod && e.LeftButton == MouseButtonState.Pressed)
+            {
+                Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
+                _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
+            }
         }
 
         private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
