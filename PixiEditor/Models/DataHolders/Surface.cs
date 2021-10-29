@@ -89,8 +89,6 @@ namespace PixiEditor.Models.DataHolders
                 surface.SkiaSurface.Canvas.DrawImage(image.image, (SKPoint)image.offset);
             }
 
-            surface.SkiaSurface.Canvas.DrawRect(0, 0, width, height, new SKPaint() { Color = SKColors.White, BlendMode = SKBlendMode.Plus });
-
             return surface;
         }
 
