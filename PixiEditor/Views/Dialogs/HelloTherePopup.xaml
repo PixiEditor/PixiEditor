@@ -6,8 +6,10 @@
         xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
         xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="632"
+        d:DataContext="{d:DesignInstance local:HelloTherePopup}"
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>

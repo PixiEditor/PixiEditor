@@ -1,9 +1,11 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Position;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Skia;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
@@ -49,14 +51,13 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public WriteableBitmap PreviewBitmap
         {
             get
             {
                 if (previewBitmap == null && !Corrupt)
                 {
-                    PreviewBitmap = LoadPreviewBitmap();
+                    previewBitmap = LoadPreviewBitmap();
                 }
 
                 return previewBitmap;
@@ -85,9 +86,12 @@ namespace PixiEditor.Models.DataHolders
                     return null;
                 }
 
-                return BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
+                // TODO: Make this work
+                Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height, serializableDocument.Layers.Select(x => (x.ToSKImage(), new Coordinates(x.OffsetX, x.OffsetY))));
+
+                return surface.ToWriteableBitmap();
             }
-            else if (FileExtension == ".png" || FileExtension == ".jpg" || FileExtension == ".jpeg")
+            else if (FileExtension is ".png" or ".jpg" or ".jpeg")
             {
                 WriteableBitmap bitmap = null;
 

@@ -1,6 +1,8 @@
 ﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Position;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -70,6 +72,26 @@ namespace PixiEditor.Models.DataHolders
             Height = image.Height;
             SkiaSurface = CreateSurface(Width, Height);
             SkiaSurface.Canvas.DrawImage(image, 0, 0);
+        }
+
+        /// <summary>
+        /// Combines the <paramref name="images"/> into a <see cref="Surface"/>
+        /// </summary>
+        /// <param name="width">The width of the <see cref="Surface"/></param>
+        /// <param name="height">The height of the <see cref="Surface"/></param>
+        /// <returns>A surface that has the <paramref name="images"/> drawn on it</returns>
+        public static Surface Combine(int width, int height, IEnumerable<(SKImage image, Coordinates offset)> images)
+        {
+            Surface surface = new Surface(width, height);
+
+            foreach (var image in images)
+            {
+                surface.SkiaSurface.Canvas.DrawImage(image.image, (SKPoint)image.offset);
+            }
+
+            surface.SkiaSurface.Canvas.DrawRect(0, 0, width, height, new SKPaint() { Color = SKColors.White, BlendMode = SKBlendMode.Plus });
+
+            return surface;
         }
 
         public Surface ResizeNearestNeighbor(int newW, int newH)
