@@ -125,12 +125,12 @@ namespace PixiEditor.Models.DataHolders
         {
             var imageInfo = new SKImageInfo(Width, Height, colorType, alphaType, SKColorSpace.CreateSrgb());
 
-            byte[] buffer = new byte[Width * Height * 4];
+            byte[] buffer = new byte[Width * Height * imageInfo.BytesPerPixel];
             fixed (void* pointer = buffer)
             {
-                if (!SkiaSurface.Snapshot().ReadPixels(imageInfo, new IntPtr(pointer)))
+                if (!SkiaSurface.ReadPixels(imageInfo, new IntPtr(pointer), imageInfo.RowBytes, 0, 0))
                 {
-                    throw new InvalidOperationException("Could not read image into buffer");
+                    throw new InvalidOperationException("Could not read surface into buffer");
                 }
             }
 
