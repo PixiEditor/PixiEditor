@@ -516,7 +516,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public byte[] ConvertBitmapToBytes()
         {
-            return LayerBitmap.ToPbgra32ByteArray();
+            return LayerBitmap.ToByteArray();
         }
 
         private Dictionary<Coordinates, SKColor> GetRelativePosition(Dictionary<Coordinates, SKColor> changedPixels)

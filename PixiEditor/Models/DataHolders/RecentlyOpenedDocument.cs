@@ -86,8 +86,10 @@ namespace PixiEditor.Models.DataHolders
                     return null;
                 }
 
-                // TODO: Make this work
-                Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height, serializableDocument.Layers.Select(x => (x.ToSKImage(), new Coordinates(x.OffsetX, x.OffsetY))));
+                using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
+                          serializableDocument.Layers
+                              .Where(x => x.Opacity > 0.8)
+                              .Select(x => (x.ToSKImage(), new Coordinates(x.OffsetX, x.OffsetY))));
 
                 return surface.ToWriteableBitmap();
             }

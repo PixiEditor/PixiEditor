@@ -47,7 +47,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             using Surface surface = new Surface(2, 4, bytes);
             Assert.Equal(new SKColor(141, 121, 123, 255), surface.GetSRGBPixel(0, 0));
             Assert.Equal(new SKColor(110, 44, 84, 128), surface.GetSRGBPixel(0, 1));
-            var newBytes = surface.ToPbgra32ByteArray();
+            var newBytes = surface.ToByteArray();
             Assert.Equal(bytes, newBytes);
         }
 

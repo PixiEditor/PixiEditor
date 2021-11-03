@@ -119,7 +119,7 @@
                                                 Style="{StaticResource DarkRoundButton}"
                                                 x:Name="fileButton">
                                             <Grid Width="100" Height="100">
-                                                <Image Source="{Binding PreviewBitmap}" Margin="20"/>
+                                                <Image Source="{Binding PreviewBitmap}" RenderOptions.BitmapScalingMode="NearestNeighbor" Margin="20"/>
                                                 <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
                                                         Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}" 
                                                         VerticalAlignment="Bottom" HorizontalAlignment="Right">

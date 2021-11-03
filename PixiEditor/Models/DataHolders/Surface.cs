@@ -121,17 +121,17 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.Canvas.DrawPoint(x, y, drawingPaint);
         }
 
-        public unsafe byte[] ToPbgra32ByteArray()
+        public unsafe byte[] ToByteArray(SKColorType colorType = SKColorType.Bgra8888, SKAlphaType alphaType = SKAlphaType.Premul)
         {
-            var imageInfo = new SKImageInfo(Width, Height, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb());
+            var imageInfo = new SKImageInfo(Width, Height, colorType, alphaType, SKColorSpace.CreateSrgb());
 
             byte[] buffer = new byte[Width * Height * 4];
             fixed (void* pointer = buffer)
             {
-                using SKPixmap map = new(imageInfo, new IntPtr(pointer));
-                using SKSurface surface = SKSurface.Create(map);
-                var newSurface = CreateSurface(Width, Height);
-                surface.Draw(newSurface.Canvas, 0, 0, ReplacingPaint);
+                if (!SkiaSurface.Snapshot().ReadPixels(imageInfo, new IntPtr(pointer)))
+                {
+                    throw new InvalidOperationException("Could not read image into buffer");
+                }
             }
 
             return buffer;
@@ -142,7 +142,7 @@ namespace PixiEditor.Models.DataHolders
             WriteableBitmap result = new WriteableBitmap(Width, Height, 96, 96, PixelFormats.Pbgra32, null);
             result.Lock();
             var dirty = new Int32Rect(0, 0, Width, Height);
-            result.WritePixels(dirty, ToPbgra32ByteArray(), Width * 4, 0);
+            result.WritePixels(dirty, ToByteArray(), Width * 4, 0);
             result.AddDirtyRect(dirty);
             result.Unlock();
             return result;
