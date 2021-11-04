@@ -2,6 +2,7 @@
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
+using SkiaSharp;
 using System;
 using System.Linq;
 using System.Windows;
@@ -44,6 +45,41 @@ namespace PixiEditor.Models.DataHolders
                 processArgs,
                 "Resize canvas"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
+        }
+
+        public void RotateActiveLayer(float degrees)
+        {
+            Guid layerGuid = ActiveLayer.LayerGuid;
+
+            object[] processArgs = { layerGuid, degrees };
+            object[] reverseProcessArgs = { layerGuid, -degrees };
+
+            RotateLayerProcess(processArgs);
+
+            UndoManager.AddUndoChange(new Change(
+                RotateLayerProcess,
+                reverseProcessArgs,
+                RotateLayerProcess,
+                processArgs,
+                "Rotate layer"));
+        }
+
+        private void RotateLayerProcess(object[] parameters)
+        {
+            Layer layer = Layers.First(x => x.LayerGuid == (Guid)parameters[0]);
+            float degrees = (float)parameters[1];
+
+            using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
+            {
+                var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
+                var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
+                canvas.Clear();
+                canvas.RotateDegrees(degrees, layer.MaxWidth / 2, layer.MaxHeight / 2);
+                canvas.DrawImage(copy, new SKPoint(0, 0));
+                copy.Dispose();
+            }
+
+            layer.InvokeLayerBitmapChange();
         }
 
         /// <summary>

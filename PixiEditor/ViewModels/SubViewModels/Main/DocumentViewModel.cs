@@ -19,6 +19,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand OpenResizePopupCommand { get; set; }
 
+        public RelayCommand RotateToRightCommand { get; set; }
+
         public DocumentViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -26,6 +28,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ClipCanvasCommand = new RelayCommand(ClipCanvas, Owner.DocumentIsNotNull);
             DeletePixelsCommand = new RelayCommand(DeletePixels, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, Owner.DocumentIsNotNull);
+            RotateToRightCommand = new RelayCommand(RotateLayer, Owner.DocumentIsNotNull);
+        }
+
+        public void RotateLayer(object parameter)
+        {
+            if (parameter is double angle)
+            {
+                Owner.BitmapManager.ActiveDocument?.RotateActiveLayer((float)angle);
+            }
         }
 
         public void ClipCanvas(object parameter)
