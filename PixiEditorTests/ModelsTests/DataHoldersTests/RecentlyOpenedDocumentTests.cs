@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Parser;
 using System;
 using Xunit;
 
@@ -8,14 +9,21 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
     public class RecentlyOpenedDocumentTests
     {
         [Fact]
-        public void TestThatForBigPixiFilesPreviewImageIsNotLoaded()
+        public void TestThatForBigPixiFilesPreviewImageIsResizedToMaxSize()
         {
             string bigFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\BigPixiFile.pixi";
             RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(bigFilePath);
 
-            var bigFilePreviewImage = recentlyOpenedDocument.PreviewBitmap;
+            var bigPixiFilePreviewImage = recentlyOpenedDocument.PreviewBitmap;
 
-            Assert.Null(bigFilePreviewImage);
+            const int MaxWidthInPixels = 1080;
+            Assert.True(bigPixiFilePreviewImage.PixelWidth <= MaxWidthInPixels);
+
+            const int MaxHeightInPixels = 1080;
+            Assert.True(bigPixiFilePreviewImage.PixelHeight <= MaxHeightInPixels);
+
+            // This is a workaround for checking the Pixi file layers.
+            Assert.True(PixiParser.Deserialize(bigFilePath).Layers.Count <= 5);
         }
 
         [Fact]

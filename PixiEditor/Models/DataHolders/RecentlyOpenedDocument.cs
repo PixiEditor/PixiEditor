@@ -85,9 +85,18 @@ namespace PixiEditor.Models.DataHolders
                     return null;
                 }
 
-                return PixiFileMaxSizeChecker.IsFileUnderMaxSize(serializableDocument) ?
-                    BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50)
-                    : null;
+                WriteableBitmap writeableBitmap =
+                    BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
+
+                const int MaxWidthInPixels = 1080;
+                const int MaxHeightInPixels = 1080;
+                const int MaxLayerCount = 5;
+                PixiFileMaxSizeChecker pixiFileMaxSizeChecker =
+                    new PixiFileMaxSizeChecker(maxPixelCountAllowed: MaxWidthInPixels * MaxHeightInPixels * MaxLayerCount);
+
+                return pixiFileMaxSizeChecker.IsFileUnderMaxSize(serializableDocument) ?
+                    writeableBitmap
+                    : writeableBitmap.Resize(width: 1080, height: 1080, WriteableBitmapExtensions.Interpolation.Bilinear);
             }
             else if (FileExtension is ".png" or ".jpg" or ".jpeg")
             {
