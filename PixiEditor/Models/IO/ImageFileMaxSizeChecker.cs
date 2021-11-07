@@ -2,14 +2,18 @@
 
 namespace PixiEditor.Models.IO
 {
-    internal static class ImageFileMaxSizeChecker
+    internal class ImageFileMaxSizeChecker
     {
-        // Result of 2048 (Width) * 2048 (Height).
-        private const int MaxBitCountAllowed = 4194304;
+        private readonly int maxPixelCountAllowed;
 
-        public static bool IsFileUnderMaxSize(WriteableBitmap fileToCheck)
+        public ImageFileMaxSizeChecker(int maxPixelCountAllowed)
         {
-            return fileToCheck.PixelHeight * fileToCheck.PixelWidth < MaxBitCountAllowed;
+            this.maxPixelCountAllowed = maxPixelCountAllowed;
+        }
+
+        public bool IsFileUnderMaxSize(WriteableBitmap fileToCheck)
+        {
+            return fileToCheck.PixelHeight * fileToCheck.PixelWidth < maxPixelCountAllowed;
         }
     }
 }

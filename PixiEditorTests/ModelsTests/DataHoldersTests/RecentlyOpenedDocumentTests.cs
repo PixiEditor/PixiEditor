@@ -33,14 +33,18 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData("png")]
         [InlineData("jpg")]
         [InlineData("jpeg")]
-        public void TestThatForBigImageFilesPreviewImageIsNotLoaded(string imageFormat)
+        public void TestThatForBigImageFilesPreviewImageIsResizedToMaxSize(string imageFormat)
         {
             string bigImageFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\BigImage.{imageFormat}";
             RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(bigImageFilePath);
 
             var bigImagePreviewImage = recentlyOpenedDocument.PreviewBitmap;
 
-            Assert.Null(bigImagePreviewImage);
+            const int MaxWidthInPixels = 2048;
+            Assert.True(bigImagePreviewImage.PixelWidth <= MaxWidthInPixels);
+
+            const int MaxHeightInPixels = 2048;
+            Assert.True(bigImagePreviewImage.PixelHeight <= MaxHeightInPixels);
         }
 
         [Theory]
