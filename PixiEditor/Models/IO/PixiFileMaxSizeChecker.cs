@@ -4,16 +4,19 @@ namespace PixiEditor.Models.IO
 {
     internal class PixiFileMaxSizeChecker
     {
-        private readonly int maxPixelCountAllowed;
+        public int MaxAllowedWidthInPixels { get; init; } = 1080;
+        public int MaxAllowedHeightInPixels { get; init; } = 1080;
+        public int MaxAllowedLayerCount { get; init; } = 5;
 
-        public PixiFileMaxSizeChecker(int maxPixelCountAllowed)
+        public PixiFileMaxSizeChecker()
         {
-            this.maxPixelCountAllowed = maxPixelCountAllowed;
         }
 
         public bool IsFileUnderMaxSize(SerializableDocument fileToCheck)
         {
-            return fileToCheck.Height * fileToCheck.Width * fileToCheck.Layers.Count < maxPixelCountAllowed;
+            return fileToCheck.Width <= MaxAllowedWidthInPixels
+                && fileToCheck.Height <= MaxAllowedHeightInPixels
+                && fileToCheck.Layers.Count <= MaxAllowedLayerCount;
         }
     }
 }
