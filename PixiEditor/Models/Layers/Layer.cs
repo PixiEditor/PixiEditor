@@ -1,4 +1,4 @@
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
@@ -401,6 +401,15 @@ namespace PixiEditor.Models.Layers
 
             return result;
         }
+
+        public void CreateNewBitmap(int width, int height)
+        {
+            LayerBitmap = new Surface(width, height);
+            
+            Width = width;
+            Height = height;
+        }
+
 
         /// <summary>
         ///     Resizes canvas to fit pixels outside current bounds. Clamped to MaxHeight and MaxWidth.

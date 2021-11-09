@@ -69,6 +69,9 @@ namespace PixiEditor.Models.DataHolders
             int oldWidth = Width;
             int oldHeight = Height;
 
+            int biggerMaxSize = Math.Max(Width, Height);
+
+
             foreach (var layer in Layers)
             {
                 using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
@@ -76,29 +79,29 @@ namespace PixiEditor.Models.DataHolders
                     var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
                     layer.LayerBitmap.SkiaSurface.Canvas.Clear();
 
-                    int oldMaxWidth = layer.MaxWidth;
-                    int oldMaxHeight = layer.MaxHeight;
+                    double radians = Math.PI * degrees / 180;
+                    float sine = (float)Math.Abs(Math.Sin(radians));
+                    float cosine = (float)Math.Abs(Math.Cos(radians));
+                    int originalWidth = layer.Width;
+                    int originalHeight = layer.Height;
+                    int rotatedWidth = (int)(cosine * originalWidth + sine * originalHeight);
+                    int rotatedHeight = (int)(cosine * originalHeight + sine * originalWidth);
 
-                    int biggerSize = Math.Max(layer.Width, layer.Height);
-                    int biggerMaxSize = Math.Max(layer.MaxWidth, layer.MaxHeight);
+                    layer.CreateNewBitmap(rotatedWidth, rotatedHeight);
 
-                    layer.Width = biggerSize;
-                    layer.Height = biggerSize;
+                    var surface = layer.LayerBitmap.SkiaSurface.Canvas;
 
-                    layer.MaxHeight = biggerMaxSize;
-                    layer.MaxWidth = biggerMaxSize;
+                    surface.Translate(rotatedWidth / 2, rotatedHeight / 2);
+                    surface.RotateDegrees((float)degrees);
+                    surface.Translate(-originalWidth / 2, -originalHeight / 2);
+                    surface.DrawImage(copy, new SKPoint());
 
-                    var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
-                    canvas.RotateDegrees(degrees, oldMaxWidth / 2, oldMaxHeight / 2);
-                    canvas.DrawImage(copy, new SKPoint(0, 0));
-
-                    layer.Width = oldHeight;
-                    layer.Height = oldWidth;
-
-                    layer.MaxHeight = oldMaxWidth;
-                    layer.MaxWidth = oldMaxHeight;
+                    
+                    layer.MaxHeight = oldWidth;
+                    layer.MaxWidth = oldHeight;
 
                     copy.Dispose();
+                    
                 }
 
                 layer.InvokeLayerBitmapChange();
