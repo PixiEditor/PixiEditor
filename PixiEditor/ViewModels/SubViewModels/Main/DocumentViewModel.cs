@@ -20,6 +20,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand OpenResizePopupCommand { get; set; }
 
         public RelayCommand RotateToRightCommand { get; set; }
+        public RelayCommand FlipCommand { get; set; }
 
         public DocumentViewModel(ViewModelMain owner)
             : base(owner)
@@ -28,10 +29,23 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ClipCanvasCommand = new RelayCommand(ClipCanvas, Owner.DocumentIsNotNull);
             DeletePixelsCommand = new RelayCommand(DeletePixels, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, Owner.DocumentIsNotNull);
-            RotateToRightCommand = new RelayCommand(RotateLayer, Owner.DocumentIsNotNull);
+            RotateToRightCommand = new RelayCommand(RotateDocument, Owner.DocumentIsNotNull);
+            FlipCommand = new RelayCommand(FlipDocument, Owner.DocumentIsNotNull);
         }
 
-        public void RotateLayer(object parameter)
+        public void FlipDocument(object parameter)
+        {
+            if (parameter is "Horizontal")
+            {
+                Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Horizontal);
+            }
+            else if(parameter is "Vertical")
+            {
+                Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Vertical);
+            }
+        }
+
+        public void RotateDocument(object parameter)
         {
             if (parameter is double angle)
             {

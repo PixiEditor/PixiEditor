@@ -62,6 +62,52 @@ namespace PixiEditor.Models.DataHolders
                 "Rotate layer"));
         }
 
+        public void FlipActiveDocument(FlipType flip)
+        {
+            object[] processArgs = { flip };
+            object[] reverseProcessArgs = { flip == FlipType.Horizontal ? FlipType.Vertical : FlipType.Horizontal };
+
+            FlipDocumentProcess(processArgs);
+
+            UndoManager.AddUndoChange(new Change(
+                FlipDocumentProcess,
+                reverseProcessArgs,
+                FlipDocumentProcess,
+                processArgs,
+                $"Flip layer: {flip}"));
+        }
+
+        private void FlipDocumentProcess(object[] processArgs)
+        {
+            FlipType flip = (FlipType)processArgs[0];
+            foreach (var layer in Layers)
+            {
+                using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
+                {
+                    var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
+                    layer.LayerBitmap.SkiaSurface.Canvas.Clear();
+
+                    var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
+
+                    if (flip == FlipType.Horizontal)
+                    {
+                        canvas.Translate(layer.MaxWidth, 0);
+                        canvas.Scale(-1, 1, 0, 0);
+                    }
+                    else
+                    {
+                        canvas.Translate(0, layer.MaxHeight);
+                        canvas.Scale(1, -1, 0, 0);
+                    }
+
+                    canvas.DrawImage(copy, default(SKPoint));
+                    copy.Dispose();
+                }
+
+                layer.InvokeLayerBitmapChange();
+            }
+        }
+
         private void RotateDocumentProcess(object[] parameters)
         {
             float degrees = (float)parameters[0];
@@ -94,14 +140,12 @@ namespace PixiEditor.Models.DataHolders
                     surface.Translate(rotatedWidth / 2, rotatedHeight / 2);
                     surface.RotateDegrees((float)degrees);
                     surface.Translate(-originalWidth / 2, -originalHeight / 2);
-                    surface.DrawImage(copy, new SKPoint());
+                    surface.DrawImage(copy, default(SKPoint));
 
-                    
                     layer.MaxHeight = oldWidth;
                     layer.MaxWidth = oldHeight;
 
                     copy.Dispose();
-                    
                 }
 
                 layer.InvokeLayerBitmapChange();

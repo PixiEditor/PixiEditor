@@ -145,6 +145,9 @@
                             <sys:Double>-90</sys:Double>
                         </MenuItem.CommandParameter>
                     </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="_Flip Horizontal" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Horizontal"/>
+                    <MenuItem Header="_Flip Vertical" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Vertical"/>
                 </MenuItem>
                 <MenuItem Header="_View">
                     <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
