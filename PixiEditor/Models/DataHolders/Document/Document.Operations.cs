@@ -47,39 +47,68 @@ namespace PixiEditor.Models.DataHolders
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 
-        public void RotateActiveLayer(float degrees)
+        public void RotateActiveDocument(float degrees)
         {
-            Guid layerGuid = ActiveLayer.LayerGuid;
+            object[] processArgs = { degrees };
+            object[] reverseProcessArgs = { -degrees };
 
-            object[] processArgs = { layerGuid, degrees };
-            object[] reverseProcessArgs = { layerGuid, -degrees };
-
-            RotateLayerProcess(processArgs);
+            RotateDocumentProcess(processArgs);
 
             UndoManager.AddUndoChange(new Change(
-                RotateLayerProcess,
+                RotateDocumentProcess,
                 reverseProcessArgs,
-                RotateLayerProcess,
+                RotateDocumentProcess,
                 processArgs,
                 "Rotate layer"));
         }
 
-        private void RotateLayerProcess(object[] parameters)
+        private void RotateDocumentProcess(object[] parameters)
         {
-            Layer layer = Layers.First(x => x.LayerGuid == (Guid)parameters[0]);
-            float degrees = (float)parameters[1];
+            float degrees = (float)parameters[0];
 
-            using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
+            int oldWidth = Width;
+            int oldHeight = Height;
+
+            foreach (var layer in Layers)
             {
-                var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
-                var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
-                canvas.Clear();
-                canvas.RotateDegrees(degrees, layer.MaxWidth / 2, layer.MaxHeight / 2);
-                canvas.DrawImage(copy, new SKPoint(0, 0));
-                copy.Dispose();
+                using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
+                {
+                    var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
+                    layer.LayerBitmap.SkiaSurface.Canvas.Clear();
+
+                    int oldMaxWidth = layer.MaxWidth;
+                    int oldMaxHeight = layer.MaxHeight;
+
+                    int biggerSize = Math.Max(layer.Width, layer.Height);
+                    int biggerMaxSize = Math.Max(layer.MaxWidth, layer.MaxHeight);
+
+                    layer.Width = biggerSize;
+                    layer.Height = biggerSize;
+
+                    layer.MaxHeight = biggerMaxSize;
+                    layer.MaxWidth = biggerMaxSize;
+
+                    var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
+                    canvas.RotateDegrees(degrees, oldMaxWidth / 2, oldMaxHeight / 2);
+                    canvas.DrawImage(copy, new SKPoint(0, 0));
+
+                    layer.Width = oldHeight;
+                    layer.Height = oldWidth;
+
+                    layer.MaxHeight = oldMaxWidth;
+                    layer.MaxWidth = oldMaxHeight;
+
+                    copy.Dispose();
+                }
+
+                layer.InvokeLayerBitmapChange();
             }
 
-            layer.InvokeLayerBitmapChange();
+            Height = oldWidth;
+            Width = oldHeight;
+            DocumentSizeChanged?.Invoke(
+                this,
+                new DocumentSizeChangedEventArgs(oldWidth, oldHeight, Width, Height));
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
@@ -592,8 +592,8 @@ namespace PixiEditor.Models.Layers
                 return;
             }
 
-            newMaxX = Math.Clamp(Math.Max(newMaxX + 1, Width), 0, MaxWidth - OffsetX);
-            newMaxY = Math.Clamp(Math.Max(newMaxY + 1, Height), 0, MaxHeight - OffsetY);
+            newMaxX = Math.Clamp(Math.Max(newMaxX + 1, Width), 1, MaxWidth - OffsetX);
+            newMaxY = Math.Clamp(Math.Max(newMaxY + 1, Height), 1, MaxHeight - OffsetY);
 
             ResizeCanvas(0, 0, 0, 0, newMaxX, newMaxY);
         }

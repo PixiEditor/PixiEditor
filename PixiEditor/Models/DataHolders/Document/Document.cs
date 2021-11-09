@@ -46,7 +46,7 @@ namespace PixiEditor.Models.DataHolders
             private set
             {
                 width = value;
-                RaisePropertyChanged("Width");
+                RaisePropertyChanged(nameof(Width));
             }
         }
 

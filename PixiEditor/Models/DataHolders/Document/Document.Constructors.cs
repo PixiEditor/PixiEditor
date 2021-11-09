@@ -29,7 +29,11 @@ namespace PixiEditor.Models.DataHolders
             Layers.CollectionChanged += Layers_CollectionChanged;
             LayerStructure.Groups.CollectionChanged += Groups_CollectionChanged;
             LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
-            DocumentSizeChanged += (sender, args) => Renderer.Resize(args.NewWidth, args.NewHeight);
+            DocumentSizeChanged += (sender, args) =>
+            {
+                Renderer.Resize(args.NewWidth, args.NewHeight);
+                GeneratePreviewLayer();
+            };
         }
 
         private void LayerStructure_LayerStructureChanged(object sender, LayerStructureChangedEventArgs e)

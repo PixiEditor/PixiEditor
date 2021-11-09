@@ -35,7 +35,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             if (parameter is double angle)
             {
-                Owner.BitmapManager.ActiveDocument?.RotateActiveLayer((float)angle);
+                Owner.BitmapManager.ActiveDocument?.RotateActiveDocument((float)angle);
             }
         }
 
