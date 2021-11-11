@@ -84,7 +84,7 @@ namespace PixiEditor.Models.DataHolders
                 using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
                 {
                     var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
-                    layer.CreateNewBitmap(layer.Width + horizontalModifier, 
+                    layer.CreateNewBitmap(layer.Width, layer.Height); 
 
                     var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
 
