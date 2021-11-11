@@ -26,7 +26,14 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            LinearFill(layer, coordinates[0], color);
+            if (layer.IsReset)
+            {
+                layer.LayerBitmap.SkiaSurface.Canvas.Clear(color);
+            }
+            else
+            {
+                LinearFill(layer, coordinates[0], color);
+            }
             sw.Stop();
             Trace.WriteLine(sw.ElapsedMilliseconds);
         }
