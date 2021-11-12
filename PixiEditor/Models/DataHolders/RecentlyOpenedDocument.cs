@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
 
 namespace PixiEditor.Models.DataHolders
@@ -75,7 +73,7 @@ namespace PixiEditor.Models.DataHolders
         {
             if (FileExtension == ".pixi")
             {
-                SerializableDocument serializableDocument = null;
+                SerializableDocument serializableDocument;
 
                 try
                 {
@@ -87,9 +85,23 @@ namespace PixiEditor.Models.DataHolders
                     return null;
                 }
 
-                return BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
+                WriteableBitmap writeableBitmap =
+                    BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
+
+                const int MaxWidthInPixels = 1080;
+                const int MaxHeightInPixels = 1080;
+                PixiFileMaxSizeChecker pixiFileMaxSizeChecker = new PixiFileMaxSizeChecker()
+                {
+                    MaxAllowedWidthInPixels = MaxWidthInPixels,
+                    MaxAllowedHeightInPixels = MaxHeightInPixels,
+                    MaxAllowedLayerCount = 5,
+                };
+
+                return pixiFileMaxSizeChecker.IsFileUnderMaxSize(serializableDocument) ?
+                    writeableBitmap
+                    : writeableBitmap.Resize(width: MaxWidthInPixels, height: MaxHeightInPixels, WriteableBitmapExtensions.Interpolation.Bilinear);
             }
-            else if (FileExtension == ".png" || FileExtension == ".jpg" || FileExtension == ".jpeg")
+            else if (FileExtension is ".png" or ".jpg" or ".jpeg")
             {
                 WriteableBitmap bitmap = null;
 
@@ -102,7 +114,17 @@ namespace PixiEditor.Models.DataHolders
                     corrupt = true;
                 }
 
-                return bitmap;
+                const int MaxWidthInPixels = 2048;
+                const int MaxHeightInPixels = 2048;
+                ImageFileMaxSizeChecker imageFileMaxSizeChecker = new ImageFileMaxSizeChecker()
+                {
+                    MaxAllowedWidthInPixels = MaxWidthInPixels,
+                    MaxAllowedHeightInPixels = MaxHeightInPixels,
+                };
+
+                return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
+                    bitmap
+                    : bitmap.Resize(width: MaxWidthInPixels, height: MaxHeightInPixels, WriteableBitmapExtensions.Interpolation.Bilinear);
             }
 
             return null;
