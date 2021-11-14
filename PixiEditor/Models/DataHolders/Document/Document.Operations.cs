@@ -84,18 +84,19 @@ namespace PixiEditor.Models.DataHolders
                 using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
                 {
                     var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
-                    layer.CreateNewBitmap(layer.Width, layer.Height); 
 
                     var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
 
+                    canvas.Clear();
+
                     if (flip == FlipType.Horizontal)
                     {
-                        canvas.Translate(layer.MaxWidth, 0);
+                        canvas.Translate(layer.MaxWidth + layer.OffsetX, 0);
                         canvas.Scale(-1, 1, 0, 0);
                     }
                     else
                     {
-                        canvas.Translate(0, layer.MaxHeight);
+                        canvas.Translate(0, layer.MaxHeight + layer.OffsetY);
                         canvas.Scale(1, -1, 0, 0);
                     }
 
