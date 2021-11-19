@@ -24,9 +24,8 @@ namespace PixiEditor.Models.Controllers
         private Document activeDocument;
         private Tool selectedTool;
         private Coordinates? startPosition = null;
-        private IEnumerable<Coordinates> cachedHighlight;
         private int halfSize;
-        private BitmapPixelChanges cachedPixels;
+        private SKPaint _highlightPaint;
 
         public BitmapManager()
         {
@@ -40,6 +39,11 @@ namespace PixiEditor.Models.Controllers
             BitmapOperations = new BitmapOperationsUtility(this);
             ReadonlyToolUtility = new ReadonlyToolUtility();
             DocumentChanged += BitmapManager_DocumentChanged;
+            _highlightPaint = new SKPaint
+            {
+                Color = new SKColor(0, 0, 0, 77),
+                Style = SKPaintStyle.StrokeAndFill
+            };
         }
 
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
@@ -226,6 +230,8 @@ namespace PixiEditor.Models.Controllers
                 BitmapOperations.ApplyPreviewLayer();
             }
 
+            HighlightPixels(MousePositionConverter.CurrentCoordinates);
+
             startPosition = null;
         }
 
@@ -236,38 +242,44 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-            if (ToolSize != previewLayerSize || ActiveDocument.PreviewLayer.IsReset)
+            var previewLayer = ActiveDocument.PreviewLayer;
+
+            if (ToolSize != previewLayerSize || previewLayer.IsReset)
             {
-
-                cachedHighlight = CoordinatesCalculator.RectangleToCoordinates(0, 0, ToolSize - 1, ToolSize - 1);
-
                 previewLayerSize = ToolSize;
                 halfSize = (int)Math.Floor(ToolSize / 2f);
+                float sizeMod = ToolSize % 2 == 0 ? 0 : 0.5f;
+                AdjustOffset(newPosition, previewLayer);
+                int centerX = newPosition.X - previewLayer.OffsetX;
+                int centerY = newPosition.Y - previewLayer.OffsetY;
 
-                cachedPixels = BitmapPixelChanges.FromSingleColoredArray(cachedHighlight, new SKColor(0, 0, 0, 77));
+                previewLayer.CreateNewBitmap(ToolSize, ToolSize);
+                previewLayer.LayerBitmap.SkiaSurface.Canvas
+                .DrawOval(
+                    centerX,
+                    centerY,
+                    halfSize + sizeMod,
+                    halfSize + sizeMod,
+                    _highlightPaint);
 
-                if (!ActiveDocument.PreviewLayer.IsReset)
-                    ActiveDocument.PreviewLayer.Reset();
-                ActiveDocument.PreviewLayer.SetPixels(cachedPixels);
+                previewLayer.InvokeLayerBitmapChange();
             }
 
-            Coordinates start = newPosition - halfSize;
-            ActiveDocument.PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
+            AdjustOffset(newPosition, previewLayer);
 
-            if (!IsInsideBounds(cachedHighlight))
+            if (newPosition.X > ActiveDocument.Width
+                || newPosition.Y > ActiveDocument.Height
+                || newPosition.X < 0 || newPosition.Y < 0)
             {
-                ActiveDocument.PreviewLayer.Reset();
+                previewLayer.Reset();
                 previewLayerSize = -1;
             }
         }
 
-        private bool IsInsideBounds(IEnumerable<Coordinates> highlightArea)
+        private void AdjustOffset(Coordinates newPosition, Layer previewLayer)
         {
-            Coordinates start = highlightArea.First();
-            Coordinates end = highlightArea.Last();
-            return start.X <= ActiveDocument.Width - 1 &&
-                    start.Y <= ActiveDocument.Height - 1 &&
-                   end.X >= 0 && end.Y >= 0;
+            Coordinates start = newPosition - halfSize;
+            previewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
         }
     }
 }
