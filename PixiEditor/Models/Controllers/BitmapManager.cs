@@ -248,19 +248,32 @@ namespace PixiEditor.Models.Controllers
             {
                 previewLayerSize = ToolSize;
                 halfSize = (int)Math.Floor(ToolSize / 2f);
-                float sizeMod = ToolSize % 2 == 0 ? 0 : 0.5f;
-                AdjustOffset(newPosition, previewLayer);
-                int centerX = newPosition.X - previewLayer.OffsetX;
-                int centerY = newPosition.Y - previewLayer.OffsetY;
-
                 previewLayer.CreateNewBitmap(ToolSize, ToolSize);
-                previewLayer.LayerBitmap.SkiaSurface.Canvas
-                .DrawOval(
-                    centerX,
-                    centerY,
-                    halfSize + sizeMod,
-                    halfSize + sizeMod,
-                    _highlightPaint);
+
+                if (ToolSize != 3)
+                {
+                    float sizeMod = ToolSize % 2 == 0 ? 0 : 0.5f;
+                    if (ToolSize == 1)
+                    {
+                        sizeMod = 1;
+                    }
+
+                    AdjustOffset(newPosition, previewLayer);
+                    int centerX = newPosition.X - previewLayer.OffsetX;
+                    int centerY = newPosition.Y - previewLayer.OffsetY;
+
+                    previewLayer.LayerBitmap.SkiaSurface.Canvas
+                    .DrawOval(
+                        centerX,
+                        centerY,
+                        halfSize + sizeMod,
+                        halfSize + sizeMod,
+                        _highlightPaint);
+                }
+                else
+                {
+                    previewLayer.LayerBitmap.SkiaSurface.Canvas.Clear(_highlightPaint.Color);
+                }
 
                 previewLayer.InvokeLayerBitmapChange();
             }

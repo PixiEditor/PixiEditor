@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Tools.Tools
             SKBlendMode blendMode = SKBlendMode.Src)
         {
 
-            SKStrokeCap cap = toolSize == 1 ? SKStrokeCap.Square : SKStrokeCap.Round;
+            SKStrokeCap cap = toolSize == 1 || toolSize == 3 ? SKStrokeCap.Square : SKStrokeCap.Round;
             if (!pixelPerfect)
             {
                 lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
