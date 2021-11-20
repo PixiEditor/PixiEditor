@@ -24,6 +24,8 @@ namespace PixiEditor
 
         private readonly IPreferences preferences;
 
+        public static MainWindow Current { get; private set; }
+
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
@@ -61,6 +63,17 @@ namespace PixiEditor
             });
 
             OnReleaseBuild();
+        }
+
+        public static MainWindow CreateWithDocuments(IEnumerable<Document> documents)
+        {
+            MainWindow window = new();
+
+            BitmapManager bitmapManager = window.DataContext.BitmapManager;
+            bitmapManager.Documents.AddRange(documents);
+            bitmapManager.ActiveDocument = bitmapManager.Documents.FirstOrDefault();
+
+            return window;
         }
 
         protected override void OnClosing(CancelEventArgs e)

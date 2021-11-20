@@ -1,0 +1,44 @@
+﻿<Window x:Class="PixiEditor.Views.Dialogs.SendCrashReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
+        mc:Ignorable="d" Background="{StaticResource AccentColor}"
+        Title="SendCrashReportWindow" Height="450" Width="800">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="E-Mail:" ToolTip="In case we could use more information from you"/>
+                <TextBox Grid.Column="1" />
+            </Grid>
+            <TextBlock ToolTip="You can use this box to send us additional information"
+                       Grid.Row="1">Additional Information</TextBlock>
+            <TextBox Grid.Row="2"/>
+        </Grid>
+        <ScrollViewer Grid.Row="1" Margin="50,0">
+            <StackPanel>
+                <StackPanel>
+                    <TextBlock>Documents</TextBlock>
+                    <TextBlock>report.txt</TextBlock>
+                </StackPanel>
+                <Grid Height="5" Background="{StaticResource BrighterAccentColor}"/>
+            </StackPanel>
+        </ScrollViewer>
+        <Button Grid.Row="2" Width="250" Style="{StaticResource AccentDarkRoundButton}">Send</Button>
+    </Grid>
+</Window>

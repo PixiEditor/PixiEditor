@@ -1,5 +1,5 @@
 ﻿using AvalonDock.Layout;
-using PixiEditor.Helpers;
+using GalaSoft.MvvmLight.CommandWpf;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,9 +7,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class WindowViewModel : SubViewModel<ViewModelMain>, ISettableOwner<ViewModelMain>
     {
-        public MainWindow MainWindow { get; private set; }
-
-        public RelayCommand ShowAvalonDockWindowCommand { get; set; }
+        public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
 
         public WindowViewModel()
             : this(null)
@@ -19,9 +17,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public WindowViewModel(ViewModelMain owner)
             : base(owner)
         {
-            ShowAvalonDockWindowCommand = new RelayCommand(ShowAvalonDockWindow);
-
-            MainWindow = (MainWindow)System.Windows.Application.Current?.MainWindow;
+            ShowAvalonDockWindowCommand = new(ShowAvalonDockWindow);
         }
 
         public void SetOwner(ViewModelMain owner)
@@ -29,11 +25,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner = owner;
         }
 
-        private void ShowAvalonDockWindow(object parameter)
+        private void ShowAvalonDockWindow(string id)
         {
-            string id = (string)parameter;
-
-            var anchorables = new List<LayoutAnchorable>(MainWindow.LayoutRoot.Manager.Layout
+            var anchorables = new List<LayoutAnchorable>(MainWindow.Current.LayoutRoot.Manager.Layout
                     .Descendents()
                     .OfType<LayoutAnchorable>());
 

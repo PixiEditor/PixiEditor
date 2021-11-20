@@ -3,6 +3,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.Helpers
 {
+    [Obsolete("Use GalaSoft.MvvmLight.CommandWpf.RelayCommand instead")]
     public class RelayCommand : ICommand
     {
         private readonly Action<object> execute;

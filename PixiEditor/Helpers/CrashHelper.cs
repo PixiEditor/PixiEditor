@@ -15,66 +15,12 @@ namespace PixiEditor.Helpers
     {
         public static void SaveCrashInfo(Exception exception)
         {
-            StringBuilder builder = new();
-            DateTime currentTime = DateTime.Now;
-
-            builder
-                .AppendLine($"PixiEditor crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss}\n")
-                .AppendLine("-----System Information----")
-                .AppendLine("General:")
-                .AppendLine($"  OS: {Environment.OSVersion.VersionString}")
-                .AppendLine();
-
-            try
-            {
-                GetCPUInformation(builder);
-            }
-            catch (Exception cpuE)
-            {
-                builder.AppendLine($"Error ({cpuE.GetType().FullName}: {cpuE.Message}) while gathering CPU information, skipping...");
-            }
-
-            try
-            {
-                GetGPUInformation(builder);
-            }
-            catch (Exception gpuE)
-            {
-                builder.AppendLine($"Error ({gpuE.GetType().FullName}: {gpuE.Message}) while gathering GPU information, skipping...");
-            }
-
-            try
-            {
-                GetMemoryInformation(builder);
-            }
-            catch (Exception memE)
-            {
-                builder.AppendLine($"Error ({memE.GetType().FullName}: {memE.Message}) while gathering memory information, skipping...");
-            }
-
-            AddExceptionMessage(builder, exception);
-
-            string filename = $"crash-{currentTime:yyyy-MM-dd_HH-mm-ss_fff}.zip";
-            string path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "PixiEditor",
-                "crash_logs");
-            Directory.CreateDirectory(path);
-
-            string filePath = Path.Combine(path, filename);
-            string report = builder.ToString();
-
-            try
-            {
-                CreateZip(filePath, report);
-            }
-            catch
-            {
-                File.WriteAllText(Path.ChangeExtension(filePath, ".txt"), report);
-            }
+            CrashReport report = CrashReport.Generate(exception);
+            report.TrySave();
+            report.RestartToCrashReport();
         }
 
-        private static void GetCPUInformation(StringBuilder builder)
+        public static void GetCPUInformation(StringBuilder builder)
         {
             builder.AppendLine("CPU:");
 
@@ -89,7 +35,7 @@ namespace PixiEditor.Helpers
             }
         }
 
-        private static void GetGPUInformation(StringBuilder builder)
+        public static void GetGPUInformation(StringBuilder builder)
         {
             builder.AppendLine("\nGPU:");
 
@@ -104,7 +50,7 @@ namespace PixiEditor.Helpers
             }
         }
 
-        private static void GetMemoryInformation(StringBuilder builder)
+        public static void GetMemoryInformation(StringBuilder builder)
         {
             builder.AppendLine("\nMemory:");
 
@@ -121,7 +67,7 @@ namespace PixiEditor.Helpers
             }
         }
 
-        private static void AddExceptionMessage(StringBuilder builder, Exception e)
+        public static void AddExceptionMessage(StringBuilder builder, Exception e)
         {
 
             builder
@@ -154,31 +100,6 @@ namespace PixiEditor.Helpers
                         .Append(innerException.StackTrace);
                     innerException = innerException.InnerException;
                 }
-            }
-        }
-
-        private static void CreateZip(string filePath, string report)
-        {
-            using FileStream zipStream = new(/*Path.Combine(path, filename)*/filePath, FileMode.Create, FileAccess.Write);
-            using ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
-
-            using (Stream reportStream = archive.CreateEntry("report.txt").Open())
-            {
-                reportStream.Write(Encoding.UTF8.GetBytes(report));
-            }
-
-            foreach (Document document in ViewModelMain.Current.BitmapManager.Documents)
-            {
-                try
-                {
-                    string documentPath =
-                        $"{(string.IsNullOrWhiteSpace(document.DocumentFilePath) ? "Unsaved" : Path.GetFileNameWithoutExtension(document.DocumentFilePath))}-{document.OpenedUTC}.pixi";
-                    using Stream documentStream = archive.CreateEntry($"Documents/{documentPath}").Open();
-
-                    PixiParser.Serialize(document.ToSerializable(), documentStream);
-                }
-                catch
-                { }
             }
         }
 
