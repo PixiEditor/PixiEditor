@@ -100,6 +100,7 @@ namespace PixiEditor.Models.Tools.Tools
 
                     MovePixelsToCheck(alpha);
 
+                    lastChangedPixel = latestCords;
                     return;
                 }
 
