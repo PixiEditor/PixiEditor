@@ -75,10 +75,10 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            //DoubleCords fixedCoordinates = ShapeTool.CalculateCoordinatesForShapeRotation(start, end);
-            //List<Coordinates> selection = circleTool.CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, 1).ToList();
-            //selection.AddRange(circleTool.CalculateFillForEllipse(selection));
-            return Array.Empty<Coordinates>(); //selection;
+            List<Coordinates> result = new List<Coordinates>();
+            ShapeCalculator.GenerateEllipseNonAlloc(
+                start, end, true, result);
+            return result;
         }
 
         /// <summary>

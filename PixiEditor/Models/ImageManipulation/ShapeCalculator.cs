@@ -1,14 +1,26 @@
-﻿using PixiEditor.Models.Position;
+using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Models.ImageManipulation
 {
     public static class ShapeCalculator
     {
+        public static void GenerateEllipseNonAlloc(Coordinates start, Coordinates end, bool fill,
+            List<Coordinates> output)
+        {
+
+            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(start, end);
+
+            CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, output);
+
+            if(fill)
+            {
+                CalculateFillForEllipse(output);
+            }
+        }
+
         public static void GenerateRectangleNonAlloc(
             Coordinates start,
             Coordinates end, bool fill, int thickness, List<Coordinates> output)
@@ -73,6 +85,118 @@ namespace PixiEditor.Models.ImageManipulation
             }
 
             return new DoubleCords(startingCords, secondCoordinates);
+        }
+
+        private static void CalculateFillForEllipse(List<Coordinates> outlineCoordinates)
+        {
+            if (!outlineCoordinates.Any())
+            {
+                return;
+            }
+
+            int bottom = outlineCoordinates.Max(x => x.Y);
+            int top = outlineCoordinates.Min(x => x.Y);
+            for (int i = top + 1; i < bottom; i++)
+            {
+                IEnumerable<Coordinates> rowCords = outlineCoordinates.Where(x => x.Y == i);
+                int right = rowCords.Max(x => x.X);
+                int left = rowCords.Min(x => x.X);
+                for (int j = left + 1; j < right; j++)
+                {
+                    outlineCoordinates.Add(new Coordinates(j, i));
+                }
+            }
+        }
+
+
+        /// <summary>
+        ///     Calculates ellipse points for specified coordinates and thickness.
+        /// </summary>
+        /// <param name="startCoordinates">Top left coordinate of ellipse.</param>
+        /// <param name="endCoordinates">Bottom right coordinate of ellipse.</param>
+        private static void CreateEllipse(Coordinates startCoordinates, Coordinates endCoordinates, List<Coordinates> output)
+        {
+            double radiusX = (endCoordinates.X - startCoordinates.X) / 2.0;
+            double radiusY = (endCoordinates.Y - startCoordinates.Y) / 2.0;
+            double centerX = (startCoordinates.X + endCoordinates.X + 1) / 2.0;
+            double centerY = (startCoordinates.Y + endCoordinates.Y + 1) / 2.0;
+
+            MidpointEllipse(radiusX, radiusY, centerX, centerY, output);
+        }
+
+        private static void MidpointEllipse(double halfWidth, double halfHeight, double centerX, double centerY, List<Coordinates> output)
+        {
+            if (halfWidth < 1 || halfHeight < 1)
+            {
+                FallbackRectangle(halfWidth, halfHeight, centerX, centerY, output);
+            }
+
+            // ellipse formula: halfHeight^2 * x^2 + halfWidth^2 * y^2 - halfHeight^2 * halfWidth^2 = 0
+
+            // Make sure we are always at the center of a pixel
+            double currentX = Math.Ceiling(centerX - 0.5) + 0.5;
+            double currentY = centerY + halfHeight;
+
+            double currentSlope;
+
+            // from PI/2 to middle
+            do
+            {
+                GetRegionPoints(currentX, centerX, currentY, centerY, output);
+
+                // calculate next pixel coords
+                currentX++;
+
+                if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX, 2)) +
+                    (Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY - 0.5, 2)) -
+                    (Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2)) >= 0)
+                {
+                    currentY--;
+                }
+
+                // calculate how far we've advanced
+                double derivativeX = 2 * Math.Pow(halfHeight, 2) * (currentX - centerX);
+                double derivativeY = 2 * Math.Pow(halfWidth, 2) * (currentY - centerY);
+                currentSlope = -(derivativeX / derivativeY);
+            }
+            while (currentSlope > -1 && currentY - centerY > 0.5);
+
+            // from middle to 0
+            while (currentY - centerY >= 0)
+            {
+                GetRegionPoints(currentX, centerX, currentY, centerY, output);
+
+                currentY--;
+                if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2)) +
+                    (Math.Pow(halfWidth, 2) * Math.Pow(currentY - centerY, 2)) -
+                    (Math.Pow(halfWidth, 2) * Math.Pow(halfHeight, 2)) < 0)
+                {
+                    currentX++;
+                }
+            }
+        }
+
+        private static void FallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY, List<Coordinates> output)
+        {
+            for (double x = centerX - halfWidth; x <= centerX + halfWidth; x++)
+            {
+                output.Add(new Coordinates((int)x, (int)(centerY - halfHeight)));
+                output.Add(new Coordinates((int)x, (int)(centerY + halfHeight)));
+            }
+
+            for (double y = centerY - halfHeight + 1; y <= centerY + halfHeight - 1; y++)
+            {
+                output.Add(new Coordinates((int)(centerX - halfWidth), (int)y));
+                output.Add(new Coordinates((int)(centerX + halfWidth), (int)y));
+            }
+        }
+
+        private static void GetRegionPoints(double x, double xc, double y, double yc, List<Coordinates> output)
+        {
+            output.Add(new Coordinates((int)Math.Floor(x), (int)Math.Floor(y)));
+            output.Add(new Coordinates((int)Math.Floor(-(x - xc) + xc), (int)Math.Floor(y)));
+            output.Add(new Coordinates((int)Math.Floor(x), (int)Math.Floor(-(y - yc) + yc)));
+            output.Add(new Coordinates((int)Math.Floor(-(x - xc) + xc), (int)Math.Floor(-(y - yc) + yc)));
         }
 
         private static void CalculateRectangleFillNonAlloc(Coordinates start, Coordinates end, int thickness, List<Coordinates> output)
