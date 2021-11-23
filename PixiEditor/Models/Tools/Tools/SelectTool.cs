@@ -68,7 +68,7 @@ namespace PixiEditor.Models.Tools.Tools
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
             List<Coordinates> result = new List<Coordinates>();
-            ShapeCalculator.GenerateRectangleNonAlloc(
+            ToolCalculator.GenerateRectangleNonAlloc(
                 start, end, true, 1, result);
             return result;
         }
@@ -76,7 +76,7 @@ namespace PixiEditor.Models.Tools.Tools
         public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
         {
             List<Coordinates> result = new List<Coordinates>();
-            ShapeCalculator.GenerateEllipseNonAlloc(
+            ToolCalculator.GenerateEllipseNonAlloc(
                 start, end, true, result);
             return result;
         }

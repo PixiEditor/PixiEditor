@@ -17,13 +17,12 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class MagicWandTool : ReadonlyTool, ICachedDocumentTool
     {
-        private readonly FloodFillTool floodFill;
-
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         private BitmapManager BitmapManager { get; }
 
         private IEnumerable<Coordinates> oldSelection;
+        private List<Coordinates> newSelection = new List<Coordinates>();
 
         public override string Tooltip => "Magic Wand (W). Flood's the selection";
 
@@ -56,20 +55,25 @@ namespace PixiEditor.Models.Tools.Tools
 
             Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
 
-            /*selection.SetSelection(
-                floodFill.LinearFill(
-                    layer,
-                    new Coordinates((int)document.MouseXOnCanvas, (int)document.MouseYOnCanvas),
-                    SKColors.White
-                    ).ChangedPixels.Keys,
-                selectionType);*/
+            newSelection.Clear();
+
+            ToolCalculator.GetLinearFill(
+                   layer,
+                   new Coordinates(
+                       (int)document.MouseXOnCanvas,
+                       (int)document.MouseYOnCanvas),
+                   BitmapManager.ActiveDocument.Width,
+                   BitmapManager.ActiveDocument.Height,
+                   SKColors.White,
+                   newSelection);
+
+            selection.SetSelection(newSelection, selectionType);
 
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelection, selectionType);
         }
 
         public MagicWandTool(BitmapManager manager)
         {
-            floodFill = new FloodFillTool(manager);
             BitmapManager = manager;
 
             Toolbar = new MagicWandToolbar();
