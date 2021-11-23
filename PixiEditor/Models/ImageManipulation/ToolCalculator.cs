@@ -13,7 +13,18 @@ namespace PixiEditor.Models.ImageManipulation
 {
     public static class ToolCalculator
     {
-        public static void GetLinearFill(Layer layer, Coordinates startingCoords, int maxWidth, int maxHeight, SKColor newColor, List<Coordinates> output)
+        /// <summary>
+        /// This function calculates fill and outputs it into Coordinates list.
+        /// </summary>
+        /// <remarks>All coordinates are calculated without layer offset.
+        /// If you want to take consideration offset, just do it in CalculateBresenhamLine in PerformLinearFill function.</remarks>
+        /// <param name="layer">Layer to calculate fill from.</param>
+        /// <param name="startingCoords">Starting fill coordinates</param>
+        /// <param name="maxWidth">Maximum fill width</param>
+        /// <param name="maxHeight">Maximum fill height</param>
+        /// <param name="newColor">Replacement color to stop on</param>
+        /// <param name="output">List with output coordinates.</param>
+        public static void GetLinearFillAbsolute(Layer layer, Coordinates startingCoords, int maxWidth, int maxHeight, SKColor newColor, List<Coordinates> output)
         {
             Queue<FloodFillRange> floodFillQueue = new Queue<FloodFillRange>();
             SKColor colorToReplace = layer.GetPixelWithOffset(startingCoords.X, startingCoords.Y);

@@ -57,7 +57,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             newSelection.Clear();
 
-            ToolCalculator.GetLinearFill(
+            ToolCalculator.GetLinearFillAbsolute(
                    layer,
                    new Coordinates(
                        (int)document.MouseXOnCanvas,
