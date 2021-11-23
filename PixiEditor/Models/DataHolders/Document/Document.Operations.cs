@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
 using System;
@@ -89,16 +90,40 @@ namespace PixiEditor.Models.DataHolders
 
                     var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
 
+                    layer.ClipCanvas();
+
                     if (flip == FlipType.Horizontal)
                     {
-                        canvas.Translate(layer.MaxWidth, 0);
+                        canvas.Translate(layer.Width, 0);
                         canvas.Scale(-1, 1, 0, 0);
                     }
                     else
                     {
-                        canvas.Translate(0, layer.MaxHeight);
+                        canvas.Translate(0, layer.Width);
                         canvas.Scale(1, -1, 0, 0);
                     }
+
+                    // Flip offset based on document and layer center point
+                    var documentCenter = new Coordinates(Width / 2, Height / 2);
+                    var layerCenter = new Coordinates(layer.Width / 2, layer.Height / 2);
+
+                    int newOffsetX = layer.OffsetX;
+                    int newOffsetY = layer.OffsetY;
+
+                    if (flip == FlipType.Horizontal)
+                    {
+                        newOffsetX += layerCenter.X;
+                        int diff = documentCenter.X - newOffsetX;
+                        newOffsetX = layer.OffsetX + (diff * 2);
+                    }
+                    else if(flip == FlipType.Vertical)
+                    {
+                        newOffsetY += layerCenter.Y;
+                        int diff = documentCenter.Y - newOffsetY;
+                        newOffsetY = layer.OffsetY + (diff * 2);
+                    }
+
+                    layer.Offset = new Thickness(newOffsetX, newOffsetY, 0, 0);
 
                     canvas.DrawImage(copy, default(SKPoint));
                     copy.Dispose();

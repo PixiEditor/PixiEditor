@@ -29,6 +29,11 @@ namespace PixiEditor.Models.Position
             return new Coordinates(coordiantes.X - size, coordiantes.Y - size);
         }
 
+        public static Coordinates operator -(Coordinates coordiantes1, Coordinates coordinates2)
+        {
+            return new Coordinates(coordiantes1.X - coordinates2.X, coordiantes1.Y - coordinates2.Y);
+        }
+
         public static bool operator ==(Coordinates c1, Coordinates c2)
         {
             return c2.X == c1.X && c2.Y == c1.Y;

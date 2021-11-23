@@ -405,7 +405,7 @@ namespace PixiEditor.Models.Layers
         public void CreateNewBitmap(int width, int height)
         {
             LayerBitmap = new Surface(width, height);
-            
+
             Width = width;
             Height = height;
         }
@@ -476,10 +476,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        /// <summary>
-        ///     Changes size of bitmap to fit content.
-        /// </summary>
-        public void ClipCanvas()
+        public Int32Rect GetContentDimensions()
         {
             DoubleCords points = GetEdgePoints();
             int smallestX = points.Coords1.X;
@@ -489,13 +486,24 @@ namespace PixiEditor.Models.Layers
 
             if (smallestX < 0 && smallestY < 0 && biggestX < 0 && biggestY < 0)
             {
-                return;
+                return Int32Rect.Empty;
             }
 
             int width = biggestX - smallestX + 1;
             int height = biggestY - smallestY + 1;
-            ResizeCanvas(0, 0, smallestX, smallestY, width, height);
-            Offset = new Thickness(OffsetX + smallestX, OffsetY + smallestY, 0, 0);
+            return new Int32Rect(smallestX, smallestY, width, height);
+        }
+
+        /// <summary>
+        ///     Changes size of bitmap to fit content.
+        /// </summary>
+        public void ClipCanvas()
+        {
+            var dimensions = GetContentDimensions();
+            if (dimensions == Int32Rect.Empty) return;
+
+            ResizeCanvas(0, 0, dimensions.X, dimensions.Y, dimensions.Width, dimensions.Height);
+            Offset = new Thickness(OffsetX + dimensions.X, OffsetY + dimensions.Y, 0, 0);
         }
 
         public void Reset()
