@@ -1,4 +1,4 @@
-﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
@@ -66,13 +66,12 @@ namespace PixiEditor.Models.DataHolders
         public void FlipActiveDocument(FlipType flip)
         {
             object[] processArgs = { flip };
-            object[] reverseProcessArgs = { flip == FlipType.Horizontal ? FlipType.Vertical : FlipType.Horizontal };
 
             FlipDocumentProcess(processArgs);
 
             UndoManager.AddUndoChange(new Change(
                 FlipDocumentProcess,
-                reverseProcessArgs,
+                processArgs,
                 FlipDocumentProcess,
                 processArgs,
                 $"Flip layer: {flip}"));
@@ -86,7 +85,6 @@ namespace PixiEditor.Models.DataHolders
                 using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
                 {
                     var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
-                    layer.LayerBitmap.SkiaSurface.Canvas.Clear();
 
                     var canvas = layer.LayerBitmap.SkiaSurface.Canvas;
 
@@ -148,7 +146,6 @@ namespace PixiEditor.Models.DataHolders
                 using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
                 {
                     var copy = layer.LayerBitmap.SkiaSurface.Snapshot();
-                    layer.LayerBitmap.SkiaSurface.Canvas.Clear();
 
                     double radians = Math.PI * degrees / 180;
                     float sine = (float)Math.Abs(Math.Sin(radians));

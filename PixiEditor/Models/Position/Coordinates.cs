@@ -73,5 +73,10 @@ namespace PixiEditor.Models.Position
         {
             return HashCode.Combine(X, Y);
         }
+
+        public SKPoint ToSKPoint()
+        {
+            return new SKPoint(X, Y);
+        }
     }
 }

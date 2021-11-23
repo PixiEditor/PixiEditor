@@ -21,6 +21,7 @@ namespace PixiEditor.Models.Tools.Tools
         private SKPaint paint = new SKPaint() { Style = SKPaintStyle.Stroke };
         private Coordinates[] lastChangedPixels = new Coordinates[3];
         private byte changedPixelsindex;
+        private Coordinates lastChangedPixel = new Coordinates(-1, -1);
 
         private BitmapManager BitmapManager { get; }
 
@@ -69,38 +70,44 @@ namespace PixiEditor.Models.Tools.Tools
             SKBlendMode blendMode = SKBlendMode.Src)
         {
 
-            SKStrokeCap cap = toolSize == 1 ? SKStrokeCap.Square : SKStrokeCap.Round;
+            SKStrokeCap cap = toolSize == 1 || toolSize == 3 ? SKStrokeCap.Square : SKStrokeCap.Round;
             if (!pixelPerfect)
             {
                 lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
                 return;
             }
 
-            if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).Alpha > 0)
+            if (latestCords != lastChangedPixel)
             {
-                confirmedPixels.Add(latestCords);
+                if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).Alpha > 0)
+                {
+                    confirmedPixels.Add(latestCords);
+                }
+
+                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
+                SetPixelToCheck(LineTool.GetBresenhamLine(startingCoords, latestCords));
+
+                if (changedPixelsindex == 2)
+                {
+                    byte alpha = ApplyPixelPerfectToPixels(
+                        layer,
+                        lastChangedPixels[0],
+                        lastChangedPixels[1],
+                        lastChangedPixels[2],
+                        color,
+                        toolSize,
+                        paint);
+
+                    MovePixelsToCheck(alpha);
+
+                    lastChangedPixel = latestCords;
+                    return;
+                }
+
+                changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
             }
 
-            lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
-            SetPixelToCheck(LineTool.GetBresenhamLine(startingCoords, latestCords));
-
-            if (changedPixelsindex == 2)
-            {
-                byte alpha = ApplyPixelPerfectToPixels(
-                    layer,
-                    lastChangedPixels[0],
-                    lastChangedPixels[1],
-                    lastChangedPixels[2],
-                    color,
-                    toolSize,
-                    paint);
-
-                MovePixelsToCheck(alpha);
-
-                return;
-            }
-
-            changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
+            lastChangedPixel = latestCords;
         }
 
         private void MovePixelsToCheck(byte alpha)

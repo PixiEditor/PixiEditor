@@ -9,6 +9,7 @@ using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
@@ -66,17 +67,18 @@ namespace PixiEditor.Models.Tools.Tools
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            //List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
-            //selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
-            return Array.Empty<Coordinates>(); //selection;
+            List<Coordinates> result = new List<Coordinates>();
+            ShapeCalculator.GenerateRectangleNonAlloc(
+                start, end, true, 1, result);
+            return result;
         }
 
         public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            //DoubleCords fixedCoordinates = ShapeTool.CalculateCoordinatesForShapeRotation(start, end);
-            //List<Coordinates> selection = circleTool.CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, 1).ToList();
-            //selection.AddRange(circleTool.CalculateFillForEllipse(selection));
-            return Array.Empty<Coordinates>(); //selection;
+            List<Coordinates> result = new List<Coordinates>();
+            ShapeCalculator.GenerateEllipseNonAlloc(
+                start, end, true, result);
+            return result;
         }
 
         /// <summary>
