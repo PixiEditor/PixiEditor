@@ -67,7 +67,7 @@ namespace PixiEditor.Models.ImageManipulation
             int lastCheckedPixelRight = fillXRight - 1;
 
             int relativeY = coords.Y - layer.OffsetY;
-            LineTool.CalculateBresenhamLine(new Coordinates(lastCheckedPixelLeft - layer.OffsetX, relativeY), new Coordinates(lastCheckedPixelRight - layer.OffsetX, relativeY), output);
+            LineTool.CalculateBresenhamLine(new Coordinates(lastCheckedPixelLeft, relativeY), new Coordinates(lastCheckedPixelRight, relativeY), output);
             dirtyRect = dirtyRect.Expand(new Int32Rect(lastCheckedPixelLeft, coords.Y, lastCheckedPixelRight - lastCheckedPixelLeft + 1, 1));
 
             FloodFillRange range = new FloodFillRange(lastCheckedPixelLeft, lastCheckedPixelRight, coords.Y);
