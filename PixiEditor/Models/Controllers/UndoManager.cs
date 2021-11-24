@@ -9,7 +9,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Models.Controllers
 {
     [DebuggerDisplay("{UndoStack.Count} undo steps, {RedoStack.Count} redo step(s)")]
-    public class UndoManager
+    public class UndoManager : IDisposable
     {
         private bool lastChangeWasUndo;
 
@@ -156,6 +156,16 @@ namespace PixiEditor.Models.Controllers
 
             Change change = new(reverseProcess, changes, process, changes, description);
             AddUndoChange(change);
+        }
+
+        public void Dispose()
+        {
+            foreach (Change change in UndoStack.Concat(RedoStack))
+            {
+                change.Dispose();
+            }
+
+            GC.SuppressFinalize(this);
         }
 
         private bool ChangeIsBlockedProperty(Change change)

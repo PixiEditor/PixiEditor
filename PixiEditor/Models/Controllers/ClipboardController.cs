@@ -1,4 +1,5 @@
-﻿using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Exceptions;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.IO;
@@ -6,7 +7,6 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Skia;
 using PixiEditor.ViewModels;
 using SkiaSharp;
 using System;
@@ -78,8 +78,8 @@ namespace PixiEditor.Models.Controllers
         {
             CopyToClipboard(
                 document.Layers.Where(x => document.GetFinalLayerIsVisible(x)).ToArray(),
-                //doc.ActiveSelection.SelectedPoints.ToArray(),
-                new Coordinates[] { (0, 0), (15, 15) },
+                document.ActiveSelection.SelectedPoints.ToArray(),
+                //new Coordinates[] { (0, 0), (15, 15) },
                 document.Width,
                 document.Height,
                 document.ToSerializable());
@@ -90,62 +90,81 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void PasteFromClipboard()
         {
-            var images = GetImagesFromClipboard();
+            var layers = GetLayersFromClipboard();
 
-            foreach (var (surface, name) in images)
+            Document activeDocument = ViewModelMain.Current.BitmapManager.ActiveDocument;
+            int startIndex = activeDocument.Layers.Count;
+
+            foreach (var layer in layers)
             {
-                AddImageToLayers(surface, name);
-                int latestLayerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Count - 1;
-                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                    new Change(RemoveLayerProcess, new object[] { latestLayerIndex }, AddLayerProcess, new object[] { images }));
+                activeDocument.Layers.Add(layer);
             }
-        }
 
+            activeDocument.UndoManager.AddUndoChange(
+                new Change(RemoveLayersProcess, new object[] { startIndex }, AddLayersProcess, new object[] { layers }) { DisposeProcess = DisposeProcess });
+        }
 
         /// <summary>
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
         /// <returns>WriteableBitmap.</returns>
-        public static IEnumerable<(Surface, string name)> GetImagesFromClipboard()
+        public static IEnumerable<Layer> GetLayersFromClipboard()
         {
             DataObject data = (DataObject)Clipboard.GetDataObject();
 
             if (data.GetDataPresent("PIXI"))
             {
                 SerializableDocument document = GetSerializable(data, out CropData crop);
+                SKRectI cropRect = SKRectI.Create(crop.OffsetX, crop.OffsetY, crop.Width, crop.Height);
 
-                foreach (SerializableLayer layer in document)
+                foreach (SerializableLayer sLayer in document)
                 {
-                    if (layer.OffsetX > crop.OffsetX + crop.Width || layer.OffsetY > crop.OffsetY + crop.Height ||
-                        !layer.IsVisible || layer.Opacity == 0)
+                    SKRectI intersect;
+
+                    if (/*layer.OffsetX > crop.OffsetX + crop.Width || layer.OffsetY > crop.OffsetY + crop.Height ||*/
+                        !sLayer.IsVisible || sLayer.Opacity == 0 ||
+                        (intersect = SKRectI.Intersect(cropRect, sLayer.GetRect())) == SKRectI.Empty)
                     {
                         continue;
                     }
 
-                    using Surface tempSurface = new Surface(layer.ToSKImage());
+                    var layer = sLayer.ToLayer();
 
-                    yield return (tempSurface.Crop(crop.OffsetX, crop.OffsetY, crop.Width, crop.Height), layer.Name);
+                    layer.Crop(intersect);
+
+                    yield return layer;
                 }
             }
             else if (TryFromSingleImage(data, out Surface singleImage))
             {
-                yield return (singleImage, "Copied");
-                yield break;
+                yield return new Layer("Image", singleImage);
             }
-            else if(data.GetDataPresent(DataFormats.FileDrop))
+            else if (data.GetDataPresent(DataFormats.FileDrop))
             {
                 foreach (string path in data.GetFileDropList())
                 {
-                    yield return (Importer.ImportSurface(path), Path.GetFileName(path));
-                }
+                    if (!Importer.IsSupportedFile(path))
+                    {
+                        continue;
+                    }
 
-                yield break;
+                    Layer layer = null;
+
+                    try
+                    {
+                        layer = new(Path.GetFileName(path), Importer.ImportSurface(path));
+                    }
+                    catch (CorruptedFileException)
+                    {
+                    }
+
+                    yield return layer ?? new($"Corrupt {path}");
+                }
             }
             else
             {
                 throw new NotImplementedException();
             }
-
         }
 
         public static bool IsImageInClipboard()
@@ -156,6 +175,19 @@ namespace PixiEditor.Models.Controllers
                 return false;
             }
 
+            var files = dao.GetFileDropList();
+
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+                    if (Importer.IsSupportedFile(file))
+                    {
+                        return true;
+                    }
+                }
+            }
+
             return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) ||
                    dao.GetDataPresent(DataFormats.Bitmap) || dao.GetDataPresent(DataFormats.FileDrop) ||
                    dao.GetDataPresent("PIXI");
@@ -163,10 +195,10 @@ namespace PixiEditor.Models.Controllers
 
         public static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection, out int offsetX, out int offsetY, out int width, out int height)
         {
-            offsetX = selection.Min(x => x.X);
-            offsetY = selection.Min(x => x.Y);
-            width = selection.Max(x => x.X) - offsetX + 1;
-            height = selection.Max(x => x.Y) - offsetY + 1;
+            offsetX = selection.Min(min => min.X);
+            offsetY = selection.Min(min => min.Y);
+            width = selection.Max(max => max.X) - offsetX + 1;
+            height = selection.Max(max => max.Y) - offsetY + 1;
             return bitmap.Crop(offsetX, offsetY, width, height);
         }
 
@@ -197,63 +229,84 @@ namespace PixiEditor.Models.Controllers
 
         private static bool TryFromSingleImage(DataObject data, out Surface result)
         {
-            BitmapSource source;
+            try
+            {
+                BitmapSource source;
 
-            if (data.GetDataPresent("PNG"))
-            {
-                source = FromPNG(data);
-            }
-            else if (data.GetDataPresent(DataFormats.Dib) || data.GetDataPresent(DataFormats.Bitmap))
-            {
-                source = Clipboard.GetImage();
-            }
-            else
-            {
-                result = null;
-                return false;
-            }
+                if (data.GetDataPresent("PNG"))
+                {
+                    source = FromPNG(data);
+                }
+                else if (data.GetDataPresent(DataFormats.Dib) || data.GetDataPresent(DataFormats.Bitmap))
+                {
+                    source = Clipboard.GetImage();
+                }
+                else
+                {
+                    result = null;
+                    return false;
+                }
 
-            if (source.Format.IsSkiaSupported())
-            {
-                result = new Surface(source);
-            }
-            else
-            {
-                FormatConvertedBitmap newFormat = new FormatConvertedBitmap();
-                newFormat.BeginInit();
-                newFormat.Source = source;
-                newFormat.DestinationFormat = PixelFormats.Rgba64;
-                newFormat.EndInit();
+                if (source.Format.IsSkiaSupported())
+                {
+                    result = new Surface(source);
+                }
+                else
+                {
+                    FormatConvertedBitmap newFormat = new FormatConvertedBitmap();
+                    newFormat.BeginInit();
+                    newFormat.Source = source;
+                    newFormat.DestinationFormat = PixelFormats.Rgba64;
+                    newFormat.EndInit();
 
-                result = new Surface(newFormat);
-            }
+                    result = new Surface(newFormat);
+                }
 
-            return true;
+                return true;
+            }
+            catch { }
+
+            result = null;
+            return false;
         }
 
-        private static void RemoveLayerProcess(object[] parameters)
+        private static void RemoveLayersProcess(object[] parameters)
         {
-            if (parameters.Length == 0 || !(parameters[0] is int))
+            if (parameters.Length == 0 || parameters[0] is not int i)
             {
                 return;
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0], true);
+            Document document = ViewModelMain.Current.BitmapManager.ActiveDocument;
+
+            while (i < document.Layers.Count)
+            {
+                document.RemoveLayer(i, true);
+            }
         }
 
-        private static void AddLayerProcess(object[] parameters)
+        private static void AddLayersProcess(object[] parameters)
         {
-            if (parameters.Length == 0 || !(parameters[0] is Surface))
+            if (parameters.Length == 0 || parameters[0] is not IEnumerable<Layer> layers)
             {
                 return;
             }
 
-            AddImageToLayers((Surface)parameters[0]);
+            foreach (var layer in layers)
+            {
+                ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Add(layer);
+            }
         }
 
-        private static void AddImageToLayers(Surface image, string name = "Image")
+        private static void DisposeProcess(object[] rev, object[] proc)
         {
-            ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer(name, image);
+            if (proc[0] is IEnumerable<Layer> layers)
+            {
+                foreach (var layer in layers)
+                {
+                    layer.LayerBitmap.Dispose();
+                }
+            }
         }
     }
 }

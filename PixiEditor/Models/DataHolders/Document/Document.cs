@@ -19,7 +19,7 @@ using System.Windows;
 namespace PixiEditor.Models.DataHolders
 {
     [DebuggerDisplay("'{Name, nq}' {width}x{height} {Layers.Count} Layer(s)")]
-    public partial class Document : NotifyableObject
+    public partial class Document : NotifyableObject, IDisposable
     {
 
         private ViewModelMain xamlAccesibleViewModel = null;
@@ -183,6 +183,14 @@ namespace PixiEditor.Models.DataHolders
                     MoveOffsetsProcess,
                     new object[] { layersToCenter, moveVector },
                     "Center content"));
+        }
+
+        public void Dispose()
+        {
+            DisposeLayerBitmaps();
+            UndoManager.Dispose();
+
+            GC.SuppressFinalize(this);
         }
 
         private void SetAsActiveOnClick(object obj)

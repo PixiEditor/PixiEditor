@@ -2,7 +2,9 @@
 using PixiEditor.Models.Position;
 using SkiaSharp;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -195,5 +197,83 @@ namespace PixiEditor.Models.DataHolders
                 surface.Draw(SkiaSurface.Canvas, 0, 0, ReplacingPaint);
             }
         }
+
+#if DEBUG
+        // Used to iterate the surface's pixels during development
+
+        [Obsolete("Only meant for use in a debugger like Visual Studio", true)]
+        private SurfaceDebugger Debugger => new SurfaceDebugger(this);
+
+        [Obsolete("Only meant for use in a debugger like Visual Studio", true)]
+        private class SurfaceDebugger : IEnumerable
+        {
+            private readonly Surface _surface;
+
+            public SurfaceDebugger(Surface surface)
+            {
+                _surface = surface;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                var pixmap = _surface.SkiaSurface.PeekPixels();
+
+                for (int y = 0; y < pixmap.Width; y++)
+                {
+                    yield return new DebugPixel(y);
+
+                    for (int x = 0; x < pixmap.Height; x++)
+                    {
+                        yield return new DebugPixel(x, y, pixmap.GetPixelColor(x, y).ToString());
+                    }
+                }
+            }
+
+            [DebuggerDisplay("{DebuggerDisplay,nq}")]
+            private struct DebugPixel
+            {
+                [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+                private string DebuggerDisplay
+                {
+                    get
+                    {
+                        if (isPixel)
+                        {
+                            return $"X: {x}; Y: {y} - {hex}";
+                        }
+                        else
+                        {
+                            return $"|- Y: {y} -|";
+                        }
+                    }
+                }
+
+                [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+                private readonly int x;
+                [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+                private readonly int y;
+                [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+                private readonly string hex;
+                [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+                private readonly bool isPixel;
+
+                public DebugPixel(int y)
+                {
+                    x = 0;
+                    this.y = y;
+                    hex = null;
+                    isPixel = false;
+                }
+
+                public DebugPixel(int x, int y, string hex)
+                {
+                    this.x = x;
+                    this.y = y;
+                    this.hex = hex;
+                    isPixel = true;
+                }
+            }
+        }
+#endif
     }
 }

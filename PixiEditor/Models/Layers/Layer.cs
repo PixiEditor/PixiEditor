@@ -405,7 +405,7 @@ namespace PixiEditor.Models.Layers
         public void CreateNewBitmap(int width, int height)
         {
             LayerBitmap = new Surface(width, height);
-            
+
             Width = width;
             Height = height;
         }
@@ -526,6 +526,35 @@ namespace PixiEditor.Models.Layers
         public byte[] ConvertBitmapToBytes()
         {
             return LayerBitmap.ToByteArray();
+        }
+
+        public SKRectI GetRect() => SKRectI.Create(OffsetX, OffsetY, Width, Height);
+
+        public void CropIntersect(SKRectI rect)
+        {
+            SKRectI layerRect = GetRect();
+            SKRectI intersect = SKRectI.Intersect(layerRect, rect);
+
+            Crop(intersect);
+        }
+
+        public void Crop(SKRectI intersect)
+        {
+            if (intersect == SKRectI.Empty)
+            {
+                return;
+            }
+
+            using var oldSurface = LayerBitmap;
+
+            int offsetX = (int)(Offset.Left - intersect.Left);
+            int offsetY = (int)(Offset.Top - intersect.Top);
+
+            Width = intersect.Width;
+            Height = intersect.Height;
+            LayerBitmap = LayerBitmap.Crop(offsetX, offsetY, Width, Height);
+
+            Offset = new(intersect.Left, intersect.Top, 0, 0);
         }
 
         private Dictionary<Coordinates, SKColor> GetRelativePosition(Dictionary<Coordinates, SKColor> changedPixels)

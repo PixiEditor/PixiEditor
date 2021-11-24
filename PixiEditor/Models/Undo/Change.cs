@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
 
 namespace PixiEditor.Models.Undo
 {
     [Serializable]
-    public class Change
+    public class Change : IDisposable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Change"/> class.
@@ -123,5 +124,16 @@ namespace PixiEditor.Models.Undo
         public Func<object[], object> FindRootProcess { get; set; }
 
         public object[] FindRootProcessArgs { get; set; }
+
+        public Action<object[], object[]> DisposeProcess { get; set; }
+
+        public void Dispose()
+        {
+            DisposeProcess?.Invoke(
+                ReverseProcessArguments ?? Array.Empty<object>(),
+                ProcessArguments ?? Array.Empty<object>());
+
+            GC.SuppressFinalize(this);
+        }
     }
 }
