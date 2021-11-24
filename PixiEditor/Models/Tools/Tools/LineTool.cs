@@ -18,16 +18,22 @@ namespace PixiEditor.Models.Tools.Tools
 
         public static List<Coordinates> GetBresenhamLine(Coordinates start, Coordinates end)
         {
+            List<Coordinates> output = new List<Coordinates>();
+            CalculateBresenhamLine(start, end, output);
+            return output;
+        }
+
+        public static void CalculateBresenhamLine(Coordinates start, Coordinates end, List<Coordinates> output)
+        {
             int x1 = start.X;
             int x2 = end.X;
             int y1 = start.Y;
             int y2 = end.Y;
 
-            List<Coordinates> coordinates = new List<Coordinates>();
             if (x1 == x2 && y1 == y2)
             {
-                coordinates.Add(start);
-                return coordinates;
+                output.Add(start);
+                return;
             }
 
             int d, dx, dy, ai, bi, xi, yi;
@@ -55,7 +61,7 @@ namespace PixiEditor.Models.Tools.Tools
                 dy = y1 - y2;
             }
 
-            coordinates.Add(new Coordinates(x, y));
+            output.Add(new Coordinates(x, y));
 
             if (dx > dy)
             {
@@ -77,7 +83,7 @@ namespace PixiEditor.Models.Tools.Tools
                         x += xi;
                     }
 
-                    coordinates.Add(new Coordinates(x, y));
+                    output.Add(new Coordinates(x, y));
                 }
             }
             else
@@ -100,11 +106,9 @@ namespace PixiEditor.Models.Tools.Tools
                         y += yi;
                     }
 
-                    coordinates.Add(new Coordinates(x, y));
+                    output.Add(new Coordinates(x, y));
                 }
             }
-
-            return coordinates;
         }
 
         public LineTool()
