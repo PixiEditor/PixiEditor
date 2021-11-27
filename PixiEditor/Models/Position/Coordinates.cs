@@ -7,6 +7,8 @@ namespace PixiEditor.Models.Position
     [DebuggerDisplay("({DebuggerDisplay,nq})")]
     public struct Coordinates
     {
+        public static Coordinates Zero => new Coordinates(0, 0);
+
         private string DebuggerDisplay => ToString();
 
         public Coordinates(int x, int y)
@@ -27,6 +29,11 @@ namespace PixiEditor.Models.Position
         public static Coordinates operator -(Coordinates coordiantes, int size)
         {
             return new Coordinates(coordiantes.X - size, coordiantes.Y - size);
+        }
+
+        public static Coordinates operator +(Coordinates coordiantes, int size)
+        {
+            return new Coordinates(coordiantes.X + size, coordiantes.Y + size);
         }
 
         public static Coordinates operator -(Coordinates coordiantes1, Coordinates coordinates2)

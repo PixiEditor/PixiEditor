@@ -16,6 +16,8 @@ namespace PixiEditor.Models.Tools.Tools
         private List<Coordinates> linePoints = new List<Coordinates>();
         private SKPaint paint = new SKPaint() { Style = SKPaintStyle.Stroke };
 
+        public bool AutomaticallyResizeCanvas { get; set; } = true;
+
         public static List<Coordinates> GetBresenhamLine(Coordinates start, Coordinates end)
         {
             List<Coordinates> output = new List<Coordinates>();
@@ -163,7 +165,10 @@ namespace PixiEditor.Models.Tools.Tools
                 dirtyY,
                 Math.Max(x1, x) + thickness - dirtyX,
                 Math.Max(y1, y) + thickness - dirtyY);
-            layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
+            if (AutomaticallyResizeCanvas)
+            {
+                layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
+            }
 
             x -= layer.OffsetX;
             y -= layer.OffsetY;

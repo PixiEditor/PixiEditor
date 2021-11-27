@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.Brushes;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
@@ -25,6 +26,10 @@ namespace PixiEditor.Models.Tools.Tools
 
         private BitmapManager BitmapManager { get; }
 
+        private Dictionary<int, CustomBrush> _customBrushes = new Dictionary<int, CustomBrush>();
+
+        private bool _drawCustomBrush = false;
+
         public PenTool(BitmapManager bitmapManager)
         {
             Cursor = Cursors.Pen;
@@ -36,10 +41,15 @@ namespace PixiEditor.Models.Tools.Tools
             BitmapManager = bitmapManager;
             paint.BlendMode = SKBlendMode.Src;
             lineTool = new LineTool();
+            lineTool.AutomaticallyResizeCanvas = AutomaticallyResizeCanvas;
+            _customBrushes.Add(1, new PointBrush());
+            _customBrushes.Add(3, new CrossBrush());
         }
 
         public override string Tooltip => "Standard brush. (B)";
         public override bool UsesShift => false;
+
+        public bool AutomaticallyResizeCanvas { get; set; } = true;
 
         public override void OnRecordingLeftMouseDown(MouseEventArgs e)
         {
@@ -52,7 +62,10 @@ namespace PixiEditor.Models.Tools.Tools
         public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
             Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
-            layer.DynamicResizeAbsolute(coordinates.Max(x => x.X), coordinates.Max(x => x.Y), coordinates.Min(x => x.X), coordinates.Min(x => x.Y));
+            if (AutomaticallyResizeCanvas)
+            {
+                layer.DynamicResizeAbsolute(coordinates.Max(x => x.X), coordinates.Max(x => x.Y), coordinates.Min(x => x.X), coordinates.Min(x => x.Y));
+            }
             Draw(
                 layer,
                 startingCords,
@@ -70,9 +83,24 @@ namespace PixiEditor.Models.Tools.Tools
             SKBlendMode blendMode = SKBlendMode.Src)
         {
 
-            SKStrokeCap cap = toolSize == 1 || toolSize == 3 ? SKStrokeCap.Square : SKStrokeCap.Round;
+            SKStrokeCap cap = SKStrokeCap.Round;
+            _drawCustomBrush = _customBrushes.ContainsKey(toolSize);
+            CustomBrush customBrush = null;
+            paint.Color = color;
+
+            if (_drawCustomBrush)
+            {
+                cap = SKStrokeCap.Butt;
+                customBrush = _customBrushes[toolSize];
+            }
+
             if (!pixelPerfect)
             {
+                if(_drawCustomBrush)
+                {
+                    DrawCustomBrush(layer, latestCords, customBrush);
+                }
+
                 lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
                 return;
             }
@@ -82,6 +110,11 @@ namespace PixiEditor.Models.Tools.Tools
                 if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).Alpha > 0)
                 {
                     confirmedPixels.Add(latestCords);
+                }
+
+                if (_drawCustomBrush)
+                {
+                    DrawCustomBrush(layer, latestCords, customBrush);
                 }
 
                 lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
@@ -108,8 +141,16 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             lastChangedPixel = latestCords;
-        }
-
+        }
+
+        private void DrawCustomBrush(Layer layer, Coordinates latestCords, CustomBrush customBrush)
+        {
+            layer.LayerBitmap.SkiaSurface.Canvas.DrawPoints(
+                                    SKPointMode.Points,
+                                    customBrush.GetAtPoint(latestCords, layer.OffsetX, layer.OffsetY),
+                                    paint);
+        }
+
         private void MovePixelsToCheck(byte alpha)
         {
             if (alpha != 0)
@@ -169,6 +210,11 @@ namespace PixiEditor.Models.Tools.Tools
 
             layer.InvokeLayerBitmapChange(dirtyRect);
             return alpha;
+        }
+
+        internal void Draw(Layer previewLayer, object zero1, object zero2, SKColor highlightColor, int toolSize)
+        {
+            throw new NotImplementedException();
         }
     }
 }

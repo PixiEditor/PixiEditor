@@ -25,7 +25,8 @@ namespace PixiEditor.Models.Controllers
         private Tool selectedTool;
         private Coordinates? startPosition = null;
         private int halfSize;
-        private SKPaint _highlightPaint;
+        private SKColor _highlightColor;
+        private PenTool _highlightPen;
 
         public BitmapManager()
         {
@@ -39,11 +40,11 @@ namespace PixiEditor.Models.Controllers
             BitmapOperations = new BitmapOperationsUtility(this);
             ReadonlyToolUtility = new ReadonlyToolUtility();
             DocumentChanged += BitmapManager_DocumentChanged;
-            _highlightPaint = new SKPaint
+            _highlightPen = new PenTool(this)
             {
-                Color = new SKColor(0, 0, 0, 77),
-                Style = SKPaintStyle.StrokeAndFill
+                AutomaticallyResizeCanvas = false
             };
+            _highlightColor = new SKColor(0, 0, 0, 77);
         }
 
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
@@ -250,33 +251,16 @@ namespace PixiEditor.Models.Controllers
                 halfSize = (int)Math.Floor(ToolSize / 2f);
                 previewLayer.CreateNewBitmap(ToolSize, ToolSize);
 
-                if (ToolSize != 3)
-                {
-                    float sizeMod = ToolSize % 2 == 0 ? 0 : 0.5f;
-                    if (ToolSize == 1)
-                    {
-                        sizeMod = 1;
-                    }
+                Coordinates cords = new Coordinates(halfSize, halfSize);
 
-                    AdjustOffset(newPosition, previewLayer);
-                    int centerX = newPosition.X - previewLayer.OffsetX;
-                    int centerY = newPosition.Y - previewLayer.OffsetY;
+                previewLayer.Offset = new Thickness(0, 0, 0, 0);
+                _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, ToolSize);
 
-                    previewLayer.LayerBitmap.SkiaSurface.Canvas
-                    .DrawOval(
-                        centerX,
-                        centerY,
-                        halfSize + sizeMod,
-                        halfSize + sizeMod,
-                        _highlightPaint);
-                }
-                else
-                {
-                    previewLayer.LayerBitmap.SkiaSurface.Canvas.Clear(_highlightPaint.Color);
-                }
+                AdjustOffset(newPosition, previewLayer);
 
-                previewLayer.InvokeLayerBitmapChange();
             }
+
+            previewLayer.InvokeLayerBitmapChange();
 
             AdjustOffset(newPosition, previewLayer);
 
