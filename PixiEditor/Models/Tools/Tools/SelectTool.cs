@@ -103,6 +103,8 @@ namespace PixiEditor.Models.Tools.Tools
         {
             IEnumerable<Coordinates> selection;
 
+            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(oldSelectedPoints, SelectionType.New);
+
             if (shape == SelectionShape.Circle)
             {
                 selection = GetCircleSelectionForPoints(pixels[^1], pixels[0]);
