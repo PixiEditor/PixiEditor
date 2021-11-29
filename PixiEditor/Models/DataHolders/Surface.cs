@@ -72,7 +72,7 @@ namespace PixiEditor.Models.DataHolders
         {
             Width = image.Width;
             Height = image.Height;
-            SkiaSurface = CreateSurface(Width, Height);
+            InitSurface(Width, Height);
             SkiaSurface.Canvas.DrawImage(image, 0, 0);
         }
 
