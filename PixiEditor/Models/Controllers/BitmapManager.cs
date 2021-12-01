@@ -257,7 +257,6 @@ namespace PixiEditor.Models.Controllers
                 _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, ToolSize);
 
                 AdjustOffset(newPosition, previewLayer);
-
             }
 
             previewLayer.InvokeLayerBitmapChange();

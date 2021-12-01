@@ -1,6 +1,7 @@
 ﻿using SkiaSharp;
 using System;
 using System.Diagnostics;
+using System.Windows;
 
 namespace PixiEditor.Models.Position
 {
@@ -24,6 +25,11 @@ namespace PixiEditor.Models.Position
         public static implicit operator Coordinates((int width, int height) tuple)
         {
             return new Coordinates(tuple.width, tuple.height);
+        }
+
+        public static Coordinates operator -(Coordinates coordiantes, Thickness thickness)
+        {
+            return new Coordinates(coordiantes.X - (int)thickness.Left, coordiantes.Y - (int)thickness.Top);
         }
 
         public static Coordinates operator -(Coordinates coordiantes, int size)
