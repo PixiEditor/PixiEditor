@@ -92,7 +92,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             if (!pixelPerfect)
             {
-                Brush.Draw(layer, this, latestCords, paint);
+                Brush.Draw(layer, toolSize, latestCords, paint);
                 lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
                 return;
             }
@@ -104,7 +104,7 @@ namespace PixiEditor.Models.Tools.Tools
                     confirmedPixels.Add(latestCords);
                 }
 
-                Brush.Draw(layer, this, latestCords, paint);
+                Brush.Draw(layer, toolSize, latestCords, paint);
 
                 lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
                 SetPixelToCheck(LineTool.GetBresenhamLine(startingCoords, latestCords));

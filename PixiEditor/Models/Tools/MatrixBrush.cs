@@ -22,7 +22,7 @@ namespace PixiEditor.Models.Tools
             InitMatrix();
         }
 
-        public override void Draw(Layer layer, Tool tool, Coordinates coordinates, SKPaint paint)
+        public override void Draw(Layer layer, int toolSize, Coordinates coordinates, SKPaint paint)
         {
             layer.LayerBitmap.SkiaSurface.Canvas.DrawPoints(SKPointMode.Points, GetAtPoint(coordinates, layer.OffsetX, layer.OffsetY), paint);
         }

@@ -8,6 +8,6 @@ namespace PixiEditor.Models.Tools.Brushes
 {
     public abstract class Brush
     {
-        public abstract void Draw(Layer layer, Tool tool, Coordinates coordinates, SKPaint paint);
+        public abstract void Draw(Layer layer, int toolSize, Coordinates coordinates, SKPaint paint);
     }
 }
