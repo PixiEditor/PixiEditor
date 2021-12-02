@@ -9,9 +9,8 @@ namespace PixiEditor.Models.Tools.Brushes
 {
     public class CircleBrush : Brush
     {
-        public override void Draw(Layer layer, Tool tool, Coordinates coordinates, SKPaint paint)
+        public override void Draw(Layer layer, int toolSize, Coordinates coordinates, SKPaint paint)
         {
-            int toolSize = tool.Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             int halfSize = (int)Math.Ceiling(toolSize / 2f);
             int modifier = toolSize % 2 != 0 ? 1 : 0;
             Coordinates topLeft = new Coordinates(coordinates.X - halfSize + modifier, coordinates.Y - halfSize + modifier);
