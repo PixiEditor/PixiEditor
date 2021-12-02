@@ -122,7 +122,7 @@ namespace PixiEditor.Models.Controllers
             if (!tool.RequiresPreviewLayer)
             {
                 tool.Use(Manager.ActiveLayer, mouseMoveCords, color);
-                // BitmapChanged was here
+                BitmapChanged?.Invoke(this, null);
             }
             else
             {

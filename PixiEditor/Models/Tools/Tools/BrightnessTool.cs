@@ -11,8 +11,6 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
-using System.Collections.Generic;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -21,6 +19,8 @@ namespace PixiEditor.Models.Tools.Tools
         private const float CorrectionFactor = 5f; // Initial correction factor
 
         private readonly List<Coordinates> pixelsVisited = new List<Coordinates>();
+        private List<Coordinates> circleCache = null;
+        private int cachedCircleSize = -1;
 
         public BrightnessTool()
         {
@@ -81,7 +81,11 @@ namespace PixiEditor.Models.Tools.Tools
                 centeredCoords.Coords2.X,
                 centeredCoords.Coords2.Y);
 
-            //using var ctx = layer.LayerBitmap.GetBitmapContext();
+            if (cachedCircleSize != toolSize)
+            {
+                cachedCircleSize = toolSize;
+                //circleCache = CircleTool.GenerateMidpointEllipse()
+            }
 
             foreach (Coordinates coordinate in rectangleCoordinates)
             {
@@ -99,7 +103,7 @@ namespace PixiEditor.Models.Tools.Tools
                 SKColor newColor = ExColor.ChangeColorBrightness(
                     pixel,
                     correctionFactor);
-                layer.SetPixel(new Coordinates(coordinate.X, coordinate.Y), newColor);
+                //layer.SetPixel(new Coordinates(coordinate.X, coordinate.Y), newColor);
             }
 
         }

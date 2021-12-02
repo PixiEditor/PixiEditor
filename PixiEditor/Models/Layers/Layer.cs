@@ -31,8 +31,6 @@ namespace PixiEditor.Models.Layers
 
         private string layerHighlightColor = "#666666";
 
-        private BitmapPixelChanges singleCache = BitmapPixelChanges.Empty;
-
         public Layer(string name)
         {
             Name = name;
@@ -323,19 +321,6 @@ namespace PixiEditor.Models.Layers
         public void SetPixelWithOffset(int x, int y, SKColor color)
         {
             LayerBitmap.SetSRGBPixel(x - OffsetX, y - OffsetY, color);
-        }
-
-        /// <summary>
-        ///     Applies pixel to layer.
-        /// </summary>
-        /// <param name="coordinates">Position of pixel.</param>
-        /// <param name="color">Color of pixel.</param>
-        /// <param name="dynamicResize">Resizes bitmap to fit content.</param>
-        /// <param name="applyOffset">Converts pixels coordinates to relative to bitmap.</param>
-        public void SetPixel(Coordinates coordinates, SKColor color, bool dynamicResize = true, bool applyOffset = true)
-        {
-            singleCache.ChangedPixels[coordinates] = color;
-            SetPixels(singleCache, dynamicResize, applyOffset);
         }
 
         /// <summary>
