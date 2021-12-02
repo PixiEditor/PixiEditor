@@ -33,15 +33,15 @@
         </i:Interaction.Triggers>
         <i:Interaction.Behaviors>
             <behaviors:MouseBehavior RelativeTo="{Binding ElementName=zoombox, Path=AdditionalContent}"
-                                                  MouseX="{Binding MouseXOnCanvas, Mode=TwoWay, ElementName=uc}"
-                                                  MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
+                                     MouseX="{Binding MouseXOnCanvas, Mode=TwoWay, ElementName=uc}"
+                                     MouseY="{Binding MouseYOnCanvas, Mode=TwoWay, ElementName=uc}" />
         </i:Interaction.Behaviors>
 
         <local:Zoombox.AdditionalContent>
-            <Canvas Width="{Binding Width}"
-                                Loaded="OnCanvasLoaded"
-                                Height="{Binding Height}" VerticalAlignment="Center"
-                                HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="NearestNeighbor">
+            <Canvas Width="{Binding Width}" Height="{Binding Height}"
+                    Loaded="OnCanvasLoaded"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    RenderOptions.BitmapScalingMode="NearestNeighbor">
                 <Canvas.Background>
                     <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" ViewportUnits="Absolute">
                         <ImageBrush.Viewport>
@@ -53,12 +53,22 @@
                         </ImageBrush.Viewport>
                     </ImageBrush>
                 </Canvas.Background>
+
+                <!--<local:ReferenceLayerView Document="{Binding}"/>-->
+
                 <Image Source="{Binding ReferenceLayerRenderer.FinalBitmap}"
-                       VerticalAlignment="Center" Stretch="Uniform"
+                       VerticalAlignment="Stretch" Stretch="Uniform"
                        Visibility="{Binding ReferenceLayer.IsVisible, Converter={BoolToVisibilityConverter}}"
-                       HorizontalAlignment="Center" Width="{Binding Width}"
-                       Height="{Binding Height}"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                       HorizontalAlignment="Stretch"
+                       Width="{Binding Width}" Height="{Binding Height}"
+                       RenderOptions.BitmapScalingMode="NearestNeighbor">
+                    <i:Interaction.Behaviors>
+                        <behaviors:MouseBehavior
+                                     MouseX="{Binding MouseXOnReference, Mode=TwoWay}"
+                                     MouseY="{Binding MouseYOnReference, Mode=TwoWay}" />
+                    </i:Interaction.Behaviors>
+                </Image>
+
                 <Image Source="{Binding PreviewLayerRenderer.FinalBitmap}" Panel.ZIndex="2"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
                                    Width="{Binding Width}"

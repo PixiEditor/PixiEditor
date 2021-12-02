@@ -6,6 +6,8 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
+using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Main;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -20,16 +22,19 @@ namespace PixiEditor.Models.Controllers
     [DebuggerDisplay("{Documents.Count} Document(s)")]
     public class BitmapManager : NotifyableObject
     {
+        private readonly ToolsViewModel _tools;
+
         private int previewLayerSize;
         private Document activeDocument;
-        private Tool selectedTool;
         private Coordinates? startPosition = null;
         private int halfSize;
         private SKColor _highlightColor;
         private PenTool _highlightPen;
 
-        public BitmapManager()
+        public BitmapManager(ToolsViewModel tools)
         {
+            _tools = tools;
+
             MouseController = new MouseMovementController();
             MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
@@ -37,7 +42,7 @@ namespace PixiEditor.Models.Controllers
             MouseController.OnMouseDown += MouseController_OnMouseDown;
             MouseController.OnMouseUp += MouseController_OnMouseUp;
             MouseController.OnMouseDownCoordinates += MouseController_OnMouseDownCoordinates;
-            BitmapOperations = new BitmapOperationsUtility(this);
+            BitmapOperations = new BitmapOperationsUtility(this, tools);
             ReadonlyToolUtility = new ReadonlyToolUtility();
             DocumentChanged += BitmapManager_DocumentChanged;
             _highlightPen = new PenTool(this)
@@ -53,37 +58,9 @@ namespace PixiEditor.Models.Controllers
 
         public MouseMovementController MouseController { get; set; }
 
-        public Tool SelectedTool
-        {
-            get => selectedTool;
-            private set
-            {
-                Tool previousTool = selectedTool;
-                if (SetProperty(ref selectedTool, value))
-                {
-                    SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(previousTool, value));
-                }
-            }
-        }
-
         public Layer ActiveLayer => ActiveDocument.ActiveLayer;
 
         public SKColor PrimaryColor { get; set; }
-
-        public int ToolSize
-        {
-            get => SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") != null
-            ? SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize").Value
-            : 1;
-            set
-            {
-                if (SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
-                {
-                    toolSize.Value = value;
-                    HighlightPixels(MousePositionConverter.CurrentCoordinates);
-                }
-            }
-        }
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
 
@@ -106,14 +83,6 @@ namespace PixiEditor.Models.Controllers
 #nullable disable
         public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
 
-        /// <summary>
-        ///     Returns if tool is BitmapOperationTool.
-        /// </summary>
-        public static bool IsOperationTool(Tool tool)
-        {
-            return tool is BitmapOperationTool;
-        }
-
         public void CloseDocument(Document document)
         {
             int nextIndex = 0;
@@ -130,45 +99,33 @@ namespace PixiEditor.Models.Controllers
 
         public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
         {
-            if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
+            Tool activeTool = _tools.ActiveTool;
+
+            if (activeTool.CanStartOutsideCanvas && !clickedOnCanvas)
             {
-                if (startPosition == null)
-                {
-                    SelectedTool.OnStart(newPosition);
-                    startPosition = newPosition;
-                }
-
-                if (SelectedTool is BitmapOperationTool operationTool)
-                {
-                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, operationTool);
-                }
-                else if (SelectedTool is ReadonlyTool readonlyTool)
-                {
-                    ReadonlyToolUtility.ExecuteTool(
-                        MouseController.LastMouseMoveCoordinates,
-                        readonlyTool);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"'{SelectedTool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
-                }
+                return;
             }
-        }
 
-        /// <summary>
-        ///     Returns if selected tool is BitmapOperationTool.
-        /// </summary>
-        public bool IsOperationTool()
-        {
-            return IsOperationTool(SelectedTool);
-        }
+            if (startPosition == null)
+            {
+                activeTool.OnStart(newPosition);
+                startPosition = newPosition;
+            }
 
-        public void SetActiveTool(Tool tool)
-        {
-            ActiveDocument?.PreviewLayer?.Reset();
-            SelectedTool?.Toolbar.SaveToolbarSettings();
-            SelectedTool = tool;
-            SelectedTool.Toolbar.LoadSharedSettings();
+            if (activeTool is BitmapOperationTool operationTool)
+            {
+                BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, operationTool);
+            }
+            else if (activeTool is ReadonlyTool readonlyTool)
+            {
+                ReadonlyToolUtility.ExecuteTool(
+                    MouseController.LastMouseMoveCoordinates,
+                    readonlyTool);
+            }
+            else
+            {
+                throw new InvalidOperationException($"'{activeTool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
+            }
         }
 
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
@@ -178,7 +135,14 @@ namespace PixiEditor.Models.Controllers
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            Tool activeTool = _tools.ActiveTool;
+
+            if (activeTool == null)
+            {
+                return;
+            }
+
+            activeTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (!MaybeExecuteTool(e.NewPosition) && Mouse.LeftButton == MouseButtonState.Released)
             {
                 HighlightPixels(e.NewPosition);
@@ -187,12 +151,12 @@ namespace PixiEditor.Models.Controllers
 
         private void MouseController_OnMouseDown(object sender, MouseEventArgs e)
         {
-            SelectedTool.OnMouseDown(e);
+            _tools.ActiveTool.OnMouseDown(e);
         }
 
         private void MouseController_OnMouseUp(object sender, MouseEventArgs e)
         {
-            SelectedTool.OnMouseUp(e);
+            _tools.ActiveTool.OnMouseUp(e);
         }
         private void MouseController_OnMouseDownCoordinates(object sender, MouseMovementEventArgs e)
         {
@@ -211,12 +175,12 @@ namespace PixiEditor.Models.Controllers
 
         private bool IsDraggingViewport()
         {
-            return SelectedTool is MoveViewportTool;
+            return _tools.ActiveTool is MoveViewportTool;
         }
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            _tools.ActiveTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (ActiveDocument != null)
             {
                 ActiveDocument.PreviewLayer.Reset();
@@ -225,8 +189,9 @@ namespace PixiEditor.Models.Controllers
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnStoppedRecordingMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            if (IsOperationTool(SelectedTool) && ((BitmapOperationTool)SelectedTool).RequiresPreviewLayer)
+            Tool selectedTool = _tools.ActiveTool;
+            selectedTool.OnStoppedRecordingMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            if (selectedTool is BitmapOperationTool operationTool && operationTool.RequiresPreviewLayer)
             {
                 BitmapOperations.ApplyPreviewLayer();
             }
@@ -236,25 +201,25 @@ namespace PixiEditor.Models.Controllers
             startPosition = null;
         }
 
-        private void HighlightPixels(Coordinates newPosition)
+        public void HighlightPixels(Coordinates newPosition)
         {
-            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || SelectedTool.HideHighlight)
+            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || _tools.ActiveTool.HideHighlight)
             {
                 return;
             }
 
             var previewLayer = ActiveDocument.PreviewLayer;
 
-            if (ToolSize != previewLayerSize || previewLayer.IsReset)
+            if (_tools.ToolSize != previewLayerSize || previewLayer.IsReset)
             {
-                previewLayerSize = ToolSize;
-                halfSize = (int)Math.Floor(ToolSize / 2f);
-                previewLayer.CreateNewBitmap(ToolSize, ToolSize);
+                previewLayerSize = _tools.ToolSize;
+                halfSize = (int)Math.Floor(_tools.ToolSize / 2f);
+                previewLayer.CreateNewBitmap(_tools.ToolSize, _tools.ToolSize);
 
                 Coordinates cords = new Coordinates(halfSize, halfSize);
 
                 previewLayer.Offset = new Thickness(0, 0, 0, 0);
-                _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, ToolSize);
+                _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, _tools.ToolSize);
 
                 AdjustOffset(newPosition, previewLayer);
             }

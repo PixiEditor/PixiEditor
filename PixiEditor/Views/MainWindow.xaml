@@ -235,9 +235,9 @@
             </ToggleButton>
             <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
             <Label Style="{StaticResource BaseLabel}" FontSize="12"
-                   VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.DisplayName}"
-                   ToolTip="{Binding BitmapManager.SelectedTool.ActionDisplay}"/>
-            <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
+                   VerticalAlignment="Center" Content="{Binding ToolsSubViewModel.ActiveTool.DisplayName}"
+                   ToolTip="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"/>
+            <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0" />
@@ -287,8 +287,8 @@
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
                                         UseTouchGestures="{Binding XamlAccesibleViewModel.StylusSubViewModel.UseTouchGestures}"
-                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
-                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"
+                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
+                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"
                                         Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="PreviewMouseDown">

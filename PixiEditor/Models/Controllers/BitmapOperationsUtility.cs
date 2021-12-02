@@ -3,6 +3,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
+using PixiEditor.ViewModels.SubViewModels.Main;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -18,14 +19,17 @@ namespace PixiEditor.Models.Controllers
 
         private SizeSetting sizeSetting;
 
-        public BitmapOperationsUtility(BitmapManager manager)
+        public BitmapOperationsUtility(BitmapManager manager, ToolsViewModel tools)
         {
             Manager = manager;
+            Tools = tools;
         }
 
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
 
         public BitmapManager Manager { get; set; }
+
+        public ToolsViewModel Tools { get; set; }
 
         public void DeletePixels(Layer[] layers, Coordinates[] pixels)
         {
@@ -218,7 +222,7 @@ namespace PixiEditor.Models.Controllers
                     Manager.ActiveDocument.PreviewLayer.ClearCanvas();
                 }
 
-                ((BitmapOperationTool)Manager.SelectedTool).Use(
+                ((BitmapOperationTool)Tools.ActiveTool).Use(
                     Manager.ActiveDocument.PreviewLayer,
                     mouseMove,
                     Manager.PrimaryColor);

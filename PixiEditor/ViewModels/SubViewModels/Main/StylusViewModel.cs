@@ -68,14 +68,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             mw.PreviewStylusSystemGesture += Mw_PreviewStylusSystemGesture;
 
             isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
-            Owner.BitmapManager.AddPropertyChangedCallback(nameof(Owner.BitmapManager.SelectedTool), UpdateUseTouchGesture);
+            Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
 
             UpdateUseTouchGesture();
         }
 
         private void UpdateUseTouchGesture()
         {
-            if (Owner.BitmapManager.SelectedTool is not (MoveViewportTool or ZoomTool))
+            if (Owner.ToolsSubViewModel.ActiveTool is not (MoveViewportTool or ZoomTool))
             {
                 UseTouchGestures = IsPenModeEnabled;
             }
@@ -101,7 +101,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (e.StylusButton.Guid == StylusPointProperties.TipButton.Id && e.Inverted)
             {
-                PreviousTool = Owner.BitmapManager.SelectedTool;
+                PreviousTool = Owner.ToolsSubViewModel.ActiveTool;
                 Owner.ToolsSubViewModel.SetActiveTool<EraserTool>();
                 ToolSetByStylus = true;
             }

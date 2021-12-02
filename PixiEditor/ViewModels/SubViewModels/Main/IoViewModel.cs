@@ -53,7 +53,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             Owner.ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
-            Owner.BitmapManager.SelectedTool.OnKeyDown(args);
+            Owner.ToolsSubViewModel.ActiveTool.OnKeyDown(args);
         }
 
         private void MouseDown(object parameter)
@@ -128,7 +128,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 ShortcutController.BlockShortcutExecution = false;
             }
 
-            Owner.BitmapManager.SelectedTool.OnKeyUp(args);
+            Owner.ToolsSubViewModel.ActiveTool.OnKeyUp(args);
         }
     }
 }
