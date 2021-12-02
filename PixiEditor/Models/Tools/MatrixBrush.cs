@@ -1,12 +1,13 @@
 ﻿using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools.Brushes;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 
-namespace PixiEditor.Models.Tools.Brushes
+namespace PixiEditor.Models.Tools
 {
-    public abstract class CustomBrush
+    public abstract class MatrixBrush : Brush
     {
         public abstract int[,] BrushMatrix { get; }
 
@@ -16,9 +17,14 @@ namespace PixiEditor.Models.Tools.Brushes
         private SKPoint[] _cachedBakedMatrix;
         private SKPoint[] _cachedGetAtPointBakedMatrix;
 
-        public CustomBrush()
+        public MatrixBrush()
         {
             InitMatrix();
+        }
+
+        public override void Draw(Layer layer, Tool tool, Coordinates coordinates, SKPaint paint)
+        {
+            layer.LayerBitmap.SkiaSurface.Canvas.DrawPoints(SKPointMode.Points, GetAtPoint(coordinates, layer.OffsetX, layer.OffsetY), paint);
         }
 
         //We can easily handle .pixi to brush parsing
@@ -63,7 +69,7 @@ namespace PixiEditor.Models.Tools.Brushes
                 InitMatrix();
             }
 
-            for(int i = 0; i < _cachedGetAtPointBakedMatrix.Length; i++)
+            for (int i = 0; i < _cachedGetAtPointBakedMatrix.Length; i++)
             {
                 _cachedGetAtPointBakedMatrix[i] = new SKPoint(
                     _cachedBakedMatrix[i].X + point.X - offsetX,
@@ -83,5 +89,6 @@ namespace PixiEditor.Models.Tools.Brushes
                 Array.Copy(_cachedBakedMatrix, _cachedGetAtPointBakedMatrix, BakedMatrix.Length);
             }
         }
+
     }
 }

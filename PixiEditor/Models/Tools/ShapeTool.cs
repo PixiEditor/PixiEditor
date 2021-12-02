@@ -58,7 +58,7 @@ namespace PixiEditor.Models.Tools
         // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
         public abstract override void Use(Layer layer, List<Coordinates> coordinates, SKColor color);
 
-        protected static void ThickenShape(Layer layer, SKColor color, IEnumerable<Coordinates> shape, int thickness)
+        public static void ThickenShape(Layer layer, SKColor color, IEnumerable<Coordinates> shape, int thickness)
         {
             foreach (Coordinates item in shape)
             {
