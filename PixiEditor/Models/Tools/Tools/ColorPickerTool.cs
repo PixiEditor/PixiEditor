@@ -41,8 +41,8 @@ namespace PixiEditor.Models.Tools.Tools
 
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && (referenceLayer = _docProvider.GetReferenceLayer()) is not null)
             {
-                double actualX = activeDocument.MouseXOnReference * referenceLayer.Width / activeDocument.Width;
-                double actualY = activeDocument.MouseYOnReference * referenceLayer.Height / activeDocument.Height;
+                double actualX = activeDocument.MouseXOnCanvas * referenceLayer.Width / activeDocument.Width;
+                double actualY = activeDocument.MouseYOnCanvas * referenceLayer.Height / activeDocument.Height;
 
                 x = (int)Round(actualX, MidpointRounding.ToZero);
                 y = (int)Round(actualY, MidpointRounding.ToZero);
