@@ -87,7 +87,7 @@ namespace PixiEditor.ViewModels
                     return actionDisplay;
                 }
 
-                return BitmapManager.SelectedTool.ActionDisplay;
+                return ToolsSubViewModel.ActiveTool.ActionDisplay;
             }
             set
             {
@@ -118,17 +118,9 @@ namespace PixiEditor.ViewModels
 #endif
         }
 
-        public ViewModelMain(IServiceCollection services)
+        public ViewModelMain(IServiceProvider serviceProvider)
         {
             Current = this;
-
-            ConfigureServices(services);
-            Setup(services.BuildServiceProvider());
-        }
-
-        public void ConfigureServices(IServiceCollection collection)
-        {
-            collection.AddSingleton(this);
         }
 
         public void Setup(IServiceProvider services)
@@ -138,33 +130,32 @@ namespace PixiEditor.ViewModels
             Preferences = services.GetRequiredService<IPreferences>();
 
             Preferences.Init();
-
             BitmapManager = services.GetRequiredService<BitmapManager>();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
             BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
 
-            SelectionSubViewModel = new SelectionViewModel(this);
+            SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
 
-            FileSubViewModel = new FileViewModel(this);
-            ToolsSubViewModel = GetSubViewModel<ToolsViewModel>(services);
-            ToolsSubViewModel.SetupTools(services);
+            FileSubViewModel = services.GetService<FileViewModel>();
+            ToolsSubViewModel = services.GetService<ToolsViewModel>();
+            ToolsSubViewModel?.SetupTools(services);
 
-            IoSubViewModel = new IoViewModel(this);
-            LayersSubViewModel = new LayersViewModel(this);
-            ClipboardSubViewModel = new ClipboardViewModel(this);
-            UndoSubViewModel = new UndoViewModel(this);
-            ViewportSubViewModel = new ViewportViewModel(this);
-            ColorsSubViewModel = new ColorsViewModel(this);
-            DocumentSubViewModel = new DocumentViewModel(this);
-            DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
-            UpdateSubViewModel = new UpdateViewModel(this);
+            IoSubViewModel = services.GetService<IoViewModel>();
+            LayersSubViewModel = services.GetService<LayersViewModel>();
+            ClipboardSubViewModel = services.GetService<ClipboardViewModel>();
+            UndoSubViewModel = services.GetService<UndoViewModel>();
+            ViewportSubViewModel = services.GetService<ViewportViewModel>();
+            ColorsSubViewModel = services.GetService<ColorsViewModel>();
+            DocumentSubViewModel = services.GetService<DocumentViewModel>();
+            DiscordViewModel = services.GetService<DiscordViewModel>();
+            UpdateSubViewModel = services.GetService<UpdateViewModel>();
 
-            WindowSubViewModel = GetSubViewModel<WindowViewModel>(services, false);
-            StylusSubViewModel = GetSubViewModel<StylusViewModel>(services);
+            WindowSubViewModel = services.GetService<WindowViewModel>();
+            StylusSubViewModel = services.GetService<StylusViewModel>();
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
@@ -218,7 +209,7 @@ namespace PixiEditor.ViewModels
                         "View",
                         new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, "Toggle gridlines", modifier: ModifierKeys.Control)));
 
-            MiscSubViewModel = new MiscViewModel(this);
+            MiscSubViewModel = services.GetService<MiscViewModel>();
 
             // Add F1 shortcut after MiscSubViewModel is constructed
             ShortcutController.ShortcutGroups.Add(
@@ -371,33 +362,16 @@ namespace PixiEditor.ViewModels
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            UndoSubViewModel.TriggerNewUndoChange(BitmapManager.SelectedTool);
+            UndoSubViewModel.TriggerNewUndoChange(ToolsSubViewModel.ActiveTool);
         }
 
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
             BitmapManager.ActiveDocument.ChangesSaved = false;
-            if (BitmapManager.IsOperationTool())
+            if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)
             {
                 ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);
             }
-        }
-
-        private T GetSubViewModel<T>(IServiceProvider services, bool isRequired = true)
-        {
-            T subViewModel = services.GetService<T>();
-
-            if (subViewModel is null && isRequired)
-            {
-                throw new InvalidOperationException($"No required view model for type '{typeof(T)}' has been registered.");
-            }
-
-            if (subViewModel is ISettableOwner<ViewModelMain> settable)
-            {
-                settable.SetOwner(this);
-            }
-
-            return subViewModel;
         }
     }
 }

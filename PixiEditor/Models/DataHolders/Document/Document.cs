@@ -95,6 +95,22 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private double mouseXonReference;
+
+        public double MouseXOnReference
+        {
+            get => mouseXonReference;
+            set => SetProperty(ref mouseXonReference, value);
+        }
+
+        private double mouseYonReference;
+
+        public double MouseYOnReference
+        {
+            get => mouseYonReference;
+            set => SetProperty(ref mouseYonReference, value);
+        }
+
         public ExecutionTrigger<Size> CenterViewportTrigger { get; } = new();
         public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new();
 
