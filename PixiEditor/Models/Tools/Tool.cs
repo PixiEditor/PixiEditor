@@ -95,5 +95,13 @@ namespace PixiEditor.Models.Tools
         public virtual void AfterAddedUndo(UndoManager undoManager)
         {
         }
+
+        public virtual void OnSelected()
+        {
+        }
+
+        public virtual void OnDeselected()
+        {
+        }
     }
 }

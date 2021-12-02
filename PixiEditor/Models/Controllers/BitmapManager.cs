@@ -30,6 +30,8 @@ namespace PixiEditor.Models.Controllers
         private int halfSize;
         private SKColor _highlightColor;
         private PenTool _highlightPen;
+        private bool hideReferenceLayer;
+        private bool onlyReferenceLayer;
 
         public BitmapManager(ToolsViewModel tools)
         {
@@ -53,8 +55,6 @@ namespace PixiEditor.Models.Controllers
         }
 
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
-
-        public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
 
         public MouseMovementController MouseController { get; set; }
 
@@ -82,6 +82,18 @@ namespace PixiEditor.Models.Controllers
 
 #nullable disable
         public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
+
+        public bool HideReferenceLayer
+        {
+            get => hideReferenceLayer;
+            set => SetProperty(ref hideReferenceLayer, value);
+        }
+
+        public bool OnlyReferenceLayer
+        {
+            get => onlyReferenceLayer;
+            set => SetProperty(ref onlyReferenceLayer, value);
+        }
 
         public void CloseDocument(Document document)
         {
@@ -222,6 +234,7 @@ namespace PixiEditor.Models.Controllers
                 _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, _tools.ToolSize);
 
                 AdjustOffset(newPosition, previewLayer);
+
             }
 
             previewLayer.InvokeLayerBitmapChange();

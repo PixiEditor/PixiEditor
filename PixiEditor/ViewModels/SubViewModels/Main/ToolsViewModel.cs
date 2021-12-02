@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
@@ -60,6 +61,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public IEnumerable<Tool> ToolSet { get; private set; }
 
+        public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
+
         public ToolsViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -87,12 +90,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (ActiveTool != null)
             {
                 activeTool.IsActive = false;
+                ActiveTool.OnDeselected();
             }
 
             LastActionTool = ActiveTool;
+            SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(ActiveTool, tool));
             ActiveTool = tool;
 
             tool.IsActive = true;
+            ActiveTool.OnSelected();
             SetToolCursor(tool.GetType());
 
             if (Owner.StylusSubViewModel != null)

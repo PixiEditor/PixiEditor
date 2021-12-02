@@ -219,7 +219,7 @@ namespace PixiEditor.ViewModels
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
 
-            BitmapManager.SelectedToolChanged += BitmapManager_SelectedToolChanged;
+            ToolsSubViewModel.SelectedToolChanged += BitmapManager_SelectedToolChanged;
         }
 
         /// <summary>

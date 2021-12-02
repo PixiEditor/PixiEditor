@@ -54,25 +54,26 @@
                     </ImageBrush>
                 </Canvas.Background>
 
-                <Image Source="{Binding ReferenceLayerRenderer.FinalBitmap}"
-                       VerticalAlignment="Stretch" Stretch="Uniform"
-                       Visibility="{Binding ReferenceLayer.IsVisible, Converter={BoolToVisibilityConverter}}"
-                       HorizontalAlignment="Stretch"
-                       Width="{Binding Width}" Height="{Binding Height}"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                <local:ReferenceLayerView ReferenceLayerRenderer="{Binding ReferenceLayerRenderer}"
+                                          ShowReferenceLayer="{Binding ReferenceLayer.IsVisible}"
+                                          HideReferenceLayer="{Binding XamlAccesibleViewModel.BitmapManager.HideReferenceLayer}"
+                                          Width="{Binding Width}" Height="{Binding Height}"
+                                          RenderOptions.BitmapScalingMode="NearestNeighbor"/>
 
                 <Image Source="{Binding PreviewLayerRenderer.FinalBitmap}" Panel.ZIndex="2"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
-                                   Width="{Binding Width}"
-                                   Height="{Binding Height}"/>
+                       RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                       Width="{Binding Width}" Height="{Binding Height}"/>
 
                 <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Renderer.FinalBitmap}"
-                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" />
+                       RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" 
+                       Visibility="{Binding XamlAccesibleViewModel.BitmapManager.OnlyReferenceLayer, Converter={InverseBoolToVisibilityConverter}}"/>
+                
                 <local:PlainLayerView TargetLayer="{Binding ActiveSelection.SelectionLayer}"
-                                         VerticalAlignment="Top" HorizontalAlignment="Left"
-                                         Width="{Binding ActiveSelection.SelectionLayer.Width}"
-                                         Height="{Binding ActiveSelection.SelectionLayer.Height}" 
-                                         Margin="{Binding ActiveSelection.SelectionLayer.Offset}" />
+                                      VerticalAlignment="Top" HorizontalAlignment="Left"
+                                      Width="{Binding ActiveSelection.SelectionLayer.Width}"
+                                      Height="{Binding ActiveSelection.SelectionLayer.Height}"
+                                      Margin="{Binding ActiveSelection.SelectionLayer.Offset}"/>
+                
                 <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}" Panel.ZIndex="10" 
                       Visibility="{Binding GridLinesVisible, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DrawingViewPort}}}">
                     <Rectangle Focusable="False">
