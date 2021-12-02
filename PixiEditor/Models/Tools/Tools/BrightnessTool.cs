@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Input;
+using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.Helpers.Extensions;
@@ -11,6 +12,7 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
+using System.Windows;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -74,38 +76,49 @@ namespace PixiEditor.Models.Tools.Tools
 
         public void ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
         {
-            DoubleCords centeredCoords = CoordinatesCalculator.CalculateThicknessCenter(coordinates, toolSize);
-            IEnumerable<Coordinates> rectangleCoordinates = CoordinatesCalculator.RectangleToCoordinates(
-                centeredCoords.Coords1.X,
-                centeredCoords.Coords1.Y,
-                centeredCoords.Coords2.X,
-                centeredCoords.Coords2.Y);
-
             if (cachedCircleSize != toolSize)
             {
                 cachedCircleSize = toolSize;
-                //circleCache = CircleTool.GenerateMidpointEllipse()
+                circleCache = CircleTool.GenerateMidpointEllipse(toolSize / 2.0, toolSize / 2.0, 0, 0);
+                circleCache.Sort((a, b) => a.Y != b.Y ? a.Y - b.Y : a.X - b.X);
+                for (int i = circleCache.Count - 2; i >= 1; i--)
+                {
+                    if (circleCache[i].Y == circleCache[i - 1].Y && circleCache[i].Y == circleCache[i + 1].Y)
+                    {
+                        circleCache.RemoveAt(i);
+                    }
+                }
             }
 
-            foreach (Coordinates coordinate in rectangleCoordinates)
+            int radius = (int)Math.Ceiling(toolSize / 2f);
+            layer.DynamicResizeAbsolute(coordinates.X + radius, coordinates.Y + radius, coordinates.X - radius, coordinates.Y - radius);
+
+            for (int i = 0; i < circleCache.Count; i += 2)
             {
-                if (Mode == BrightnessMode.Default)
+                Coordinates left = circleCache[i];
+                Coordinates right = circleCache[i + 1];
+                int y = left.Y + coordinates.Y;
+
+                for (int x = left.X + coordinates.X; x < right.X + coordinates.X; x++)
                 {
-                    if (pixelsVisited.Contains(coordinate))
+                    if (Mode == BrightnessMode.Default)
                     {
-                        continue;
+                        Coordinates here = new(x, y);
+                        if (pixelsVisited.Contains(here))
+                            continue;
+
+                        pixelsVisited.Add(here);
                     }
 
-                    pixelsVisited.Add(coordinate);
+                    SKColor pixel = layer.GetPixelWithOffset(x, y);
+                    SKColor newColor = ExColor.ChangeColorBrightness(
+                        pixel,
+                        correctionFactor);
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x - layer.OffsetX, y - layer.OffsetY, newColor);
                 }
-
-                SKColor pixel = layer.GetPixelWithOffset(coordinate.X, coordinate.Y);
-                SKColor newColor = ExColor.ChangeColorBrightness(
-                    pixel,
-                    correctionFactor);
-                //layer.SetPixel(new Coordinates(coordinate.X, coordinate.Y), newColor);
             }
-
+            Int32Rect rect = new(coordinates.X - radius, coordinates.Y - radius, radius * 2, radius * 2);
+            layer.InvokeLayerBitmapChange(rect);
         }
     }
 }
