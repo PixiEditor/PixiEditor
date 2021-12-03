@@ -140,6 +140,43 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
+        public void HighlightPixels(Coordinates newPosition)
+        {
+            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || _tools.ActiveTool.HideHighlight)
+            {
+                return;
+            }
+
+            var previewLayer = ActiveDocument.PreviewLayer;
+
+            if (_tools.ToolSize != previewLayerSize || previewLayer.IsReset)
+            {
+                previewLayerSize = _tools.ToolSize;
+                halfSize = (int)Math.Floor(_tools.ToolSize / 2f);
+                previewLayer.CreateNewBitmap(_tools.ToolSize, _tools.ToolSize);
+
+                Coordinates cords = new Coordinates(halfSize, halfSize);
+
+                previewLayer.Offset = new Thickness(0, 0, 0, 0);
+                _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, _tools.ToolSize);
+
+                AdjustOffset(newPosition, previewLayer);
+
+            }
+
+            previewLayer.InvokeLayerBitmapChange();
+
+            AdjustOffset(newPosition, previewLayer);
+
+            if (newPosition.X > ActiveDocument.Width
+                || newPosition.Y > ActiveDocument.Height
+                || newPosition.X < 0 || newPosition.Y < 0)
+            {
+                previewLayer.Reset();
+                previewLayerSize = -1;
+            }
+        }
+
         private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
         {
             e.NewDocument?.GeneratePreviewLayer();
@@ -211,43 +248,6 @@ namespace PixiEditor.Models.Controllers
             HighlightPixels(MousePositionConverter.CurrentCoordinates);
 
             startPosition = null;
-        }
-
-        public void HighlightPixels(Coordinates newPosition)
-        {
-            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || _tools.ActiveTool.HideHighlight)
-            {
-                return;
-            }
-
-            var previewLayer = ActiveDocument.PreviewLayer;
-
-            if (_tools.ToolSize != previewLayerSize || previewLayer.IsReset)
-            {
-                previewLayerSize = _tools.ToolSize;
-                halfSize = (int)Math.Floor(_tools.ToolSize / 2f);
-                previewLayer.CreateNewBitmap(_tools.ToolSize, _tools.ToolSize);
-
-                Coordinates cords = new Coordinates(halfSize, halfSize);
-
-                previewLayer.Offset = new Thickness(0, 0, 0, 0);
-                _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, _tools.ToolSize);
-
-                AdjustOffset(newPosition, previewLayer);
-
-            }
-
-            previewLayer.InvokeLayerBitmapChange();
-
-            AdjustOffset(newPosition, previewLayer);
-
-            if (newPosition.X > ActiveDocument.Width
-                || newPosition.Y > ActiveDocument.Height
-                || newPosition.X < 0 || newPosition.Y < 0)
-            {
-                previewLayer.Reset();
-                previewLayerSize = -1;
-            }
         }
 
         private void AdjustOffset(Coordinates newPosition, Layer previewLayer)

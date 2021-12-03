@@ -77,6 +77,29 @@ namespace PixiEditor.Models.DataHolders
                 $"Flip layer: {flip}"));
         }
 
+        /// <summary>
+        ///     Resizes all document layers using NearestNeighbor interpolation.
+        /// </summary>
+        /// <param name="newWidth">New document width.</param>
+        /// <param name="newHeight">New document height.</param>
+        public void Resize(int newWidth, int newHeight)
+        {
+            object[] reverseArgs = { Width, Height };
+            object[] args = { newWidth, newHeight };
+            StorageBasedChange change = new StorageBasedChange(this, Layers);
+
+            ResizeDocument(newWidth, newHeight);
+
+            UndoManager.AddUndoChange(
+                change.ToChange(
+                    RestoreDocumentLayersProcess,
+                    reverseArgs,
+                    ResizeDocumentProcess,
+                    args,
+                    "Resize document"));
+        }
+
+
         private void FlipDocumentProcess(object[] processArgs)
         {
             FlipType flip = (FlipType)processArgs[0];
@@ -178,28 +201,6 @@ namespace PixiEditor.Models.DataHolders
             DocumentSizeChanged?.Invoke(
                 this,
                 new DocumentSizeChangedEventArgs(oldWidth, oldHeight, Width, Height));
-        }
-
-        /// <summary>
-        ///     Resizes all document layers using NearestNeighbor interpolation.
-        /// </summary>
-        /// <param name="newWidth">New document width.</param>
-        /// <param name="newHeight">New document height.</param>
-        public void Resize(int newWidth, int newHeight)
-        {
-            object[] reverseArgs = { Width, Height };
-            object[] args = { newWidth, newHeight };
-            StorageBasedChange change = new StorageBasedChange(this, Layers);
-
-            ResizeDocument(newWidth, newHeight);
-
-            UndoManager.AddUndoChange(
-                change.ToChange(
-                    RestoreDocumentLayersProcess,
-                    reverseArgs,
-                    ResizeDocumentProcess,
-                    args,
-                    "Resize document"));
         }
 
         private void RestoreDocumentLayersProcess(Layer[] layers, UndoLayer[] data, object[] args)

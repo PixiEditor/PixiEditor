@@ -27,6 +27,14 @@ namespace PixiEditor.Views.UserControls
             SizeChanged += OnControlSizeChanged;
         }
 
+        public void Resize(int newWidth, int newHeight)
+        {
+            renderer?.Dispose();
+            renderer = new SurfaceRenderer(newWidth, newHeight);
+            image.Source = renderer.FinalBitmap;
+            Update();
+        }
+
         private static void OnLayerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             var view = (PlainLayerView)sender;
@@ -38,13 +46,6 @@ namespace PixiEditor.Views.UserControls
                 layer.LayerBitmapChanged += view.OnLayerBitmapChanged;
                 view.Resize(layer.Width, layer.Height);
             }
-        }
-        public void Resize(int newWidth, int newHeight)
-        {
-            renderer?.Dispose();
-            renderer = new SurfaceRenderer(newWidth, newHeight);
-            image.Source = renderer.FinalBitmap;
-            Update();
         }
 
         private void Update()

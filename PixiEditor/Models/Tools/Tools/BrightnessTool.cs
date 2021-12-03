@@ -13,6 +13,7 @@ using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
 using System.Windows;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -113,7 +114,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             cachedCircleSize = newCircleSize;
             DoubleCoords rect = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(0, 0), newCircleSize);
-            List<Coordinates> circle = CircleTool.GenerateEllipseFromRect(rect);
+            List<Coordinates> circle = EllipseGenerator.GenerateEllipseFromRect(rect);
             circle.Sort((a, b) => a.Y != b.Y ? a.Y - b.Y : a.X - b.X);
 
             circleCache.Clear();
