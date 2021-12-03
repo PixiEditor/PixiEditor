@@ -55,6 +55,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
 
+
             newSelection.Clear();
 
             ToolCalculator.GetLinearFillAbsolute(
