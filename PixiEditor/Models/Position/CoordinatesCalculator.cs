@@ -13,7 +13,7 @@ namespace PixiEditor.Models.Position
         /// </summary>
         /// <param name="startPosition">Top left position of rectangle.</param>
         /// <param name="thickness">Thickness of rectangle.</param>
-        public static DoubleCords CalculateThicknessCenter(Coordinates startPosition, int thickness)
+        public static DoubleCoords CalculateThicknessCenter(Coordinates startPosition, int thickness)
         {
             int x1, x2, y1, y2;
             if (thickness % 2 == 0)
@@ -31,7 +31,7 @@ namespace PixiEditor.Models.Position
                 y1 = y2 - thickness;
             }
 
-            return new DoubleCords(new Coordinates(x1, y1), new Coordinates(x2 - 1, y2 - 1));
+            return new DoubleCoords(new Coordinates(x1, y1), new Coordinates(x2 - 1, y2 - 1));
         }
 
         public static Coordinates GetCenterPoint(Coordinates startingPoint, Coordinates endPoint)
@@ -78,7 +78,7 @@ namespace PixiEditor.Models.Position
             }
         }
 
-        public static IEnumerable<Coordinates> RectangleToCoordinates(DoubleCords coordinates)
+        public static IEnumerable<Coordinates> RectangleToCoordinates(DoubleCoords coordinates)
         {
             return RectangleToCoordinates(coordinates.Coords1.X, coordinates.Coords1.Y, coordinates.Coords2.X, coordinates.Coords2.Y);
         }

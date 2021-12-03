@@ -407,8 +407,8 @@ namespace PixiEditor.Models.Layers
             }
 
             ResetOffset(pixels);
-            Tuple<DoubleCords, bool> borderData = ExtractBorderData(pixels);
-            DoubleCords minMaxCords = borderData.Item1;
+            Tuple<DoubleCoords, bool> borderData = ExtractBorderData(pixels);
+            DoubleCoords minMaxCords = borderData.Item1;
             int newMaxX = minMaxCords.Coords2.X - OffsetX;
             int newMaxY = minMaxCords.Coords2.Y - OffsetY;
             int newMinX = minMaxCords.Coords1.X - OffsetX;
@@ -463,7 +463,7 @@ namespace PixiEditor.Models.Layers
 
         public Int32Rect GetContentDimensions()
         {
-            DoubleCords points = GetEdgePoints();
+            DoubleCoords points = GetEdgePoints();
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
             int biggestX = points.Coords2.X;
@@ -557,7 +557,7 @@ namespace PixiEditor.Models.Layers
                 d => d.Value);
         }
 
-        private Tuple<DoubleCords, bool> ExtractBorderData(BitmapPixelChanges pixels)
+        private Tuple<DoubleCoords, bool> ExtractBorderData(BitmapPixelChanges pixels)
         {
             Coordinates firstCords = pixels.ChangedPixels.First().Key;
             int minX = firstCords.X;
@@ -592,8 +592,8 @@ namespace PixiEditor.Models.Layers
                 }
             }
 
-            return new Tuple<DoubleCords, bool>(
-                new DoubleCords(new Coordinates(minX, minY), new Coordinates(maxX, maxY)), clipRequested);
+            return new Tuple<DoubleCoords, bool>(
+                new DoubleCoords(new Coordinates(minX, minY), new Coordinates(maxX, maxY)), clipRequested);
         }
 
         private bool IsBorderPixel(Coordinates cords)
@@ -649,12 +649,12 @@ namespace PixiEditor.Models.Layers
             ResizeCanvas(offsetX, offsetY, 0, 0, newWidth, newHeight);
         }
 
-        private DoubleCords GetEdgePoints()
+        private DoubleCoords GetEdgePoints()
         {
             Coordinates smallestPixel = CoordinatesCalculator.FindMinEdgeNonTransparentPixel(LayerBitmap);
             Coordinates biggestPixel = CoordinatesCalculator.FindMostEdgeNonTransparentPixel(LayerBitmap);
 
-            return new DoubleCords(smallestPixel, biggestPixel);
+            return new DoubleCoords(smallestPixel, biggestPixel);
         }
 
         private void ResetOffset(BitmapPixelChanges pixels)

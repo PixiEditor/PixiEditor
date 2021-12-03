@@ -117,7 +117,7 @@ namespace PixiEditor.Models.ImageManipulation
             List<Coordinates> output)
         {
 
-            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(start, end);
+            DoubleCoords fixedCoordinates = CalculateCoordinatesForShapeRotation(start, end);
 
             CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, output);
 
@@ -131,13 +131,13 @@ namespace PixiEditor.Models.ImageManipulation
             Coordinates start,
             Coordinates end, bool fill, int thickness, List<Coordinates> output)
         {
-            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(start, end);
+            DoubleCoords fixedCoordinates = CalculateCoordinatesForShapeRotation(start, end);
             CalculateRectanglePoints(fixedCoordinates, output);
 
             for (int i = 1; i < (int)Math.Floor(thickness / 2f) + 1; i++)
             {
                 CalculateRectanglePoints(
-                    new DoubleCords(
+                    new DoubleCoords(
                     new Coordinates(fixedCoordinates.Coords1.X - i, fixedCoordinates.Coords1.Y - i),
                     new Coordinates(fixedCoordinates.Coords2.X + i, fixedCoordinates.Coords2.Y + i)), output);
             }
@@ -145,7 +145,7 @@ namespace PixiEditor.Models.ImageManipulation
             for (int i = 1; i < (int)Math.Ceiling(thickness / 2f); i++)
             {
                 CalculateRectanglePoints(
-                    new DoubleCords(
+                    new DoubleCoords(
                     new Coordinates(fixedCoordinates.Coords1.X + i, fixedCoordinates.Coords1.Y + i),
                     new Coordinates(fixedCoordinates.Coords2.X - i, fixedCoordinates.Coords2.Y - i)), output);
             }
@@ -156,7 +156,7 @@ namespace PixiEditor.Models.ImageManipulation
             }
         }
 
-        public static DoubleCords CalculateCoordinatesForShapeRotation(
+        public static DoubleCoords CalculateCoordinatesForShapeRotation(
             Coordinates startingCords,
             Coordinates secondCoordinates)
         {
@@ -164,33 +164,33 @@ namespace PixiEditor.Models.ImageManipulation
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y),
                     new Coordinates(startingCords.X, startingCords.Y));
             }
 
             if (startingCords.X < currentCoordinates.X && startingCords.Y < currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(startingCords.X, startingCords.Y),
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y));
             }
 
             if (startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(startingCords.X, currentCoordinates.Y),
                     new Coordinates(currentCoordinates.X, startingCords.Y));
             }
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y <= currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(currentCoordinates.X, startingCords.Y),
                     new Coordinates(startingCords.X, currentCoordinates.Y));
             }
 
-            return new DoubleCords(startingCords, secondCoordinates);
+            return new DoubleCoords(startingCords, secondCoordinates);
         }
 
         private static void CalculateFillForEllipse(List<Coordinates> outlineCoordinates)
@@ -308,9 +308,9 @@ namespace PixiEditor.Models.ImageManipulation
         private static void CalculateRectangleFillNonAlloc(Coordinates start, Coordinates end, int thickness, List<Coordinates> output)
         {
             int offset = (int)Math.Ceiling(thickness / 2f);
-            DoubleCords fixedCords = CalculateCoordinatesForShapeRotation(start, end);
+            DoubleCoords fixedCords = CalculateCoordinatesForShapeRotation(start, end);
 
-            DoubleCords innerCords = new DoubleCords
+            DoubleCoords innerCords = new DoubleCoords
             {
                 Coords1 = new Coordinates(fixedCords.Coords1.X + offset, fixedCords.Coords1.Y + offset),
                 Coords2 = new Coordinates(fixedCords.Coords2.X - (offset - 1), fixedCords.Coords2.Y - (offset - 1))
@@ -335,7 +335,7 @@ namespace PixiEditor.Models.ImageManipulation
             }
         }
 
-        private static void CalculateRectanglePoints(DoubleCords coordinates, List<Coordinates> output)
+        private static void CalculateRectanglePoints(DoubleCoords coordinates, List<Coordinates> output)
         {
             for (int i = coordinates.Coords1.X; i < coordinates.Coords2.X + 1; i++)
             {

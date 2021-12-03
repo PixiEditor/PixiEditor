@@ -112,7 +112,7 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void ClipCanvas()
         {
-            DoubleCords points = GetEdgePoints(Layers);
+            DoubleCoords points = GetEdgePoints(Layers);
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
             int biggestX = points.Coords2.X;
@@ -157,7 +157,7 @@ namespace PixiEditor.Models.DataHolders
                 return;
             }
 
-            DoubleCords points = GetEdgePoints(layersToCenter);
+            DoubleCoords points = GetEdgePoints(layersToCenter);
 
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
@@ -238,7 +238,7 @@ namespace PixiEditor.Models.DataHolders
             return 0;
         }
 
-        private DoubleCords GetEdgePoints(IEnumerable<Layer> layers)
+        private DoubleCoords GetEdgePoints(IEnumerable<Layer> layers)
         {
             if (Layers.Count == 0)
             {
@@ -274,7 +274,7 @@ namespace PixiEditor.Models.DataHolders
                 }
             }
 
-            return new DoubleCords(
+            return new DoubleCoords(
                 new Coordinates(smallestX, smallestY),
                 new Coordinates(biggestX, biggestY));
         }

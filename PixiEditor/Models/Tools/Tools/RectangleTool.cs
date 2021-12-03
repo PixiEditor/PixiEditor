@@ -50,7 +50,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public void CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, List<Coordinates> coordinates, int thickness)
         {
-            DoubleCords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
+            DoubleCoords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
 
             int halfThickness = (int)Math.Ceiling(thickness / 2.0);
             Int32Rect dirtyRect = new Int32Rect(

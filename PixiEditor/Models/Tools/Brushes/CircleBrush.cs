@@ -16,7 +16,7 @@ namespace PixiEditor.Models.Tools.Brushes
             Coordinates topLeft = new Coordinates(coordinates.X - halfSize + modifier, coordinates.Y - halfSize + modifier);
             Coordinates bottomRight = new Coordinates(coordinates.X + halfSize - 1, coordinates.Y + halfSize - 1);
 
-            CircleTool.DrawEllipseFromRect(layer, topLeft, bottomRight, paint.Color, paint.Color, 1, true);
+            CircleTool.DrawEllipseFromCoordinates(layer, topLeft, bottomRight, paint.Color, paint.Color, 1, true);
         }
     }
 }

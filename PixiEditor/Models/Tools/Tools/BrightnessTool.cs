@@ -21,7 +21,7 @@ namespace PixiEditor.Models.Tools.Tools
         private const float CorrectionFactor = 5f; // Initial correction factor
 
         private readonly List<Coordinates> pixelsVisited = new List<Coordinates>();
-        private List<Coordinates> circleCache = null;
+        private List<DoubleCoords> circleCache = new List<DoubleCoords>();
         private int cachedCircleSize = -1;
 
         public BrightnessTool()
@@ -77,29 +77,18 @@ namespace PixiEditor.Models.Tools.Tools
         public void ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
         {
             if (cachedCircleSize != toolSize)
-            {
-                cachedCircleSize = toolSize;
-                circleCache = CircleTool.GenerateMidpointEllipse(toolSize / 2.0, toolSize / 2.0, 0, 0);
-                circleCache.Sort((a, b) => a.Y != b.Y ? a.Y - b.Y : a.X - b.X);
-                for (int i = circleCache.Count - 2; i >= 1; i--)
-                {
-                    if (circleCache[i].Y == circleCache[i - 1].Y && circleCache[i].Y == circleCache[i + 1].Y)
-                    {
-                        circleCache.RemoveAt(i);
-                    }
-                }
-            }
+                UpdateCircleCache(toolSize);
 
             int radius = (int)Math.Ceiling(toolSize / 2f);
             layer.DynamicResizeAbsolute(coordinates.X + radius, coordinates.Y + radius, coordinates.X - radius, coordinates.Y - radius);
 
-            for (int i = 0; i < circleCache.Count; i += 2)
+            foreach (var pair in circleCache)
             {
-                Coordinates left = circleCache[i];
-                Coordinates right = circleCache[i + 1];
+                Coordinates left = pair.Coords1;
+                Coordinates right = pair.Coords2;
                 int y = left.Y + coordinates.Y;
 
-                for (int x = left.X + coordinates.X; x < right.X + coordinates.X; x++)
+                for (int x = left.X + coordinates.X; x <= right.X + coordinates.X; x++)
                 {
                     if (Mode == BrightnessMode.Default)
                     {
@@ -117,8 +106,33 @@ namespace PixiEditor.Models.Tools.Tools
                     layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x - layer.OffsetX, y - layer.OffsetY, newColor);
                 }
             }
-            Int32Rect rect = new(coordinates.X - radius, coordinates.Y - radius, radius * 2, radius * 2);
-            layer.InvokeLayerBitmapChange(rect);
+            layer.InvokeLayerBitmapChange(new(coordinates.X - radius, coordinates.Y - radius, radius * 2, radius * 2));
+        }
+
+        public void UpdateCircleCache(int newCircleSize)
+        {
+            cachedCircleSize = newCircleSize;
+            DoubleCoords rect = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(0, 0), newCircleSize);
+            List<Coordinates> circle = CircleTool.GenerateEllipseFromRect(rect);
+            circle.Sort((a, b) => a.Y != b.Y ? a.Y - b.Y : a.X - b.X);
+
+            circleCache.Clear();
+
+            int minX = int.MaxValue;
+            int maxX = int.MinValue;
+            for (int i = 0; i < circle.Count; i++)
+            {
+                if (i >= 1 && circle[i].Y != circle[i - 1].Y)
+                {
+                    int prevY = circle[i - 1].Y;
+                    circleCache.Add(new DoubleCoords(new(minX, prevY), new(maxX, prevY)));
+                    minX = int.MaxValue;
+                    maxX = int.MinValue;
+                }
+                minX = Math.Min(circle[i].X, minX);
+                maxX = Math.Max(circle[i].X, maxX);
+            }
+            circleCache.Add(new DoubleCoords(new(minX, circle[^1].Y), new(maxX, circle[^1].Y)));
         }
     }
 }

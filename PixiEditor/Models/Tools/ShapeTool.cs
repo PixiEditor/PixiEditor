@@ -11,7 +11,7 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class ShapeTool : BitmapOperationTool
     {
-        public static DoubleCords CalculateCoordinatesForShapeRotation(
+        public static DoubleCoords CalculateCoordinatesForShapeRotation(
             Coordinates startingCords,
             Coordinates secondCoordinates)
         {
@@ -19,33 +19,33 @@ namespace PixiEditor.Models.Tools
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y),
                     new Coordinates(startingCords.X, startingCords.Y));
             }
 
             if (startingCords.X < currentCoordinates.X && startingCords.Y < currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(startingCords.X, startingCords.Y),
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y));
             }
 
             if (startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(startingCords.X, currentCoordinates.Y),
                     new Coordinates(currentCoordinates.X, startingCords.Y));
             }
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y <= currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(currentCoordinates.X, startingCords.Y),
                     new Coordinates(startingCords.X, currentCoordinates.Y));
             }
 
-            return new DoubleCords(startingCords, secondCoordinates);
+            return new DoubleCoords(startingCords, secondCoordinates);
         }
 
         public ShapeTool()
