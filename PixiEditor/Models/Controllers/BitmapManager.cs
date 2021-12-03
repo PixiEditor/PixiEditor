@@ -192,7 +192,7 @@ namespace PixiEditor.Models.Controllers
             }
 
             activeTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            if (!MaybeExecuteTool(e.NewPosition) && Mouse.LeftButton == MouseButtonState.Released)
+            if (!MaybeExecuteTool(e.NewPosition) && MouseController.LeftMouseState == MouseButtonState.Released)
             {
                 HighlightPixels(e.NewPosition);
             }
@@ -214,7 +214,7 @@ namespace PixiEditor.Models.Controllers
 
         private bool MaybeExecuteTool(Coordinates newPosition)
         {
-            if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
+            if (MouseController.LeftMouseState == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
             {
                 ExecuteTool(newPosition, MouseController.ClickedOnCanvas);
                 return true;
