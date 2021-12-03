@@ -52,12 +52,12 @@ namespace PixiEditor.Models.Tools.Tools
 
                 color = referenceLayer.LayerBitmap.GetSRGBPixel(x, y);
 
-                if ((Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)) && color != null)
-                {
-                    // TODO: Blend colors
-                    throw new NotImplementedException();
-                    //SKColor? canvasColor = _docProvider.GetRenderer()?.FinalSurface.GetSRGBPixel(x, y);
-                }
+                //if ((Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)) && color != null)
+                //{
+                //    // TODO: Blend colors
+                //    throw new NotImplementedException();
+                //    //SKColor? canvasColor = _docProvider.GetRenderer()?.FinalSurface.GetSRGBPixel(x, y);
+                //}
             }
             else
             {
@@ -90,15 +90,15 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void UpdateActionDisplay()
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) /*|| Keyboard.IsKeyDown(Key.RightCtrl)*/)
             {
-                if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
-                {
-                    _bitmapManager.HideReferenceLayer = false;
-                    _bitmapManager.OnlyReferenceLayer = false;
-                    ActionDisplay = "Press on a pixel to make the blend of the reference and canvas the primary color. Release Ctrl and Alt to pick from the canvas. Release just Alt to pick from the reference";
-                    return;
-                }
+                //if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+                //{
+                //    _bitmapManager.HideReferenceLayer = false;
+                //    _bitmapManager.OnlyReferenceLayer = false;
+                //    ActionDisplay = "Press on a pixel to make the blend of the reference and canvas the primary color. Release Ctrl and Alt to pick from the canvas. Release just Alt to pick from the reference";
+                //    return;
+                //}
 
                 _bitmapManager.HideReferenceLayer = false;
                 _bitmapManager.OnlyReferenceLayer = true;
@@ -108,7 +108,7 @@ namespace PixiEditor.Models.Tools.Tools
             {
                 _bitmapManager.HideReferenceLayer = true;
                 _bitmapManager.OnlyReferenceLayer = false;
-                ActionDisplay = "Press on a pixel to make it the primary color. Hold Ctrl to pick from the reference. Hold Ctrl and Alt to blend the reference and canvas color";
+                ActionDisplay = "Press on a pixel to make it the primary color. Hold Ctrl to pick from the reference.";
             }
         }
     }

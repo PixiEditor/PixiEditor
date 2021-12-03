@@ -163,7 +163,7 @@ namespace PixiEditor.Models.DataHolders
 
             int biggerMaxSize = Math.Max(Width, Height);
 
-
+            // TODO: Fix v0.2
             foreach (var layer in Layers)
             {
                 using (new SKAutoCanvasRestore(layer.LayerBitmap.SkiaSurface.Canvas, true))
