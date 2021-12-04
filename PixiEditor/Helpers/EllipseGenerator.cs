@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Models.Position;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,15 +10,40 @@ namespace PixiEditor.Helpers
 {
     internal static class EllipseGenerator
     {
+        public static List<DoubleCoords> SplitEllipseIntoLines(List<Coordinates> ellipse)
+        {
+            List<DoubleCoords> lines = new();
+            var sorted = ellipse.OrderBy(
+                a => a,
+                Comparer<Coordinates>.Create((a, b) => a.Y != b.Y ? a.Y - b.Y : a.X - b.X)
+                );
 
-        public static List<Coordinates> GenerateEllipseFromRect(DoubleCoords rect)
+            int minX = int.MaxValue;
+            int maxX = int.MinValue;
+            Coordinates? prev = null;
+            foreach (var point in sorted)
+            {
+                if (prev.HasValue && point.Y != prev.Value.Y)
+                {
+                    int prevY = prev.Value.Y;
+                    lines.Add(new DoubleCoords(new(minX, prevY), new(maxX, prevY)));
+                    minX = int.MaxValue;
+                    maxX = int.MinValue;
+                }
+                minX = Math.Min(point.X, minX);
+                maxX = Math.Max(point.X, maxX);
+                prev = point;
+            }
+            lines.Add(new DoubleCoords(new(minX, prev.Value.Y), new(maxX, prev.Value.Y)));
+            return lines;
+        }
+        public static List<Coordinates> GenerateEllipseFromRect(DoubleCoords rect, List<Coordinates> listToFill = null)
         {
             float radiusX = (rect.Coords2.X - rect.Coords1.X) / 2.0f;
             float radiusY = (rect.Coords2.Y - rect.Coords1.Y) / 2.0f;
             float centerX = (rect.Coords1.X + rect.Coords2.X + 1) / 2.0f;
             float centerY = (rect.Coords1.Y + rect.Coords2.Y + 1) / 2.0f;
-
-            return GenerateMidpointEllipse(radiusX, radiusY, centerX, centerY);
+            return GenerateMidpointEllipse(radiusX, radiusY, centerX, centerY, listToFill);
         }
 
         /// <summary>
@@ -34,11 +60,18 @@ namespace PixiEditor.Helpers
         /// Center is at (2; 2). It's a place where 4 pixels meet
         /// Both radii are 1.5. Making them 2 would make the ellipse touch the edges of pixels, whereas we want it to stay in the middle
         /// </summary>
-        public static List<Coordinates> GenerateMidpointEllipse(double halfWidth, double halfHeight, double centerX, double centerY)
+        public static List<Coordinates> GenerateMidpointEllipse(
+            double halfWidth,
+            double halfHeight,
+            double centerX,
+            double centerY,
+            List<Coordinates> listToFill = null)
         {
+            listToFill ??= new List<Coordinates>();
             if (halfWidth < 1 || halfHeight < 1)
             {
-                return GenerateFallbackRectangle(halfWidth, halfHeight, centerX, centerY);
+                AddFallbackRectangle(halfWidth, halfHeight, centerX, centerY, listToFill);
+                return listToFill;
             }
 
             // ellipse formula: halfHeight^2 * x^2 + halfWidth^2 * y^2 - halfHeight^2 * halfWidth^2 = 0
@@ -47,14 +80,13 @@ namespace PixiEditor.Helpers
             double currentX = Math.Ceiling(centerX - 0.5) + 0.5;
             double currentY = centerY + halfHeight;
 
-            List<Coordinates> outputCoordinates = new List<Coordinates>();
 
             double currentSlope;
 
             // from PI/2 to PI/4
             do
             {
-                AddRegionPoints(outputCoordinates, currentX, centerX, currentY, centerY);
+                AddRegionPoints(listToFill, currentX, centerX, currentY, centerY);
 
                 // calculate next pixel coords
                 currentX++;
@@ -76,7 +108,7 @@ namespace PixiEditor.Helpers
             // from PI/4 to 0
             while (currentY - centerY >= 0)
             {
-                AddRegionPoints(outputCoordinates, currentX, centerX, currentY, centerY);
+                AddRegionPoints(listToFill, currentX, centerX, currentY, centerY);
 
                 currentY--;
                 if ((Math.Pow(halfHeight, 2) * Math.Pow(currentX - centerX + 0.5, 2)) +
@@ -87,13 +119,11 @@ namespace PixiEditor.Helpers
                 }
             }
 
-            return outputCoordinates;
+            return listToFill;
         }
 
-        private static List<Coordinates> GenerateFallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY)
+        private static void AddFallbackRectangle(double halfWidth, double halfHeight, double centerX, double centerY, List<Coordinates> coordinates)
         {
-            List<Coordinates> coordinates = new List<Coordinates>();
-
             int left = (int)Math.Floor(centerX - halfWidth);
             int top = (int)Math.Floor(centerY - halfHeight);
             int right = (int)Math.Floor(centerX + halfWidth);
@@ -110,8 +140,6 @@ namespace PixiEditor.Helpers
                 coordinates.Add(new Coordinates(left, y));
                 coordinates.Add(new Coordinates(right, y));
             }
-
-            return coordinates;
         }
 
         private static void AddRegionPoints(List<Coordinates> coordinates, double x, double xc, double y, double yc)

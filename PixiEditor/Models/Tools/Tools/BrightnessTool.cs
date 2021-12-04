@@ -115,25 +115,7 @@ namespace PixiEditor.Models.Tools.Tools
             cachedCircleSize = newCircleSize;
             DoubleCoords rect = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(0, 0), newCircleSize);
             List<Coordinates> circle = EllipseGenerator.GenerateEllipseFromRect(rect);
-            circle.Sort((a, b) => a.Y != b.Y ? a.Y - b.Y : a.X - b.X);
-
-            circleCache.Clear();
-
-            int minX = int.MaxValue;
-            int maxX = int.MinValue;
-            for (int i = 0; i < circle.Count; i++)
-            {
-                if (i >= 1 && circle[i].Y != circle[i - 1].Y)
-                {
-                    int prevY = circle[i - 1].Y;
-                    circleCache.Add(new DoubleCoords(new(minX, prevY), new(maxX, prevY)));
-                    minX = int.MaxValue;
-                    maxX = int.MinValue;
-                }
-                minX = Math.Min(circle[i].X, minX);
-                maxX = Math.Max(circle[i].X, maxX);
-            }
-            circleCache.Add(new DoubleCoords(new(minX, circle[^1].Y), new(maxX, circle[^1].Y)));
+            circleCache = EllipseGenerator.SplitEllipseIntoLines(circle);
         }
     }
 }
