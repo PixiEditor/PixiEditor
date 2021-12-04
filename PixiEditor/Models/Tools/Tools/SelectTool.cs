@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -105,7 +106,11 @@ namespace PixiEditor.Models.Tools.Tools
 
             BitmapManager.ActiveDocument.ActiveSelection.SetSelection(oldSelectedPoints, SelectionType.New);
 
-            if (shape == SelectionShape.Circle)
+            if (pixels.Count < 2)
+            {
+                selection = new List<Coordinates>();
+            }
+            else if (shape == SelectionShape.Circle)
             {
                 selection = GetCircleSelectionForPoints(pixels[^1], pixels[0]);
             }
