@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -16,9 +17,9 @@ namespace PixiEditor.Models.ImageManipulation
 {
     public static class BitmapUtils
     {
-        public static Surface CombineLayers(int width, int height, IEnumerable<Layer> layers, LayerStructure structure = null)
+        public static Surface CombineLayers(Int32Rect portion, IEnumerable<Layer> layers,  LayerStructure structure = null)
         {
-            Surface finalSurface = new(width, height);
+            Surface finalSurface = new(portion.Width, portion.Height);
             using SKPaint paint = new();
 
             for (int i = 0; i < layers.Count(); i++)
@@ -34,7 +35,14 @@ namespace PixiEditor.Models.ImageManipulation
                     throw new InvalidOperationException("Layers must not extend beyond canvas borders");
                 }
 
-                layer.LayerBitmap.SkiaSurface.Draw(finalSurface.SkiaSurface.Canvas, layer.OffsetX, layer.OffsetY, paint);
+                using SKImage snapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
+                int x = portion.X - layer.OffsetX;
+                int y = portion.Y - layer.OffsetY;
+                finalSurface.SkiaSurface.Canvas.DrawImage(
+                    snapshot,
+                    new SKRect(x, y, portion.Width + x, portion.Height + y),
+                    new SKRect(0, 0, portion.Width, portion.Height),
+                    paint);
             }
 
             return finalSurface;

@@ -11,6 +11,7 @@ using PixiEditor.ViewModels;
 using SkiaSharp;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
@@ -93,7 +94,10 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void ValidateCache(Document document)
         {
-            cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(document.Width, document.Height, document.Layers, document.LayerStructure));
+            cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(
+                new Int32Rect(0, 0, document.Width, document.Height),
+                document.Layers,
+                document.LayerStructure));
         }
     }
 }

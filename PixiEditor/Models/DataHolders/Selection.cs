@@ -57,6 +57,11 @@ namespace PixiEditor.Models.DataHolders
             SelectionLayer.SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, selectionColor));
         }
 
+        public void TranslateSelection(int dX, int dY)
+        {
+            //TODO implement
+        }
+
         public void SetSelection(Int32Rect rect, bool isCirclular, SelectionType mode)
         {
             using SKPaint paint = new()

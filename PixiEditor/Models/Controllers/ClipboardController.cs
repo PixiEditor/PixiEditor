@@ -34,7 +34,7 @@ namespace PixiEditor.Models.Controllers
         public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight, SerializableDocument document = null)
         {
             Clipboard.Clear();
-            using Surface surface = BitmapUtils.CombineLayers(originalImageWidth, originalImageHeight, layers);
+            using Surface surface = BitmapUtils.CombineLayers(new Int32Rect(0, 0, originalImageWidth, originalImageHeight), layers);
             DataObject data = new DataObject();
 
             WriteableBitmap combinedBitmaps = surface.ToWriteableBitmap();
