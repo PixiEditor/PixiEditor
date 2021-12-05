@@ -21,14 +21,26 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class MoveTool : BitmapOperationTool
     {
-        private Layer[] affectedLayers;
-        private Surface previewLayerData;
-        private SKPaint maskingPaint = new()
+        private static readonly SKPaint maskingPaint = new()
         {
             BlendMode = SKBlendMode.DstIn,
         };
+
+        private static readonly SKPaint inverseMaskingPaint = new()
+        {
+            BlendMode = SKBlendMode.DstOut,
+        };
+
+        private Layer[] affectedLayers;
+        private Surface[] currentlyDragged;
+        private Surface previewLayerData;
+        
         private Coordinates moveStartPos;
         private Int32Rect moveStartRect;
+
+        private Coordinates lastDragDelta;
+
+        private StorageBasedChange change;
 
         //private Dictionary<Guid, bool> clearedPixels = new Dictionary<Guid, bool>();
         //private Coordinates[] currentSelection;
@@ -116,21 +128,39 @@ namespace PixiEditor.Models.Tools.Tools
         //    }
         //}
 
+        public override void AddUndoProcess(Document document)
+        {
+            var args = new object[] { change.Document };
+            document.UndoManager.AddUndoChange(change.ToChange(UndoProcess, args));
+            change = null;
+        }
+
+        private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            if (args.Length > 0 && args[0] is Document document)
+            {
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    Layer layer = layers[i];
+                    document.Layers.RemoveAt(data[i].LayerIndex);
+
+                    document.Layers.Insert(data[i].LayerIndex, layer);
+                    if (data[i].IsActive)
+                    {
+                        document.SetMainActiveLayer(data[i].LayerIndex);
+                    }
+                }
+
+            }
+        }
+
         public override void OnStart(Coordinates startPos)
         {
             //ResetSelectionValues(startPos);
             // Move offset if no selection
             Document doc = BitmapManager.ActiveDocument;
             Selection selection = doc.ActiveSelection;
-            /*
-            if (selection != null && selection.SelectedPoints.Count > 0)
-            {
-                currentSelection = selection.SelectedPoints.ToArray();
-            }
-            else
-            {
-                currentSelection = Array.Empty<Coordinates>();
-            }*/
+
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
             {
                 affectedLayers = doc.Layers.Where(x => x.IsVisible).ToArray();
@@ -140,18 +170,62 @@ namespace PixiEditor.Models.Tools.Tools
                 affectedLayers = doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray();
             }
 
+            change = new StorageBasedChange(doc, affectedLayers, true);
 
             Layer selLayer = selection.SelectionLayer;
             moveStartRect = new(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height);
-            previewLayerData?.Dispose();
-            previewLayerData = BitmapUtils.CombineLayers(moveStartRect, affectedLayers, BitmapManager.ActiveDocument.LayerStructure);
-            using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
-            previewLayerData.SkiaSurface.Canvas.DrawImage(selSnap, -moveStartRect.X, -moveStartRect.Y, maskingPaint);
-
             moveStartPos = startPos;
+            lastDragDelta = new Coordinates(0, 0);
+
+            previewLayerData?.Dispose();
+            previewLayerData = CreateCombinedPreview(selLayer, affectedLayers);
+
+            if (currentlyDragged != null)
+            {
+                foreach (var surface in currentlyDragged)
+                    surface.Dispose();
+            }
+
+            currentlyDragged = ExtractDraggedPortions(selLayer, affectedLayers);
+
+            
             //startSelection = currentSelection;
             //startPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, startSelection);
             //startingOffsets = GetOffsets(affectedLayers);
+        }
+
+        private Surface CreateCombinedPreview(Layer selLayer, Layer[] layersToCombine)
+        {
+            var combined = BitmapUtils.CombineLayers(moveStartRect, layersToCombine, BitmapManager.ActiveDocument.LayerStructure);
+            using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
+            combined.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, maskingPaint);
+            return combined;
+        }
+        private static Surface[] ExtractDraggedPortions(Layer selLayer, Layer[] draggedLayers)
+        {
+            using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
+            Surface[] output = new Surface[draggedLayers.Length];
+            int count = 0;
+            foreach (Layer layer in draggedLayers)
+            {
+                Surface portion = new Surface(selLayer.Width, selLayer.Height);
+                SKRect selLayerRect = new SKRect(0, 0, selLayer.Width, selLayer.Height);
+
+                int x = selLayer.OffsetX - layer.OffsetX;
+                int y = selLayer.OffsetY - layer.OffsetY;
+
+                using (var layerSnap = layer.LayerBitmap.SkiaSurface.Snapshot())
+                    portion.SkiaSurface.Canvas.DrawImage(layerSnap, new SKRect(x, y, x + selLayer.Width, y + selLayer.Height), selLayerRect, Surface.ReplacingPaint);
+                portion.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, maskingPaint);
+                output[count] = portion;
+                count++;
+
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(selSnap, new SKRect(0, 0, selLayer.Width, selLayer.Height), 
+                    new SKRect(selLayer.OffsetX-layer.OffsetX, selLayer.OffsetY-layer.OffsetY, selLayer.OffsetX - layer.OffsetX + selLayer.Width, selLayer.OffsetY - layer.OffsetY + selLayer.Height), 
+                    inverseMaskingPaint);
+                layer.InvokeLayerBitmapChange(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height));
+            }
+            return output;
         }
 
         public override void Use(Layer layer, List<Coordinates> mouseMove, SKColor color)
@@ -162,14 +236,17 @@ namespace PixiEditor.Models.Tools.Tools
             Coordinates newPos = mouseMove[0];
             int dX = newPos.X - moveStartPos.X;
             int dY = newPos.Y - moveStartPos.Y;
+            BitmapManager.ActiveDocument.ActiveSelection.TranslateSelection(dX - lastDragDelta.X, dY - lastDragDelta.Y);
+            lastDragDelta = new Coordinates(dX, dY);
+
 
             int newX = moveStartRect.X + dX;
             int newY = moveStartRect.Y + dY;
             
-            
             layer.DynamicResizeAbsolute(newX + moveStartRect.Width, newY + moveStartRect.Height, newX, newY);
             previewLayerData.SkiaSurface.Draw(layer.LayerBitmap.SkiaSurface.Canvas, newX - layer.OffsetX, newY - layer.OffsetY, Surface.ReplacingPaint);
             layer.InvokeLayerBitmapChange(new Int32Rect(newX, newY, moveStartRect.Width, moveStartRect.Height));
+
             
 
             /*var end = mouseMove[0];
@@ -198,6 +275,34 @@ namespace PixiEditor.Models.Tools.Tools
 
             return result;*/
         }
+
+        public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
+        {
+            base.OnStoppedRecordingMouseUp(e);
+
+            BitmapManager.ActiveDocument.PreviewLayer.ClearCanvas();
+
+            ApplySurfacesToLayers(currentlyDragged, affectedLayers, new Coordinates(moveStartRect.X + lastDragDelta.X, moveStartRect.Y + lastDragDelta.Y));
+            foreach (var surface in currentlyDragged)
+                surface.Dispose();
+            currentlyDragged = null;
+        }
+
+        private static void ApplySurfacesToLayers(Surface[] surfaces, Layer[] layers, Coordinates position)
+        {
+            int count = 0;
+            foreach (Surface surface in surfaces)
+            {
+                var layer = layers[count];
+                using SKImage snapshot = surface.SkiaSurface.Snapshot();
+                layer.DynamicResizeAbsolute(position.X + surface.Width, position.Y + surface.Height, position.X, position.Y);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(snapshot, position.X - layer.OffsetX, position.Y - layer.OffsetY);
+                layer.InvokeLayerBitmapChange(new Int32Rect(position.X, position.Y, surface.Width, surface.Height));
+
+                count++;
+            }
+        }
+
         //public BitmapPixelChanges MoveSelection(Layer layer, IEnumerable<Coordinates> mouseMove)
         //{
         //    Coordinates end = mouseMove.First();

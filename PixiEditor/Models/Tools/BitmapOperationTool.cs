@@ -22,7 +22,6 @@ namespace PixiEditor.Models.Tools
 
         private StorageBasedChange _change;
 
-
         public abstract void Use(Layer layer, List<Coordinates> mouseMove, SKColor color);
 
         /// <summary>

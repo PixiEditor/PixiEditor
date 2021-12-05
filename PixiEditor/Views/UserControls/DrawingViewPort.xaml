@@ -72,7 +72,8 @@
                                       VerticalAlignment="Top" HorizontalAlignment="Left"
                                       Width="{Binding ActiveSelection.SelectionLayer.Width}"
                                       Height="{Binding ActiveSelection.SelectionLayer.Height}"
-                                      Margin="{Binding ActiveSelection.SelectionLayer.Offset}"/>
+                                      Margin="{Binding ActiveSelection.SelectionLayer.Offset}"
+                                      Opacity="0.5"/>
                 
                 <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}" Panel.ZIndex="10" 
                       Visibility="{Binding GridLinesVisible, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DrawingViewPort}}}">

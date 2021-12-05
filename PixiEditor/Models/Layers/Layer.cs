@@ -336,14 +336,14 @@ namespace PixiEditor.Models.Layers
                 return;
             }
 
-            if (dynamicResize)
-            {
-                DynamicResize(pixels);
-            }
-
             if (applyOffset)
             {
                 pixels.ChangedPixels = GetRelativePosition(pixels.ChangedPixels);
+            }
+
+            if (dynamicResize)
+            {
+                DynamicResize(pixels);
             }
 
             LastRelativeCoordinates = pixels.ChangedPixels;
@@ -409,10 +409,10 @@ namespace PixiEditor.Models.Layers
             ResetOffset(pixels);
             Tuple<DoubleCoords, bool> borderData = ExtractBorderData(pixels);
             DoubleCoords minMaxCords = borderData.Item1;
-            int newMaxX = minMaxCords.Coords2.X - OffsetX;
-            int newMaxY = minMaxCords.Coords2.Y - OffsetY;
-            int newMinX = minMaxCords.Coords1.X - OffsetX;
-            int newMinY = minMaxCords.Coords1.Y - OffsetY;
+            int newMaxX = minMaxCords.Coords2.X;
+            int newMaxY = minMaxCords.Coords2.Y;
+            int newMinX = minMaxCords.Coords1.X;
+            int newMinY = minMaxCords.Coords1.Y;
 
             if (!(pixels.WasBuiltAsSingleColored && pixels.ChangedPixels.First().Value.Alpha == 0))
             {

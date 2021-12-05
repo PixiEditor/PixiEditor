@@ -21,7 +21,7 @@ namespace PixiEditor.Models.DataHolders
         {
             SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
             SelectionLayer = new Layer("_selectionLayer");
-            selectionBlue = new SKColor(142, 202, 255, 127);
+            selectionBlue = new SKColor(142, 202, 255, 255);
         }
 
         public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
@@ -59,7 +59,11 @@ namespace PixiEditor.Models.DataHolders
 
         public void TranslateSelection(int dX, int dY)
         {
-            //TODO implement
+            selectionLayer.Offset = new Thickness(selectionLayer.OffsetX + dX, selectionLayer.OffsetY + dY, 0, 0);
+            for (int i = 0; i < SelectedPoints.Count; i++)
+            {
+                SelectedPoints[i] = new Coordinates(SelectedPoints[i].X + dX, SelectedPoints[i].Y + dY);
+            }
         }
 
         public void SetSelection(Int32Rect rect, bool isCirclular, SelectionType mode)
