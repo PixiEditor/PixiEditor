@@ -121,6 +121,8 @@ namespace PixiEditor.Models.Controllers
 
             if (!tool.RequiresPreviewLayer)
             {
+                if (!Manager.ActiveDocument.PreviewLayer.IsReset)
+                    Manager.ActiveDocument.PreviewLayer.Reset();
                 tool.Use(Manager.ActiveLayer, mouseMoveCords, color);
                 BitmapChanged?.Invoke(this, null);
             }
