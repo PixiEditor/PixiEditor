@@ -82,7 +82,8 @@ namespace PixiEditor.Models.Tools.Tools
                 UpdateCircleCache(toolSize);
 
             int radius = (int)Math.Ceiling(toolSize / 2f);
-            layer.DynamicResizeAbsolute(coordinates.X + radius, coordinates.Y + radius, coordinates.X - radius, coordinates.Y - radius);
+            Int32Rect dirtyRect = new(coordinates.X - radius, coordinates.Y - radius, radius * 2, radius * 2);
+            layer.DynamicResizeAbsolute(dirtyRect);
 
             foreach (var pair in circleCache)
             {
@@ -108,7 +109,7 @@ namespace PixiEditor.Models.Tools.Tools
                     layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x - layer.OffsetX, y - layer.OffsetY, newColor);
                 }
             }
-            layer.InvokeLayerBitmapChange(new(coordinates.X - radius, coordinates.Y - radius, radius * 2, radius * 2));
+            layer.InvokeLayerBitmapChange(dirtyRect);
         }
 
         public void UpdateCircleCache(int newCircleSize)

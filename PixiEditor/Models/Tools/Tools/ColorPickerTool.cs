@@ -32,6 +32,10 @@ namespace PixiEditor.Models.Tools.Tools
         public override void Use(List<Coordinates> coordinates)
         {
             var coords = coordinates.First();
+            var doc = _docProvider.GetSurface();
+            if (coords.X < 0 || coords.Y < 0 || coords.X >= doc.Width || coords.Y >= doc.Height)
+                return;
+
             ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = GetColorAt(coords.X, coords.Y);
         }
 

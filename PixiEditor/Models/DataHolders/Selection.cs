@@ -84,7 +84,7 @@ namespace PixiEditor.Models.DataHolders
                     break;
             }
 
-            SelectionLayer.DynamicResizeAbsolute(rect.X + rect.Width - 1, rect.Y + rect.Height - 1, rect.X, rect.Y);
+            SelectionLayer.DynamicResizeAbsolute(new Int32Rect(rect.X, rect.Y, rect.Width, rect.Height));
             if (isCirclular)
             {
                 float cx = rect.X + rect.Width / 2f;

@@ -59,7 +59,7 @@ namespace PixiEditor.Models.Tools.Tools
                 fixedCoordinates.Coords1.Y - halfThickness,
                 fixedCoordinates.Coords2.X + halfThickness * 2 - fixedCoordinates.Coords1.X,
                 fixedCoordinates.Coords2.Y + halfThickness * 2 - fixedCoordinates.Coords1.Y);
-            layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
+            layer.DynamicResizeAbsolute(dirtyRect);
 
             using (SKPaint paint = new SKPaint())
             {

@@ -228,10 +228,11 @@ namespace PixiEditor.Models.Tools.Tools
 
             int newX = moveStartRect.X + dX;
             int newY = moveStartRect.Y + dY;
-            
-            layer.DynamicResizeAbsolute(newX + moveStartRect.Width, newY + moveStartRect.Height, newX, newY);
+
+            Int32Rect dirtyRect = new Int32Rect(newX, newY, moveStartRect.Width, moveStartRect.Height);
+            layer.DynamicResizeAbsolute(dirtyRect);
             previewLayerData.SkiaSurface.Draw(layer.LayerBitmap.SkiaSurface.Canvas, newX - layer.OffsetX, newY - layer.OffsetY, Surface.ReplacingPaint);
-            layer.InvokeLayerBitmapChange(new Int32Rect(newX, newY, moveStartRect.Width, moveStartRect.Height));
+            layer.InvokeLayerBitmapChange(dirtyRect);
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
@@ -254,9 +255,10 @@ namespace PixiEditor.Models.Tools.Tools
                 var layer = layers[count];
                 using SKImage snapshot = surface.SkiaSurface.Snapshot();
                 Coordinates position = new Coordinates(startPositions[count].X + delta.X, startPositions[count].Y + delta.Y);
-                layer.DynamicResizeAbsolute(position.X + surface.Width, position.Y + surface.Height, position.X, position.Y);
+                Int32Rect dirtyRect = new Int32Rect(position.X, position.Y, surface.Width, surface.Height);
+                layer.DynamicResizeAbsolute(dirtyRect);
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(snapshot, position.X - layer.OffsetX, position.Y - layer.OffsetY);
-                layer.InvokeLayerBitmapChange(new Int32Rect(position.X, position.Y, surface.Width, surface.Height));
+                layer.InvokeLayerBitmapChange(dirtyRect);
 
                 count++;
             }

@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Tools.Tools
                 corners.Coords1.Y - halfThickness,
                 corners.Coords2.X + halfThickness * 2 - corners.Coords1.X,
                 corners.Coords2.Y + halfThickness * 2 - corners.Coords1.Y);
-            layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
+            layer.DynamicResizeAbsolute(dirtyRect);
 
             using (SKPaint paint = new SKPaint())
             {

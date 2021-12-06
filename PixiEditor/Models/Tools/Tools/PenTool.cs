@@ -68,7 +68,11 @@ namespace PixiEditor.Models.Tools.Tools
             paint.Color = color;
             if (AutomaticallyResizeCanvas)
             {
-                layer.DynamicResizeAbsolute(coordinates.Max(x => x.X), coordinates.Max(x => x.Y), coordinates.Min(x => x.X), coordinates.Min(x => x.Y));
+                int maxX = coordinates.Max(x => x.X);
+                int maxY = coordinates.Max(x => x.Y);
+                int minX = coordinates.Min(x => x.X);
+                int minY = coordinates.Min(x => x.Y);
+                layer.DynamicResizeAbsolute(new(minX, minY, maxX - minX + 1, maxX - minX + 1));
             }
             Draw(
                 layer,

@@ -169,7 +169,7 @@ namespace PixiEditor.Models.Tools.Tools
                 Math.Max(y1, y) + thickness - dirtyY);
             if (AutomaticallyResizeCanvas)
             {
-                layer.DynamicResizeAbsolute(dirtyRect.X + dirtyRect.Width - 1, dirtyRect.Y + dirtyRect.Height - 1, dirtyRect.X, dirtyRect.Y);
+                layer.DynamicResizeAbsolute(dirtyRect);
             }
 
             x -= layer.OffsetX;

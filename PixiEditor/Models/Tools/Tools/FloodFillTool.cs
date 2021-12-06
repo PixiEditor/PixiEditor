@@ -26,7 +26,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             if (layer.IsReset)
             {
-                layer.DynamicResizeAbsolute(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height, 0, 0);
+                layer.DynamicResizeAbsolute(new(0, 0, BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
                 layer.LayerBitmap.SkiaSurface.Canvas.Clear(color);
                 layer.InvokeLayerBitmapChange();
             }
@@ -93,7 +93,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
             int lastCheckedPixelRight = fillXRight - 1;
 
-            layer.DynamicResizeAbsolute(lastCheckedPixelRight, coords.Y, lastCheckedPixelLeft, coords.Y);
+            layer.DynamicResizeAbsolute(new(lastCheckedPixelLeft, coords.Y, lastCheckedPixelRight - lastCheckedPixelLeft + 1, 1));
             int relativeY = coords.Y - layer.OffsetY;
             layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(lastCheckedPixelLeft - layer.OffsetX, relativeY, lastCheckedPixelRight - layer.OffsetX + 1, relativeY, fillPaint);
             dirtyRect = dirtyRect.Expand(new Int32Rect(lastCheckedPixelLeft, coords.Y, lastCheckedPixelRight - lastCheckedPixelLeft + 1, 1));

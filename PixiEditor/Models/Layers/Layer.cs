@@ -426,19 +426,22 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public void DynamicResizeAbsolute(int newMaxX, int newMaxY, int newMinX, int newMinY)
+        public void DynamicResizeAbsolute(Int32Rect newSize)
         {
-            if (newMinX < 0) newMinX = 0;
-            if (newMinY < 0) newMinY = 0;
-            if (newMaxX >= MaxWidth) newMaxX = MaxWidth - 1;
-            if (newMaxY >= MaxHeight) newMaxY = MaxHeight - 1;
-
+            newSize = newSize.Intersect(new Int32Rect(0, 0, MaxWidth, MaxHeight));
+            if (newSize.IsEmpty)
+                return;
             if (IsReset)
             {
-                Offset = new Thickness(newMinX, newMinY, 0, 0);
+                Offset = new Thickness(newSize.X, newSize.Y, 0, 0);
             }
 
-            DynamicResizeRelative(newMaxX - OffsetX, newMaxY - OffsetY, newMinX - OffsetX, newMinY - OffsetY);
+            int relX = newSize.X - OffsetX;
+            int relY = newSize.Y - OffsetY;
+            int maxX = relX + newSize.Width - 1;
+            int maxY = relY + newSize.Height - 1;
+
+            DynamicResizeRelative(maxX, maxY, relX, relY);
         }
 
         /// <summary>
