@@ -3,6 +3,7 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
+using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using SkiaSharp;
 using System;
@@ -37,21 +38,26 @@ namespace PixiEditor.Models.Controllers
             {
                 return;
             }
+
+            StorageBasedChange change = new StorageBasedChange(Manager.ActiveDocument, layers, true);
+            
+
             // TODO: Fix
-            //BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, SKColors.Empty);
+            BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, SKColors.Empty);
             //Dictionary<Guid, SKColor[]> oldValues = BitmapUtils.GetPixelsForSelection(layers, pixels);
             //LayerChange[] old = new LayerChange[layers.Length];
             //LayerChange[] newChange = new LayerChange[layers.Length];
-            //for (int i = 0; i < layers.Length; i++)
-            //{
-            //    Guid guid = layers[i].LayerGuid;
-            //    old[i] = new LayerChange(
-            //        BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i].LayerGuid]), guid);
-            //    newChange[i] = new LayerChange(changes, guid);
-            //    layers[i].SetPixels(changes);
-            //}
+            for (int i = 0; i < layers.Length; i++)
+            {
+                Guid guid = layers[i].LayerGuid;
+                //old[i] = new LayerChange(
+                    //BitmapPixelChanges.FromArrays(pixels, oldValues[layers[i].LayerGuid]), guid);
+                //newChange[i] = new LayerChange(changes, guid);
+                layers[i].SetPixels(changes);
+            }
 
-            //Manager.ActiveDocument.UndoManager.AddUndoChange(new Change("UndoChanges", old, newChange, "Deleted pixels"));
+            var args = new object[] { change.Document };
+            Manager.ActiveDocument.UndoManager.AddUndoChange(change.ToChange(StorageBasedChange.BasicUndoProcess, args, "Delete selected pixels"));
         }
 
         /// <summary>

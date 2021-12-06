@@ -252,5 +252,24 @@ namespace PixiEditor.Models.Undo
                 i++;
             }
         }
+
+        public static void BasicUndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            if (args.Length > 0 && args[0] is Document document)
+            {
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    Layer layer = layers[i];
+                    document.Layers.RemoveAt(data[i].LayerIndex);
+
+                    document.Layers.Insert(data[i].LayerIndex, layer);
+                    if (data[i].IsActive)
+                    {
+                        document.SetMainActiveLayer(data[i].LayerIndex);
+                    }
+                }
+
+            }
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace PixiEditor.Models.Tools
             if (!UseDefaultUndoMethod) return;
 
             var args = new object[] { _change.Document };
-            document.UndoManager.AddUndoChange(_change.ToChange(UndoProcess, args));
+            document.UndoManager.AddUndoChange(_change.ToChange(StorageBasedChange.BasicUndoProcess, args));
             _change = null;
         }
 
@@ -44,25 +44,6 @@ namespace PixiEditor.Models.Tools
             {
                 Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
                 _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
-            }
-        }
-
-        private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
-        {
-            if (args.Length > 0 && args[0] is Document document)
-            {
-                for (int i = 0; i < layers.Length; i++)
-                {
-                    Layer layer = layers[i];
-                    document.Layers.RemoveAt(data[i].LayerIndex);
-
-                    document.Layers.Insert(data[i].LayerIndex, layer);
-                    if (data[i].IsActive)
-                    {
-                        document.SetMainActiveLayer(data[i].LayerIndex);
-                    }
-                }
-
             }
         }
     }
