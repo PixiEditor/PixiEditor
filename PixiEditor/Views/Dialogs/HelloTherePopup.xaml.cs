@@ -22,7 +22,7 @@ namespace PixiEditor.Views.Dialogs
             DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
         public static string VersionText =>
-            $"v{AssemblyHelper.GetCurrentAssemblyVersion()}";
+            $"v{VersionHelpers.GetCurrentAssemblyVersionString()}";
 
         public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
 
