@@ -42,7 +42,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 RaisePropertyChanged(nameof(UpdateReadyToInstall));
                 if (value)
                 {
-                    VersionText = $"to install update (current {UpdateChecker.CurrentVersionTag})"; // Button shows "Restart" before this text
+                    VersionText = $"to install update (current {VersionHelpers.GetCurrentAssemblyVersionString()})"; // Button shows "Restart" before this text
                 }
             }
         }
