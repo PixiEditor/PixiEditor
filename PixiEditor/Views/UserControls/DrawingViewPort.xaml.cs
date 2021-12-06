@@ -30,6 +30,9 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty StylusButtonUpCommandProperty =
             DependencyProperty.Register(nameof(StylusButtonUpCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
+        public static readonly DependencyProperty StylusOutOfRangeCommandProperty =
+            DependencyProperty.Register(nameof(StylusOutOfRangeCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
         public static readonly DependencyProperty MouseXOnCanvasProperty =
             DependencyProperty.Register(nameof(MouseXOnCanvas), typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
 
@@ -90,6 +93,12 @@ namespace PixiEditor.Views.UserControls
         {
             get => (ICommand)GetValue(StylusGestureCommandProperty);
             set => SetValue(StylusGestureCommandProperty, value);
+        }
+
+        public ICommand StylusOutOfRangeCommand
+        {
+            get => (ICommand)GetValue(StylusOutOfRangeCommandProperty);
+            set => SetValue(StylusOutOfRangeCommandProperty, value);
         }
 
         public double MouseXOnCanvas

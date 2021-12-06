@@ -290,6 +290,7 @@
                                         StylusButtonDownCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusDownCommand}"
                                         StylusButtonUpCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusUpCommand}"
                                         StylusGestureCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusGestureCommand}"
+                                        StylusOutOfRangeCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusOutOfRangeCommand}"
                                         UseTouchGestures="{Binding XamlAccesibleViewModel.StylusSubViewModel.UseTouchGestures}"
                                         IsUsingZoomTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
                                         IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"

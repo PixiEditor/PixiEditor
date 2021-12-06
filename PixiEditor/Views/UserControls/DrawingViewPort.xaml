@@ -44,6 +44,10 @@
                 <cmd:EventToCommand Command="{Binding StylusGestureCommand, ElementName=uc}"
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
+            <i:EventTrigger EventName="StylusOutOfRange">
+                <cmd:EventToCommand Command="{Binding StylusOutOfRangeCommand, ElementName=uc}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
         </i:Interaction.Triggers>
         <i:Interaction.Behaviors>
             <behaviors:MouseBehavior RelativeTo="{Binding ElementName=zoombox, Path=AdditionalContent}"
