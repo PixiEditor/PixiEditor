@@ -19,17 +19,22 @@
                                       MoveToFrontCommand="{Binding LayerCommandsViewModel.MoveToFrontCommand, ElementName=layerStructureContainer}">
         <vws:LayerItem.ContextMenu>
             <ContextMenu>
+                <MenuItem Header="Duplicate"
+                                         Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DuplicateLayerCommand,
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
                 <MenuItem Header="Delete"
-                                         Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand, 
+                                         Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand,
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                           CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
                 <MenuItem Header="Rename"
-                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.RenameLayerCommand, 
+                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.RenameLayerCommand,
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
                 <MenuItem Header="Move to front"
-                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand, 
+                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand,
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                            CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
