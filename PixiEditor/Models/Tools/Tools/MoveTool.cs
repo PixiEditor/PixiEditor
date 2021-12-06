@@ -45,9 +45,11 @@ namespace PixiEditor.Models.Tools.Tools
 
         private StorageBasedChange change;
 
+        private string defaultActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+
         public MoveTool(BitmapManager bitmapManager)
         {
-            ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+            ActionDisplay = defaultActionDisplay;
             Cursor = Cursors.Arrow;
             RequiresPreviewLayer = true;
             UseDefaultUndoMethod = false;
@@ -59,23 +61,21 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override bool HideHighlight => true;
 
-        public bool MoveAll { get; set; }
-
         private BitmapManager BitmapManager { get; }
 
         public override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl )
+            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
             {
-                ActionDisplay = "Hold mouse to move all selected layers.";
+                ActionDisplay = "Hold mouse to move all layers.";
             }
         }
 
         public override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
             {
-                ActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+                ActionDisplay = defaultActionDisplay;
             }
         }
 
@@ -117,7 +117,7 @@ namespace PixiEditor.Models.Tools.Tools
             Selection selection = doc.ActiveSelection;
             bool anySelection = selection.SelectedPoints.Any();
 
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
                 affectedLayers = doc.Layers.Where(x => x.IsVisible).ToArray();
             }

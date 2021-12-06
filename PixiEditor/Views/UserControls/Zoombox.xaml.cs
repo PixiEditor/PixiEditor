@@ -285,7 +285,7 @@ namespace PixiEditor.Views.UserControls
             else
             {
                 if (ZoomMode == Mode.ZoomTool && e.ChangedButton == MouseButton.Left)
-                    ZoomInto(e.GetPosition(mainCanvas), Keyboard.IsKeyDown(Key.LeftCtrl) ? -1 : 1);
+                    ZoomInto(e.GetPosition(mainCanvas), Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? -1 : 1);
             }
             activeMouseDownEventArgs = null;
         }

@@ -113,9 +113,11 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
+        private string defaltActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+
         public LineTool()
         {
-            ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+            ActionDisplay = defaltActionDisplay;
             Toolbar = new BasicToolbar();
             circleTool = new CircleTool();
         }
@@ -124,7 +126,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftShift)
+            if (e.Key is Key.LeftShift or Key.RightShift)
             {
                 ActionDisplay = "Click and move mouse to draw an even line.";
             }
@@ -132,9 +134,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftShift)
+            if (e.Key is Key.LeftShift or Key.RightShift)
             {
-                ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+                ActionDisplay = defaltActionDisplay;
             }
         }
 

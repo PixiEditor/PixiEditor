@@ -93,16 +93,18 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
+        private string defaultActionDisplay = "Click and move mouse to draw a circle. Hold Shift to draw an even one.";
+
         public CircleTool()
         {
-            ActionDisplay = "Click and move mouse to draw a circle. Hold Shift to draw an even one.";
+            ActionDisplay = defaultActionDisplay;
         }
 
         public override string Tooltip => "Draws circle on canvas (C). Hold Shift to draw even circle.";
 
         public override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftShift)
+            if (e.Key is Key.LeftShift or Key.RightShift)
             {
                 ActionDisplay = "Click and move mouse to draw an even circle.";
             }
@@ -110,9 +112,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftShift)
+            if (e.Key is Key.LeftShift or Key.RightShift)
             {
-                ActionDisplay = "Click and move mouse to draw a circle. Hold Shift to draw an even one.";
+                ActionDisplay = defaultActionDisplay;
             }
         }
 

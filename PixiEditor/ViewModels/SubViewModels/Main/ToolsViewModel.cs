@@ -94,8 +94,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             LastActionTool = ActiveTool;
-            SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(ActiveTool, tool));
             ActiveTool = tool;
+            SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
             tool.IsActive = true;
             ActiveTool.OnSelected();

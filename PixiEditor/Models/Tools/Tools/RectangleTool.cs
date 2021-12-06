@@ -11,18 +11,19 @@ namespace PixiEditor.Models.Tools.Tools
 {
     public class RectangleTool : ShapeTool
     {
+        private string defaultActionDisplay = "Click and move to draw a rectangle. Hold Shift to draw a square.";
         public RectangleTool()
         {
-            ActionDisplay = "Click and move to draw a rectangle.  Hold Shift to draw square.";
+            ActionDisplay = defaultActionDisplay;
         }
 
-        public override string Tooltip => "Draws rectangle on canvas (R). Hold Shift to draw square.";
+        public override string Tooltip => "Draws rectangle on canvas (R). Hold Shift to draw a square.";
 
         public bool Filled { get; set; } = false;
 
         public override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftShift)
+            if (e.Key is Key.LeftShift or Key.RightShift)
             {
                 ActionDisplay = "Click and move to draw a square.";
             }
@@ -30,9 +31,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftShift)
+            if (e.Key is Key.LeftShift or Key.RightShift)
             {
-                ActionDisplay = "Click and move to draw a rectangle.  Hold Shift to draw square.";
+                ActionDisplay = defaultActionDisplay;
             }
         }
 

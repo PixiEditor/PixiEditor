@@ -25,15 +25,16 @@ namespace PixiEditor.Models.Tools.Tools
         private List<DoubleCoords> circleCache = new List<DoubleCoords>();
         private int cachedCircleSize = -1;
 
+        private string defaultActionDisplay = "Draw on pixels to make them brighter. Hold Ctrl to darken.";
         public BrightnessTool()
         {
-            ActionDisplay = "Draw on pixel to make it brighter. Hold Ctrl to darken.";
+            ActionDisplay = defaultActionDisplay;
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
         public override bool UsesShift => false;
 
-        public override string Tooltip => "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
+        public override string Tooltip => "Makes pixels brighter or darker (U). Hold Ctrl to make pixels darker.";
 
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 
@@ -45,17 +46,17 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
             {
-                ActionDisplay = "Draw on pixel to make it darker. Release Ctrl to brighten.";
+                ActionDisplay = "Draw on pixels to make them darker. Release Ctrl to brighten.";
             }
         }
 
         public override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
             {
-                ActionDisplay = "Draw on pixel to make it brighter. Hold Ctrl to darken.";
+                ActionDisplay = defaultActionDisplay;
             }
         }
 
@@ -65,7 +66,7 @@ namespace PixiEditor.Models.Tools.Tools
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
             Mode = Toolbar.GetEnumSetting<BrightnessMode>("BrightnessMode").Value;
 
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
                 ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor);
             }

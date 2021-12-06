@@ -103,7 +103,7 @@ namespace PixiEditor.Models.Controllers
 
             int thickness = sizeSetting != null ? sizeSetting.Value : 1;
 
-            bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift);
+            bool shiftDown = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 
             if (shiftDown && tool.UsesShift)
             {
