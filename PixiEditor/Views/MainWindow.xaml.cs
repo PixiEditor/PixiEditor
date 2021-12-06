@@ -4,6 +4,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.Dialogs;
+using PixiEditor.Views.UserControls;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;

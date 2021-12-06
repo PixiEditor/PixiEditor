@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
@@ -37,35 +38,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private Tool PreviousTool { get; set; }
 
-        public StylusViewModel()
-            : this(null)
-        {
-        }
+        public RelayCommand<StylusButtonEventArgs> StylusDownCommand { get; }
+
+        public RelayCommand<StylusButtonEventArgs> StylusUpCommand { get; }
+
+        public RelayCommand<StylusSystemGestureEventArgs> StylusGestureCommand { get; }
 
         public StylusViewModel(ViewModelMain owner)
             : base(owner)
         {
-        }
-
-        public void SetOwner(ViewModelMain owner)
-        {
-            if (Owner is not null)
-            {
-                throw new System.Exception($"{nameof(StylusViewModel)} already has an owner");
-            }
-            else if (owner is null)
-            {
-                return;
-            }
-
-            Owner = owner;
-
-            // TODO: Only capture it on the Drawing View Port
-            Window mw = Application.Current.MainWindow;
-
-            mw.PreviewStylusButtonDown += Mw_StylusButtonDown;
-            mw.PreviewStylusButtonUp += Mw_StylusButtonUp;
-            mw.PreviewStylusSystemGesture += Mw_PreviewStylusSystemGesture;
+            StylusDownCommand = new(StylusDown);
+            StylusUpCommand = new(StylusUp);
+            StylusGestureCommand = new(StylusSystemGesture);
 
             isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
             Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
@@ -85,7 +69,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void Mw_PreviewStylusSystemGesture(object sender, StylusSystemGestureEventArgs e)
+        private void StylusSystemGesture(StylusSystemGestureEventArgs e)
         {
             if (e.SystemGesture == SystemGesture.Drag || e.SystemGesture == SystemGesture.Tap)
             {
@@ -95,7 +79,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             e.Handled = true;
         }
 
-        private void Mw_StylusButtonDown(object sender, StylusButtonEventArgs e)
+        private void StylusDown(StylusButtonEventArgs e)
         {
             e.Handled = true;
 
@@ -107,7 +91,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void Mw_StylusButtonUp(object sender, StylusButtonEventArgs e)
+        private void StylusUp(StylusButtonEventArgs e)
         {
             e.Handled = true;
 

@@ -20,6 +20,15 @@ namespace PixiEditor.Views.UserControls
 
         public static readonly DependencyProperty MouseDownCommandProperty =
             DependencyProperty.Register(nameof(MouseDownCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+        
+        public static readonly DependencyProperty StylusButtonDownCommandProperty =
+            DependencyProperty.Register(nameof(StylusButtonDownCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusGestureCommandProperty =
+            DependencyProperty.Register(nameof(StylusGestureCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusButtonUpCommandProperty =
+            DependencyProperty.Register(nameof(StylusButtonUpCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
         public static readonly DependencyProperty MouseXOnCanvasProperty =
             DependencyProperty.Register(nameof(MouseXOnCanvas), typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
@@ -63,6 +72,24 @@ namespace PixiEditor.Views.UserControls
         {
             get => (ICommand)GetValue(MouseDownCommandProperty);
             set => SetValue(MouseDownCommandProperty, value);
+        }
+
+        public ICommand StylusButtonDownCommand
+        {
+            get => (ICommand)GetValue(StylusButtonDownCommandProperty);
+            set => SetValue(StylusButtonDownCommandProperty, value);
+        }
+
+        public ICommand StylusButtonUpCommand
+        {
+            get => (ICommand)GetValue(StylusButtonUpCommandProperty);
+            set => SetValue(StylusButtonUpCommandProperty, value);
+        }
+
+        public ICommand StylusGestureCommand
+        {
+            get => (ICommand)GetValue(StylusGestureCommandProperty);
+            set => SetValue(StylusGestureCommandProperty, value);
         }
 
         public double MouseXOnCanvas
