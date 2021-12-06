@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
@@ -33,23 +34,16 @@ namespace PixiEditor.Models.Tools.Tools
 
         private Layer[] affectedLayers;
         private Surface[] currentlyDragged;
+        private Coordinates[] currentlyDraggedPositions;
         private Surface previewLayerData;
-        
+
+        private List<Coordinates> moveStartSelectedPoints = null;
         private Coordinates moveStartPos;
         private Int32Rect moveStartRect;
 
         private Coordinates lastDragDelta;
 
         private StorageBasedChange change;
-
-        //private Dictionary<Guid, bool> clearedPixels = new Dictionary<Guid, bool>();
-        //private Coordinates[] currentSelection;
-        //private Coordinates lastMouseMove;
-        //private Dictionary<Guid, SKColor[]> startPixelColors;
-        //private Dictionary<Guid, SKColor[]> endPixelColors;
-        //private Dictionary<Guid, Thickness> startingOffsets;
-        //private Coordinates[] startSelection;
-        //private bool updateViewModelSelection = true;
 
         public MoveTool(BitmapManager bitmapManager)
         {
@@ -71,7 +65,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key == Key.LeftCtrl )
             {
                 ActionDisplay = "Hold mouse to move all selected layers.";
             }
@@ -85,53 +79,16 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public void AfterAddedUndo(UndoManager undoManager)
-        {
-            //if (currentSelection == null || currentSelection.Length == 0)
-            //{
-            //    return;
-            //}
-            //Change changes = undoManager.UndoStack.Peek();
-            //// Inject to default undo system change custom changes made by this tool
-            //foreach (var item in startPixelColors)
-            //{
-            //    BitmapPixelChanges beforeMovePixels = BitmapPixelChanges.FromArrays(startSelection, item.Value);
-            //    BitmapPixelChanges afterMovePixels = BitmapPixelChanges.FromArrays(currentSelection, endPixelColors[item.Key]);
-            //    Guid layerGuid = item.Key;
-            //    var oldValue = (LayerChange[])changes.OldValue;
-            //    if (oldValue.Any(x => x.LayerGuid == layerGuid))
-            //    {
-            //        var layer = oldValue.First(x => x.LayerGuid == layerGuid);
-            //        layer.PixelChanges.ChangedPixels.AddRangeOverride(afterMovePixels.ChangedPixels);
-            //        layer.PixelChanges.ChangedPixels
-            //            .AddRangeOverride(beforeMovePixels.ChangedPixels);
-            //        ((LayerChange[])changes.NewValue).First(x => x.LayerGuid == layerGuid).PixelChanges.ChangedPixels
-            //            .AddRangeNewOnly(BitmapPixelChanges
-            //                .FromSingleColoredArray(startSelection, SKColors.Transparent)
-            //                .ChangedPixels);
-            //    }
-            //}
-        }
-
-        // This adds undo if there is no selection, reason why this isn't in AfterUndoAdded,
-        // is because it doesn't fire if no pixel changes were made.
-        //public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
-        //{
-        //    if (currentSelection != null && currentSelection.Length == 0)
-        //    {
-        //        BitmapManager.ActiveDocument.UndoManager.AddUndoChange(new Change(
-        //            ApplyOffsets,
-        //            new object[] { startingOffsets },
-        //            ApplyOffsets,
-        //            new object[] { GetOffsets(affectedLayers) },
-        //            "Move layers"));
-        //    }
-        //}
-
         public override void AddUndoProcess(Document document)
         {
             var args = new object[] { change.Document };
             document.UndoManager.AddUndoChange(change.ToChange(UndoProcess, args));
+            if (moveStartSelectedPoints != null)
+            {
+                SelectionHelpers.AddSelectionUndoStep(document, moveStartSelectedPoints, SelectionType.New);
+                document.UndoManager.SquashUndoChanges(3, "Move selected area");
+                moveStartSelectedPoints = null;
+            }
             change = null;
         }
 
@@ -156,10 +113,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnStart(Coordinates startPos)
         {
-            //ResetSelectionValues(startPos);
-            // Move offset if no selection
             Document doc = BitmapManager.ActiveDocument;
             Selection selection = doc.ActiveSelection;
+            bool anySelection = selection.SelectedPoints.Any();
 
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || MoveAll)
             {
@@ -173,12 +129,14 @@ namespace PixiEditor.Models.Tools.Tools
             change = new StorageBasedChange(doc, affectedLayers, true);
 
             Layer selLayer = selection.SelectionLayer;
-            moveStartRect = new(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height);
+            moveStartRect = anySelection ? 
+                new(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height) :
+                new (0, 0, doc.Width, doc.Height);
             moveStartPos = startPos;
             lastDragDelta = new Coordinates(0, 0);
 
             previewLayerData?.Dispose();
-            previewLayerData = CreateCombinedPreview(selLayer, affectedLayers);
+            previewLayerData = CreateCombinedPreview(anySelection ? selLayer : null, affectedLayers);
 
             if (currentlyDragged != null)
             {
@@ -186,25 +144,56 @@ namespace PixiEditor.Models.Tools.Tools
                     surface.Dispose();
             }
 
-            currentlyDragged = ExtractDraggedPortions(selLayer, affectedLayers);
+            if (anySelection)
+            {
+                currentlyDragged = ExtractDraggedPortions(anySelection ? selLayer : null, affectedLayers);
+                currentlyDraggedPositions = Enumerable.Repeat(new Coordinates(selLayer.OffsetX, selLayer.OffsetY), affectedLayers.Length).ToArray();
+            }
+            else
+            {
+                (currentlyDraggedPositions, currentlyDragged) = CutDraggedLayers(affectedLayers);
+            }
 
-            
-            //startSelection = currentSelection;
-            //startPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, startSelection);
-            //startingOffsets = GetOffsets(affectedLayers);
+            if (anySelection)
+                moveStartSelectedPoints = selection.SelectedPoints.ToList();
         }
 
         private Surface CreateCombinedPreview(Layer selLayer, Layer[] layersToCombine)
         {
             var combined = BitmapUtils.CombineLayers(moveStartRect, layersToCombine, BitmapManager.ActiveDocument.LayerStructure);
-            using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
-            combined.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, maskingPaint);
+            if (selLayer != null)
+            {
+                using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
+                combined.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, maskingPaint);
+            }
             return combined;
         }
+
+        private static (Coordinates[], Surface[]) CutDraggedLayers(Layer[] draggedLayers)
+        {
+            Surface[] outSurfaces = new Surface[draggedLayers.Length];
+            Coordinates[] outCoords = new Coordinates[draggedLayers.Length];
+
+            int count = 0;
+            foreach (var layer in draggedLayers)
+            {
+                outCoords[count] = new Coordinates(layer.OffsetX, layer.OffsetY);
+                Surface copy = new(layer.Width, layer.Height);
+                layer.LayerBitmap.SkiaSurface.Draw(copy.SkiaSurface.Canvas, 0, 0, Surface.ReplacingPaint);
+                layer.LayerBitmap.SkiaSurface.Canvas.Clear();
+                layer.InvokeLayerBitmapChange();
+                outSurfaces[count] = copy;
+                count++;
+            }
+
+            return (outCoords, outSurfaces);
+        }
+
         private static Surface[] ExtractDraggedPortions(Layer selLayer, Layer[] draggedLayers)
         {
             using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
             Surface[] output = new Surface[draggedLayers.Length];
+            
             int count = 0;
             foreach (Layer layer in draggedLayers)
             {
@@ -221,7 +210,7 @@ namespace PixiEditor.Models.Tools.Tools
                 count++;
 
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(selSnap, new SKRect(0, 0, selLayer.Width, selLayer.Height), 
-                    new SKRect(selLayer.OffsetX-layer.OffsetX, selLayer.OffsetY-layer.OffsetY, selLayer.OffsetX - layer.OffsetX + selLayer.Width, selLayer.OffsetY - layer.OffsetY + selLayer.Height), 
+                    new SKRect(selLayer.OffsetX - layer.OffsetX, selLayer.OffsetY - layer.OffsetY, selLayer.OffsetX - layer.OffsetX + selLayer.Width, selLayer.OffsetY - layer.OffsetY + selLayer.Height), 
                     inverseMaskingPaint);
                 layer.InvokeLayerBitmapChange(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height));
             }
@@ -230,9 +219,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Layer layer, List<Coordinates> mouseMove, SKColor color)
         {
-            //LayerChange[] result = new LayerChange[affectedLayers.Length];
-
-
             Coordinates newPos = mouseMove[0];
             int dX = newPos.X - moveStartPos.X;
             int dY = newPos.Y - moveStartPos.Y;
@@ -246,34 +232,6 @@ namespace PixiEditor.Models.Tools.Tools
             layer.DynamicResizeAbsolute(newX + moveStartRect.Width, newY + moveStartRect.Height, newX, newY);
             previewLayerData.SkiaSurface.Draw(layer.LayerBitmap.SkiaSurface.Canvas, newX - layer.OffsetX, newY - layer.OffsetY, Surface.ReplacingPaint);
             layer.InvokeLayerBitmapChange(new Int32Rect(newX, newY, moveStartRect.Width, moveStartRect.Height));
-
-            
-
-            /*var end = mouseMove[0];
-            var lastSelection = currentSelection.ToArray();
-            for (int i = 0; i < affectedLayers.Length; i++)
-            {
-                if (currentSelection.Length > 0)
-                {
-                    endPixelColors = BitmapUtils.GetPixelsForSelection(affectedLayers, currentSelection);
-                    var changes = MoveSelection(affectedLayers[i], mouseMove);
-                    ClearSelectedPixels(affectedLayers[i], lastSelection);
-
-                    changes = RemoveTransparentPixels(changes);
-
-                    result[i] = new LayerChange(changes, affectedLayers[i]);
-                }
-                else
-                {
-                    var vector = Transform.GetTranslation(lastMouseMove, end);
-                    affectedLayers[i].Offset = new Thickness(affectedLayers[i].OffsetX + vector.X, affectedLayers[i].OffsetY + vector.Y, 0, 0);
-                    result[i] = new LayerChange(BitmapPixelChanges.Empty, affectedLayers[i]);
-                }
-            }
-
-            lastMouseMove = end;
-
-            return result;*/
         }
 
         public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
@@ -282,19 +240,20 @@ namespace PixiEditor.Models.Tools.Tools
 
             BitmapManager.ActiveDocument.PreviewLayer.ClearCanvas();
 
-            ApplySurfacesToLayers(currentlyDragged, affectedLayers, new Coordinates(moveStartRect.X + lastDragDelta.X, moveStartRect.Y + lastDragDelta.Y));
+            ApplySurfacesToLayers(currentlyDragged, currentlyDraggedPositions, affectedLayers, new Coordinates(lastDragDelta.X, lastDragDelta.Y));
             foreach (var surface in currentlyDragged)
                 surface.Dispose();
             currentlyDragged = null;
         }
 
-        private static void ApplySurfacesToLayers(Surface[] surfaces, Layer[] layers, Coordinates position)
+        private static void ApplySurfacesToLayers(Surface[] surfaces, Coordinates[] startPositions, Layer[] layers, Coordinates delta)
         {
             int count = 0;
             foreach (Surface surface in surfaces)
             {
                 var layer = layers[count];
                 using SKImage snapshot = surface.SkiaSurface.Snapshot();
+                Coordinates position = new Coordinates(startPositions[count].X + delta.X, startPositions[count].Y + delta.Y);
                 layer.DynamicResizeAbsolute(position.X + surface.Width, position.Y + surface.Height, position.X, position.Y);
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(snapshot, position.X - layer.OffsetX, position.Y - layer.OffsetY);
                 layer.InvokeLayerBitmapChange(new Int32Rect(position.X, position.Y, surface.Width, surface.Height));
@@ -302,78 +261,5 @@ namespace PixiEditor.Models.Tools.Tools
                 count++;
             }
         }
-
-        //public BitmapPixelChanges MoveSelection(Layer layer, IEnumerable<Coordinates> mouseMove)
-        //{
-        //    Coordinates end = mouseMove.First();
-
-        //    currentSelection = TranslateSelection(end);
-        //    if (updateViewModelSelection)
-        //    {
-        //        ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(currentSelection, SelectionType.New);
-        //    }
-        //    lastMouseMove = end;
-        //    return BitmapPixelChanges.FromArrays(currentSelection, startPixelColors[layer.LayerGuid]);
-        //}
-        //private void ApplyOffsets(object[] parameters)
-        //{
-        //    Dictionary<Guid, Thickness> offsets = (Dictionary<Guid, Thickness>)parameters[0];
-        //    foreach (var offset in offsets)
-        //    {
-        //        Layer layer = ViewModelMain.Current?.BitmapManager?.
-        //            ActiveDocument?.Layers?.First(x => x.LayerGuid == offset.Key);
-        //        layer.Offset = offset.Value;
-        //    }
-        //}
-
-        //private Dictionary<Guid, Thickness> GetOffsets(Layer[] layers)
-        //{
-        //    Dictionary<Guid, Thickness> dict = new Dictionary<Guid, Thickness>();
-        //    for (int i = 0; i < layers.Length; i++)
-        //    {
-        //        dict.Add(layers[i].LayerGuid, layers[i].Offset);
-        //    }
-
-        //    return dict;
-        //}
-
-        //private BitmapPixelChanges RemoveTransparentPixels(BitmapPixelChanges pixels)
-        //{
-        //    foreach (var item in pixels.ChangedPixels.Where(x => x.Value.Alpha == 0).ToList())
-        //    {
-        //        pixels.ChangedPixels.Remove(item.Key);
-        //    }
-        //    return pixels;
-        //}
-
-        //private void ResetSelectionValues(Coordinates start)
-        //{
-        //    lastMouseMove = start;
-        //    clearedPixels = new Dictionary<Guid, bool>();
-        //    endPixelColors = new Dictionary<Guid, SKColor[]>();
-        //    currentSelection = null;
-        //    affectedLayers = null;
-        //    updateViewModelSelection = true;
-        //    startPixelColors = null;
-        //    startSelection = null;
-        //}
-
-        //private Coordinates[] TranslateSelection(Coordinates end)
-        //{
-        //    Coordinates translation = Transform.GetTranslation(lastMouseMove, end);
-        //    return Transform.Translate(currentSelection, translation);
-        //}
-
-        //private void ClearSelectedPixels(Layer layer, Coordinates[] selection)
-        //{
-        //    Guid layerGuid = layer.LayerGuid;
-        //    if (!clearedPixels.ContainsKey(layerGuid) || clearedPixels[layerGuid] == false)
-        //    {
-        //        BitmapManager.ActiveDocument.Layers.First(x => x == layer)
-        //            .SetPixels(BitmapPixelChanges.FromSingleColoredArray(selection, SKColors.Transparent));
-
-        //        clearedPixels[layerGuid] = true;
-        //    }
-        //}
     }
 }
