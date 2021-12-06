@@ -34,7 +34,7 @@ namespace PixiEditor.Helpers
         {
             done = true;
 
-            builder.Append(" Dev");
+            builder.Append(" Dev Build");
         }
 
         [Conditional("DEBUG")]
@@ -42,7 +42,7 @@ namespace PixiEditor.Helpers
         {
             done = true;
 
-            builder.Append(" Debug");
+            builder.Append(" Debug Build");
         }
     }
 }
