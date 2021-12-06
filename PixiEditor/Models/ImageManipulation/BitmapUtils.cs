@@ -25,6 +25,8 @@ namespace PixiEditor.Models.ImageManipulation
             for (int i = 0; i < layers.Count(); i++)
             {
                 Layer layer = layers.ElementAt(i);
+                if (structure != null && !LayerStructureUtils.GetFinalLayerIsVisible(layer, structure))
+                    continue;
                 float layerOpacity = structure == null ? layer.Opacity : LayerStructureUtils.GetFinalLayerOpacity(layer, structure);
                 paint.Color = new(255, 255, 255, (byte)(layerOpacity * 255));
 

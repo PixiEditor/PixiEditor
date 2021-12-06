@@ -24,18 +24,16 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             if (layer.IsReset)
             {
+                layer.DynamicResizeAbsolute(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height, 0, 0);
                 layer.LayerBitmap.SkiaSurface.Canvas.Clear(color);
+                layer.InvokeLayerBitmapChange();
             }
             else
             {
                 LinearFill(layer, coordinates[0], color);
             }
-            sw.Stop();
-            Trace.WriteLine(sw.ElapsedMilliseconds);
         }
 
         public void LinearFill(Layer layer, Coordinates startingCoords, SKColor newColor)
