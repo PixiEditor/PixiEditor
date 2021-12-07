@@ -130,6 +130,7 @@ namespace PixiEditor.Models.Controllers
             }
             else if (activeTool is ReadonlyTool readonlyTool)
             {
+                ActiveDocument.PreviewLayer.Reset();
                 ReadonlyToolUtility.ExecuteTool(
                     MouseController.LastMouseMoveCoordinates,
                     readonlyTool);
