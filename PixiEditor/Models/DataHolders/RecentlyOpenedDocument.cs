@@ -5,7 +5,6 @@ using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
@@ -74,7 +73,7 @@ namespace PixiEditor.Models.DataHolders
         {
             if (FileExtension == ".pixi")
             {
-                SerializableDocument serializableDocument = null;
+                SerializableDocument serializableDocument;
 
                 try
                 {
@@ -106,7 +105,17 @@ namespace PixiEditor.Models.DataHolders
                     corrupt = true;
                 }
 
-                return bitmap;
+                const int MaxWidthInPixels = 2048;
+                const int MaxHeightInPixels = 2048;
+                ImageFileMaxSizeChecker imageFileMaxSizeChecker = new ImageFileMaxSizeChecker()
+                {
+                    MaxAllowedWidthInPixels = MaxWidthInPixels,
+                    MaxAllowedHeightInPixels = MaxHeightInPixels,
+                };
+
+                return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
+                    bitmap
+                    : bitmap.Resize(width: MaxWidthInPixels, height: MaxHeightInPixels, WriteableBitmapExtensions.Interpolation.Bilinear);
             }
 
             return null;
