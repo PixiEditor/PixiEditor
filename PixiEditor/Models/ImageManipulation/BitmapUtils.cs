@@ -8,7 +8,6 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -126,29 +125,18 @@ namespace PixiEditor.Models.ImageManipulation
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Color BlendColor(Color previousColor, Color color, float opacity)
+        public static SKColor BlendColors(SKColor bottomColor, SKColor topColor)
         {
-            if ((color.A < 255 && color.A > 0) || (opacity < 1f && opacity > 0 && color.A > 0))
+            if ((topColor.Alpha < 255 && topColor.Alpha > 0))
             {
-                byte pixelA = (byte)(color.A * opacity);
-                byte r = (byte)((color.R * pixelA / 255) + (previousColor.R * previousColor.A * (255 - pixelA) / (255 * 255)));
-                byte g = (byte)((color.G * pixelA / 255) + (previousColor.G * previousColor.A * (255 - pixelA) / (255 * 255)));
-                byte b = (byte)((color.B * pixelA / 255) + (previousColor.B * previousColor.A * (255 - pixelA) / (255 * 255)));
-                byte a = (byte)(pixelA + (previousColor.A * (255 - pixelA) / 255));
-                color = Color.FromArgb(a, r, g, b);
-            }
-            else
-            {
-                color = Color.FromArgb(color.A, color.R, color.G, color.B);
+                byte r = (byte)((topColor.Red * topColor.Alpha / 255) + (bottomColor.Red * bottomColor.Alpha * (255 - topColor.Alpha) / (255 * 255)));
+                byte g = (byte)((topColor.Green * topColor.Alpha / 255) + (bottomColor.Green * bottomColor.Alpha * (255 - topColor.Alpha) / (255 * 255)));
+                byte b = (byte)((topColor.Blue * topColor.Alpha / 255) + (bottomColor.Blue * bottomColor.Alpha * (255 - topColor.Alpha) / (255 * 255)));
+                byte a = (byte)(topColor.Alpha + (bottomColor.Alpha * (255 - topColor.Alpha) / 255));
+                return new SKColor(r, g, b, a);
             }
 
-            if (color.A > 0)
-            {
-                return color;
-            }
-
-            return previousColor;
+            return topColor.Alpha == 255 ? topColor : bottomColor;
         }
 
         private static WriteableBitmap GeneratePreviewBitmap(
@@ -193,7 +181,7 @@ namespace PixiEditor.Models.ImageManipulation
 
             int newWidth = width >= height ? maxPreviewWidth : (int)Math.Ceiling(width / ((float)height / maxPreviewHeight));
             int newHeight = height > width ? maxPreviewHeight : (int)Math.Ceiling(height / ((float)width / maxPreviewWidth));
-            return previewBitmap.Resize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);*/
+            return previewBitmap.Redesize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);*/
         }
     }
 }
