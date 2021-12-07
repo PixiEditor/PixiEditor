@@ -5,6 +5,7 @@ using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
