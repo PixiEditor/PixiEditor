@@ -1,7 +1,4 @@
-﻿using System;
-using System.Configuration;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
+﻿using PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
 {

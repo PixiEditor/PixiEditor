@@ -5,6 +5,7 @@
 
 trigger:
 - release
+- development
 pr: none
 
 pool:
@@ -79,7 +80,7 @@ steps:
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.1.2\tools\ISCC.exe" Installer\installer-setup-x86-light.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.2.0\tools\ISCC.exe" Installer\installer-setup-x86-light.iss'
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"
