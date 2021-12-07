@@ -1,10 +1,8 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using ColorPicker;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.ViewModels;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace PixiEditor.Views
 {
@@ -44,7 +42,11 @@ namespace PixiEditor.Views
 
         public void CopyMainColor(object parameter)
         {
-            SelectedColor = ViewModelMain.Current.ColorsSubViewModel.PrimaryColor;
+            SelectedColor = Color.FromArgb(
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Alpha,
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Red,
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Green,
+                ViewModelMain.Current.ColorsSubViewModel.PrimaryColor.Blue);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace PixiEditor.Views.UserControls.Layers
             string path = OpenFilePicker();
             if (path != null)
             {
-                var bitmap = Importer.ImportImage(path);
+                var bitmap = Importer.ImportSurface(path);
                 Layer = new Layer("_Reference Layer", bitmap);
             }
         }

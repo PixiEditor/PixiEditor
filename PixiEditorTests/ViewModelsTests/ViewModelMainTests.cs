@@ -3,9 +3,9 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels;
 using PixiEditorTests.HelpersTests;
+using SkiaSharp;
 using System.IO;
 using System.Windows.Input;
-using System.Windows.Media;
 using Xunit;
 
 namespace PixiEditorTests.ViewModelsTests
@@ -30,13 +30,13 @@ namespace PixiEditorTests.ViewModelsTests
         {
             ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
 
-            viewModel.ColorsSubViewModel.PrimaryColor = Colors.Black;
-            viewModel.ColorsSubViewModel.SecondaryColor = Colors.White;
+            viewModel.ColorsSubViewModel.PrimaryColor = SKColors.Black;
+            viewModel.ColorsSubViewModel.SecondaryColor = SKColors.White;
 
             viewModel.ColorsSubViewModel.SwapColorsCommand.Execute(null);
 
-            Assert.Equal(Colors.White, viewModel.ColorsSubViewModel.PrimaryColor);
-            Assert.Equal(Colors.Black, viewModel.ColorsSubViewModel.SecondaryColor);
+            Assert.Equal(SKColors.White, viewModel.ColorsSubViewModel.PrimaryColor);
+            Assert.Equal(SKColors.Black, viewModel.ColorsSubViewModel.SecondaryColor);
         }
 
         [StaFact]
@@ -130,11 +130,11 @@ namespace PixiEditorTests.ViewModelsTests
             ViewModelMain viewModel = ViewModelHelper.MockedViewModelMain();
             viewModel.BitmapManager.ActiveDocument = new Document(1, 1);
 
-            viewModel.ColorsSubViewModel.AddSwatch(Colors.Green);
-            viewModel.ColorsSubViewModel.AddSwatch(Colors.Green);
+            viewModel.ColorsSubViewModel.AddSwatch(SKColors.Lime);
+            viewModel.ColorsSubViewModel.AddSwatch(SKColors.Lime);
 
             Assert.Single(viewModel.BitmapManager.ActiveDocument.Swatches);
-            Assert.Equal(Colors.Green, viewModel.BitmapManager.ActiveDocument.Swatches[0]);
+            Assert.Equal(SKColors.Lime, viewModel.BitmapManager.ActiveDocument.Swatches[0]);
         }
 
         [StaTheory]

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Windows.Media;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
+using SkiaSharp;
+using System;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
@@ -29,8 +29,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             controller.AddChanges(
                 new LayerChange(
-                    BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), guid),
-                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), guid));
+                    BitmapPixelChanges.FromSingleColoredArray(cords, SKColors.Black), guid),
+                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, SKColors.Transparent), guid));
 
             System.Tuple<LayerChange, LayerChange>[] changes = controller.PopChanges();
             Assert.Equal(2, changes.Length);
@@ -45,8 +45,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             controller.AddChanges(
                 new LayerChange(
-                    BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Black), data.Item1),
-                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords2, Colors.Transparent), data.Item1));
+                    BitmapPixelChanges.FromSingleColoredArray(cords2, SKColors.Black), data.Item1),
+                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords2, SKColors.Transparent), data.Item1));
 
             Tuple<LayerChange, LayerChange>[] changes = controller.PopChanges();
             Assert.Single(changes);
@@ -63,8 +63,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             controller.AddChanges(
                 new LayerChange(
-                    BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Black), guid),
-                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Transparent), guid));
+                    BitmapPixelChanges.FromSingleColoredArray(cords, SKColors.Black), guid),
+                new LayerChange(BitmapPixelChanges.FromSingleColoredArray(cords, SKColors.Transparent), guid));
             return new Tuple<Guid, PixelChangesController>(guid, controller);
         }
     }

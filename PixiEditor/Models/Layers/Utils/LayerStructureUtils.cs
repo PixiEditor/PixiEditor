@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Models.Layers.Utils
 {
@@ -31,6 +27,35 @@ namespace PixiEditor.Models.Layers.Utils
             }
 
             return Math.Clamp(finalOpacity, 0f, 1f);
+        }
+
+        /// <summary>
+        /// Gets final layer IsVisible taking into consideration group visibility.
+        /// </summary>
+        /// <param name="layer">Layer to check.</param>
+        /// <returns>True if is visible, false if at least parent is not visible or layer itself is invisible.</returns>
+        public static bool GetFinalLayerIsVisible(Layer layer, LayerStructure structure)
+        {
+            if (!layer.IsVisible)
+            {
+                return false;
+            }
+
+            var group = structure.GetGroupByLayer(layer.LayerGuid);
+            bool atLeastOneParentIsInvisible = false;
+            GuidStructureItem groupToCheck = group;
+            while (groupToCheck != null)
+            {
+                if (!groupToCheck.IsVisible)
+                {
+                    atLeastOneParentIsInvisible = true;
+                    break;
+                }
+
+                groupToCheck = groupToCheck.Parent;
+            }
+
+            return !atLeastOneParentIsInvisible;
         }
     }
 }

@@ -1,20 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using PixiEditor.Models.Undo;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
-        private bool isActive;
-        private string actionDisplay = string.Empty;
-
         public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty);
 
         public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
@@ -51,7 +53,14 @@ namespace PixiEditor.Models.Tools
 
         public bool CanStartOutsideCanvas { get; set; } = false;
 
+        private bool isActive;
+        private string actionDisplay = string.Empty;
+
         public virtual void OnMouseDown(MouseEventArgs e)
+        {
+        }
+
+        public virtual void AddUndoProcess(Document document)
         {
         }
 
@@ -83,7 +92,11 @@ namespace PixiEditor.Models.Tools
         {
         }
 
-        public virtual void AfterAddedUndo(UndoManager undoManager)
+        public virtual void OnSelected()
+        {
+        }
+
+        public virtual void OnDeselected()
         {
         }
     }

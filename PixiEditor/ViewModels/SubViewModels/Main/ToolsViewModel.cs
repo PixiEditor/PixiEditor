@@ -1,26 +1,32 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Events;
+using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class ToolsViewModel : SubViewModel<ViewModelMain>
     {
         private Cursor toolCursor;
+        private Tool activeTool;
 
         public RelayCommand SelectToolCommand { get; set; } // Command that handles tool switching.
 
         public RelayCommand ChangeToolSizeCommand { get; set; }
 
         public Tool LastActionTool { get; private set; }
-
-        public ObservableCollection<Tool> ToolSet { get; set; }
 
         public Cursor ToolCursor
         {
@@ -32,26 +38,45 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
+        public Tool ActiveTool
+        {
+            get => activeTool;
+            set => SetProperty(ref activeTool, value);
+        }
+
+        public int ToolSize
+        {
+            get => ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize") != null
+            ? ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize").Value
+            : 1;
+            set
+            {
+                if (ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
+                {
+                    toolSize.Value = value;
+                    Owner.BitmapManager.HighlightPixels(MousePositionConverter.CurrentCoordinates);
+                }
+            }
+        }
+
+        public IEnumerable<Tool> ToolSet { get; private set; }
+
+        public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
+
         public ToolsViewModel(ViewModelMain owner)
             : base(owner)
         {
             SelectToolCommand = new RelayCommand(SetTool, Owner.DocumentIsNotNull);
             ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
-
-            Owner.BitmapManager.BitmapOperations.BitmapChanged += (_, _) => TriggerCacheOutdated();
-            Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
         public void SetupTools(IServiceProvider services)
         {
-            ToolSet = new ObservableCollection<Tool>(
-                new ToolBuilder(services)
-                .Add<MoveViewportTool>().Add<MoveTool>().Add<PenTool>().Add<SelectTool>().Add<MagicWandTool>().Add<FloodFill>()
-                .Add<LineTool>().Add<CircleTool>().Add<RectangleTool>().Add<EraserTool>().Add<ColorPickerTool>()
-                .Add<BrightnessTool>().Add<ZoomTool>()
-                .Build());
+            ToolSet = services.GetServices<Tool>();
+            SetActiveTool<PenTool>();
 
-            SetActiveTool<MoveViewportTool>();
+            Owner.BitmapManager.BitmapOperations.BitmapChanged += (_, _) => TriggerCacheOutdated();
+            Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
         public void SetActiveTool<T>()
@@ -62,15 +87,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetActiveTool(Tool tool)
         {
-            Tool activeTool = ToolSet.FirstOrDefault(x => x.IsActive);
-            if (activeTool != null)
+            if (ActiveTool != null)
             {
                 activeTool.IsActive = false;
+                ActiveTool.OnDeselected();
             }
 
+            LastActionTool = ActiveTool;
+            ActiveTool = tool;
+            SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
+
             tool.IsActive = true;
-            LastActionTool = Owner.BitmapManager.SelectedTool;
-            Owner.BitmapManager.SetActiveTool(tool);
+            ActiveTool.OnSelected();
             SetToolCursor(tool.GetType());
 
             if (Owner.StylusSubViewModel != null)
@@ -135,20 +163,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void ChangeToolSize(object parameter)
         {
             int increment = (int)parameter;
-            int newSize = Owner.BitmapManager.ToolSize + increment;
+            int newSize = ToolSize + increment;
             if (newSize > 0)
             {
-                Owner.BitmapManager.ToolSize = newSize;
+                ToolSize = newSize;
             }
         }
 
         private void SetActiveTool(Type toolType)
         {
-            if (toolType == null && toolType.IsAssignableTo(typeof(Tool)))
-            {
-                return;
-            }
-
             Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
             SetActiveTool(foundTool);
         }
@@ -157,7 +180,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             if (tool != null)
             {
-                ToolCursor = Owner.BitmapManager.SelectedTool.Cursor;
+                ToolCursor = ActiveTool.Cursor;
             }
             else
             {

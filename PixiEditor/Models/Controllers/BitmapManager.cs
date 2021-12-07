@@ -1,80 +1,66 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Events;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
+using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using SkiaSharp;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Events;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Controllers
 {
     [DebuggerDisplay("{Documents.Count} Document(s)")]
     public class BitmapManager : NotifyableObject
     {
-        private Document activeDocument;
-        private Tool selectedTool;
-        private Coordinates? startPosition = null;
+        private readonly ToolsViewModel _tools;
 
-        public BitmapManager()
+        private int previewLayerSize;
+        private Document activeDocument;
+        private Coordinates? startPosition = null;
+        private int halfSize;
+        private SKColor _highlightColor;
+        private PenTool _highlightPen;
+        private bool hideReferenceLayer;
+        private bool onlyReferenceLayer;
+
+        public BitmapManager(ToolsViewModel tools)
         {
+            _tools = tools;
+
             MouseController = new MouseMovementController();
             MouseController.StartedRecordingChanges += MouseController_StartedRecordingChanges;
             MouseController.MousePositionChanged += Controller_MousePositionChanged;
             MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             MouseController.OnMouseDown += MouseController_OnMouseDown;
             MouseController.OnMouseUp += MouseController_OnMouseUp;
-            BitmapOperations = new BitmapOperationsUtility(this);
+            MouseController.OnMouseDownCoordinates += MouseController_OnMouseDownCoordinates;
+            BitmapOperations = new BitmapOperationsUtility(this, tools);
             ReadonlyToolUtility = new ReadonlyToolUtility();
+            DocumentChanged += BitmapManager_DocumentChanged;
+            _highlightPen = new PenTool(this)
+            {
+                AutomaticallyResizeCanvas = false
+            };
+            _highlightColor = new SKColor(0, 0, 0, 77);
         }
 
         public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
 
-        public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
-
         public MouseMovementController MouseController { get; set; }
-
-        public Tool SelectedTool
-        {
-            get => selectedTool;
-            private set
-            {
-                Tool previousTool = selectedTool;
-                if (SetProperty(ref selectedTool, value))
-                {
-                    SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(previousTool, value));
-                }
-            }
-        }
 
         public Layer ActiveLayer => ActiveDocument.ActiveLayer;
 
-        public Color PrimaryColor { get; set; }
-
-        public int ToolSize
-        {
-            get => SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") != null
-            ? SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize").Value
-            : 1;
-            set
-            {
-                if (SelectedTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
-                {
-                    toolSize.Value = value;
-                    HighlightPixels(MousePositionConverter.CurrentCoordinates);
-                }
-            }
-        }
+        public SKColor PrimaryColor { get; set; }
 
         public BitmapOperationsUtility BitmapOperations { get; set; }
 
@@ -97,12 +83,16 @@ namespace PixiEditor.Models.Controllers
 #nullable disable
         public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
 
-        /// <summary>
-        ///     Returns if tool is BitmapOperationTool.
-        /// </summary>
-        public static bool IsOperationTool(Tool tool)
+        public bool HideReferenceLayer
         {
-            return tool is BitmapOperationTool;
+            get => hideReferenceLayer;
+            set => SetProperty(ref hideReferenceLayer, value);
+        }
+
+        public bool OnlyReferenceLayer
+        {
+            get => onlyReferenceLayer;
+            set => SetProperty(ref onlyReferenceLayer, value);
         }
 
         public void CloseDocument(Document document)
@@ -116,66 +106,94 @@ namespace PixiEditor.Models.Controllers
 
             Documents.Remove(document);
             ActiveDocument = nextIndex >= 0 ? Documents[nextIndex] : null;
+            document.Dispose();
         }
 
         public void ExecuteTool(Coordinates newPosition, bool clickedOnCanvas)
         {
-            if (SelectedTool.CanStartOutsideCanvas || clickedOnCanvas)
-            {
-                if (startPosition == null)
-                {
-                    SelectedTool.OnStart(newPosition);
-                    startPosition = newPosition;
-                }
+            Tool activeTool = _tools.ActiveTool;
 
-                if (SelectedTool is BitmapOperationTool operationTool)
-                {
-                    BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, operationTool);
-                }
-                else if (SelectedTool is ReadonlyTool readonlyTool)
-                {
-                    ReadonlyToolUtility.ExecuteTool(MouseController.LastMouseMoveCoordinates, readonlyTool);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"'{SelectedTool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
-                }
+            if (activeTool.CanStartOutsideCanvas && !clickedOnCanvas)
+            {
+                return;
+            }
+
+            if (startPosition == null)
+            {
+                activeTool.OnStart(newPosition);
+                startPosition = newPosition;
+            }
+
+            if (activeTool is BitmapOperationTool operationTool)
+            {
+                BitmapOperations.ExecuteTool(newPosition, MouseController.LastMouseMoveCoordinates, operationTool);
+            }
+            else if (activeTool is ReadonlyTool readonlyTool)
+            {
+                ActiveDocument.PreviewLayer.Reset();
+                ReadonlyToolUtility.ExecuteTool(
+                    MouseController.LastMouseMoveCoordinates,
+                    readonlyTool);
+            }
+            else
+            {
+                throw new InvalidOperationException($"'{activeTool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
             }
         }
 
-        public WriteableBitmap GetCombinedLayersBitmap()
+        public void HighlightPixels(Coordinates newPosition)
         {
-            return BitmapUtils.CombineLayers(ActiveDocument.Width, ActiveDocument.Height, ActiveDocument.Layers.Where(x => ActiveDocument.GetFinalLayerIsVisible(x)).ToArray(), ActiveDocument.LayerStructure);
-        }
-
-        /// <summary>
-        ///     Returns if selected tool is BitmapOperationTool.
-        /// </summary>
-        public bool IsOperationTool()
-        {
-            return IsOperationTool(SelectedTool);
-        }
-
-        public void SetActiveTool(Tool tool)
-        {
-            if (ActiveDocument != null)
+            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || _tools.ActiveTool.HideHighlight)
             {
-                ActiveDocument.PreviewLayer = null;
+                return;
             }
 
-            SelectedTool?.Toolbar.SaveToolbarSettings();
-            SelectedTool = tool;
-            SelectedTool.Toolbar.LoadSharedSettings();
+            var previewLayer = ActiveDocument.PreviewLayer;
+
+            if (_tools.ToolSize != previewLayerSize || previewLayer.IsReset)
+            {
+                previewLayerSize = _tools.ToolSize;
+                halfSize = (int)Math.Floor(_tools.ToolSize / 2f);
+                previewLayer.CreateNewBitmap(_tools.ToolSize, _tools.ToolSize);
+
+                Coordinates cords = new Coordinates(halfSize, halfSize);
+
+                previewLayer.Offset = new Thickness(0, 0, 0, 0);
+                _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, _tools.ToolSize);
+
+                AdjustOffset(newPosition, previewLayer);
+
+            }
+
+            previewLayer.InvokeLayerBitmapChange();
+
+            AdjustOffset(newPosition, previewLayer);
+
+            if (newPosition.X > ActiveDocument.Width
+                || newPosition.Y > ActiveDocument.Height
+                || newPosition.X < 0 || newPosition.Y < 0)
+            {
+                previewLayer.Reset();
+                previewLayerSize = -1;
+            }
+        }
+
+        private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
+        {
+            e.NewDocument?.GeneratePreviewLayer();
         }
 
         private void Controller_MousePositionChanged(object sender, MouseMovementEventArgs e)
         {
-            SelectedTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            if (Mouse.LeftButton == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
+            Tool activeTool = _tools.ActiveTool;
+
+            if (activeTool == null)
             {
-                ExecuteTool(e.NewPosition, MouseController.ClickedOnCanvas);
+                return;
             }
-            else if (Mouse.LeftButton == MouseButtonState.Released)
+
+            activeTool.OnMouseMove(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            if (!MaybeExecuteTool(e.NewPosition) && MouseController.LeftMouseState == MouseButtonState.Released)
             {
                 HighlightPixels(e.NewPosition);
             }
@@ -183,79 +201,60 @@ namespace PixiEditor.Models.Controllers
 
         private void MouseController_OnMouseDown(object sender, MouseEventArgs e)
         {
-            SelectedTool.OnMouseDown(e);
+            _tools.ActiveTool.OnMouseDown(e);
         }
 
         private void MouseController_OnMouseUp(object sender, MouseEventArgs e)
         {
-            SelectedTool.OnMouseUp(e);
+            _tools.ActiveTool.OnMouseUp(e);
+        }
+        private void MouseController_OnMouseDownCoordinates(object sender, MouseMovementEventArgs e)
+        {
+            MaybeExecuteTool(e.NewPosition);
+        }
+
+        private bool MaybeExecuteTool(Coordinates newPosition)
+        {
+            if (MouseController.LeftMouseState == MouseButtonState.Pressed && !IsDraggingViewport() && ActiveDocument != null)
+            {
+                ExecuteTool(newPosition, MouseController.ClickedOnCanvas);
+                return true;
+            }
+            return false;
         }
 
         private bool IsDraggingViewport()
         {
-            return SelectedTool is MoveViewportTool;
+            return _tools.ActiveTool is MoveViewportTool;
         }
 
         private void MouseController_StartedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            _tools.ActiveTool.OnRecordingLeftMouseDown(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
             if (ActiveDocument != null)
             {
-                ActiveDocument.PreviewLayer = null;
+                ActiveDocument.PreviewLayer.Reset();
             }
         }
 
         private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
         {
-            SelectedTool.OnStoppedRecordingMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
-            if (IsOperationTool(SelectedTool) && ((BitmapOperationTool)SelectedTool).RequiresPreviewLayer)
+            Tool selectedTool = _tools.ActiveTool;
+            selectedTool.OnStoppedRecordingMouseUp(new MouseEventArgs(Mouse.PrimaryDevice, (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+            if (selectedTool is BitmapOperationTool operationTool && operationTool.RequiresPreviewLayer)
             {
                 BitmapOperations.ApplyPreviewLayer();
             }
 
+            HighlightPixels(MousePositionConverter.CurrentCoordinates);
+
             startPosition = null;
         }
 
-        private void HighlightPixels(Coordinates newPosition)
+        private void AdjustOffset(Coordinates newPosition, Layer previewLayer)
         {
-            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || SelectedTool.HideHighlight)
-            {
-                return;
-            }
-
-            IEnumerable<Coordinates> highlightArea = CoordinatesCalculator.RectangleToCoordinates(
-                CoordinatesCalculator.CalculateThicknessCenter(newPosition, ToolSize));
-            if (CanChangeHighlightOffset(highlightArea))
-            {
-                Coordinates start = highlightArea.First();
-                ActiveDocument.PreviewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
-            }
-            else if (!IsInsideBounds(highlightArea))
-            {
-                ActiveDocument.PreviewLayer = null;
-            }
-            else
-            {
-                ActiveDocument.GeneratePreviewLayer();
-                ActiveDocument.PreviewLayer.SetPixels(
-                    BitmapPixelChanges.FromSingleColoredArray(highlightArea, Color.FromArgb(77, 0, 0, 0)));
-            }
-        }
-
-        private bool CanChangeHighlightOffset(IEnumerable<Coordinates> highlightArea)
-        {
-            int count = highlightArea.Count();
-            return count > 0 && ActiveDocument.PreviewLayer != null &&
-                   IsInsideBounds(highlightArea) && count == ActiveDocument.PreviewLayer.Width * ActiveDocument.PreviewLayer.Height;
-        }
-
-        private bool IsInsideBounds(IEnumerable<Coordinates> highlightArea)
-        {
-            Coordinates start = highlightArea.First();
-            Coordinates end = highlightArea.Last();
-            return start.X <= ActiveDocument.Width - 1 &&
-                    start.Y <= ActiveDocument.Height - 1 &&
-                   end.X >= 0 && end.Y >= 0;
+            Coordinates start = newPosition - halfSize;
+            previewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
         }
     }
 }

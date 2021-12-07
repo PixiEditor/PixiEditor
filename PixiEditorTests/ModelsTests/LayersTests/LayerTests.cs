@@ -1,8 +1,7 @@
-﻿using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using SkiaSharp;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.LayersTests
@@ -15,10 +14,10 @@ namespace PixiEditorTests.ModelsTests.LayersTests
             Layer layer = new Layer("layer");
 
             Assert.Equal("layer", layer.Name);
-            Assert.Equal(0, layer.Width);
-            Assert.Equal(0, layer.Height);
-            Assert.Equal(1, layer.LayerBitmap.PixelWidth);
-            Assert.Equal(1, layer.LayerBitmap.PixelHeight);
+            Assert.Equal(1, layer.Width);
+            Assert.Equal(1, layer.Height);
+            Assert.Equal(1, layer.LayerBitmap.Width);
+            Assert.Equal(1, layer.LayerBitmap.Height);
         }
 
         [Fact]
@@ -29,22 +28,22 @@ namespace PixiEditorTests.ModelsTests.LayersTests
             Assert.Equal("layer", layer.Name);
             Assert.Equal(10, layer.Width);
             Assert.Equal(10, layer.Height);
-            Assert.Equal(10, layer.LayerBitmap.PixelWidth);
-            Assert.Equal(10, layer.LayerBitmap.PixelHeight);
+            Assert.Equal(10, layer.LayerBitmap.Width);
+            Assert.Equal(10, layer.LayerBitmap.Height);
         }
 
         [Fact]
         public void TestThatLayerFromBitmapGeneratesCorrectly()
         {
-            WriteableBitmap bmp = BitmapFactory.New(10, 10);
+            using Surface bmp = new Surface(10, 10);
 
             Layer layer = new Layer("layer", bmp);
 
             Assert.Equal("layer", layer.Name);
             Assert.Equal(10, layer.Width);
             Assert.Equal(10, layer.Height);
-            Assert.Equal(10, layer.LayerBitmap.PixelWidth);
-            Assert.Equal(10, layer.LayerBitmap.PixelHeight);
+            Assert.Equal(10, layer.LayerBitmap.Width);
+            Assert.Equal(10, layer.LayerBitmap.Height);
         }
 
         [Fact]
@@ -64,9 +63,9 @@ namespace PixiEditorTests.ModelsTests.LayersTests
 
             Layer clone = layer.Clone();
 
-            clone.LayerBitmap.SetPixel(0, 0, Colors.Green); // Actually we are checking if modifying clone bitmap does not affect original
+            clone.LayerBitmap.SetSRGBPixel(0, 0, SKColors.Lime); // Actually we are checking if modifying clone bitmap does not affect original
 
-            Assert.NotEqual(Colors.Green, layer.GetPixel(0, 0));
+            Assert.NotEqual(SKColors.Lime, layer.GetPixel(0, 0));
         }
 
         [Fact]
@@ -74,7 +73,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         {
             Layer layer = new Layer("layer", 1, 1);
 
-            layer.SetPixel(new Coordinates(0, 0), Colors.Black);
+            layer.SetPixel(new Coordinates(0, 0), SKColors.Black);
 
             layer.Resize(2, 2, 2, 2);
 
@@ -88,7 +87,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
             {
                 for (int x = 0; x < layer.Width; x++)
                 {
-                    Assert.Equal(Colors.Black, layer.GetPixel(x, y));
+                    Assert.Equal(SKColors.Black, layer.GetPixel(x, y));
                 }
             }
         }
@@ -98,7 +97,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         {
             Layer layer = new Layer("layer");
 
-            Assert.Equal(0, layer.GetPixel(-1, 999).A);
+            Assert.Equal(0, layer.GetPixel(-1, 999).Alpha);
         }
 
         [Fact]
@@ -108,11 +107,11 @@ namespace PixiEditorTests.ModelsTests.LayersTests
 
             Layer layer = new Layer("layer");
 
-            layer.SetPixels(BitmapPixelChanges.FromSingleColoredArray(pixels, Colors.Green));
+            layer.SetPixels(BitmapPixelChanges.FromSingleColoredArray(pixels, SKColors.Lime));
 
             for (int i = 0; i < pixels.Length; i++)
             {
-                Assert.Equal(Colors.Green, layer.GetPixelWithOffset(pixels[i].X, pixels[i].Y));
+                Assert.Equal(SKColors.Lime, layer.GetPixelWithOffset(pixels[i].X, pixels[i].Y));
             }
         }
 
@@ -120,13 +119,13 @@ namespace PixiEditorTests.ModelsTests.LayersTests
         public void TestThatClipCanvasResizesBitmapCorrectly()
         {
             Layer layer = new Layer("layer", 10, 10);
-            layer.SetPixel(new Coordinates(4, 4), Colors.Blue);
+            layer.SetPixel(new Coordinates(4, 4), SKColors.Blue);
 
             layer.ClipCanvas();
 
             Assert.Equal(1, layer.Width);
             Assert.Equal(1, layer.Height);
-            Assert.Equal(Colors.Blue, layer.GetPixel(0, 0));
+            Assert.Equal(SKColors.Blue, layer.GetPixel(0, 0));
         }
     }
 }

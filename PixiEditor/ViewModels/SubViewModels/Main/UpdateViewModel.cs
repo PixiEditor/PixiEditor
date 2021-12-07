@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Helpers;
@@ -18,6 +18,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private bool updateReadyToInstall = false;
 
         public UpdateChecker UpdateChecker { get; set; }
+
+        public UpdateChannel[] UpdateChannels { get; } = new UpdateChannel[2];
 
         public RelayCommand RestartApplicationCommand { get; set; }
 
@@ -42,7 +44,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 RaisePropertyChanged(nameof(UpdateReadyToInstall));
                 if (value)
                 {
-                    VersionText = $"to install update (current {UpdateChecker.CurrentVersionTag})"; // Button shows "Restart" before this text
+                    VersionText = $"to install update (current {VersionHelpers.GetCurrentAssemblyVersionString()})"; // Button shows "Restart" before this text
                 }
             }
         }
@@ -52,6 +54,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             Owner.OnStartupEvent += Owner_OnStartupEvent;
             RestartApplicationCommand = new RelayCommand(RestartApplication);
+            IPreferences.Current.AddCallback<string>("UpdateChannel", (val) => UpdateChecker.Channel = GetUpdateChannel(val));
             InitUpdateChecker();
         }
 
@@ -134,7 +137,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private static void OpenExeInstaller(string updateExeFile)
         {
-            bool alreadyUpdated = AssemblyHelper.GetCurrentAssemblyVersion().ToString() ==
+            bool alreadyUpdated = VersionHelpers.GetCurrentAssemblyVersion().ToString() ==
                     updateExeFile.Split('-')[1].Split(".exe")[0];
 
             if (!alreadyUpdated)
@@ -191,9 +194,20 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void InitUpdateChecker()
         {
-            string version = AssemblyHelper.GetCurrentAssemblyVersion().ToString();
-            UpdateChecker = new UpdateChecker(version);
+            UpdateChannels[0] = new UpdateChannel("Release", "PixiEditor", "PixiEditor");
+            UpdateChannels[1] = new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel");
+
+            string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");
+
+            string version = VersionHelpers.GetCurrentAssemblyVersionString();
+            UpdateChecker = new UpdateChecker(version, GetUpdateChannel(updateChannel));
             VersionText = $"Version {version}";
+        }
+
+        private UpdateChannel GetUpdateChannel(string channelName)
+        {
+            UpdateChannel selectedChannel = UpdateChannels.FirstOrDefault(x => x.Name == channelName, UpdateChannels[0]);
+            return selectedChannel;
         }
     }
 }

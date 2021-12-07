@@ -1,10 +1,10 @@
-﻿using System.IO;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using SkiaSharp;
+using System.IO;
+using System.Windows.Media.Imaging;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.IO
@@ -30,9 +30,9 @@ namespace PixiEditorTests.ModelsTests.IO
             string filePath = "testFile.pixi";
 
             document.Layers.Add(new Layer("layer1"));
-            document.Layers[0].SetPixel(new Coordinates(1, 1), Colors.White);
+            document.Layers[0].SetPixel(new Coordinates(1, 1), SKColors.White);
 
-            document.Swatches.Add(Colors.White);
+            document.Swatches.Add(SKColors.White);
 
             Exporter.SaveAsEditableFile(document, filePath);
 

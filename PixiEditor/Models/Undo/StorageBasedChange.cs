@@ -20,14 +20,14 @@ namespace PixiEditor.Models.Undo
 
         public UndoLayer[] StoredLayers { get; set; }
 
-        private IEnumerable<Guid> layersToStore;
+        private List<Guid> layersToStore;
 
-        private Document document;
+        public Document Document { get; }
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool saveOnStartup = true)
         {
-            document = doc;
-            layersToStore = layers.Select(x => x.LayerGuid);
+            Document = doc;
+            layersToStore = layers.Select(x => x.LayerGuid).ToList();
             UndoChangeLocation = DefaultUndoChangeLocation;
             GenerateUndoLayers();
             if (saveOnStartup)
@@ -38,8 +38,8 @@ namespace PixiEditor.Models.Undo
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
         {
-            document = doc;
-            layersToStore = layers.Select(x => x.LayerGuid);
+            Document = doc;
+            layersToStore = layers.Select(x => x.LayerGuid).ToList();
             UndoChangeLocation = undoChangeLocation;
             GenerateUndoLayers();
 
@@ -54,17 +54,17 @@ namespace PixiEditor.Models.Undo
             int i = 0;
             foreach (var layerGuid in layersToStore)
             {
-                Layer layer = document.Layers.First(x => x.LayerGuid == layerGuid);
+                Layer layer = Document.Layers.First(x => x.LayerGuid == layerGuid);
                 UndoLayer storedLayer = StoredLayers[i];
                 if (Directory.Exists(Path.GetDirectoryName(storedLayer.StoredPngLayerName)))
                 {
-                    Exporter.SaveAsPng(storedLayer.StoredPngLayerName, storedLayer.Width, storedLayer.Height, layer.LayerBitmap);
+                    Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, layer.LayerBitmap);
                 }
 
                 i++;
             }
 
-            layersToStore = Array.Empty<Guid>();
+            layersToStore = new List<Guid>();
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace PixiEditor.Models.Undo
             for (int i = 0; i < StoredLayers.Length; i++)
             {
                 UndoLayer storedLayer = StoredLayers[i];
-                var bitmap = Importer.ImportImage(storedLayer.StoredPngLayerName, storedLayer.Width, storedLayer.Height);
+                var bitmap = Importer.LoadFromGZippedBytes(storedLayer.StoredPngLayerName);
                 layers[i] = new Layer(storedLayer.Name, bitmap)
                 {
                     Offset = new System.Windows.Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0),
@@ -95,7 +95,7 @@ namespace PixiEditor.Models.Undo
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
 
-            layersToStore = layers.Select(x => x.LayerGuid);
+            layersToStore = layers.Select(x => x.LayerGuid).ToList();
             return layers;
         }
 
@@ -123,6 +123,29 @@ namespace PixiEditor.Models.Undo
             };
 
             return new Change(finalUndoProcess, processArgs, finalRedoProcess, redoProcessParameters, description);
+        }
+
+        /// <summary>
+        ///     Creates UndoManager ready Change instance, where undo and redo is the same, before process images are loaded from disk and current ones are saved.
+        /// </summary>
+        /// <param name="undoRedoProcess">Process that is invoked on redo and undo.</param>
+        /// <param name="processArgs">Custom parameters for undo and redo process.</param>
+        /// <param name="description">Undo change description.</param>
+        /// <returns>UndoManager ready Change instance.</returns>
+        public Change ToChange(Action<Layer[], UndoLayer[], object[]> undoRedoProcess, object[] processArgs, string description = "")
+        {
+            Action<object[]> finalProcess = processParameters =>
+            {
+
+                Layer[] layers = LoadLayersFromDevice();
+                GenerateUndoLayers();
+
+                SaveLayersOnDevice();
+
+                undoRedoProcess(layers, StoredLayers, processParameters);
+            };
+
+            return new Change(finalProcess, processArgs, finalProcess, processArgs, description);
         }
 
         /// <summary>
@@ -206,19 +229,19 @@ namespace PixiEditor.Models.Undo
         /// </summary>
         private void GenerateUndoLayers()
         {
-            StoredLayers = new UndoLayer[layersToStore.Count()];
+            StoredLayers = new UndoLayer[layersToStore.Count];
             int i = 0;
             foreach (var layerGuid in layersToStore)
             {
-                Layer layer = document.Layers.First(x => x.LayerGuid == layerGuid);
-                if (!document.Layers.Contains(layer))
+                Layer layer = Document.Layers.First(x => x.LayerGuid == layerGuid);
+                if (!Document.Layers.Contains(layer))
                 {
                     throw new ArgumentException("Provided document doesn't contain selected layer");
                 }
 
                 layer.ClipCanvas();
 
-                int index = document.Layers.IndexOf(layer);
+                int index = Document.Layers.IndexOf(layer);
                 string pngName = layer.Name + Guid.NewGuid().ToString();
                 StoredLayers[i] = new UndoLayer(
                     Path.Join(
@@ -227,6 +250,25 @@ namespace PixiEditor.Models.Undo
                     layer,
                     index);
                 i++;
+            }
+        }
+
+        public static void BasicUndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            if (args.Length > 0 && args[0] is Document document)
+            {
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    Layer layer = layers[i];
+                    document.Layers.RemoveAt(data[i].LayerIndex);
+
+                    document.Layers.Insert(data[i].LayerIndex, layer);
+                    if (data[i].IsActive)
+                    {
+                        document.SetMainActiveLayer(data[i].LayerIndex);
+                    }
+                }
+
             }
         }
     }

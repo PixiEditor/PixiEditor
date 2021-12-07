@@ -1,10 +1,11 @@
-﻿using System.Diagnostics;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.Position;
+using PixiEditor.Parser;
+using PixiEditor.Parser.Skia;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.IO;
-using PixiEditor.Parser;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -49,14 +50,13 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public WriteableBitmap PreviewBitmap
         {
             get
             {
-                if (previewBitmap == null)
+                if (previewBitmap == null && !Corrupt)
                 {
-                    PreviewBitmap = LoadPreviewBitmap();
+                    previewBitmap = LoadPreviewBitmap();
                 }
 
                 return previewBitmap;
@@ -85,21 +85,12 @@ namespace PixiEditor.Models.DataHolders
                     return null;
                 }
 
-                WriteableBitmap writeableBitmap =
-                    BitmapUtils.GeneratePreviewBitmap(serializableDocument.Layers, serializableDocument.Width, serializableDocument.Height, 80, 50);
+                using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
+                          serializableDocument.Layers
+                              .Where(x => x.Opacity > 0.8)
+                              .Select(x => (x.ToSKImage(), new Coordinates(x.OffsetX, x.OffsetY))));
 
-                const int MaxWidthInPixels = 1080;
-                const int MaxHeightInPixels = 1080;
-                PixiFileMaxSizeChecker pixiFileMaxSizeChecker = new PixiFileMaxSizeChecker()
-                {
-                    MaxAllowedWidthInPixels = MaxWidthInPixels,
-                    MaxAllowedHeightInPixels = MaxHeightInPixels,
-                    MaxAllowedLayerCount = 5,
-                };
-
-                return pixiFileMaxSizeChecker.IsFileUnderMaxSize(serializableDocument) ?
-                    writeableBitmap
-                    : writeableBitmap.Resize(width: MaxWidthInPixels, height: MaxHeightInPixels, WriteableBitmapExtensions.Interpolation.Bilinear);
+                return surface.ToWriteableBitmap();
             }
             else if (FileExtension is ".png" or ".jpg" or ".jpeg")
             {
@@ -107,7 +98,7 @@ namespace PixiEditor.Models.DataHolders
 
                 try
                 {
-                    bitmap = Importer.ImportImage(FilePath);
+                    bitmap = Importer.ImportWriteableBitmap(FilePath);
                 }
                 catch
                 {

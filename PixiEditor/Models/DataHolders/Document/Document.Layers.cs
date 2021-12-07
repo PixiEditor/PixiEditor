@@ -1,10 +1,11 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
+using SkiaSharp;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -12,8 +13,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -34,17 +33,49 @@ namespace PixiEditor.Models.DataHolders
             {
                 layers = value;
                 Layers.CollectionChanged += Layers_CollectionChanged;
+                Renderer.SetNewLayersCollection(value);
             }
         }
 
         public LayerStructure LayerStructure
         {
             get => layerStructure;
-            set
+            private set
             {
                 layerStructure = value;
                 RaisePropertyChanged(nameof(LayerStructure));
             }
+        }
+
+        private LayerStackRenderer renderer;
+        public LayerStackRenderer Renderer
+        {
+            get => renderer;
+            private set
+            {
+                renderer = value;
+                RaisePropertyChanged(nameof(Renderer));
+            }
+        }
+
+        private Layer referenceLayer;
+        private SingleLayerRenderer referenceLayerRenderer;
+        public Layer ReferenceLayer
+        {
+            get => referenceLayer;
+            set
+            {
+                referenceLayer = value;
+                referenceLayerRenderer?.Dispose();
+                referenceLayerRenderer = referenceLayer == null ? null : new SingleLayerRenderer(referenceLayer, referenceLayer.Width, referenceLayer.Height);
+                RaisePropertyChanged(nameof(ReferenceLayer));
+                RaisePropertyChanged(nameof(ReferenceLayerRenderer));
+            }
+        }
+
+        public SingleLayerRenderer ReferenceLayerRenderer
+        {
+            get => referenceLayerRenderer;
         }
 
         public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.LayerGuid == ActiveLayerGuid) : null;
@@ -90,30 +121,7 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         /// <param name="layer">Layer to check.</param>
         /// <returns>True if is visible, false if at least parent is not visible or layer itself is invisible.</returns>
-        public bool GetFinalLayerIsVisible(Layer layer)
-        {
-            if (!layer.IsVisible)
-            {
-                return false;
-            }
-
-            var group = LayerStructure.GetGroupByLayer(layer.LayerGuid);
-            bool atLeastOneParentIsInvisible = false;
-            GuidStructureItem groupToCheck = group;
-            while (groupToCheck != null)
-            {
-                if (!groupToCheck.IsVisible)
-                {
-                    atLeastOneParentIsInvisible = true;
-                    break;
-                }
-
-                groupToCheck = groupToCheck.Parent;
-            }
-
-            return !atLeastOneParentIsInvisible;
-        }
-
+        public bool GetFinalLayerIsVisible(Layer layer) => LayerStructureUtils.GetFinalLayerIsVisible(layer, LayerStructure);
         public void UpdateLayersColor()
         {
             foreach (var layer in Layers)
@@ -190,26 +198,33 @@ namespace PixiEditor.Models.DataHolders
             UndoManager.SquashUndoChanges(2, "Move group");
         }
 
-        public void AddNewLayer(string name, WriteableBitmap bitmap, bool setAsActive = true)
+        public void AddNewLayer(string name, Surface bitmap, bool setAsActive = true)
         {
-            AddNewLayer(name, bitmap.PixelWidth, bitmap.PixelHeight, setAsActive);
-            Layers.Last().LayerBitmap = bitmap;
+            AddNewLayer(name, bitmap.Width, bitmap.Height, setAsActive, bitmap);
         }
 
         public void AddNewLayer(string name, bool setAsActive = true)
         {
-            AddNewLayer(name, 0, 0, setAsActive);
+            AddNewLayer(name, 1, 1, setAsActive);
         }
 
-        public void AddNewLayer(string name, int width, int height, bool setAsActive = true)
+        public void AddNewLayer(string name, int width, int height, bool setAsActive = true, Surface bitmap = null)
         {
             Layer layer;
 
-            Layers.Add(layer = new Layer(name, width, height)
+            if (bitmap != null)
             {
-                MaxHeight = Height,
-                MaxWidth = Width
-            });
+                if (width != bitmap.Width || height != bitmap.Height)
+                    throw new ArgumentException("Inconsistent width and height");
+            }
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Dimensions must be greater than 0");
+
+            layer = bitmap == null ? new Layer(name, width, height) : new Layer(name, bitmap);
+            layer.MaxHeight = Height;
+            layer.MaxWidth = Width;
+
+            Layers.Add(layer);
 
             layer.Name = GetLayerSuffix(layer);
 
@@ -479,9 +494,24 @@ namespace PixiEditor.Models.DataHolders
             return layer;
         }
 
-        public Color GetColorAtPoint(int x, int y)
+        public SKColor GetColorAtPoint(int x, int y)
         {
-            return BitmapUtils.GetColorAtPointCombined(x, y, Layers.ToArray());
+            return Renderer.FinalSurface.GetSRGBPixel(x, y);
+        }
+
+        private void DisposeLayerBitmaps()
+        {
+            foreach (var layer in layers)
+            {
+                layer.LayerBitmap.Dispose();
+            }
+
+            referenceLayer?.LayerBitmap.Dispose();
+            previewLayer?.LayerBitmap.Dispose();
+
+            previewLayerRenderer?.Dispose();
+            referenceLayerRenderer?.Dispose();
+            renderer?.Dispose();
         }
 
         private void BuildLayerStructureProcess(object[] parameters)
@@ -522,7 +552,7 @@ namespace PixiEditor.Models.DataHolders
 
             if (Layers.Count == 0)
             {
-                Layer layer = new("Base Layer", 0, 0) { MaxHeight = Height, MaxWidth = Width };
+                Layer layer = new("Base Layer", 1, 1) { MaxHeight = Height, MaxWidth = Width };
                 Layers.Add(layer);
                 undoAction = (Layer[] layers, UndoLayer[] undoData) =>
                 {

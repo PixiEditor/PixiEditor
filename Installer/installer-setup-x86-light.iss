@@ -4,8 +4,8 @@
 // requires netcorecheck.exe and netcorecheck_x64.exe (see download link below)
 #define UseNetCoreCheck
 #ifdef UseNetCoreCheck
-  ;#define UseDotNet50
-  #define UseDotNet50Desktop
+  ;#define UseDotNet60
+  #define UseDotNet60Desktop
 #endif
 
 // custom setup info
@@ -395,24 +395,24 @@ var
   Version: String;
 begin
 
-#ifdef UseDotNet50
-  // https://dotnet.microsoft.com/download/dotnet/5.0
-  if not IsNetCoreInstalled('Microsoft.NETCore.App 5.0.0') then begin
-    AddDependency('dotnet50' + GetArchitectureSuffix + '.exe',
+#ifdef UseDotNet60
+  // https://dotnet.microsoft.com/download/dotnet/6.0
+  if not IsNetCoreInstalled('Microsoft.NETCore.App 6.0.0') then begin
+    AddDependency('dotnet60' + GetArchitectureSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Runtime 5.0' + GetArchitectureTitle,
-      GetString('https://download.visualstudio.microsoft.com/download/pr/a7e15da3-7a15-43c2-a481-cf50bf305214/c69b951e8b47101e90b1289c387bb01a/dotnet-runtime-5.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/36a9dc4e-1745-4f17-8a9c-f547a12e3764/ae25e38f20a4854d5e015a88659a22f9/dotnet-runtime-5.0.0-win-x64.exe'),
+      '.NET Runtime 6.0' + GetArchitectureTitle,
+      GetString('https://download.visualstudio.microsoft.com/download/pr/34df41d5-c813-4e30-8aa3-3603ce6600c0/976e801af82c7108abbcb736a8bc5c14/dotnet-runtime-6.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/b9cfdb9e-d5cd-4024-b318-00390b729d2f/65690f2440f40654898020cdfffa1050/dotnet-runtime-6.0.0-win-x64.exe'),
       '', False, False, False);
   end;
 #endif
 
-#ifdef UseDotNet50Desktop
-  // https://dotnet.microsoft.com/download/dotnet/5.0
-  if not IsNetCoreInstalled('Microsoft.WindowsDesktop.App 5.0.0') then begin
-    AddDependency('dotnet50desktop' + GetArchitectureSuffix + '.exe',
+#ifdef UseDotNet60Desktop
+  // https://dotnet.microsoft.com/download/dotnet/6.0
+  if not IsNetCoreInstalled('Microsoft.WindowsDesktop.App 6.0.0') then begin
+    AddDependency('dotnet60desktop' + GetArchitectureSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Desktop Runtime 5.0' + GetArchitectureTitle,
-      GetString('https://download.visualstudio.microsoft.com/download/pr/b2780d75-e54a-448a-95fc-da9721b2b4c2/62310a9e9f0ba7b18741944cbae9f592/windowsdesktop-runtime-5.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/1b3a8899-127a-4465-a3c2-7ce5e4feb07b/1e153ad470768baa40ed3f57e6e7a9d8/windowsdesktop-runtime-5.0.0-win-x64.exe'),
+      '.NET Desktop Runtime 6.0' + GetArchitectureTitle,
+      GetString('https://download.visualstudio.microsoft.com/download/pr/a1ca7d0d-ce01-4878-b952-3fa1e6d9a7c6/e386db367490b631b8c013a9fb0f3794/windowsdesktop-runtime-6.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/a865ccae-2219-4184-bcd6-0178dc580589/ba452d37e8396b7a49a9adc0e1a07e87/windowsdesktop-runtime-6.0.0-win-x64.exe'),
       '', False, False, False);
   end;
 #endif

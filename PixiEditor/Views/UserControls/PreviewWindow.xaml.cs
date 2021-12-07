@@ -1,7 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
 using PixiEditor.ViewModels;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -136,7 +134,8 @@ namespace PixiEditor.Views.UserControls
 
             ColorCursorPosition = newPos;
 
-            ColorCursorColor = BitmapUtils.GetColorAtPointCombined(x, y, Document.Layers.ToArray());
+            var color = Document.GetColorAtPoint(x, y);
+            ColorCursorColor = Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
         }
     }
 }

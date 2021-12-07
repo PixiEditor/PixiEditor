@@ -1,7 +1,7 @@
-﻿using System;
+﻿using PixiEditor.Models.Position;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
-using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -10,6 +10,7 @@ namespace PixiEditor.Models.Controllers
         public event EventHandler StartedRecordingChanges;
 
         public event EventHandler<MouseEventArgs> OnMouseDown;
+        public event EventHandler<MouseMovementEventArgs> OnMouseDownCoordinates;
 
         public event EventHandler<MouseEventArgs> OnMouseUp;
 
@@ -17,11 +18,14 @@ namespace PixiEditor.Models.Controllers
 
         public event EventHandler StoppedRecordingChanges;
 
+        public MouseButtonState LeftMouseState { get; private set; }
+
         public List<Coordinates> LastMouseMoveCoordinates { get; set; } = new List<Coordinates>();
 
         public bool IsRecordingChanges { get; private set; }
 
         public bool ClickedOnCanvas { get; set; }
+
 
         public void StartRecordingMouseMovementChanges(bool clickedOnCanvas)
         {
@@ -59,7 +63,13 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public void MouseDown(MouseEventArgs args)
         {
+            LeftMouseState = args.LeftButton;
             OnMouseDown?.Invoke(this, args);
+        }
+
+        public void MouseDownCoordinates(Coordinates mouseCoordinates)
+        {
+            OnMouseDownCoordinates?.Invoke(this, new MouseMovementEventArgs(mouseCoordinates));
         }
 
         /// <summary>
@@ -67,6 +77,7 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public void MouseUp(MouseEventArgs args)
         {
+            LeftMouseState = MouseButtonState.Released;
             OnMouseUp?.Invoke(this, args);
         }
 

@@ -10,15 +10,15 @@ namespace PixiEditor.UpdateModule
 {
     public class UpdateChecker
     {
-        private const string ReleaseApiUrl = "https://api.github.com/repos/PixiEditor/PixiEditor/releases/latest";
-        private const string IncompatibleFileApiUrl = "https://raw.githubusercontent.com/PixiEditor/PixiEditor/{0}/incompatible.json";
-
-        public UpdateChecker(string currentVersionTag)
+        public UpdateChecker(string currentVersionTag, UpdateChannel channel)
         {
             CurrentVersionTag = currentVersionTag;
+            Channel = channel;
         }
 
         public ReleaseInfo LatestReleaseInfo { get; private set; }
+
+        public UpdateChannel Channel { get; set; }
 
         public string CurrentVersionTag { get; }
 
@@ -45,7 +45,7 @@ namespace PixiEditor.UpdateModule
 
         public async Task<bool> CheckUpdateAvailable()
         {
-            LatestReleaseInfo = await GetLatestReleaseInfoAsync();
+            LatestReleaseInfo = await GetLatestReleaseInfoAsync(Channel.ApiUrl);
             return CheckUpdateAvailable(LatestReleaseInfo);
         }
 
@@ -70,7 +70,7 @@ namespace PixiEditor.UpdateModule
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-                HttpResponseMessage response = await client.GetAsync(string.Format(IncompatibleFileApiUrl, tag));
+                HttpResponseMessage response = await client.GetAsync(string.Format(Channel.IncompatibleFileApiUrl, tag));
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     string content = await response.Content.ReadAsStringAsync();
@@ -81,12 +81,12 @@ namespace PixiEditor.UpdateModule
             return Array.Empty<string>();
         }
 
-        private static async Task<ReleaseInfo> GetLatestReleaseInfoAsync()
+        private static async Task<ReleaseInfo> GetLatestReleaseInfoAsync(string apiUrl)
         {
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-                HttpResponseMessage response = await client.GetAsync(ReleaseApiUrl);
+                HttpResponseMessage response = await client.GetAsync(apiUrl);
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     string content = await response.Content.ReadAsStringAsync();

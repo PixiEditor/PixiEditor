@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -14,8 +14,9 @@
     <PackageIcon>icon.ico</PackageIcon>
     <ApplicationIcon>..\icon.ico</ApplicationIcon>
     <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-    <Configurations>Debug;Release;MSIX;MSIX Debug</Configurations>
+    <Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
@@ -35,14 +36,32 @@
     <DefineConstants>TRACE;UPDATE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE;UPDATE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE;UPDATE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
@@ -67,6 +86,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
@@ -162,19 +182,23 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.51.1" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.60.0" />
     <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
     <PackageReference Include="Expression.Blend.Sdk">
       <Version>1.0.2</Version>
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="MessagePack" Version="2.3.85" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
-    <PackageReference Include="PixiEditor.Parser" Version="1.2.0.1" />
+    <PackageReference Include="PixiEditor.Parser" Version="2.0.0" />
+    <PackageReference Include="PixiEditor.Parser.Skia" Version="2.0.0" />
+    <PackageReference Include="SkiaSharp" Version="2.80.3" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="WriteableBitmapEx">
       <Version>1.6.7</Version>
     </PackageReference>
@@ -223,6 +247,14 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PixiParser">
+      <HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.dll</HintPath>
+    </Reference>
+    <Reference Include="PixiParser.Skia">
+      <HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.Skia.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">

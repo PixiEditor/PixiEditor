@@ -8,11 +8,12 @@ namespace PixiEditor.Models.Tools.Tools
     public class ZoomTool : ReadonlyTool
     {
         private BitmapManager BitmapManager { get; }
+        private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
 
         public ZoomTool(BitmapManager bitmapManager)
         {
             CanStartOutsideCanvas = true;
-            ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
+            ActionDisplay = defaultActionDisplay;
             BitmapManager = bitmapManager;
         }
 
@@ -22,7 +23,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
             {
                 ActionDisplay = "Click and move to zoom. Click to zoom out, release ctrl and click to zoom in.";
             }
@@ -30,9 +31,9 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
             {
-                ActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
+                ActionDisplay = defaultActionDisplay;
             }
         }
 

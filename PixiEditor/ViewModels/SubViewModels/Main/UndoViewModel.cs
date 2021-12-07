@@ -15,21 +15,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand RedoCommand { get; set; }
 
-        private LayerChange[] undoChanges;
-
-        public LayerChange[] UndoChanges // This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
-        {
-            get => undoChanges;
-            set
-            {
-                undoChanges = value;
-                for (int i = 0; i < value.Length; i++)
-                {
-                    Owner.BitmapManager.ActiveDocument.Layers.First(x => x.LayerGuid == value[i].LayerGuid).SetPixels(value[i].PixelChanges);
-                }
-            }
-        }
-
         public UndoViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -43,21 +28,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ClearUndoTempDirectory();
         }
 
-        public void TriggerNewUndoChange(Tool toolUsed)
+        public void TriggerNewUndoChange(Tool selectedTool)
         {
-            if (BitmapManager.IsOperationTool(toolUsed)
-                && ((BitmapOperationTool)toolUsed).UseDefaultUndoMethod)
-            {
-                Tuple<LayerChange, LayerChange>[] changes = Owner.ChangesController.PopChanges();
-                if (changes != null && changes.Length > 0)
-                {
-                    LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
-                    LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
-                    Owner.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                        new Change("UndoChanges", oldValues, newValues, root: this));
-                    toolUsed.AfterAddedUndo(Owner.BitmapManager.ActiveDocument.UndoManager);
-                }
-            }
+            var activeDoc = Owner.BitmapManager.ActiveDocument;
+            if (activeDoc is null) return;
+
+            selectedTool.AddUndoProcess(activeDoc);
         }
 
         /// <summary>

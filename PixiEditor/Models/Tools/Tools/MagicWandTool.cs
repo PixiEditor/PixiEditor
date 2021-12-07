@@ -8,22 +8,22 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
-using System;
+using SkiaSharp;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class MagicWandTool : ReadonlyTool, ICachedDocumentTool
     {
-        private readonly FloodFill floodFill;
-
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         private BitmapManager BitmapManager { get; }
 
         private IEnumerable<Coordinates> oldSelection;
+        private List<Coordinates> newSelection = new List<Coordinates>();
 
         public override string Tooltip => "Magic Wand (W). Flood's the selection";
 
@@ -56,20 +56,26 @@ namespace PixiEditor.Models.Tools.Tools
 
             Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
 
-            selection.SetSelection(
-                floodFill.ForestFire(
-                    layer,
-                    new Coordinates((int)document.MouseXOnCanvas, (int)document.MouseYOnCanvas),
-                    System.Windows.Media.Colors.White
-                    ).ChangedPixels.Keys,
-                selectionType);
+
+            newSelection.Clear();
+
+            ToolCalculator.GetLinearFillAbsolute(
+                   layer,
+                   new Coordinates(
+                       (int)document.MouseXOnCanvas,
+                       (int)document.MouseYOnCanvas),
+                   BitmapManager.ActiveDocument.Width,
+                   BitmapManager.ActiveDocument.Height,
+                   SKColors.White,
+                   newSelection);
+
+            selection.SetSelection(newSelection, selectionType);
 
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelection, selectionType);
         }
 
         public MagicWandTool(BitmapManager manager)
         {
-            floodFill = new FloodFill(manager);
             BitmapManager = manager;
 
             Toolbar = new MagicWandToolbar();
@@ -88,7 +94,10 @@ namespace PixiEditor.Models.Tools.Tools
 
         private void ValidateCache(Document document)
         {
-            cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(document.Width, document.Height, document.Layers, document.LayerStructure));
+            cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(
+                new Int32Rect(0, 0, document.Width, document.Height),
+                document.Layers,
+                document.LayerStructure));
         }
     }
 }

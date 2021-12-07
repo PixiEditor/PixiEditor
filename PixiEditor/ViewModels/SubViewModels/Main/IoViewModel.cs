@@ -1,9 +1,10 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.Position;
+using System;
+using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -52,7 +53,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             Owner.ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
-            Owner.BitmapManager.SelectedTool.OnKeyDown(args);
+            Owner.ToolsSubViewModel.ActiveTool.OnKeyDown(args);
         }
 
         private void MouseDown(object parameter)
@@ -64,20 +65,27 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                if (!Owner.BitmapManager.MouseController.IsRecordingChanges)
+                BitmapManager bitmapManager = Owner.BitmapManager;
+                var activeDocument = bitmapManager.ActiveDocument;
+                if (!bitmapManager.MouseController.IsRecordingChanges)
                 {
-                    bool clickedOnCanvas = Owner.BitmapManager.ActiveDocument.MouseXOnCanvas >= 0 &&
-                        Owner.BitmapManager.ActiveDocument.MouseXOnCanvas <= Owner.BitmapManager.ActiveDocument.Width &&
-                        Owner.BitmapManager.ActiveDocument.MouseYOnCanvas >= 0 &&
-                        Owner.BitmapManager.ActiveDocument.MouseYOnCanvas <= Owner.BitmapManager.ActiveDocument.Height;
-                    Owner.BitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
-                    Owner.BitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
+                    bool clickedOnCanvas = activeDocument.MouseXOnCanvas >= 0 &&
+                        activeDocument.MouseXOnCanvas <= activeDocument.Width &&
+                        activeDocument.MouseYOnCanvas >= 0 &&
+                        activeDocument.MouseYOnCanvas <= activeDocument.Height;
+                    bitmapManager.MouseController.StartRecordingMouseMovementChanges(clickedOnCanvas);
+                    bitmapManager.MouseController.RecordMouseMovementChange(MousePositionConverter.CurrentCoordinates);
                 }
             }
 
             Owner.BitmapManager.MouseController.MouseDown(new MouseEventArgs(
                 Mouse.PrimaryDevice,
                 (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
+
+            Coordinates cords = new Coordinates(
+                (int)Owner.BitmapManager.ActiveDocument.MouseXOnCanvas,
+                (int)Owner.BitmapManager.ActiveDocument.MouseYOnCanvas);
+            Owner.BitmapManager.MouseController.MouseDownCoordinates(cords);
 
             // Mouse down is guaranteed to only be raised from within this application, so by subscribing here we
             // only listen for mouse up events that occurred as a result of a mouse down within this application.
@@ -120,7 +128,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 ShortcutController.BlockShortcutExecution = false;
             }
 
-            Owner.BitmapManager.SelectedTool.OnKeyUp(args);
+            Owner.ToolsSubViewModel.ActiveTool.OnKeyUp(args);
         }
     }
 }

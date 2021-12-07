@@ -1,9 +1,7 @@
-﻿using System.Windows.Media;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Undo;
+using SkiaSharp;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests
@@ -29,7 +27,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             bitmapManager.ActiveDocument.AddNewLayer(layerName);
             Assert.Single(bitmapManager.ActiveDocument.Layers);
             Assert.Equal(layerName, bitmapManager.ActiveDocument.ActiveLayer.Name);
-            Assert.Equal(0, bitmapManager.ActiveDocument.ActiveLayer.Width + bitmapManager.ActiveDocument.ActiveLayer.Height);
+            Assert.Equal(1, bitmapManager.ActiveDocument.ActiveLayer.Width);
+            Assert.Equal(1, bitmapManager.ActiveDocument.ActiveLayer.Height);
         }
 
         [Fact]
@@ -55,7 +54,8 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             };
             bitmapManager.ActiveDocument.GeneratePreviewLayer();
             Assert.NotNull(bitmapManager.ActiveDocument.PreviewLayer);
-            Assert.Equal(0, bitmapManager.ActiveDocument.PreviewLayer.Width + bitmapManager.ActiveDocument.PreviewLayer.Height); // Size is zero
+            Assert.Equal(1, bitmapManager.ActiveDocument.PreviewLayer.Width); // Size is 1x1
+            Assert.Equal(1, bitmapManager.ActiveDocument.PreviewLayer.Height);
             Assert.Equal(0, bitmapManager.ActiveDocument.PreviewLayer.OffsetX + bitmapManager.ActiveDocument.PreviewLayer.OffsetY); // Offset is zero
             Assert.Equal(bitmapManager.ActiveDocument.Width, bitmapManager.ActiveDocument.PreviewLayer.MaxWidth);
             Assert.Equal(bitmapManager.ActiveDocument.Height, bitmapManager.ActiveDocument.PreviewLayer.MaxHeight);
@@ -83,7 +83,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             bitmapManager.ActiveDocument.AddNewLayer("Layer");
             bitmapManager.SetActiveTool(new MockedSinglePixelPenTool());
-            bitmapManager.PrimaryColor = Colors.Green;
+            bitmapManager.PrimaryColor = SKColors.Black;
 
             bitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
             bitmapManager.MouseController.RecordMouseMovementChange(new Coordinates(1, 1));
@@ -91,7 +91,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             bitmapManager.ExecuteTool(new Coordinates(1, 1), true);
 
-            Assert.Equal(Colors.Green, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
+            Assert.Equal(SKColors.Black, bitmapManager.ActiveLayer.GetPixelWithOffset(1, 1));
         }
     }
 }

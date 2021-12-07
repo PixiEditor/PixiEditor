@@ -13,7 +13,7 @@
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
+        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers" xmlns:sys="clr-namespace:System;assembly=System.Runtime" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
@@ -24,6 +24,14 @@
     <Window.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:BoolToIntConverter x:Key="BoolToIntConverter" />
+            <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
+            <converters:LayersToStructuredLayersConverter x:Key="LayersToStructuredLayersConverter"/>
+            <converters:DoubleToIntConverter x:Key="DoubleToIntConverter"/>
+            <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:ZoomTool}" x:Key="IsZoomToolConverter"/>
+            <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:MoveViewportTool}" x:Key="IsMoveViewportToolConverter"/>
+            <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter"/>
+            <converters:DockingManagerActiveContentConverter x:Key="DockingManagerActiveContentConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -126,7 +134,22 @@
                     <MenuItem Header="_Clip Canvas" Command="{Binding DocumentSubViewModel.ClipCanvasCommand}" />
                     <Separator/>
                     <MenuItem Header="_Center Content" Command="{Binding DocumentSubViewModel.CenterContentCommand}" />
-                </MenuItem>
+                    <!--<Separator/>
+                    <MenuItem Header="_Rotate to right 90&#186;" Command="{Binding DocumentSubViewModel.RotateToRightCommand}">
+                        <MenuItem.CommandParameter>
+                            <sys:Double>90</sys:Double>
+                        </MenuItem.CommandParameter>
+                    </MenuItem>
+                    <MenuItem Header="_Rotate to left 90&#186;" Command="{Binding DocumentSubViewModel.RotateToRightCommand}">
+                        <MenuItem.CommandParameter>
+                            <sys:Double>-90</sys:Double>
+                        </MenuItem.CommandParameter>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="_Flip Horizontal" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Horizontal"/>
+                    <MenuItem Header="_Flip Vertical" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Vertical"/>
+                -->
+                    </MenuItem> 
                 <MenuItem Header="_View">
                     <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                               IsCheckable="True" InputGestureText="Ctrl+`"/>
@@ -213,9 +236,9 @@
             </ToggleButton>
             <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
             <Label Style="{StaticResource BaseLabel}" FontSize="12"
-                   VerticalAlignment="Center" Content="{Binding BitmapManager.SelectedTool.DisplayName}"
-                   ToolTip="{Binding BitmapManager.SelectedTool.ActionDisplay}"/>
-            <ItemsControl ItemsSource="{Binding BitmapManager.SelectedTool.Toolbar.Settings}">
+                   VerticalAlignment="Center" Content="{Binding ToolsSubViewModel.ActiveTool.DisplayName}"
+                   ToolTip="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"/>
+            <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0" />
@@ -235,7 +258,7 @@
         </StackPanel>
         <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
             <Grid AllowDrop="True" Drop="MainWindow_Drop">
-                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay}" 
+                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay, Converter={StaticResource DockingManagerActiveContentConverter}}" 
                                            DocumentsSource="{Binding BitmapManager.Documents}">
                     <DockingManager.Theme>
                         <avalonDockTheme:PixiEditorDockTheme />
@@ -264,9 +287,13 @@
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
+                                        StylusButtonDownCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusDownCommand}"
+                                        StylusButtonUpCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusUpCommand}"
+                                        StylusGestureCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusGestureCommand}"
+                                        StylusOutOfRangeCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusOutOfRangeCommand}"
                                         UseTouchGestures="{Binding XamlAccesibleViewModel.StylusSubViewModel.UseTouchGestures}"
-                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
-                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.BitmapManager.SelectedTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"
+                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
+                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"
                                         Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="PreviewMouseDown">
@@ -297,8 +324,8 @@
                                     <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
                                                              CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                              CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"
-                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay}" 
+                                        <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"
+                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" 
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
                                             <i:Interaction.Behaviors>
                                                 <behaviours:GlobalShortcutFocusBehavior/>
@@ -350,7 +377,7 @@
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                         <usercontrols:PreviewWindow 
                                             Document="{Binding BitmapManager.ActiveDocument}"
-                                            PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay}"/>
+                                            PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"/>
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutAnchorablePaneGroup>
@@ -362,30 +389,30 @@
 
         <Border Grid.Row="2" Grid.Column="0"
                     Background="{StaticResource AccentColor}" Grid.RowSpan="2" CornerRadius="5,0,5,5">
-        <StackPanel Orientation="Vertical" Cursor="Arrow" >
+            <StackPanel Orientation="Vertical" Cursor="Arrow" >
 
-            <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button BorderBrush="White"
-                                BorderThickness="{Binding IsActive, Converter={converters:BoolToIntConverter}}"
+                <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button BorderBrush="White"                                
+                                BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
                                 Style="{StaticResource ToolButtonStyle}"
                                 Command="{Binding Path=DataContext.ToolsSubViewModel.SelectToolCommand,
                                                   RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}" ToolTip="{Binding Tooltip}">
-                            <Button.Background>
-                                <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
-                            </Button.Background>
+                                <Button.Background>
+                                    <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
+                                </Button.Background>
                                 <Button.Resources>
                                     <Style TargetType="Border">
                                         <Setter Property="CornerRadius" Value="2.5"/>
                                     </Style>
                                 </Button.Resources>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </Border>
 
         <Grid Grid.Row="3" Grid.Column="1">
