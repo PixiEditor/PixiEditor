@@ -195,7 +195,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void InitUpdateChecker()
         {
             UpdateChannels[0] = new UpdateChannel("Release", "PixiEditor", "PixiEditor");
-            UpdateChannels[1] = new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel");
+            UpdateChannels[1] = new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel",
+                "https://raw.githubusercontent.com/PixiEditor/PixiEditor/{0}/incompatible.json");
 
             string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");
 

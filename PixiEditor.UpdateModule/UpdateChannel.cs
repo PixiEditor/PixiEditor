@@ -22,5 +22,14 @@ namespace PixiEditor.UpdateModule
             ApiUrl = $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}/releases/latest";
             IncompatibleFileApiUrl = "https://raw.githubusercontent.com/" + $"{repositoryOwner}/{repositoryName}/" + "{0}/incompatible.json";
         }
+
+        public UpdateChannel(string name, string repositoryOwner, string repositoryName, string incompatibleFileApiUrl)
+        {
+            Name = name;
+            RepositoryOwner = repositoryOwner;
+            RepositoryName = repositoryName;
+            IncompatibleFileApiUrl = incompatibleFileApiUrl;
+            ApiUrl = $"https://api.github.com/repos/{repositoryOwner}/{repositoryName}/releases/latest";
+        }
     }
 }
