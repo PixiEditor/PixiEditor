@@ -56,7 +56,7 @@ steps:
     publishWebProjects: false
     projects: '**/PixiEditor.csproj'
     arguments: >
-      -o "Builds\PixiEditor-x86-light" --self-contained=false -r "win-x86" -c 'Dev Release'
+      -o "Builds\PixiEditor-x86-light" --self-contained=false -r "win-x86" -c "Dev Release"
     zipAfterPublish: false
 
 - task: ArchiveFiles@2
