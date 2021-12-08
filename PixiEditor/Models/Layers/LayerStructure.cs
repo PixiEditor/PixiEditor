@@ -18,7 +18,7 @@ namespace PixiEditor.Models.Layers
     {
         public event EventHandler<LayerStructureChangedEventArgs> LayerStructureChanged;
 
-        public ObservableCollection<GuidStructureItem> Groups { get; set; }
+        public WpfObservableRangeCollection<GuidStructureItem> Groups { get; set; }
 
         private Document Owner { get; }
 
@@ -38,9 +38,9 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         /// <param name="groups">Groups to clone.</param>
         /// <returns>ObservableCollection with cloned groups.</returns>
-        public static ObservableCollection<GuidStructureItem> CloneGroups(ObservableCollection<GuidStructureItem> groups)
+        public static WpfObservableRangeCollection<GuidStructureItem> CloneGroups(WpfObservableRangeCollection<GuidStructureItem> groups)
         {
-            ObservableCollection<GuidStructureItem> outputGroups = new();
+            WpfObservableRangeCollection<GuidStructureItem> outputGroups = new();
             foreach (var group in groups.ToArray())
             {
                 outputGroups.Add(group.CloneGroup());
@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Layers
             return GetGroupByGuid(groupGuid, Groups);
         }
 
-        public ObservableCollection<GuidStructureItem> CloneGroups()
+        public WpfObservableRangeCollection<GuidStructureItem> CloneGroups()
         {
             return CloneGroups(Groups);
         }
@@ -709,7 +709,7 @@ namespace PixiEditor.Models.Layers
             return null;
         }
 
-        public LayerStructure(ObservableCollection<GuidStructureItem> items, Document owner)
+        public LayerStructure(WpfObservableRangeCollection<GuidStructureItem> items, Document owner)
         {
             Groups = items;
             Owner = owner;
@@ -717,7 +717,7 @@ namespace PixiEditor.Models.Layers
 
         public LayerStructure(Document owner)
         {
-            Groups = new ObservableCollection<GuidStructureItem>();
+            Groups = new WpfObservableRangeCollection<GuidStructureItem>();
             Owner = owner;
         }
     }
