@@ -56,7 +56,7 @@ namespace PixiEditor.UpdateModule
 
         public bool IsUpdateCompatible(string[] incompatibleVersions)
         {
-            return !incompatibleVersions.Select(x => x.Trim()).Contains(CurrentVersionTag.Trim());
+            return !incompatibleVersions.Select(x => x.Trim()).Contains(CurrentVersionTag[..7].Trim());
         }
 
         public async Task<bool> IsUpdateCompatible()
@@ -99,7 +99,7 @@ namespace PixiEditor.UpdateModule
 
         private static bool ParseVersionString(string versionString, out float version)
         {
-            return float.TryParse(versionString.Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out version);
+            return float.TryParse(versionString[..7].Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out version);
         }
     }
 }

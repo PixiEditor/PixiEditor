@@ -12,9 +12,9 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
     {
         public override string Tooltip => "";
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> mouseMove, SKColor color)
+        public override void Use(Layer layer, List<Coordinates> mouseMove, SKColor color)
         {
-            return Only(BitmapPixelChanges.FromSingleColoredArray(new[] { mouseMove[0] }, color), layer.LayerGuid);
+            layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(mouseMove[0].ToSKPoint(), color);
         }
     }
 }
