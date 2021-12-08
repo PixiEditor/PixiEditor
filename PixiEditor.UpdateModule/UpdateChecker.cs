@@ -99,7 +99,7 @@ namespace PixiEditor.UpdateModule
 
         private static bool ParseVersionString(string versionString, out float version)
         {
-            return float.TryParse(versionString.Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out version);
+            return float.TryParse(versionString[..7].Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out version);
         }
     }
 }

@@ -87,7 +87,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private static void AskToInstall()
         {
-#if RELEASE
+#if RELEASE || DEV_RELEASE
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
                 string dir = AppDomain.CurrentDomain.BaseDirectory;
