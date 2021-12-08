@@ -56,7 +56,7 @@ namespace PixiEditor.UpdateModule
 
         public bool IsUpdateCompatible(string[] incompatibleVersions)
         {
-            return !incompatibleVersions.Select(x => x.Trim()).Contains(CurrentVersionTag.Trim());
+            return !incompatibleVersions.Select(x => x.Trim()).Contains(CurrentVersionTag[..7].Trim());
         }
 
         public async Task<bool> IsUpdateCompatible()
