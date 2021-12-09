@@ -10,7 +10,7 @@
              mc:Ignorable="d"
              d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="UserControlLayoutUpdated">
     <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Center"
-             Style="{StaticResource DarkTextBoxStyle}" MaxLength="4" InputScope="Number">
+             Style="{StaticResource DarkTextBoxStyle}" InputScope="Number">
         <TextBox.Text>
             <Binding ElementName="uc"
                      Path="Size" Mode="TwoWay"

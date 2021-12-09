@@ -12,7 +12,7 @@ namespace PixiEditor.Helpers.Converters
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return string.Format("{0} {1}", value, "px");
+            return $"{value} px";
         }
 
         public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
