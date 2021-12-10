@@ -69,9 +69,9 @@
                         <Label Content="Default new file size:" Style="{StaticResource Header2}" Margin="0 20 0 20"/>
                         <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
                             <Label Content="Width:" Style="{StaticResource BaseLabel}"/>
-                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" Width="60" Height="25"/>
+                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" Width="70" Height="25"/>
                             <Label Content="Height:" Style="{StaticResource BaseLabel}"/>
-                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" Width="60" Height="25"/>
+                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" Width="70" Height="25"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>

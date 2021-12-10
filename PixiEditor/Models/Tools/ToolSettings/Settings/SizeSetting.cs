@@ -22,9 +22,10 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
             SizeInput tb = new SizeInput
             {
-                Width = 40,
+                Width = 65,
                 Height = 20,
-                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                MaxSize = 9999
             };
 
             Binding binding = new Binding("Value")
