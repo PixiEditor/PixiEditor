@@ -12,7 +12,8 @@
 
     <Border BorderThickness="1" CornerRadius="3.5"
             x:Name="border"
-            Cursor="IBeam" MouseLeftButtonDown="Border_MouseLeftButtonDown">
+            Cursor="IBeam" MouseLeftButtonDown="Border_MouseLeftButtonDown"
+            MouseWheel="Border_MouseWheel">
         <Border.Style>
             <Style TargetType="Border">
                 <Style.Triggers>
@@ -37,17 +38,9 @@
                      InputScope="Number" BorderThickness="0" Background="{x:Null}"
                      Foreground="{Binding Foreground, ElementName=uc}" Focusable="True"
                      Margin="0,0,5,0" VerticalAlignment="Center"
-                     x:Name="textBox">
-                <TextBox.Text>
-                    <Binding ElementName="uc"
-                             Path="Size" Mode="TwoWay"
-                             Converter="{converters:ToolSizeToIntConverter}">
-                        <Binding.ValidationRules>
-                            <validators:SizeValidationRule ValidatesOnTargetUpdated="True" />
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-                <d:TextBox.Text>22</d:TextBox.Text>
+                     x:Name="textBox"
+                     Text="{Binding Size, ElementName=uc, Converter={converters:ToolSizeToIntConverter}}"
+                     d:Text="22">
                 <i:Interaction.Behaviors>
                     <behaviors:GlobalShortcutFocusBehavior/>
                     <behaviors:TextBoxFocusBehavior FillSize="True" />

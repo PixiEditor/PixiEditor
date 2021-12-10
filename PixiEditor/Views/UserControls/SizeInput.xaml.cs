@@ -1,7 +1,9 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace PixiEditor.Views
 {
@@ -75,18 +77,18 @@ namespace PixiEditor.Views
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if ((int)e.NewValue > (int)d.GetValue(MaxSizeProperty))
-            {
-                int? oldValue = e.OldValue as int?;
+            int newValue = (int)e.NewValue;
+            int maxSize = (int)d.GetValue(MaxSizeProperty);
 
-                if (oldValue is null)
-                {
-                    d.SetValue(SizeProperty, 0);
-                }
-                else
-                {
-                    d.SetValue(SizeProperty, oldValue.Value);
-                }
+            if (newValue > maxSize)
+            {
+                d.SetValue(SizeProperty, maxSize);
+
+                return;
+            }
+            else if (newValue <= 0)
+            {
+                d.SetValue(SizeProperty, 1);
 
                 return;
             }
@@ -124,6 +126,31 @@ namespace PixiEditor.Views
         private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             textBox.Focus();
+        }
+
+        private void Border_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            int step = e.Delta / 100;
+
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                Size += step * 2;
+            }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                if (step < 0)
+                {
+                    Size /= 2;
+                }
+                else
+                {
+                    Size *= 2;
+                }
+            }
+            else
+            {
+                Size += step;
+            }
         }
     }
 }

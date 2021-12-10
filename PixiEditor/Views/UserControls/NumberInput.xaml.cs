@@ -71,5 +71,23 @@ namespace PixiEditor.Views
         {
             e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
         }
+
+        private void TextBox_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            int step = e.Delta / 100;
+
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                Value += step * 2f;
+            }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                Value += step / 2f;
+            }
+            else
+            {
+                Value += step;
+            }
+        }
     }
 }
