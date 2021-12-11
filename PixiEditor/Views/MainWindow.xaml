@@ -149,7 +149,7 @@
                     <MenuItem Header="_Flip Horizontal" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Horizontal"/>
                     <MenuItem Header="_Flip Vertical" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Vertical"/>
                 -->
-                    </MenuItem> 
+                </MenuItem>
                 <MenuItem Header="_View">
                     <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                               IsCheckable="True" InputGestureText="Ctrl+`"/>
@@ -282,7 +282,7 @@
                                         ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
                                         GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
                                         Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
-                                        MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"
+                                        MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.PreviewMouseMiddleButtonCommand}"
                                         MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
                                         MouseUpCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseUpCommand}"

@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.Models.Tools.Tools;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -204,8 +203,8 @@ namespace PixiEditor.Views.UserControls
 
         private void ProcessMouseDown(object parameter)
         {
-            if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(typeof(MoveViewportTool)))
-                MiddleMouseClickedCommand.Execute(typeof(MoveViewportTool));
+            if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(null))
+                MiddleMouseClickedCommand.Execute(null);
         }
 
         private void OnCanvasLoaded(object sender, EventArgs e)

@@ -1,273 +1,273 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <AssemblyName>PixiEditor</AssemblyName>
-    <RootNamespace>PixiEditor</RootNamespace>
-    <RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageIcon>icon.ico</PackageIcon>
-    <ApplicationIcon>..\icon.ico</ApplicationIcon>
-    <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-    <Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+		<AssemblyName>PixiEditor</AssemblyName>
+		<RootNamespace>PixiEditor</RootNamespace>
+		<RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageIcon>icon.ico</PackageIcon>
+		<ApplicationIcon>..\icon.ico</ApplicationIcon>
+		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
+		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+		<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;UPDATE</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;UPDATE</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x86'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;UPDATE</DefineConstants>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;UPDATE</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x64'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;UPDATE</DefineConstants>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;RELEASE</DefineConstants>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;RELEASE</DefineConstants>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DefineConstants>TRACE;RELEASE</DefineConstants>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <WarningLevel>0</WarningLevel>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<WarningLevel>0</WarningLevel>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<Optimize>false</Optimize>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x86'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<Optimize>false</Optimize>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x64'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<DebugType>full</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<Optimize>false</Optimize>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Styles\AvalonDock\Images\**" />
-    <EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
-    <None Remove="Styles\AvalonDock\Images\**" />
-    <Page Remove="Styles\AvalonDock\Images\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Styles\AvalonDock\Images\**" />
+		<EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
+		<None Remove="Styles\AvalonDock\Images\**" />
+		<Page Remove="Styles\AvalonDock\Images\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Images\AnchorDot.png" />
-    <None Remove="Images\CheckerTile.png" />
-    <None Remove="Images\ChevronDown.png" />
-    <None Remove="Images\DiagonalRed.png" />
-    <None Remove="Images\Eye-off.png" />
-    <None Remove="Images\Eye.png" />
-    <None Remove="Images\Folder-add.png" />
-    <None Remove="Images\Folder.png" />
-    <None Remove="Images\Layer-add.png" />
-    <None Remove="Images\MoveImage.png" />
-    <None Remove="Images\MoveViewportImage.png" />
-    <None Remove="Images\penMode.png" />
-    <None Remove="Images\PixiBotLogo.png" />
-    <None Remove="Images\PixiEditorLogo.png" />
-    <None Remove="Images\PixiParserLogo.png" />
-    <None Remove="Images\Placeholder.png" />
-    <None Remove="Images\SelectImage.png" />
-    <None Remove="Images\SocialMedia\DiscordIcon.png" />
-    <None Remove="Images\SocialMedia\DonateIcon.png" />
-    <None Remove="Images\SocialMedia\GitHubIcon.png" />
-    <None Remove="Images\SocialMedia\RedditIcon.png" />
-    <None Remove="Images\SocialMedia\WebsiteIcon.png" />
-    <None Remove="Images\SocialMedia\YouTubeIcon.png" />
-    <None Remove="Images\Tools\BrightnessImage.png" />
-    <None Remove="Images\Tools\CircleImage.png" />
-    <None Remove="Images\Tools\ColorPickerImage.png" />
-    <None Remove="Images\Tools\EraserImage.png" />
-    <None Remove="Images\Tools\FloodFillImage.png" />
-    <None Remove="Images\Tools\LineImage.png" />
-    <None Remove="Images\Tools\MagicWandImage.png" />
-    <None Remove="Images\Tools\MoveImage.png" />
-    <None Remove="Images\Tools\MoveViewportImage.png" />
-    <None Remove="Images\Tools\PenImage.png" />
-    <None Remove="Images\Tools\RectangleImage.png" />
-    <None Remove="Images\Tools\SelectImage.png" />
-    <None Remove="Images\Tools\ZoomImage.png" />
-    <None Remove="Images\Trash.png" />
-    <None Remove="Images\UnknownFile.png" />
-    <None Remove="Images\ZoomImage.png" />
-    <None Include="..\icon.ico">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.60.0" />
-    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
-    <PackageReference Include="Expression.Blend.Sdk">
-      <Version>1.0.2</Version>
-      <NoWarn>NU1701</NoWarn>
-    </PackageReference>
-    <PackageReference Include="MessagePack" Version="2.3.85" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
-      <NoWarn>NU1701</NoWarn>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
-    <PackageReference Include="PixiEditor.Parser" Version="2.0.0.300" />
-    <PackageReference Include="PixiEditor.Parser.Skia" Version="2.0.0.300" />
-    <PackageReference Include="SkiaSharp" Version="2.80.3" />
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-    <PackageReference Include="WriteableBitmapEx">
-      <Version>1.6.8</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\AnchorDot.png" />
-    <Resource Include="Images\CheckerTile.png" />
-    <Resource Include="Images\ChevronDown.png" />
-    <Resource Include="Images\DiagonalRed.png" />
-    <Resource Include="Images\Eye-off.png" />
-    <Resource Include="Images\Eye.png" />
-    <Resource Include="Images\Folder-add.png" />
-    <Resource Include="Images\Folder.png" />
-    <Resource Include="Images\Layer-add.png" />
-    <Resource Include="Images\penMode.png" />
-    <Resource Include="Images\PixiBotLogo.png" />
-    <Resource Include="Images\PixiEditorLogo.png" />
-    <Resource Include="Images\PixiParserLogo.png" />
-    <Resource Include="Images\Placeholder.png" />
-    <Resource Include="Images\SocialMedia\DiscordIcon.png" />
-    <Resource Include="Images\SocialMedia\DonateIcon.png" />
-    <Resource Include="Images\SocialMedia\GitHubIcon.png" />
-    <Resource Include="Images\SocialMedia\RedditIcon.png" />
-    <Resource Include="Images\SocialMedia\WebsiteIcon.png" />
-    <Resource Include="Images\SocialMedia\YouTubeIcon.png" />
-    <Resource Include="Images\Tools\BrightnessImage.png" />
-    <Resource Include="Images\Tools\CircleImage.png" />
-    <Resource Include="Images\Tools\ColorPickerImage.png" />
-    <Resource Include="Images\Tools\EraserImage.png" />
-    <Resource Include="Images\Tools\FloodFillImage.png" />
-    <Resource Include="Images\Tools\LineImage.png" />
-    <Resource Include="Images\Tools\MagicWandImage.png" />
-    <Resource Include="Images\Tools\MoveImage.png" />
-    <Resource Include="Images\Tools\MoveViewportImage.png" />
-    <Resource Include="Images\Tools\PenImage.png" />
-    <Resource Include="Images\Tools\RectangleImage.png" />
-    <Resource Include="Images\Tools\SelectImage.png" />
-    <Resource Include="Images\Tools\ZoomImage.png" />
-    <Resource Include="Images\Trash.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="PixiParser">
-      <HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.dll</HintPath>
-    </Reference>
-    <Reference Include="PixiParser.Skia">
-      <HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.Skia.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Images\AnchorDot.png" />
+		<None Remove="Images\CheckerTile.png" />
+		<None Remove="Images\ChevronDown.png" />
+		<None Remove="Images\DiagonalRed.png" />
+		<None Remove="Images\Eye-off.png" />
+		<None Remove="Images\Eye.png" />
+		<None Remove="Images\Folder-add.png" />
+		<None Remove="Images\Folder.png" />
+		<None Remove="Images\Layer-add.png" />
+		<None Remove="Images\MoveImage.png" />
+		<None Remove="Images\MoveViewportImage.png" />
+		<None Remove="Images\penMode.png" />
+		<None Remove="Images\PixiBotLogo.png" />
+		<None Remove="Images\PixiEditorLogo.png" />
+		<None Remove="Images\PixiParserLogo.png" />
+		<None Remove="Images\Placeholder.png" />
+		<None Remove="Images\SelectImage.png" />
+		<None Remove="Images\SocialMedia\DiscordIcon.png" />
+		<None Remove="Images\SocialMedia\DonateIcon.png" />
+		<None Remove="Images\SocialMedia\GitHubIcon.png" />
+		<None Remove="Images\SocialMedia\RedditIcon.png" />
+		<None Remove="Images\SocialMedia\WebsiteIcon.png" />
+		<None Remove="Images\SocialMedia\YouTubeIcon.png" />
+		<None Remove="Images\Tools\BrightnessImage.png" />
+		<None Remove="Images\Tools\CircleImage.png" />
+		<None Remove="Images\Tools\ColorPickerImage.png" />
+		<None Remove="Images\Tools\EraserImage.png" />
+		<None Remove="Images\Tools\FloodFillImage.png" />
+		<None Remove="Images\Tools\LineImage.png" />
+		<None Remove="Images\Tools\MagicWandImage.png" />
+		<None Remove="Images\Tools\MoveImage.png" />
+		<None Remove="Images\Tools\MoveViewportImage.png" />
+		<None Remove="Images\Tools\PenImage.png" />
+		<None Remove="Images\Tools\RectangleImage.png" />
+		<None Remove="Images\Tools\SelectImage.png" />
+		<None Remove="Images\Tools\ZoomImage.png" />
+		<None Remove="Images\Trash.png" />
+		<None Remove="Images\UnknownFile.png" />
+		<None Remove="Images\ZoomImage.png" />
+		<None Include="..\icon.ico">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Dirkster.AvalonDock" Version="4.60.0" />
+		<PackageReference Include="DiscordRichPresence" Version="1.0.175" />
+		<PackageReference Include="Expression.Blend.Sdk">
+			<Version>1.0.2</Version>
+			<NoWarn>NU1701</NoWarn>
+		</PackageReference>
+		<PackageReference Include="MessagePack" Version="2.3.85" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
+			<NoWarn>NU1701</NoWarn>
+		</PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
+		<PackageReference Include="PixiEditor.Parser" Version="2.0.0" />
+		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.0.0" />
+		<PackageReference Include="SkiaSharp" Version="2.80.3" />
+		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+		<PackageReference Include="WriteableBitmapEx">
+			<Version>1.6.8</Version>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<Resource Include="Images\AnchorDot.png" />
+		<Resource Include="Images\CheckerTile.png" />
+		<Resource Include="Images\ChevronDown.png" />
+		<Resource Include="Images\DiagonalRed.png" />
+		<Resource Include="Images\Eye-off.png" />
+		<Resource Include="Images\Eye.png" />
+		<Resource Include="Images\Folder-add.png" />
+		<Resource Include="Images\Folder.png" />
+		<Resource Include="Images\Layer-add.png" />
+		<Resource Include="Images\penMode.png" />
+		<Resource Include="Images\PixiBotLogo.png" />
+		<Resource Include="Images\PixiEditorLogo.png" />
+		<Resource Include="Images\PixiParserLogo.png" />
+		<Resource Include="Images\Placeholder.png" />
+		<Resource Include="Images\SocialMedia\DiscordIcon.png" />
+		<Resource Include="Images\SocialMedia\DonateIcon.png" />
+		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
+		<Resource Include="Images\SocialMedia\RedditIcon.png" />
+		<Resource Include="Images\SocialMedia\WebsiteIcon.png" />
+		<Resource Include="Images\SocialMedia\YouTubeIcon.png" />
+		<Resource Include="Images\Tools\BrightnessImage.png" />
+		<Resource Include="Images\Tools\CircleImage.png" />
+		<Resource Include="Images\Tools\ColorPickerImage.png" />
+		<Resource Include="Images\Tools\EraserImage.png" />
+		<Resource Include="Images\Tools\FloodFillImage.png" />
+		<Resource Include="Images\Tools\LineImage.png" />
+		<Resource Include="Images\Tools\MagicWandImage.png" />
+		<Resource Include="Images\Tools\MoveImage.png" />
+		<Resource Include="Images\Tools\MoveViewportImage.png" />
+		<Resource Include="Images\Tools\PenImage.png" />
+		<Resource Include="Images\Tools\RectangleImage.png" />
+		<Resource Include="Images\Tools\SelectImage.png" />
+		<Resource Include="Images\Tools\ZoomImage.png" />
+		<Resource Include="Images\Trash.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="PixiParser">
+			<HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.dll</HintPath>
+		</Reference>
+		<Reference Include="PixiParser.Skia">
+			<HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.Skia.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 
 </Project>

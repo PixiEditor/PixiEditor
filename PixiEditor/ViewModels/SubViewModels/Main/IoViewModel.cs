@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
+using PixiEditor.Models.Tools.Tools;
 using System;
 using System.Windows.Input;
 
@@ -11,6 +12,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand MouseMoveCommand { get; set; }
 
         public RelayCommand MouseDownCommand { get; set; }
+
+        public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
 
         public RelayCommand MouseUpCommand { get; set; }
 
@@ -28,6 +31,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MouseDownCommand = new RelayCommand(filter.MouseDown);
             MouseMoveCommand = new RelayCommand(filter.MouseMove);
             MouseUpCommand = new RelayCommand(filter.MouseUp);
+            PreviewMouseMiddleButtonCommand = new RelayCommand(OnPreviewMiddleMouseButton);
             GlobalMouseHook.OnMouseUp += filter.MouseUp;
             KeyDownCommand = new RelayCommand(OnKeyDown);
             KeyUpCommand = new RelayCommand(OnKeyUp);
@@ -40,32 +44,42 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void OnKeyDown(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            if (args.IsRepeat && !restoreToolOnKeyUp && Owner.ShortcutController.LastShortcut != null &&
+            ProcessShortcutDown(args.IsRepeat, args.Key);
+
+            if (Owner.BitmapManager.ActiveDocument != null)
+                Owner.BitmapManager.InputTarget.OnKeyDown(args.Key);
+        }
+
+        private void ProcessShortcutDown(bool isRepeat, Key key)
+        {
+            if (isRepeat && !restoreToolOnKeyUp && Owner.ShortcutController.LastShortcut != null &&
                 Owner.ShortcutController.LastShortcut.Command == Owner.ToolsSubViewModel.SelectToolCommand)
             {
                 restoreToolOnKeyUp = true;
                 ShortcutController.BlockShortcutExecution = true;
             }
 
-            Owner.ShortcutController.KeyPressed(args.Key, Keyboard.Modifiers);
-
-            if (Owner.BitmapManager.ActiveDocument != null)
-                Owner.BitmapManager.InputTarget.OnKeyDown(args.Key);
+            Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
         }
 
         private void OnKeyUp(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
+            ProcessShortcutUp(args.Key);
+
+            if (Owner.BitmapManager.ActiveDocument != null)
+                Owner.BitmapManager.InputTarget.OnKeyUp(args.Key);
+        }
+
+        private void ProcessShortcutUp(Key key)
+        {
             if (restoreToolOnKeyUp && Owner.ShortcutController.LastShortcut != null &&
-                Owner.ShortcutController.LastShortcut.ShortcutKey == args.Key)
+                Owner.ShortcutController.LastShortcut.ShortcutKey == key)
             {
                 restoreToolOnKeyUp = false;
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
                 ShortcutController.BlockShortcutExecution = false;
             }
-
-            if (Owner.BitmapManager.ActiveDocument != null)
-                Owner.BitmapManager.InputTarget.OnKeyUp(args.Key);
         }
 
         private void OnMouseDown(object sender, MouseButton button)
@@ -81,6 +95,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
+        private void OnPreviewMiddleMouseButton(object sender)
+        {
+            Owner.ToolsSubViewModel.SetActiveTool<MoveViewportTool>();
+        }
+
         private void OnMouseMove(object sender, EventArgs args)
         {
             var activeDocument = Owner.BitmapManager.ActiveDocument;
@@ -94,7 +113,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (Owner.BitmapManager.ActiveDocument == null)
                 return;
             if (button == MouseButton.Left)
+            {
                 Owner.BitmapManager.InputTarget.OnLeftMouseButtonUp();
+            }
+            else if (button == MouseButton.Middle)
+            {
+                if (Owner.ToolsSubViewModel.LastActionTool != null)
+                    Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+            }
         }
     }
 }
