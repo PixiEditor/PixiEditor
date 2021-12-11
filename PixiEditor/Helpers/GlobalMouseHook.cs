@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace PixiEditor.Helpers
 {
@@ -91,7 +92,8 @@ namespace PixiEditor.Helpers
 
                         MouseButton button = wParam == WM_LBUTTONUP ? MouseButton.Left
                             : wParam == WM_MBUTTONUP ? MouseButton.Middle : MouseButton.Right;
-                        MouseUp.Invoke(null, new Point(mouseHookStruct.Pt.X, mouseHookStruct.Pt.Y), button);
+                        Dispatcher.CurrentDispatcher.BeginInvoke(() =>
+                            MouseUp.Invoke(null, new Point(mouseHookStruct.Pt.X, mouseHookStruct.Pt.Y), button));
                     }
                 }
             }
