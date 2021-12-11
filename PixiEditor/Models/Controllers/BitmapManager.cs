@@ -182,12 +182,13 @@ namespace PixiEditor.Models.Controllers
         {
             if (activeSession != null)
                 return;
+
             HighlightPixels(forceHide ? new(-1, -1) : ToolSessionController.LastPixelPosition);
         }
 
         private void HighlightPixels(Coordinates newPosition)
         {
-            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0 || _tools.ActiveTool.HideHighlight)
+            if (ActiveDocument == null || ActiveDocument.Layers.Count == 0)
             {
                 return;
             }
@@ -196,7 +197,8 @@ namespace PixiEditor.Models.Controllers
 
             if (newPosition.X > ActiveDocument.Width
                 || newPosition.Y > ActiveDocument.Height
-                || newPosition.X < 0 || newPosition.Y < 0)
+                || newPosition.X < 0 || newPosition.Y < 0
+                || _tools.ActiveTool.HideHighlight)
             {
                 previewLayer.Reset();
                 previewLayerSize = -1;

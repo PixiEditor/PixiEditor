@@ -99,6 +99,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.UpdateActionDisplay(LastActionTool);
             //update new tool
             Owner.BitmapManager.UpdateActionDisplay(ActiveTool);
+            Owner.BitmapManager.UpdateHighlightIfNecessary();
 
             tool.IsActive = true;
             SetToolCursor(tool.GetType());
