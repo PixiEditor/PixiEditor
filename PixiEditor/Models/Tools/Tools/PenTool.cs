@@ -13,7 +13,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class PenTool : ShapeTool
+    internal class PenTool : ShapeTool
     {
         public Brush Brush { get; set; }
         public List<Brush> Brushes { get; } = new List<Brush>();
@@ -50,34 +50,33 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public override string Tooltip => "Standard brush. (B)";
-        public override bool UsesShift => false;
 
         public bool AutomaticallyResizeCanvas { get; set; } = true;
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public override void BeforeUse()
         {
-            base.OnRecordingLeftMouseDown(e);
+            base.BeforeUse();
             changedPixelsindex = 0;
             lastChangedPixels = new Coordinates[3];
             confirmedPixels.Clear();
         }
 
-        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
-            Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
+            Coordinates startingCords = recordedMouseMovement.Count > 1 ? recordedMouseMovement[^2] : recordedMouseMovement[0];
             paint.Color = color;
             if (AutomaticallyResizeCanvas)
             {
-                int maxX = coordinates.Max(x => x.X);
-                int maxY = coordinates.Max(x => x.Y);
-                int minX = coordinates.Min(x => x.X);
-                int minY = coordinates.Min(x => x.Y);
-                layer.DynamicResizeAbsolute(new(minX, minY, maxX - minX + 1, maxX - minX + 1));
+                int maxX = recordedMouseMovement.Max(x => x.X);
+                int maxY = recordedMouseMovement.Max(x => x.Y);
+                int minX = recordedMouseMovement.Min(x => x.X);
+                int minY = recordedMouseMovement.Min(x => x.Y);
+                previewLayer.DynamicResizeAbsolute(new(minX, minY, maxX - minX + 1, maxX - minX + 1));
             }
             Draw(
-                layer,
+                previewLayer,
                 startingCords,
-                coordinates[0],
+                recordedMouseMovement[^1],
                 color,
                 toolSizeSetting.Value,
                 pixelPerfectSetting.Value,

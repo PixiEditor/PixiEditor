@@ -88,6 +88,7 @@ namespace PixiEditor.Helpers
                 {
                     if (MouseUp != null)
                     {
+
                         MouseButton button = wParam == WM_LBUTTONUP ? MouseButton.Left
                             : wParam == WM_MBUTTONUP ? MouseButton.Middle : MouseButton.Right;
                         MouseUp.Invoke(null, new Point(mouseHookStruct.Pt.X, mouseHookStruct.Pt.Y), button);

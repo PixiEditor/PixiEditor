@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection;
-using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -41,7 +36,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public Tool ActiveTool
         {
             get => activeTool;
-            set => SetProperty(ref activeTool, value);
+            private set => SetProperty(ref activeTool, value);
         }
 
         public int ToolSize
@@ -54,7 +49,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
                 {
                     toolSize.Value = value;
-                    Owner.BitmapManager.HighlightPixels(MousePositionConverter.CurrentCoordinates);
+                    Owner.BitmapManager.UpdateHighlightIfNecessary();
                 }
             }
         }
@@ -90,15 +85,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (ActiveTool != null)
             {
                 activeTool.IsActive = false;
-                ActiveTool.OnDeselected();
             }
 
             LastActionTool = ActiveTool;
             ActiveTool = tool;
             SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
+            //update new tool
+            Owner.BitmapManager.UpdateActionDisplay();
+
             tool.IsActive = true;
-            ActiveTool.OnSelected();
             SetToolCursor(tool.GetType());
 
             if (Owner.StylusSubViewModel != null)

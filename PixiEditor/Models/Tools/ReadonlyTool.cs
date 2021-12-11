@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Position;
+using System.Collections.Generic;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class ReadonlyTool : Tool
     {
-        public abstract void Use(List<Coordinates> pixels);
+        public abstract void Use(IReadOnlyList<Coordinates> pixels);
     }
 }

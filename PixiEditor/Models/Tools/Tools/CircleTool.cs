@@ -5,16 +5,44 @@ using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class CircleTool : ShapeTool
     {
+        private string defaultActionDisplay = "Click and move mouse to draw a circle. Hold Shift to draw an even one.";
+
+        public CircleTool()
+        {
+            ActionDisplay = defaultActionDisplay;
+        }
+
+        public override string Tooltip => "Draws circle on canvas (C). Hold Shift to draw even circle.";
+
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+        {
+            if (shiftIsDown)
+                ActionDisplay = "Click and move mouse to draw an even circle.";
+            else
+                ActionDisplay = defaultActionDisplay;
+        }
+
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
+        {
+            int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
+            var hasFillColor = Toolbar.GetSetting<BoolSetting>("Fill").Value;
+            Color temp = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
+            SKColor fill = new SKColor(temp.R, temp.G, temp.B, temp.A);
+
+            var (start, end) = Session.IsShiftDown ?
+                CoordinatesHelper.GetSquareCoordiantes(recordedMouseMovement) :
+                (recordedMouseMovement[0], recordedMouseMovement[^1]);
+
+            DrawEllipseFromCoordinates(previewLayer, start, end, color, fill, thickness, hasFillColor);
+        }
 
         public static void DrawEllipseFromCoordinates(Layer layer, Coordinates first, Coordinates second,
             SKColor color, SKColor fillColor, int thickness, bool hasFillColor)
@@ -92,40 +120,5 @@ namespace PixiEditor.Models.Tools.Tools
                 }
             }
         }
-
-        private string defaultActionDisplay = "Click and move mouse to draw a circle. Hold Shift to draw an even one.";
-
-        public CircleTool()
-        {
-            ActionDisplay = defaultActionDisplay;
-        }
-
-        public override string Tooltip => "Draws circle on canvas (C). Hold Shift to draw even circle.";
-
-        public override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Key is Key.LeftShift or Key.RightShift)
-            {
-                ActionDisplay = "Click and move mouse to draw an even circle.";
-            }
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            if (e.Key is Key.LeftShift or Key.RightShift)
-            {
-                ActionDisplay = defaultActionDisplay;
-            }
-        }
-
-        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
-        {
-            int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
-            var hasFillColor = Toolbar.GetSetting<BoolSetting>("Fill").Value;
-            Color temp = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
-            SKColor fill = new SKColor(temp.R, temp.G, temp.B, temp.A);
-            DrawEllipseFromCoordinates(layer, coordinates[^1], coordinates[0], color, fill, thickness, hasFillColor);
-        }
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
@@ -6,112 +7,15 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class LineTool : ShapeTool
     {
-        private readonly CircleTool circleTool;
         private List<Coordinates> linePoints = new List<Coordinates>();
         private SKPaint paint = new SKPaint() { Style = SKPaintStyle.Stroke };
 
         public bool AutomaticallyResizeCanvas { get; set; } = true;
-
-        public static List<Coordinates> GetBresenhamLine(Coordinates start, Coordinates end)
-        {
-            List<Coordinates> output = new List<Coordinates>();
-            CalculateBresenhamLine(start, end, output);
-            return output;
-        }
-
-        public static void CalculateBresenhamLine(Coordinates start, Coordinates end, List<Coordinates> output)
-        {
-            int x1 = start.X;
-            int x2 = end.X;
-            int y1 = start.Y;
-            int y2 = end.Y;
-
-            if (x1 == x2 && y1 == y2)
-            {
-                output.Add(start);
-                return;
-            }
-
-            int d, dx, dy, ai, bi, xi, yi;
-            int x = x1, y = y1;
-
-            if (x1 < x2)
-            {
-                xi = 1;
-                dx = x2 - x1;
-            }
-            else
-            {
-                xi = -1;
-                dx = x1 - x2;
-            }
-
-            if (y1 < y2)
-            {
-                yi = 1;
-                dy = y2 - y1;
-            }
-            else
-            {
-                yi = -1;
-                dy = y1 - y2;
-            }
-
-            output.Add(new Coordinates(x, y));
-
-            if (dx > dy)
-            {
-                ai = (dy - dx) * 2;
-                bi = dy * 2;
-                d = bi - dx;
-
-                while (x != x2)
-                {
-                    if (d >= 0)
-                    {
-                        x += xi;
-                        y += yi;
-                        d += ai;
-                    }
-                    else
-                    {
-                        d += bi;
-                        x += xi;
-                    }
-
-                    output.Add(new Coordinates(x, y));
-                }
-            }
-            else
-            {
-                ai = (dx - dy) * 2;
-                bi = dx * 2;
-                d = bi - dy;
-
-                while (y != y2)
-                {
-                    if (d >= 0)
-                    {
-                        x += xi;
-                        y += yi;
-                        d += ai;
-                    }
-                    else
-                    {
-                        d += bi;
-                        y += yi;
-                    }
-
-                    output.Add(new Coordinates(x, y));
-                }
-            }
-        }
 
         private string defaltActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
 
@@ -119,35 +23,29 @@ namespace PixiEditor.Models.Tools.Tools
         {
             ActionDisplay = defaltActionDisplay;
             Toolbar = new BasicToolbar();
-            circleTool = new CircleTool();
         }
 
         public override string Tooltip => "Draws line on canvas (L). Hold Shift to draw even line.";
 
-        public override void OnKeyDown(KeyEventArgs e)
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
-            if (e.Key is Key.LeftShift or Key.RightShift)
-            {
+            if (shiftIsDown)
                 ActionDisplay = "Click and move mouse to draw an even line.";
-            }
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            if (e.Key is Key.LeftShift or Key.RightShift)
-            {
+            else
                 ActionDisplay = defaltActionDisplay;
-            }
         }
 
-        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
 
-            Coordinates start = coordinates[0];
-            Coordinates end = coordinates[^1];
+            Coordinates start = recordedMouseMovement[0];
+            Coordinates end = recordedMouseMovement[^1];
 
-            DrawLine(layer, start, end, color, thickness, SKBlendMode.Src);
+            if (Session.IsShiftDown)
+                (start, end) = CoordinatesHelper.GetSquareOrLineCoordinates(recordedMouseMovement);
+
+            DrawLine(previewLayer, start, end, color, thickness, SKBlendMode.Src);
         }
 
         public void DrawLine(
@@ -273,6 +171,102 @@ namespace PixiEditor.Models.Tools.Tools
                     }
 
                     layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x, y, paint);
+                }
+            }
+        }
+
+
+        public static List<Coordinates> GetBresenhamLine(Coordinates start, Coordinates end)
+        {
+            List<Coordinates> output = new List<Coordinates>();
+            CalculateBresenhamLine(start, end, output);
+            return output;
+        }
+
+        public static void CalculateBresenhamLine(Coordinates start, Coordinates end, List<Coordinates> output)
+        {
+            int x1 = start.X;
+            int x2 = end.X;
+            int y1 = start.Y;
+            int y2 = end.Y;
+
+            if (x1 == x2 && y1 == y2)
+            {
+                output.Add(start);
+                return;
+            }
+
+            int d, dx, dy, ai, bi, xi, yi;
+            int x = x1, y = y1;
+
+            if (x1 < x2)
+            {
+                xi = 1;
+                dx = x2 - x1;
+            }
+            else
+            {
+                xi = -1;
+                dx = x1 - x2;
+            }
+
+            if (y1 < y2)
+            {
+                yi = 1;
+                dy = y2 - y1;
+            }
+            else
+            {
+                yi = -1;
+                dy = y1 - y2;
+            }
+
+            output.Add(new Coordinates(x, y));
+
+            if (dx > dy)
+            {
+                ai = (dy - dx) * 2;
+                bi = dy * 2;
+                d = bi - dx;
+
+                while (x != x2)
+                {
+                    if (d >= 0)
+                    {
+                        x += xi;
+                        y += yi;
+                        d += ai;
+                    }
+                    else
+                    {
+                        d += bi;
+                        x += xi;
+                    }
+
+                    output.Add(new Coordinates(x, y));
+                }
+            }
+            else
+            {
+                ai = (dx - dy) * 2;
+                bi = dx * 2;
+                d = bi - dy;
+
+                while (y != y2)
+                {
+                    if (d >= 0)
+                    {
+                        x += xi;
+                        y += yi;
+                        d += ai;
+                    }
+                    else
+                    {
+                        d += bi;
+                        y += yi;
+                    }
+
+                    output.Add(new Coordinates(x, y));
                 }
             }
         }

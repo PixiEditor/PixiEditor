@@ -24,10 +24,13 @@
                    UseTouchGestures="{Binding UseTouchGestures, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
-                <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
+                <cmd:EventToCommand Command="{Binding MouseMoveCommand, ElementName=uc}" PassEventArgsToCommand="True" />
             </i:EventTrigger>
             <i:EventTrigger EventName="MouseDown">
-                <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
+                <cmd:EventToCommand Command="{Binding MouseDownCommand, ElementName=uc}" PassEventArgsToCommand="True" />
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseUp">
+                <cmd:EventToCommand Command="{Binding MouseUpCommand, ElementName=uc}" PassEventArgsToCommand="True" />
             </i:EventTrigger>
             <i:EventTrigger EventName="PreviewMouseDown">
                 <i:InvokeCommandAction Command="{Binding PreviewMouseDownCommand, ElementName=uc}"/>

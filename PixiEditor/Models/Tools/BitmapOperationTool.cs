@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
+using System.Collections.Generic;
 
 namespace PixiEditor.Models.Tools
 {
@@ -18,33 +14,33 @@ namespace PixiEditor.Models.Tools
         public bool ClearPreviewLayerOnEachIteration { get; set; } = true;
 
         public bool UseDefaultUndoMethod { get; set; } = true;
-        public virtual bool UsesShift => true;
 
         private StorageBasedChange _change;
 
-        public abstract void Use(Layer layer, List<Coordinates> mouseMove, SKColor color);
+        public abstract void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color);
+
+        public override void BeforeUse()
+        {
+            if (UseDefaultUndoMethod)
+            {
+                Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
+                _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
+            }
+        }
 
         /// <summary>
         /// Executes undo adding procedure.
         /// </summary>
         /// <param name="document">Active document</param>
         /// <remarks>When overriding, set UseDefaultUndoMethod to false.</remarks>
-        public override void AddUndoProcess(Document document)
+        public override void AfterUse()
         {
-            if (!UseDefaultUndoMethod) return;
-
+            if (!UseDefaultUndoMethod)
+                return;
+            var document = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
             var args = new object[] { _change.Document };
             document.UndoManager.AddUndoChange(_change.ToChange(StorageBasedChange.BasicUndoProcess, args));
             _change = null;
-        }
-
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
-        {
-            if (UseDefaultUndoMethod && e.LeftButton == MouseButtonState.Pressed)
-            {
-                Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-                _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
-            }
         }
     }
 }

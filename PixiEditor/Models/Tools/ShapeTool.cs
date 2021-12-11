@@ -1,10 +1,8 @@
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools
@@ -54,9 +52,6 @@ namespace PixiEditor.Models.Tools
             Cursor = Cursors.Cross;
             Toolbar = new BasicShapeToolbar();
         }
-
-        // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override void Use(Layer layer, List<Coordinates> coordinates, SKColor color);
 
         public static void ThickenShape(Layer layer, SKColor color, IEnumerable<Coordinates> shape, int thickness)
         {

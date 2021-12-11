@@ -61,12 +61,12 @@ namespace PixiEditor.Views.UserControls.Layers
             LayerGroupControl control = (LayerGroupControl)d;
             if (e.OldValue is LayersViewModel oldVm && oldVm != e.NewValue)
             {
-                oldVm.Owner.BitmapManager.MouseController.StoppedRecordingChanges -= control.MouseController_StoppedRecordingChanges;
+                oldVm.Owner.BitmapManager.StopUsingTool -= control.MouseController_StoppedRecordingChanges;
             }
 
             if (e.NewValue is LayersViewModel vm)
             {
-                vm.Owner.BitmapManager.MouseController.StoppedRecordingChanges += control.MouseController_StoppedRecordingChanges;
+                vm.Owner.BitmapManager.StopUsingTool += control.MouseController_StoppedRecordingChanges;
             }
         }
 

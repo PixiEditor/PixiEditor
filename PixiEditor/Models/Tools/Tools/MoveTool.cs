@@ -3,24 +3,18 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 using SkiaSharp;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using Transform = PixiEditor.Models.ImageManipulation.Transform;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class MoveTool : BitmapOperationTool
+    internal class MoveTool : BitmapOperationTool
     {
         private static readonly SKPaint maskingPaint = new()
         {
@@ -38,7 +32,6 @@ namespace PixiEditor.Models.Tools.Tools
         private Surface previewLayerData;
 
         private List<Coordinates> moveStartSelectedPoints = null;
-        private Coordinates moveStartPos;
         private Int32Rect moveStartRect;
 
         private Coordinates lastDragDelta;
@@ -63,61 +56,21 @@ namespace PixiEditor.Models.Tools.Tools
 
         private BitmapManager BitmapManager { get; }
 
-        public override void OnKeyDown(KeyEventArgs e)
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
-            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
-            {
+            if (ctrlIsDown)
                 ActionDisplay = "Hold mouse to move all layers.";
-            }
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
-            {
+            else
                 ActionDisplay = defaultActionDisplay;
-            }
         }
 
-        public override void AddUndoProcess(Document document)
-        {
-            var args = new object[] { change.Document };
-            document.UndoManager.AddUndoChange(change.ToChange(UndoProcess, args));
-            if (moveStartSelectedPoints != null)
-            {
-                SelectionHelpers.AddSelectionUndoStep(document, moveStartSelectedPoints, SelectionType.New);
-                document.UndoManager.SquashUndoChanges(3, "Move selected area");
-                moveStartSelectedPoints = null;
-            }
-            change = null;
-        }
-
-        private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
-        {
-            if (args.Length > 0 && args[0] is Document document)
-            {
-                for (int i = 0; i < layers.Length; i++)
-                {
-                    Layer layer = layers[i];
-                    document.Layers.RemoveAt(data[i].LayerIndex);
-
-                    document.Layers.Insert(data[i].LayerIndex, layer);
-                    if (data[i].IsActive)
-                    {
-                        document.SetMainActiveLayer(data[i].LayerIndex);
-                    }
-                }
-
-            }
-        }
-
-        public override void OnStart(Coordinates startPos)
+        public override void BeforeUse()
         {
             Document doc = BitmapManager.ActiveDocument;
             Selection selection = doc.ActiveSelection;
             bool anySelection = selection.SelectedPoints.Any();
 
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            if (Session.IsCtrlDown)
             {
                 affectedLayers = doc.Layers.Where(x => x.IsVisible).ToArray();
             }
@@ -129,10 +82,9 @@ namespace PixiEditor.Models.Tools.Tools
             change = new StorageBasedChange(doc, affectedLayers, true);
 
             Layer selLayer = selection.SelectionLayer;
-            moveStartRect = anySelection ? 
+            moveStartRect = anySelection ?
                 new(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height) :
-                new (0, 0, doc.Width, doc.Height);
-            moveStartPos = startPos;
+                new(0, 0, doc.Width, doc.Height);
             lastDragDelta = new Coordinates(0, 0);
 
             previewLayerData?.Dispose();
@@ -193,7 +145,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
             Surface[] output = new Surface[draggedLayers.Length];
-            
+
             int count = 0;
             foreach (Layer layer in draggedLayers)
             {
@@ -209,17 +161,18 @@ namespace PixiEditor.Models.Tools.Tools
                 output[count] = portion;
                 count++;
 
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(selSnap, new SKRect(0, 0, selLayer.Width, selLayer.Height), 
-                    new SKRect(selLayer.OffsetX - layer.OffsetX, selLayer.OffsetY - layer.OffsetY, selLayer.OffsetX - layer.OffsetX + selLayer.Width, selLayer.OffsetY - layer.OffsetY + selLayer.Height), 
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(selSnap, new SKRect(0, 0, selLayer.Width, selLayer.Height),
+                    new SKRect(selLayer.OffsetX - layer.OffsetX, selLayer.OffsetY - layer.OffsetY, selLayer.OffsetX - layer.OffsetX + selLayer.Width, selLayer.OffsetY - layer.OffsetY + selLayer.Height),
                     inverseMaskingPaint);
                 layer.InvokeLayerBitmapChange(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height));
             }
             return output;
         }
 
-        public override void Use(Layer layer, List<Coordinates> mouseMove, SKColor color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
-            Coordinates newPos = mouseMove[0];
+            Coordinates newPos = recordedMouseMovement[^1];
+            Coordinates moveStartPos = recordedMouseMovement[0];
             int dX = newPos.X - moveStartPos.X;
             int dY = newPos.Y - moveStartPos.Y;
             BitmapManager.ActiveDocument.ActiveSelection.TranslateSelection(dX - lastDragDelta.X, dY - lastDragDelta.Y);
@@ -230,21 +183,22 @@ namespace PixiEditor.Models.Tools.Tools
             int newY = moveStartRect.Y + dY;
 
             Int32Rect dirtyRect = new Int32Rect(newX, newY, moveStartRect.Width, moveStartRect.Height);
-            layer.DynamicResizeAbsolute(dirtyRect);
-            previewLayerData.SkiaSurface.Draw(layer.LayerBitmap.SkiaSurface.Canvas, newX - layer.OffsetX, newY - layer.OffsetY, Surface.ReplacingPaint);
-            layer.InvokeLayerBitmapChange(dirtyRect);
+            previewLayer.DynamicResizeAbsolute(dirtyRect);
+            previewLayerData.SkiaSurface.Draw(previewLayer.LayerBitmap.SkiaSurface.Canvas, newX - previewLayer.OffsetX, newY - previewLayer.OffsetY, Surface.ReplacingPaint);
+            previewLayer.InvokeLayerBitmapChange(dirtyRect);
         }
 
-        public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
+        public override void AfterUse()
         {
-            base.OnStoppedRecordingMouseUp(e);
-
+            base.AfterUse();
             BitmapManager.ActiveDocument.PreviewLayer.ClearCanvas();
 
             ApplySurfacesToLayers(currentlyDragged, currentlyDraggedPositions, affectedLayers, new Coordinates(lastDragDelta.X, lastDragDelta.Y));
             foreach (var surface in currentlyDragged)
                 surface.Dispose();
             currentlyDragged = null;
+
+            SaveUndo(BitmapManager.ActiveDocument);
         }
 
         private static void ApplySurfacesToLayers(Surface[] surfaces, Coordinates[] startPositions, Layer[] layers, Coordinates delta)
@@ -261,6 +215,38 @@ namespace PixiEditor.Models.Tools.Tools
                 layer.InvokeLayerBitmapChange(dirtyRect);
 
                 count++;
+            }
+        }
+
+        private void SaveUndo(Document document)
+        {
+            var args = new object[] { change.Document };
+            document.UndoManager.AddUndoChange(change.ToChange(UndoProcess, args));
+            if (moveStartSelectedPoints != null)
+            {
+                SelectionHelpers.AddSelectionUndoStep(document, moveStartSelectedPoints, SelectionType.New);
+                document.UndoManager.SquashUndoChanges(3, "Move selected area");
+                moveStartSelectedPoints = null;
+            }
+            change = null;
+        }
+
+        private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            if (args.Length > 0 && args[0] is Document document)
+            {
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    Layer layer = layers[i];
+                    document.Layers.RemoveAt(data[i].LayerIndex);
+
+                    document.Layers.Insert(data[i].LayerIndex, layer);
+                    if (data[i].IsActive)
+                    {
+                        document.SetMainActiveLayer(data[i].LayerIndex);
+                    }
+                }
+
             }
         }
     }

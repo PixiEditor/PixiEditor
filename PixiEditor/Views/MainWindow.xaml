@@ -285,6 +285,7 @@
                                         MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"
                                         MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
+                                        MouseUpCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseUpCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
                                         StylusButtonDownCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusDownCommand}"

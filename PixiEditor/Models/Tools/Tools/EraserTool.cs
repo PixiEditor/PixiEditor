@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class EraserTool : BitmapOperationTool
+    internal class EraserTool : BitmapOperationTool
     {
         private readonly PenTool pen;
 
@@ -18,20 +18,17 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
             pen = new PenTool(bitmapManager);
         }
-
-        public override bool UsesShift => false;
-
         public override string Tooltip => "Erasers color from pixel. (E)";
 
-        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
-            Erase(layer, coordinates, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
+            Erase(activeLayer, recordedMouseMovement, Toolbar.GetSetting<SizeSetting>("ToolSize").Value);
         }
 
-        public void Erase(Layer layer, List<Coordinates> coordinates, int toolSize)
+        public void Erase(Layer layer, IReadOnlyList<Coordinates> coordinates, int toolSize)
         {
-            Coordinates startingCords = coordinates.Count > 1 ? coordinates[1] : coordinates[0];
-            pen.Draw(layer, startingCords, coordinates[0], SKColors.Transparent, toolSize, false, null, SKBlendMode.Src);
+            Coordinates startingCords = coordinates.Count > 1 ? coordinates[^2] : coordinates[0];
+            pen.Draw(layer, startingCords, coordinates[^1], SKColors.Transparent, toolSize, false, null, SKBlendMode.Src);
         }
     }
 }

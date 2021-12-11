@@ -8,13 +8,10 @@ using PixiEditor.ViewModels;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using static System.Math;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class ColorPickerTool : ReadonlyTool
+    internal class ColorPickerTool : ReadonlyTool
     {
         private readonly DocumentProvider _docProvider;
         private readonly BitmapManager _bitmapManager;
@@ -29,11 +26,13 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override bool HideHighlight => true;
 
+        public override bool RequiresPreciseMouseData => true;
+
         public override string Tooltip => "Picks the primary color from the canvas. (O)";
 
-        public override void Use(List<Coordinates> coordinates)
+        public override void Use(IReadOnlyList<Coordinates> recordedMouseMovement)
         {
-            var coords = coordinates.First();
+            var coords = recordedMouseMovement[^1];
             var doc = _docProvider.GetDocument();
             if (coords.X < 0 || coords.Y < 0 || coords.X >= doc.Width || coords.Y >= doc.Height)
                 return;
@@ -45,12 +44,12 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Layer referenceLayer = _docProvider.GetReferenceLayer();
 
-            if (referenceLayer != null && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            if (referenceLayer != null && Session.IsCtrlDown)
             {
                 double preciseX = _docProvider.GetDocument().MouseXOnCanvas;
                 double preciseY = _docProvider.GetDocument().MouseYOnCanvas;
 
-                if ((Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)))
+                if (Session.IsAltDown)
                 {
                     return GetCombinedColor(x, y, preciseX, preciseY);
                 }
@@ -112,32 +111,11 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        public override void OnKeyDown(KeyEventArgs e)
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
-            UpdateActionDisplay();
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            UpdateActionDisplay();
-        }
-
-        public override void OnSelected()
-        {
-            UpdateActionDisplay();
-        }
-
-        public override void OnDeselected()
-        {
-            _bitmapManager.OnlyReferenceLayer = false;
-            _bitmapManager.HideReferenceLayer = false;
-        }
-
-        private void UpdateActionDisplay()
-        {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            if (ctrlIsDown)
             {
-                if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+                if (altIsDown)
                 {
                     _bitmapManager.HideReferenceLayer = false;
                     _bitmapManager.OnlyReferenceLayer = false;
