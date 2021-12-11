@@ -1,6 +1,4 @@
-﻿using PixiEditor.Helpers;
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -126,6 +124,7 @@ namespace PixiEditor.Views
         private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             textBox.Focus();
+            e.Handled = true;
         }
 
         private void Border_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)

@@ -35,8 +35,8 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Right"
-                     InputScope="Number" BorderThickness="0" Background="{x:Null}"
-                     Foreground="{Binding Foreground, ElementName=uc}" Focusable="True"
+                     InputScope="Number" BorderThickness="0" Background="Transparent"
+                     Foreground="{Binding Foreground, ElementName=uc}" Focusable="True" CaretBrush="{Binding Foreground, ElementName=uc}"
                      Margin="0,0,5,0" VerticalAlignment="Center"
                      x:Name="textBox"
                      Text="{Binding Size, ElementName=uc, Converter={converters:ToolSizeToIntConverter}}"

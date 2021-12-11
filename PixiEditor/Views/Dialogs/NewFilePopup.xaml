@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:PixiEditor.Views"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d"
         d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450"
         DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen" MinHeight="300" MinWidth="400" Height="600" Width="450" Name="newFilePopup" BorderBrush="Black" BorderThickness="1">
@@ -21,11 +22,14 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource AccentColor}">
+    <Grid Background="{StaticResource AccentColor}" Focusable="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition />
         </Grid.RowDefinitions>
+        <i:Interaction.Behaviors>
+            <behaviors:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
 
         <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
             <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
