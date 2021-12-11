@@ -63,7 +63,7 @@
             <cmd:EventToCommand Command="{Binding CloseWindowCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid Name="mainGrid" Margin="5" Focusable="True">
+    <Grid Name="mainGrid" Margin="5" Focusable="True" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="45" />
             <ColumnDefinition Width="1*" />
@@ -256,10 +256,10 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
+        <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
             <Grid AllowDrop="True" Drop="MainWindow_Drop">
-                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay, Converter={StaticResource DockingManagerActiveContentConverter}}" 
-                                           DocumentsSource="{Binding BitmapManager.Documents}">
+                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=Default, Converter={StaticResource DockingManagerActiveContentConverter}}"
+                                           DocumentsSource="{Binding BitmapManager.Documents}" >
                     <DockingManager.Theme>
                         <avalonDockTheme:PixiEditorDockTheme />
                     </DockingManager.Theme>

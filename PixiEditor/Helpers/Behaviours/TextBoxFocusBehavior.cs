@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interactivity;
-using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Helpers.Behaviours
 {
@@ -12,10 +11,18 @@ namespace PixiEditor.Helpers.Behaviours
         // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FillSizeProperty =
             DependencyProperty.Register(
-                "FillSize",
+                nameof(FillSize),
                 typeof(bool),
                 typeof(TextBoxFocusBehavior),
                 new PropertyMetadata(false));
+
+        // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectOnFocusProperty =
+            DependencyProperty.Register(
+                nameof(SelectOnFocus),
+                typeof(bool),
+                typeof(TextBoxFocusBehavior),
+                new PropertyMetadata(true));
 
         private string oldText; // Value of textbox before editing
         private bool valueConverted; // This bool is used to avoid double convertion if enter is hitted
@@ -24,6 +31,12 @@ namespace PixiEditor.Helpers.Behaviours
         {
             get => (bool)GetValue(FillSizeProperty);
             set => SetValue(FillSizeProperty, value);
+        }
+
+        public bool SelectOnFocus
+        {
+            get => (bool)GetValue(SelectOnFocusProperty);
+            set => SetValue(SelectOnFocusProperty, value);
         }
 
         protected override void OnAttached()
@@ -74,7 +87,8 @@ namespace PixiEditor.Helpers.Behaviours
             object sender,
             KeyboardFocusChangedEventArgs e)
         {
-            AssociatedObject.SelectAll();
+            if (SelectOnFocus)
+                AssociatedObject.SelectAll();
             if (FillSize)
             {
                 valueConverted = false;
@@ -86,7 +100,8 @@ namespace PixiEditor.Helpers.Behaviours
             object sender,
             MouseEventArgs e)
         {
-            AssociatedObject.SelectAll();
+            if (SelectOnFocus)
+                AssociatedObject.SelectAll();
         }
 
         private void AssociatedObjectPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

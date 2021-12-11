@@ -43,7 +43,7 @@
                      d:Text="22">
                 <i:Interaction.Behaviors>
                     <behaviors:GlobalShortcutFocusBehavior/>
-                    <behaviors:TextBoxFocusBehavior FillSize="True" />
+                    <behaviors:TextBoxFocusBehavior FillSize="True" SelectOnFocus="{Binding SelectOnFocus, ElementName=uc}" />
                 </i:Interaction.Behaviors>
             </TextBox>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"

@@ -39,6 +39,9 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty MaxSizeProperty =
             DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
 
+        public static readonly DependencyProperty SelectOnFocusProperty =
+            DependencyProperty.Register(nameof(SelectOnFocus), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
+
         private int loadedAspectRatioSize = -1;
 
         private int loadedSize = -1;
@@ -47,6 +50,12 @@ namespace PixiEditor.Views
         public SizeInput()
         {
             InitializeComponent();
+        }
+
+        public bool SelectOnFocus
+        {
+            get => (bool)GetValue(SelectOnFocusProperty);
+            set => SetValue(SelectOnFocusProperty, value);
         }
 
         public int Size
