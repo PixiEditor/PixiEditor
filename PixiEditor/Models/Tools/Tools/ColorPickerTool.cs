@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private readonly DocumentProvider _docProvider;
         private readonly BitmapManager _bitmapManager;
-        private readonly string defaultActionDisplay = "Click to pick colors from the canvas. Hold Ctrl to pick from the reference layer. Hold Ctrl and Alt to blend the reference and canvas color";
+        private readonly string defaultActionDisplay = "Click to pick colors. Hold Ctrl to hide the canvas. Hold Shift to hide the reference layer";
 
         public ColorPickerTool(DocumentProvider documentProvider, BitmapManager bitmapManager)
         {
@@ -44,16 +44,16 @@ namespace PixiEditor.Models.Tools.Tools
         {
             Layer referenceLayer = _docProvider.GetReferenceLayer();
 
-            if (referenceLayer != null && Session.IsCtrlDown)
+            if (referenceLayer != null && referenceLayer.IsVisible)
             {
                 double preciseX = _docProvider.GetDocument().MouseXOnCanvas;
                 double preciseY = _docProvider.GetDocument().MouseYOnCanvas;
 
-                if (Session.IsAltDown)
-                {
-                    return GetCombinedColor(x, y, preciseX, preciseY);
-                }
-                return GetReferenceColor(preciseX, preciseY);
+                if (Session.IsCtrlDown)
+                    return GetReferenceColor(preciseX, preciseY);
+                if (Session.IsShiftDown)
+                    return GetCanvasColor(x, y);
+                return GetCombinedColor(x, y, preciseX, preciseY);
             }
 
             return GetCanvasColor(x, y);
@@ -113,23 +113,29 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
+            if (!IsActive)
+            {
+                _bitmapManager.HideReferenceLayer = false;
+                _bitmapManager.OnlyReferenceLayer = false;
+                return;
+            }
+
             if (ctrlIsDown)
             {
-                if (altIsDown)
-                {
-                    _bitmapManager.HideReferenceLayer = false;
-                    _bitmapManager.OnlyReferenceLayer = false;
-                    ActionDisplay = "Click to pick colors from both the canvas and the reference layer blended together. Release Ctrl and Alt to pick from the canvas. Release just Alt to pick from the reference layer";
-                    return;
-                }
-
                 _bitmapManager.HideReferenceLayer = false;
                 _bitmapManager.OnlyReferenceLayer = true;
-                ActionDisplay = "Click to pick colors from the reference layer. Release Ctrl to pick from the canvas. Hold Ctrl and Alt to blend the reference and canvas color";
+                ActionDisplay = "Click to pick colors from the reference layer.";
+            }
+            else if (shiftIsDown)
+            {
+                _bitmapManager.HideReferenceLayer = true;
+                _bitmapManager.OnlyReferenceLayer = false;
+                ActionDisplay = "Click to pick colors from the canvas.";
+                return;
             }
             else
             {
-                _bitmapManager.HideReferenceLayer = true;
+                _bitmapManager.HideReferenceLayer = false;
                 _bitmapManager.OnlyReferenceLayer = false;
                 ActionDisplay = defaultActionDisplay;
             }

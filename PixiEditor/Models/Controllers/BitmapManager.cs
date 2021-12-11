@@ -77,7 +77,7 @@ namespace PixiEditor.Models.Controllers
             ToolSessionController.SessionEnded += OnSessionEnd;
             ToolSessionController.PixelMousePositionChanged += OnPixelMousePositionChange;
             ToolSessionController.PreciseMousePositionChanged += OnPreciseMousePositionChange;
-            ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay();
+            ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);
             BitmapOperations = new BitmapOperationsUtility(this, tools);
 
             DocumentChanged += BitmapManager_DocumentChanged;
@@ -103,9 +103,9 @@ namespace PixiEditor.Models.Controllers
             document.Dispose();
         }
 
-        public void UpdateActionDisplay()
+        public void UpdateActionDisplay(Tool tool)
         {
-            _tools.ActiveTool?.UpdateActionDisplay(ToolSessionController.IsCtrlDown, ToolSessionController.IsShiftDown, ToolSessionController.IsAltDown);
+            tool?.UpdateActionDisplay(ToolSessionController.IsCtrlDown, ToolSessionController.IsShiftDown, ToolSessionController.IsAltDown);
         }
 
         private void OnSessionStart(object sender, ToolSession e)

@@ -88,13 +88,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             LastActionTool = ActiveTool;
+
+
             ActiveTool = tool;
 
             if (LastActionTool != ActiveTool)
                 SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
+            //update old tool
+            Owner.BitmapManager.UpdateActionDisplay(LastActionTool);
             //update new tool
-            Owner.BitmapManager.UpdateActionDisplay();
+            Owner.BitmapManager.UpdateActionDisplay(ActiveTool);
 
             tool.IsActive = true;
             SetToolCursor(tool.GetType());

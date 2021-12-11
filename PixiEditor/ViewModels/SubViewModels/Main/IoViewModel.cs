@@ -44,10 +44,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void OnKeyDown(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            ProcessShortcutDown(args.IsRepeat, args.Key);
+            var key = args.Key;
+            if (key == Key.System)
+                key = args.SystemKey;
+
+            ProcessShortcutDown(args.IsRepeat, key);
 
             if (Owner.BitmapManager.ActiveDocument != null)
-                Owner.BitmapManager.InputTarget.OnKeyDown(args.Key);
+            {
+                Owner.BitmapManager.InputTarget.OnKeyDown(key);
+            }
         }
 
         private void ProcessShortcutDown(bool isRepeat, Key key)
@@ -65,10 +71,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void OnKeyUp(object parameter)
         {
             KeyEventArgs args = (KeyEventArgs)parameter;
-            ProcessShortcutUp(args.Key);
+            var key = args.Key;
+            if (key == Key.System)
+                key = args.SystemKey;
+
+            ProcessShortcutUp(key);
 
             if (Owner.BitmapManager.ActiveDocument != null)
-                Owner.BitmapManager.InputTarget.OnKeyUp(args.Key);
+                Owner.BitmapManager.InputTarget.OnKeyUp(key);
         }
 
         private void ProcessShortcutUp(Key key)
