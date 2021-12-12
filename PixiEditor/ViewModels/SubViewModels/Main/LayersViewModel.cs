@@ -180,7 +180,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
                 Guid? parent = parameter is Layer or LayerStructureItemContainer ? activeLayerParent?.GroupGuid : activeLayerParent.Parent?.GroupGuid;
                 doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, parent);
-                doc.UndoManager.UndoStack.Pop();
             }
             if (control != null)
             {

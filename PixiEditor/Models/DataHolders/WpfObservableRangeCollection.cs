@@ -11,6 +11,7 @@ namespace PixiEditor.Models.DataHolders
 {
 public class WpfObservableRangeCollection<T> : RangeObservableCollection<T>
 {
+        public bool SuppressNotify { get; set; } = false;
   DeferredEventsCollection _deferredEvents;
 
   public WpfObservableRangeCollection()
@@ -37,6 +38,7 @@ public class WpfObservableRangeCollection<T> : RangeObservableCollection<T>
   /// </remarks>
   protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
   {
+            if (SuppressNotify) return;
     var _deferredEvents = (ICollection<NotifyCollectionChangedEventArgs>) typeof(RangeObservableCollection<T>)
       .GetField("_deferredEvents", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(this);
     if (_deferredEvents != null)

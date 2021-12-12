@@ -260,9 +260,13 @@ namespace PixiEditor.Models.Undo
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
+                    document.Layers.SuppressNotify = true;
                     document.Layers.RemoveAt(data[i].LayerIndex);
+                    document.Layers.SuppressNotify = false;
 
                     document.Layers.Insert(data[i].LayerIndex, layer);
+
+
                     if (data[i].IsActive)
                     {
                         document.SetMainActiveLayer(data[i].LayerIndex);
