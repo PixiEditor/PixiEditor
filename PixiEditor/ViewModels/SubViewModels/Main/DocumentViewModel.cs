@@ -65,6 +65,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (result == ConfirmationType.Yes)
                 {
                     Owner.FileSubViewModel.SaveDocument(false);
+                    if (!document.ChangesSaved)
+                        return;
                 }
                 else if (result == ConfirmationType.Canceled)
                 {
