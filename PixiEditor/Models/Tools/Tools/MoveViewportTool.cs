@@ -18,15 +18,7 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public override bool HideHighlight => true;
-        public override string Tooltip => "Move viewport. (H)";
-        /*
-        public override void OnMouseUp(MouseEventArgs e)
-        {
-            if (e.MiddleButton == MouseButtonState.Pressed)
-            {
-                ToolsViewModel.SetActiveTool(ToolsViewModel.LastActionTool);
-            }
-        }*/
+        public override string Tooltip => "Move viewport. (Space)";
 
         public override void Use(IReadOnlyList<Coordinates> pixels)
         {
