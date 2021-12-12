@@ -95,6 +95,8 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        public bool Disposed { get; private set; } = false;
+
         public ExecutionTrigger<Size> CenterViewportTrigger { get; } = new();
         public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new();
 
@@ -187,6 +189,9 @@ namespace PixiEditor.Models.DataHolders
 
         public void Dispose()
         {
+            if (Disposed)
+                return;
+            Disposed = true;
             DisposeLayerBitmaps();
             UndoManager.Dispose();
 

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -39,7 +38,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Horizontal);
             }
-            else if(parameter is "Vertical")
+            else if (parameter is "Vertical")
             {
                 Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Vertical);
             }

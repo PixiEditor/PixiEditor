@@ -23,6 +23,8 @@ namespace PixiEditor.Models.DataHolders
         public int Width { get; }
         public int Height { get; }
 
+        public bool Disposed { get; private set; } = false;
+
         private SKPaint drawingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
         private IntPtr surfaceBuffer;
 
@@ -152,6 +154,9 @@ namespace PixiEditor.Models.DataHolders
 
         public void Dispose()
         {
+            if (Disposed)
+                return;
+            Disposed = true;
             SkiaSurface.Dispose();
             drawingPaint.Dispose();
             Marshal.FreeHGlobal(surfaceBuffer);

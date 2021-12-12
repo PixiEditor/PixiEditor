@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Layers;
 using System;
 using System.Linq;
@@ -73,7 +72,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanDeleteSelected(object parameter)
         {
-            return (parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
+            return (
+                (
+                    parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null)
+                )
+                && Owner.BitmapManager.ActiveDocument != null;
         }
 
         public void DeleteSelected(object parameter)

@@ -1,5 +1,4 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
@@ -125,6 +124,9 @@ namespace PixiEditor.Views.UserControls.Layers
             {
                 var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
+                if (group.Opacity == value)
+                    return;
+
                 var processArgs = new object[] { group.GroupGuid, value };
                 var reverseProcessArgs = new object[] { group.GroupGuid, group.Opacity };
 
@@ -198,6 +200,8 @@ namespace PixiEditor.Views.UserControls.Layers
         private void HandleLayerOpacityChange(float val, Layer layer)
         {
             float oldOpacity = layer.Opacity;
+            if (oldOpacity == val)
+                return;
 
             var doc = LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
