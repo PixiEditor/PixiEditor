@@ -25,6 +25,7 @@ namespace PixiEditor.Helpers.Extensions
             {
                 document.SetMainActiveLayer(0);
             }
+            document.Renderer.ForceRerender();
 
             return document;
         }

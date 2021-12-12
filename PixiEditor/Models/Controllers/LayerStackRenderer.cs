@@ -66,6 +66,11 @@ namespace PixiEditor.Models.Controllers
             Update(new Int32Rect(0, 0, finalSurface.Width, finalSurface.Height));
         }
 
+        public void ForceRerender()
+        {
+            Update(new Int32Rect(0, 0, finalSurface.Width, finalSurface.Height));
+        }
+
         public void Dispose()
         {
             finalSurface.Dispose();
