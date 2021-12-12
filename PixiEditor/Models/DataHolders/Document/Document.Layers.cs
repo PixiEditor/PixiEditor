@@ -137,7 +137,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void MoveLayerInStructure(Guid layerGuid, Guid referenceLayer, bool above = false)
+        public void MoveLayerInStructure(Guid layerGuid, Guid referenceLayer, bool above = false, bool addToUndo = true)
         {
             var args = new object[] { layerGuid, referenceLayer, above };
 
@@ -150,6 +150,8 @@ namespace PixiEditor.Models.DataHolders
             MoveLayerInStructureProcess(args);
 
             AddLayerStructureToUndo(oldLayerStrcutureGroups);
+
+            if (!addToUndo) return;
 
             UndoManager.AddUndoChange(new Change(
                 ReverseMoveLayerInStructureProcess,

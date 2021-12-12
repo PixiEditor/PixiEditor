@@ -40,6 +40,8 @@ namespace PixiEditor.Models.Tools
             var document = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
             var args = new object[] { _change.Document };
             document.UndoManager.AddUndoChange(_change.ToChange(StorageBasedChange.BasicUndoProcess, args));
+            document.AddLayerStructureToUndo(document.LayerStructure.Groups);
+            document.UndoManager.SquashUndoChanges(2);
             _change = null;
         }
     }
