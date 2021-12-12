@@ -126,7 +126,7 @@ namespace PixiEditor.Models.Controllers
             }
 
             ActiveDocument.PreviewLayer.Reset();
-            HighlightPixels(MousePositionConverter.CurrentCoordinates);
+            HighlightPixels(ToolSessionController.LastPixelPosition);
             StopUsingTool?.Invoke(this, EventArgs.Empty);
         }
 
