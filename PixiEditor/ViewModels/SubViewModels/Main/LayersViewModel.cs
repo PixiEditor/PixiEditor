@@ -174,13 +174,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
 
+
             doc.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+
+            var oldGroups = doc.LayerStructure.CloneGroups();
 
             if (doc.Layers.Count > 1)
             {
                 doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
                 Guid? parent = parameter is Layer or LayerStructureItemContainer ? activeLayerParent?.GroupGuid : activeLayerParent.Parent?.GroupGuid;
                 doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, parent);
+                doc.AddLayerStructureToUndo(oldGroups);
+                doc.UndoManager.SquashUndoChanges(3, "Add New Layer");
             }
             if (control != null)
             {

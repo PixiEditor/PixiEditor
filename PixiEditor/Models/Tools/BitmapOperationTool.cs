@@ -31,7 +31,6 @@ namespace PixiEditor.Models.Tools
         /// <summary>
         /// Executes undo adding procedure.
         /// </summary>
-        /// <param name="document">Active document</param>
         /// <remarks>When overriding, set UseDefaultUndoMethod to false.</remarks>
         public override void AfterUse()
         {
@@ -40,8 +39,8 @@ namespace PixiEditor.Models.Tools
             var document = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
             var args = new object[] { _change.Document };
             document.UndoManager.AddUndoChange(_change.ToChange(StorageBasedChange.BasicUndoProcess, args));
-            document.AddLayerStructureToUndo(document.LayerStructure.Groups);
-            document.UndoManager.SquashUndoChanges(2);
+            document.AddLayerStructureToUndo(document.LayerStructure.CloneGroups());
+            document.UndoManager.SquashUndoChanges(2, true);
             _change = null;
         }
     }

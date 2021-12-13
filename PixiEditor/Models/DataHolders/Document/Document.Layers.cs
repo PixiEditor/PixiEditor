@@ -416,7 +416,7 @@ namespace PixiEditor.Models.DataHolders
                     BuildLayerStructureProcess,
                     new object[] { oldLayerStructureGroups },
                     BuildLayerStructureProcess,
-                    new object[] { LayerStructure.CloneGroups() }));
+                    new object[] { LayerStructure.CloneGroups() }, "Reload LayerStructure"));
         }
 
         public Layer MergeLayers(Layer[] layersToMerge, bool nameOfLast, int index)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -103,10 +103,16 @@ namespace PixiEditor.Models.Controllers
         /// Merges multiple undo changes into one.
         /// </summary>
         /// <param name="amount">Amount of changes to squash.</param>
-        public void SquashUndoChanges(int amount)
+        /// <param name="reverseOrderInReverseProcess">Reverses order of execution changes in reverseProcess (undo)</param>
+        public void SquashUndoChanges(int amount, bool reverseOrderInReverseProcess = false)
         {
             string description = UndoStack.ElementAt(UndoStack.Count - amount).Description;
-            SquashUndoChanges(amount, description);
+            if (string.IsNullOrEmpty(description))
+            {
+                description = $"Squash {amount} undo changes.";
+            }
+
+            SquashUndoChanges(amount, description, reverseOrderInReverseProcess);
         }
 
         /// <summary>
@@ -114,7 +120,8 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         /// <param name="amount">Amount of changes to squash.</param>
         /// <param name="description">Final change description.</param>
-        public void SquashUndoChanges(int amount, string description)
+        /// <param name="reverseOrderInReverseProcess">Reverses order of execution changes in reverseProcess (undo)</param>
+        public void SquashUndoChanges(int amount, string description, bool reverseOrderInReverseProcess = false)
         {
             Change[] changes = new Change[amount];
             for (int i = 0; i < amount; i++)
@@ -124,7 +131,8 @@ namespace PixiEditor.Models.Controllers
 
             Action<object[]> reverseProcess = (object[] props) =>
             {
-                foreach (var prop in props)
+                IEnumerable<object> enumerable = reverseOrderInReverseProcess ? props.Reverse() : props;
+                foreach (var prop in enumerable)
                 {
                     Change change = (Change)prop;
                     if (change.ReverseProcess == null)
