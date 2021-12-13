@@ -6,7 +6,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class MouseMovementControllerTests
     {
-        [Fact]
+        /*[Fact]
         public void TestThatStartRecordingMouseMovChangesStartsRecordingAndInvokesEvent()
         {
             bool eventInvoked = false;
@@ -72,6 +72,6 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
             Assert.False(controller.IsRecordingChanges);
             Assert.Empty(controller.LastMouseMoveCoordinates);
-        }
+        }*/
     }
 }
