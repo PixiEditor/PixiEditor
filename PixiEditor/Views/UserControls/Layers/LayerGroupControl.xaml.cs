@@ -100,7 +100,12 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private static void GroupDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((LayerGroupControl)d).GeneratePreviewImage();
+            LayerGroupControl control = (LayerGroupControl)d;
+            control.GeneratePreviewImage();
+            foreach (var layer in control.LayersViewModel.Owner.BitmapManager.ActiveDocument.Layers)
+            {
+                layer.IsVisible = layer.IsVisible;
+            }
         }
 
         public WriteableBitmap PreviewImage
