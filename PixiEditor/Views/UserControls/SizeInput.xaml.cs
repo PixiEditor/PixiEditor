@@ -17,8 +17,7 @@ namespace PixiEditor.Views
             DependencyProperty.Register(
                 nameof(PreserveAspectRatio),
                 typeof(bool),
-                typeof(SizeInput),
-                new PropertyMetadata(false));
+                typeof(SizeInput));
 
         public static readonly DependencyProperty AspectRatioValueProperty =
             DependencyProperty.Register(
@@ -47,8 +46,12 @@ namespace PixiEditor.Views
         private int loadedSize = -1;
         private bool blockUpdate = false;
 
+        public static readonly DependencyProperty NextControlProperty =
+            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizeInput));
+
         public SizeInput()
         {
+            GotKeyboardFocus += SizeInput_GotKeyboardFocus;
             InitializeComponent();
         }
 
@@ -56,6 +59,11 @@ namespace PixiEditor.Views
         {
             get => (bool)GetValue(SelectOnFocusProperty);
             set => SetValue(SelectOnFocusProperty, value);
+        }
+
+        private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            textBox.Focus();
         }
 
         public int Size
@@ -80,6 +88,12 @@ namespace PixiEditor.Views
         {
             get => (int)GetValue(AspectRatioValueProperty);
             set => SetValue(AspectRatioValueProperty, value);
+        }
+
+        public FrameworkElement NextControl
+        {
+            get => (FrameworkElement)GetValue(NextControlProperty);
+            set => SetValue(NextControlProperty, value);
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

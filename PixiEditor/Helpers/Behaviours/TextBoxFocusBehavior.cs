@@ -9,14 +9,6 @@ namespace PixiEditor.Helpers.Behaviours
     internal class TextBoxFocusBehavior : Behavior<TextBox>
     {
         // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty FillSizeProperty =
-            DependencyProperty.Register(
-                nameof(FillSize),
-                typeof(bool),
-                typeof(TextBoxFocusBehavior),
-                new PropertyMetadata(false));
-
-        // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectOnFocusProperty =
             DependencyProperty.Register(
                 nameof(SelectOnFocus),
@@ -24,13 +16,13 @@ namespace PixiEditor.Helpers.Behaviours
                 typeof(TextBoxFocusBehavior),
                 new PropertyMetadata(true));
 
-        private string oldText; // Value of textbox before editing
-        private bool valueConverted; // This bool is used to avoid double convertion if enter is hitted
+        public static readonly DependencyProperty NextControlProperty =
+            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(TextBoxFocusBehavior));
 
-        public bool FillSize
+        public FrameworkElement NextControl
         {
-            get => (bool)GetValue(FillSizeProperty);
-            set => SetValue(FillSizeProperty, value);
+            get => (FrameworkElement)GetValue(NextControlProperty);
+            set => SetValue(NextControlProperty, value);
         }
 
         public bool SelectOnFocus
@@ -45,7 +37,6 @@ namespace PixiEditor.Helpers.Behaviours
             AssociatedObject.GotKeyboardFocus += AssociatedObjectGotKeyboardFocus;
             AssociatedObject.GotMouseCapture += AssociatedObjectGotMouseCapture;
             AssociatedObject.PreviewMouseLeftButtonDown += AssociatedObjectPreviewMouseLeftButtonDown;
-            AssociatedObject.LostKeyboardFocus += AssociatedObject_LostKeyboardFocus;
             AssociatedObject.KeyUp += AssociatedObject_KeyUp;
         }
 
@@ -55,7 +46,6 @@ namespace PixiEditor.Helpers.Behaviours
             AssociatedObject.GotKeyboardFocus -= AssociatedObjectGotKeyboardFocus;
             AssociatedObject.GotMouseCapture -= AssociatedObjectGotMouseCapture;
             AssociatedObject.PreviewMouseLeftButtonDown -= AssociatedObjectPreviewMouseLeftButtonDown;
-            AssociatedObject.LostKeyboardFocus -= AssociatedObject_LostKeyboardFocus;
             AssociatedObject.KeyUp -= AssociatedObject_KeyUp;
         }
 
@@ -67,19 +57,26 @@ namespace PixiEditor.Helpers.Behaviours
                 return;
             }
 
-            ConvertValue();
             RemoveFocus();
         }
 
         private void RemoveFocus()
         {
+            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
+
+            if (NextControl != null)
+            {
+                FocusManager.SetFocusedElement(scope, NextControl);
+                return;
+            }
+
             FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
+
             while (parent != null && parent is IInputElement element && !element.Focusable)
             {
                 parent = (FrameworkElement)parent.Parent;
             }
 
-            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
             FocusManager.SetFocusedElement(scope, parent);
         }
 
@@ -89,11 +86,6 @@ namespace PixiEditor.Helpers.Behaviours
         {
             if (SelectOnFocus)
                 AssociatedObject.SelectAll();
-            if (FillSize)
-            {
-                valueConverted = false;
-                oldText = AssociatedObject.Text; // Sets old value when keyboard is focused on object
-            }
         }
 
         private void AssociatedObjectGotMouseCapture(
@@ -111,35 +103,6 @@ namespace PixiEditor.Helpers.Behaviours
                 AssociatedObject.Focus();
                 e.Handled = true;
             }
-        }
-
-        private void AssociatedObject_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            ConvertValue();
-        }
-
-        /// <summary>
-        ///     Converts number from textbox to format "number px" ex. "15 px".
-        /// </summary>
-        private void ConvertValue()
-        {
-            if (valueConverted || FillSize == false || AssociatedObject.Text == oldText)
-            {
-                return;
-            }
-
-            if (int.TryParse(Regex.Replace(AssociatedObject.Text, "\\p{L}", string.Empty).Trim(), out int result) && result > 0)
-            {
-                AssociatedObject.Text = $"{result} px";
-            }
-
-            // If text in textbox isn't number, set it to old value
-            else
-            {
-                AssociatedObject.Text = oldText;
-            }
-
-            valueConverted = true;
         }
     }
 }

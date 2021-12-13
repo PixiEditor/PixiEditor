@@ -41,12 +41,15 @@
         <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Background="{StaticResource MainColor}"
                         VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
             <local:SizePicker Margin="0,20" HorizontalAlignment="Center" Height="110"
-                                  ChosenHeight="{Binding FileHeight,Mode=TwoWay, ElementName=newFilePopup}"
-                                  ChosenWidth="{Binding FileWidth,Mode=TwoWay, ElementName=newFilePopup}" />
+                              ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=newFilePopup}"
+                              ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=newFilePopup}" 
+                              x:Name="sizePicker"
+                              NextControl="{Binding ElementName=createButton}"/>
         </StackPanel>
-        <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="60"
-                    Style="{StaticResource DarkRoundButton}" Content="OK" Margin="0,0,10,10" Grid.Row="1"
-                    Command="{Binding OkCommand}"
-                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
+        <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="120"
+                Style="{StaticResource DarkRoundButton}" Content="Create" Margin="0,0,10,10" Grid.Row="1"
+                Command="{Binding OkCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
+                x:Name="createButton"/>
     </Grid>
 </Window>

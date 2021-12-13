@@ -7,7 +7,7 @@
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
-             mc:Ignorable="d" Foreground="White"
+             mc:Ignorable="d" Foreground="White" Focusable="True"
              d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="UserControlLayoutUpdated">
 
     <Border BorderThickness="1" CornerRadius="3.5"
@@ -43,7 +43,7 @@
                      d:Text="22">
                 <i:Interaction.Behaviors>
                     <behaviors:GlobalShortcutFocusBehavior/>
-                    <behaviors:TextBoxFocusBehavior FillSize="True" SelectOnFocus="{Binding SelectOnFocus, ElementName=uc}" />
+                    <behaviors:TextBoxFocusBehavior SelectOnFocus="{Binding SelectOnFocus, ElementName=uc}" NextControl="{Binding NextControl, ElementName=uc}"/>
                 </i:Interaction.Behaviors>
             </TextBox>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"

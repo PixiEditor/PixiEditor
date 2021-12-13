@@ -8,17 +8,17 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class SizePicker : UserControl
     {
-        // Using a DependencyProperty as the backing store for EditingEnabled.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty EditingEnabledProperty =
-            DependencyProperty.Register("EditingEnabled", typeof(bool), typeof(SizePicker), new PropertyMetadata(true));
+            DependencyProperty.Register(nameof(EditingEnabled), typeof(bool), typeof(SizePicker), new PropertyMetadata(true));
 
-        // Using a DependencyProperty as the backing store for ChosenWidth.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ChosenWidthProperty =
-            DependencyProperty.Register("ChosenWidth", typeof(int), typeof(SizePicker), new PropertyMetadata(1));
+            DependencyProperty.Register(nameof(ChosenWidth), typeof(int), typeof(SizePicker), new PropertyMetadata(1));
 
-        // Using a DependencyProperty as the backing store for ChosenHeight.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ChosenHeightProperty =
-            DependencyProperty.Register("ChosenHeight", typeof(int), typeof(SizePicker), new PropertyMetadata(1));
+            DependencyProperty.Register(nameof(ChosenHeight), typeof(int), typeof(SizePicker), new PropertyMetadata(1));
+
+        public static readonly DependencyProperty NextControlProperty =
+            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizePicker));
 
         public SizePicker()
         {
@@ -41,6 +41,17 @@ namespace PixiEditor.Views
         {
             get => (int)GetValue(ChosenHeightProperty);
             set => SetValue(ChosenHeightProperty, value);
+        }
+
+        public FrameworkElement NextControl
+        {
+            get => (FrameworkElement)GetValue(NextControlProperty);
+            set => SetValue(NextControlProperty, value);
+        }
+
+        public void FocusWidthPicker()
+        {
+            WidthPicker.Focus();
         }
     }
 }

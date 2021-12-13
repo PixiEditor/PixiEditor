@@ -15,7 +15,7 @@ namespace PixiEditor.Views
         // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register(
-                "Value",
+                nameof(Value),
                 typeof(float),
                 typeof(NumberInput),
                 new PropertyMetadata(0f, OnValueChanged));
@@ -23,7 +23,7 @@ namespace PixiEditor.Views
         // Using a DependencyProperty as the backing store for Min.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MinProperty =
             DependencyProperty.Register(
-                "Min",
+                nameof(Min),
                 typeof(float),
                 typeof(NumberInput),
                 new PropertyMetadata(float.NegativeInfinity));
@@ -31,12 +31,12 @@ namespace PixiEditor.Views
         // Using a DependencyProperty as the backing store for Max.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MaxProperty =
             DependencyProperty.Register(
-                "Max",
+                nameof(Max),
                 typeof(float),
                 typeof(NumberInput),
                 new PropertyMetadata(float.PositiveInfinity));
 
-        private Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$");
+        private readonly Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$", RegexOptions.Compiled);
 
         public NumberInput()
         {
@@ -78,7 +78,8 @@ namespace PixiEditor.Views
 
             if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
             {
-                Value += step * 2f;
+                float multiplier = (Max - Min) * 0.1f;
+                Value += step * multiplier;
             }
             else if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
