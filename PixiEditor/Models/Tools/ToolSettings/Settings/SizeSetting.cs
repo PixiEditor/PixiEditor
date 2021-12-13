@@ -1,10 +1,6 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using PixiEditor.Views;
+using System.Windows;
 using System.Windows.Data;
-using System.Windows.Interactivity;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Behaviours;
-using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
@@ -22,9 +18,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
             SizeInput tb = new SizeInput
             {
-                Width = 40,
+                Width = 65,
                 Height = 20,
-                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                MaxSize = 9999,
+                IsEnabled = true
             };
 
             Binding binding = new Binding("Value")

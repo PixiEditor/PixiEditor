@@ -5,14 +5,13 @@ using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class ZoomTool : ReadonlyTool
+    internal class ZoomTool : ReadonlyTool
     {
         private BitmapManager BitmapManager { get; }
         private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
 
         public ZoomTool(BitmapManager bitmapManager)
         {
-            CanStartOutsideCanvas = true;
             ActionDisplay = defaultActionDisplay;
             BitmapManager = bitmapManager;
         }
@@ -21,23 +20,23 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override string Tooltip => "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
 
-        public override void OnKeyDown(KeyEventArgs e)
+        public override void OnKeyDown(Key key)
         {
-            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
+            if (key is Key.LeftCtrl)
             {
                 ActionDisplay = "Click and move to zoom. Click to zoom out, release ctrl and click to zoom in.";
             }
         }
 
-        public override void OnKeyUp(KeyEventArgs e)
+        public override void OnKeyUp(Key key)
         {
-            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
+            if (key is Key.LeftCtrl)
             {
                 ActionDisplay = defaultActionDisplay;
             }
         }
 
-        public override void Use(List<Coordinates> pixels)
+        public override void Use(IReadOnlyList<Coordinates> pixels)
         {
             // Implemented inside Zoombox.xaml.cs
         }

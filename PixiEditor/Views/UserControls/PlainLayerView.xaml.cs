@@ -40,9 +40,15 @@ namespace PixiEditor.Views.UserControls
             var view = (PlainLayerView)sender;
             if (args.OldValue != null)
                 ((Layer)args.OldValue).LayerBitmapChanged -= view.OnLayerBitmapChanged;
+
             if (args.NewValue != null)
             {
                 var layer = ((Layer)args.NewValue);
+                if (layer.LayerBitmap.Disposed)
+                {
+                    view.TargetLayer = null;
+                    return;
+                }
                 layer.LayerBitmapChanged += view.OnLayerBitmapChanged;
                 view.Resize(layer.Width, layer.Height);
             }

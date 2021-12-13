@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Input;
-using System.Linq;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Colors;
 using PixiEditor.Models.Enums;
@@ -12,8 +7,9 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
+using System;
+using System.Collections.Generic;
 using System.Windows;
-using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -21,62 +17,52 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private const float CorrectionFactor = 5f; // Initial correction factor
 
+        private readonly string defaultActionDisplay = "Draw on pixels to make them brighter. Hold Ctrl to darken.";
         private readonly List<Coordinates> pixelsVisited = new List<Coordinates>();
         private List<DoubleCoords> circleCache = new List<DoubleCoords>();
         private int cachedCircleSize = -1;
 
-        private string defaultActionDisplay = "Draw on pixels to make them brighter. Hold Ctrl to darken.";
         public BrightnessTool()
         {
             ActionDisplay = defaultActionDisplay;
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-        public override bool UsesShift => false;
-
         public override string Tooltip => "Makes pixels brighter or darker (U). Hold Ctrl to make pixels darker.";
 
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
-            base.OnRecordingLeftMouseDown(e);
+            if (!ctrlIsDown)
+                ActionDisplay = defaultActionDisplay;
+            else
+                ActionDisplay = "Draw on pixels to make them darker. Release Ctrl to brighten.";
+        }
+
+        public override void BeforeUse()
+        {
+            base.BeforeUse();
             pixelsVisited.Clear();
         }
 
-        public override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
-            {
-                ActionDisplay = "Draw on pixels to make them darker. Release Ctrl to brighten.";
-            }
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            if (e.Key is Key.LeftCtrl or Key.RightCtrl)
-            {
-                ActionDisplay = defaultActionDisplay;
-            }
-        }
-
-        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
             int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
             Mode = Toolbar.GetEnumSetting<BrightnessMode>("BrightnessMode").Value;
 
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            if (Session.IsCtrlDown)
             {
-                ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor);
+                ChangeBrightness(activeLayer, recordedMouseMovement[^1], toolSize, -correctionFactor);
             }
             else
             {
-                ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor);
+                ChangeBrightness(activeLayer, recordedMouseMovement[^1], toolSize, correctionFactor);
             }
         }
 
-        public void ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
+        private void ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
         {
             if (cachedCircleSize != toolSize)
                 UpdateCircleCache(toolSize);
@@ -112,7 +98,7 @@ namespace PixiEditor.Models.Tools.Tools
             layer.InvokeLayerBitmapChange(dirtyRect);
         }
 
-        public void UpdateCircleCache(int newCircleSize)
+        private void UpdateCircleCache(int newCircleSize)
         {
             cachedCircleSize = newCircleSize;
             DoubleCoords rect = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(0, 0), newCircleSize);

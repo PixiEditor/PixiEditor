@@ -1,6 +1,6 @@
-﻿using System.Windows;
+﻿using PixiEditor.Models.Controllers.Shortcuts;
+using System.Windows;
 using System.Windows.Interactivity;
-using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Helpers.Behaviours
 {

@@ -146,7 +146,9 @@ namespace PixiEditor.Models.Layers
             {
                 GroupGuid = GroupGuid,
                 IsExpanded = isExpanded,
-                IsRenaming = isRenaming
+                IsRenaming = isRenaming,
+                IsVisible = isVisible,
+                Opacity = opacity
             };
 
             if(Subgroups.Count > 0)

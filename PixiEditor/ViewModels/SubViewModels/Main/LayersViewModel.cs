@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Views.UserControls;
+using PixiEditor.Models.Undo;
 using PixiEditor.Views.UserControls.Layers;
 using System;
 using System.Linq;
@@ -73,7 +73,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanDeleteSelected(object parameter)
         {
-            return (parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
+            return (
+                (
+                    parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null)
+                )
+                && Owner.BitmapManager.ActiveDocument != null;
         }
 
         public void DeleteSelected(object parameter)
@@ -170,14 +174,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
 
+
             doc.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+
+            var oldGroups = doc.LayerStructure.CloneGroups();
 
             if (doc.Layers.Count > 1)
             {
                 doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
                 Guid? parent = parameter is Layer or LayerStructureItemContainer ? activeLayerParent?.GroupGuid : activeLayerParent.Parent?.GroupGuid;
                 doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, parent);
-                doc.UndoManager.UndoStack.Pop();
+                doc.AddLayerStructureToUndo(oldGroups);
+                doc.UndoManager.SquashUndoChanges(3, "Add New Layer");
             }
             if (control != null)
             {

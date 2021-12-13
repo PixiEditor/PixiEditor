@@ -4,12 +4,11 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using SkiaSharp;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class FloodFillTool : BitmapOperationTool
+    internal class FloodFillTool : BitmapOperationTool
     {
         private BitmapManager BitmapManager { get; }
         private SKPaint fillPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
@@ -22,17 +21,17 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override string Tooltip => "Fills area with color. (G)";
 
-        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
-            if (layer.IsReset)
+            if (activeLayer.IsReset)
             {
-                layer.DynamicResizeAbsolute(new(0, 0, BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
-                layer.LayerBitmap.SkiaSurface.Canvas.Clear(color);
-                layer.InvokeLayerBitmapChange();
+                activeLayer.DynamicResizeAbsolute(new(0, 0, BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
+                activeLayer.LayerBitmap.SkiaSurface.Canvas.Clear(color);
+                activeLayer.InvokeLayerBitmapChange();
             }
             else
             {
-                LinearFill(layer, coordinates[0], color);
+                LinearFill(activeLayer, recordedMouseMovement[^1], color);
             }
         }
 

@@ -25,13 +25,14 @@ namespace PixiEditor.Helpers.Extensions
             {
                 document.SetMainActiveLayer(0);
             }
+            document.Renderer.ForceRerender();
 
             return document;
         }
 
-        public static ObservableCollection<Layer> ToLayers(this SerializableDocument document)
+        public static WpfObservableRangeCollection<Layer> ToLayers(this SerializableDocument document)
         {
-            ObservableCollection<Layer> layers = new();
+            WpfObservableRangeCollection<Layer> layers = new();
             foreach (SerializableLayer slayer in document)
             {
                 layers.Add(slayer.ToLayer());
@@ -50,9 +51,9 @@ namespace PixiEditor.Helpers.Extensions
             };
         }
 
-        public static ObservableCollection<GuidStructureItem> ToGroups(this SerializableDocument sdocument, Document document)
+        public static WpfObservableRangeCollection<GuidStructureItem> ToGroups(this SerializableDocument sdocument, Document document)
         {
-            ObservableCollection<GuidStructureItem> groups = new();
+            WpfObservableRangeCollection<GuidStructureItem> groups = new();
 
             if (sdocument.Groups == null)
             {

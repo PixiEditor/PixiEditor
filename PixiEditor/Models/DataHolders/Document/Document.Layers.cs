@@ -24,9 +24,9 @@ namespace PixiEditor.Models.DataHolders
         private Guid activeLayerGuid;
         private LayerStructure layerStructure;
 
-        private ObservableCollection<Layer> layers = new();
+        private WpfObservableRangeCollection<Layer> layers = new();
 
-        public ObservableCollection<Layer> Layers
+        public WpfObservableRangeCollection<Layer> Layers
         {
             get => layers;
             set
@@ -137,7 +137,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        public void MoveLayerInStructure(Guid layerGuid, Guid referenceLayer, bool above = false)
+        public void MoveLayerInStructure(Guid layerGuid, Guid referenceLayer, bool above = false, bool addToUndo = true)
         {
             var args = new object[] { layerGuid, referenceLayer, above };
 
@@ -150,6 +150,8 @@ namespace PixiEditor.Models.DataHolders
             MoveLayerInStructureProcess(args);
 
             AddLayerStructureToUndo(oldLayerStrcutureGroups);
+
+            if (!addToUndo) return;
 
             UndoManager.AddUndoChange(new Change(
                 ReverseMoveLayerInStructureProcess,
@@ -407,14 +409,14 @@ namespace PixiEditor.Models.DataHolders
 
         }
 
-        public void AddLayerStructureToUndo(ObservableCollection<GuidStructureItem> oldLayerStructureGroups)
+        public void AddLayerStructureToUndo(WpfObservableRangeCollection<GuidStructureItem> oldLayerStructureGroups)
         {
             UndoManager.AddUndoChange(
                 new Change(
                     BuildLayerStructureProcess,
-                    new[] { oldLayerStructureGroups },
+                    new object[] { oldLayerStructureGroups },
                     BuildLayerStructureProcess,
-                    new[] { LayerStructure.CloneGroups() }));
+                    new object[] { LayerStructure.CloneGroups() }, "Reload LayerStructure"));
         }
 
         public Layer MergeLayers(Layer[] layersToMerge, bool nameOfLast, int index)
@@ -514,9 +516,9 @@ namespace PixiEditor.Models.DataHolders
             renderer?.Dispose();
         }
 
-        private void BuildLayerStructureProcess(object[] parameters)
+        public void BuildLayerStructureProcess(object[] parameters)
         {
-            if (parameters.Length > 0 && parameters[0] is ObservableCollection<GuidStructureItem> groups)
+            if (parameters.Length > 0 && parameters[0] is WpfObservableRangeCollection<GuidStructureItem> groups)
             {
                 LayerStructure.Groups.CollectionChanged -= Groups_CollectionChanged;
                 LayerStructure.Groups = LayerStructure.CloneGroups(groups);

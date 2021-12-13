@@ -8,18 +8,17 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class NewFilePopup : Window
     {
-        // Using a DependencyProperty as the backing store for FileHeight.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FileHeightProperty =
-            DependencyProperty.Register("FileHeight", typeof(int), typeof(NewFilePopup), new PropertyMetadata(16));
+            DependencyProperty.Register(nameof(FileHeight), typeof(int), typeof(NewFilePopup));
 
-        // Using a DependencyProperty as the backing store for FileWidth.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty FileWidthProperty =
-            DependencyProperty.Register("FileWidth", typeof(int), typeof(NewFilePopup), new PropertyMetadata(16));
+            DependencyProperty.Register(nameof(FileWidth), typeof(int), typeof(NewFilePopup));
 
         public NewFilePopup()
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
+            sizePicker.FocusWidthPicker();
         }
 
         public int FileHeight

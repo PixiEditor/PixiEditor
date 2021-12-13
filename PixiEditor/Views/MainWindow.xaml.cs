@@ -60,6 +60,8 @@ namespace PixiEditor
                     UpdateTaskbarIcon(null);
                 }
             });
+
+            OnReleaseBuild();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -78,6 +80,12 @@ namespace PixiEditor
         private static void CloseHelloThereIfRelease()
         {
             Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
+        }
+
+        [Conditional("RELEASE")]
+        private void OnReleaseBuild()
+        {
+            rawLayerAnchorable.Hide();
         }
 
         private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)

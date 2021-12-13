@@ -24,10 +24,13 @@
                    UseTouchGestures="{Binding UseTouchGestures, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
-                <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" />
+                <cmd:EventToCommand Command="{Binding MouseMoveCommand, ElementName=uc}" PassEventArgsToCommand="True" />
             </i:EventTrigger>
             <i:EventTrigger EventName="MouseDown">
-                <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}"/>
+                <cmd:EventToCommand Command="{Binding MouseDownCommand, ElementName=uc}" PassEventArgsToCommand="True" />
+            </i:EventTrigger>
+            <i:EventTrigger EventName="MouseUp">
+                <cmd:EventToCommand Command="{Binding MouseUpCommand, ElementName=uc}" PassEventArgsToCommand="True" />
             </i:EventTrigger>
             <i:EventTrigger EventName="PreviewMouseDown">
                 <i:InvokeCommandAction Command="{Binding PreviewMouseDownCommand, ElementName=uc}"/>
@@ -85,14 +88,14 @@
                 <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Renderer.FinalBitmap}"
                        RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" 
                        Visibility="{Binding XamlAccesibleViewModel.BitmapManager.OnlyReferenceLayer, Converter={InverseBoolToVisibilityConverter}}"/>
-                
+
                 <local:PlainLayerView TargetLayer="{Binding ActiveSelection.SelectionLayer}"
                                       VerticalAlignment="Top" HorizontalAlignment="Left"
                                       Width="{Binding ActiveSelection.SelectionLayer.Width}"
                                       Height="{Binding ActiveSelection.SelectionLayer.Height}"
                                       Margin="{Binding ActiveSelection.SelectionLayer.Offset}"
                                       Opacity="0.5"/>
-                
+
                 <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}" Panel.ZIndex="10" 
                       Visibility="{Binding GridLinesVisible, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DrawingViewPort}}}">
                     <Rectangle Focusable="False">

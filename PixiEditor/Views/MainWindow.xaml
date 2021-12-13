@@ -63,7 +63,7 @@
             <cmd:EventToCommand Command="{Binding CloseWindowCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid Name="mainGrid" Margin="5" Focusable="True">
+    <Grid Name="mainGrid" Margin="5" Focusable="True" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="45" />
             <ColumnDefinition Width="1*" />
@@ -149,7 +149,7 @@
                     <MenuItem Header="_Flip Horizontal" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Horizontal"/>
                     <MenuItem Header="_Flip Vertical" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Vertical"/>
                 -->
-                    </MenuItem> 
+                </MenuItem>
                 <MenuItem Header="_View">
                     <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                               IsCheckable="True" InputGestureText="Ctrl+`"/>
@@ -256,13 +256,14 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="2" Background="#303030">
+        <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
             <Grid AllowDrop="True" Drop="MainWindow_Drop">
-                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay, Converter={StaticResource DockingManagerActiveContentConverter}}" 
+                <DockingManager ActiveContent="{Binding BitmapManager.ActiveDocument, Mode=TwoWay, Converter={StaticResource DockingManagerActiveContentConverter}}"
                                            DocumentsSource="{Binding BitmapManager.Documents}">
                     <DockingManager.Theme>
                         <avalonDockTheme:PixiEditorDockTheme />
                     </DockingManager.Theme>
+
                     <avalondock:DockingManager.LayoutItemContainerStyleSelector>
                         <ui:PanelsStyleSelector>
                             <ui:PanelsStyleSelector.DocumentTabStyle>
@@ -282,9 +283,10 @@
                                         ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
                                         GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
                                         Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
-                                        MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.ToolsSubViewModel.SelectToolCommand}"
+                                        MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.PreviewMouseMiddleButtonCommand}"
                                         MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
                                         MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
+                                        MouseUpCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseUpCommand}"
                                         MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
                                         MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
                                         StylusButtonDownCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusDownCommand}"

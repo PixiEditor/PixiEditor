@@ -8,7 +8,7 @@
              mc:Ignorable="d"
              d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput">
     <TextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Focusable="True"
-             InputScope="Number"
+             InputScope="Number" MouseWheel="TextBox_MouseWheel"
              PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
         <i:Interaction.Behaviors>
             <behaviours:TextBoxFocusBehavior/>

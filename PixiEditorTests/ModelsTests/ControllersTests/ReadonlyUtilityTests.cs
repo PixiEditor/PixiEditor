@@ -7,7 +7,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 {
     public class ReadonlyUtilityTests
     {
-        [Fact]
+        /*[Fact]
         public void TestThatExecuteToolExecutesTool()
         {
             bool toolUsed = false;
@@ -15,6 +15,6 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             ReadonlyToolUtility util = new ReadonlyToolUtility();
             util.ExecuteTool(new List<Coordinates> { new Coordinates(0, 0) }, new TestReadonlyTool(() => toolUsed = true));
             Assert.True(toolUsed);
-        }
+        }*/
     }
 }

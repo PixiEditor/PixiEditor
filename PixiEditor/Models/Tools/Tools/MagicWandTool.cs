@@ -12,11 +12,10 @@ using SkiaSharp;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class MagicWandTool : ReadonlyTool, ICachedDocumentTool
+    internal class MagicWandTool : ReadonlyTool, ICachedDocumentTool
     {
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
@@ -29,12 +28,19 @@ namespace PixiEditor.Models.Tools.Tools
 
         private Layer cachedDocument;
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public MagicWandTool(BitmapManager manager)
         {
-            if (e.LeftButton != MouseButtonState.Pressed)
-            {
+            BitmapManager = manager;
+
+            Toolbar = new MagicWandToolbar();
+
+            ActionDisplay = "Click to flood the selection.";
+        }
+
+        public override void Use(IReadOnlyList<Coordinates> pixels)
+        {
+            if (pixels.Count > 1)
                 return;
-            }
 
             oldSelection = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
 
@@ -61,9 +67,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             ToolCalculator.GetLinearFillAbsolute(
                    layer,
-                   new Coordinates(
-                       (int)document.MouseXOnCanvas,
-                       (int)document.MouseYOnCanvas),
+                   pixels[0],
                    BitmapManager.ActiveDocument.Width,
                    BitmapManager.ActiveDocument.Height,
                    SKColors.White,
@@ -72,19 +76,6 @@ namespace PixiEditor.Models.Tools.Tools
             selection.SetSelection(newSelection, selectionType);
 
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelection, selectionType);
-        }
-
-        public MagicWandTool(BitmapManager manager)
-        {
-            BitmapManager = manager;
-
-            Toolbar = new MagicWandToolbar();
-
-            ActionDisplay = "Click to flood the selection.";
-        }
-
-        public override void Use(List<Coordinates> pixels)
-        {
         }
 
         public void DocumentChanged()

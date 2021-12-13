@@ -1,11 +1,11 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -21,23 +21,15 @@ namespace PixiEditor.Models.Tools.Tools
 
         public bool Filled { get; set; } = false;
 
-        public override void OnKeyDown(KeyEventArgs e)
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
-            if (e.Key is Key.LeftShift or Key.RightShift)
-            {
+            if (shiftIsDown)
                 ActionDisplay = "Click and move to draw a square.";
-            }
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            if (e.Key is Key.LeftShift or Key.RightShift)
-            {
+            else
                 ActionDisplay = defaultActionDisplay;
-            }
         }
 
-        public override void Use(Layer layer, List<Coordinates> coordinates, SKColor color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
             int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             SKColor? fillColor = null;
@@ -46,12 +38,14 @@ namespace PixiEditor.Models.Tools.Tools
                 var temp = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
                 fillColor = new SKColor(temp.R, temp.G, temp.B, temp.A);
             }
-            CreateRectangle(layer, color, fillColor, coordinates, thickness);
+            CreateRectangle(previewLayer, color, fillColor, recordedMouseMovement, thickness);
         }
 
-        public void CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, List<Coordinates> coordinates, int thickness)
+        private void CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, IReadOnlyList<Coordinates> coordinates, int thickness)
         {
-            DoubleCoords fixedCoordinates = CalculateCoordinatesForShapeRotation(coordinates[^1], coordinates[0]);
+            var (start, end) = Session.IsShiftDown ? CoordinatesHelper.GetSquareCoordiantes(coordinates) : (coordinates[0], coordinates[^1]);
+
+            DoubleCoords fixedCoordinates = CalculateCoordinatesForShapeRotation(start, end);
 
             int halfThickness = (int)Math.Ceiling(thickness / 2.0);
             Int32Rect dirtyRect = new Int32Rect(
@@ -82,11 +76,6 @@ namespace PixiEditor.Models.Tools.Tools
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawRect(x, y, w, h, paint);
             }
             layer.InvokeLayerBitmapChange(dirtyRect);
-        }
-
-        public void CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, Coordinates start, Coordinates end, int thickness)
-        {
-            CreateRectangle(layer, color, fillColor, new() { end, start }, thickness);
         }
     }
 }

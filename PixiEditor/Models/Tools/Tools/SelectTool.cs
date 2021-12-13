@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
-using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class SelectTool : ReadonlyTool
+    internal class SelectTool : ReadonlyTool
     {
         private readonly RectangleTool rectangleTool;
         private readonly CircleTool circleTool;
@@ -43,15 +37,17 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override string Tooltip => "Selects area. (M)";
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public override void BeforeUse()
         {
+            base.BeforeUse();
             SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
 
             oldSelectedPoints = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
         }
 
-        public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
+        public override void AfterUse()
         {
+            base.AfterUse();
             if (ActiveSelection.SelectedPoints.Count <= 1)
             {
                 // If we have not selected multiple points, clear the selection
@@ -61,7 +57,7 @@ namespace PixiEditor.Models.Tools.Tools
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
         }
 
-        public override void Use(List<Coordinates> pixels)
+        public override void Use(IReadOnlyList<Coordinates> pixels)
         {
             Select(pixels, Toolbar.GetEnumSetting<SelectionShape>("SelectShape").Value);
         }
@@ -100,7 +96,7 @@ namespace PixiEditor.Models.Tools.Tools
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
         }
 
-        private void Select(List<Coordinates> pixels, SelectionShape shape)
+        private void Select(IReadOnlyList<Coordinates> pixels, SelectionShape shape)
         {
             IEnumerable<Coordinates> selection;
 

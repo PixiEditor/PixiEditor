@@ -1,10 +1,8 @@
-﻿using System.Windows;
-using System.Windows.Input;
-using GalaSoft.MvvmLight.CommandWpf;
-using PixiEditor.Models.Position;
+﻿using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -75,7 +73,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void StylusOutOfRange(StylusEventArgs e)
         {
-            Owner.BitmapManager.HighlightPixels(new Coordinates(-1, -1));
+            Owner.BitmapManager.UpdateHighlightIfNecessary(true);
         }
 
         private void StylusSystemGesture(StylusSystemGestureEventArgs e)

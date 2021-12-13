@@ -1,11 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Tools;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Undo;
+using System.IO;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -26,14 +21,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             ClearUndoTempDirectory();
-        }
-
-        public void TriggerNewUndoChange(Tool selectedTool)
-        {
-            var activeDoc = Owner.BitmapManager.ActiveDocument;
-            if (activeDoc is null) return;
-
-            selectedTool.AddUndoProcess(activeDoc);
         }
 
         /// <summary>

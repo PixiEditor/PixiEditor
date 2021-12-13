@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
-using PixiEditor.Models.Undo;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools
 {
@@ -24,6 +16,8 @@ namespace PixiEditor.Models.Tools
         public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
 
         public virtual bool HideHighlight { get; }
+
+        public virtual bool RequiresPreciseMouseData { get; }
 
         public abstract string Tooltip { get; }
 
@@ -51,53 +45,20 @@ namespace PixiEditor.Models.Tools
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
-        public bool CanStartOutsideCanvas { get; set; } = false;
+        public ToolSession Session { get; set; }
 
         private bool isActive;
         private string actionDisplay = string.Empty;
 
-        public virtual void OnMouseDown(MouseEventArgs e)
-        {
-        }
 
-        public virtual void AddUndoProcess(Document document)
-        {
-        }
+        public virtual void OnKeyDown(Key key) { }
 
-        public virtual void OnMouseUp(MouseEventArgs e)
-        {
-        }
+        public virtual void OnKeyUp(Key key) { }
 
-        public virtual void OnKeyDown(KeyEventArgs e)
-        {
-        }
+        public virtual void BeforeUse() { }
 
-        public virtual void OnKeyUp(KeyEventArgs e)
-        {
-        }
+        public virtual void AfterUse() { }
 
-        public virtual void OnStart(Coordinates clickPosition)
-        {
-        }
-
-        public virtual void OnRecordingLeftMouseDown(MouseEventArgs e)
-        {
-        }
-
-        public virtual void OnStoppedRecordingMouseUp(MouseEventArgs e)
-        {
-        }
-
-        public virtual void OnMouseMove(MouseEventArgs e)
-        {
-        }
-
-        public virtual void OnSelected()
-        {
-        }
-
-        public virtual void OnDeselected()
-        {
-        }
+        public virtual void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
     }
 }

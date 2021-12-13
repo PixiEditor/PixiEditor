@@ -95,6 +95,8 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        public bool Disposed { get; private set; } = false;
+
         public ExecutionTrigger<Size> CenterViewportTrigger { get; } = new();
         public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new();
 
@@ -187,6 +189,9 @@ namespace PixiEditor.Models.DataHolders
 
         public void Dispose()
         {
+            if (Disposed)
+                return;
+            Disposed = true;
             DisposeLayerBitmaps();
             UndoManager.Dispose();
 
@@ -195,8 +200,6 @@ namespace PixiEditor.Models.DataHolders
 
         private void SetAsActiveOnClick(object obj)
         {
-            XamlAccesibleViewModel.BitmapManager.MouseController.StopRecordingMouseMovementChanges();
-            //XamlAccesibleViewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
             if (XamlAccesibleViewModel.BitmapManager.ActiveDocument != this)
             {
                 XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;

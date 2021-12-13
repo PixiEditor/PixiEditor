@@ -21,7 +21,6 @@ namespace PixiEditor.Models.Undo
         public UndoLayer[] StoredLayers { get; set; }
 
         private List<Guid> layersToStore;
-
         public Document Document { get; }
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool saveOnStartup = true)
@@ -260,9 +259,10 @@ namespace PixiEditor.Models.Undo
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
-                    document.Layers.RemoveAt(data[i].LayerIndex);
 
+                    document.RemoveLayer(data[i].LayerIndex, false);
                     document.Layers.Insert(data[i].LayerIndex, layer);
+
                     if (data[i].IsActive)
                     {
                         document.SetMainActiveLayer(data[i].LayerIndex);

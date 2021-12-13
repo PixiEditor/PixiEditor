@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Layers
 {
@@ -11,16 +12,14 @@ namespace PixiEditor.Models.Layers
     {
         private List<Guid> layersInStructure = new();
 
-        public ObservableCollection<object> RootDirectoryItems { get; } = new ObservableCollection<object>();
+        public WpfObservableRangeCollection<object> RootDirectoryItems { get; } = new WpfObservableRangeCollection<object>();
 
         private static void Swap(ref int startIndex, ref int endIndex)
         {
-            int tmp = startIndex;
-            startIndex = endIndex;
-            endIndex = tmp;
+            (startIndex, endIndex) = (endIndex, startIndex);
         }
 
-        public StructuredLayerTree(ObservableCollection<Layer> layers, LayerStructure structure)
+        public StructuredLayerTree(WpfObservableRangeCollection<Layer> layers, LayerStructure structure)
         {
             if (layers == null || structure == null)
             {

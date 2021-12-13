@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -106,6 +106,11 @@ namespace PixiEditor.Models.Controllers
         public void SquashUndoChanges(int amount)
         {
             string description = UndoStack.ElementAt(UndoStack.Count - amount).Description;
+            if (string.IsNullOrEmpty(description))
+            {
+                description = $"Squash {amount} undo changes.";
+            }
+
             SquashUndoChanges(amount, description);
         }
 
