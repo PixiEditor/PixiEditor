@@ -516,7 +516,7 @@ namespace PixiEditor.Models.DataHolders
             renderer?.Dispose();
         }
 
-        private void BuildLayerStructureProcess(object[] parameters)
+        public void BuildLayerStructureProcess(object[] parameters)
         {
             if (parameters.Length > 0 && parameters[0] is WpfObservableRangeCollection<GuidStructureItem> groups)
             {

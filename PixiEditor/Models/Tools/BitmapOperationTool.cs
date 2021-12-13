@@ -38,10 +38,16 @@ namespace PixiEditor.Models.Tools
                 return;
             var document = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
             var args = new object[] { _change.Document };
-            document.UndoManager.AddUndoChange(_change.ToChange(StorageBasedChange.BasicUndoProcess, args));
-            document.AddLayerStructureToUndo(document.LayerStructure.CloneGroups());
-            document.UndoManager.SquashUndoChanges(2, true);
+            document.UndoManager.AddUndoChange(_change.ToChange(UndoStorageBasedChange, args));
             _change = null;
+        }
+
+        private void UndoStorageBasedChange(Layer[] layers, UndoLayer[] data, object[] args)
+        {
+            Document document = (Document)args[0];
+            var ls = document.LayerStructure.CloneGroups();
+            StorageBasedChange.BasicUndoProcess(layers, data, args);
+            document.BuildLayerStructureProcess(new object[] { ls });
         }
     }
 }

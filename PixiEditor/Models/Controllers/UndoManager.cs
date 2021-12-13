@@ -103,8 +103,7 @@ namespace PixiEditor.Models.Controllers
         /// Merges multiple undo changes into one.
         /// </summary>
         /// <param name="amount">Amount of changes to squash.</param>
-        /// <param name="reverseOrderInReverseProcess">Reverses order of execution changes in reverseProcess (undo)</param>
-        public void SquashUndoChanges(int amount, bool reverseOrderInReverseProcess = false)
+        public void SquashUndoChanges(int amount)
         {
             string description = UndoStack.ElementAt(UndoStack.Count - amount).Description;
             if (string.IsNullOrEmpty(description))
@@ -112,7 +111,7 @@ namespace PixiEditor.Models.Controllers
                 description = $"Squash {amount} undo changes.";
             }
 
-            SquashUndoChanges(amount, description, reverseOrderInReverseProcess);
+            SquashUndoChanges(amount, description);
         }
 
         /// <summary>
@@ -120,8 +119,7 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         /// <param name="amount">Amount of changes to squash.</param>
         /// <param name="description">Final change description.</param>
-        /// <param name="reverseOrderInReverseProcess">Reverses order of execution changes in reverseProcess (undo)</param>
-        public void SquashUndoChanges(int amount, string description, bool reverseOrderInReverseProcess = false)
+        public void SquashUndoChanges(int amount, string description)
         {
             Change[] changes = new Change[amount];
             for (int i = 0; i < amount; i++)
@@ -131,8 +129,7 @@ namespace PixiEditor.Models.Controllers
 
             Action<object[]> reverseProcess = (object[] props) =>
             {
-                IEnumerable<object> enumerable = reverseOrderInReverseProcess ? props.Reverse() : props;
-                foreach (var prop in enumerable)
+                foreach (var prop in props)
                 {
                     Change change = (Change)prop;
                     if (change.ReverseProcess == null)
