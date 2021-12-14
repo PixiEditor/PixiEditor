@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Controllers
                 document.LayerStructure,
                 document.Width,
                 document.Height,
-                document.ToSerializable());
+                null/*document.ToSerializable()*/);
         }
 
         private static Surface CreateMaskedCombinedSurface(Layer[] layers, LayerStructure structure, Layer selLayer)
@@ -62,6 +62,8 @@ namespace PixiEditor.Models.Controllers
         public static void CopyToClipboard(Layer[] layers, Layer selLayer, LayerStructure structure, int originalImageWidth, int originalImageHeight, SerializableDocument document = null)
         {
             if (!ClipboardHelper.TryClear())
+                return;
+            if (layers.Length == 0)
                 return;
 
             using Surface surface = CreateMaskedCombinedSurface(layers, structure, selLayer);
