@@ -21,10 +21,9 @@ namespace PixiEditor.Models.Tools
 
         public override void BeforeUse()
         {
-            if (UseDefaultUndoMethod)
+            if (UseDefaultUndoMethod && !RequiresPreviewLayer)
             {
-                Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-                _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer }, true);
+                InitializeStorageBasedChange();
             }
         }
 
@@ -36,10 +35,22 @@ namespace PixiEditor.Models.Tools
         {
             if (!UseDefaultUndoMethod)
                 return;
+
+            if (RequiresPreviewLayer)
+            {
+                InitializeStorageBasedChange();
+            }
+
             var document = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
             var args = new object[] { _change.Document };
             document.UndoManager.AddUndoChange(_change.ToChange(UndoStorageBasedChange, args));
             _change = null;
+        }
+
+        private void InitializeStorageBasedChange()
+        {
+            Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
+            _change = new StorageBasedChange(doc, new[] {doc.ActiveLayer}, true);
         }
 
         private void UndoStorageBasedChange(Layer[] layers, UndoLayer[] data, object[] args)
