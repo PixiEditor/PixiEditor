@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Exceptions;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
@@ -28,12 +29,29 @@ namespace PixiEditor.Models.Controllers
                     "Copied.png");
 
         /// <summary>
+        /// Copies the selection to clipboard in PNG, Bitmap and DIB formats. <para/>
+        /// Also serailizes the <paramref name="document"/> in the PIXI format and copies it to the clipboard.
+        /// </summary>
+        public static void CopyToClipboard(Document document)
+        {
+            CopyToClipboard(
+                document.Layers.Where(x => document.GetFinalLayerIsVisible(x)).ToArray(),
+                document.ActiveSelection.SelectedPoints.ToArray(),
+                //new Coordinates[] { (0, 0), (15, 15) },
+                document.Width,
+                document.Height,
+                document.ToSerializable());
+        }
+
+        /// <summary>
         ///     Copies the selection to clipboard in PNG, Bitmap and DIB formats.
         /// </summary>
         /// <param name="layers">Layers where selection is.</param>
         public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight, SerializableDocument document = null)
         {
-            Clipboard.Clear();
+            if (!ClipboardHelper.TryClear())
+                return;
+
             using Surface surface = BitmapUtils.CombineLayers(new Int32Rect(0, 0, originalImageWidth, originalImageHeight), layers);
             DataObject data = new DataObject();
 
@@ -64,25 +82,10 @@ namespace PixiEditor.Models.Controllers
                 MemoryStream memoryStream = new();
                 PixiParser.Serialize(document, memoryStream);
                 data.SetData("PIXI", memoryStream); // PIXI, supports transparency, layers, groups and swatches
-                Clipboard.SetDataObject(data, true);
+                ClipboardHelper.TrySetDataObject(data, true);
             }
 
-            Clipboard.SetDataObject(data, true);
-        }
-
-        /// <summary>
-        /// Copies the selection to clipboard in PNG, Bitmap and DIB formats. <para/>
-        /// Also serailizes the <paramref name="document"/> in the PIXI format and copies it to the clipboard.
-        /// </summary>
-        public static void CopyToClipboard(Document document)
-        {
-            CopyToClipboard(
-                document.Layers.Where(x => document.GetFinalLayerIsVisible(x)).ToArray(),
-                document.ActiveSelection.SelectedPoints.ToArray(),
-                //new Coordinates[] { (0, 0), (15, 15) },
-                document.Width,
-                document.Height,
-                document.ToSerializable());
+            ClipboardHelper.TrySetDataObject(data, true);
         }
 
         /// <summary>
@@ -90,7 +93,7 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void PasteFromClipboard()
         {
-            var layers = GetLayersFromClipboard();
+            IEnumerable<Layer> layers = GetLayersFromClipboard();
 
             Document activeDocument = ViewModelMain.Current.BitmapManager.ActiveDocument;
             int startIndex = activeDocument.Layers.Count;
@@ -108,9 +111,11 @@ namespace PixiEditor.Models.Controllers
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
         /// <returns>WriteableBitmap.</returns>
-        public static IEnumerable<Layer> GetLayersFromClipboard()
+        private static IEnumerable<Layer> GetLayersFromClipboard()
         {
-            DataObject data = (DataObject)Clipboard.GetDataObject();
+            DataObject data = ClipboardHelper.TryGetDataObject();
+            if (data == null)
+                yield break;
 
             if (data.GetDataPresent("PIXI"))
             {
@@ -163,17 +168,15 @@ namespace PixiEditor.Models.Controllers
             }
             else
             {
-                throw new NotImplementedException();
+                yield break;
             }
         }
 
         public static bool IsImageInClipboard()
         {
-            DataObject dao = (DataObject)Clipboard.GetDataObject();
+            DataObject dao = ClipboardHelper.TryGetDataObject();
             if (dao == null)
-            {
                 return false;
-            }
 
             var files = dao.GetFileDropList();
 
@@ -193,7 +196,7 @@ namespace PixiEditor.Models.Controllers
                    dao.GetDataPresent("PIXI");
         }
 
-        public static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection, out int offsetX, out int offsetY, out int width, out int height)
+        private static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection, out int offsetX, out int offsetY, out int width, out int height)
         {
             offsetX = selection.Min(min => min.X);
             offsetY = selection.Min(min => min.Y);
