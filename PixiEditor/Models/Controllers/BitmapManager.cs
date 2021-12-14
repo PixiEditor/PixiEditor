@@ -29,11 +29,29 @@ namespace PixiEditor.Models.Controllers
             get => activeDocument;
             set
             {
+                if (activeDocument == value)
+                    return;
                 activeDocument?.UpdatePreviewImage();
                 Document oldDoc = activeDocument;
                 activeDocument = value;
                 RaisePropertyChanged(nameof(ActiveDocument));
+                ActiveWindow = value;
                 DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value, oldDoc));
+            }
+        }
+
+        private object activeWindow;
+        public object ActiveWindow
+        {
+            get => activeWindow;
+            set
+            {
+                if (activeWindow == value)
+                    return;
+                activeWindow = value;
+                RaisePropertyChanged(nameof(ActiveWindow));
+                if (activeWindow is Document doc)
+                    ActiveDocument = doc;
             }
         }
 
