@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.Position;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Undo
 {
@@ -20,28 +24,54 @@ namespace PixiEditor.Models.Undo
 
         public UndoLayer[] StoredLayers { get; set; }
 
-        private List<Guid> layersToStore;
+        private List<Guid> layersToStore = new List<Guid>();
         public Document Document { get; }
 
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool saveOnStartup = true)
         {
             Document = doc;
-            layersToStore = layers.Select(x => x.LayerGuid).ToList();
+            Initialize(layers, DefaultUndoChangeLocation, saveOnStartup);
+        }
+
+        public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
+        {
+            Document = doc;
+            Initialize(layers, undoChangeLocation, saveOnStartup);
+        }
+
+        public StorageBasedChange(Document doc, IEnumerable<LayerChunk> chunks, bool saveOnStartup = true)
+        {
+            Document = doc;
+            var chunkData = chunks as LayerChunk[] ?? chunks.ToArray();
+            LayerChunk[] layerChunks = new LayerChunk[chunkData.Length];
+            for (var i = 0; i < chunkData.Length; i++)
+            {
+                var chunk = chunkData[i];
+                layerChunks[i] = chunk;
+                layersToStore.Add(chunk.Layer.LayerGuid);
+            }
+
             UndoChangeLocation = DefaultUndoChangeLocation;
-            GenerateUndoLayers();
+            GenerateUndoLayers(layerChunks);
             if (saveOnStartup)
             {
                 SaveLayersOnDevice();
             }
         }
 
-        public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
+        private void Initialize(IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup)
         {
-            Document = doc;
-            layersToStore = layers.Select(x => x.LayerGuid).ToList();
-            UndoChangeLocation = undoChangeLocation;
-            GenerateUndoLayers();
+            var layersArray = layers as Layer[] ?? layers.ToArray();
+            LayerChunk[] layerChunks = new LayerChunk[layersArray.Length];
+            for (var i = 0; i < layersArray.Length; i++)
+            {
+                var layer = layersArray[i];
+                layerChunks[i] = new LayerChunk(layer, SKRectI.Create(0, 0, layer.Width, layer.Height));
+                layersToStore.Add(layer.LayerGuid);
+            }
 
+            UndoChangeLocation = undoChangeLocation;
+            GenerateUndoLayers(layerChunks);
             if (saveOnStartup)
             {
                 SaveLayersOnDevice();
@@ -57,7 +87,19 @@ namespace PixiEditor.Models.Undo
                 UndoLayer storedLayer = StoredLayers[i];
                 if (Directory.Exists(Path.GetDirectoryName(storedLayer.StoredPngLayerName)))
                 {
-                    Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, layer.LayerBitmap);
+                    // Calculate absolute rect to relative rect
+                    SKRectI finalRect = SKRectI.Create(
+                        storedLayer.SerializedRect.Left - layer.OffsetX,
+                        storedLayer.SerializedRect.Top - layer.OffsetY,
+                        storedLayer.SerializedRect.Width,
+                        storedLayer.SerializedRect.Height);
+
+                    Random rand = new Random();
+
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(storedLayer.SerializedRect.Left - layer.OffsetX, storedLayer.SerializedRect.Top - layer.OffsetY,
+                        new SKColor((byte)rand.Next(0, 255), (byte)rand.Next(0, 255), (byte)rand.Next(0, 255)));
+
+                    Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, layer.LayerBitmap, finalRect);
                 }
 
                 i++;
@@ -77,19 +119,39 @@ namespace PixiEditor.Models.Undo
             {
                 UndoLayer storedLayer = StoredLayers[i];
                 var bitmap = Importer.LoadFromGZippedBytes(storedLayer.StoredPngLayerName);
-                layers[i] = new Layer(storedLayer.Name, bitmap)
+                var foundLayer = Document.Layers.FirstOrDefault(x => x.LayerGuid == storedLayer.LayerGuid);
+                if (foundLayer != null)
                 {
-                    Offset = new System.Windows.Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0),
-                    Opacity = storedLayer.Opacity,
-                    MaxWidth = storedLayer.MaxWidth,
-                    MaxHeight = storedLayer.MaxHeight,
-                    IsVisible = storedLayer.IsVisible,
-                    IsActive = storedLayer.IsActive,
-                    Width = storedLayer.Width,
-                    Height = storedLayer.Height,
-                    LayerHighlightColor = storedLayer.LayerHighlightColor
-                };
-                layers[i].ChangeGuid(storedLayer.LayerGuid);
+                    using var snapshot = bitmap.SkiaSurface.Snapshot();
+
+                    SKRect finalRect = SKRect.Create(
+                        storedLayer.SerializedRect.Left - foundLayer.OffsetX,
+                        storedLayer.SerializedRect.Top - foundLayer.OffsetY,
+                        storedLayer.SerializedRect.Width,
+                        storedLayer.SerializedRect.Height);
+
+                    foundLayer.LayerBitmap.SkiaSurface.Canvas.DrawImage(snapshot, finalRect,
+                        new SKPaint { BlendMode = SKBlendMode.Src });
+
+                    layers[i] = foundLayer;
+                }
+                else
+                {
+                    layers[i] = new Layer(storedLayer.Name, bitmap)
+                    {
+                        Width = storedLayer.Width,
+                        Height = storedLayer.Height,
+                        Offset = new Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0),
+                        Opacity = storedLayer.Opacity,
+                        MaxWidth = storedLayer.MaxWidth,
+                        MaxHeight = storedLayer.MaxHeight,
+                        IsVisible = storedLayer.IsVisible,
+                        IsActive = storedLayer.IsActive,
+                        LayerHighlightColor = storedLayer.LayerHighlightColor
+                    };
+
+                    layers[i].ChangeGuid(storedLayer.LayerGuid);
+                }
 
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
@@ -130,14 +192,19 @@ namespace PixiEditor.Models.Undo
         /// <param name="undoRedoProcess">Process that is invoked on redo and undo.</param>
         /// <param name="processArgs">Custom parameters for undo and redo process.</param>
         /// <param name="description">Undo change description.</param>
-        /// <returns>UndoManager ready Change instance.</returns>
+        /// <returns>UndoManager ready 'Change' instance.</returns>
         public Change ToChange(Action<Layer[], UndoLayer[], object[]> undoRedoProcess, object[] processArgs, string description = "")
         {
             Action<object[]> finalProcess = processParameters =>
             {
-
                 Layer[] layers = LoadLayersFromDevice();
-                GenerateUndoLayers();
+                LayerChunk[] chunks = new LayerChunk[layers.Length];
+                for (int i = 0; i < layers.Length; i++)
+                {
+                    chunks[i] = new LayerChunk(layers[i], StoredLayers[i].SerializedRect);
+                }
+
+                GenerateUndoLayers(chunks);
 
                 SaveLayersOnDevice();
 
@@ -226,7 +293,7 @@ namespace PixiEditor.Models.Undo
         /// <summary>
         /// Generates UndoLayer[] StoredLayers data.
         /// </summary>
-        private void GenerateUndoLayers()
+        private void GenerateUndoLayers(LayerChunk[] chunks)
         {
             StoredLayers = new UndoLayer[layersToStore.Count];
             int i = 0;
@@ -238,16 +305,15 @@ namespace PixiEditor.Models.Undo
                     throw new ArgumentException("Provided document doesn't contain selected layer");
                 }
 
-                layer.ClipCanvas();
-
                 int index = Document.Layers.IndexOf(layer);
-                string pngName = layer.Name + Guid.NewGuid().ToString();
+                string fileName = layer.Name + Guid.NewGuid();
                 StoredLayers[i] = new UndoLayer(
                     Path.Join(
                         UndoChangeLocation,
-                        Convert.ToBase64String(Encoding.UTF8.GetBytes(pngName)) + ".png"),
+                        Convert.ToBase64String(Encoding.UTF8.GetBytes(fileName)) + ".undoimg"),
                     layer,
-                    index);
+                    index,
+                    chunks[i].AbsoluteChunkRect);
                 i++;
             }
         }

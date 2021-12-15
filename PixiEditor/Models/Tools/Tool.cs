@@ -4,6 +4,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using System.Windows.Input;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Tools
 {
@@ -57,7 +58,11 @@ namespace PixiEditor.Models.Tools
 
         public virtual void BeforeUse() { }
 
-        public virtual void AfterUse() { }
+        /// <summary>
+        ///     Called when the tool finished executing
+        /// </summary>
+        /// <param name="sessionRect">A rectangle which was created during session</param>
+        public virtual void AfterUse(SKRectI sessionRect) { }
 
         public virtual void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
     }

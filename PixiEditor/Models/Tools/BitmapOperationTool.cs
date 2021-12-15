@@ -1,9 +1,11 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using System;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
 using System.Collections.Generic;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools
 {
@@ -23,7 +25,7 @@ namespace PixiEditor.Models.Tools
         {
             if (UseDefaultUndoMethod && !RequiresPreviewLayer)
             {
-                InitializeStorageBasedChange();
+                InitializeStorageBasedChange(SKRectI.Empty);
             }
         }
 
@@ -31,14 +33,14 @@ namespace PixiEditor.Models.Tools
         /// Executes undo adding procedure.
         /// </summary>
         /// <remarks>When overriding, set UseDefaultUndoMethod to false.</remarks>
-        public override void AfterUse()
+        public override void AfterUse(SKRectI sessionRect)
         {
             if (!UseDefaultUndoMethod)
                 return;
 
             if (RequiresPreviewLayer)
             {
-                InitializeStorageBasedChange();
+                InitializeStorageBasedChange(sessionRect);
             }
 
             var document = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
@@ -47,10 +49,21 @@ namespace PixiEditor.Models.Tools
             _change = null;
         }
 
-        private void InitializeStorageBasedChange()
+        private void InitializeStorageBasedChange(SKRectI toolSessionRect)
         {
             Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-            _change = new StorageBasedChange(doc, new[] {doc.ActiveLayer}, true);
+            var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
+            SKRectI finalRect = toolSessionRect;
+            if (toolSize != null)
+            {
+                int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
+                finalRect = SKRectI.Create(
+                    Math.Max(toolSessionRect.Left - halfSize, 0),
+                    Math.Max(toolSessionRect.Top - halfSize, 0),
+                    toolSessionRect.Width + halfSize,
+                    toolSessionRect.Height + halfSize);
+            }
+            _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });
         }
 
         private void UndoStorageBasedChange(Layer[] layers, UndoLayer[] data, object[] args)

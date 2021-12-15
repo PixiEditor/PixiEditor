@@ -188,9 +188,9 @@ namespace PixiEditor.Models.Tools.Tools
             previewLayer.InvokeLayerBitmapChange(dirtyRect);
         }
 
-        public override void AfterUse()
+        public override void AfterUse(SKRectI sessionRect)
         {
-            base.AfterUse();
+            base.AfterUse(sessionRect);
             BitmapManager.ActiveDocument.PreviewLayer.ClearCanvas();
 
             ApplySurfacesToLayers(currentlyDragged, currentlyDraggedPositions, affectedLayers, new Coordinates(lastDragDelta.X, lastDragDelta.Y));

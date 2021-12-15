@@ -1,5 +1,7 @@
 ﻿using System;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Undo
 {
@@ -34,7 +36,9 @@ namespace PixiEditor.Models.Undo
 
         public float Opacity { get; set; }
 
-        public UndoLayer(string storedPngLayerName, Layer layer, int layerIndex)
+        public SKRectI SerializedRect { get; set; }
+
+        public UndoLayer(string storedPngLayerName, Layer layer, int layerIndex, SKRectI serializedRect)
         {
             StoredPngLayerName = storedPngLayerName;
             LayerIndex = layerIndex;
@@ -50,6 +54,7 @@ namespace PixiEditor.Models.Undo
             IsActive = layer.IsActive;
             LayerGuid = layer.LayerGuid;
             LayerHighlightColor = layer.LayerHighlightColor;
+            SerializedRect = serializedRect;
         }
     }
 }
