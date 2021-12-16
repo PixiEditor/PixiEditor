@@ -17,6 +17,7 @@ namespace PixiEditor.Models.Tools.Tools
         {
             ActionDisplay = "Press on an area to fill it.";
             BitmapManager = bitmapManager;
+            UseDocumentRectForUndo = true;
         }
 
         public override string Tooltip => "Fills area with color. (G)";

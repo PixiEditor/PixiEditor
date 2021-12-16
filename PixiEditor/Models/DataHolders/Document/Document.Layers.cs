@@ -458,7 +458,6 @@ namespace PixiEditor.Models.DataHolders
             LayerStructure.AssignParent(mergedLayer.LayerGuid, groupParent?.GroupGuid);
 
             RemoveLayer(placeholderLayer, false);
-
             RemoveLayer(layersToMerge[^1], false);
 
             SetMainActiveLayer(Layers.IndexOf(mergedLayer));

@@ -17,6 +17,8 @@ namespace PixiEditor.Models.Tools
 
         public bool UseDefaultUndoMethod { get; set; } = true;
 
+        public bool UseDocumentRectForUndo { get; set; } = false;
+
         private StorageBasedChange _change;
 
         public abstract void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color);
@@ -62,8 +64,14 @@ namespace PixiEditor.Models.Tools
 
             if (toolSessionRect.IsEmpty)
             {
-                finalRect = SKRectI.Create(0, 0, doc.ActiveLayer.MaxWidth, doc.ActiveLayer.MaxHeight);
+                finalRect = SKRectI.Create(doc.ActiveLayer.OffsetX, doc.ActiveLayer.OffsetY, doc.ActiveLayer.Width, doc.ActiveLayer.Height);
             }
+
+            if (UseDocumentRectForUndo)
+            {
+                finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
+            }
+
             _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });
         }
 
