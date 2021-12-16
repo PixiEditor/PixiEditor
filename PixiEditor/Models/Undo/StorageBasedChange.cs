@@ -135,9 +135,6 @@ namespace PixiEditor.Models.Undo
 
                 layers[i].ChangeGuid(storedLayer.LayerGuid);
 
-#if DEBUG
-                File.Delete(StoredLayers[i].StoredPngLayerName + ".png");
-#endif
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
 
