@@ -9,14 +9,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.ImageManipulation
 {
     public static class BitmapUtils
     {
-        public static Surface CombineLayers(Int32Rect portion, IEnumerable<Layer> layers,  LayerStructure structure = null)
+        public static Surface CombineLayers(Int32Rect portion, IEnumerable<Layer> layers, LayerStructure structure = null)
         {
             Surface finalSurface = new(portion.Width, portion.Height);
             using SKPaint paint = new();
@@ -47,6 +46,37 @@ namespace PixiEditor.Models.ImageManipulation
             }
 
             return finalSurface;
+        }
+
+        public static Surface[] ExtractSelectedPortions(Layer selLayer, Layer[] extractFrom, bool eraceFromLayers)
+        {
+            using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
+            Surface[] output = new Surface[extractFrom.Length];
+
+            int count = 0;
+            foreach (Layer layer in extractFrom)
+            {
+                Surface portion = new Surface(selLayer.Width, selLayer.Height);
+                SKRect selLayerRect = new SKRect(0, 0, selLayer.Width, selLayer.Height);
+
+                int x = selLayer.OffsetX - layer.OffsetX;
+                int y = selLayer.OffsetY - layer.OffsetY;
+
+                using (var layerSnap = layer.LayerBitmap.SkiaSurface.Snapshot())
+                    portion.SkiaSurface.Canvas.DrawImage(layerSnap, new SKRect(x, y, x + selLayer.Width, y + selLayer.Height), selLayerRect, Surface.ReplacingPaint);
+                portion.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, Surface.MaskingPaint);
+                output[count] = portion;
+                count++;
+
+                if (eraceFromLayers)
+                {
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(selSnap, new SKRect(0, 0, selLayer.Width, selLayer.Height),
+                        new SKRect(selLayer.OffsetX - layer.OffsetX, selLayer.OffsetY - layer.OffsetY, selLayer.OffsetX - layer.OffsetX + selLayer.Width, selLayer.OffsetY - layer.OffsetY + selLayer.Height),
+                        Surface.InverseMaskingPaint);
+                    layer.InvokeLayerBitmapChange(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height));
+                }
+            }
+            return output;
         }
 
         /// <summary>

@@ -15,7 +15,10 @@ namespace PixiEditor.Models.DataHolders
 {
     public class Surface : IDisposable
     {
-        public static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+        public static SKPaint ReplacingPaint { get; } = new() { BlendMode = SKBlendMode.Src };
+        public static SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+        public static SKPaint MaskingPaint { get; } = new() { BlendMode = SKBlendMode.DstIn };
+        public static SKPaint InverseMaskingPaint { get; } = new() { BlendMode = SKBlendMode.DstOut };
 
         private static readonly SKPaint nearestNeighborReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.None };
 

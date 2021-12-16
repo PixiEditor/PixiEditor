@@ -35,31 +35,47 @@ namespace PixiEditor.Models.Controllers
         public static void CopyToClipboard(Document document)
         {
             CopyToClipboard(
-                document.Layers.Where(x => document.GetFinalLayerIsVisible(x)).ToArray(),
-                document.ActiveSelection.SelectedPoints.ToArray(),
-                //new Coordinates[] { (0, 0), (15, 15) },
+                document.Layers.Where(x => document.GetFinalLayerIsVisible(x) && x.IsActive).ToArray(),
+                document.ActiveSelection.SelectionLayer,
+                document.LayerStructure,
                 document.Width,
                 document.Height,
-                document.ToSerializable());
+                null/*document.ToSerializable()*/);
+        }
+
+        private static Surface CreateMaskedCombinedSurface(Layer[] layers, LayerStructure structure, Layer selLayer)
+        {
+            if (layers.Length == 0)
+                throw new ArgumentException("Can't combine 0 layers");
+            selLayer.ClipCanvas();
+
+            Surface combined = BitmapUtils.CombineLayers(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height), layers, structure);
+            using SKImage snapshot = selLayer.LayerBitmap.SkiaSurface.Snapshot();
+            combined.SkiaSurface.Canvas.DrawImage(snapshot, 0, 0, Surface.MaskingPaint);
+            return combined;
         }
 
         /// <summary>
         ///     Copies the selection to clipboard in PNG, Bitmap and DIB formats.
         /// </summary>
         /// <param name="layers">Layers where selection is.</param>
-        public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight, SerializableDocument document = null)
+        public static void CopyToClipboard(Layer[] layers, Layer selLayer, LayerStructure structure, int originalImageWidth, int originalImageHeight, SerializableDocument document = null)
         {
             if (!ClipboardHelper.TryClear())
                 return;
+            if (layers.Length == 0)
+                return;
 
-            using Surface surface = BitmapUtils.CombineLayers(new Int32Rect(0, 0, originalImageWidth, originalImageHeight), layers);
+            using Surface surface = CreateMaskedCombinedSurface(layers, structure, selLayer);
             DataObject data = new DataObject();
 
-            WriteableBitmap combinedBitmaps = surface.ToWriteableBitmap();
-            BitmapSource croppedBmp = BitmapSelectionToBmpSource(combinedBitmaps, selection, out int offsetX, out int offsetY, out int width, out int height);
-            data.SetData(typeof(CropData), new CropData(width, height, offsetX, offsetY).ToStream());
 
-            using (SKData pngData = surface.SkiaSurface.Snapshot(SKRectI.Create(offsetX, offsetY, width, height)).Encode())
+            //BitmapSource croppedBmp = BitmapSelectionToBmpSource(finalBitmap, selLayer, out int offsetX, out int offsetY, out int width, out int height);
+
+            //Remove for now
+            //data.SetData(typeof(CropData), new CropData(width, height, offsetX, offsetY).ToStream());
+
+            using (SKData pngData = surface.SkiaSurface.Snapshot().Encode())
             {
                 // Stream should not be disposed
                 MemoryStream pngStream = new MemoryStream();
@@ -74,9 +90,12 @@ namespace PixiEditor.Models.Controllers
                 data.SetFileDropList(new StringCollection() { TempCopyFilePath });
             }
 
-            data.SetData(DataFormats.Bitmap, croppedBmp, true); // Bitmap, no transparency
-            data.SetImage(croppedBmp); // DIB format, no transparency
+            WriteableBitmap finalBitmap = surface.ToWriteableBitmap();
+            data.SetData(DataFormats.Bitmap, finalBitmap, true); // Bitmap, no transparency
+            data.SetImage(finalBitmap); // DIB format, no transparency
 
+            // Remove pixi copying for now
+            /*
             if (document != null)
             {
                 MemoryStream memoryStream = new();
@@ -84,6 +103,7 @@ namespace PixiEditor.Models.Controllers
                 data.SetData("PIXI", memoryStream); // PIXI, supports transparency, layers, groups and swatches
                 ClipboardHelper.TrySetDataObject(data, true);
             }
+            */
 
             ClipboardHelper.TrySetDataObject(data, true);
         }
@@ -93,7 +113,15 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void PasteFromClipboard()
         {
-            IEnumerable<Layer> layers = GetLayersFromClipboard();
+            IEnumerable<Layer> layers;
+            try
+            {
+                layers = GetLayersFromClipboard();
+            }
+            catch
+            {
+                return;
+            }
 
             Document activeDocument = ViewModelMain.Current.BitmapManager.ActiveDocument;
             int startIndex = activeDocument.Layers.Count;
@@ -117,6 +145,8 @@ namespace PixiEditor.Models.Controllers
             if (data == null)
                 yield break;
 
+            //Remove pixi for now
+            /*
             if (data.GetDataPresent("PIXI"))
             {
                 SerializableDocument document = GetSerializable(data, out CropData crop);
@@ -126,7 +156,7 @@ namespace PixiEditor.Models.Controllers
                 {
                     SKRectI intersect;
 
-                    if (/*layer.OffsetX > crop.OffsetX + crop.Width || layer.OffsetY > crop.OffsetY + crop.Height ||*/
+                    if (//layer.OffsetX > crop.OffsetX + crop.Width || layer.OffsetY > crop.OffsetY + crop.Height ||
                         !sLayer.IsVisible || sLayer.Opacity == 0 ||
                         (intersect = SKRectI.Intersect(cropRect, sLayer.GetRect())) == SKRectI.Empty)
                     {
@@ -140,7 +170,8 @@ namespace PixiEditor.Models.Controllers
                     yield return layer;
                 }
             }
-            else if (TryFromSingleImage(data, out Surface singleImage))
+            else */
+            if (TryFromSingleImage(data, out Surface singleImage))
             {
                 yield return new Layer("Image", singleImage);
             }
