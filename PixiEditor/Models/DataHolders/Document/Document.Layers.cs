@@ -599,7 +599,8 @@ namespace PixiEditor.Models.DataHolders
         {
             if (args.Length > 0 && args[0] is int layerIndex)
             {
-                Layers.RemoveAt(layerIndex);
+                RemoveLayer(layerIndex, false);
+
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
