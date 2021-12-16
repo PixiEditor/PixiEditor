@@ -3,6 +3,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -94,18 +95,32 @@ namespace PixiEditor.Models.Undo
                         storedLayer.SerializedRect.Width,
                         storedLayer.SerializedRect.Height);
 
-                    Random rand = new Random();
+                    using var image = layer.LayerBitmap.SkiaSurface.Snapshot();
+                    Surface targetSizeSurface = new Surface(finalRect.Width, finalRect.Height);
 
-                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(storedLayer.SerializedRect.Left - layer.OffsetX, storedLayer.SerializedRect.Top - layer.OffsetY,
-                        new SKColor((byte)rand.Next(0, 255), (byte)rand.Next(0, 255), (byte)rand.Next(0, 255)));
+                    targetSizeSurface.SkiaSurface.Canvas.DrawImage(image, finalRect, SKRect.Create(0, 0, finalRect.Width, finalRect.Height), Surface.ReplacingPaint);
+                    DebugSavePng(targetSizeSurface, storedLayer);
 
-                    Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, layer.LayerBitmap, finalRect);
+                    Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, targetSizeSurface);
                 }
 
                 i++;
             }
 
             layersToStore = new List<Guid>();
+        }
+
+        [Conditional("DEBUG")]
+        private static void DebugSavePng(Surface surface, UndoLayer storedLayer)
+        {
+            //Debug png visualization
+            using var targetSizeImage = surface.SkiaSurface.Snapshot();
+            using (var data = targetSizeImage.Encode(SKEncodedImageFormat.Png, 80))
+            using (var stream = File.OpenWrite(storedLayer.StoredPngLayerName + ".png"))
+            {
+                // save the data to a stream
+                data.SaveTo(stream);
+            }
         }
 
         /// <summary>
@@ -122,7 +137,15 @@ namespace PixiEditor.Models.Undo
                 var foundLayer = Document.Layers.FirstOrDefault(x => x.LayerGuid == storedLayer.LayerGuid);
                 if (foundLayer != null)
                 {
-                    using var snapshot = bitmap.SkiaSurface.Snapshot();
+                    Surface targetSizeSurface = new Surface(storedLayer.Width, storedLayer.Height);
+                    using var foundLayerSnapshot = foundLayer.LayerBitmap.SkiaSurface.Snapshot();
+                    targetSizeSurface.SkiaSurface.Canvas.DrawImage(
+                        foundLayerSnapshot,
+                        SKRect.Create(storedLayer.OffsetX - foundLayer.OffsetX, storedLayer.OffsetY - foundLayer.OffsetY, storedLayer.Width, storedLayer.Height),
+                        SKRect.Create(0, 0, storedLayer.Width, storedLayer.Height),
+                        Surface.ReplacingPaint);
+
+                    foundLayer.Offset = new Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0);
 
                     SKRect finalRect = SKRect.Create(
                         storedLayer.SerializedRect.Left - foundLayer.OffsetX,
@@ -130,8 +153,14 @@ namespace PixiEditor.Models.Undo
                         storedLayer.SerializedRect.Width,
                         storedLayer.SerializedRect.Height);
 
-                    foundLayer.LayerBitmap.SkiaSurface.Canvas.DrawImage(snapshot, finalRect,
-                        new SKPaint { BlendMode = SKBlendMode.Src });
+                    using var snapshot = bitmap.SkiaSurface.Snapshot();
+
+                    targetSizeSurface.SkiaSurface.Canvas.DrawImage(
+                        snapshot,
+                        finalRect,
+                        Surface.ReplacingPaint);
+
+                    foundLayer.LayerBitmap = targetSizeSurface;
 
                     layers[i] = foundLayer;
                 }
@@ -152,6 +181,10 @@ namespace PixiEditor.Models.Undo
 
                     layers[i].ChangeGuid(storedLayer.LayerGuid);
                 }
+
+#if DEBUG
+                File.Delete(StoredLayers[i].StoredPngLayerName + ".png");
+#endif
 
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }

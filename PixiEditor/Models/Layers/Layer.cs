@@ -140,7 +140,7 @@ namespace PixiEditor.Models.Layers
         public Surface LayerBitmap
         {
             get => layerBitmap;
-            private set
+            set
             {
                 Int32Rect prevRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
                 layerBitmap = value;
