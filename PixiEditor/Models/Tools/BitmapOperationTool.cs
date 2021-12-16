@@ -57,11 +57,12 @@ namespace PixiEditor.Models.Tools
             if (toolSize != null)
             {
                 int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
-                finalRect = SKRectI.Create(
-                    Math.Max(toolSessionRect.Left - halfSize, 0),
-                    Math.Max(toolSessionRect.Top - halfSize, 0),
-                    toolSessionRect.Width + halfSize,
-                    toolSessionRect.Height + halfSize);
+                finalRect.Inflate(halfSize, halfSize);
+            }
+
+            if (toolSessionRect.IsEmpty)
+            {
+                finalRect = SKRectI.Create(0, 0, doc.ActiveLayer.MaxWidth, doc.ActiveLayer.MaxHeight);
             }
             _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });
         }

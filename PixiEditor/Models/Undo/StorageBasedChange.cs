@@ -99,7 +99,6 @@ namespace PixiEditor.Models.Undo
                     Surface targetSizeSurface = new Surface(finalRect.Width, finalRect.Height);
 
                     targetSizeSurface.SkiaSurface.Canvas.DrawImage(image, finalRect, SKRect.Create(0, 0, finalRect.Width, finalRect.Height), Surface.ReplacingPaint);
-                    DebugSavePng(targetSizeSurface, storedLayer);
 
                     Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, targetSizeSurface);
                 }
@@ -108,19 +107,6 @@ namespace PixiEditor.Models.Undo
             }
 
             layersToStore = new List<Guid>();
-        }
-
-        [Conditional("DEBUG")]
-        private static void DebugSavePng(Surface surface, UndoLayer storedLayer)
-        {
-            //Debug png visualization
-            using var targetSizeImage = surface.SkiaSurface.Snapshot();
-            using (var data = targetSizeImage.Encode(SKEncodedImageFormat.Png, 80))
-            using (var stream = File.OpenWrite(storedLayer.StoredPngLayerName + ".png"))
-            {
-                // save the data to a stream
-                data.SaveTo(stream);
-            }
         }
 
         /// <summary>
@@ -134,58 +120,24 @@ namespace PixiEditor.Models.Undo
             {
                 UndoLayer storedLayer = StoredLayers[i];
                 var bitmap = Importer.LoadFromGZippedBytes(storedLayer.StoredPngLayerName);
-                var foundLayer = Document.Layers.FirstOrDefault(x => x.LayerGuid == storedLayer.LayerGuid);
-                if (foundLayer != null)
+                layers[i] = new Layer(storedLayer.Name, bitmap)
                 {
-                    Surface targetSizeSurface = new Surface(storedLayer.Width, storedLayer.Height);
-                    using var foundLayerSnapshot = foundLayer.LayerBitmap.SkiaSurface.Snapshot();
-                    targetSizeSurface.SkiaSurface.Canvas.DrawImage(
-                        foundLayerSnapshot,
-                        SKRect.Create(storedLayer.OffsetX - foundLayer.OffsetX, storedLayer.OffsetY - foundLayer.OffsetY, storedLayer.Width, storedLayer.Height),
-                        SKRect.Create(0, 0, storedLayer.Width, storedLayer.Height),
-                        Surface.ReplacingPaint);
+                    Width = storedLayer.Width,
+                    Height = storedLayer.Height,
+                    Offset = new Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0),
+                    Opacity = storedLayer.Opacity,
+                    MaxWidth = storedLayer.MaxWidth,
+                    MaxHeight = storedLayer.MaxHeight,
+                    IsVisible = storedLayer.IsVisible,
+                    IsActive = storedLayer.IsActive,
+                    LayerHighlightColor = storedLayer.LayerHighlightColor
+                };
 
-                    foundLayer.Offset = new Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0);
-
-                    SKRect finalRect = SKRect.Create(
-                        storedLayer.SerializedRect.Left - foundLayer.OffsetX,
-                        storedLayer.SerializedRect.Top - foundLayer.OffsetY,
-                        storedLayer.SerializedRect.Width,
-                        storedLayer.SerializedRect.Height);
-
-                    using var snapshot = bitmap.SkiaSurface.Snapshot();
-
-                    targetSizeSurface.SkiaSurface.Canvas.DrawImage(
-                        snapshot,
-                        finalRect,
-                        Surface.ReplacingPaint);
-
-                    foundLayer.LayerBitmap = targetSizeSurface;
-
-                    layers[i] = foundLayer;
-                }
-                else
-                {
-                    layers[i] = new Layer(storedLayer.Name, bitmap)
-                    {
-                        Width = storedLayer.Width,
-                        Height = storedLayer.Height,
-                        Offset = new Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0),
-                        Opacity = storedLayer.Opacity,
-                        MaxWidth = storedLayer.MaxWidth,
-                        MaxHeight = storedLayer.MaxHeight,
-                        IsVisible = storedLayer.IsVisible,
-                        IsActive = storedLayer.IsActive,
-                        LayerHighlightColor = storedLayer.LayerHighlightColor
-                    };
-
-                    layers[i].ChangeGuid(storedLayer.LayerGuid);
-                }
+                layers[i].ChangeGuid(storedLayer.LayerGuid);
 
 #if DEBUG
                 File.Delete(StoredLayers[i].StoredPngLayerName + ".png");
 #endif
-
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
 
@@ -358,17 +310,53 @@ namespace PixiEditor.Models.Undo
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
+                    UndoLayer layerData = data[i];
+                    var foundLayer = document.Layers.FirstOrDefault(x => x.LayerGuid == layerData.LayerGuid);
 
-                    document.RemoveLayer(data[i].LayerIndex, false);
-                    document.Layers.Insert(data[i].LayerIndex, layer);
-
-                    if (data[i].IsActive)
+                    if (foundLayer != null)
                     {
-                        document.SetMainActiveLayer(data[i].LayerIndex);
+                        ApplyChunkToLayer(foundLayer, layerData, layer.LayerBitmap);
+                    }
+                    else
+                    {
+                        document.RemoveLayer(layerData.LayerIndex, false);
+                        document.Layers.Insert(layerData.LayerIndex, layer);
+                    }
+
+                    if (layerData.IsActive)
+                    {
+                        document.SetMainActiveLayer(layerData.LayerIndex);
                     }
                 }
-
             }
+        }
+
+        private static void ApplyChunkToLayer(Layer layer, UndoLayer layerData, Surface chunk)
+        {
+            Surface targetSizeSurface = new Surface(layerData.Width, layerData.Height);
+            using var foundLayerSnapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
+            targetSizeSurface.SkiaSurface.Canvas.DrawImage(
+                foundLayerSnapshot,
+                SKRect.Create(layerData.OffsetX - layer.OffsetX, layerData.OffsetY - layer.OffsetY, layerData.Width, layerData.Height),
+                SKRect.Create(0, 0, layerData.Width, layerData.Height),
+                Surface.ReplacingPaint);
+
+            layer.Offset = new Thickness(layerData.OffsetX, layerData.OffsetY, 0, 0);
+
+            SKRect finalRect = SKRect.Create(
+                layerData.SerializedRect.Left - layer.OffsetX,
+                layerData.SerializedRect.Top - layer.OffsetY,
+                layerData.SerializedRect.Width,
+                layerData.SerializedRect.Height);
+
+            using var snapshot = chunk.SkiaSurface.Snapshot();
+
+            targetSizeSurface.SkiaSurface.Canvas.DrawImage(
+                snapshot,
+                finalRect,
+                Surface.ReplacingPaint);
+
+            layer.LayerBitmap = targetSizeSurface;
         }
     }
 }

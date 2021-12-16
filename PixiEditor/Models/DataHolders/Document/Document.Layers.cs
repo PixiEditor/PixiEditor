@@ -362,9 +362,9 @@ namespace PixiEditor.Models.DataHolders
 
             bool wasActive = Layers[layerIndex].IsActive;
 
-            StorageBasedChange change = new(this, new[] { Layers[layerIndex] });
             if (addToUndo)
             {
+                StorageBasedChange change = new(this, new[] { Layers[layerIndex] });
                 UndoManager.AddUndoChange(
                     change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }));
             }
