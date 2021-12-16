@@ -67,7 +67,7 @@ namespace PixiEditor.Models.Undo
             for (var i = 0; i < layersArray.Length; i++)
             {
                 var layer = layersArray[i];
-                layerChunks[i] = new LayerChunk(layer, SKRectI.Create(0, 0, layer.Width, layer.Height));
+                layerChunks[i] = new LayerChunk(layer, SKRectI.Create(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height));
                 layersToStore.Add(layer.LayerGuid);
             }
 

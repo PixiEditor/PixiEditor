@@ -728,7 +728,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void RemoveLayerProcess(object[] parameters)
         {
-            if (parameters != null && parameters.Length > 0 && parameters[0] is Guid layerGuid)
+            if (parameters is { Length: > 0 } && parameters[0] is Guid layerGuid)
             {
                 Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
                 int index = Layers.IndexOf(layer);
