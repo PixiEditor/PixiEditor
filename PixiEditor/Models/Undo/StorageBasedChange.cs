@@ -330,15 +330,26 @@ namespace PixiEditor.Models.Undo
 
         private static void ApplyChunkToLayer(Layer layer, UndoLayer layerData, Surface chunk)
         {
-            Surface targetSizeSurface = new Surface(layerData.Width, layerData.Height);
+            bool widthBigger = layer.Width < chunk.Width;
+            bool heightBigger = layer.Height < chunk.Height;
+            int targetWidth = widthBigger ? chunk.Width : layer.Width;
+            int targetHeight = heightBigger ? chunk.Height : layer.Height;
+
+            int offsetDiffX = layerData.OffsetX - layer.OffsetX;
+            int offsetDiffY = layerData.OffsetY - layer.OffsetY;
+
+            int targetOffsetX = layerData.OffsetX == 0 && widthBigger ? layerData.SerializedRect.Left : layerData.OffsetX;
+            int targetOffsetY = layerData.OffsetY == 0 && heightBigger ? layerData.SerializedRect.Top : layerData.OffsetY;
+
+            Surface targetSizeSurface = new Surface(targetWidth, targetHeight);
             using var foundLayerSnapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
             targetSizeSurface.SkiaSurface.Canvas.DrawImage(
                 foundLayerSnapshot,
-                SKRect.Create(layerData.OffsetX - layer.OffsetX, layerData.OffsetY - layer.OffsetY, layerData.Width, layerData.Height),
-                SKRect.Create(0, 0, layerData.Width, layerData.Height),
+                SKRect.Create(offsetDiffX, offsetDiffY, layer.Width, layer.Height),
+                SKRect.Create(0, 0, targetWidth, targetHeight),
                 Surface.ReplacingPaint);
 
-            layer.Offset = new Thickness(layerData.OffsetX, layerData.OffsetY, 0, 0);
+            layer.Offset = new Thickness(targetOffsetX, targetOffsetY, 0, 0);
 
             SKRect finalRect = SKRect.Create(
                 layerData.SerializedRect.Left - layer.OffsetX,
