@@ -41,7 +41,7 @@ namespace PixiEditor.Models.DataHolders
             RaisePropertyChanged(nameof(LayerStructure));
             foreach (var layerGuid in e.AffectedLayerGuids)
             {
-                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+                Layer layer = Layers.First(x => x.GuidValue == layerGuid);
                 layer.RaisePropertyChange(nameof(layer.IsVisible));
                 layer.RaisePropertyChange(nameof(layer.Opacity));
             }

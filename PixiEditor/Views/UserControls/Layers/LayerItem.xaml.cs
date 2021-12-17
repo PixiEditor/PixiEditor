@@ -158,7 +158,7 @@ namespace PixiEditor.Views.UserControls.Layers
             if (e.Data.GetDataPresent(LayerGroupControl.LayerContainerDataName))
             {
                 var data = (LayerStructureItemContainer)e.Data.GetData(LayerGroupControl.LayerContainerDataName);
-                Guid layer = data.Layer.LayerGuid;
+                Guid layer = data.Layer.GuidValue;
                 var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
                 doc.MoveLayerInStructure(layer, LayerGuid, above);

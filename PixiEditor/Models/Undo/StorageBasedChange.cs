@@ -1,16 +1,13 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Position;
-using SkiaSharp;
 
 namespace PixiEditor.Models.Undo
 {
@@ -49,7 +46,7 @@ namespace PixiEditor.Models.Undo
             {
                 var chunk = chunkData[i];
                 layerChunks[i] = chunk;
-                layersToStore.Add(chunk.Layer.LayerGuid);
+                layersToStore.Add(chunk.Layer.GuidValue);
             }
 
             UndoChangeLocation = DefaultUndoChangeLocation;
@@ -68,7 +65,7 @@ namespace PixiEditor.Models.Undo
             {
                 var layer = layersArray[i];
                 layerChunks[i] = new LayerChunk(layer, SKRectI.Create(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height));
-                layersToStore.Add(layer.LayerGuid);
+                layersToStore.Add(layer.GuidValue);
             }
 
             UndoChangeLocation = undoChangeLocation;
@@ -84,7 +81,7 @@ namespace PixiEditor.Models.Undo
             int i = 0;
             foreach (var layerGuid in layersToStore)
             {
-                Layer layer = Document.Layers.First(x => x.LayerGuid == layerGuid);
+                Layer layer = Document.Layers.First(x => x.GuidValue == layerGuid);
                 UndoLayer storedLayer = StoredLayers[i];
                 if (Directory.Exists(Path.GetDirectoryName(storedLayer.StoredPngLayerName)))
                 {
@@ -138,7 +135,7 @@ namespace PixiEditor.Models.Undo
                 File.Delete(StoredLayers[i].StoredPngLayerName);
             }
 
-            layersToStore = layers.Select(x => x.LayerGuid).ToList();
+            layersToStore = layers.Select(x => x.GuidValue).ToList();
             return layers;
         }
 
@@ -281,7 +278,7 @@ namespace PixiEditor.Models.Undo
             int i = 0;
             foreach (var layerGuid in layersToStore)
             {
-                Layer layer = Document.Layers.First(x => x.LayerGuid == layerGuid);
+                Layer layer = Document.Layers.First(x => x.GuidValue == layerGuid);
                 if (!Document.Layers.Contains(layer))
                 {
                     throw new ArgumentException("Provided document doesn't contain selected layer");
@@ -308,7 +305,7 @@ namespace PixiEditor.Models.Undo
                 {
                     Layer layer = layers[i];
                     UndoLayer layerData = data[i];
-                    var foundLayer = document.Layers.FirstOrDefault(x => x.LayerGuid == layerData.LayerGuid);
+                    var foundLayer = document.Layers.FirstOrDefault(x => x.GuidValue == layerData.LayerGuid);
 
                     if (foundLayer != null)
                     {

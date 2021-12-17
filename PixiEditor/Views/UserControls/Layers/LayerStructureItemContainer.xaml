@@ -12,7 +12,7 @@
                                        IsActive="{Binding IsActive, Mode=TwoWay}"
                                        IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
                                        LayerForPreview="{Binding}"
-                                       LayerGuid="{Binding LayerGuid}"
+                                       LayerGuid="{Binding GuidValue}"
                                        LayerColor="{Binding LayerHighlightColor}"
                                        LayerIndex="{Binding ContainerIndex, ElementName=layerStructureContainer}"
                                       MoveToBackCommand="{Binding LayerCommandsViewModel.MoveToBackCommand, ElementName=layerStructureContainer}"

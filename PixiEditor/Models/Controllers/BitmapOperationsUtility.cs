@@ -37,7 +37,7 @@ namespace PixiEditor.Models.Controllers
             BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, SKColors.Empty);
             for (int i = 0; i < layers.Length; i++)
             {
-                Guid guid = layers[i].LayerGuid;
+                Guid guid = layers[i].GuidValue;
                 layers[i].SetPixels(changes);
             }
 

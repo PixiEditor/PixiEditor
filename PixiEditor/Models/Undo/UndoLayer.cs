@@ -52,7 +52,7 @@ namespace PixiEditor.Models.Undo
             OffsetY = layer.OffsetY;
             Opacity = layer.Opacity;
             IsActive = layer.IsActive;
-            LayerGuid = layer.LayerGuid;
+            LayerGuid = layer.GuidValue;
             LayerHighlightColor = layer.LayerHighlightColor;
             SerializedRect = serializedRect;
         }

@@ -149,7 +149,7 @@ namespace PixiEditor.Models.ImageManipulation
                     var cl = layer.GetPixel(position.X, position.Y);
                     pixels[j] = cl;
                 }
-                result[layer.LayerGuid] = pixels;
+                result[layer.GuidValue] = pixels;
             }
 
             return result;

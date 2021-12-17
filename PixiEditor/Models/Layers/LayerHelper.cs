@@ -12,7 +12,7 @@ namespace PixiEditor.Models.Layers
     {
         public static Layer FindLayerByGuid(Document document, Guid guid)
         {
-            return document.Layers.FirstOrDefault(x => x.LayerGuid == guid);
+            return document.Layers.FirstOrDefault(x => x.GuidValue == guid);
         }
 
         public static object FindLayerByGuidProcess(object[] parameters)

@@ -1,12 +1,10 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Data;
-using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Helpers.Converters
 {
@@ -35,7 +33,7 @@ namespace PixiEditor.Helpers.Converters
                 {
                     cachedTree = new StructuredLayerTree(layers, structure);
                     lastLayers = layers;
-                    lastLayerGuids = layers.Select(x => x.LayerGuid).ToList();
+                    lastLayerGuids = layers.Select(x => x.GuidValue).ToList();
                     lastStructure = structure.CloneGroups();
                 }
 
@@ -52,7 +50,7 @@ namespace PixiEditor.Helpers.Converters
 
         private bool LayerOrderIsDifferent(IList<Layer> layers)
         {
-            var guids = layers.Select(x => x.LayerGuid).ToArray();
+            var guids = layers.Select(x => x.GuidValue).ToArray();
             return !guids.SequenceEqual(lastLayerGuids);
         }
 

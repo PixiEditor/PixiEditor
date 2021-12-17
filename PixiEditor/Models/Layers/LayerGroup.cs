@@ -1,28 +1,33 @@
-﻿using System;
-using System.Collections;
+﻿using PixiEditor.Helpers;
+using PixiEditor.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using PixiEditor.Helpers;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Layers
 {
-    public class LayerGroup : NotifyableObject
+    public class LayerGroup : NotifyableObject, IHasGuid
     {
-        public Guid GroupGuid { get; init; }
+        public Guid GuidValue { get; init; }
 
-        public GuidStructureItem StructureData { get; init; }
-
-        public ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
-
-        public ObservableCollection<LayerGroup> Subfolders { get; set; } = new ObservableCollection<LayerGroup>();
-
-        public IEnumerable Items => BuildItems();
-
-        private IEnumerable BuildItems()
+        private GuidStructureItem structureData;
+        public GuidStructureItem StructureData
         {
-            List<object> obj = new(Layers.Reverse());
+            get => structureData;
+            set => SetProperty(ref structureData, value);
+        }
+
+        private ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
+
+        private ObservableCollection<LayerGroup> Subfolders { get; set; } = new ObservableCollection<LayerGroup>();
+
+        private ObservableCollection<IHasGuid> items = null;
+        public ObservableCollection<IHasGuid> Items => items ??= BuildItems();
+
+        private ObservableCollection<IHasGuid> BuildItems()
+        {
+            List<IHasGuid> obj = new(Layers.Reverse());
             foreach (var subfolder in Subfolders)
             {
                 obj.Insert(Math.Clamp(subfolder.DisplayIndex - DisplayIndex, 0, obj.Count), subfolder);
@@ -30,7 +35,7 @@ namespace PixiEditor.Models.Layers
 
             obj.Reverse();
 
-            return obj;
+            return new ObservableCollection<IHasGuid>(obj);
         }
 
         private string name;
@@ -95,7 +100,7 @@ namespace PixiEditor.Models.Layers
 
         private void UpdateIsExpandedInDocument(bool value)
         {
-            var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(GroupGuid);
+            var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(GuidValue);
             if (folder != null)
             {
                 folder.IsExpanded = value;
@@ -114,7 +119,7 @@ namespace PixiEditor.Models.Layers
             Layers = new ObservableCollection<Layer>(layers);
             Subfolders = new ObservableCollection<LayerGroup>(subfolders);
             Name = name;
-            GroupGuid = guid;
+            GuidValue = guid;
             DisplayIndex = displayIndex;
             TopIndex = topIndex;
             StructureData = structureData;

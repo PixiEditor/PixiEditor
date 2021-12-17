@@ -1,10 +1,9 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Layers
 {
@@ -12,7 +11,7 @@ namespace PixiEditor.Models.Layers
     {
         private List<Guid> layersInStructure = new();
 
-        public WpfObservableRangeCollection<object> RootDirectoryItems { get; } = new WpfObservableRangeCollection<object>();
+        public WpfObservableRangeCollection<IHasGuid> RootDirectoryItems { get; } = new WpfObservableRangeCollection<IHasGuid>();
 
         private static void Swap(ref int startIndex, ref int endIndex)
         {
@@ -49,7 +48,7 @@ namespace PixiEditor.Models.Layers
 
             for (int i = 0; i < layers.Count; i++)
             {
-                if (currentFolder != null && layers[i].LayerGuid == currentFolder.StructureData.EndLayerGuid)
+                if (currentFolder != null && layers[i].GuidValue == currentFolder.StructureData.EndLayerGuid)
                 {
                     if (unfinishedFolders.Count > 0)
                     {
@@ -65,7 +64,7 @@ namespace PixiEditor.Models.Layers
 
                 AssignGroup(parsedFolders, layers, ref currentFolder, ref groupsAtIndex, unfinishedFolders, i);
 
-                if (currentFolder == null && !layersInStructure.Contains(layers[i].LayerGuid))
+                if (currentFolder == null && !layersInStructure.Contains(layers[i].GuidValue))
                 {
                     RootDirectoryItems.Add(layers[i]);
                 }
@@ -78,9 +77,9 @@ namespace PixiEditor.Models.Layers
 
         private void AssignGroup(List<LayerGroup> parsedFolders, ObservableCollection<Layer> layers, ref LayerGroup currentFolder, ref List<LayerGroup> groupsAtIndex, Stack<LayerGroup> unfinishedFolders, int i)
         {
-            if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid))
+            if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].GuidValue))
             {
-                groupsAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid).ToList();
+                groupsAtIndex = parsedFolders.Where(x => x.StructureData.StartLayerGuid == layers[i].GuidValue).ToList();
                 for (int j = 0; j < groupsAtIndex.Count; j++)
                 {
                     LayerGroup group = groupsAtIndex[j];
@@ -90,10 +89,10 @@ namespace PixiEditor.Models.Layers
                         unfinishedFolders.Push(currentFolder);
                     }
 
-                    groupsAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].LayerGuid);
+                    groupsAtIndex[j] = parsedFolders.First(x => x.StructureData.StartLayerGuid == layers[i].GuidValue);
                     groupsAtIndex[j].DisplayIndex = RootDirectoryItems.Count;
                     groupsAtIndex[j].TopIndex = CalculateTopIndex(group.DisplayIndex, group.StructureData, layers);
-                    if (groupsAtIndex[j].StructureData.EndLayerGuid != layers[i].LayerGuid)
+                    if (groupsAtIndex[j].StructureData.EndLayerGuid != layers[i].GuidValue)
                     {
                         currentFolder = groupsAtIndex[j];
                     }
@@ -103,8 +102,8 @@ namespace PixiEditor.Models.Layers
 
         private int CalculateTopIndex(int displayIndex, GuidStructureItem structureData, ObservableCollection<Layer> layers)
         {
-            var endLayer = layers.FirstOrDefault(x => x.LayerGuid == structureData.EndLayerGuid);
-            var bottomLayer = layers.FirstOrDefault(x => x.LayerGuid == structureData.StartLayerGuid);
+            var endLayer = layers.FirstOrDefault(x => x.GuidValue == structureData.EndLayerGuid);
+            var bottomLayer = layers.FirstOrDefault(x => x.GuidValue == structureData.StartLayerGuid);
             int originalTopIndex = 0;
             int originalBottomIndex = 0;
             if (endLayer != null)
@@ -145,18 +144,18 @@ namespace PixiEditor.Models.Layers
 
             foreach (var guid in layersInFolder)
             {
-                var layer = layers.FirstOrDefault(x => x.LayerGuid == guid);
+                var layer = layers.FirstOrDefault(x => x.GuidValue == guid);
                 if (layer != null)
                 {
-                    if (!layersInStructure.Contains(layer.LayerGuid))
+                    if (!layersInStructure.Contains(layer.GuidValue))
                     {
-                        layersInStructure.Add(layer.LayerGuid);
+                        layersInStructure.Add(layer.GuidValue);
                         structureItemLayers.Add(layer);
                     }
                 }
             }
 
-            int displayIndex = layersInFolder.Length > 0 ? layers.IndexOf(layers.First(x => x.LayerGuid == structureItem.StartLayerGuid)) : 0;
+            int displayIndex = layersInFolder.Length > 0 ? layers.IndexOf(layers.First(x => x.GuidValue == structureItem.StartLayerGuid)) : 0;
 
             structureItemLayers.Reverse();
 
@@ -171,8 +170,8 @@ namespace PixiEditor.Models.Layers
 
         private Guid[] GetLayersInGroup(ObservableCollection<Layer> layers, GuidStructureItem structureItem)
         {
-            var startLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.StartLayerGuid);
-            var endLayer = layers.FirstOrDefault(x => x.LayerGuid == structureItem.EndLayerGuid);
+            var startLayer = layers.FirstOrDefault(x => x.GuidValue == structureItem.StartLayerGuid);
+            var endLayer = layers.FirstOrDefault(x => x.GuidValue == structureItem.EndLayerGuid);
 
             if (startLayer == null || endLayer == null)
             {
@@ -193,7 +192,7 @@ namespace PixiEditor.Models.Layers
 
             for (int i = 0; i < len; i++)
             {
-                guids[i] = layers[i + startIndex].LayerGuid;
+                guids[i] = layers[i + startIndex].GuidValue;
             }
 
             return guids;
