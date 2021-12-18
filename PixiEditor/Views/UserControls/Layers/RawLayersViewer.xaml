@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.Layers.RawLayersViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:ui="clr-namespace:PixiEditor.Helpers.UI" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="250" Name="rawLayersControl">
+    <StackPanel DataContext="{Binding ElementName=rawLayersControl}">
+        <ItemsControl ItemsSource="{Binding Layers}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ui:ReversedOrderStackPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                        <Label Foreground="White" Content="{Binding Name}"/>
+                        <TextBlock Foreground="Wheat" Text="{Binding GuidValue}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Separator/>
+        <ItemsControl>
+            <ItemsControl.ItemsSource>
+                <MultiBinding Converter="{converters:LayerStructureToGroupsConverter}">
+                    <Binding Path="Structure"/>
+                    <Binding Path="Structure.Groups.Count"/>
+                    <Binding Path="Layers.Count"/>
+                </MultiBinding>
+            </ItemsControl.ItemsSource>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderThickness="1" BorderBrush="Black">
+                    <StackPanel>
+                            <Label Foreground="White" Content="{Binding Name}"/>
+                            <Label Foreground="White" Content="{Binding GroupGuid}"/>
+                            <StackPanel Orientation="Horizontal">
+                            <TextBlock Foreground="White" Text="Parent: "/>
+                                <TextBlock Foreground="Wheat" Text="{Binding Parent.Name}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Foreground="White" Text="End Layer: "/>
+                                <TextBlock Foreground="Wheat" Text="{Binding EndLayerGuid}"/>
+                        </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Foreground="White" Text="Start Layer: "/>
+                                <TextBlock Foreground="Wheat" Text="{Binding StartLayerGuid}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Foreground="White" Text="Subgroups: "/>
+                                <ItemsControl ItemsSource="{Binding Subgroups}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Foreground="Wheat" Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

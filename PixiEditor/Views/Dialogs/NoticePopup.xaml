@@ -4,12 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        mc:Ignorable="d"
+        mc:Ignorable="d" WindowStyle="None"
         Title="NoticePopup" Height="200" Width="500"
         x:Name="popup">
 
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"
+        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 

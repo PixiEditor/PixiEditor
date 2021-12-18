@@ -1,86 +1,44 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Input;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class ZoomTool : ReadonlyTool
+    internal class ZoomTool : ReadonlyTool
     {
-        public const float ZoomSensitivityMultiplier = 30f;
+        private BitmapManager BitmapManager { get; }
+        private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
 
-        private double startingX;
-
-        private double workAreaWidth = SystemParameters.WorkArea.Width;
-        private double pixelsPerZoomMultiplier;
-
-        public ZoomTool()
+        public ZoomTool(BitmapManager bitmapManager)
         {
-            HideHighlight = true;
-            CanStartOutsideCanvas = true;
-            ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
-            Tooltip = "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
-            pixelsPerZoomMultiplier = workAreaWidth / ZoomSensitivityMultiplier;
+            ActionDisplay = defaultActionDisplay;
+            BitmapManager = bitmapManager;
         }
 
-        public override void OnKeyDown(KeyEventArgs e)
+        public override bool HideHighlight => true;
+
+        public override string Tooltip => "Zooms viewport (Z). Click to zoom in, hold alt and click to zoom out.";
+
+        public override void OnKeyDown(Key key)
         {
-            if (e.Key == Key.LeftAlt)
+            if (key is Key.LeftCtrl)
             {
-                ActionDisplay = "Click and move to zoom. Click to zoom out, release alt and click to zoom in.";
+                ActionDisplay = "Click and move to zoom. Click to zoom out, release ctrl and click to zoom in.";
             }
         }
 
-        public override void OnKeyUp(KeyEventArgs e)
+        public override void OnKeyUp(Key key)
         {
-            if (e.Key == Key.LeftAlt)
+            if (key is Key.LeftCtrl)
             {
-                ActionDisplay = "Click and move to zoom. Click to zoom in, hold alt and click to zoom out.";
+                ActionDisplay = defaultActionDisplay;
             }
         }
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public override void Use(IReadOnlyList<Coordinates> pixels)
         {
-            startingX = MousePositionConverter.GetCursorPosition().X;
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ZoomPercentage = 100; // This resest the value, so callback in MainDrawingPanel can fire again later
-        }
-
-        public override void OnMouseMove(MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                double xPos = MousePositionConverter.GetCursorPosition().X;
-
-                double rawPercentDifference = (xPos - startingX) / pixelsPerZoomMultiplier; // negative - zoom out, positive - zoom in, linear
-                double finalPercentDifference = Math.Pow(2, rawPercentDifference) * 100.0; // less than 100 - zoom out, greater than 100 - zoom in
-                Zoom(finalPercentDifference);
-            }
-        }
-
-        public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Released && e.RightButton == MouseButtonState.Released &&
-                startingX == MousePositionConverter.GetCursorPosition().X)
-            {
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt))
-                {
-                    Zoom(85);
-                }
-                else
-                {
-                    Zoom(115);
-                }
-            }
-        }
-
-        public void Zoom(double percentage)
-        {
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ZoomPercentage = percentage;
-        }
-
-        public override void Use(Coordinates[] pixels)
-        {
+            // Implemented inside Zoombox.xaml.cs
         }
     }
 }

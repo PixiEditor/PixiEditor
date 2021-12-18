@@ -1,105 +1,144 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings;
+using PixiEditor.Models.Tools.Brushes;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
-using PixiEditor.ViewModels;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class PenTool : ShapeTool
+    internal class PenTool : ShapeTool
     {
+        public Brush Brush { get; set; }
+        public List<Brush> Brushes { get; } = new List<Brush>();
+
+
         private readonly SizeSetting toolSizeSetting;
         private readonly BoolSetting pixelPerfectSetting;
-        private readonly LineTool lineTool;
         private readonly List<Coordinates> confirmedPixels = new List<Coordinates>();
+        private readonly LineTool lineTool;
+        private SKPaint paint = new SKPaint() { Style = SKPaintStyle.Stroke };
         private Coordinates[] lastChangedPixels = new Coordinates[3];
-        private byte changedPixelsindex = 0;
+        private byte changedPixelsindex;
+        private Coordinates lastChangedPixel = new Coordinates(-1, -1);
 
-        public PenTool()
+        private BitmapManager BitmapManager { get; }
+
+
+        public PenTool(BitmapManager bitmapManager)
         {
             Cursor = Cursors.Pen;
             ActionDisplay = "Click and move to draw.";
-            Tooltip = "Standard brush. (B)";
             Toolbar = new PenToolbar();
             toolSizeSetting = Toolbar.GetSetting<SizeSetting>("ToolSize");
             pixelPerfectSetting = Toolbar.GetSetting<BoolSetting>("PixelPerfectEnabled");
-            pixelPerfectSetting.ValueChanged += PixelPerfectSettingValueChanged;
-            lineTool = new LineTool();
             ClearPreviewLayerOnEachIteration = false;
+            BitmapManager = bitmapManager;
+            paint.BlendMode = SKBlendMode.Src;
+            Brushes.Add(new CircleBrush());
+            Brush = Brushes[0];
+            lineTool = new LineTool
+            {
+                AutomaticallyResizeCanvas = AutomaticallyResizeCanvas
+            };
         }
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public override string Tooltip => "Standard brush. (B)";
+
+        public bool AutomaticallyResizeCanvas { get; set; } = true;
+
+        public override void BeforeUse()
         {
-            base.OnRecordingLeftMouseDown(e);
+            base.BeforeUse();
             changedPixelsindex = 0;
-            lastChangedPixels = new Coordinates[3];
+            lastChangedPixels = new Coordinates[] { new(-1, -1), new(-1, -1), new(-1, -1) };
+            lastChangedPixel = new(-1, -1);
             confirmedPixels.Clear();
         }
 
-        public override LayerChange[] Use(Layer layer, Coordinates[] coordinates, Color color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
-            Coordinates startingCords = coordinates.Length > 1 ? coordinates[1] : coordinates[0];
-            BitmapPixelChanges pixels = Draw(
+            Coordinates startingCords = recordedMouseMovement.Count > 1 ? recordedMouseMovement[^2] : recordedMouseMovement[0];
+            paint.Color = color;
+            if (AutomaticallyResizeCanvas)
+            {
+                int maxX = recordedMouseMovement.Max(x => x.X);
+                int maxY = recordedMouseMovement.Max(x => x.Y);
+                int minX = recordedMouseMovement.Min(x => x.X);
+                int minY = recordedMouseMovement.Min(x => x.Y);
+                previewLayer.DynamicResizeAbsolute(new(minX, minY, maxX - minX + 1, maxX - minX + 1));
+            }
+            Draw(
+                previewLayer,
                 startingCords,
-                coordinates[0],
+                recordedMouseMovement[^1],
                 color,
                 toolSizeSetting.Value,
                 pixelPerfectSetting.Value,
-                ViewModelMain.Current.BitmapManager.ActiveDocument.PreviewLayer);
-            return Only(pixels, layer);
+                BitmapManager.ActiveDocument.PreviewLayer);
         }
 
-        public BitmapPixelChanges Draw(Coordinates startingCoords, Coordinates latestCords, Color color, int toolSize, bool pixelPerfect = false, Layer previewLayer = null)
+        public void Draw(
+            Layer layer, Coordinates startingCoords, Coordinates latestCords, SKColor color, int toolSize,
+            bool pixelPerfect = false,
+            Layer previewLayer = null,
+            SKBlendMode blendMode = SKBlendMode.Src)
         {
+
+            SKStrokeCap cap = SKStrokeCap.Butt;
+            paint.Color = color;
+
             if (!pixelPerfect)
             {
-                return BitmapPixelChanges.FromSingleColoredArray(
-                    lineTool.CreateLine(startingCoords, latestCords, toolSize), color);
+                Brush.Draw(layer, toolSize, latestCords, paint);
+                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
+                return;
             }
 
-            if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).A > 0)
+            if (latestCords != lastChangedPixel)
             {
-                confirmedPixels.Add(latestCords);
+                if (previewLayer != null && previewLayer.GetPixelWithOffset(latestCords.X, latestCords.Y).Alpha > 0)
+                {
+                    confirmedPixels.Add(latestCords);
+                }
+
+                Brush.Draw(layer, toolSize, latestCords, paint);
+
+                lineTool.DrawLine(layer, startingCoords, latestCords, color, toolSize, blendMode, cap);
+                SetPixelToCheck(LineTool.GetBresenhamLine(startingCoords, latestCords));
+
+                if (changedPixelsindex == 2)
+                {
+                    byte alpha = ApplyPixelPerfectToPixels(
+                        layer,
+                        lastChangedPixels[0],
+                        lastChangedPixels[1],
+                        lastChangedPixels[2],
+                        color,
+                        toolSize,
+                        paint);
+
+                    MovePixelsToCheck(alpha);
+
+                    lastChangedPixel = latestCords;
+                    return;
+                }
+
+                changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
             }
 
-            var latestPixels = lineTool.CreateLine(startingCoords, latestCords, 1);
-            SetPixelToCheck(latestPixels);
-
-            if (changedPixelsindex == 2)
-            {
-                var changes = ApplyPixelPerfectToPixels(
-                    lastChangedPixels[0],
-                    lastChangedPixels[1],
-                    lastChangedPixels[2],
-                    color,
-                    toolSize);
-
-                MovePixelsToCheck(changes);
-
-                changes.ChangedPixels.AddRangeNewOnly(
-                    BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color).ChangedPixels);
-
-                return changes;
-            }
-
-            changedPixelsindex += changedPixelsindex >= 2 ? (byte)0 : (byte)1;
-
-            var result = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(latestPixels, toolSize), color);
-
-            return result;
+            lastChangedPixel = latestCords;
         }
 
-        private void MovePixelsToCheck(BitmapPixelChanges changes)
+        private void MovePixelsToCheck(byte alpha)
         {
-            if (changes.ChangedPixels[lastChangedPixels[1]].A != 0)
+            if (alpha != 0)
             {
                 lastChangedPixels[0] = lastChangedPixels[1];
                 lastChangedPixels[1] = lastChangedPixels[2];
@@ -124,24 +163,38 @@ namespace PixiEditor.Models.Tools.Tools
             }
         }
 
-        private BitmapPixelChanges ApplyPixelPerfectToPixels(Coordinates p1, Coordinates p2, Coordinates p3, Color color, int toolSize)
+        private byte ApplyPixelPerfectToPixels(Layer layer, Coordinates p1, Coordinates p2, Coordinates p3, SKColor color, int toolSize, SKPaint paint)
         {
+            byte alpha = color.Alpha;
+            paint.StrokeWidth = toolSize;
+
             if (Math.Abs(p3.X - p1.X) == 1 && Math.Abs(p3.Y - p1.Y) == 1 && !confirmedPixels.Contains(p2))
             {
-                var changes = BitmapPixelChanges.FromSingleColoredArray(GetThickShape(new Coordinates[] { p1, p3 }, toolSize), color);
-                changes.ChangedPixels.AddRangeNewOnly(
-                    BitmapPixelChanges.FromSingleColoredArray(
-                        GetThickShape(new[] { p2 }, toolSize),
-                        System.Windows.Media.Colors.Transparent).ChangedPixels);
-                return changes;
+                paint.Color = SKColors.Transparent;
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X - layer.OffsetX, p2.Y - layer.OffsetY, paint);
+                paint.Color = color;
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p1.X - layer.OffsetX, p1.Y - layer.OffsetY, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X - layer.OffsetX, p3.Y - layer.OffsetY, paint);
+
+                if (lastChangedPixels.Length > 1 && p2 == lastChangedPixels[1] /*Here might be a bug, I don't remember if it should be p2*/)
+                {
+                    alpha = 0;
+                }
+            }
+            else
+            {
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p2.X - layer.OffsetX, p2.Y - layer.OffsetY, paint);
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(p3.X - layer.OffsetX, p3.Y - layer.OffsetY, paint);
             }
 
-            return BitmapPixelChanges.FromSingleColoredArray(GetThickShape(new Coordinates[] { p2, p3 }.Distinct(), toolSize), color);
-        }
+            Int32Rect dirtyRect = new Int32Rect(
+               p2.X,
+               p2.Y,
+               2,
+               2);
 
-        private void PixelPerfectSettingValueChanged(object sender, SettingValueChangedEventArgs<bool> e)
-        {
-            RequiresPreviewLayer = e.NewValue;
+            layer.InvokeLayerBitmapChange(dirtyRect);
+            return alpha;
         }
     }
 }

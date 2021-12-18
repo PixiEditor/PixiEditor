@@ -1,45 +1,82 @@
-﻿using System.Windows;
-using System.Windows.Input;
+﻿using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Models.UserPreferences;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class StylusViewModel : SubViewModel<ViewModelMain>
     {
+        private bool isPenModeEnabled;
+        private bool useTouchGestures;
+
         public bool ToolSetByStylus { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether touch gestures are enabled even when the MoveViewportTool and ZoomTool are not selected.
+        /// </summary>
+        public bool IsPenModeEnabled
+        {
+            get => isPenModeEnabled;
+            set
+            {
+                if (SetProperty(ref isPenModeEnabled, value))
+                {
+                    IPreferences.Current.UpdateLocalPreference(nameof(IsPenModeEnabled), value);
+                    UpdateUseTouchGesture();
+                }
+            }
+        }
+
+        public bool UseTouchGestures
+        {
+            get => useTouchGestures;
+            set => SetProperty(ref useTouchGestures, value);
+        }
 
         private Tool PreviousTool { get; set; }
 
-        public StylusViewModel()
-            : this(null)
-        {
-        }
+        public RelayCommand<StylusButtonEventArgs> StylusDownCommand { get; }
+
+        public RelayCommand<StylusButtonEventArgs> StylusUpCommand { get; }
+
+        public RelayCommand<StylusEventArgs> StylusOutOfRangeCommand { get; }
+
+        public RelayCommand<StylusSystemGestureEventArgs> StylusGestureCommand { get; }
 
         public StylusViewModel(ViewModelMain owner)
             : base(owner)
         {
-            SetOwner(owner);
+            StylusDownCommand = new(StylusDown);
+            StylusUpCommand = new(StylusUp);
+            StylusOutOfRangeCommand = new(StylusOutOfRange);
+            StylusGestureCommand = new(StylusSystemGesture);
+
+            isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
+            Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
+
+            UpdateUseTouchGesture();
         }
 
-        public void SetOwner(ViewModelMain owner)
+        private void UpdateUseTouchGesture()
         {
-            if (Owner is not null)
+            if (Owner.ToolsSubViewModel.ActiveTool is not (MoveViewportTool or ZoomTool))
             {
-                throw new System.Exception("StylusViewModel already has an owner");
+                UseTouchGestures = IsPenModeEnabled;
             }
-
-            Owner = owner;
-
-            // TODO: Only capture it on the Drawing View Port
-            Window mw = Application.Current.MainWindow;
-
-            mw.PreviewStylusButtonDown += Mw_StylusButtonDown;
-            mw.PreviewStylusButtonUp += Mw_StylusButtonUp;
-            mw.PreviewStylusSystemGesture += Mw_PreviewStylusSystemGesture;
+            else
+            {
+                UseTouchGestures = true;
+            }
         }
 
-        private void Mw_PreviewStylusSystemGesture(object sender, StylusSystemGestureEventArgs e)
+        private void StylusOutOfRange(StylusEventArgs e)
+        {
+            Owner.BitmapManager.UpdateHighlightIfNecessary(true);
+        }
+
+        private void StylusSystemGesture(StylusSystemGestureEventArgs e)
         {
             if (e.SystemGesture == SystemGesture.Drag || e.SystemGesture == SystemGesture.Tap)
             {
@@ -49,19 +86,19 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             e.Handled = true;
         }
 
-        private void Mw_StylusButtonDown(object sender, StylusButtonEventArgs e)
+        private void StylusDown(StylusButtonEventArgs e)
         {
             e.Handled = true;
 
             if (e.StylusButton.Guid == StylusPointProperties.TipButton.Id && e.Inverted)
             {
-                PreviousTool = Owner.BitmapManager.SelectedTool;
+                PreviousTool = Owner.ToolsSubViewModel.ActiveTool;
                 Owner.ToolsSubViewModel.SetActiveTool<EraserTool>();
                 ToolSetByStylus = true;
             }
         }
 
-        private void Mw_StylusButtonUp(object sender, StylusButtonEventArgs e)
+        private void StylusUp(StylusButtonEventArgs e)
         {
             e.Handled = true;
 

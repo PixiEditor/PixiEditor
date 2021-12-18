@@ -1,6 +1,6 @@
-﻿using System;
-using System.Windows.Media;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
+using SkiaSharp;
+using System;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -12,9 +12,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand RemoveSwatchCommand { get; set; }
 
-        private Color primaryColor = Colors.Black;
+        private SKColor primaryColor = SKColors.Black;
 
-        public Color PrimaryColor // Primary color, hooked with left mouse button
+        public SKColor PrimaryColor // Primary color, hooked with left mouse button
         {
             get => primaryColor;
             set
@@ -28,9 +28,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private Color secondaryColor = Colors.White;
+        private SKColor secondaryColor = SKColors.White;
 
-        public Color SecondaryColor
+        public SKColor SecondaryColor
         {
             get => secondaryColor;
             set
@@ -58,7 +58,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SecondaryColor = tmp;
         }
 
-        public void AddSwatch(Color color)
+        public void AddSwatch(SKColor color)
         {
             if (!Owner.BitmapManager.ActiveDocument.Swatches.Contains(color))
             {
@@ -68,12 +68,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void RemoveSwatch(object parameter)
         {
-            if (!(parameter is Color))
+            if (!(parameter is SKColor))
             {
                 throw new ArgumentException();
             }
 
-            Color color = (Color)parameter;
+            SKColor color = (SKColor)parameter;
             if (Owner.BitmapManager.ActiveDocument.Swatches.Contains(color))
             {
                 Owner.BitmapManager.ActiveDocument.Swatches.Remove(color);
@@ -82,7 +82,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void SelectColor(object parameter)
         {
-            PrimaryColor = parameter as Color? ?? throw new ArgumentException();
+            PrimaryColor = parameter as SKColor? ?? throw new ArgumentException();
         }
     }
 }

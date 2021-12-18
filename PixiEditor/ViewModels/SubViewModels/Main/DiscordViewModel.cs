@@ -1,5 +1,6 @@
 ﻿using System;
 using DiscordRPC;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
 
@@ -30,7 +31,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private bool showDocumentName = IPreferences.Current.GetPreference(nameof(ShowDocumentName), true);
+        private bool showDocumentName = IPreferences.Current.GetPreference(nameof(ShowDocumentName), false);
 
         public bool ShowDocumentName
         {
@@ -116,7 +117,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
-                richPresence.Details = ShowDocumentName ? $"Editing {document.Name}" : "Editing something (incognito)";
+                richPresence.Details = ShowDocumentName ? $"Editing {document.Name}".Limit(128) : "Editing an image";
 
                 string state = string.Empty;
 
@@ -153,11 +154,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 Details = "Staring at absolutely",
                 State = "nothing",
-                Buttons = new Button[]
-                {
-                    new Button() { Label = "Download PixiEditor", Url = "https://www.github.com/PixiEditor/PixiEditor/releases/latest" },
-                    new Button() { Label = "Watch trailer", Url = "https://youtu.be/QKnXBUY0Pqk" }
-                },
 
                 Assets = new Assets
                 {

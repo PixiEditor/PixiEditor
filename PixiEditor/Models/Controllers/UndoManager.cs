@@ -1,15 +1,15 @@
-﻿using System;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Controllers
 {
     [DebuggerDisplay("{UndoStack.Count} undo steps, {RedoStack.Count} redo step(s)")]
-    public class UndoManager
+    public class UndoManager : IDisposable
     {
         private bool lastChangeWasUndo;
 
@@ -54,6 +54,10 @@ namespace PixiEditor.Models.Controllers
             // Clears RedoStack if last move wasn't redo or undo and if redo stack is greater than 0.
             if (lastChangeWasUndo == false && RedoStack.Count > 0)
             {
+                foreach (var redo in RedoStack)
+                {
+                    //redo.Dispose();
+                }
                 RedoStack.Clear();
             }
 
@@ -97,6 +101,82 @@ namespace PixiEditor.Models.Controllers
             }
 
             UndoStack.Push(change);
+        }
+
+        /// <summary>
+        /// Merges multiple undo changes into one.
+        /// </summary>
+        /// <param name="amount">Amount of changes to squash.</param>
+        public void SquashUndoChanges(int amount)
+        {
+            string description = UndoStack.ElementAt(UndoStack.Count - amount).Description;
+            if (string.IsNullOrEmpty(description))
+            {
+                description = $"Squash {amount} undo changes.";
+            }
+
+            SquashUndoChanges(amount, description);
+        }
+
+        /// <summary>
+        /// Merges multiple undo changes into one.
+        /// </summary>
+        /// <param name="amount">Amount of changes to squash.</param>
+        /// <param name="description">Final change description.</param>
+        public void SquashUndoChanges(int amount, string description, bool reverseOrderOnRedo = true)
+        {
+            Change[] changes = new Change[amount];
+            for (int i = 0; i < amount; i++)
+            {
+                changes[i] = UndoStack.Pop();
+            }
+
+            Action<object[]> reverseProcess = (object[] props) =>
+            {
+                foreach (var prop in props)
+                {
+                    Change change = (Change)prop;
+                    if (change.ReverseProcess == null)
+                    {
+                        SetPropertyValue(GetChangeRoot(change), change.Property, change.OldValue);
+                    }
+                    else
+                    {
+                        change.ReverseProcess(change.ReverseProcessArguments);
+                    }
+                }
+            };
+
+            Action<object[]> process = (object[] props) =>
+            {
+                var finalProps = reverseOrderOnRedo ? props.Reverse() : props;
+
+                foreach (var prop in finalProps)
+                {
+                    Change change = (Change)prop;
+                    if (change.Process == null)
+                    {
+                        SetPropertyValue(GetChangeRoot(change), change.Property, change.NewValue);
+                    }
+                    else
+                    {
+                        change.Process(change.ProcessArguments);
+                    }
+                }
+            };
+
+            Change change = new(reverseProcess, changes, process, changes, description);
+            AddUndoChange(change);
+        }
+
+        public void Dispose()
+        {
+            foreach (Change change in UndoStack.Concat(RedoStack))
+            {
+                change.Dispose();
+            }
+
+            GC.SuppressFinalize(this);
         }
 
         private bool ChangeIsBlockedProperty(Change change)

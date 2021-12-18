@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using PixiEditor.Helpers;
+using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -9,99 +11,208 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class DrawingViewPort : UserControl
     {
-        public DrawingViewPort()
-        {
-            InitializeComponent();
-        }
+        public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
+            DependencyProperty.Register(nameof(MiddleMouseClickedCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
-        public float ZoomPercentage
-        {
-            get { return (float)GetValue(ZoomPercentageProperty); }
-            set { SetValue(ZoomPercentageProperty, value); }
-        }
+        public static readonly DependencyProperty MouseMoveCommandProperty =
+            DependencyProperty.Register(nameof(MouseMoveCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
-        // Using a DependencyProperty as the backing store for ZoomPercentage.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ZoomPercentageProperty =
-            DependencyProperty.Register("ZoomPercentage", typeof(float), typeof(DrawingViewPort), new PropertyMetadata(100f));
+        public static readonly DependencyProperty MouseDownCommandProperty =
+            DependencyProperty.Register(nameof(MouseDownCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
-        public bool RecenterZoombox
-        {
-            get { return (bool)GetValue(RecenterZoomboxProperty); }
-            set { SetValue(RecenterZoomboxProperty, value); }
-        }
+        public static readonly DependencyProperty MouseUpCommandProperty =
+            DependencyProperty.Register(nameof(MouseUpCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
-        // Using a DependencyProperty as the backing store for RecenterZoombox.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RecenterZoomboxProperty =
-            DependencyProperty.Register("RecenterZoombox", typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
+        public static readonly DependencyProperty StylusButtonDownCommandProperty =
+            DependencyProperty.Register(nameof(StylusButtonDownCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusGestureCommandProperty =
+            DependencyProperty.Register(nameof(StylusGestureCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusButtonUpCommandProperty =
+            DependencyProperty.Register(nameof(StylusButtonUpCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusOutOfRangeCommandProperty =
+            DependencyProperty.Register(nameof(StylusOutOfRangeCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty MouseXOnCanvasProperty =
+            DependencyProperty.Register(nameof(MouseXOnCanvas), typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
+
+        public static readonly DependencyProperty MouseYOnCanvasProperty =
+            DependencyProperty.Register(nameof(MouseYOnCanvas), typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
+
+        public static readonly DependencyProperty GridLinesVisibleProperty =
+            DependencyProperty.Register(nameof(GridLinesVisible), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty IsUsingZoomToolProperty =
+            DependencyProperty.Register(nameof(IsUsingZoomTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false, ToolChanged));
+
+        public static readonly DependencyProperty IsUsingMoveViewportToolProperty =
+            DependencyProperty.Register(nameof(IsUsingMoveViewportTool), typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false, ToolChanged));
+
+        public static readonly DependencyProperty CenterViewportTriggerProperty =
+            DependencyProperty.Register(nameof(CenterViewportTrigger), typeof(ExecutionTrigger<Size>), typeof(DrawingViewPort),
+                new PropertyMetadata(default(ExecutionTrigger<Size>), CenterViewportTriggerChanged));
+
+        public static readonly DependencyProperty ZoomViewportTriggerProperty =
+            DependencyProperty.Register(nameof(ZoomViewportTrigger), typeof(ExecutionTrigger<double>), typeof(DrawingViewPort),
+                new PropertyMetadata(default(ExecutionTrigger<double>), ZoomViewportTriggerChanged));
+
+        public static readonly DependencyProperty UseTouchGesturesProperty =
+            DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(DrawingViewPort));
 
         public ICommand MiddleMouseClickedCommand
         {
-            get { return (ICommand)GetValue(MiddleMouseClickedCommandProperty); }
-            set { SetValue(MiddleMouseClickedCommandProperty, value); }
+            get => (ICommand)GetValue(MiddleMouseClickedCommandProperty);
+            set => SetValue(MiddleMouseClickedCommandProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for MiddleMouseClickedCommand.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
-            DependencyProperty.Register("MiddleMouseClickedCommand", typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
-
-        public Point ViewportPosition
-        {
-            get { return (Point)GetValue(ViewportPositionProperty); }
-            set { SetValue(ViewportPositionProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for ViewportPosition.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ViewportPositionProperty =
-            DependencyProperty.Register("ViewportPosition", typeof(Point), typeof(DrawingViewPort), new PropertyMetadata(default(Point)));
 
         public ICommand MouseMoveCommand
         {
-            get { return (ICommand)GetValue(MouseMoveCommandProperty); }
-            set { SetValue(MouseMoveCommandProperty, value); }
+            get => (ICommand)GetValue(MouseMoveCommandProperty);
+            set => SetValue(MouseMoveCommandProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for MouseMoveCommand.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MouseMoveCommandProperty =
-            DependencyProperty.Register("MouseMoveCommand", typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
         public ICommand MouseDownCommand
         {
-            get { return (ICommand)GetValue(MouseDownCommandProperty); }
-            set { SetValue(MouseDownCommandProperty, value); }
+            get => (ICommand)GetValue(MouseDownCommandProperty);
+            set => SetValue(MouseDownCommandProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for MouseDownCommand.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MouseDownCommandProperty =
-            DependencyProperty.Register("MouseDownCommand", typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+        public ICommand MouseUpCommand
+        {
+            get => (ICommand)GetValue(MouseUpCommandProperty);
+            set => SetValue(MouseUpCommandProperty, value);
+        }
+
+        public ICommand StylusButtonDownCommand
+        {
+            get => (ICommand)GetValue(StylusButtonDownCommandProperty);
+            set => SetValue(StylusButtonDownCommandProperty, value);
+        }
+
+        public ICommand StylusButtonUpCommand
+        {
+            get => (ICommand)GetValue(StylusButtonUpCommandProperty);
+            set => SetValue(StylusButtonUpCommandProperty, value);
+        }
+
+        public ICommand StylusGestureCommand
+        {
+            get => (ICommand)GetValue(StylusGestureCommandProperty);
+            set => SetValue(StylusGestureCommandProperty, value);
+        }
+
+        public ICommand StylusOutOfRangeCommand
+        {
+            get => (ICommand)GetValue(StylusOutOfRangeCommandProperty);
+            set => SetValue(StylusOutOfRangeCommandProperty, value);
+        }
 
         public double MouseXOnCanvas
         {
-            get { return (double)GetValue(MouseXOnCanvasProperty); }
-            set { SetValue(MouseXOnCanvasProperty, value); }
+            get => (double)GetValue(MouseXOnCanvasProperty);
+            set => SetValue(MouseXOnCanvasProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for MouseXOnCanvas.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MouseXOnCanvasProperty =
-            DependencyProperty.Register("MouseXOnCanvas", typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
 
         public double MouseYOnCanvas
         {
-            get { return (double)GetValue(MouseYOnCanvasProperty); }
-            set { SetValue(MouseYOnCanvasProperty, value); }
+            get => (double)GetValue(MouseYOnCanvasProperty);
+            set => SetValue(MouseYOnCanvasProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for MouseXOnCanvas.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MouseYOnCanvasProperty =
-            DependencyProperty.Register("MouseYOnCanvas", typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
 
         public bool GridLinesVisible
         {
-            get { return (bool)GetValue(GridLinesVisibleProperty); }
-            set { SetValue(GridLinesVisibleProperty, value); }
+            get => (bool)GetValue(GridLinesVisibleProperty);
+            set => SetValue(GridLinesVisibleProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for GridLinesVisible.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty GridLinesVisibleProperty =
-            DependencyProperty.Register("GridLinesVisible", typeof(bool), typeof(DrawingViewPort), new PropertyMetadata(false));
+        public bool IsUsingZoomTool
+        {
+            get => (bool)GetValue(IsUsingZoomToolProperty);
+            set => SetValue(IsUsingZoomToolProperty, value);
+        }
+
+        public bool IsUsingMoveViewportTool
+        {
+            get => (bool)GetValue(IsUsingMoveViewportToolProperty);
+            set => SetValue(IsUsingMoveViewportToolProperty, value);
+        }
+        public bool UseTouchGestures
+        {
+            get => (bool)GetValue(UseTouchGesturesProperty);
+            set => SetValue(UseTouchGesturesProperty, value);
+        }
+
+        public ExecutionTrigger<Size> CenterViewportTrigger
+        {
+            get => (ExecutionTrigger<Size>)GetValue(CenterViewportTriggerProperty);
+            set => SetValue(CenterViewportTriggerProperty, value);
+        }
+
+        public ExecutionTrigger<double> ZoomViewportTrigger
+        {
+            get => (ExecutionTrigger<double>)GetValue(ZoomViewportTriggerProperty);
+            set => SetValue(ZoomViewportTriggerProperty, value);
+        }
+
+        public RelayCommand PreviewMouseDownCommand { get; private set; }
+        private static void ToolChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var panel = (DrawingViewPort)sender;
+            if (panel.IsUsingZoomTool)
+                panel.zoombox.ZoomMode = Zoombox.Mode.ZoomTool;
+            else if (panel.IsUsingMoveViewportTool)
+                panel.zoombox.ZoomMode = Zoombox.Mode.MoveTool;
+            else
+                panel.zoombox.ZoomMode = Zoombox.Mode.Normal;
+        }
+
+        private static void CenterViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var viewport = (DrawingViewPort)sender;
+            if (args.OldValue != null)
+                ((ExecutionTrigger<Size>)args.OldValue).Triggered -= viewport.CenterZoomboxContent;
+            ((ExecutionTrigger<Size>)args.NewValue).Triggered += viewport.CenterZoomboxContent;
+        }
+
+        private static void ZoomViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var viewport = (DrawingViewPort)sender;
+            if (args.OldValue != null)
+                ((ExecutionTrigger<double>)args.OldValue).Triggered -= viewport.ZoomZoomboxContent;
+            ((ExecutionTrigger<double>)args.NewValue).Triggered += viewport.ZoomZoomboxContent;
+        }
+
+        private bool loaded = false;
+
+        public DrawingViewPort()
+        {
+            PreviewMouseDownCommand = new RelayCommand(ProcessMouseDown);
+            InitializeComponent();
+        }
+
+        private void CenterZoomboxContent(object sender, Size args)
+        {
+            zoombox.CenterContent(args);
+        }
+        private void ZoomZoomboxContent(object sender, double args)
+        {
+            zoombox.ZoomIntoCenter(args);
+        }
+
+        private void ProcessMouseDown(object parameter)
+        {
+            if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(null))
+                MiddleMouseClickedCommand.Execute(null);
+        }
+
+        private void OnCanvasLoaded(object sender, EventArgs e)
+        {
+            if (loaded)
+                return;
+            zoombox.CenterContent();
+            loaded = true;
+        }
     }
 }

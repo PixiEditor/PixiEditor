@@ -1,17 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
+using PixiEditor.Views.Dialogs;
 using System;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Input;
-using PixiEditor.ViewModels.SubViewModels.Main;
 using System.Diagnostics;
 using System.Linq;
-using PixiEditor.Views.Dialogs;
-using System.Windows.Media;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor
 {
@@ -22,29 +22,28 @@ namespace PixiEditor
     {
         private static WriteableBitmap pixiEditorLogo;
 
-        private PreferencesSettings preferences;
+        private readonly IPreferences preferences;
 
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
-            preferences = new PreferencesSettings();
+            IServiceProvider services = new ServiceCollection()
+                .AddPixiEditor()
+                .BuildServiceProvider();
 
-            IServiceCollection services = new ServiceCollection()
-                .AddSingleton<IPreferences>(preferences)
-                .AddSingleton<StylusViewModel>()
-                .AddSingleton<WindowViewModel>();
-
-            DataContext = new ViewModelMain(services.BuildServiceProvider());
+            preferences = services.GetRequiredService<IPreferences>();
+            DataContext = services.GetRequiredService<ViewModelMain>();
+            DataContext.Setup(services);
 
             InitializeComponent();
 
             pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
-            StateChanged += MainWindowStateChangeRaised;
+            UpdateWindowChromeBorderThickness();
+            StateChanged += MainWindow_StateChanged;
             Activated += MainWindow_Activated;
 
-            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
@@ -60,6 +59,8 @@ namespace PixiEditor
                     UpdateTaskbarIcon(null);
                 }
             });
+
+            OnReleaseBuild();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -68,10 +69,22 @@ namespace PixiEditor
             DataContext.DiscordViewModel.Dispose();
         }
 
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            ((HwndSource)PresentationSource.FromVisual(this)).AddHook(Helpers.WindowSizeHelper.SetMaxSizeHook);
+        }
+
         [Conditional("RELEASE")]
         private static void CloseHelloThereIfRelease()
         {
             Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
+        }
+
+        [Conditional("RELEASE")]
+        private void OnReleaseBuild()
+        {
+            rawLayerAnchorable.Hide();
         }
 
         private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
@@ -128,8 +141,22 @@ namespace PixiEditor
             CloseHelloThereIfRelease();
         }
 
-        private void MainWindowStateChangeRaised(object sender, EventArgs e)
+        private void UpdateWindowChromeBorderThickness()
         {
+            if (WindowState == WindowState.Maximized)
+            {
+                windowsChrome.ResizeBorderThickness = new Thickness(0, 0, 0, 0);
+            }
+            else
+            {
+                windowsChrome.ResizeBorderThickness = new Thickness(5, 5, 5, 5);
+            }
+        }
+
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            UpdateWindowChromeBorderThickness();
+
             if (WindowState == WindowState.Maximized)
             {
                 RestoreButton.Visibility = Visibility.Visible;

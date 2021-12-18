@@ -1,11 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Tools;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Undo;
+using System;
+using System.IO;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -15,49 +11,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand RedoCommand { get; set; }
 
-        private LayerChange[] undoChanges;
-
-        public LayerChange[] UndoChanges // This acts like UndoManager process, but it was implemented before process system, so it can be transformed into it
-        {
-            get => undoChanges;
-            set
-            {
-                undoChanges = value;
-                for (int i = 0; i < value.Length; i++)
-                {
-                    Owner.BitmapManager.ActiveDocument.Layers.First(x => x.LayerGuid == value[i].LayerGuid).SetPixels(value[i].PixelChanges);
-                }
-            }
-        }
+        public event EventHandler UndoRedoCalled;
 
         public UndoViewModel(ViewModelMain owner)
             : base(owner)
         {
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
-            if (!Directory.Exists(StorageBasedChange.DefaultUndoChangeLocation))
-            {
-                Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
-            }
 
-            ClearUndoTempDirectory();
-        }
+            var result = Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
 
-        public void TriggerNewUndoChange(Tool toolUsed)
-        {
-            if (BitmapManager.IsOperationTool(toolUsed)
-                && ((BitmapOperationTool)toolUsed).UseDefaultUndoMethod)
-            {
-                Tuple<LayerChange, LayerChange>[] changes = Owner.ChangesController.PopChanges();
-                if (changes != null && changes.Length > 0)
-                {
-                    LayerChange[] newValues = changes.Select(x => x.Item1).ToArray();
-                    LayerChange[] oldValues = changes.Select(x => x.Item2).ToArray();
-                    Owner.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                        new Change("UndoChanges", oldValues, newValues, root: this));
-                    toolUsed.AfterAddedUndo(Owner.BitmapManager.ActiveDocument.UndoManager);
-                }
-            }
+            //ClearUndoTempDirectory();
         }
 
         /// <summary>
@@ -66,7 +30,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandProperty.</param>
         public void Redo(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
+            UndoRedoCalled?.Invoke(this, EventArgs.Empty);
+
+            //sometimes CanRedo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
+            if (CanRedo(null))
+                Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
         }
 
         /// <summary>
@@ -75,7 +43,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandParameter.</param>
         public void Undo(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
+            UndoRedoCalled?.Invoke(this, EventArgs.Empty);
+
+            //sometimes CanUndo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
+            if (CanUndo(null))
+                Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
         }
 
         /// <summary>

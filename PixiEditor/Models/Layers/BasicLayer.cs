@@ -1,10 +1,10 @@
-﻿using System;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
+using System;
 
 namespace PixiEditor.Models.Layers
 {
     [Serializable]
-    public class BasicLayer : NotifyableObject
+    public class BasicLayer : NotifyableObject, IHasGuid
     {
         private int height;
 
@@ -30,6 +30,6 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public Guid LayerGuid { get; protected set; }
+        public Guid GuidValue { get; protected set; }
     }
 }

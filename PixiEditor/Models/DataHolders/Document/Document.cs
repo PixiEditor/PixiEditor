@@ -1,36 +1,28 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.Layers;
+using PixiEditor.Models.Layers.Utils;
+using PixiEditor.Models.Position;
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
+using SkiaSharp;
+using System;
 using System.Buffers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.DataHolders
 {
     [DebuggerDisplay("'{Name, nq}' {width}x{height} {Layers.Count} Layer(s)")]
-    public partial class Document : NotifyableObject
+    public partial class Document : NotifyableObject, IDisposable
     {
-        private int height;
-        private int width;
 
         private ViewModelMain xamlAccesibleViewModel = null;
-
         public ViewModelMain XamlAccesibleViewModel // Used to access ViewModelMain, without changing DataContext in XAML
         {
             get => xamlAccesibleViewModel;
@@ -47,20 +39,22 @@ namespace PixiEditor.Models.DataHolders
                 + (!ChangesSaved ? " *" : string.Empty);
         }
 
+        private int width = 1;
         public int Width
         {
             get => width;
-            set
+            private set
             {
                 width = value;
-                RaisePropertyChanged("Width");
+                RaisePropertyChanged(nameof(Width));
             }
         }
 
+        private int height = 1;
         public int Height
         {
             get => height;
-            set
+            private set
             {
                 height = value;
                 RaisePropertyChanged("Height");
@@ -80,9 +74,6 @@ namespace PixiEditor.Models.DataHolders
         }
 
         private double mouseXonCanvas;
-
-        private double mouseYonCanvas;
-
         public double MouseXOnCanvas // Mouse X coordinate relative to canvas
         {
             get => mouseXonCanvas;
@@ -93,6 +84,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        private double mouseYonCanvas;
         public double MouseYOnCanvas // Mouse Y coordinate relative to canvas
         {
             get => mouseYonCanvas;
@@ -103,60 +95,26 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private double zoomPercentage = 100;
+        public bool Disposed { get; private set; } = false;
 
-        public double ZoomPercentage
-        {
-            get => zoomPercentage;
-            set
-            {
-                zoomPercentage = value;
-                RaisePropertyChanged(nameof(ZoomPercentage));
-            }
-        }
-
-        private Point viewPortPosition;
-
-        public Point ViewportPosition
-        {
-            get => viewPortPosition;
-            set
-            {
-                viewPortPosition = value;
-                RaisePropertyChanged(nameof(ViewportPosition));
-            }
-        }
-
-        private bool recenterZoombox = true;
-
-        public bool RecenterZoombox
-        {
-            get => recenterZoombox;
-            set
-            {
-                recenterZoombox = value;
-                RaisePropertyChanged(nameof(RecenterZoombox));
-            }
-        }
+        public ExecutionTrigger<Size> CenterViewportTrigger { get; } = new();
+        public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new();
 
         public UndoManager UndoManager { get; set; }
 
-        public void CenterViewport()
-        {
-            RecenterZoombox = false; // It's a trick to trigger change in UserControl
-            RecenterZoombox = true;
-            ViewportPosition = default;
-            ZoomPercentage = default;
-        }
+        public ObservableCollection<SKColor> Swatches { get; set; } = new ObservableCollection<SKColor>();
 
-        public ObservableCollection<Color> Swatches { get; set; } = new ObservableCollection<Color>();
+        public void RaisePropertyChange(string name)
+        {
+            RaisePropertyChanged(name);
+        }
 
         /// <summary>
         ///     Resizes canvas, so it fits exactly the size of drawn content, without any transparent pixels outside.
         /// </summary>
         public void ClipCanvas()
         {
-            DoubleCords points = GetEdgePoints(Layers);
+            DoubleCoords points = GetEdgePoints(Layers);
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
             int biggestX = points.Coords2.X;
@@ -176,11 +134,11 @@ namespace PixiEditor.Models.DataHolders
             int oldHeight = Height;
 
             MoveOffsets(Layers, moveVector);
-            Width = width;
-            Height = height;
 
             object[] reverseArguments = { oldOffsets, oldWidth, oldHeight };
             object[] processArguments = { Layers.Select(x => x.Offset).ToArray(), width, height };
+
+            ResizeCanvasProcess(processArguments);
 
             UndoManager.AddUndoChange(new Change(
                 ResizeCanvasProcess,
@@ -195,13 +153,13 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void CenterContent()
         {
-            var layersToCenter = Layers.Where(x => x.IsActive && x.IsVisible);
-            if (layersToCenter.Count() == 0)
+            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure));
+            if (!layersToCenter.Any())
             {
                 return;
             }
 
-            DoubleCords points = GetEdgePoints(layersToCenter);
+            DoubleCoords points = GetEdgePoints(layersToCenter);
 
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
@@ -229,10 +187,19 @@ namespace PixiEditor.Models.DataHolders
                     "Center content"));
         }
 
+        public void Dispose()
+        {
+            if (Disposed)
+                return;
+            Disposed = true;
+            DisposeLayerBitmaps();
+            UndoManager.Dispose();
+
+            GC.SuppressFinalize(this);
+        }
+
         private void SetAsActiveOnClick(object obj)
         {
-            XamlAccesibleViewModel.BitmapManager.MouseController.StopRecordingMouseMovementChanges();
-            XamlAccesibleViewModel.BitmapManager.MouseController.StartRecordingMouseMovementChanges(true);
             if (XamlAccesibleViewModel.BitmapManager.ActiveDocument != this)
             {
                 XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
@@ -248,12 +215,12 @@ namespace PixiEditor.Models.DataHolders
         {
             if (anchor.HasFlag(AnchorPoint.Center))
             {
-                return Math.Abs((destWidth / 2) - (srcWidth / 2));
+                return (destWidth / 2) - (srcWidth / 2);
             }
 
             if (anchor.HasFlag(AnchorPoint.Right))
             {
-                return Math.Abs(destWidth - srcWidth);
+                return destWidth - srcWidth;
             }
 
             return 0;
@@ -263,29 +230,28 @@ namespace PixiEditor.Models.DataHolders
         {
             if (anchor.HasFlag(AnchorPoint.Middle))
             {
-                return Math.Abs((destHeight / 2) - (srcHeight / 2));
+                return (destHeight / 2) - (srcHeight / 2);
             }
 
             if (anchor.HasFlag(AnchorPoint.Bottom))
             {
-                return Math.Abs(destHeight - srcHeight);
+                return destHeight - srcHeight;
             }
 
             return 0;
         }
 
-        private DoubleCords GetEdgePoints(IEnumerable<Layer> layers)
+        private DoubleCoords GetEdgePoints(IEnumerable<Layer> layers)
         {
             if (Layers.Count == 0)
             {
                 throw new ArgumentException("Not enough layers");
             }
 
-            Layer firstLayer = layers.First();
-            int smallestX = firstLayer.OffsetX;
-            int smallestY = firstLayer.OffsetY;
-            int biggestX = smallestX + firstLayer.Width;
-            int biggestY = smallestY + firstLayer.Height;
+            int smallestX = int.MaxValue;
+            int smallestY = int.MaxValue;
+            int biggestX = int.MinValue;
+            int biggestY = int.MinValue;
 
             foreach (Layer layer in layers)
             {
@@ -311,7 +277,7 @@ namespace PixiEditor.Models.DataHolders
                 }
             }
 
-            return new DoubleCords(
+            return new DoubleCoords(
                 new Coordinates(smallestX, smallestY),
                 new Coordinates(biggestX, biggestY));
         }

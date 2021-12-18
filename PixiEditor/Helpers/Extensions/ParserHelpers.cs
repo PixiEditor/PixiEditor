@@ -1,84 +1,158 @@
 ﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
+using PixiEditor.Parser;
+using PixiEditor.Parser.Skia;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows;
-using System.Windows.Media;
-using SDColor = System.Drawing.Color;
 
 namespace PixiEditor.Helpers.Extensions
 {
     public static class ParserHelpers
     {
-        public static Document ToDocument(this Parser.SerializableDocument serializableDocument)
+        public static Document ToDocument(this SerializableDocument serializableDocument)
         {
             Document document = new Document(serializableDocument.Width, serializableDocument.Height)
             {
                 Layers = serializableDocument.ToLayers(),
-                Swatches = new ObservableCollection<Color>(serializableDocument.Swatches.Select(x =>
-                    Color.FromArgb(x.A, x.R, x.G, x.B)))
+                Swatches = new ObservableCollection<SKColor>(serializableDocument.Swatches.ToSKColors())
             };
+
+            document.LayerStructure.Groups = serializableDocument.ToGroups(document);
 
             if (document.Layers.Count > 0)
             {
                 document.SetMainActiveLayer(0);
             }
+            document.Renderer.ForceRerender();
 
             return document;
         }
 
-        public static ObservableCollection<Layer> ToLayers(this Parser.SerializableDocument serializableDocument)
+        public static WpfObservableRangeCollection<Layer> ToLayers(this SerializableDocument document)
         {
-            ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
-            for (int i = 0; i < serializableDocument.Layers.Count; i++)
+            WpfObservableRangeCollection<Layer> layers = new();
+            foreach (SerializableLayer slayer in document)
             {
-                Parser.SerializableLayer serLayer = serializableDocument.Layers[i];
-                Layer layer =
-                    new Layer(serLayer.Name, BitmapUtils.BytesToWriteableBitmap(serLayer.Width, serLayer.Height, serLayer.BitmapBytes))
-                    {
-                        IsVisible = serLayer.IsVisible,
-                        Offset = new Thickness(serLayer.OffsetX, serLayer.OffsetY, 0, 0),
-                        Opacity = serLayer.Opacity,
-                        MaxHeight = serializableDocument.Height,
-                        MaxWidth = serializableDocument.Width,
-                    };
-                layers.Add(layer);
+                layers.Add(slayer.ToLayer());
             }
 
             return layers;
         }
 
-        public static Parser.SerializableDocument ToSerializable(this Document document)
+        public static Layer ToLayer(this SerializableLayer layer)
         {
-            Parser.SerializableDocument serializable = new Parser.SerializableDocument
+            return new Layer(layer.Name, new Surface(layer.ToSKImage()))
             {
-                Width = document.Width,
-                Height = document.Height,
-                Layers = document.Layers.Select(x => x.ToSerializable()).ToList(),
-                Swatches = document.Swatches.Select(x => SDColor.FromArgb(x.A, x.R, x.G, x.B)).ToList()
+                Opacity = layer.Opacity,
+                IsVisible = layer.IsVisible,
+                Offset = new(layer.OffsetX, layer.OffsetY, 0, 0)
             };
+        }
+
+        public static WpfObservableRangeCollection<GuidStructureItem> ToGroups(this SerializableDocument sdocument, Document document)
+        {
+            WpfObservableRangeCollection<GuidStructureItem> groups = new();
+
+            if (sdocument.Groups == null)
+            {
+                return groups;
+            }
+
+            foreach (SerializableGroup sgroup in sdocument.Groups)
+            {
+                groups.Add(sgroup.ToGroup(null, document));
+            }
+
+            return groups;
+        }
+
+        public static GuidStructureItem ToGroup(this SerializableGroup sgroup, GuidStructureItem parent, Document document)
+        {
+            GuidStructureItem group = new GuidStructureItem(sgroup.Name, Guid.Empty)
+            {
+                Opacity = sgroup.Opacity,
+                IsVisible = sgroup.IsVisible,
+                Parent = parent,
+                StartLayerGuid = document.Layers[sgroup.StartLayer].GuidValue,
+                EndLayerGuid = document.Layers[sgroup.EndLayer].GuidValue
+            };
+
+            group.Subgroups = new(sgroup.Subgroups.ToGroups(document, group));
+
+            return group;
+        }
+
+        public static SerializableDocument ToSerializable(this Document document)
+        {
+            return new SerializableDocument(document.Width, document.Height,
+                                            document.LayerStructure.Groups.ToSerializable(document),
+                                            document.Layers.ToSerializable()).AddSwatches(document.Swatches);
+        }
+
+        public static IEnumerable<SerializableLayer> ToSerializable(this IEnumerable<Layer> layers)
+        {
+            foreach (Layer layer in layers)
+            {
+                yield return layer.ToSerializable();
+            }
+        }
+
+        public static SerializableLayer ToSerializable(this Layer layer)
+        {
+            return new SerializableLayer(layer.Width, layer.Height, layer.OffsetX, layer.OffsetY)
+            {
+                IsVisible = layer.IsVisible,
+                Opacity = layer.Opacity,
+                Name = layer.Name
+            }.FromSKImage(layer.LayerBitmap.SkiaSurface.Snapshot());
+        }
+
+        public static IEnumerable<SerializableGroup> ToSerializable(this IEnumerable<GuidStructureItem> groups, Document document)
+        {
+            foreach (GuidStructureItem group in groups)
+            {
+                yield return group.ToSerializable(document);
+            }
+        }
+
+        public static SerializableGroup ToSerializable(this GuidStructureItem group, Document document)
+        {
+            SerializableGroup serializable = new SerializableGroup(group.Name, group.Subgroups.ToSerializable(document))
+            {
+                Opacity = group.Opacity,
+                IsVisible = group.IsVisible
+            };
+
+            for (int i = 0; i < document.Layers.Count; i++)
+            {
+                if (group.StartLayerGuid == document.Layers[i].GuidValue)
+                {
+                    serializable.StartLayer = i;
+                }
+
+                if (group.EndLayerGuid == document.Layers[i].GuidValue)
+                {
+                    serializable.EndLayer = i;
+                }
+            }
 
             return serializable;
         }
 
-        public static Parser.SerializableLayer ToSerializable(this Layer layer)
+        private static IEnumerable<GuidStructureItem> ToGroups(this IEnumerable<SerializableGroup> groups, Document document, GuidStructureItem parent)
         {
-            Parser.SerializableLayer serializable = new Parser.SerializableLayer
+            foreach (SerializableGroup sgroup in groups)
             {
-                Name = layer.Name,
-                Width = layer.Width,
-                Height = layer.Height,
-                BitmapBytes = layer.ConvertBitmapToBytes(),
-                IsVisible = layer.IsVisible,
-                OffsetX = (int)layer.Offset.Left,
-                OffsetY = (int)layer.Offset.Top,
-                Opacity = layer.Opacity,
-                MaxWidth = layer.MaxWidth,
-                MaxHeight = layer.MaxHeight
-            };
+                yield return sgroup.ToGroup(parent, document);
+            }
+        }
 
-            return serializable;
+        private static SerializableDocument AddSwatches(this SerializableDocument document, IEnumerable<SKColor> colors)
+        {
+            document.Swatches.AddRange(colors);
+            return document;
         }
     }
 }

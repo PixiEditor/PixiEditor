@@ -1,51 +1,28 @@
-﻿using System.Drawing;
+﻿using PixiEditor.Models.Position;
+using PixiEditor.ViewModels.SubViewModels.Main;
+using System.Collections.Generic;
 using System.Windows.Input;
-using PixiEditor.Models.Position;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class MoveViewportTool : ReadonlyTool
     {
-        private Point clickPoint;
+        private ToolsViewModel ToolsViewModel { get; }
 
-        public MoveViewportTool()
+        public MoveViewportTool(ToolsViewModel toolsViewModel)
         {
-            HideHighlight = true;
             Cursor = Cursors.SizeAll;
             ActionDisplay = "Click and move to pan viewport.";
-            Tooltip = "Move viewport. (H)";
+
+            ToolsViewModel = toolsViewModel;
         }
 
-        public override void OnMouseDown(MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
-            {
-                clickPoint = MousePositionConverter.GetCursorPosition();
-            }
-        }
+        public override bool HideHighlight => true;
+        public override string Tooltip => "Move viewport. (Space)";
 
-        public override void OnMouseMove(MouseEventArgs e)
+        public override void Use(IReadOnlyList<Coordinates> pixels)
         {
-            if (e.LeftButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
-            {
-                var point = MousePositionConverter.GetCursorPosition();
-                ViewModelMain.Current.BitmapManager.ActiveDocument.ViewportPosition = new System.Windows.Point(
-                    point.X - clickPoint.X,
-                    point.Y - clickPoint.Y);
-            }
-        }
-
-        public override void OnMouseUp(MouseEventArgs e)
-        {
-            if (e.MiddleButton == MouseButtonState.Pressed)
-            {
-                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool(ViewModelMain.Current.ToolsSubViewModel.LastActionTool);
-            }
-        }
-
-        public override void Use(Coordinates[] pixels)
-        {
+            // Implemented inside Zoombox.xaml.cs
         }
     }
 }

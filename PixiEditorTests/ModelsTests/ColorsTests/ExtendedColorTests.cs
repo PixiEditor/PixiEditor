@@ -1,6 +1,6 @@
-﻿using System;
-using System.Windows.Media;
-using PixiEditor.Models.Colors;
+﻿using PixiEditor.Models.Colors;
+using SkiaSharp;
+using System;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ColorsTests
@@ -12,15 +12,15 @@ namespace PixiEditorTests.ModelsTests.ColorsTests
         [Fact]
         public void ChangeColorBrightnessIsNotTheSameTest()
         {
-            Color newColor = ExColor.ChangeColorBrightness(Colors.White, -1);
-            Assert.NotEqual(Colors.White, newColor);
+            SKColor newColor = ExColor.ChangeColorBrightness(SKColors.White, -1);
+            Assert.NotEqual(SKColors.White, newColor);
         }
 
         [Fact]
         public void ChangeColorBrightnessNewValueTest()
         {
-            Color newColor = ExColor.ChangeColorBrightness(Colors.White, -100);
-            Assert.Equal(Colors.Black, newColor);
+            SKColor newColor = ExColor.ChangeColorBrightness(SKColors.White, -100);
+            Assert.Equal(SKColors.Black, newColor);
         }
 
         // Acceptable margin of error is 1
@@ -49,10 +49,10 @@ namespace PixiEditorTests.ModelsTests.ColorsTests
         [InlineData(271, 75.9f, 52.7f, 137, 43, 226)]
         public void HslToRgbTest(int h, float s, float l, int r, int g, int b)
         {
-            Color rgb = ExColor.HslToRgb(h, s, l);
-            int marginOfErrorR = Math.Abs(rgb.R - r);
-            int marginOfErrorG = Math.Abs(rgb.G - g);
-            int marginOfErrorB = Math.Abs(rgb.B - b);
+            SKColor rgb = ExColor.HslToRgb(h, s, l);
+            int marginOfErrorR = Math.Abs(rgb.Red - r);
+            int marginOfErrorG = Math.Abs(rgb.Green - g);
+            int marginOfErrorB = Math.Abs(rgb.Blue - b);
             Assert.True(marginOfErrorR <= AcceptableMaringOfError);
             Assert.True(marginOfErrorG <= AcceptableMaringOfError);
             Assert.True(marginOfErrorB <= AcceptableMaringOfError);

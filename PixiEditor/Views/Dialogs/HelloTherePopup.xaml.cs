@@ -1,7 +1,8 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using System.Reflection;
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,8 +21,8 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty RecentlyOpenedEmptyProperty =
             DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
-        public static string VersionText => 
-            $"v{AssemblyHelper.GetCurrentAssemblyVersion(x => $"{x.Major}.{x.Minor}" + (x.Build != 0 ? $".{x.Build}" : ""))}";
+        public static string VersionText =>
+            $"v{VersionHelpers.GetCurrentAssemblyVersionString()}";
 
         public FileViewModel FileViewModel { get => (FileViewModel)GetValue(FileViewModelProperty); set => SetValue(FileViewModelProperty, value); }
 
@@ -35,6 +36,8 @@ namespace PixiEditor.Views.Dialogs
 
         public RelayCommand OpenHyperlinkCommand { get => FileViewModel.Owner.MiscSubViewModel.OpenHyperlinkCommand; }
 
+        public RelayCommand OpenInExplorerCommand { get; set; }
+
         public bool IsClosing { get; private set; }
 
         public HelloTherePopup(FileViewModel fileViewModel)
@@ -46,6 +49,7 @@ namespace PixiEditor.Views.Dialogs
             OpenFileCommand = new RelayCommand(OpenFile);
             OpenNewFileCommand = new RelayCommand(OpenNewFile);
             OpenRecentCommand = new RelayCommand(OpenRecent);
+            OpenInExplorerCommand = new RelayCommand(OpenInExplorer, CanOpenInExplorer);
 
             RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
             RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
@@ -56,13 +60,18 @@ namespace PixiEditor.Views.Dialogs
 
             if (RecentlyOpenedEmpty)
             {
+                Width = 400;
                 Height = 500;
-                Width = 520;
+            }
+            else if (RecentlyOpened.Count < 4)
+            {
+                Width = 445;
+                Height = 500;
             }
             else if (RecentlyOpened.Count < 7)
             {
-                Height = 676;
-                Width = 545;
+                Width = 475;
+                Height = 670;
             }
         }
 
@@ -83,20 +92,32 @@ namespace PixiEditor.Views.Dialogs
 
         private void OpenFile(object parameter)
         {
+            Application.Current.MainWindow.Activate();
             Close();
             FileViewModel.OpenAny();
         }
 
         private void OpenNewFile(object parameter)
         {
+            Application.Current.MainWindow.Activate();
             Close();
             FileViewModel.OpenNewFilePopup(parameter);
         }
 
         private void OpenRecent(object parameter)
         {
-            FileViewModel.OpenRecent(parameter);
+            Application.Current.MainWindow.Activate();
             Close();
+            FileViewModel.OpenRecent(parameter);
         }
+
+        private void OpenInExplorer(object parameter)
+        {
+            string path = Path.GetFullPath((string)parameter);
+
+            Process.Start("explorer.exe", $"/select,\"{path}\"");
+        }
+
+        private bool CanOpenInExplorer(object parameter) => File.Exists((string)parameter);
     }
 }

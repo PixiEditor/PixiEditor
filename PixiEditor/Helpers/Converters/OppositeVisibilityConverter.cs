@@ -5,9 +5,10 @@ using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class OppositeVisibilityConverter : IValueConverter
+    public class OppositeVisibilityConverter
+        : SingleInstanceConverter<OppositeVisibilityConverter>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value.ToString().ToLower() == "visible")
             {
@@ -17,16 +18,11 @@ namespace PixiEditor.Helpers.Converters
             return Visibility.Visible;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Visibility)
+            if (value is Visibility visibility)
             {
-                if ((Visibility)value == Visibility.Visible)
-                {
-                    return "Hidden";
-                }
-
-                return "Visible";
+                return visibility == Visibility.Visible ? "Hidden" : "Visible";
             }
 
             return null;

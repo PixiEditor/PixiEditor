@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
@@ -28,6 +29,8 @@ namespace PixiEditor.ViewModels
         private bool overrideActionDisplay;
 
         public static ViewModelMain Current { get; set; }
+
+        public IServiceProvider Services { get; private set; }
 
         public Action CloseAction { get; set; }
 
@@ -67,8 +70,6 @@ namespace PixiEditor.ViewModels
 
         public BitmapManager BitmapManager { get; set; }
 
-        public PixelChangesController ChangesController { get; set; }
-
         public ShortcutController ShortcutController { get; set; }
 
         public StylusViewModel StylusSubViewModel { get; set; }
@@ -86,7 +87,7 @@ namespace PixiEditor.ViewModels
                     return actionDisplay;
                 }
 
-                return BitmapManager.SelectedTool.ActionDisplay;
+                return ToolsSubViewModel.ActiveTool.ActionDisplay;
             }
             set
             {
@@ -117,42 +118,44 @@ namespace PixiEditor.ViewModels
 #endif
         }
 
-        public ViewModelMain(IServiceProvider services)
+        public ViewModelMain(IServiceProvider serviceProvider)
         {
             Current = this;
+        }
+
+        public void Setup(IServiceProvider services)
+        {
+            Services = services;
 
             Preferences = services.GetRequiredService<IPreferences>();
 
             Preferences.Init();
-
-            BitmapManager = new BitmapManager();
+            BitmapManager = services.GetRequiredService<BitmapManager>();
             BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
-            BitmapManager.MouseController.StoppedRecordingChanges += MouseController_StoppedRecordingChanges;
             BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
 
-            SelectionSubViewModel = new SelectionViewModel(this);
+            SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
-            ChangesController = new PixelChangesController();
             OnStartupCommand = new RelayCommand(OnStartup);
             CloseWindowCommand = new RelayCommand(CloseWindow);
 
-            FileSubViewModel = new FileViewModel(this);
-            ToolsSubViewModel = new ToolsViewModel(this);
-            IoSubViewModel = new IoViewModel(this);
-            LayersSubViewModel = new LayersViewModel(this);
-            ClipboardSubViewModel = new ClipboardViewModel(this);
-            UndoSubViewModel = new UndoViewModel(this);
-            ViewportSubViewModel = new ViewportViewModel(this);
-            ColorsSubViewModel = new ColorsViewModel(this);
-            DocumentSubViewModel = new DocumentViewModel(this);
-            DiscordViewModel = new DiscordViewModel(this, "764168193685979138");
-            UpdateSubViewModel = new UpdateViewModel(this);
+            FileSubViewModel = services.GetService<FileViewModel>();
+            ToolsSubViewModel = services.GetService<ToolsViewModel>();
+            ToolsSubViewModel.SelectedToolChanged += BitmapManager_SelectedToolChanged;
+            ToolsSubViewModel?.SetupTools(services);
+
+            IoSubViewModel = services.GetService<IoViewModel>();
+            LayersSubViewModel = services.GetService<LayersViewModel>();
+            ClipboardSubViewModel = services.GetService<ClipboardViewModel>();
+            UndoSubViewModel = services.GetService<UndoViewModel>();
+            ViewportSubViewModel = services.GetService<ViewportViewModel>();
+            ColorsSubViewModel = services.GetService<ColorsViewModel>();
+            DocumentSubViewModel = services.GetService<DocumentViewModel>();
+            DiscordViewModel = services.GetService<DiscordViewModel>();
+            UpdateSubViewModel = services.GetService<UpdateViewModel>();
 
             WindowSubViewModel = services.GetService<WindowViewModel>();
-            WindowSubViewModel?.SetOwner(this);
-
             StylusSubViewModel = services.GetService<StylusViewModel>();
-            StylusSubViewModel?.SetOwner(this);
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
@@ -166,14 +169,15 @@ namespace PixiEditor.ViewModels
                         CreateToolShortcut<RectangleTool>(Key.R, "Select Rectangle Tool"),
                         CreateToolShortcut<CircleTool>(Key.C, "Select Circle Tool"),
                         CreateToolShortcut<LineTool>(Key.L, "Select Line Tool"),
-                        CreateToolShortcut<FloodFill>(Key.G, "Select Flood Fill Tool"),
+                        CreateToolShortcut<FloodFillTool>(Key.G, "Select Flood Fill Tool"),
                         CreateToolShortcut<BrightnessTool>(Key.U, "Select Brightness Tool"),
                         CreateToolShortcut<MoveTool>(Key.V, "Select Move Tool"),
                         CreateToolShortcut<SelectTool>(Key.M, "Select Select Tool"),
                         CreateToolShortcut<ZoomTool>(Key.Z, "Select Zoom Tool"),
-                        CreateToolShortcut<MoveViewportTool>(Key.H, "Select Viewport Move Tool"),
-                        new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, "Zoom in", 115),
-                        new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, "Zoom out", 85),
+                        CreateToolShortcut<MoveViewportTool>(Key.Space, "Select Viewport Move Tool"),
+                        CreateToolShortcut<MagicWandTool>(Key.W, "Select Magic Wand Tool"),
+                        new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, "Zoom in", 1),
+                        new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, "Zoom out", -1),
                         new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, "Decrease Tool Size", -1),
                         new Shortcut(Key.OemCloseBrackets, ToolsSubViewModel.ChangeToolSizeCommand, "Increase Tool Size", 1)),
                     new ShortcutGroup(
@@ -205,7 +209,7 @@ namespace PixiEditor.ViewModels
                         "View",
                         new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, "Toggle gridlines", modifier: ModifierKeys.Control)));
 
-            MiscSubViewModel = new MiscViewModel(this);
+            MiscSubViewModel = services.GetService<MiscViewModel>();
 
             // Add F1 shortcut after MiscSubViewModel is constructed
             ShortcutController.ShortcutGroups.Add(
@@ -214,8 +218,6 @@ namespace PixiEditor.ViewModels
                         new Shortcut(Key.F1, MiscSubViewModel.OpenShortcutWindowCommand, "Open the shortcut window", true)));
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
-
-            BitmapManager.AddPropertyChangedCallback(nameof(BitmapManager.SelectedTool), () => { if (!OverrideActionDisplay) RaisePropertyChanged(nameof(ActionDisplay)); });
         }
 
         /// <summary>
@@ -225,15 +227,45 @@ namespace PixiEditor.ViewModels
         {
             foreach (var document in BitmapManager.Documents)
             {
-                document.PreviewLayer = null;
+                document.PreviewLayer.Reset();
             }
-
-            BitmapManager.ActiveDocument?.CenterViewport();
         }
 
         public bool DocumentIsNotNull(object property)
         {
             return BitmapManager.ActiveDocument != null;
+        }
+        public void CloseWindow(object property)
+        {
+            if (!(property is CancelEventArgs))
+            {
+                throw new ArgumentException();
+            }
+
+            ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
+        }
+
+        private void BitmapManager_SelectedToolChanged(object sender, SelectedToolEventArgs e)
+        {
+            if (e.OldTool != null)
+                e.OldTool.PropertyChanged -= SelectedTool_PropertyChanged;
+            e.NewTool.PropertyChanged += SelectedTool_PropertyChanged;
+
+            NotifyToolActionDisplayChanged();
+            BitmapManager.InputTarget.OnToolChange(e.NewTool);
+        }
+
+        private void SelectedTool_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Tool.ActionDisplay))
+            {
+                NotifyToolActionDisplayChanged();
+            }
+        }
+
+        private void NotifyToolActionDisplayChanged()
+        {
+            if (!OverrideActionDisplay) RaisePropertyChanged(nameof(ActionDisplay));
         }
 
         [Conditional("DEBUG")]
@@ -257,16 +289,6 @@ namespace PixiEditor.ViewModels
             where T : Tool
         {
             return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, description, typeof(T), modifier);
-        }
-
-        public void CloseWindow(object property)
-        {
-            if (!(property is CancelEventArgs))
-            {
-                throw new ArgumentException();
-            }
-
-            ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
         }
 
         /// <summary>
@@ -303,12 +325,17 @@ namespace PixiEditor.ViewModels
                 if (result == ConfirmationType.Yes)
                 {
                     FileSubViewModel.SaveDocument(false);
+                    //cancel was pressed in the save file dialog
+                    if (!BitmapManager.ActiveDocument.ChangesSaved)
+                        return false;
                 }
             }
 
             if (result != ConfirmationType.Canceled)
             {
-                BitmapManager.Documents.Remove(BitmapManager.ActiveDocument);
+                var doc = BitmapManager.ActiveDocument;
+                BitmapManager.Documents.Remove(doc);
+                doc.Dispose();
 
                 return true;
             }
@@ -334,22 +361,14 @@ namespace PixiEditor.ViewModels
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
             BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
-            BitmapManager.ActiveDocument.CenterViewport();
             BitmapManager.ActiveDocument.ChangesSaved = false;
-        }
-
-        private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
-        {
-            UndoSubViewModel.TriggerNewUndoChange(BitmapManager.SelectedTool);
+            BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
         }
 
         private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
         {
-            ChangesController.AddChanges(
-                new LayerChange(e.PixelsChanged, e.ChangedLayerGuid),
-                new LayerChange(e.OldPixelsValues, e.ChangedLayerGuid));
             BitmapManager.ActiveDocument.ChangesSaved = false;
-            if (BitmapManager.IsOperationTool())
+            if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)
             {
                 ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);
             }

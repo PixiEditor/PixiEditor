@@ -12,11 +12,10 @@
         BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
-        <converters:EqualityBoolToVisibilityConverter x:Key="EqualityBoolToVisibilityConverter"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"
+        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 
@@ -54,7 +53,7 @@
                     Command="{Binding SelectCategoryCommand}" CommandParameter="Discord">Discord</Button>
         </StackPanel>
         <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource AccentColor}">
-            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='General'}">
                 <StackPanel Orientation="Vertical">
                     <CheckBox Content="Show Document Preview in Taskbar" Margin="25,30,0,0"
@@ -65,28 +64,36 @@
                                   IsChecked="{Binding SettingsSubViewModel.File.ShowStartupWindow}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                             <Label Content="Max Saved Opened Recently:" ToolTip="How many documents are shown under File > Recent. Default: 8" Style="{StaticResource BaseLabel}"/>
-                            <views:NumberInput FontSize="16" Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Width="40"/>
+                            <views:NumberInput Min="0" FontSize="16" Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Width="40"/>
                         </StackPanel>
                         <Label Content="Default new file size:" Style="{StaticResource Header2}" Margin="0 20 0 20"/>
                         <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
                             <Label Content="Width:" Style="{StaticResource BaseLabel}"/>
-                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" Width="60" Height="25"/>
+                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" 
+                                             Width="70" Height="25" MaxSize="9999"/>
                             <Label Content="Height:" Style="{StaticResource BaseLabel}"/>
-                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" Width="60" Height="25"/>
+                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" 
+                                             Width="70" Height="25" MaxSize="9999"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>
-            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='Updates'}">
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource Header1}" Content="Auto-updates"/>
                     <StackPanel Orientation="Vertical" Margin="50 0 50 0">
                         <CheckBox IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}" Content="Check updates on startup"/>
+                        <StackPanel Orientation="Horizontal">
+                        <Label VerticalAlignment="Center" Content="Update source" Style="{StaticResource BaseLabel}"/>
+                            <ComboBox Width="110" Margin="0 10 0 10" HorizontalAlignment="Left" 
+                                      ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
+                                      SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>
-            <Grid Visibility="{Binding SelectedCategory, Converter={StaticResource EqualityBoolToVisibilityConverter},
+            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='Discord'}">
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource Header1}" Content="Rich Presence"/>

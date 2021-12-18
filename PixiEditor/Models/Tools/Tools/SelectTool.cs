@@ -1,48 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Position;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
-using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    public class SelectTool : ReadonlyTool
+    internal class SelectTool : ReadonlyTool
     {
-        private readonly RectangleTool rectangleTool = new RectangleTool();
-        private readonly CircleTool circleTool = new CircleTool();
+        private readonly RectangleTool rectangleTool;
+        private readonly CircleTool circleTool;
         private IEnumerable<Coordinates> oldSelectedPoints;
 
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
-        public SelectTool()
+        private BitmapManager BitmapManager { get; }
+
+        public SelectTool(BitmapManager bitmapManager)
         {
             ActionDisplay = "Click and move to select an area.";
-            Tooltip = "Selects area. (M)";
             Toolbar = new SelectToolToolbar();
+            BitmapManager = bitmapManager;
+
+            rectangleTool = new RectangleTool();
+            circleTool = new CircleTool();
         }
 
         public SelectionType SelectionType { get; set; } = SelectionType.Add;
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public override string Tooltip => "Selects area. (M)";
+
+        public override void BeforeUse()
         {
+            base.BeforeUse();
             SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
 
             oldSelectedPoints = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
         }
 
-        public override void OnStoppedRecordingMouseUp(MouseEventArgs e)
+        public override void AfterUse(SKRectI sessionRect)
         {
+            base.AfterUse(sessionRect);
             if (ActiveSelection.SelectedPoints.Count <= 1)
             {
                 // If we have not selected multiple points, clear the selection
@@ -52,24 +58,25 @@ namespace PixiEditor.Models.Tools.Tools
             SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
         }
 
-        public override void Use(Coordinates[] pixels)
+        public override void Use(IReadOnlyList<Coordinates> pixels)
         {
             Select(pixels, Toolbar.GetEnumSetting<SelectionShape>("SelectShape").Value);
         }
 
         public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            List<Coordinates> selection = rectangleTool.CreateRectangle(start, end, 1).ToList();
-            selection.AddRange(rectangleTool.CalculateFillForRectangle(start, end, 1));
-            return selection;
+            List<Coordinates> result = new List<Coordinates>();
+            ToolCalculator.GenerateRectangleNonAlloc(
+                start, end, true, 1, result);
+            return result;
         }
 
         public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
         {
-            DoubleCords fixedCoordinates = ShapeTool.CalculateCoordinatesForShapeRotation(start, end);
-            List<Coordinates> selection = circleTool.CreateEllipse(fixedCoordinates.Coords1, fixedCoordinates.Coords2, 1).ToList();
-            selection.AddRange(circleTool.CalculateFillForEllipse(selection));
-            return selection;
+            List<Coordinates> result = new List<Coordinates>();
+            ToolCalculator.GenerateEllipseNonAlloc(
+                start, end, true, result);
+            return result;
         }
 
         /// <summary>
@@ -90,11 +97,17 @@ namespace PixiEditor.Models.Tools.Tools
             return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
         }
 
-        private void Select(Coordinates[] pixels, SelectionShape shape)
+        private void Select(IReadOnlyList<Coordinates> pixels, SelectionShape shape)
         {
             IEnumerable<Coordinates> selection;
 
-            if (shape == SelectionShape.Circle)
+            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(oldSelectedPoints, SelectionType.New);
+
+            if (pixels.Count < 2)
+            {
+                selection = new List<Coordinates>();
+            }
+            else if (shape == SelectionShape.Circle)
             {
                 selection = GetCircleSelectionForPoints(pixels[^1], pixels[0]);
             }
@@ -107,7 +120,7 @@ namespace PixiEditor.Models.Tools.Tools
                 throw new NotImplementedException($"Selection shape '{shape}' has not been implemented");
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
+            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
         }
     }
 }

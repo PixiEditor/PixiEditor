@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
 {
@@ -16,9 +12,9 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
             set => RaiseAndUpdatePreference(ref showStartupWindow, value);
         }
 
-        private long defaultNewFileWidth = GetPreference("DefaultNewFileWidth", 16L);
+        private int defaultNewFileWidth = GetPreference("DefaultNewFileWidth", NewFileDialog.defaultSize);
 
-        public long DefaultNewFileWidth
+        public int DefaultNewFileWidth
         {
             get => defaultNewFileWidth;
             set
@@ -29,9 +25,9 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
             }
         }
 
-        private long defaultNewFileHeight = GetPreference("DefaultNewFileHeight", 16L);
+        private int defaultNewFileHeight = GetPreference("DefaultNewFileHeight", NewFileDialog.defaultSize);
 
-        public long DefaultNewFileHeight
+        public int DefaultNewFileHeight
         {
             get => defaultNewFileHeight;
             set

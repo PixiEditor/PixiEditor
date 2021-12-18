@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class BoolToIntConverter : IValueConverter
+    public class BoolToIntConverter
+        : SingleInstanceConverter<BoolToIntConverter>
     {
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value.ToString() == "0";
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool boolean)
             {

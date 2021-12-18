@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace PixiEditor.Views
 {
@@ -10,22 +10,18 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class SizeInput : UserControl
     {
-        // Using a DependencyProperty as the backing store for Size.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SizeProperty =
-            DependencyProperty.Register("Size", typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));
+            DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));
 
-        // Using a DependencyProperty as the backing store for PreserveAspectRatio.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PreserveAspectRatioProperty =
             DependencyProperty.Register(
-                "PreserveAspectRatio",
+                nameof(PreserveAspectRatio),
                 typeof(bool),
-                typeof(SizeInput),
-                new PropertyMetadata(false));
+                typeof(SizeInput));
 
-        // Using a DependencyProperty as the backing store for AspectRatioValue.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AspectRatioValueProperty =
             DependencyProperty.Register(
-                "AspectRatioValue",
+                nameof(AspectRatioValue),
                 typeof(int),
                 typeof(SizeInput),
                 new PropertyMetadata(1));
@@ -36,24 +32,50 @@ namespace PixiEditor.Views
             set { SetValue(AspectRatioControlProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for AspectRatioControl.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AspectRatioControlProperty =
-            DependencyProperty.Register("AspectRatioControl", typeof(SizeInput), typeof(SizeInput), new PropertyMetadata(default));
+            DependencyProperty.Register(nameof(AspectRatioControl), typeof(SizeInput), typeof(SizeInput), new PropertyMetadata(default));
+
+        public static readonly DependencyProperty MaxSizeProperty =
+            DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
+
+        public static readonly DependencyProperty SelectOnFocusProperty =
+            DependencyProperty.Register(nameof(SelectOnFocus), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
 
         private int loadedAspectRatioSize = -1;
 
         private int loadedSize = -1;
         private bool blockUpdate = false;
 
+        public static readonly DependencyProperty NextControlProperty =
+            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizeInput));
+
         public SizeInput()
         {
+            GotKeyboardFocus += SizeInput_GotKeyboardFocus;
             InitializeComponent();
+        }
+
+        public bool SelectOnFocus
+        {
+            get => (bool)GetValue(SelectOnFocusProperty);
+            set => SetValue(SelectOnFocusProperty, value);
+        }
+
+        private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            textBox.Focus();
         }
 
         public int Size
         {
             get => (int)GetValue(SizeProperty);
             set => SetValue(SizeProperty, value);
+        }
+
+        public int MaxSize
+        {
+            get => (int)GetValue(MaxSizeProperty);
+            set => SetValue(MaxSizeProperty, value);
         }
 
         public bool PreserveAspectRatio
@@ -68,8 +90,30 @@ namespace PixiEditor.Views
             set => SetValue(AspectRatioValueProperty, value);
         }
 
+        public FrameworkElement NextControl
+        {
+            get => (FrameworkElement)GetValue(NextControlProperty);
+            set => SetValue(NextControlProperty, value);
+        }
+
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            int newValue = (int)e.NewValue;
+            int maxSize = (int)d.GetValue(MaxSizeProperty);
+
+            if (newValue > maxSize)
+            {
+                d.SetValue(SizeProperty, maxSize);
+
+                return;
+            }
+            else if (newValue <= 0)
+            {
+                d.SetValue(SizeProperty, 1);
+
+                return;
+            }
+
             SizeInput input = ((SizeInput)d).AspectRatioControl;
             if (input == null)
             {
@@ -97,6 +141,37 @@ namespace PixiEditor.Views
             {
                 loadedSize = Size;
                 loadedAspectRatioSize = AspectRatioValue;
+            }
+        }
+
+        private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            textBox.Focus();
+            e.Handled = true;
+        }
+
+        private void Border_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            int step = e.Delta / 100;
+
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                Size += step * 2;
+            }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                if (step < 0)
+                {
+                    Size /= 2;
+                }
+                else
+                {
+                    Size *= 2;
+                }
+            }
+            else
+            {
+                Size += step;
             }
         }
     }

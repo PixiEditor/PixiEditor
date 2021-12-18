@@ -1,7 +1,8 @@
-﻿using System;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
+using SkiaSharp;
+using System;
 using System.Collections.Generic;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Position
 {
@@ -12,7 +13,7 @@ namespace PixiEditor.Models.Position
         /// </summary>
         /// <param name="startPosition">Top left position of rectangle.</param>
         /// <param name="thickness">Thickness of rectangle.</param>
-        public static DoubleCords CalculateThicknessCenter(Coordinates startPosition, int thickness)
+        public static DoubleCoords CalculateThicknessCenter(Coordinates startPosition, int thickness)
         {
             int x1, x2, y1, y2;
             if (thickness % 2 == 0)
@@ -30,7 +31,7 @@ namespace PixiEditor.Models.Position
                 y1 = y2 - thickness;
             }
 
-            return new DoubleCords(new Coordinates(x1, y1), new Coordinates(x2 - 1, y2 - 1));
+            return new DoubleCoords(new Coordinates(x1, y1), new Coordinates(x2 - 1, y2 - 1));
         }
 
         public static Coordinates GetCenterPoint(Coordinates startingPoint, Coordinates endPoint)
@@ -63,7 +64,21 @@ namespace PixiEditor.Models.Position
             return coordinates;
         }
 
-        public static IEnumerable<Coordinates> RectangleToCoordinates(DoubleCords coordinates)
+        public static void DrawRectangle(Layer layer, SKColor color, int x1, int y1, int x2, int y2)
+        {
+            //TODO: use some kind of context
+            x2++;
+            y2++;
+            for (int y = y1; y < y1 + (y2 - y1); y++)
+            {
+                for (int x = x1; x < x1 + (x2 - x1); x++)
+                {
+                    layer.SetPixelWithOffset(x, y, color);
+                }
+            }
+        }
+
+        public static IEnumerable<Coordinates> RectangleToCoordinates(DoubleCoords coordinates)
         {
             return RectangleToCoordinates(coordinates.Coords1.X, coordinates.Coords1.Y, coordinates.Coords2.X, coordinates.Coords2.Y);
         }
@@ -71,7 +86,7 @@ namespace PixiEditor.Models.Position
         /// <summary>
         ///     Returns first pixel coordinates in bitmap that is most top left on canvas.
         /// </summary>
-        public static Coordinates FindMinEdgeNonTransparentPixel(WriteableBitmap bitmap)
+        public static Coordinates FindMinEdgeNonTransparentPixel(Surface bitmap)
         {
             return new Coordinates(FindMinXNonTransparent(bitmap), FindMinYNonTransparent(bitmap));
         }
@@ -79,20 +94,18 @@ namespace PixiEditor.Models.Position
         /// <summary>
         ///     Returns last pixel coordinates that is most bottom right.
         /// </summary>
-        public static Coordinates FindMostEdgeNonTransparentPixel(WriteableBitmap bitmap)
+        public static Coordinates FindMostEdgeNonTransparentPixel(Surface bitmap)
         {
             return new Coordinates(FindMaxXNonTransparent(bitmap), FindMaxYNonTransparent(bitmap));
         }
 
-        public static int FindMinYNonTransparent(WriteableBitmap bitmap)
+        public static int FindMinYNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
-            for (int y = 0; y < ctx.Height; y++)
+            for (int y = 0; y < bitmap.Height; y++)
             {
-                for (int x = 0; x < ctx.Width; x++)
+                for (int x = 0; x < bitmap.Width; x++)
                 {
-                    if (ctx.WriteableBitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
                         return y;
                     }
@@ -102,15 +115,13 @@ namespace PixiEditor.Models.Position
             return -1;
         }
 
-        public static int FindMinXNonTransparent(WriteableBitmap bitmap)
+        public static int FindMinXNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            using BitmapContext ctx = bitmap.GetBitmapContext(ReadWriteMode.ReadOnly);
-            for (int x = 0; x < ctx.Width; x++)
+            for (int x = 0; x < bitmap.Width; x++)
             {
-                for (int y = 0; y < ctx.Height; y++)
+                for (int y = 0; y < bitmap.Height; y++)
                 {
-                    if (bitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
                         return x;
                     }
@@ -120,43 +131,35 @@ namespace PixiEditor.Models.Position
             return -1;
         }
 
-        public static int FindMaxYNonTransparent(WriteableBitmap bitmap)
+        public static int FindMaxYNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int y = (int)bitmap.Height - 1; y >= 0; y--)
+            for (int y = bitmap.Height - 1; y >= 0; y--)
             {
-                for (int x = (int)bitmap.Width - 1; x >= 0; x--)
+                for (int x = bitmap.Width - 1; x >= 0; x--)
                 {
-                    if (bitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
-                        bitmap.Unlock();
                         return y;
                     }
                 }
             }
 
-            bitmap.Unlock();
             return -1;
         }
 
-        public static int FindMaxXNonTransparent(WriteableBitmap bitmap)
+        public static int FindMaxXNonTransparent(Surface bitmap)
         {
-            Color transparent = Color.FromArgb(0, 0, 0, 0);
-            bitmap.Lock();
-            for (int x = (int)bitmap.Width - 1; x >= 0; x--)
+            for (int x = bitmap.Width - 1; x >= 0; x--)
             {
-                for (int y = (int)bitmap.Height - 1; y >= 0; y--)
+                for (int y = bitmap.Height - 1; y >= 0; y--)
                 {
-                    if (bitmap.GetPixel(x, y) != transparent)
+                    if (bitmap.GetSRGBPixel(x, y).Alpha != 0)
                     {
-                        bitmap.Unlock();
                         return x;
                     }
                 }
             }
 
-            bitmap.Unlock();
             return -1;
         }
     }

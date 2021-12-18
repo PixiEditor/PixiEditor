@@ -28,7 +28,7 @@ namespace PixiEditor.ViewModels
         {
             get
             {
-#if UPDATE
+#if UPDATE || DEBUG
                 return true;
 #else
                 return false;

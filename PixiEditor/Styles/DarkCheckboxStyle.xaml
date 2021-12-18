@@ -11,13 +11,18 @@
                 <ControlTemplate TargetType="CheckBox">
                     <BulletDecorator Background="Transparent">
                         <BulletDecorator.Bullet>
-                            <Border x:Name="Border" Width="20" Height="20" CornerRadius="2" Background="#FF1B1B1B" BorderThickness="0">
+                            <Border x:Name="Border" Width="20" Height="20" CornerRadius="2" Background="#FF1B1B1B"
+                                    BorderThickness="1">
                                 <Path Width="9" Height="9" x:Name="CheckMark" SnapsToDevicePixels="False" Stroke="#FF0077C9" StrokeThickness="2" Data="M 0 4 L 3 8 8 0" />
                             </Border>
                         </BulletDecorator.Bullet>
                         <ContentPresenter Margin="4,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" RecognizesAccessKey="True"/>
                     </BulletDecorator>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter TargetName="Border" Property="Background" Value="#252525" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="#3F3F46"/>
+                        </Trigger>
                         <Trigger Property="IsChecked" Value="false">
                             <Setter TargetName="CheckMark" Property="Visibility" Value="Collapsed"/>
                         </Trigger>
@@ -25,11 +30,13 @@
                             <Setter TargetName="CheckMark" Property="Data" Value="M 0 8 L 8 0" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="true">
-                            <Setter TargetName="Border" Property="Background" Value="#FF131313" />
+                            <Setter TargetName="Border" Property="Background" Value="#202020" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="#4F4F4F"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter TargetName="CheckMark" Property="Stroke" Value="#FF6C6C6C"/>
                             <Setter Property="Foreground" Value="Gray"/>
+                            <Setter TargetName="Border" Property="BorderBrush" Value="#202020"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

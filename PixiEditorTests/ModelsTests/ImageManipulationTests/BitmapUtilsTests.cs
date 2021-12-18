@@ -1,101 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.ImageManipulationTests
 {
     public class BitmapUtilsTests
     {
-        [Fact]
-        public void TestBytesToWriteableBitmap()
-        {
-            int width = 10;
-            int height = 10;
-            Coordinates[] coloredPoints = { new Coordinates(0, 0), new Coordinates(3, 6), new Coordinates(9, 9) };
-            WriteableBitmap bmp = BitmapFactory.New(width, height);
-            for (int i = 0; i < coloredPoints.Length; i++)
-            {
-                bmp.SetPixel(coloredPoints[i].X, coloredPoints[i].Y, Colors.Green);
-            }
 
-            byte[] byteArray = bmp.ToByteArray();
+        //[Fact]
+        //public void TestThatCombineLayersReturnsCorrectBitmap()
+        //{
+        //    Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };
+        //    Layer[] layers = { new Layer("test", 2, 2), new Layer("test2", 2, 2) };
 
-            WriteableBitmap convertedBitmap = BitmapUtils.BytesToWriteableBitmap(width, height, byteArray);
+        //    layers[0].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[0] }, SKColors.Lime));
 
-            for (int i = 0; i < coloredPoints.Length; i++)
-            {
-                Assert.Equal(Colors.Green, convertedBitmap.GetPixel(coloredPoints[i].X, coloredPoints[i].Y));
-            }
-        }
+        //    layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[1] }, SKColors.Red));
 
-        [Fact]
-        public void TestThatCombineLayersReturnsCorrectBitmap()
-        {
-            Coordinates[] cords = { new Coordinates(0, 0), new Coordinates(1, 1) };
-            Layer[] layers = { new Layer("test", 2, 2), new Layer("test2", 2, 2) };
+        //    Surface outputBitmap = BitmapUtils.CombineLayers(2, 2, layers);
 
-            layers[0].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[0] }, Colors.Green));
+        //    Assert.Equal(SKColors.Lime, outputBitmap.GetSRGBPixel(0, 0));
+        //    Assert.Equal(SKColors.Red, outputBitmap.GetSRGBPixel(1, 1));
+        //}
 
-            layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[1] }, Colors.Red));
+        //[Fact]
+        //public void TestThatCombineLayersReturnsCorrectBitmapWithSamePixels()
+        //{
+        //    Coordinates[] cords = { new Coordinates(0, 0) };
+        //    Layer[] layers = { new Layer("test", 2, 2), new Layer("test2", 2, 2) };
 
-            WriteableBitmap outputBitmap = BitmapUtils.CombineLayers(2, 2, layers);
+        //    layers[0].SetPixels(BitmapPixelChanges.FromSingleColoredArray(cords, SKColors.Lime));
 
-            Assert.Equal(Colors.Green, outputBitmap.GetPixel(0, 0));
-            Assert.Equal(Colors.Red, outputBitmap.GetPixel(1, 1));
-        }
+        //    layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(cords, SKColors.Red));
 
-        [Fact]
-        public void TestThatCombineLayersReturnsCorrectBitmapWithSamePixels()
-        {
-            Coordinates[] cords = { new Coordinates(0, 0) };
-            Layer[] layers = { new Layer("test", 2, 2), new Layer("test2", 2, 2) };
+        //    Surface outputBitmap = BitmapUtils.CombineLayers(2, 2, layers);
 
-            layers[0].SetPixels(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Green));
+        //    Assert.Equal(SKColors.Red, outputBitmap.GetSRGBPixel(0, 0));
+        //}
 
-            layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(cords, Colors.Red));
+        //[Fact]
+        //public void TestThatGetPixelsForSelectionReturnsCorrectPixels()
+        //{
+        //    Coordinates[] cords =
+        //    {
+        //        new Coordinates(0, 0),
+        //        new Coordinates(1, 1), new Coordinates(0, 1), new Coordinates(1, 0)
+        //    };
+        //    Layer[] layers = { new Layer("test", 2, 2), new Layer("test2", 2, 2) };
 
-            WriteableBitmap outputBitmap = BitmapUtils.CombineLayers(2, 2, layers);
+        //    layers[0].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[0] }, SKColors.Lime));
+        //    layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[1] }, SKColors.Red));
 
-            Assert.Equal(Colors.Red, outputBitmap.GetPixel(0, 0));
-        }
+        //    Dictionary<Guid, SKColor[]> output = BitmapUtils.GetPixelsForSelection(layers, cords);
 
-        [Fact]
-        public void TestThatGetPixelsForSelectionReturnsCorrectPixels()
-        {
-            Coordinates[] cords =
-            {
-                new Coordinates(0, 0),
-                new Coordinates(1, 1), new Coordinates(0, 1), new Coordinates(1, 0)
-            };
-            Layer[] layers = { new Layer("test", 2, 2), new Layer("test2", 2, 2) };
+        //    List<SKColor> colors = new List<SKColor>();
 
-            layers[0].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[0] }, Colors.Green));
-            layers[1].SetPixels(BitmapPixelChanges.FromSingleColoredArray(new[] { cords[1] }, Colors.Red));
+        //    foreach (KeyValuePair<Guid, SKColor[]> layerColor in output.ToArray())
+        //    {
+        //        foreach (SKColor color in layerColor.Value)
+        //        {
+        //            colors.Add(color);
+        //        }
+        //    }
 
-            Dictionary<Guid, Color[]> output = BitmapUtils.GetPixelsForSelection(layers, cords);
+        //    Assert.Single(colors.Where(x => x == SKColors.Lime));
+        //    Assert.Single(colors.Where(x => x == SKColors.Red));
+        //    Assert.Equal(6, colors.Count(x => x.Alpha == 0)); // 6 because layer is 4 pixels,
 
-            List<Color> colors = new List<Color>();
-
-            foreach (KeyValuePair<Guid, Color[]> layerColor in output.ToArray())
-            {
-                foreach (Color color in layerColor.Value)
-                {
-                    colors.Add(color);
-                }
-            }
-
-            Assert.Single(colors.Where(x => x == Colors.Green));
-            Assert.Single(colors.Where(x => x == Colors.Red));
-            Assert.Equal(6, colors.Count(x => x.A == 0)); // 6 because layer is 4 pixels,
-
-            // 2 * 4 = 8, 2 other color pixels, so 8 - 2 = 6
-        }
+        //    // 2 * 4 = 8, 2 other color pixels, so 8 - 2 = 6
+        //}
     }
 }

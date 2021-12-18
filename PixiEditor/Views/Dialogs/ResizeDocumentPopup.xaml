@@ -5,17 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:PixiEditor.Views" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
-        xmlns:converters="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" Name="window"
         Title="ResizeDocumentPopup" Topmost="True" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
         Height="300" Width="400" WindowStyle="None">
 
-    <Window.Resources>
-        <converters:ToolSizeToIntConverter x:Key="ToolSizeToIntConverter" />
-    </Window.Resources>
-
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"
+        <WindowChrome CaptionHeight="32" GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 

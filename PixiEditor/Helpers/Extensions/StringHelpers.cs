@@ -23,5 +23,10 @@ namespace PixiEditor.Helpers.Extensions
             }
             return newText.ToString();
         }
+
+        public static string Limit(this string value, int maxLenght)
+        {
+            return value.Length > maxLenght ? value.Substring(0, maxLenght) : value;
+        }
     }
 }

@@ -13,6 +13,8 @@
 [![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/PixiEditor?label=%20r%2FPixiEditor&logoColor=%23e3002d)](https://reddit.com/r/PixiEditor)
 [![contributions](https://img.shields.io/badge/contributions-open-brightgreen)](https://github.com/flabbet/PixiEditor/pulls)
 
+### Check out our website [pixieditor.net](https://pixieditor.net)
+
 ## About PixiEditor
 
 Want to create beautiful pixel arts for your games? PixiEditor can help you! Our goal is to create fully open-source, fast and feature rich pixel art creator. 
@@ -43,9 +45,10 @@ PixiEditor started in 2018 and it's been actively developed since. We continuous
 
 Follow these instructions to get PixiEditor working on your machine.
 
-1. Download the .exe file from [here](https://github.com/flabbet/PixiEditor/releases)
-2. Open installer
-3. Follow installer instructions
+1. Download the zipped installer from our [official website](https://pixieditor.net/download)
+2. Extract the installer from the archive
+3. Launch it
+4. Follow the steps in the installer to finish the installation
 
 
 ## Featured content

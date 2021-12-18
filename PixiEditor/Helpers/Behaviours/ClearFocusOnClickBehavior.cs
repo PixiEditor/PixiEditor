@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using PixiEditor.Models.Controllers.Shortcuts;
+using System.Windows;
 using System.Windows.Interactivity;
 
 namespace PixiEditor.Helpers.Behaviours
@@ -19,6 +20,7 @@ namespace PixiEditor.Helpers.Behaviours
         private void AssociatedObject_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             AssociatedObject.Focus();
+            ShortcutController.BlockShortcutExecution = false;
         }
     }
 }

@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Parser;
 using PixiEditor.Views.Dialogs;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -264,7 +261,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandProperty.</param>
         private void ExportFile(object parameter)
         {
-            WriteableBitmap bitmap = Owner.BitmapManager.GetCombinedLayersBitmap();
+            ViewModelMain.Current.ActionDisplay = "";
+            WriteableBitmap bitmap = Owner.BitmapManager.ActiveDocument.Renderer.FinalBitmap;
             Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
         }
 

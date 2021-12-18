@@ -6,9 +6,6 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="100">
-    <UserControl.Resources>
-        <converters:OppositeVisibilityConverter x:Key="OppositeVisibilityConverter" />
-    </UserControl.Resources>
     <Grid>
         <TextBlock Foreground="Snow" MouseLeftButtonDown="TextBlock_MouseDown"
                    TextTrimming="CharacterEllipsis" Name="textBlock"
@@ -20,7 +17,7 @@
                  KeyDown="TextBox_KeyDown"
                  LostKeyboardFocus="TextBox_LostKeyboardFocus"
                  Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, 
-            Converter={StaticResource OppositeVisibilityConverter}}"
+                                      Converter={converters:OppositeVisibilityConverter}}"
                  Name="textBox">
             <i:Interaction.Behaviors>
                 <behaviours:GlobalShortcutFocusBehavior/>
