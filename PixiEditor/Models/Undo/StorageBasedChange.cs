@@ -14,9 +14,9 @@ namespace PixiEditor.Models.Undo
     /// <summary>
     ///     A class that allows to save layers on disk and load them on Undo/Redo.
     /// </summary>
-    public class StorageBasedChange
+    public class StorageBasedChange : IDisposable
     {
-        public static string DefaultUndoChangeLocation => Path.Join(Path.GetTempPath(), "PixiEditor", "UndoStack");
+        public static string DefaultUndoChangeLocation { get; } = Path.Join(Path.GetTempPath(), "PixiEditor", Guid.NewGuid().ToString(), "UndoStack");
 
         public string UndoChangeLocation { get; set; }
 
@@ -162,7 +162,9 @@ namespace PixiEditor.Models.Undo
                 redoProcess(parameters);
             };
 
-            return new Change(finalUndoProcess, processArgs, finalRedoProcess, redoProcessParameters, description);
+            var change = new Change(finalUndoProcess, processArgs, finalRedoProcess, redoProcessParameters, description);
+            change.DisposeProcess = (_, _) => Dispose();
+            return change;
         }
 
         /// <summary>
@@ -190,7 +192,9 @@ namespace PixiEditor.Models.Undo
                 undoRedoProcess(layers, StoredLayers, processParameters);
             };
 
-            return new Change(finalProcess, processArgs, finalProcess, processArgs, description);
+            var change = new Change(finalProcess, processArgs, finalProcess, processArgs, description);
+            change.DisposeProcess = (_, _) => Dispose();
+            return change;
         }
 
         /// <summary>
@@ -215,7 +219,9 @@ namespace PixiEditor.Models.Undo
                 redoProcess(parameters);
             };
 
-            return new Change(finalUndoProcess, null, finalRedoProcess, redoProcessParameters, description);
+            var change = new Change(finalUndoProcess, null, finalRedoProcess, redoProcessParameters, description);
+            change.DisposeProcess = (_, _) => Dispose();
+            return change;
         }
 
         /// <summary>
@@ -240,7 +246,9 @@ namespace PixiEditor.Models.Undo
                 redoProcess(layers, StoredLayers);
             };
 
-            return new Change(finalUndoProcess, undoProcessParameters, finalRedoProcess, null, description);
+            var change = new Change(finalUndoProcess, undoProcessParameters, finalRedoProcess, null, description);
+            change.DisposeProcess = (_, _) => Dispose();
+            return change;
         }
 
         /// <summary>
@@ -266,7 +274,9 @@ namespace PixiEditor.Models.Undo
                 redoProcess(layers, StoredLayers, parameters);
             };
 
-            return new Change(finalUndoProcess, undoProcessParameters, finalRedoProcess, redoProcessArgs, description);
+            var change = new Change(finalUndoProcess, undoProcessParameters, finalRedoProcess, redoProcessArgs, description);
+            change.DisposeProcess = (_, _) => Dispose();
+            return change;
         }
 
         /// <summary>
@@ -362,6 +372,13 @@ namespace PixiEditor.Models.Undo
                 Surface.ReplacingPaint);
 
             layer.LayerBitmap = targetSizeSurface;
+        }
+
+        public void Dispose()
+        {
+            var layers = LoadLayersFromDevice();
+            foreach (var layer in layers)
+                layer.LayerBitmap.Dispose();
         }
     }
 }

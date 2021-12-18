@@ -18,12 +18,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
-            if (!Directory.Exists(StorageBasedChange.DefaultUndoChangeLocation))
-            {
-                Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
-            }
 
-            ClearUndoTempDirectory();
+            var result = Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
+
+            //ClearUndoTempDirectory();
         }
 
         /// <summary>

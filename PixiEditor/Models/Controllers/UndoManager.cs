@@ -54,6 +54,10 @@ namespace PixiEditor.Models.Controllers
             // Clears RedoStack if last move wasn't redo or undo and if redo stack is greater than 0.
             if (lastChangeWasUndo == false && RedoStack.Count > 0)
             {
+                foreach (var redo in RedoStack)
+                {
+                    redo.Dispose();
+                }
                 RedoStack.Clear();
             }
 

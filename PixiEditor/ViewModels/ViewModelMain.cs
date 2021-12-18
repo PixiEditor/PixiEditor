@@ -325,12 +325,17 @@ namespace PixiEditor.ViewModels
                 if (result == ConfirmationType.Yes)
                 {
                     FileSubViewModel.SaveDocument(false);
+                    //cancel was pressed in the save file dialog
+                    if (!BitmapManager.ActiveDocument.ChangesSaved)
+                        return false;
                 }
             }
 
             if (result != ConfirmationType.Canceled)
             {
-                BitmapManager.Documents.Remove(BitmapManager.ActiveDocument);
+                var doc = BitmapManager.ActiveDocument;
+                BitmapManager.Documents.Remove(doc);
+                doc.Dispose();
 
                 return true;
             }
