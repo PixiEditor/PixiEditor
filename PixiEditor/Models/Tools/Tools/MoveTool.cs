@@ -183,7 +183,7 @@ namespace PixiEditor.Models.Tools.Tools
         private void SaveUndo(Document document)
         {
             var args = new object[] { change.Document };
-            document.UndoManager.AddUndoChange(change.ToChange(UndoProcess, args));
+            document.UndoManager.AddUndoChange(change.ToChange(StorageBasedChange.BasicUndoProcess, args));
             if (moveStartSelectedPoints != null)
             {
                 SelectionHelpers.AddSelectionUndoStep(document, moveStartSelectedPoints, SelectionType.New);
@@ -191,25 +191,6 @@ namespace PixiEditor.Models.Tools.Tools
                 moveStartSelectedPoints = null;
             }
             change = null;
-        }
-
-        private void UndoProcess(Layer[] layers, UndoLayer[] data, object[] args)
-        {
-            if (args.Length > 0 && args[0] is Document document)
-            {
-                for (int i = 0; i < layers.Length; i++)
-                {
-                    Layer layer = layers[i];
-                    document.Layers.RemoveAt(data[i].LayerIndex);
-
-                    document.Layers.Insert(data[i].LayerIndex, layer);
-                    if (data[i].IsActive)
-                    {
-                        document.SetMainActiveLayer(data[i].LayerIndex);
-                    }
-                }
-
-            }
         }
     }
 }
