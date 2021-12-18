@@ -86,7 +86,7 @@ namespace PixiEditor.Models.Controllers
         private ToolSession activeSession = null;
 
 
-        public BitmapManager(ToolsViewModel tools)
+        public BitmapManager(ToolsViewModel tools, UndoViewModel undo)
         {
             _tools = tools;
 
@@ -97,6 +97,8 @@ namespace PixiEditor.Models.Controllers
             ToolSessionController.PreciseMousePositionChanged += OnPreciseMousePositionChange;
             ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);
             BitmapOperations = new BitmapOperationsUtility(this, tools);
+
+            undo.UndoRedoCalled += (_, _) => ToolSessionController.ForceStopActiveSessionIfAny();
 
             DocumentChanged += BitmapManager_DocumentChanged;
 

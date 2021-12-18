@@ -1,10 +1,10 @@
+using PixiEditor.Models.Undo;
+using PixiEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Controllers
 {
