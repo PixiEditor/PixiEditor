@@ -56,7 +56,7 @@ namespace PixiEditor.Models.Controllers
             {
                 foreach (var redo in RedoStack)
                 {
-                    redo.Dispose();
+                    //redo.Dispose();
                 }
                 RedoStack.Clear();
             }
