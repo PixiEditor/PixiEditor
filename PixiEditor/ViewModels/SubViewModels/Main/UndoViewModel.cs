@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Undo;
+using System;
 using System.IO;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -10,17 +11,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand RedoCommand { get; set; }
 
+        public event EventHandler UndoRedoCalled;
+
         public UndoViewModel(ViewModelMain owner)
             : base(owner)
         {
             UndoCommand = new RelayCommand(Undo, CanUndo);
             RedoCommand = new RelayCommand(Redo, CanRedo);
-            if (!Directory.Exists(StorageBasedChange.DefaultUndoChangeLocation))
-            {
-                Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
-            }
 
-            ClearUndoTempDirectory();
+            var result = Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
+
+            //ClearUndoTempDirectory();
         }
 
         /// <summary>
@@ -29,7 +30,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandProperty.</param>
         public void Redo(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
+            UndoRedoCalled?.Invoke(this, EventArgs.Empty);
+
+            //sometimes CanRedo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
+            if (CanRedo(null))
+                Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
         }
 
         /// <summary>
@@ -38,7 +43,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <param name="parameter">CommandParameter.</param>
         public void Undo(object parameter)
         {
-            Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
+            UndoRedoCalled?.Invoke(this, EventArgs.Empty);
+
+            //sometimes CanUndo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
+            if (CanUndo(null))
+                Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
         }
 
         /// <summary>

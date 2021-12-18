@@ -9,7 +9,6 @@ using SkiaSharp;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -78,7 +77,7 @@ namespace PixiEditor.Models.DataHolders
             get => referenceLayerRenderer;
         }
 
-        public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.LayerGuid == ActiveLayerGuid) : null;
+        public Layer ActiveLayer => Layers.Count > 0 ? Layers.FirstOrDefault(x => x.GuidValue == ActiveLayerGuid) : null;
 
         public Guid ActiveLayerGuid
         {
@@ -111,7 +110,7 @@ namespace PixiEditor.Models.DataHolders
                 }
             }
 
-            ActiveLayerGuid = Layers[index].LayerGuid;
+            ActiveLayerGuid = Layers[index].GuidValue;
             ActiveLayer.IsActive = true;
             LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
         }
@@ -126,7 +125,7 @@ namespace PixiEditor.Models.DataHolders
         {
             foreach (var layer in Layers)
             {
-                if (layer.LayerGuid == ActiveLayerGuid)
+                if (layer.GuidValue == ActiveLayerGuid)
                 {
                     layer.LayerHighlightColor = MainSelectedLayerColor;
                 }
@@ -141,7 +140,7 @@ namespace PixiEditor.Models.DataHolders
         {
             var args = new object[] { layerGuid, referenceLayer, above };
 
-            Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+            Layer layer = Layers.First(x => x.GuidValue == layerGuid);
 
             int oldIndex = Layers.IndexOf(layer);
 
@@ -167,8 +166,8 @@ namespace PixiEditor.Models.DataHolders
         {
             var args = new object[] { groupGuid, referenceLayer, above };
 
-            var topLayer = Layers.First(x => x.LayerGuid == LayerStructure.GetGroupByGuid(groupGuid).EndLayerGuid);
-            var bottomLayer = Layers.First(x => x.LayerGuid == LayerStructure.GetGroupByGuid(groupGuid).StartLayerGuid);
+            var topLayer = Layers.First(x => x.GuidValue == LayerStructure.GetGroupByGuid(groupGuid).EndLayerGuid);
+            var bottomLayer = Layers.First(x => x.GuidValue == LayerStructure.GetGroupByGuid(groupGuid).StartLayerGuid);
 
             int indexOfTopLayer = Layers.IndexOf(topLayer);
             Guid oldReferenceLayerGuid;
@@ -176,12 +175,12 @@ namespace PixiEditor.Models.DataHolders
 
             if (indexOfTopLayer + 1 < Layers.Count)
             {
-                oldReferenceLayerGuid = topLayer.LayerGuid;
+                oldReferenceLayerGuid = topLayer.GuidValue;
             }
             else
             {
                 int indexOfBottomLayer = Layers.IndexOf(bottomLayer);
-                oldReferenceLayerGuid = Layers[indexOfBottomLayer - 1].LayerGuid;
+                oldReferenceLayerGuid = Layers[indexOfBottomLayer - 1].GuidValue;
                 oldAbove = true;
             }
 
@@ -241,12 +240,12 @@ namespace PixiEditor.Models.DataHolders
                 UndoManager.AddUndoChange(
                     storageChange.ToChange(
                         RemoveLayerProcess,
-                        new object[] { Layers[^1].LayerGuid },
+                        new object[] { Layers[^1].GuidValue },
                         RestoreLayersProcess,
                         "Add layer"));
             }
 
-            LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[^1].LayerGuid, LayerAction.Add));
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(Layers[^1].GuidValue, LayerAction.Add));
         }
 
         /// <summary>
@@ -267,7 +266,7 @@ namespace PixiEditor.Models.DataHolders
             UndoManager.AddUndoChange(
                 storageChange.ToChange(
                     RemoveLayerProcess,
-                    new object[] { duplicate.LayerGuid },
+                    new object[] { duplicate.GuidValue },
                     RestoreLayersProcess,
                     "Duplicate Layer"));
 
@@ -294,9 +293,9 @@ namespace PixiEditor.Models.DataHolders
             var selectedLayers = Layers.Where(x => x.IsActive);
             foreach (var layer in selectedLayers)
             {
-                if (layer.LayerGuid != lastLayerGuid)
+                if (layer.GuidValue != lastLayerGuid)
                 {
-                    ActiveLayerGuid = layer.LayerGuid;
+                    ActiveLayerGuid = layer.GuidValue;
                     LayersChanged?.Invoke(this, new LayersChangedEventArgs(ActiveLayerGuid, LayerAction.SetActive));
                     return;
                 }
@@ -313,9 +312,9 @@ namespace PixiEditor.Models.DataHolders
                     return;
                 }
 
-                if (ActiveLayerGuid == layer.LayerGuid)
+                if (ActiveLayerGuid == layer.GuidValue)
                 {
-                    SetNextSelectedLayerAsActive(layer.LayerGuid);
+                    SetNextSelectedLayerAsActive(layer.GuidValue);
                 }
 
                 layer.IsActive = !layer.IsActive;
@@ -358,15 +357,15 @@ namespace PixiEditor.Models.DataHolders
                 return;
             }
 
-            LayerStructure.AssignParent(Layers[layerIndex].LayerGuid, null);
+            LayerStructure.AssignParent(Layers[layerIndex].GuidValue, null);
 
             bool wasActive = Layers[layerIndex].IsActive;
 
-            StorageBasedChange change = new(this, new[] { Layers[layerIndex] });
             if (addToUndo)
             {
+                StorageBasedChange change = new(this, new[] { Layers[layerIndex] });
                 UndoManager.AddUndoChange(
-                    change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].LayerGuid }));
+                    change.ToChange(RestoreLayersProcess, RemoveLayerProcess, new object[] { Layers[layerIndex].GuidValue }));
             }
 
             Layers.RemoveAt(layerIndex);
@@ -393,7 +392,7 @@ namespace PixiEditor.Models.DataHolders
             Layer[] layers = Layers.Where(x => x.IsActive).ToArray();
             int firstIndex = Layers.IndexOf(layers[0]);
 
-            object[] guidArgs = new object[] { layers.Select(x => x.LayerGuid).ToArray() };
+            object[] guidArgs = new object[] { layers.Select(x => x.GuidValue).ToArray() };
 
             StorageBasedChange change = new(this, layers);
 
@@ -440,11 +439,11 @@ namespace PixiEditor.Models.DataHolders
 
             Layer mergedLayer = layersToMerge[0];
 
-            var groupParent = LayerStructure.GetGroupByLayer(layersToMerge[^1].LayerGuid);
+            var groupParent = LayerStructure.GetGroupByLayer(layersToMerge[^1].GuidValue);
 
             Layer placeholderLayer = new("_placeholder");
             Layers.Insert(index, placeholderLayer);
-            LayerStructure.AssignParent(placeholderLayer.LayerGuid, groupParent?.GroupGuid);
+            LayerStructure.AssignParent(placeholderLayer.GuidValue, groupParent?.GroupGuid);
 
             for (int i = 0; i < layersToMerge.Length - 1; i++)
             {
@@ -455,10 +454,9 @@ namespace PixiEditor.Models.DataHolders
             }
 
             Layers.Insert(index, mergedLayer);
-            LayerStructure.AssignParent(mergedLayer.LayerGuid, groupParent?.GroupGuid);
+            LayerStructure.AssignParent(mergedLayer.GuidValue, groupParent?.GroupGuid);
 
             RemoveLayer(placeholderLayer, false);
-
             RemoveLayer(layersToMerge[^1], false);
 
             SetMainActiveLayer(Layers.IndexOf(mergedLayer));
@@ -489,9 +487,9 @@ namespace PixiEditor.Models.DataHolders
                 InsertLayersAtIndexesProcess,
                 new object[] { indexes[0] },
                 MergeLayersProcess,
-                new object[] { indexes, nameIsLastLayers, layer.LayerGuid }));
+                new object[] { indexes, nameIsLastLayers, layer.GuidValue }));
 
-            UndoManager.SquashUndoChanges(2, "Undo merge layers");
+            UndoManager.SquashUndoChanges(2, "Undo merge layers", false);
 
             return layer;
         }
@@ -532,13 +530,13 @@ namespace PixiEditor.Models.DataHolders
             int indexTo = (int)props[0];
             Guid layerGuid = (Guid)props[1];
 
-            Guid layerAtOldIndex = Layers[indexTo].LayerGuid;
+            Guid layerAtOldIndex = Layers[indexTo].GuidValue;
 
             var startGroup = LayerStructure.GetGroupByLayer(layerGuid);
 
             LayerStructure.PreMoveReassignBounds(new GroupData(startGroup?.GroupGuid), layerGuid);
 
-            Layers.Move(Layers.IndexOf(Layers.First(x => x.LayerGuid == layerGuid)), indexTo);
+            Layers.Move(Layers.IndexOf(Layers.First(x => x.GuidValue == layerGuid)), indexTo);
 
             var newGroup = LayerStructure.GetGroupByLayer(layerAtOldIndex);
 
@@ -599,7 +597,8 @@ namespace PixiEditor.Models.DataHolders
         {
             if (args.Length > 0 && args[0] is int layerIndex)
             {
-                Layers.RemoveAt(layerIndex);
+                RemoveLayer(layerIndex, false);
+
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
@@ -607,7 +606,7 @@ namespace PixiEditor.Models.DataHolders
                     Layers.Insert(data[i].LayerIndex, layer);
                 }
 
-                ActiveLayerGuid = layers.First(x => x.LayerHighlightColor == MainSelectedLayerColor).LayerGuid;
+                ActiveLayerGuid = layers.First(x => x.LayerHighlightColor == MainSelectedLayerColor).GuidValue;
                 // Identifying main layer by highlightColor is a bit hacky, but shhh
             }
         }
@@ -645,15 +644,15 @@ namespace PixiEditor.Models.DataHolders
             GuidStructureItem group = LayerStructure.GetGroupByGuid(groupGuid);
             GuidStructureItem referenceLayerGroup = LayerStructure.GetGroupByLayer(referenceLayerGuid);
 
-            Layer referenceLayer = Layers.First(x => x.LayerGuid == referenceLayerGuid);
+            Layer referenceLayer = Layers.First(x => x.GuidValue == referenceLayerGuid);
 
             int layerIndex = Layers.IndexOf(referenceLayer);
-            int folderTopIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == group?.EndLayerGuid));
+            int folderTopIndex = Layers.IndexOf(Layers.First(x => x.GuidValue == group?.EndLayerGuid));
             int oldIndex = folderTopIndex;
 
             if (layerIndex < folderTopIndex)
             {
-                int folderBottomIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == group.StartLayerGuid));
+                int folderBottomIndex = Layers.IndexOf(Layers.First(x => x.GuidValue == group.StartLayerGuid));
                 oldIndex = folderBottomIndex;
             }
 
@@ -690,8 +689,8 @@ namespace PixiEditor.Models.DataHolders
             Guid referenceLayer = (Guid)parameter[1];
             bool above = (bool)parameter[2];
 
-            int layerIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == referenceLayer));
-            int oldIndex = Layers.IndexOf(Layers.First(x => x.LayerGuid == layer));
+            int layerIndex = Layers.IndexOf(Layers.First(x => x.GuidValue == referenceLayer));
+            int oldIndex = Layers.IndexOf(Layers.First(x => x.GuidValue == layer));
             int newIndex = CalculateNewIndex(layerIndex, above, oldIndex);
 
             var startGroup = LayerStructure.GetGroupByLayer(layer);
@@ -710,6 +709,7 @@ namespace PixiEditor.Models.DataHolders
             }
 
             RaisePropertyChanged(nameof(LayerStructure));
+            Renderer.ForceRerender();
         }
 
         private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
@@ -728,21 +728,21 @@ namespace PixiEditor.Models.DataHolders
 
         private void RemoveLayerProcess(object[] parameters)
         {
-            if (parameters != null && parameters.Length > 0 && parameters[0] is Guid layerGuid)
+            if (parameters is { Length: > 0 } && parameters[0] is Guid layerGuid)
             {
-                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+                Layer layer = Layers.First(x => x.GuidValue == layerGuid);
                 int index = Layers.IndexOf(layer);
                 bool wasActive = layer.IsActive;
 
-                var layerGroup = LayerStructure.GetGroupByLayer(layer.LayerGuid);
+                var layerGroup = LayerStructure.GetGroupByLayer(layer.GuidValue);
 
                 LayerStructure.ExpandParentGroups(layerGroup);
 
-                if (layerGroup?.Parent != null && LayerStructure.GroupContainsOnlyLayer(layer.LayerGuid, layerGroup))
+                if (layerGroup?.Parent != null && LayerStructure.GroupContainsOnlyLayer(layer.GuidValue, layerGroup))
                 {
                     LayerStructure.PreMoveReassignBounds(new GroupData(layerGroup.Parent.GroupGuid), new GroupData(layerGroup.GroupGuid));
                 }
-                LayerStructure.AssignParent(Layers[index].LayerGuid, null);
+                LayerStructure.AssignParent(Layers[index].GuidValue, null);
                 RemoveGroupsIfEmpty(layer, layerGroup);
 
                 Layers.Remove(layer);
@@ -758,7 +758,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void RemoveGroupsIfEmpty(Layer layer, GuidStructureItem layerGroup)
         {
-            if (LayerStructure.GroupContainsOnlyLayer(layer.LayerGuid, layerGroup))
+            if (LayerStructure.GroupContainsOnlyLayer(layer.GuidValue, layerGroup))
             {
                 if (layerGroup.Parent != null)
                 {

@@ -175,8 +175,8 @@ namespace PixiEditor.Models.Layers
             var group = GetGroupByGuid(groupGuid);
             var parentGroup = group.Parent;
             bool reverseOrder = true;
-            int groupTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid));
-            int groupBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid));
+            int groupTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == group.EndLayerGuid));
+            int groupBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == group.StartLayerGuid));
 
             int difference = newIndex - groupTopIndex;
 
@@ -336,7 +336,7 @@ namespace PixiEditor.Models.Layers
             var layerGuids = GetGroupLayerGuids(group);
             foreach (var layerGuid in layerGuids)
             {
-                layers.Add(Owner.Layers.First(x => x.LayerGuid == layerGuid));
+                layers.Add(Owner.Layers.First(x => x.GuidValue == layerGuid));
             }
 
             return layers;
@@ -390,8 +390,8 @@ namespace PixiEditor.Models.Layers
         /// <returns>List of layer guids.</returns>
         private List<Guid> GetGroupLayerGuids(GuidStructureItem group)
         {
-            Layer layerTop = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.EndLayerGuid);
-            Layer layerBottom = Owner.Layers.FirstOrDefault(x => x.LayerGuid == group.StartLayerGuid);
+            Layer layerTop = Owner.Layers.FirstOrDefault(x => x.GuidValue == group.EndLayerGuid);
+            Layer layerBottom = Owner.Layers.FirstOrDefault(x => x.GuidValue == group.StartLayerGuid);
 
             if (layerTop == null || layerBottom == null)
             {
@@ -412,7 +412,7 @@ namespace PixiEditor.Models.Layers
 
             for (int i = minIndex; i <= maxIndex; i++)
             {
-                layerGuids.Add(Owner.Layers[i].LayerGuid);
+                layerGuids.Add(Owner.Layers[i].GuidValue);
             }
 
             return layerGuids;
@@ -488,10 +488,10 @@ namespace PixiEditor.Models.Layers
                 Guid? oldStart = parentGroup.StartLayerGuid;
                 Guid? oldEnd = parentGroup.EndLayerGuid;
 
-                int layerIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == layerGuid));
+                int layerIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == layerGuid));
 
-                int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.EndLayerGuid));
-                int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.StartLayerGuid));
+                int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == parentGroup.EndLayerGuid));
+                int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == parentGroup.StartLayerGuid));
 
                 int finalTopIndex = Math.Max(folderTopIndex, layerIndex);
                 int finalBottomIndex = Math.Min(folderBottomIndex, layerIndex);
@@ -535,11 +535,11 @@ namespace PixiEditor.Models.Layers
             {
                 Guid oldStart = parentGroup.StartLayerGuid;
                 Guid oldEnd = parentGroup.EndLayerGuid;
-                int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.EndLayerGuid));
-                int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == group.StartLayerGuid));
+                int folderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == group.EndLayerGuid));
+                int folderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == group.StartLayerGuid));
 
-                int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.EndLayerGuid));
-                int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentGroup.StartLayerGuid));
+                int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == parentGroup.EndLayerGuid));
+                int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == parentGroup.StartLayerGuid));
 
                 int finalTopIndex = Math.Max(folderTopIndex, parentFolderTopIndex);
                 int finalBottomIndex = Math.Min(folderBottomIndex, parentFolderBottomIndex);
@@ -639,8 +639,8 @@ namespace PixiEditor.Models.Layers
 
         private Guid FindBoundLayer(GuidStructureItem parentFolder, Guid layerGuid, bool above)
         {
-            int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.EndLayerGuid));
-            int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.LayerGuid == parentFolder.StartLayerGuid));
+            int parentFolderTopIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == parentFolder.EndLayerGuid));
+            int parentFolderBottomIndex = Owner.Layers.IndexOf(Owner.Layers.First(x => x.GuidValue == parentFolder.StartLayerGuid));
 
             return FindBoundLayer(layerGuid, parentFolderTopIndex, parentFolderBottomIndex, above);
         }
@@ -652,7 +652,7 @@ namespace PixiEditor.Models.Layers
             for (int i = 0; i < layers.Count; i++)
             {
                 Guid layerGuid = layerGuids[i];
-                var layer = Owner.Layers.First(x => x.LayerGuid == layerGuid);
+                var layer = Owner.Layers.First(x => x.GuidValue == layerGuid);
                 int layerIndex = Owner.Layers.IndexOf(layer);
                 Owner.Layers.Move(layerIndex, layerIndex + moveBy);
             }
@@ -662,8 +662,8 @@ namespace PixiEditor.Models.Layers
         {
             foreach (var currentGroup in groups)
             {
-                var endLayer = Owner.Layers.First(x => x.LayerGuid == currentGroup.EndLayerGuid);
-                var startLayer = Owner.Layers.First(x => x.LayerGuid == currentGroup.StartLayerGuid);
+                var endLayer = Owner.Layers.First(x => x.GuidValue == currentGroup.EndLayerGuid);
+                var startLayer = Owner.Layers.First(x => x.GuidValue == currentGroup.StartLayerGuid);
 
                 int topIndex = Owner.Layers.IndexOf(endLayer);
                 int bottomIndex = Owner.Layers.IndexOf(startLayer);

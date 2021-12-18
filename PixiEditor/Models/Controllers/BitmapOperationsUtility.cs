@@ -19,8 +19,6 @@ namespace PixiEditor.Models.Controllers
 
         public ToolsViewModel Tools { get; set; }
 
-        private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
-
         public BitmapOperationsUtility(BitmapManager manager, ToolsViewModel tools)
         {
             Manager = manager;
@@ -39,7 +37,7 @@ namespace PixiEditor.Models.Controllers
             BitmapPixelChanges changes = BitmapPixelChanges.FromSingleColoredArray(pixels, SKColors.Empty);
             for (int i = 0; i < layers.Length; i++)
             {
-                Guid guid = layers[i].LayerGuid;
+                Guid guid = layers[i].GuidValue;
                 layers[i].SetPixels(changes);
             }
 
@@ -95,7 +93,7 @@ namespace PixiEditor.Models.Controllers
                     activeLayer.LayerBitmap.SkiaSurface.Canvas,
                     previewLayer.OffsetX - activeLayer.OffsetX,
                     previewLayer.OffsetY - activeLayer.OffsetY,
-                    BlendingPaint
+                    Surface.BlendingPaint
                 );
 
             Manager.ActiveLayer.InvokeLayerBitmapChange(dirtyRect);

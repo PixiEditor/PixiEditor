@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
 using PixiEditor.ViewModels;
 using System;
@@ -11,7 +12,7 @@ namespace PixiEditor.Models.Layers
     {
         public static Layer FindLayerByGuid(Document document, Guid guid)
         {
-            return document.Layers.FirstOrDefault(x => x.LayerGuid == guid);
+            return document.Layers.FirstOrDefault(x => x.GuidValue == guid);
         }
 
         public static object FindLayerByGuidProcess(object[] parameters)
@@ -58,24 +59,16 @@ namespace PixiEditor.Models.Layers
 
         public static Layer MergeWith(this Layer thisLayer, Layer otherLayer, string newName, Vector documentsSize)
         {
-            thisLayer.GetCloser(otherLayer, out Layer xCloser, out Layer yCloser, out Layer xOther, out Layer yOther);
+            Int32Rect thisRect = new(thisLayer.OffsetX, thisLayer.OffsetY, thisLayer.Width, thisLayer.Height);
+            Int32Rect otherRect = new(otherLayer.OffsetX, otherLayer.OffsetY, otherLayer.Width, otherLayer.Height);
 
-            // Calculate the offset to the other layer
-            int offsetX = Math.Abs(xCloser.OffsetX + xCloser.Width - xOther.OffsetX);
-            int offsetY = Math.Abs(yCloser.OffsetY + yCloser.Height - yOther.OffsetY);
+            Int32Rect combined = thisRect.Expand(otherRect);
 
-            // Calculate the needed width and height of the new layer
-            int width = xCloser.Width + offsetX + xOther.Width;
-            int height = yCloser.Height + offsetY + yOther.Height;
+            Surface mergedBitmap = BitmapUtils.CombineLayers(combined, new Layer[] { thisLayer, otherLayer });
 
-            // Merge both layers into a bitmap
-            Surface mergedBitmap = BitmapUtils.CombineLayers(new Int32Rect(0, 0, (int)documentsSize.X, (int)documentsSize.Y), new Layer[] { thisLayer, otherLayer });
-            mergedBitmap = mergedBitmap.Crop(xCloser.OffsetX, yCloser.OffsetY, width, height);
-
-            // Create the new layer with the merged bitmap
             Layer mergedLayer = new Layer(newName, mergedBitmap)
             {
-                Offset = new Thickness(xCloser.OffsetX, yCloser.OffsetY, 0, 0)
+                Offset = new Thickness(combined.X, combined.Y, 0, 0)
             };
 
             return mergedLayer;

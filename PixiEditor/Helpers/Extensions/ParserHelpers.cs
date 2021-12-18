@@ -75,8 +75,8 @@ namespace PixiEditor.Helpers.Extensions
                 Opacity = sgroup.Opacity,
                 IsVisible = sgroup.IsVisible,
                 Parent = parent,
-                StartLayerGuid = document.Layers[sgroup.StartLayer].LayerGuid,
-                EndLayerGuid = document.Layers[sgroup.EndLayer].LayerGuid
+                StartLayerGuid = document.Layers[sgroup.StartLayer].GuidValue,
+                EndLayerGuid = document.Layers[sgroup.EndLayer].GuidValue
             };
 
             group.Subgroups = new(sgroup.Subgroups.ToGroups(document, group));
@@ -127,12 +127,12 @@ namespace PixiEditor.Helpers.Extensions
 
             for (int i = 0; i < document.Layers.Count; i++)
             {
-                if (group.StartLayerGuid == document.Layers[i].LayerGuid)
+                if (group.StartLayerGuid == document.Layers[i].GuidValue)
                 {
                     serializable.StartLayer = i;
                 }
 
-                if (group.EndLayerGuid == document.Layers[i].LayerGuid)
+                if (group.EndLayerGuid == document.Layers[i].GuidValue)
                 {
                     serializable.EndLayer = i;
                 }

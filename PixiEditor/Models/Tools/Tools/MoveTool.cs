@@ -16,16 +16,6 @@ namespace PixiEditor.Models.Tools.Tools
 {
     internal class MoveTool : BitmapOperationTool
     {
-        private static readonly SKPaint maskingPaint = new()
-        {
-            BlendMode = SKBlendMode.DstIn,
-        };
-
-        private static readonly SKPaint inverseMaskingPaint = new()
-        {
-            BlendMode = SKBlendMode.DstOut,
-        };
-
         private Layer[] affectedLayers;
         private Surface[] currentlyDragged;
         private Coordinates[] currentlyDraggedPositions;
@@ -98,7 +88,7 @@ namespace PixiEditor.Models.Tools.Tools
 
             if (anySelection)
             {
-                currentlyDragged = ExtractDraggedPortions(anySelection ? selLayer : null, affectedLayers);
+                currentlyDragged = BitmapUtils.ExtractSelectedPortions(selLayer, affectedLayers, true);
                 currentlyDraggedPositions = Enumerable.Repeat(new Coordinates(selLayer.OffsetX, selLayer.OffsetY), affectedLayers.Length).ToArray();
             }
             else
@@ -116,7 +106,7 @@ namespace PixiEditor.Models.Tools.Tools
             if (selLayer != null)
             {
                 using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
-                combined.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, maskingPaint);
+                combined.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, Surface.MaskingPaint);
             }
             return combined;
         }
@@ -141,34 +131,6 @@ namespace PixiEditor.Models.Tools.Tools
             return (outCoords, outSurfaces);
         }
 
-        private static Surface[] ExtractDraggedPortions(Layer selLayer, Layer[] draggedLayers)
-        {
-            using var selSnap = selLayer.LayerBitmap.SkiaSurface.Snapshot();
-            Surface[] output = new Surface[draggedLayers.Length];
-
-            int count = 0;
-            foreach (Layer layer in draggedLayers)
-            {
-                Surface portion = new Surface(selLayer.Width, selLayer.Height);
-                SKRect selLayerRect = new SKRect(0, 0, selLayer.Width, selLayer.Height);
-
-                int x = selLayer.OffsetX - layer.OffsetX;
-                int y = selLayer.OffsetY - layer.OffsetY;
-
-                using (var layerSnap = layer.LayerBitmap.SkiaSurface.Snapshot())
-                    portion.SkiaSurface.Canvas.DrawImage(layerSnap, new SKRect(x, y, x + selLayer.Width, y + selLayer.Height), selLayerRect, Surface.ReplacingPaint);
-                portion.SkiaSurface.Canvas.DrawImage(selSnap, 0, 0, maskingPaint);
-                output[count] = portion;
-                count++;
-
-                layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(selSnap, new SKRect(0, 0, selLayer.Width, selLayer.Height),
-                    new SKRect(selLayer.OffsetX - layer.OffsetX, selLayer.OffsetY - layer.OffsetY, selLayer.OffsetX - layer.OffsetX + selLayer.Width, selLayer.OffsetY - layer.OffsetY + selLayer.Height),
-                    inverseMaskingPaint);
-                layer.InvokeLayerBitmapChange(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height));
-            }
-            return output;
-        }
-
         public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
             Coordinates newPos = recordedMouseMovement[^1];
@@ -188,9 +150,9 @@ namespace PixiEditor.Models.Tools.Tools
             previewLayer.InvokeLayerBitmapChange(dirtyRect);
         }
 
-        public override void AfterUse()
+        public override void AfterUse(SKRectI sessionRect)
         {
-            base.AfterUse();
+            base.AfterUse(sessionRect);
             BitmapManager.ActiveDocument.PreviewLayer.ClearCanvas();
 
             ApplySurfacesToLayers(currentlyDragged, currentlyDraggedPositions, affectedLayers, new Coordinates(lastDragDelta.X, lastDragDelta.Y));

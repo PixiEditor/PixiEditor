@@ -10,6 +10,7 @@ using PixiEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -45,9 +46,9 @@ namespace PixiEditor.Models.Tools.Tools
             oldSelectedPoints = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
         }
 
-        public override void AfterUse()
+        public override void AfterUse(SKRectI sessionRect)
         {
-            base.AfterUse();
+            base.AfterUse(sessionRect);
             if (ActiveSelection.SelectedPoints.Count <= 1)
             {
                 // If we have not selected multiple points, clear the selection

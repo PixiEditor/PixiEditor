@@ -57,7 +57,8 @@ namespace PixiEditor.Models.Tools.Tools
         {
             base.BeforeUse();
             changedPixelsindex = 0;
-            lastChangedPixels = new Coordinates[3];
+            lastChangedPixels = new Coordinates[] { new(-1, -1), new(-1, -1), new(-1, -1) };
+            lastChangedPixel = new(-1, -1);
             confirmedPixels.Clear();
         }
 

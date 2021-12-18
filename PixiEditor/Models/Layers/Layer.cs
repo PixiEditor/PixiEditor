@@ -38,7 +38,7 @@ namespace PixiEditor.Models.Layers
             IsReset = true;
             Width = 1;
             Height = 1;
-            LayerGuid = Guid.NewGuid();
+            GuidValue = Guid.NewGuid();
         }
 
         public Layer(string name, int width, int height)
@@ -48,7 +48,7 @@ namespace PixiEditor.Models.Layers
             IsReset = true;
             Width = width;
             Height = height;
-            LayerGuid = Guid.NewGuid();
+            GuidValue = Guid.NewGuid();
         }
 
         public Layer(string name, Surface layerBitmap)
@@ -57,7 +57,7 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = layerBitmap;
             Width = layerBitmap.Width;
             Height = layerBitmap.Height;
-            LayerGuid = Guid.NewGuid();
+            GuidValue = Guid.NewGuid();
         }
 
         public Dictionary<Coordinates, SKColor> LastRelativeCoordinates { get; set; }
@@ -119,7 +119,7 @@ namespace PixiEditor.Models.Layers
                             isVisible,
                             value,
                             LayerHelper.FindLayerByGuidProcess,
-                            new object[] { LayerGuid },
+                            new object[] { GuidValue },
                             "Change layer visibility"));
                     IsVisible = value;
                     InvokeLayerBitmapChange();
@@ -140,7 +140,7 @@ namespace PixiEditor.Models.Layers
         public Surface LayerBitmap
         {
             get => layerBitmap;
-            private set
+            set
             {
                 Int32Rect prevRect = new Int32Rect(OffsetX, OffsetY, Width, Height);
                 layerBitmap = value;
@@ -178,7 +178,7 @@ namespace PixiEditor.Models.Layers
                                    opacity,
                                    value,
                                    LayerHelper.FindLayerByGuidProcess,
-                                   new object[] { LayerGuid },
+                                   new object[] { GuidValue },
                                    "Change layer opacity"));
                     Opacity = value;
                 }
@@ -230,7 +230,7 @@ namespace PixiEditor.Models.Layers
         /// <remarks>This is potentially destructive operation, use when absolutelly necessary.</remarks>
         public void ChangeGuid(Guid newGuid)
         {
-            LayerGuid = newGuid;
+            GuidValue = newGuid;
         }
 
         public IEnumerable<Layer> GetLayers()
@@ -252,7 +252,7 @@ namespace PixiEditor.Models.Layers
                 Opacity = Opacity,
                 IsActive = IsActive,
                 IsRenaming = IsRenaming,
-                LayerGuid = generateNewGuid ? Guid.NewGuid() : LayerGuid
+                GuidValue = generateNewGuid ? Guid.NewGuid() : GuidValue
             };
         }
 

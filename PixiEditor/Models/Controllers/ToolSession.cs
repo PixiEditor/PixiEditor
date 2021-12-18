@@ -3,6 +3,7 @@ using PixiEditor.Models.Tools;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -18,6 +19,11 @@ namespace PixiEditor.Models.Controllers
         public bool IsShiftDown { get; private set; }
         public bool IsAltDown { get; private set; }
 
+        private int _smallestX = int.MaxValue;
+        private int _smallestY = int.MaxValue;
+        private int _biggestX = int.MinValue;
+        private int _biggestY = int.MinValue;
+
         public ToolSession(
             Tool tool,
             double mouseXOnCanvas,
@@ -30,7 +36,12 @@ namespace PixiEditor.Models.Controllers
 
             Tool.Session = this;
             InvokeKeyboardEvents(keyboardStates);
-            mouseMovement.Add(new((int)Math.Floor(mouseXOnCanvas), (int)Math.Floor(mouseYOnCanvas)));
+            int x = (int)Math.Floor(mouseXOnCanvas);
+            int y = (int)Math.Floor(mouseYOnCanvas);
+            mouseMovement.Add(new(x, y));
+
+            UpdateMinMax(x, y);
+
             Tool.BeforeUse();
         }
 
@@ -51,7 +62,11 @@ namespace PixiEditor.Models.Controllers
                 throw new Exception("Session has ended already");
             ended = true;
 
-            Tool.AfterUse();
+            Tool.AfterUse(SKRectI.Create(
+                _smallestX,
+                _smallestY,
+                _biggestX - _smallestX + 1,
+                _biggestY - _smallestY + 1));
             InvokeReleaseKeyboardEvents(keyboardStates);
             Tool.Session = null;
         }
@@ -91,7 +106,16 @@ namespace PixiEditor.Models.Controllers
 
         public void OnPixelPositionChange(Coordinates pos)
         {
+            UpdateMinMax(pos.X, pos.Y);
             mouseMovement.Add(pos);
+        }
+
+        private void UpdateMinMax(int x, int y)
+        {
+            _smallestX = Math.Min(_smallestX, x);
+            _smallestY = Math.Min(_smallestY, y);
+            _biggestX = Math.Max(_biggestX, x);
+            _biggestY = Math.Max(_biggestY, y);
         }
     }
 }

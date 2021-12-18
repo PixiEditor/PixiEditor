@@ -16,7 +16,7 @@ namespace PixiEditor.Models.Layers.Utils
                 return 0f;
             }
 
-            var group = structure.GetGroupByLayer(layer.LayerGuid);
+            var group = structure.GetGroupByLayer(layer.GuidValue);
             GuidStructureItem groupToCheck = group;
             float finalOpacity = layer.Opacity;
 
@@ -41,7 +41,7 @@ namespace PixiEditor.Models.Layers.Utils
                 return false;
             }
 
-            var group = structure.GetGroupByLayer(layer.LayerGuid);
+            var group = structure.GetGroupByLayer(layer.GuidValue);
             bool atLeastOneParentIsInvisible = false;
             GuidStructureItem groupToCheck = group;
             while (groupToCheck != null)
