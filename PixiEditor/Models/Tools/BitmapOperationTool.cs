@@ -67,10 +67,11 @@ namespace PixiEditor.Models.Tools
                 finalRect = SKRectI.Create(doc.ActiveLayer.OffsetX, doc.ActiveLayer.OffsetY, doc.ActiveLayer.Width, doc.ActiveLayer.Height);
             }
 
-            if (UseDocumentRectForUndo)
-            {
+            //Commented, because rect based undo is still a little buggy
+            //if (UseDocumentRectForUndo)
+            //{
                 finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
-            }
+            //}
 
             _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });
         }
