@@ -1,5 +1,4 @@
-﻿using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
 using System;
 using System.Globalization;
@@ -12,11 +11,13 @@ namespace PixiEditor.Helpers.Converters
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            BitmapManager bitmapManager = ViewModelMain.Current.BitmapManager;
+            if (value is Layer layer && ViewModelMain.Current.BitmapManager.ActiveDocument != null)
+            {
+                int index = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
+                return index;
+            }
 
-            return value is Layer layer && bitmapManager.ActiveDocument != null
-                   ? bitmapManager.ActiveDocument.Layers.IndexOf(layer)
-                   : Binding.DoNothing;
+            return Binding.DoNothing;
         }
     }
 }

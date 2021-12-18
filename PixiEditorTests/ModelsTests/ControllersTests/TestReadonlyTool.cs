@@ -8,7 +8,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
     public class TestReadonlyTool : ReadonlyTool
     {
         public override string Tooltip => "";
-    
+
         public TestReadonlyTool(Action toolAction)
         {
             ToolAction = toolAction;
@@ -16,7 +16,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
 
         public Action ToolAction { get; set; }
 
-        public override void Use(List<Coordinates> pixels)
+        public override void Use(IReadOnlyList<Coordinates> pixels)
         {
             ToolAction();
         }

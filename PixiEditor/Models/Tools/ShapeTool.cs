@@ -1,17 +1,15 @@
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using SkiaSharp;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class ShapeTool : BitmapOperationTool
     {
-        public static DoubleCords CalculateCoordinatesForShapeRotation(
+        public static DoubleCoords CalculateCoordinatesForShapeRotation(
             Coordinates startingCords,
             Coordinates secondCoordinates)
         {
@@ -19,33 +17,33 @@ namespace PixiEditor.Models.Tools
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y),
                     new Coordinates(startingCords.X, startingCords.Y));
             }
 
             if (startingCords.X < currentCoordinates.X && startingCords.Y < currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(startingCords.X, startingCords.Y),
                     new Coordinates(currentCoordinates.X, currentCoordinates.Y));
             }
 
             if (startingCords.Y > currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(startingCords.X, currentCoordinates.Y),
                     new Coordinates(currentCoordinates.X, startingCords.Y));
             }
 
             if (startingCords.X > currentCoordinates.X && startingCords.Y <= currentCoordinates.Y)
             {
-                return new DoubleCords(
+                return new DoubleCoords(
                     new Coordinates(currentCoordinates.X, startingCords.Y),
                     new Coordinates(startingCords.X, currentCoordinates.Y));
             }
 
-            return new DoubleCords(startingCords, secondCoordinates);
+            return new DoubleCoords(startingCords, secondCoordinates);
         }
 
         public ShapeTool()
@@ -55,20 +53,18 @@ namespace PixiEditor.Models.Tools
             Toolbar = new BasicShapeToolbar();
         }
 
-        // TODO: Add cache for lines 31, 32 (hopefully it would speed up calculation)
-        public abstract override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color);
-
-        protected static IEnumerable<Coordinates> GetThickShape(IEnumerable<Coordinates> shape, int thickness)
+        public static void ThickenShape(Layer layer, SKColor color, IEnumerable<Coordinates> shape, int thickness)
         {
-            List<Coordinates> output = new List<Coordinates>();
             foreach (Coordinates item in shape)
             {
-                output.AddRange(
-                    CoordinatesCalculator.RectangleToCoordinates(
-                        CoordinatesCalculator.CalculateThicknessCenter(item, thickness)));
+                ThickenShape(layer, color, item, thickness);
             }
+        }
 
-            return output.Distinct();
+        protected static void ThickenShape(Layer layer, SKColor color, Coordinates coords, int thickness)
+        {
+            var dcords = CoordinatesCalculator.CalculateThicknessCenter(coords, thickness);
+            CoordinatesCalculator.DrawRectangle(layer, color, dcords.Coords1.X, dcords.Coords1.Y, dcords.Coords2.X, dcords.Coords2.Y);
         }
     }
 }

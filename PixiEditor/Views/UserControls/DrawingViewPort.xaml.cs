@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.Models.Tools.Tools;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +19,21 @@ namespace PixiEditor.Views.UserControls
 
         public static readonly DependencyProperty MouseDownCommandProperty =
             DependencyProperty.Register(nameof(MouseDownCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty MouseUpCommandProperty =
+            DependencyProperty.Register(nameof(MouseUpCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusButtonDownCommandProperty =
+            DependencyProperty.Register(nameof(StylusButtonDownCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusGestureCommandProperty =
+            DependencyProperty.Register(nameof(StylusGestureCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusButtonUpCommandProperty =
+            DependencyProperty.Register(nameof(StylusButtonUpCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
+
+        public static readonly DependencyProperty StylusOutOfRangeCommandProperty =
+            DependencyProperty.Register(nameof(StylusOutOfRangeCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));
 
         public static readonly DependencyProperty MouseXOnCanvasProperty =
             DependencyProperty.Register(nameof(MouseXOnCanvas), typeof(double), typeof(DrawingViewPort), new PropertyMetadata(0.0));
@@ -63,6 +77,36 @@ namespace PixiEditor.Views.UserControls
         {
             get => (ICommand)GetValue(MouseDownCommandProperty);
             set => SetValue(MouseDownCommandProperty, value);
+        }
+
+        public ICommand MouseUpCommand
+        {
+            get => (ICommand)GetValue(MouseUpCommandProperty);
+            set => SetValue(MouseUpCommandProperty, value);
+        }
+
+        public ICommand StylusButtonDownCommand
+        {
+            get => (ICommand)GetValue(StylusButtonDownCommandProperty);
+            set => SetValue(StylusButtonDownCommandProperty, value);
+        }
+
+        public ICommand StylusButtonUpCommand
+        {
+            get => (ICommand)GetValue(StylusButtonUpCommandProperty);
+            set => SetValue(StylusButtonUpCommandProperty, value);
+        }
+
+        public ICommand StylusGestureCommand
+        {
+            get => (ICommand)GetValue(StylusGestureCommandProperty);
+            set => SetValue(StylusGestureCommandProperty, value);
+        }
+
+        public ICommand StylusOutOfRangeCommand
+        {
+            get => (ICommand)GetValue(StylusOutOfRangeCommandProperty);
+            set => SetValue(StylusOutOfRangeCommandProperty, value);
         }
 
         public double MouseXOnCanvas
@@ -159,8 +203,8 @@ namespace PixiEditor.Views.UserControls
 
         private void ProcessMouseDown(object parameter)
         {
-            if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(typeof(MoveViewportTool)))
-                MiddleMouseClickedCommand.Execute(typeof(MoveViewportTool));
+            if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(null))
+                MiddleMouseClickedCommand.Execute(null);
         }
 
         private void OnCanvasLoaded(object sender, EventArgs e)

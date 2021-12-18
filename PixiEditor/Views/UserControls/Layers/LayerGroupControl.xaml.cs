@@ -61,12 +61,12 @@ namespace PixiEditor.Views.UserControls.Layers
             LayerGroupControl control = (LayerGroupControl)d;
             if (e.OldValue is LayersViewModel oldVm && oldVm != e.NewValue)
             {
-                oldVm.Owner.BitmapManager.MouseController.StoppedRecordingChanges -= control.MouseController_StoppedRecordingChanges;
+                oldVm.Owner.BitmapManager.StopUsingTool -= control.MouseController_StoppedRecordingChanges;
             }
 
             if (e.NewValue is LayersViewModel vm)
             {
-                vm.Owner.BitmapManager.MouseController.StoppedRecordingChanges += control.MouseController_StoppedRecordingChanges;
+                vm.Owner.BitmapManager.StopUsingTool += control.MouseController_StoppedRecordingChanges;
             }
         }
 
@@ -100,7 +100,12 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private static void GroupDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((LayerGroupControl)d).GeneratePreviewImage();
+            LayerGroupControl control = (LayerGroupControl)d;
+            control.GeneratePreviewImage();
+            foreach (var layer in control.LayersViewModel.Owner.BitmapManager.ActiveDocument.Layers)
+            {
+                layer.IsVisible = layer.IsVisible;
+            }
         }
 
         public WriteableBitmap PreviewImage
@@ -165,7 +170,7 @@ namespace PixiEditor.Views.UserControls.Layers
         private void HandleLayerDrop(IDataObject dataObj, bool above, Guid referenceLayer, bool putItInside) // step brother
         {
             var data = (LayerStructureItemContainer)dataObj.GetData(LayerContainerDataName);
-            Guid group = data.Layer.LayerGuid;
+            Guid group = data.Layer.GuidValue;
 
             data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(group, referenceLayer, above);
 
@@ -188,7 +193,7 @@ namespace PixiEditor.Views.UserControls.Layers
 
             int modifier = above ? 1 : 0;
 
-            Layer layer = document.Layers.First(x => x.LayerGuid == referenceLayer);
+            Layer layer = document.Layers.First(x => x.GuidValue == referenceLayer);
             int indexOfReferenceLayer = Math.Clamp(document.Layers.IndexOf(layer) + modifier, 0, document.Layers.Count);
             MoveGroupWithTempLayer(above, document, group, indexOfReferenceLayer, putItInside);
         }
@@ -201,9 +206,9 @@ namespace PixiEditor.Views.UserControls.Layers
 
             Guid? refGuid = putItInside ? GroupData?.GroupGuid : GroupData?.Parent?.GroupGuid;
 
-            document.LayerStructure.AssignParent(tempLayer.LayerGuid, refGuid);
-            document.MoveGroupInStructure(group, tempLayer.LayerGuid, above);
-            document.LayerStructure.AssignParent(tempLayer.LayerGuid, null);
+            document.LayerStructure.AssignParent(tempLayer.GuidValue, refGuid);
+            document.MoveGroupInStructure(group, tempLayer.GuidValue, above);
+            document.LayerStructure.AssignParent(tempLayer.GuidValue, null);
             document.RemoveLayer(tempLayer, false);
         }
 
@@ -242,8 +247,8 @@ namespace PixiEditor.Views.UserControls.Layers
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
-            var layer = doc.Layers.First(x => x.LayerGuid == GroupData.EndLayerGuid);
-            if (doc.ActiveLayerGuid != layer.LayerGuid)
+            var layer = doc.Layers.First(x => x.GuidValue == GroupData.EndLayerGuid);
+            if (doc.ActiveLayerGuid != layer.GuidValue)
             {
                 doc.SetMainActiveLayer(doc.Layers.IndexOf(layer));
             }
@@ -292,7 +297,7 @@ namespace PixiEditor.Views.UserControls.Layers
 
                 foreach (var layer in layers)
                 {
-                    layer.RaisePropertyChange(nameof(layer.IsVisible));
+                    layer.IsVisible = layer.IsVisible;
                 }
 
                 IsVisibleUndoTriggerable = value;

@@ -15,44 +15,44 @@ namespace PixiEditorTests.HelpersTests
 {
     public static class ViewModelHelper
     {
-        public static IServiceCollection GetViewModelMainCollection()
-        {
-            return new ServiceCollection()
-                .AddScoped<IPreferences, PreferenceSettingsMock>()
-                .AddSingleton<BitmapManager>();
-        }
+        //public static IServiceCollection GetViewModelMainCollection()
+        //{
+        //    return new ServiceCollection()
+        //        .AddScoped<IPreferences, PreferenceSettingsMock>()
+        //        .AddSingleton<BitmapManager>();
+        //}
 
-        public static ViewModelMain MockedViewModelMain()
-        {
-            IServiceCollection provider = MockedServiceCollection();
+        //public static ViewModelMain MockedViewModelMain()
+        //{
+        //    IServiceCollection provider = MockedServiceCollection();
 
-            return new ViewModelMain(provider);
-        }
+        //    return new ViewModelMain(provider);
+        //}
 
-        public static IServiceCollection MockedServiceCollection()
-        {
-            return new ServiceCollection()
-                .AddSingleton<IPreferences>(new Mocks.PreferenceSettingsMock())
-                .AddSingleton<StylusViewModel>()
-                .AddSingleton<BitmapManager>()
-                .AddSingleton<ToolsViewModel>();
-        }
+        //public static IServiceCollection MockedServiceCollection()
+        //{
+        //    return new ServiceCollection()
+        //        .AddSingleton<IPreferences>(new Mocks.PreferenceSettingsMock())
+        //        .AddSingleton<StylusViewModel>()
+        //        .AddSingleton<BitmapManager>()
+        //        .AddSingleton<ToolsViewModel>();
+        //}
 
-        public static T BuildMockedTool<T>(bool requireViewModelMain = false)
-            where T : Tool
-        {
-            IServiceProvider services;
+        //public static T BuildMockedTool<T>(bool requireViewModelMain = false)
+        //    where T : Tool
+        //{
+        //    IServiceProvider services;
 
-            if (requireViewModelMain)
-            {
-                services = MockedViewModelMain().Services;
-            }
-            else
-            {
-                services = MockedServiceCollection().BuildServiceProvider();
-            }
+        //    if (requireViewModelMain)
+        //    {
+        //        services = MockedViewModelMain().Services;
+        //    }
+        //    else
+        //    {
+        //        services = MockedServiceCollection().BuildServiceProvider();
+        //    }
 
-            return ToolBuilder.BuildTool<T>(services);
-        }
+        //    return ToolBuilder.BuildTool<T>(services);
+        //}
     }
 }

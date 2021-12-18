@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Colors;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Windows;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -18,91 +17,93 @@ namespace PixiEditor.Models.Tools.Tools
     {
         private const float CorrectionFactor = 5f; // Initial correction factor
 
+        private readonly string defaultActionDisplay = "Draw on pixels to make them brighter. Hold Ctrl to darken.";
         private readonly List<Coordinates> pixelsVisited = new List<Coordinates>();
+        private List<DoubleCoords> circleCache = new List<DoubleCoords>();
+        private int cachedCircleSize = -1;
 
         public BrightnessTool()
         {
-            ActionDisplay = "Draw on pixel to make it brighter. Hold Ctrl to darken.";
+            ActionDisplay = defaultActionDisplay;
             Toolbar = new BrightnessToolToolbar(CorrectionFactor);
         }
 
-		public override bool UsesShift => false;
-		public override string Tooltip => "Makes pixel brighter or darker pixel (U). Hold Ctrl to make pixel darker.";
+        public override string Tooltip => "Makes pixels brighter or darker (U). Hold Ctrl to make pixels darker.";
 
         public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 
-        public override void OnRecordingLeftMouseDown(MouseEventArgs e)
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
+            if (!ctrlIsDown)
+                ActionDisplay = defaultActionDisplay;
+            else
+                ActionDisplay = "Draw on pixels to make them darker. Release Ctrl to brighten.";
+        }
+
+        public override void BeforeUse()
+        {
+            base.BeforeUse();
             pixelsVisited.Clear();
         }
 
-        public override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Key == Key.LeftCtrl)
-            {
-                ActionDisplay = "Draw on pixel to make it darker. Release Ctrl to brighten.";
-            }
-        }
-
-        public override void OnKeyUp(KeyEventArgs e)
-        {
-            if (e.Key == Key.LeftCtrl)
-            {
-                ActionDisplay = "Draw on pixel to make it brighter. Hold Ctrl to darken.";
-            }
-        }
-
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
             int toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
             float correctionFactor = Toolbar.GetSetting<FloatSetting>("CorrectionFactor").Value;
             Mode = Toolbar.GetEnumSetting<BrightnessMode>("BrightnessMode").Value;
 
-            LayerChange[] layersChanges = new LayerChange[1];
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (Session.IsCtrlDown)
             {
-                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, -correctionFactor), layer);
+                ChangeBrightness(activeLayer, recordedMouseMovement[^1], toolSize, -correctionFactor);
             }
             else
             {
-                layersChanges[0] = new LayerChange(ChangeBrightness(layer, coordinates[0], toolSize, correctionFactor), layer);
+                ChangeBrightness(activeLayer, recordedMouseMovement[^1], toolSize, correctionFactor);
             }
-
-            return layersChanges;
         }
 
-        public BitmapPixelChanges ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
+        private void ChangeBrightness(Layer layer, Coordinates coordinates, int toolSize, float correctionFactor)
         {
-            DoubleCords centeredCoords = CoordinatesCalculator.CalculateThicknessCenter(coordinates, toolSize);
-            IEnumerable<Coordinates> rectangleCoordinates = CoordinatesCalculator.RectangleToCoordinates(
-                centeredCoords.Coords1.X,
-                centeredCoords.Coords1.Y,
-                centeredCoords.Coords2.X,
-                centeredCoords.Coords2.Y);
-            BitmapPixelChanges changes = new BitmapPixelChanges(new Dictionary<Coordinates, Color>());
+            if (cachedCircleSize != toolSize)
+                UpdateCircleCache(toolSize);
 
-            foreach (Coordinates coordinate in rectangleCoordinates)
+            int radius = (int)Math.Ceiling(toolSize / 2f);
+            Int32Rect dirtyRect = new(coordinates.X - radius, coordinates.Y - radius, radius * 2, radius * 2);
+            layer.DynamicResizeAbsolute(dirtyRect);
+
+            foreach (var pair in circleCache)
             {
-                if (Mode == BrightnessMode.Default)
+                Coordinates left = pair.Coords1;
+                Coordinates right = pair.Coords2;
+                int y = left.Y + coordinates.Y;
+
+                for (int x = left.X + coordinates.X; x <= right.X + coordinates.X; x++)
                 {
-                    if (pixelsVisited.Contains(coordinate))
+                    if (Mode == BrightnessMode.Default)
                     {
-                        continue;
+                        Coordinates here = new(x, y);
+                        if (pixelsVisited.Contains(here))
+                            continue;
+
+                        pixelsVisited.Add(here);
                     }
 
-                    pixelsVisited.Add(coordinate);
+                    SKColor pixel = layer.GetPixelWithOffset(x, y);
+                    SKColor newColor = ExColor.ChangeColorBrightness(
+                        pixel,
+                        correctionFactor);
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x - layer.OffsetX, y - layer.OffsetY, newColor);
                 }
-
-                Color pixel = layer.GetPixelWithOffset(coordinate.X, coordinate.Y);
-                Color newColor = ExColor.ChangeColorBrightness(
-                    Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B),
-                    correctionFactor);
-                changes.ChangedPixels.Add(
-                    new Coordinates(coordinate.X, coordinate.Y),
-                    newColor);
             }
+            layer.InvokeLayerBitmapChange(dirtyRect);
+        }
 
-            return changes;
+        private void UpdateCircleCache(int newCircleSize)
+        {
+            cachedCircleSize = newCircleSize;
+            DoubleCoords rect = CoordinatesCalculator.CalculateThicknessCenter(new Coordinates(0, 0), newCircleSize);
+            List<Coordinates> circle = EllipseGenerator.GenerateEllipseFromRect(rect);
+            circleCache = EllipseGenerator.SplitEllipseIntoLines(circle);
         }
     }
 }

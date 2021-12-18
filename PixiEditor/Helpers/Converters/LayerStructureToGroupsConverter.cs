@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Helpers.Converters
 {
@@ -24,7 +25,7 @@ namespace PixiEditor.Helpers.Converters
 
         private ObservableCollection<GuidStructureItem> GetSubGroups(IEnumerable<GuidStructureItem> groups)
         {
-            ObservableCollection<GuidStructureItem> finalGroups = new ObservableCollection<GuidStructureItem>();
+            WpfObservableRangeCollection<GuidStructureItem> finalGroups = new WpfObservableRangeCollection<GuidStructureItem>();
             foreach (var group in groups)
             {
                 finalGroups.AddRange(GetSubGroups(group));

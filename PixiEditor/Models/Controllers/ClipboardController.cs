@@ -1,39 +1,111 @@
-﻿using PixiEditor.Models.ImageManipulation;
+﻿using PixiEditor.Exceptions;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.ImageManipulation;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
+using PixiEditor.Parser;
 using PixiEditor.ViewModels;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Controllers
 {
     public static class ClipboardController
     {
+        public static readonly string TempCopyFilePath = Path.Join(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "PixiEditor",
+                    "Copied.png");
+
         /// <summary>
-        ///     Copies selection to clipboard in PNG, Bitmap and DIB formats.
+        /// Copies the selection to clipboard in PNG, Bitmap and DIB formats. <para/>
+        /// Also serailizes the <paramref name="document"/> in the PIXI format and copies it to the clipboard.
+        /// </summary>
+        public static void CopyToClipboard(Document document)
+        {
+            CopyToClipboard(
+                document.Layers.Where(x => document.GetFinalLayerIsVisible(x) && x.IsActive).ToArray(),
+                document.ActiveSelection.SelectionLayer,
+                document.LayerStructure,
+                document.Width,
+                document.Height,
+                null/*document.ToSerializable()*/);
+        }
+
+        private static Surface CreateMaskedCombinedSurface(Layer[] layers, LayerStructure structure, Layer selLayer)
+        {
+            if (layers.Length == 0)
+                throw new ArgumentException("Can't combine 0 layers");
+            selLayer.ClipCanvas();
+
+            Surface combined = BitmapUtils.CombineLayers(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height), layers, structure);
+            using SKImage snapshot = selLayer.LayerBitmap.SkiaSurface.Snapshot();
+            combined.SkiaSurface.Canvas.DrawImage(snapshot, 0, 0, Surface.MaskingPaint);
+            return combined;
+        }
+
+        /// <summary>
+        ///     Copies the selection to clipboard in PNG, Bitmap and DIB formats.
         /// </summary>
         /// <param name="layers">Layers where selection is.</param>
-        public static void CopyToClipboard(Layer[] layers, Coordinates[] selection, int originalImageWidth, int originalImageHeight)
+        public static void CopyToClipboard(Layer[] layers, Layer selLayer, LayerStructure structure, int originalImageWidth, int originalImageHeight, SerializableDocument document = null)
         {
-            Clipboard.Clear();
-            WriteableBitmap combinedBitmaps = BitmapUtils.CombineLayers(originalImageWidth, originalImageHeight, layers);
-            using (MemoryStream pngStream = new MemoryStream())
-            {
-                DataObject data = new DataObject();
-                BitmapSource croppedBmp = BitmapSelectionToBmpSource(combinedBitmaps, selection);
-                data.SetData(DataFormats.Bitmap, croppedBmp, true); // Bitmap, no transparency support
+            if (!ClipboardHelper.TryClear())
+                return;
+            if (layers.Length == 0)
+                return;
 
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(croppedBmp));
-                encoder.Save(pngStream);
+            using Surface surface = CreateMaskedCombinedSurface(layers, structure, selLayer);
+            DataObject data = new DataObject();
+
+
+            //BitmapSource croppedBmp = BitmapSelectionToBmpSource(finalBitmap, selLayer, out int offsetX, out int offsetY, out int width, out int height);
+
+            //Remove for now
+            //data.SetData(typeof(CropData), new CropData(width, height, offsetX, offsetY).ToStream());
+
+            using (SKData pngData = surface.SkiaSurface.Snapshot().Encode())
+            {
+                // Stream should not be disposed
+                MemoryStream pngStream = new MemoryStream();
+                pngData.AsStream().CopyTo(pngStream);
+
                 data.SetData("PNG", pngStream, false); // PNG, supports transparency
 
-                Clipboard.SetImage(croppedBmp); // DIB format
-                Clipboard.SetDataObject(data, true);
+                pngStream.Position = 0;
+                Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath));
+                using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
+                pngStream.CopyTo(fileStream);
+                data.SetFileDropList(new StringCollection() { TempCopyFilePath });
             }
+
+            WriteableBitmap finalBitmap = surface.ToWriteableBitmap();
+            data.SetData(DataFormats.Bitmap, finalBitmap, true); // Bitmap, no transparency
+            data.SetImage(finalBitmap); // DIB format, no transparency
+
+            // Remove pixi copying for now
+            /*
+            if (document != null)
+            {
+                MemoryStream memoryStream = new();
+                PixiParser.Serialize(document, memoryStream);
+                data.SetData("PIXI", memoryStream); // PIXI, supports transparency, layers, groups and swatches
+                ClipboardHelper.TrySetDataObject(data, true);
+            }
+            */
+
+            ClipboardHelper.TrySetDataObject(data, true);
         }
 
         /// <summary>
@@ -41,92 +113,234 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void PasteFromClipboard()
         {
-            WriteableBitmap image = GetImageFromClipboard();
-            if (image != null)
+            IEnumerable<Layer> layers;
+            try
             {
-                AddImageToLayers(image);
-                int latestLayerIndex = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Count - 1;
-                ViewModelMain.Current.BitmapManager.ActiveDocument.UndoManager.AddUndoChange(
-                    new Change(RemoveLayerProcess, new object[] { latestLayerIndex }, AddLayerProcess, new object[] { image }));
+                layers = GetLayersFromClipboard();
             }
-        }
+            catch
+            {
+                return;
+            }
 
+            Document activeDocument = ViewModelMain.Current.BitmapManager.ActiveDocument;
+            int startIndex = activeDocument.Layers.Count;
+
+            foreach (var layer in layers)
+            {
+                activeDocument.Layers.Add(layer);
+            }
+
+            activeDocument.UndoManager.AddUndoChange(
+                new Change(RemoveLayersProcess, new object[] { startIndex }, AddLayersProcess, new object[] { layers }) { DisposeProcess = DisposeProcess });
+        }
 
         /// <summary>
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
         /// <returns>WriteableBitmap.</returns>
-        public static WriteableBitmap GetImageFromClipboard()
+        private static IEnumerable<Layer> GetLayersFromClipboard()
         {
-            DataObject dao = (DataObject)Clipboard.GetDataObject();
-            WriteableBitmap finalImage = null;
-            if (dao.GetDataPresent("PNG"))
+            DataObject data = ClipboardHelper.TryGetDataObject();
+            if (data == null)
+                yield break;
+
+            //Remove pixi for now
+            /*
+            if (data.GetDataPresent("PIXI"))
             {
-                using (MemoryStream pngStream = dao.GetData("PNG") as MemoryStream)
+                SerializableDocument document = GetSerializable(data, out CropData crop);
+                SKRectI cropRect = SKRectI.Create(crop.OffsetX, crop.OffsetY, crop.Width, crop.Height);
+
+                foreach (SerializableLayer sLayer in document)
                 {
-                    if (pngStream != null)
+                    SKRectI intersect;
+
+                    if (//layer.OffsetX > crop.OffsetX + crop.Width || layer.OffsetY > crop.OffsetY + crop.Height ||
+                        !sLayer.IsVisible || sLayer.Opacity == 0 ||
+                        (intersect = SKRectI.Intersect(cropRect, sLayer.GetRect())) == SKRectI.Empty)
                     {
-                        PngBitmapDecoder decoder = new PngBitmapDecoder(pngStream, BitmapCreateOptions.IgnoreImageCache, BitmapCacheOption.OnLoad);
-                        finalImage = new WriteableBitmap(decoder.Frames[0].Clone());
+                        continue;
                     }
+
+                    var layer = sLayer.ToLayer();
+
+                    layer.Crop(intersect);
+
+                    yield return layer;
                 }
             }
-            else if (dao.GetDataPresent(DataFormats.Dib))
+            else */
+            if (TryFromSingleImage(data, out Surface singleImage))
             {
-                finalImage = new WriteableBitmap(Clipboard.GetImage()!);
+                yield return new Layer("Image", singleImage);
             }
-            else if (dao.GetDataPresent(DataFormats.Bitmap))
+            else if (data.GetDataPresent(DataFormats.FileDrop))
             {
-                finalImage = new WriteableBitmap((dao.GetData(DataFormats.Bitmap) as BitmapSource)!);
-            }
+                foreach (string path in data.GetFileDropList())
+                {
+                    if (!Importer.IsSupportedFile(path))
+                    {
+                        continue;
+                    }
 
-            return finalImage;
+                    Layer layer = null;
+
+                    try
+                    {
+                        layer = new(Path.GetFileName(path), Importer.ImportSurface(path));
+                    }
+                    catch (CorruptedFileException)
+                    {
+                    }
+
+                    yield return layer ?? new($"Corrupt {path}");
+                }
+            }
+            else
+            {
+                yield break;
+            }
         }
 
         public static bool IsImageInClipboard()
         {
-            DataObject dao = (DataObject)Clipboard.GetDataObject();
+            DataObject dao = ClipboardHelper.TryGetDataObject();
             if (dao == null)
-            {
                 return false;
+
+            var files = dao.GetFileDropList();
+
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+                    if (Importer.IsSupportedFile(file))
+                    {
+                        return true;
+                    }
+                }
             }
 
             return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) ||
-                   dao.GetDataPresent(DataFormats.Bitmap);
+                   dao.GetDataPresent(DataFormats.Bitmap) || dao.GetDataPresent(DataFormats.FileDrop) ||
+                   dao.GetDataPresent("PIXI");
         }
 
-        public static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection)
+        private static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection, out int offsetX, out int offsetY, out int width, out int height)
         {
-            int offsetX = selection.Min(x => x.X);
-            int offsetY = selection.Min(x => x.Y);
-            int width = selection.Max(x => x.X) - offsetX + 1;
-            int height = selection.Max(x => x.Y) - offsetY + 1;
+            offsetX = selection.Min(min => min.X);
+            offsetY = selection.Min(min => min.Y);
+            width = selection.Max(max => max.X) - offsetX + 1;
+            height = selection.Max(max => max.Y) - offsetY + 1;
             return bitmap.Crop(offsetX, offsetY, width, height);
         }
 
-        private static void RemoveLayerProcess(object[] parameters)
+        private static BitmapSource FromPNG(DataObject data)
         {
-            if (parameters.Length == 0 || !(parameters[0] is int))
+            MemoryStream pngStream = data.GetData("PNG") as MemoryStream;
+            PngBitmapDecoder decoder = new PngBitmapDecoder(pngStream, BitmapCreateOptions.IgnoreImageCache, BitmapCacheOption.OnLoad);
+
+            return decoder.Frames[0];
+        }
+
+        private static unsafe SerializableDocument GetSerializable(DataObject data, out CropData cropData)
+        {
+            MemoryStream pixiStream = data.GetData("PIXI") as MemoryStream;
+            SerializableDocument document = PixiParser.Deserialize(pixiStream);
+
+            if (data.GetDataPresent(typeof(CropData)))
+            {
+                cropData = CropData.FromStream(data.GetData(typeof(CropData)) as MemoryStream);
+            }
+            else
+            {
+                cropData = new CropData(document.Width, document.Height, 0, 0);
+            }
+
+            return document;
+        }
+
+        private static bool TryFromSingleImage(DataObject data, out Surface result)
+        {
+            try
+            {
+                BitmapSource source;
+
+                if (data.GetDataPresent("PNG"))
+                {
+                    source = FromPNG(data);
+                }
+                else if (data.GetDataPresent(DataFormats.Dib) || data.GetDataPresent(DataFormats.Bitmap))
+                {
+                    source = Clipboard.GetImage();
+                }
+                else
+                {
+                    result = null;
+                    return false;
+                }
+
+                if (source.Format.IsSkiaSupported())
+                {
+                    result = new Surface(source);
+                }
+                else
+                {
+                    FormatConvertedBitmap newFormat = new FormatConvertedBitmap();
+                    newFormat.BeginInit();
+                    newFormat.Source = source;
+                    newFormat.DestinationFormat = PixelFormats.Rgba64;
+                    newFormat.EndInit();
+
+                    result = new Surface(newFormat);
+                }
+
+                return true;
+            }
+            catch { }
+
+            result = null;
+            return false;
+        }
+
+        private static void RemoveLayersProcess(object[] parameters)
+        {
+            if (parameters.Length == 0 || parameters[0] is not int i)
             {
                 return;
             }
 
-            ViewModelMain.Current.BitmapManager.ActiveDocument.RemoveLayer((int)parameters[0], true);
+            Document document = ViewModelMain.Current.BitmapManager.ActiveDocument;
+
+            while (i < document.Layers.Count)
+            {
+                document.RemoveLayer(i, true);
+            }
         }
 
-        private static void AddLayerProcess(object[] parameters)
+        private static void AddLayersProcess(object[] parameters)
         {
-            if (parameters.Length == 0 || !(parameters[0] is WriteableBitmap))
+            if (parameters.Length == 0 || parameters[0] is not IEnumerable<Layer> layers)
             {
                 return;
             }
 
-            AddImageToLayers((WriteableBitmap)parameters[0]);
+            foreach (var layer in layers)
+            {
+                ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Add(layer);
+            }
         }
 
-        private static void AddImageToLayers(WriteableBitmap image)
+        private static void DisposeProcess(object[] rev, object[] proc)
         {
-            ViewModelMain.Current.BitmapManager.ActiveDocument.AddNewLayer("Image", image);
+            if (proc[0] is IEnumerable<Layer> layers)
+            {
+                foreach (var layer in layers)
+                {
+                    layer.LayerBitmap.Dispose();
+                }
+            }
         }
     }
 }

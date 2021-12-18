@@ -61,3 +61,7 @@ namespace PixiEditor.Helpers.Behaviours
         }
     }
 }
+
+#if PUBLISH
+#error Hi
+#endif

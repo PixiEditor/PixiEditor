@@ -1,8 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using SkiaSharp;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -12,11 +12,11 @@ namespace PixiEditor.Views.UserControls
     public partial class SwatchesView : UserControl
     {
         public static readonly DependencyProperty SwatchesProperty =
-            DependencyProperty.Register(nameof(Swatches), typeof(ObservableCollection<Color>), typeof(SwatchesView));
+            DependencyProperty.Register(nameof(Swatches), typeof(ObservableCollection<SKColor>), typeof(SwatchesView));
 
-        public ObservableCollection<Color> Swatches
+        public ObservableCollection<SKColor> Swatches
         {
-            get => (ObservableCollection<Color>)GetValue(SwatchesProperty);
+            get => (ObservableCollection<SKColor>)GetValue(SwatchesProperty);
             set => SetValue(SwatchesProperty, value);
         }
 

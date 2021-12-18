@@ -7,22 +7,49 @@
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
-             mc:Ignorable="d"
+             mc:Ignorable="d" Foreground="White" Focusable="True"
              d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="UserControlLayoutUpdated">
-    <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Center"
-             Style="{StaticResource DarkTextBoxStyle}" MaxLength="4" InputScope="Number">
-        <TextBox.Text>
-            <Binding ElementName="uc"
-                     Path="Size" Mode="TwoWay"
-                     Converter="{converters:ToolSizeToIntConverter}">
-                <Binding.ValidationRules>
-                    <validators:SizeValidationRule ValidatesOnTargetUpdated="True" />
-                </Binding.ValidationRules>
-            </Binding>
-        </TextBox.Text>
-        <i:Interaction.Behaviors>
-            <behaviors:GlobalShortcutFocusBehavior/>
-            <behaviors:TextBoxFocusBehavior FillSize="True" />
-        </i:Interaction.Behaviors>
-    </TextBox>
+
+    <Border BorderThickness="1" CornerRadius="3.5"
+            x:Name="border"
+            Cursor="IBeam" MouseLeftButtonDown="Border_MouseLeftButtonDown"
+            MouseWheel="Border_MouseWheel">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="False">
+                        <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource BrighterAccentColor}"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{StaticResource DarkerAccentColor}"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource AlmostLightModeAccentColor}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="2"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Right"
+                     InputScope="Number" BorderThickness="0" Background="Transparent"
+                     Foreground="{Binding Foreground, ElementName=uc}" Focusable="True" CaretBrush="{Binding Foreground, ElementName=uc}"
+                     Margin="0,0,5,0" VerticalAlignment="Center"
+                     x:Name="textBox"
+                     Text="{Binding Size, ElementName=uc, Converter={converters:ToolSizeToIntConverter}}"
+                     d:Text="22">
+                <i:Interaction.Behaviors>
+                    <behaviors:GlobalShortcutFocusBehavior/>
+                    <behaviors:TextBoxFocusBehavior SelectOnFocus="{Binding SelectOnFocus, ElementName=uc}" NextControl="{Binding NextControl, ElementName=uc}"/>
+                </i:Interaction.Behaviors>
+            </TextBox>
+            <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"
+                  d:Background="{StaticResource BrighterAccentColor}"/>
+            <TextBlock Text="px" TextAlignment="Right"
+                       Grid.Column="2" Margin="5,0" VerticalAlignment="Center"/>
+        </Grid>
+    </Border>
 </UserControl>

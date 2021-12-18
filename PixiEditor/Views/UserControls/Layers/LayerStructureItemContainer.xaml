@@ -11,25 +11,30 @@
                                        LayerName="{Binding Name, Mode=TwoWay}" 
                                        IsActive="{Binding IsActive, Mode=TwoWay}"
                                        IsRenaming="{Binding IsRenaming, Mode=TwoWay}"
-                                       PreviewImage="{Binding LayerBitmap}"
-                                       LayerGuid="{Binding LayerGuid}"
+                                       LayerForPreview="{Binding}"
+                                       LayerGuid="{Binding GuidValue}"
                                        LayerColor="{Binding LayerHighlightColor}"
                                        LayerIndex="{Binding ContainerIndex, ElementName=layerStructureContainer}"
                                       MoveToBackCommand="{Binding LayerCommandsViewModel.MoveToBackCommand, ElementName=layerStructureContainer}"
                                       MoveToFrontCommand="{Binding LayerCommandsViewModel.MoveToFrontCommand, ElementName=layerStructureContainer}">
         <vws:LayerItem.ContextMenu>
             <ContextMenu>
+                <MenuItem Header="Duplicate"
+                                         Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DuplicateLayerCommand,
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                </MenuItem>
                 <MenuItem Header="Delete"
-                                         Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand, 
+                                         Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand,
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                           CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
                 <MenuItem Header="Rename"
-                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.RenameLayerCommand, 
+                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.RenameLayerCommand,
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
                 <MenuItem Header="Move to front"
-                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand, 
+                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand,
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                            CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>

@@ -2,17 +2,15 @@
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
 {
     public class BoolSetting : Setting<bool>
     {
         public BoolSetting(string name, string label = "")
-            : base(name)
+            : this(name, false, label)
         {
-            Label = label;
-            Value = false;
-            SettingControl = GenerateCheckBox();
         }
 
         public BoolSetting(string name, bool isChecked, string label = "")

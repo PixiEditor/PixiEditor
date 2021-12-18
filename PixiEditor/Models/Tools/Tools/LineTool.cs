@@ -1,143 +1,103 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using System.Windows.Media;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Enums;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Windows;
 
 namespace PixiEditor.Models.Tools.Tools
 {
     public class LineTool : ShapeTool
     {
-        private readonly CircleTool circleTool;
+        private List<Coordinates> linePoints = new List<Coordinates>();
+        private SKPaint paint = new SKPaint() { Style = SKPaintStyle.Stroke };
+
+        public bool AutomaticallyResizeCanvas { get; set; } = true;
+
+        private string defaltActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
 
         public LineTool()
         {
-            ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+            ActionDisplay = defaltActionDisplay;
             Toolbar = new BasicToolbar();
-            circleTool = new CircleTool();
         }
 
         public override string Tooltip => "Draws line on canvas (L). Hold Shift to draw even line.";
 
-        public override void OnKeyDown(KeyEventArgs e)
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
-            if (e.Key == Key.LeftShift)
-            {
+            if (shiftIsDown)
                 ActionDisplay = "Click and move mouse to draw an even line.";
-            }
+            else
+                ActionDisplay = defaltActionDisplay;
         }
 
-        public override void OnKeyUp(KeyEventArgs e)
+        public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
-            if (e.Key == Key.LeftShift)
+            int thickness = Toolbar.GetSetting<SizeSetting>("ToolSize").Value;
+
+            Coordinates start = recordedMouseMovement[0];
+            Coordinates end = recordedMouseMovement[^1];
+
+            if (Session.IsShiftDown)
+                (start, end) = CoordinatesHelper.GetSquareOrLineCoordinates(recordedMouseMovement);
+
+            DrawLine(previewLayer, start, end, color, thickness, SKBlendMode.Src);
+        }
+
+        public void DrawLine(
+            Layer layer, Coordinates start, Coordinates end, SKColor color, int thickness, SKBlendMode blendMode,
+            SKStrokeCap strokeCap = SKStrokeCap.Butt)
+        {
+            int x = start.X;
+            int y = start.Y;
+            int x1 = end.X;
+            int y1 = end.Y;
+
+            int dirtyX = Math.Min(x, x1) - thickness;
+            int dirtyY = Math.Min(y, y1) - thickness;
+
+            Int32Rect dirtyRect = new Int32Rect(
+                dirtyX,
+                dirtyY,
+                Math.Max(x1, x) + thickness - dirtyX,
+                Math.Max(y1, y) + thickness - dirtyY);
+            if (AutomaticallyResizeCanvas)
             {
-                ActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+                layer.DynamicResizeAbsolute(dirtyRect);
             }
-        }
 
-        public override LayerChange[] Use(Layer layer, List<Coordinates> coordinates, Color color)
-        {
-            BitmapPixelChanges pixels =
-                BitmapPixelChanges.FromSingleColoredArray(
-                    CreateLine(
-                        coordinates,
-                        Toolbar.GetSetting<SizeSetting>("ToolSize").Value,
-                        CapType.Square,
-                        CapType.Square), color);
-            return Only(pixels, layer);
-        }
+            x -= layer.OffsetX;
+            y -= layer.OffsetY;
+            x1 -= layer.OffsetX;
+            y1 -= layer.OffsetY;
 
-        public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness)
-        {
-            return CreateLineFastest(start, end, thickness);
-        }
+            paint.StrokeWidth = thickness;
+            paint.Color = color;
+            paint.BlendMode = blendMode;
+            paint.StrokeCap = strokeCap;
 
-        public IEnumerable<Coordinates> CreateLine(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
-        {
-            return CreateLine(new List<Coordinates>() { end, start }, thickness, startCap, endCap);
-        }
-
-        private IEnumerable<Coordinates> CreateLine(IEnumerable<Coordinates> coordinates, int thickness, CapType startCap, CapType endCap)
-        {
-            Coordinates startingCoordinates = coordinates.Last();
-            Coordinates latestCoordinates = coordinates.First();
             if (thickness == 1)
             {
-                return BresenhamLine(startingCoordinates.X, startingCoordinates.Y, latestCoordinates.X, latestCoordinates.Y);
+                DrawBresenhamLine(layer, x, y, x1, y1, paint);
             }
-
-            return GetLinePoints(startingCoordinates, latestCoordinates, thickness, startCap, endCap);
-        }
-
-        private IEnumerable<Coordinates> CreateLineFastest(Coordinates start, Coordinates end, int thickness)
-        {
-            IEnumerable<Coordinates> line = BresenhamLine(start.X, start.Y, end.X, end.Y);
-            if (thickness == 1)
+            else
             {
-                return line;
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawLine(x, y, x1, y1, paint);
             }
 
-            return GetThickShape(line, thickness);
+            layer.InvokeLayerBitmapChange(dirtyRect);
         }
 
-        private IEnumerable<Coordinates> GetLinePoints(Coordinates start, Coordinates end, int thickness, CapType startCap, CapType endCap)
+        private void DrawBresenhamLine(Layer layer, int x1, int y1, int x2, int y2, SKPaint paint)
         {
-            IEnumerable<Coordinates> startingCap = GetCapCoordinates(startCap, start, thickness);
-            if (start == end)
-            {
-                return startingCap;
-            }
-
-            IEnumerable<Coordinates> line = BresenhamLine(start.X, start.Y, end.X, end.Y);
-
-            List<Coordinates> output = new List<Coordinates>(startingCap);
-
-            output.AddRange(GetCapCoordinates(endCap, end, thickness));
-            if (line.Count() > 2)
-            {
-                output.AddRange(GetThickShape(line.Except(new[] { start, end }), thickness));
-            }
-
-            return output.Distinct();
-        }
-
-        private IEnumerable<Coordinates> GetCapCoordinates(CapType cap, Coordinates position, int thickness)
-        {
-            switch (cap)
-            {
-                case CapType.Round:
-                    {
-                        return GetRoundCap(position, thickness); // Round cap is not working very well, circle tool must be improved
-                    }
-
-                default:
-                    return GetThickShape(new[] { position }, thickness);
-            }
-        }
-
-        /// <summary>
-        ///     Gets points for rounded cap on specified position and thickness.
-        /// </summary>
-        /// <param name="position">Starting position of cap.</param>
-        /// <param name="thickness">Thickness of cap.</param>
-        private IEnumerable<Coordinates> GetRoundCap(Coordinates position, int thickness)
-        {
-            IEnumerable<Coordinates> rectangleCords = CoordinatesCalculator.RectangleToCoordinates(
-                CoordinatesCalculator.CalculateThicknessCenter(position, thickness));
-            return circleTool.CreateEllipse(rectangleCords.First(), rectangleCords.Last(), 1, true);
-        }
-
-        private IEnumerable<Coordinates> BresenhamLine(int x1, int y1, int x2, int y2)
-        {
-            List<Coordinates> coordinates = new List<Coordinates>();
             if (x1 == x2 && y1 == y2)
             {
-                return new[] { new Coordinates(x1, y1) };
+                layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x1, y1, paint);
+                return;
             }
 
             int d, dx, dy, ai, bi, xi, yi;
@@ -165,7 +125,7 @@ namespace PixiEditor.Models.Tools.Tools
                 dy = y1 - y2;
             }
 
-            coordinates.Add(new Coordinates(x, y));
+            layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x, y, paint);
 
             if (dx > dy)
             {
@@ -187,7 +147,7 @@ namespace PixiEditor.Models.Tools.Tools
                         x += xi;
                     }
 
-                    coordinates.Add(new Coordinates(x, y));
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x, y, paint);
                 }
             }
             else
@@ -210,11 +170,105 @@ namespace PixiEditor.Models.Tools.Tools
                         y += yi;
                     }
 
-                    coordinates.Add(new Coordinates(x, y));
+                    layer.LayerBitmap.SkiaSurface.Canvas.DrawPoint(x, y, paint);
                 }
             }
+        }
 
-            return coordinates;
+
+        public static List<Coordinates> GetBresenhamLine(Coordinates start, Coordinates end)
+        {
+            List<Coordinates> output = new List<Coordinates>();
+            CalculateBresenhamLine(start, end, output);
+            return output;
+        }
+
+        public static void CalculateBresenhamLine(Coordinates start, Coordinates end, List<Coordinates> output)
+        {
+            int x1 = start.X;
+            int x2 = end.X;
+            int y1 = start.Y;
+            int y2 = end.Y;
+
+            if (x1 == x2 && y1 == y2)
+            {
+                output.Add(start);
+                return;
+            }
+
+            int d, dx, dy, ai, bi, xi, yi;
+            int x = x1, y = y1;
+
+            if (x1 < x2)
+            {
+                xi = 1;
+                dx = x2 - x1;
+            }
+            else
+            {
+                xi = -1;
+                dx = x1 - x2;
+            }
+
+            if (y1 < y2)
+            {
+                yi = 1;
+                dy = y2 - y1;
+            }
+            else
+            {
+                yi = -1;
+                dy = y1 - y2;
+            }
+
+            output.Add(new Coordinates(x, y));
+
+            if (dx > dy)
+            {
+                ai = (dy - dx) * 2;
+                bi = dy * 2;
+                d = bi - dx;
+
+                while (x != x2)
+                {
+                    if (d >= 0)
+                    {
+                        x += xi;
+                        y += yi;
+                        d += ai;
+                    }
+                    else
+                    {
+                        d += bi;
+                        x += xi;
+                    }
+
+                    output.Add(new Coordinates(x, y));
+                }
+            }
+            else
+            {
+                ai = (dx - dy) * 2;
+                bi = dx * 2;
+                d = bi - dy;
+
+                while (y != y2)
+                {
+                    if (d >= 0)
+                    {
+                        x += xi;
+                        y += yi;
+                        d += ai;
+                    }
+                    else
+                    {
+                        d += bi;
+                        y += yi;
+                    }
+
+                    output.Add(new Coordinates(x, y));
+                }
+            }
         }
     }
 }

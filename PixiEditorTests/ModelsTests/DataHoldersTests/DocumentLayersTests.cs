@@ -146,9 +146,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
                 layer.IsActive = true;
             }
 
-            document.SetNextSelectedLayerAsActive(document.Layers[1].LayerGuid);
+            document.SetNextSelectedLayerAsActive(document.Layers[1].GuidValue);
 
-            Assert.Equal(document.Layers[0].LayerGuid, document.ActiveLayerGuid);
+            Assert.Equal(document.Layers[0].GuidValue, document.ActiveLayerGuid);
         }
     }
 }

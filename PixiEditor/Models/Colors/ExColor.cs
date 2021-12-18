@@ -1,5 +1,5 @@
-﻿using System;
-using System.Windows.Media;
+﻿using SkiaSharp;
+using System;
 
 namespace PixiEditor.Models.Colors
 {
@@ -14,19 +14,19 @@ namespace PixiEditor.Models.Colors
         ///     Negative values produce darker colors.
         /// </param>
         /// <returns>
-        ///     Corrected <see cref="Color" /> structure.
+        ///     Corrected <see cref="SKColor" /> structure.
         /// </returns>
-        public static Color ChangeColorBrightness(Color color, float correctionFactor)
+        public static SKColor ChangeColorBrightness(SKColor color, float correctionFactor)
         {
-            Tuple<int, float, float> hsl = RgbToHsl(color.R, color.G, color.B);
+            Tuple<int, float, float> hsl = RgbToHsl(color.Red, color.Green, color.Blue);
             int h = hsl.Item1;
             float s = hsl.Item2;
             float l = hsl.Item3;
 
             l = Math.Clamp(l + correctionFactor, 0, 100);
-            Color rgb = HslToRgb(h, s, l);
+            SKColor rgb = HslToRgb(h, s, l);
 
-            return Color.FromArgb(color.A, rgb.R, rgb.G, rgb.B);
+            return new SKColor(rgb.Red, rgb.Green, rgb.Blue, color.Alpha);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace PixiEditor.Models.Colors
         ///     Converts HSL color format to RGB.
         /// </summary>
         /// <returns>RGB Color.</returns>
-        public static Color HslToRgb(int h, float s, float l)
+        public static SKColor HslToRgb(int h, float s, float l)
         {
             s /= 100;
             l /= 100;
@@ -119,7 +119,7 @@ namespace PixiEditor.Models.Colors
                 b = (byte)(255 * HueToRgb(v1, v2, hue - (1.0f / 3)));
             }
 
-            return Color.FromRgb(r, g, b);
+            return new SKColor(r, g, b);
         }
 
         private static float HueToRgb(float v1, float v2, float hue)

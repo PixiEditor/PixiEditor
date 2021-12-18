@@ -1,12 +1,11 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Views.UserControls;
+using PixiEditor.Models.Layers;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Views.UserControls.Layers
 {
@@ -23,7 +22,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty IsRenamingProperty = DependencyProperty.Register(
-            "IsRenaming", typeof(bool), typeof(LayerItem), new PropertyMetadata(default(bool)));
+            nameof(IsRenaming), typeof(bool), typeof(LayerItem), new PropertyMetadata(default(bool)));
 
         public bool IsRenaming
         {
@@ -32,7 +31,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty IsActiveProperty = DependencyProperty.Register(
-            "IsActive", typeof(bool), typeof(LayerItem), new PropertyMetadata(default(bool)));
+            nameof(IsActive), typeof(bool), typeof(LayerItem), new PropertyMetadata(default(bool)));
 
         public bool IsActive
         {
@@ -41,7 +40,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty SetActiveLayerCommandProperty = DependencyProperty.Register(
-            "SetActiveLayerCommand", typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
+            nameof(SetActiveLayerCommand), typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
 
         public RelayCommand SetActiveLayerCommand
         {
@@ -50,7 +49,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty LayerIndexProperty = DependencyProperty.Register(
-            "LayerIndex", typeof(int), typeof(LayerItem), new PropertyMetadata(default(int)));
+            nameof(LayerIndex), typeof(int), typeof(LayerItem), new PropertyMetadata(default(int)));
 
         public int LayerIndex
         {
@@ -59,7 +58,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty LayerNameProperty = DependencyProperty.Register(
-            "LayerName", typeof(string), typeof(LayerItem), new PropertyMetadata(default(string)));
+            nameof(LayerName), typeof(string), typeof(LayerItem), new PropertyMetadata(default(string)));
 
         public string LayerName
         {
@@ -74,19 +73,19 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty LayerGuidProperty =
-            DependencyProperty.Register("LayerGuid", typeof(Guid), typeof(LayerItem), new PropertyMetadata(default(Guid)));
+            DependencyProperty.Register(nameof(LayerGuid), typeof(Guid), typeof(LayerItem), new PropertyMetadata(default(Guid)));
 
         public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
-            "ControlButtonsVisible", typeof(Visibility), typeof(LayerItem), new PropertyMetadata(System.Windows.Visibility.Hidden));
+            nameof(ControlButtonsVisible), typeof(Visibility), typeof(LayerItem), new PropertyMetadata(System.Windows.Visibility.Hidden));
 
-        public WriteableBitmap PreviewImage
+        public Layer LayerForPreview
         {
-            get { return (WriteableBitmap)GetValue(PreviewImageProperty); }
-            set { SetValue(PreviewImageProperty, value); }
+            get { return (Layer)GetValue(LayerForPreviewProperty); }
+            set { SetValue(LayerForPreviewProperty, value); }
         }
 
-        public static readonly DependencyProperty PreviewImageProperty =
-            DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(LayerItem), new PropertyMetadata(null));
+        public static readonly DependencyProperty LayerForPreviewProperty =
+            DependencyProperty.Register(nameof(LayerForPreview), typeof(Layer), typeof(LayerItem), new PropertyMetadata(null));
 
         public string LayerColor
         {
@@ -95,7 +94,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty LayerColorProperty =
-            DependencyProperty.Register("LayerColor", typeof(string), typeof(LayerItem), new PropertyMetadata("#00000000"));
+            DependencyProperty.Register(nameof(LayerColor), typeof(string), typeof(LayerItem), new PropertyMetadata("#00000000"));
 
         public Visibility ControlButtonsVisible
         {
@@ -110,10 +109,10 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty MoveToBackCommandProperty =
-            DependencyProperty.Register("MoveToBackCommand", typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
+            DependencyProperty.Register(nameof(MoveToBackCommand), typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
 
         public static readonly DependencyProperty MoveToFrontCommandProperty = DependencyProperty.Register(
-            "MoveToFrontCommand", typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
+            nameof(MoveToFrontCommand), typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
 
         public RelayCommand MoveToFrontCommand
         {
@@ -159,7 +158,7 @@ namespace PixiEditor.Views.UserControls.Layers
             if (e.Data.GetDataPresent(LayerGroupControl.LayerContainerDataName))
             {
                 var data = (LayerStructureItemContainer)e.Data.GetData(LayerGroupControl.LayerContainerDataName);
-                Guid layer = data.Layer.LayerGuid;
+                Guid layer = data.Layer.GuidValue;
                 var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
                 doc.MoveLayerInStructure(layer, LayerGuid, above);

@@ -14,7 +14,7 @@
             }
         }
 
-        private bool showDocumentName = GetPreference(nameof(ShowDocumentName), true);
+        private bool showDocumentName = GetPreference(nameof(ShowDocumentName), false);
 
         public bool ShowDocumentName
         {
@@ -57,7 +57,7 @@
         {
             get
             {
-                return ShowDocumentName ? $"Editing coolPixelArt.pixi" : "Editing something (incognito)";
+                return ShowDocumentName ? $"Editing coolPixelArt.pixi" : "Editing an image";
             }
         }
 

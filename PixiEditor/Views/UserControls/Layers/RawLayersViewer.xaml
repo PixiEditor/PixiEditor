@@ -17,7 +17,7 @@
                 <DataTemplate>
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                         <Label Foreground="White" Content="{Binding Name}"/>
-                        <TextBlock Foreground="Wheat" Text="{Binding LayerGuid}"/>
+                        <TextBlock Foreground="Wheat" Text="{Binding GuidValue}"/>
                     </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

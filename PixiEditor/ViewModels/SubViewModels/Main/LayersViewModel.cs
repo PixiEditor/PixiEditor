@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Views.UserControls;
+using PixiEditor.Models.Undo;
 using PixiEditor.Views.UserControls.Layers;
 using System;
 using System.Linq;
@@ -73,7 +73,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanDeleteSelected(object parameter)
         {
-            return (parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null);
+            return (
+                (
+                    parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null)
+                )
+                && Owner.BitmapManager.ActiveDocument != null;
         }
 
         public void DeleteSelected(object parameter)
@@ -88,7 +92,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else if (parameter is LayerGroup group)
             {
-                DeleteGroup(group.GroupGuid);
+                DeleteGroup(group.GuidValue);
             }
             else if (parameter is LayerGroupControl groupControl)
             {
@@ -133,7 +137,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 var lastGroups = doc.LayerStructure.CloneGroups();
                 if (parameter is Layer or LayerStructureItemContainer)
                 {
-                    GuidStructureItem group = doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.LayerGuid);
+                    GuidStructureItem group = doc.LayerStructure.AddNewGroup($"{doc.ActiveLayer.Name} Group", doc.ActiveLayer.GuidValue);
 
                     Owner.BitmapManager.ActiveDocument.LayerStructure.ExpandParentGroups(group);
                 }
@@ -170,14 +174,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             Guid lastActiveLayerGuid = doc.ActiveLayerGuid;
 
+
             doc.AddNewLayer($"New Layer {Owner.BitmapManager.ActiveDocument.Layers.Count}");
+
+            var oldGroups = doc.LayerStructure.CloneGroups();
 
             if (doc.Layers.Count > 1)
             {
-                doc.MoveLayerInStructure(doc.Layers[^1].LayerGuid, lastActiveLayerGuid, true);
+                doc.MoveLayerInStructure(doc.Layers[^1].GuidValue, lastActiveLayerGuid, true);
                 Guid? parent = parameter is Layer or LayerStructureItemContainer ? activeLayerParent?.GroupGuid : activeLayerParent.Parent?.GroupGuid;
                 doc.LayerStructure.AssignParent(doc.ActiveLayerGuid, parent);
-                doc.UndoManager.UndoStack.Pop();
+                doc.AddLayerStructureToUndo(oldGroups);
+                doc.UndoManager.SquashUndoChanges(3, "Add New Layer");
             }
             if (control != null)
             {
@@ -257,16 +265,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void MoveLayerToFront(object parameter)
         {
             int oldIndex = (int)parameter;
-            Guid layerToMove = Owner.BitmapManager.ActiveDocument.Layers[oldIndex].LayerGuid;
-            Guid referenceLayer = Owner.BitmapManager.ActiveDocument.Layers[oldIndex + 1].LayerGuid;
+            Guid layerToMove = Owner.BitmapManager.ActiveDocument.Layers[oldIndex].GuidValue;
+            Guid referenceLayer = Owner.BitmapManager.ActiveDocument.Layers[oldIndex + 1].GuidValue;
             Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layerToMove, referenceLayer, true);
         }
 
         public void MoveLayerToBack(object parameter)
         {
             int oldIndex = (int)parameter;
-            Guid layerToMove = Owner.BitmapManager.ActiveDocument.Layers[oldIndex].LayerGuid;
-            Guid referenceLayer = Owner.BitmapManager.ActiveDocument.Layers[oldIndex - 1].LayerGuid;
+            Guid layerToMove = Owner.BitmapManager.ActiveDocument.Layers[oldIndex].GuidValue;
+            Guid referenceLayer = Owner.BitmapManager.ActiveDocument.Layers[oldIndex - 1].GuidValue;
             Owner.BitmapManager.ActiveDocument.MoveLayerInStructure(layerToMove, referenceLayer, false);
         }
 
@@ -341,7 +349,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else if (parameter is Layer || parameter is LayerStructureItemContainer)
             {
-                Guid layerGuid = parameter is Layer layer ? layer.LayerGuid : ((LayerStructureItemContainer)parameter).Layer.LayerGuid;
+                Guid layerGuid = parameter is Layer layer ? layer.GuidValue : ((LayerStructureItemContainer)parameter).Layer.GuidValue;
                 var group = Owner.BitmapManager.ActiveDocument.LayerStructure.GetGroupByLayer(layerGuid);
                 if (group != null)
                 {

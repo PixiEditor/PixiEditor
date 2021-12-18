@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -19,6 +18,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand OpenResizePopupCommand { get; set; }
 
+        public RelayCommand RotateToRightCommand { get; set; }
+        public RelayCommand FlipCommand { get; set; }
+
         public DocumentViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -26,6 +28,28 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ClipCanvasCommand = new RelayCommand(ClipCanvas, Owner.DocumentIsNotNull);
             DeletePixelsCommand = new RelayCommand(DeletePixels, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
             OpenResizePopupCommand = new RelayCommand(OpenResizePopup, Owner.DocumentIsNotNull);
+            RotateToRightCommand = new RelayCommand(RotateDocument, Owner.DocumentIsNotNull);
+            FlipCommand = new RelayCommand(FlipDocument, Owner.DocumentIsNotNull);
+        }
+
+        public void FlipDocument(object parameter)
+        {
+            if (parameter is "Horizontal")
+            {
+                Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Horizontal);
+            }
+            else if (parameter is "Vertical")
+            {
+                Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Vertical);
+            }
+        }
+
+        public void RotateDocument(object parameter)
+        {
+            if (parameter is double angle)
+            {
+                Owner.BitmapManager.ActiveDocument?.RotateActiveDocument((float)angle);
+            }
         }
 
         public void ClipCanvas(object parameter)
@@ -41,6 +65,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (result == ConfirmationType.Yes)
                 {
                     Owner.FileSubViewModel.SaveDocument(false);
+                    if (!document.ChangesSaved)
+                        return;
                 }
                 else if (result == ConfirmationType.Canceled)
                 {

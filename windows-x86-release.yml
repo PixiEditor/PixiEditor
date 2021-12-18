@@ -16,6 +16,12 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.0.100'
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -79,7 +85,7 @@ steps:
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.1.2\tools\ISCC.exe" Installer\installer-setup-x86-light.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.2.0\tools\ISCC.exe" Installer\installer-setup-x86-light.iss'
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"

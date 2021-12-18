@@ -1,10 +1,10 @@
-﻿using PixiEditor.Models.Layers;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Layers;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Windows.Data;
+using System.Windows;
 
 namespace PixiEditor.Helpers.Converters
 {
@@ -13,30 +13,34 @@ namespace PixiEditor.Helpers.Converters
         : MultiValueMarkupConverter
     {
         private static StructuredLayerTree cachedTree;
-        private List<Guid> lastLayers = new List<Guid>();
-        private ObservableCollection<GuidStructureItem> lastStructure = new ObservableCollection<GuidStructureItem>();
+        private List<Guid> lastLayerGuids = new List<Guid>();
+        private IList<Layer> lastLayers = new List<Layer>();
+        private WpfObservableRangeCollection<GuidStructureItem> lastStructure = new WpfObservableRangeCollection<GuidStructureItem>();
 
         public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values[0] is ObservableCollection<Layer> layers && values[1] is LayerStructure structure)
+            if (values[0] is WpfObservableRangeCollection<Layer> layers && values[1] is LayerStructure structure)
             {
                 if (cachedTree == null)
                 {
                     cachedTree = new StructuredLayerTree(layers, structure);
                 }
 
-                if (TryFindStructureDifferences(structure) || lastLayers.Count != layers.Count || LayerOrderIsDifferent(layers))
+                if (TryFindStructureDifferences(structure) ||
+                    lastLayerGuids.Count != layers.Count ||
+                    LayerOrderIsDifferent(layers) ||
+                    LayersAreDifferentObjects(layers, lastLayers))
                 {
                     cachedTree = new StructuredLayerTree(layers, structure);
-
-                    lastLayers = layers.Select(x => x.LayerGuid).ToList();
+                    lastLayers = layers;
+                    lastLayerGuids = layers.Select(x => x.GuidValue).ToList();
                     lastStructure = structure.CloneGroups();
                 }
 
                 return cachedTree.RootDirectoryItems;
             }
 
-            return new StructuredLayerTree(null, null);
+            return DependencyProperty.UnsetValue;
         }
 
         public override object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -46,8 +50,22 @@ namespace PixiEditor.Helpers.Converters
 
         private bool LayerOrderIsDifferent(IList<Layer> layers)
         {
-            var guids = layers.Select(x => x.LayerGuid).ToArray();
-            return !guids.SequenceEqual(lastLayers);
+            var guids = layers.Select(x => x.GuidValue).ToArray();
+            return !guids.SequenceEqual(lastLayerGuids);
+        }
+
+        /// <summary>
+        /// This should trigger if you open and close the same files twice.
+        /// Even though the layers are technically the same, having two different objects screws things up down the line.
+        /// </summary>
+        private bool LayersAreDifferentObjects(IList<Layer> layers, IList<Layer> lastLayers)
+        {
+            for (int i = 0; i < layers.Count; i++)
+            {
+                if (layers[i] != lastLayers[i])
+                    return true;
+            }
+            return false;
         }
 
         private bool TryFindStructureDifferences(LayerStructure structure)

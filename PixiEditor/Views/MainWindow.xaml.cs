@@ -1,18 +1,17 @@
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
+using PixiEditor.Views.Dialogs;
 using System;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Input;
-using PixiEditor.ViewModels.SubViewModels.Main;
 using System.Diagnostics;
 using System.Linq;
-using PixiEditor.Views.Dialogs;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.DataHolders;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
-using PixiEditor.Models.Controllers;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor
 {
@@ -23,17 +22,19 @@ namespace PixiEditor
     {
         private static WriteableBitmap pixiEditorLogo;
 
-        private readonly PreferencesSettings preferences;
+        private readonly IPreferences preferences;
 
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
-            preferences = new PreferencesSettings();
+            IServiceProvider services = new ServiceCollection()
+                .AddPixiEditor()
+                .BuildServiceProvider();
 
-            IServiceCollection services = ConfigureServices(new ServiceCollection());
-
-            DataContext = new ViewModelMain(services);
+            preferences = services.GetRequiredService<IPreferences>();
+            DataContext = services.GetRequiredService<ViewModelMain>();
+            DataContext.Setup(services);
 
             InitializeComponent();
 
@@ -58,6 +59,8 @@ namespace PixiEditor
                     UpdateTaskbarIcon(null);
                 }
             });
+
+            OnReleaseBuild();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -78,16 +81,10 @@ namespace PixiEditor
             Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
         }
 
-        private IServiceCollection ConfigureServices(IServiceCollection services)
+        [Conditional("RELEASE")]
+        private void OnReleaseBuild()
         {
-            services
-                .AddSingleton<IPreferences>(preferences)
-                .AddSingleton<StylusViewModel>()
-                .AddSingleton<WindowViewModel>()
-                .AddSingleton<BitmapManager>()
-                .AddSingleton<ToolsViewModel>();
-
-            return services;
+            rawLayerAnchorable.Hide();
         }
 
         private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)

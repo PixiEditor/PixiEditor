@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.ViewModels;
+using System;
 using System.Linq;
 
 namespace PixiEditor.Models.DataHolders
@@ -10,9 +11,12 @@ namespace PixiEditor.Models.DataHolders
         public Document(int width, int height)
             : this()
         {
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Document dimensions must be greater than 0");
             Width = width;
             Height = height;
-            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(0, 0, width, height));
+            Renderer = new LayerStackRenderer(layers, layerStructure, Width, Height);
+            DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(1, 1, width, height));
         }
 
         private Document()
@@ -25,6 +29,11 @@ namespace PixiEditor.Models.DataHolders
             Layers.CollectionChanged += Layers_CollectionChanged;
             LayerStructure.Groups.CollectionChanged += Groups_CollectionChanged;
             LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
+            DocumentSizeChanged += (sender, args) =>
+            {
+                Renderer.Resize(args.NewWidth, args.NewHeight);
+                GeneratePreviewLayer();
+            };
         }
 
         private void LayerStructure_LayerStructureChanged(object sender, LayerStructureChangedEventArgs e)
@@ -32,7 +41,7 @@ namespace PixiEditor.Models.DataHolders
             RaisePropertyChanged(nameof(LayerStructure));
             foreach (var layerGuid in e.AffectedLayerGuids)
             {
-                Layer layer = Layers.First(x => x.LayerGuid == layerGuid);
+                Layer layer = Layers.First(x => x.GuidValue == layerGuid);
                 layer.RaisePropertyChange(nameof(layer.IsVisible));
                 layer.RaisePropertyChange(nameof(layer.Opacity));
             }

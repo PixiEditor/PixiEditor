@@ -1,20 +1,15 @@
-﻿using System;
-using System.Text;
-using System.Windows.Input;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using System.Windows.Input;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
-        private bool isActive;
-        private string actionDisplay = string.Empty;
-
         public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty);
 
         public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
@@ -22,6 +17,8 @@ namespace PixiEditor.Models.Tools
         public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
 
         public virtual bool HideHighlight { get; }
+
+        public virtual bool RequiresPreciseMouseData { get; }
 
         public abstract string Tooltip { get; }
 
@@ -49,42 +46,24 @@ namespace PixiEditor.Models.Tools
 
         public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
-        public bool CanStartOutsideCanvas { get; set; } = false;
+        public ToolSession Session { get; set; }
 
-        public virtual void OnMouseDown(MouseEventArgs e)
-        {
-        }
+        private bool isActive;
+        private string actionDisplay = string.Empty;
 
-        public virtual void OnMouseUp(MouseEventArgs e)
-        {
-        }
 
-        public virtual void OnKeyDown(KeyEventArgs e)
-        {
-        }
+        public virtual void OnKeyDown(Key key) { }
 
-        public virtual void OnKeyUp(KeyEventArgs e)
-        {
-        }
+        public virtual void OnKeyUp(Key key) { }
 
-        public virtual void OnStart(Coordinates clickPosition)
-        {
-        }
+        public virtual void BeforeUse() { }
 
-        public virtual void OnRecordingLeftMouseDown(MouseEventArgs e)
-        {
-        }
+        /// <summary>
+        ///     Called when the tool finished executing
+        /// </summary>
+        /// <param name="sessionRect">A rectangle which was created during session</param>
+        public virtual void AfterUse(SKRectI sessionRect) { }
 
-        public virtual void OnStoppedRecordingMouseUp(MouseEventArgs e)
-        {
-        }
-
-        public virtual void OnMouseMove(MouseEventArgs e)
-        {
-        }
-
-        public virtual void AfterAddedUndo(UndoManager undoManager)
-        {
-        }
+        public virtual void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
     }
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -55,7 +55,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             selection.Clear();
 
             Assert.Empty(selection.SelectedPoints);
-            Assert.Equal(0, selection.SelectionLayer.Width + selection.SelectionLayer.Height);
+            Assert.Equal(1, selection.SelectionLayer.Width);
+            Assert.Equal(1, selection.SelectionLayer.Height);
         }
 
         [Fact]
