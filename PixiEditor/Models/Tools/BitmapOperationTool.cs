@@ -1,11 +1,9 @@
-﻿using System;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
 using System.Collections.Generic;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools
 {
@@ -47,7 +45,7 @@ namespace PixiEditor.Models.Tools
 
             var document = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
             var args = new object[] { _change.Document };
-            document.UndoManager.AddUndoChange(_change.ToChange(UndoStorageBasedChange, args));
+            document.UndoManager.AddUndoChange(_change.ToChange(StorageBasedChange.BasicUndoProcess, args));
             _change = null;
         }
 
@@ -74,14 +72,6 @@ namespace PixiEditor.Models.Tools
             //}
 
             _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer });
-        }
-
-        private void UndoStorageBasedChange(Layer[] layers, UndoLayer[] data, object[] args)
-        {
-            Document document = (Document)args[0];
-            var ls = document.LayerStructure.CloneGroups();
-            StorageBasedChange.BasicUndoProcess(layers, data, args);
-            document.BuildLayerStructureProcess(new object[] { ls });
         }
     }
 }

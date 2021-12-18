@@ -273,6 +273,8 @@ namespace PixiEditor.Models.Undo
         {
             if (args.Length > 0 && args[0] is Document document)
             {
+                var ls = document.LayerStructure.CloneGroups();
+
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
@@ -286,6 +288,7 @@ namespace PixiEditor.Models.Undo
                     }
                 }
 
+                document.BuildLayerStructureProcess(new object[] { ls });
             }
         }
     }
