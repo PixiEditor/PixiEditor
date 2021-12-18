@@ -2,16 +2,17 @@
 using PixiEditor.Models.Position;
 using SkiaSharp;
 
-namespace PixiEditor.Models.Undo;
-
-public class LayerChunk
+namespace PixiEditor.Models.Undo
 {
-    public Layer Layer { get; set; }
-    public SKRectI AbsoluteChunkRect { get; set; }
-
-    public LayerChunk(Layer layer, SKRectI absoluteChunkRect)
+    public class LayerChunk
     {
-        Layer = layer;
-        AbsoluteChunkRect = absoluteChunkRect;
+        public Layer Layer { get; set; }
+        public SKRectI AbsoluteChunkRect { get; set; }
+
+        public LayerChunk(Layer layer, SKRectI absoluteChunkRect)
+        {
+            Layer = layer;
+            AbsoluteChunkRect = absoluteChunkRect;
+        }
     }
 }
