@@ -489,7 +489,7 @@ namespace PixiEditor.Models.DataHolders
                 MergeLayersProcess,
                 new object[] { indexes, nameIsLastLayers, layer.GuidValue }));
 
-            UndoManager.SquashUndoChanges(2, "Undo merge layers");
+            UndoManager.SquashUndoChanges(2, "Undo merge layers", false);
 
             return layer;
         }

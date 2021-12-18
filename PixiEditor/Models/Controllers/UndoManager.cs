@@ -123,7 +123,7 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         /// <param name="amount">Amount of changes to squash.</param>
         /// <param name="description">Final change description.</param>
-        public void SquashUndoChanges(int amount, string description)
+        public void SquashUndoChanges(int amount, string description, bool reverseOrderOnRedo = true)
         {
             Change[] changes = new Change[amount];
             for (int i = 0; i < amount; i++)
@@ -149,7 +149,9 @@ namespace PixiEditor.Models.Controllers
 
             Action<object[]> process = (object[] props) =>
             {
-                foreach (var prop in props.Reverse())
+                var finalProps = reverseOrderOnRedo ? props.Reverse() : props;
+
+                foreach (var prop in finalProps)
                 {
                     Change change = (Change)prop;
                     if (change.Process == null)
