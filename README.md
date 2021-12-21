@@ -29,7 +29,7 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 ### Lightweight
 
-Program weighs only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
+Program weighs only 9 MB! Already have .NET 6 installed? Download installer and enjoy saved space.
 
 ### Active development
 
