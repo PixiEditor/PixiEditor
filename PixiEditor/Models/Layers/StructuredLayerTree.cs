@@ -11,14 +11,14 @@ namespace PixiEditor.Models.Layers
     {
         private List<Guid> layersInStructure = new();
 
-        public WpfObservableRangeCollection<IHasGuid> RootDirectoryItems { get; } = new WpfObservableRangeCollection<IHasGuid>();
+        public DataHolders.ObservableCollection<IHasGuid> RootDirectoryItems { get; } = new DataHolders.ObservableCollection<IHasGuid>();
 
         private static void Swap(ref int startIndex, ref int endIndex)
         {
             (startIndex, endIndex) = (endIndex, startIndex);
         }
 
-        public StructuredLayerTree(WpfObservableRangeCollection<Layer> layers, LayerStructure structure)
+        public StructuredLayerTree(DataHolders.ObservableCollection<Layer> layers, LayerStructure structure)
         {
             if (layers == null || structure == null)
             {
@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Layers
             layersInStructure.Clear();
         }
 
-        private void PlaceItems(List<LayerGroup> parsedFolders, ObservableCollection<Layer> layers)
+        private void PlaceItems(List<LayerGroup> parsedFolders, System.Collections.ObjectModel.ObservableCollection<Layer> layers)
         {
             LayerGroup currentFolder = null;
             List<LayerGroup> groupsAtIndex = new();
@@ -75,7 +75,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void AssignGroup(List<LayerGroup> parsedFolders, ObservableCollection<Layer> layers, ref LayerGroup currentFolder, ref List<LayerGroup> groupsAtIndex, Stack<LayerGroup> unfinishedFolders, int i)
+        private void AssignGroup(List<LayerGroup> parsedFolders, System.Collections.ObjectModel.ObservableCollection<Layer> layers, ref LayerGroup currentFolder, ref List<LayerGroup> groupsAtIndex, Stack<LayerGroup> unfinishedFolders, int i)
         {
             if (parsedFolders.Any(x => x.StructureData.StartLayerGuid == layers[i].GuidValue))
             {
@@ -100,7 +100,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private int CalculateTopIndex(int displayIndex, GuidStructureItem structureData, ObservableCollection<Layer> layers)
+        private int CalculateTopIndex(int displayIndex, GuidStructureItem structureData, System.Collections.ObjectModel.ObservableCollection<Layer> layers)
         {
             var endLayer = layers.FirstOrDefault(x => x.GuidValue == structureData.EndLayerGuid);
             var bottomLayer = layers.FirstOrDefault(x => x.GuidValue == structureData.StartLayerGuid);
@@ -118,7 +118,7 @@ namespace PixiEditor.Models.Layers
             return displayIndex + (originalTopIndex - originalBottomIndex);
         }
 
-        private List<LayerGroup> ParseFolders(IEnumerable<GuidStructureItem> folders, ObservableCollection<Layer> layers)
+        private List<LayerGroup> ParseFolders(IEnumerable<GuidStructureItem> folders, System.Collections.ObjectModel.ObservableCollection<Layer> layers)
         {
             List<LayerGroup> parsedFolders = new();
             foreach (var structureItem in folders)
@@ -129,7 +129,7 @@ namespace PixiEditor.Models.Layers
             return parsedFolders;
         }
 
-        private LayerGroup ParseFolder(GuidStructureItem structureItem, ObservableCollection<Layer> layers)
+        private LayerGroup ParseFolder(GuidStructureItem structureItem, System.Collections.ObjectModel.ObservableCollection<Layer> layers)
         {
             List<Layer> structureItemLayers = new();
 
@@ -168,7 +168,7 @@ namespace PixiEditor.Models.Layers
             return folder;
         }
 
-        private Guid[] GetLayersInGroup(ObservableCollection<Layer> layers, GuidStructureItem structureItem)
+        private Guid[] GetLayersInGroup(System.Collections.ObjectModel.ObservableCollection<Layer> layers, GuidStructureItem structureItem)
         {
             var startLayer = layers.FirstOrDefault(x => x.GuidValue == structureItem.StartLayerGuid);
             var endLayer = layers.FirstOrDefault(x => x.GuidValue == structureItem.EndLayerGuid);

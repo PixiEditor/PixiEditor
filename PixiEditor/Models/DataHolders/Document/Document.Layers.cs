@@ -23,9 +23,9 @@ namespace PixiEditor.Models.DataHolders
         private Guid activeLayerGuid;
         private LayerStructure layerStructure;
 
-        private WpfObservableRangeCollection<Layer> layers = new();
+        private ObservableCollection<Layer> layers = new();
 
-        public WpfObservableRangeCollection<Layer> Layers
+        public ObservableCollection<Layer> Layers
         {
             get => layers;
             set
@@ -408,7 +408,7 @@ namespace PixiEditor.Models.DataHolders
 
         }
 
-        public void AddLayerStructureToUndo(WpfObservableRangeCollection<GuidStructureItem> oldLayerStructureGroups)
+        public void AddLayerStructureToUndo(ObservableCollection<GuidStructureItem> oldLayerStructureGroups)
         {
             UndoManager.AddUndoChange(
                 new Change(
@@ -516,7 +516,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void BuildLayerStructureProcess(object[] parameters)
         {
-            if (parameters.Length > 0 && parameters[0] is WpfObservableRangeCollection<GuidStructureItem> groups)
+            if (parameters.Length > 0 && parameters[0] is ObservableCollection<GuidStructureItem> groups)
             {
                 LayerStructure.Groups.CollectionChanged -= Groups_CollectionChanged;
                 LayerStructure.Groups = LayerStructure.CloneGroups(groups);

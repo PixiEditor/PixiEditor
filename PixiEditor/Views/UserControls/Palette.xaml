@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.Palette"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <local:PaletteColorAdder Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
+                <Button Style="{StaticResource DarkRoundButton}" Content="Import Palette" Click="ImportPalette_OnClick"/>
+                <Button Style="{StaticResource DarkRoundButton}" Content="Save Palette" Click="SavePalette_OnClick"/>
+            </StackPanel>
+            <Separator/>
+    </StackPanel>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+           <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}">
+               <d:ItemsControl.ItemsSource>
+                   <x:Array Type="{x:Type Color}">
+                       <Color R="0" G="0" B="0" A="255"/>
+                       <Color R="255" G="255" B="255" A="255"/>
+                       <Color R="255" G="255" B="255" A="150"/>
+                       <Color R="255" G="255" B="255" A="0"/>
+                       <Color R="255" G="0" B="0" A="255"/>
+                       <Color R="0" G="255" B="0" A="255"/>
+                       <Color R="0" G="0" B="255" A="255"/>
+                   </x:Array>
+               </d:ItemsControl.ItemsSource>
+               <ItemsControl.ItemsPanel>
+                   <ItemsPanelTemplate>
+                       <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
+                                  HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                   </ItemsPanelTemplate>
+               </ItemsControl.ItemsPanel>
+               <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:PaletteColor Color="{Binding}" Margin="0 5 5 5">
+                                    <local:PaletteColor.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Remove" Foreground="White"
+                                              Click="RemoveColorMenuItem_OnClick"
+                                              CommandParameter="{Binding}" />
+                                        </ContextMenu>
+                                    </local:PaletteColor.ContextMenu>
+                                </local:PaletteColor>
+                    </DataTemplate>
+               </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

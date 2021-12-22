@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" Name="uc"
              d:DesignHeight="450" d:DesignWidth="300">
@@ -33,36 +34,22 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="45" Height="45" Margin="0 5 5 5">
-                        <Border CornerRadius="5.5" Width="44" Height="44" RenderOptions.BitmapScalingMode="NearestNeighbor">
-                            <Border.Background>
-                                <VisualBrush>
-                                    <VisualBrush.Visual>
-                                        <Image Source="../../Images/CheckerTile.png" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Border.Background>
-                        </Border>
-                        <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
-                            <Border.Background>
-                                <SolidColorBrush Color="{Binding Converter={StaticResource SKColorToMediaColorConverter}}" />
-                            </Border.Background>
-                        </Border>
+                    <local:PaletteColor Color="{Binding}" Margin="0 5 5 5">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown">
-                                <i:InvokeCommandAction 
+                                <i:InvokeCommandAction
                                     Command="{Binding SelectSwatchCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:SwatchesView}}}"
                                     CommandParameter="{Binding}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <Grid.ContextMenu>
+                        <local:PaletteColor.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Remove" Foreground="White"
-                                          Command="{Binding RemoveSwatchCommand, Source={x:Reference uc}}"
+                                          Command="{Binding RemoveSwatchCommand, ElementName=uc}"
                                           CommandParameter="{Binding}" />
                             </ContextMenu>
-                        </Grid.ContextMenu>
-                    </Grid>
+                        </local:PaletteColor.ContextMenu>
+                    </local:PaletteColor>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

@@ -18,7 +18,7 @@ namespace PixiEditor.Models.Layers
     {
         public event EventHandler<LayerStructureChangedEventArgs> LayerStructureChanged;
 
-        public WpfObservableRangeCollection<GuidStructureItem> Groups { get; set; }
+        public DataHolders.ObservableCollection<GuidStructureItem> Groups { get; set; }
 
         private Document Owner { get; }
 
@@ -38,9 +38,9 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         /// <param name="groups">Groups to clone.</param>
         /// <returns>ObservableCollection with cloned groups.</returns>
-        public static WpfObservableRangeCollection<GuidStructureItem> CloneGroups(WpfObservableRangeCollection<GuidStructureItem> groups)
+        public static DataHolders.ObservableCollection<GuidStructureItem> CloneGroups(DataHolders.ObservableCollection<GuidStructureItem> groups)
         {
-            WpfObservableRangeCollection<GuidStructureItem> outputGroups = new();
+            DataHolders.ObservableCollection<GuidStructureItem> outputGroups = new();
             foreach (var group in groups.ToArray())
             {
                 outputGroups.Add(group.CloneGroup());
@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Layers
             return GetGroupByGuid(groupGuid, Groups);
         }
 
-        public WpfObservableRangeCollection<GuidStructureItem> CloneGroups()
+        public DataHolders.ObservableCollection<GuidStructureItem> CloneGroups()
         {
             return CloneGroups(Groups);
         }
@@ -709,7 +709,7 @@ namespace PixiEditor.Models.Layers
             return null;
         }
 
-        public LayerStructure(WpfObservableRangeCollection<GuidStructureItem> items, Document owner)
+        public LayerStructure(DataHolders.ObservableCollection<GuidStructureItem> items, Document owner)
         {
             Groups = items;
             Owner = owner;
@@ -717,7 +717,7 @@ namespace PixiEditor.Models.Layers
 
         public LayerStructure(Document owner)
         {
-            Groups = new WpfObservableRangeCollection<GuidStructureItem>();
+            Groups = new DataHolders.ObservableCollection<GuidStructureItem>();
             Owner = owner;
         }
     }

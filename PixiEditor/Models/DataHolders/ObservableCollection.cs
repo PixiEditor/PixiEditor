@@ -9,20 +9,20 @@ using System.Windows.Data;
 
 namespace PixiEditor.Models.DataHolders
 {
-public class WpfObservableRangeCollection<T> : RangeObservableCollection<T>
+public class ObservableCollection<T> : RangeObservableCollection<T>
 {
         public bool SuppressNotify { get; set; } = false;
   DeferredEventsCollection _deferredEvents;
 
-  public WpfObservableRangeCollection()
+  public ObservableCollection()
   {
   }
 
-  public WpfObservableRangeCollection(IEnumerable<T> collection) : base(collection)
+  public ObservableCollection(IEnumerable<T> collection) : base(collection)
   {
   }
 
-  public WpfObservableRangeCollection(List<T> list) : base(list)
+  public ObservableCollection(List<T> list) : base(list)
   {
   }
 
@@ -60,7 +60,7 @@ public class WpfObservableRangeCollection<T> : RangeObservableCollection<T>
 
   IEnumerable<NotifyCollectionChangedEventHandler> GetHandlers()
   {
-    var info = typeof(ObservableCollection<T>).GetField(nameof(CollectionChanged),
+    var info = typeof(System.Collections.ObjectModel.ObservableCollection<T>).GetField(nameof(CollectionChanged),
       BindingFlags.Instance | BindingFlags.NonPublic);
     var @event = (MulticastDelegate) info.GetValue(this);
     return @event?.GetInvocationList()
@@ -71,9 +71,9 @@ public class WpfObservableRangeCollection<T> : RangeObservableCollection<T>
 
   class DeferredEventsCollection : List<NotifyCollectionChangedEventArgs>, IDisposable
   {
-    private readonly WpfObservableRangeCollection<T> _collection;
+    private readonly ObservableCollection<T> _collection;
 
-    public DeferredEventsCollection(WpfObservableRangeCollection<T> collection)
+    public DeferredEventsCollection(ObservableCollection<T> collection)
     {
       Debug.Assert(collection != null);
       Debug.Assert(collection._deferredEvents == null);

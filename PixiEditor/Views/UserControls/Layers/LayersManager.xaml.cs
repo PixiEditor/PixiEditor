@@ -26,31 +26,31 @@ namespace PixiEditor.Views.UserControls.Layers
         public static readonly DependencyProperty SelectedItemProperty =
             DependencyProperty.Register(nameof(SelectedItem), typeof(object), typeof(LayersManager), new PropertyMetadata(0));
 
-        public ObservableCollection<IHasGuid> LayerTreeRoot
+        public System.Collections.ObjectModel.ObservableCollection<IHasGuid> LayerTreeRoot
         {
-            get { return (ObservableCollection<IHasGuid>)GetValue(LayerTreeRootProperty); }
+            get { return (System.Collections.ObjectModel.ObservableCollection<IHasGuid>)GetValue(LayerTreeRootProperty); }
             set { SetValue(LayerTreeRootProperty, value); }
         }
 
         public static readonly DependencyProperty LayerTreeRootProperty =
             DependencyProperty.Register(
                 nameof(LayerTreeRoot),
-                typeof(ObservableCollection<IHasGuid>),
+                typeof(System.Collections.ObjectModel.ObservableCollection<IHasGuid>),
                 typeof(LayersManager),
-                new PropertyMetadata(default(ObservableCollection<IHasGuid>), LayerTreeRootChanged));
+                new PropertyMetadata(default(System.Collections.ObjectModel.ObservableCollection<IHasGuid>), LayerTreeRootChanged));
 
-        public ObservableCollection<IHasGuid> CachedLayerTreeRoot
+        public System.Collections.ObjectModel.ObservableCollection<IHasGuid> CachedLayerTreeRoot
         {
-            get { return (ObservableCollection<IHasGuid>)GetValue(CachedLayerTreeRootProperty); }
+            get { return (System.Collections.ObjectModel.ObservableCollection<IHasGuid>)GetValue(CachedLayerTreeRootProperty); }
             set { SetValue(CachedLayerTreeRootProperty, value); }
         }
 
         public static readonly DependencyProperty CachedLayerTreeRootProperty =
             DependencyProperty.Register(
                 nameof(CachedLayerTreeRoot),
-                typeof(ObservableCollection<IHasGuid>),
+                typeof(System.Collections.ObjectModel.ObservableCollection<IHasGuid>),
                 typeof(LayersManager),
-                new PropertyMetadata(default(ObservableCollection<IHasGuid>)));
+                new PropertyMetadata(default(System.Collections.ObjectModel.ObservableCollection<IHasGuid>)));
 
         public LayersViewModel LayerCommandsViewModel
         {
@@ -78,7 +78,7 @@ namespace PixiEditor.Views.UserControls.Layers
         private static void LayerTreeRootChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var manager = (LayersManager)d;
-            var newRoot = (ObservableCollection<IHasGuid>)e.NewValue;
+            var newRoot = (System.Collections.ObjectModel.ObservableCollection<IHasGuid>)e.NewValue;
 
             manager.CachedLayerTreeRoot = newRoot;
             return;

@@ -31,9 +31,6 @@
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:ZoomTool}" x:Key="IsZoomToolConverter"/>
             <converters:IsSpecifiedTypeConverter SpecifiedType="{x:Type tools:MoveViewportTool}" x:Key="IsMoveViewportToolConverter"/>
             <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter"/>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
-            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -343,13 +340,20 @@
                                             </i:Interaction.Behaviors>
                                         </colorpicker:ColorSliders>
                                     </LayoutAnchorable>
+                                    <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
+                                                                 CanClose="False" CanAutoHide="False"
+                                                                 CanDockAsTabbedDocument="False" CanFloat="True">
+                                        <usercontrols:Palette Colors="{Binding BitmapManager.ActiveDocument.Palette}"/>
+                                    </avalondock:LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
                                         <usercontrols:SwatchesView
-                                            SelectSwatchCommand="{Binding ColorsSubViewModel.SelectColorCommand}" RemoveSwatchCommand="{Binding ColorsSubViewModel.RemoveSwatchCommand}"
+                                            SelectSwatchCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
+                                            RemoveSwatchCommand="{Binding ColorsSubViewModel.RemoveSwatchCommand}"
                                             Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"/>
                                     </avalondock:LayoutAnchorable>
+
                                 </LayoutAnchorablePane>
                                 <LayoutAnchorablePane>
                                     <LayoutAnchorable ContentId="layers" Title="Layers" CanHide="False"

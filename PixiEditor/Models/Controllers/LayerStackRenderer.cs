@@ -17,7 +17,7 @@ namespace PixiEditor.Models.Controllers
         private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
         private SKPaint ClearPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
-        private ObservableCollection<Layer> layers;
+        private System.Collections.ObjectModel.ObservableCollection<Layer> layers;
         private LayerStructure structure;
 
         private Surface finalSurface;
@@ -36,7 +36,7 @@ namespace PixiEditor.Models.Controllers
         public Surface FinalSurface { get => finalSurface; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public LayerStackRenderer(ObservableCollection<Layer> layers, LayerStructure structure, int width, int height)
+        public LayerStackRenderer(System.Collections.ObjectModel.ObservableCollection<Layer> layers, LayerStructure structure, int width, int height)
         {
             this.layers = layers;
             this.structure = structure;
@@ -56,7 +56,7 @@ namespace PixiEditor.Models.Controllers
             Update(new Int32Rect(0, 0, newWidth, newHeight));
         }
 
-        public void SetNewLayersCollection(ObservableCollection<Layer> layers)
+        public void SetNewLayersCollection(System.Collections.ObjectModel.ObservableCollection<Layer> layers)
         {
             layers.CollectionChanged -= OnLayersChanged;
             UnsubscribeFromAllLayers(this.layers);
@@ -80,7 +80,7 @@ namespace PixiEditor.Models.Controllers
             layers.CollectionChanged -= OnLayersChanged;
         }
 
-        private void SubscribeToAllLayers(ObservableCollection<Layer> layers)
+        private void SubscribeToAllLayers(System.Collections.ObjectModel.ObservableCollection<Layer> layers)
         {
             foreach (var layer in layers)
             {
@@ -88,7 +88,7 @@ namespace PixiEditor.Models.Controllers
             }
         }
 
-        private void UnsubscribeFromAllLayers(ObservableCollection<Layer> layers)
+        private void UnsubscribeFromAllLayers(System.Collections.ObjectModel.ObservableCollection<Layer> layers)
         {
             foreach (var layer in layers)
             {

@@ -17,7 +17,7 @@ namespace PixiEditor.Models.DataHolders
   /// implementing INotifyCollectionChanged to notify listeners
   /// when items get added, removed or the whole list is refreshed.
   /// </summary>
-  public class RangeObservableCollection<T> : ObservableCollection<T>
+  public class RangeObservableCollection<T> : System.Collections.ObjectModel.ObservableCollection<T>
   {
     //------------------------------------------------------
     //
@@ -103,10 +103,10 @@ namespace PixiEditor.Models.DataHolders
     #region Public Methods
 
     /// <summary>
-    /// Adds the elements of the specified collection to the end of the <see cref="ObservableCollection{T}"/>.
+    /// Adds the elements of the specified collection to the end of the <see cref="System.Collections.ObjectModel.ObservableCollection{T}"/>.
     /// </summary>
     /// <param name="collection">
-    /// The collection whose elements should be added to the end of the <see cref="ObservableCollection{T}"/>.
+    /// The collection whose elements should be added to the end of the <see cref="System.Collections.ObjectModel.ObservableCollection{T}"/>.
     /// The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.
     /// </param>
     /// <exception cref="ArgumentNullException"><paramref name="collection"/> is null.</exception>
@@ -116,7 +116,7 @@ namespace PixiEditor.Models.DataHolders
     }
 
     /// <summary>
-    /// Inserts the elements of a collection into the <see cref="ObservableCollection{T}"/> at the specified index.
+    /// Inserts the elements of a collection into the <see cref="System.Collections.ObjectModel.ObservableCollection{T}"/> at the specified index.
     /// </summary>
     /// <param name="index">The zero-based index at which the new elements should be inserted.</param>
     /// <param name="collection">The collection whose elements should be inserted into the List<T>.
@@ -163,7 +163,7 @@ namespace PixiEditor.Models.DataHolders
 
 
     /// <summary> 
-    /// Removes the first occurence of each item in the specified collection from the <see cref="ObservableCollection{T}"/>.
+    /// Removes the first occurence of each item in the specified collection from the <see cref="System.Collections.ObjectModel.ObservableCollection{T}"/>.
     /// </summary>
     /// <param name="collection">The items to remove.</param>        
     /// <exception cref="ArgumentNullException"><paramref name="collection"/> is null.</exception>
@@ -302,7 +302,7 @@ namespace PixiEditor.Models.DataHolders
     }
 
     /// <summary>
-    /// Removes a range of elements from the <see cref="ObservableCollection{T}"/>>.
+    /// Removes a range of elements from the <see cref="System.Collections.ObjectModel.ObservableCollection{T}"/>>.
     /// </summary>
     /// <param name="index">The zero-based starting index of the range of elements to remove.</param>
     /// <param name="count">The number of elements to remove.</param>
@@ -655,7 +655,7 @@ namespace PixiEditor.Models.DataHolders
   }
 
   /// <remarks>
-  /// To be kept outside <see cref="ObservableCollection{T}"/>, since otherwise, a new instance will be created for each generic type used.
+  /// To be kept outside <see cref="System.Collections.ObjectModel.ObservableCollection{T}"/>, since otherwise, a new instance will be created for each generic type used.
   /// </remarks>
   internal static class EventArgsCache
   {

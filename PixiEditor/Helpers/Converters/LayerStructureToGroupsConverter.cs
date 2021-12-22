@@ -23,9 +23,9 @@ namespace PixiEditor.Helpers.Converters
             return GetSubGroups(structure.Groups);
         }
 
-        private ObservableCollection<GuidStructureItem> GetSubGroups(IEnumerable<GuidStructureItem> groups)
+        private System.Collections.ObjectModel.ObservableCollection<GuidStructureItem> GetSubGroups(IEnumerable<GuidStructureItem> groups)
         {
-            WpfObservableRangeCollection<GuidStructureItem> finalGroups = new WpfObservableRangeCollection<GuidStructureItem>();
+            Models.DataHolders.ObservableCollection<GuidStructureItem> finalGroups = new Models.DataHolders.ObservableCollection<GuidStructureItem>();
             foreach (var group in groups)
             {
                 finalGroups.AddRange(GetSubGroups(group));
