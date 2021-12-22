@@ -238,6 +238,12 @@
 		<Resource Include="Images\Tools\SelectImage.png" />
 		<Resource Include="Images\Tools\ZoomImage.png" />
 		<Resource Include="Images\Trash.png" />
+		<None Remove="Images\Load.png" />
+		<Resource Include="Images\Load.png" />
+		<None Remove="Images\Plus-square.png" />
+		<Resource Include="Images\Plus-square.png" />
+		<None Remove="Images\Save.png" />
+		<Resource Include="Images\Save.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

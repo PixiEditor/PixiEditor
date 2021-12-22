@@ -6,13 +6,17 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
              xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              mc:Ignorable="d" Name="paletteColorAdder"
-             d:DesignHeight="30" d:DesignWidth="100">
-    <StackPanel Orientation="Horizontal">
+             d:DesignHeight="36" d:DesignWidth="100">
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
         <colorpicker:PortableColorPicker
             ColorChanged="PortableColorPicker_ColorChanged"
             SelectedColor="{Binding SelectedColor, ElementName=paletteColorAdder, Mode=TwoWay}"
             Style="{StaticResource DefaultColorPickerStyle}" Margin="0 0 10 0"
             ShowAlpha="False"/>
-        <Button Name="AddButton" Content="Add" Style="{StaticResource DarkRoundButton}" Click="Button_Click"/>
+        <Button Name="AddButton" Style="{StaticResource ToolButtonStyle}" Cursor="Hand" Width="24" Height="24" Click="Button_Click">
+            <Button.Background>
+                <ImageBrush ImageSource="/Images/Plus-square.png"/>
+            </Button.Background>
+        </Button>
     </StackPanel>
 </UserControl>
