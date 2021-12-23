@@ -54,12 +54,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
         }
 
-        private void SelectPaletteColor(int number)
+        private void SelectPaletteColor(int index)
         {
             var document = Owner.BitmapManager.ActiveDocument;
-            if(document.Palette != null && document.Palette.Count >= number)
+            if(document.Palette != null && document.Palette.Count > index)
             {
-                PrimaryColor = document.Palette[number - 1];
+                PrimaryColor = document.Palette[index];
             }
         }
 

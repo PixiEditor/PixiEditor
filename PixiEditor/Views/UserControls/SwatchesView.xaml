@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
-             mc:Ignorable="d" Name="uc"
+             mc:Ignorable="d" Name="swatchesView"
              d:DesignHeight="450" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -14,7 +14,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding Swatches, ElementName=uc}">
+        <ItemsControl ItemsSource="{Binding Swatches, ElementName=swatchesView}">
             <d:ItemsControl.ItemsSource>
                 <x:Array Type="{x:Type Color}">
                     <Color R="0" G="0" B="0" A="255"/>
@@ -45,7 +45,7 @@
                         <local:PaletteColor.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Remove" Foreground="White"
-                                          Command="{Binding RemoveSwatchCommand, ElementName=uc}"
+                                          Command="{Binding Source={x:Reference Name=swatchesView}, Path=DataContext.ColorsSubViewModel.RemoveSwatchCommand}"
                                           CommandParameter="{Binding}" />
                             </ContextMenu>
                         </local:PaletteColor.ContextMenu>

@@ -3,11 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d"
              d:DesignHeight="45" d:DesignWidth="45" Name="uc">
     <UserControl.Resources>
         <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
     <Grid Width="45" Height="45">
         <Border CornerRadius="5.5" Width="44" Height="44" RenderOptions.BitmapScalingMode="NearestNeighbor">
@@ -24,5 +25,8 @@
                 <SolidColorBrush Color="{Binding Color, Converter={StaticResource SKColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>
         </Border>
+        <usercontrols:OutlinedTextBlock Stroke="White" StrokeThickness="2" FontSize="16" Margin="0, 0, 4, 2" 
+                                        Text="{Binding AssociatedKey, ElementName=uc}" 
+                                        Visibility="{Binding ElementName=uc, Path=AssociatedKey, Converter={converters:NotNullToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
     </Grid>
 </UserControl>

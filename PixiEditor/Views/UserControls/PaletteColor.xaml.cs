@@ -15,6 +15,19 @@ public partial class PaletteColor : UserControl
         set { SetValue(ColorProperty, value); }
     }
 
+
+
+    public int? AssociatedKey
+    {
+        get { return (int?)GetValue(AssociatedKeyProperty); }
+        set { SetValue(AssociatedKeyProperty, value); }
+    }
+
+    // Using a DependencyProperty as the backing store for AssociatedKey.  This enables animation, styling, binding, etc...
+    public static readonly DependencyProperty AssociatedKeyProperty =
+        DependencyProperty.Register("AssociatedKey", typeof(int?), typeof(PaletteColor), new PropertyMetadata(null));
+
+
     public PaletteColor()
     {
         InitializeComponent();

@@ -39,7 +39,7 @@
             <TextBlock Text="Drop palette here" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
         <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-           <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}">
+           <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}" AlternationCount="9999">
                <d:ItemsControl.ItemsSource>
                    <x:Array Type="{x:Type Color}">
                        <Color R="0" G="0" B="0" A="255"/>
@@ -59,7 +59,9 @@
                </ItemsControl.ItemsPanel>
                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:PaletteColor Color="{Binding}" Margin="0 5 5 5">
+                        <local:PaletteColor Color="{Binding}" Margin="0 5 5 5"
+                                            AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 
+                RelativeSource={RelativeSource TemplatedParent}, Converter={converters:IndexToAssociatedKeyConverter}}">
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseDown">
                                     <b:InvokeCommandAction
