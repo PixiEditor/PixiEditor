@@ -13,7 +13,9 @@
             SelectedColor="{Binding SelectedColor, ElementName=paletteColorAdder, Mode=TwoWay}"
             Style="{StaticResource DefaultColorPickerStyle}" Margin="0 0 10 0"
             ShowAlpha="False"/>
-        <Button Name="AddButton" Style="{StaticResource ToolButtonStyle}" Cursor="Hand" Width="24" Height="24" Click="Button_Click">
+        <Button Name="AddButton" Margin="0" Width="24" Height="24" 
+                Style="{StaticResource ToolButtonStyle}" 
+                Cursor="Hand"  Click="Button_Click">
             <Button.Background>
                 <ImageBrush ImageSource="/Images/Plus-square.png"/>
             </Button.Background>

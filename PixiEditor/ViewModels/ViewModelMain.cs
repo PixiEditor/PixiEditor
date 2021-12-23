@@ -209,6 +209,15 @@ namespace PixiEditor.ViewModels
                         "View",
                         new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, "Toggle gridlines", modifier: ModifierKeys.Control)));
 
+            Shortcut[] colorShortcuts = new Shortcut[9];
+            for (int i = 0; i < colorShortcuts.Length; i++)
+            {
+                //34 is a D1 key integer value
+                colorShortcuts[i] = new Shortcut((Key)34 + i, ColorsSubViewModel.SelectPaletteColorCommand, i);
+            }
+
+            ShortcutController.ShortcutGroups.Add(new ShortcutGroup("Palette Colors", colorShortcuts));
+
             MiscSubViewModel = services.GetService<MiscViewModel>();
 
             // Add F1 shortcut after MiscSubViewModel is constructed

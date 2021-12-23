@@ -28,8 +28,6 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(ColorsProperty, value); }
         }
 
-
-
         public Color SelectedColor
         {
             get { return (Color)GetValue(SelectedColorProperty); }
@@ -44,8 +42,25 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for Colors.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorsProperty =
-            DependencyProperty.Register("Colors", typeof(ObservableCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(ObservableCollection<SKColor>)));
+            DependencyProperty.Register("Colors", typeof(ObservableCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(ObservableCollection<SKColor>), OnColorsChanged));
 
+        private static void OnColorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            PaletteColorAdder adder = (PaletteColorAdder)d;
+            if (e.NewValue != null)
+            {
+                adder.Colors.CollectionChanged += adder.Colors_CollectionChanged;
+            }
+            else if(e.OldValue != null)
+            {
+                adder.Colors.CollectionChanged -= adder.Colors_CollectionChanged;
+            }
+        }
+
+        private void Colors_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor));
+        }
 
         public PaletteColorAdder()
         {
@@ -65,6 +80,6 @@ namespace PixiEditor.Views.UserControls
         private void PortableColorPicker_ColorChanged(object sender, RoutedEventArgs e) => 
             AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor));
 
-        private SKColor ToSKColor(Color color) => new SKColor(color.R, color.G, color.B, color.A);
+        private static SKColor ToSKColor(Color color) => new SKColor(color.R, color.G, color.B, color.A);
     }
 }

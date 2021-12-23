@@ -8,20 +8,37 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
-    <Grid>
+    <Grid AllowDrop="True" PreviewDragEnter="Grid_PreviewDragEnter" PreviewDragLeave="Grid_PreviewDragLeave"
+          Drop="Grid_Drop">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
+            <RowDefinition Height="37.5"/>
+            <RowDefinition Height="5"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" Grid.Row="0">
-            <StackPanel Orientation="Horizontal">
-                <local:PaletteColorAdder Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
-                <Button Style="{StaticResource DarkRoundButton}" Content="Import Palette" Click="ImportPalette_OnClick"/>
-                <Button Style="{StaticResource DarkRoundButton}" Content="Save Palette" Click="SavePalette_OnClick"/>
-            </StackPanel>
-            <Separator/>
+        <StackPanel Orientation="Vertical" Grid.Row="0" Background="{StaticResource MainColor}">
+            <DockPanel VerticalAlignment="Center" Margin="0 5 0 0">
+                <local:PaletteColorAdder DockPanel.Dock="Left" Margin="5 0 0 0" Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
+                <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="55" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" 
+                Cursor="Hand" Height="24" Width="24"  ToolTip="Load Palette" Click="ImportPalette_OnClick">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Load.png"/>
+                    </Button.Background>
+                </Button>
+                <Button Height="24" Width="24" Margin="0" Style="{StaticResource ToolButtonStyle}" 
+                Cursor="Hand" ToolTip="Save Palette" Click="SavePalette_OnClick">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Save.png"/>
+                    </Button.Background>
+                </Button>
+                </StackPanel>
+            </DockPanel>
     </StackPanel>
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Separator Grid.Row="1" Margin="0, 0, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
+        <Grid Visibility="Hidden" Background="{StaticResource AccentColor}" Opacity="0.7" Grid.Row="2" Name="dragDropGrid">
+            <TextBlock Text="Drop palette here" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
            <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}">
                <d:ItemsControl.ItemsSource>
                    <x:Array Type="{x:Type Color}">
@@ -43,7 +60,14 @@
                <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <local:PaletteColor Color="{Binding}" Margin="0 5 5 5">
-                                    <local:PaletteColor.ContextMenu>
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="MouseDown">
+                                    <b:InvokeCommandAction
+                                    Command="{Binding SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Palette}}}"
+                                    CommandParameter="{Binding}" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
+                            <local:PaletteColor.ContextMenu>
                                         <ContextMenu>
                                             <MenuItem Header="Remove" Foreground="White"
                                               Click="RemoveColorMenuItem_OnClick"

@@ -343,7 +343,8 @@
                                     <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:Palette Colors="{Binding BitmapManager.ActiveDocument.Palette}"/>
+                                        <usercontrols:Palette Colors="{Binding BitmapManager.ActiveDocument.Palette}"
+                                                              SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"/>
                                     </avalondock:LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"

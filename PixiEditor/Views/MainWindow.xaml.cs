@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.Dialogs;
@@ -179,8 +180,13 @@ namespace PixiEditor
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                DataContext.FileSubViewModel.Open(files[0]);
+                if(files != null && files.Length > 0)
+                {
+                    if (Importer.IsSupportedFile(files[0]))
+                    {
+                        DataContext.FileSubViewModel.Open(files[0]);
+                    }
+                }
             }
         }
     }

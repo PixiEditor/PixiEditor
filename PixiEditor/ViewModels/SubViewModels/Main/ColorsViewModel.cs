@@ -12,6 +12,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand RemoveSwatchCommand { get; set; }
 
+        public RelayCommand<int> SelectPaletteColorCommand { get; set; }
+
         private SKColor primaryColor = SKColors.Black;
 
         public SKColor PrimaryColor // Primary color, hooked with left mouse button
@@ -49,6 +51,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SelectColorCommand = new RelayCommand(SelectColor);
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SwapColorsCommand = new RelayCommand(SwapColors);
+            SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
+        }
+
+        private void SelectPaletteColor(int number)
+        {
+            var document = Owner.BitmapManager.ActiveDocument;
+            if(document.Palette != null && document.Palette.Count >= number)
+            {
+                PrimaryColor = document.Palette[number - 1];
+            }
         }
 
         public void SwapColors(object parameter)

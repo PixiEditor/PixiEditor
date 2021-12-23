@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Win32;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO.JascPalFile;
@@ -21,6 +22,16 @@ namespace PixiEditor.Views.UserControls
             get { return (ObservableCollection<SKColor>)GetValue(ColorsProperty); }
             set { SetValue(ColorsProperty, value); }
         }
+
+        public ICommand SelectColorCommand
+        {
+            get { return (ICommand)GetValue(SelectColorCommandProperty); }
+            set { SetValue(SelectColorCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectColorCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectColorCommandProperty =
+            DependencyProperty.Register("SelectColorCommand", typeof(ICommand), typeof(Palette));
 
         public Palette()
         {
@@ -45,11 +56,15 @@ namespace PixiEditor.Views.UserControls
             };
             if (openFileDialog.ShowDialog() == true)
             {
-                string fileName = openFileDialog.FileName;
-                var jascData = JascFileParser.Parse(fileName);
-                Colors.Clear();
-                Colors.AddRange(jascData.Colors);
+                ImportPallete(openFileDialog.FileName);
             }
+        }
+
+        private void ImportPallete(string fileName)
+        {
+            var jascData = JascFileParser.Parse(fileName);
+            Colors.Clear();
+            Colors.AddRange(jascData.Colors);
         }
 
         private void SavePalette_OnClick(object sender, RoutedEventArgs e)
@@ -63,6 +78,49 @@ namespace PixiEditor.Views.UserControls
                 string fileName = saveFileDialog.FileName;
                 JascFileParser.Save(fileName, new JascFileData(Colors.ToArray()));
             }
+        }
+
+        private void Grid_PreviewDragEnter(object sender, DragEventArgs e)
+        {
+            if(IsPalFilePresent(e, out _))
+            {
+                dragDropGrid.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void Grid_PreviewDragLeave(object sender, DragEventArgs e)
+        {
+            dragDropGrid.Visibility = Visibility.Hidden;
+        }
+
+        private void Grid_Drop(object sender, DragEventArgs e)
+        {
+            if(IsPalFilePresent(e, out string filePath))
+            {
+                ImportPallete(filePath);
+                dragDropGrid.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private bool IsPalFilePresent(DragEventArgs e, out string filePath)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0 && files[0].EndsWith(".pal"))
+                {
+                    filePath = files[0];
+                    return true;
+                }
+            }
+
+            filePath = null;
+            return false;
+        }
+
+        private void PaletteColor_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
         }
     }
 }
