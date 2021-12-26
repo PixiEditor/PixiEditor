@@ -59,7 +59,7 @@
                </ItemsControl.ItemsPanel>
                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:PaletteColor AllowDrop="True" Color="{Binding}" Margin="0 5 5 5" MouseMove="PaletteColor_MouseMove"
+                        <local:PaletteColor ToolTip="Click to select as main color. Drag and drop onto another pallete color to swap them." AllowDrop="True" Color="{Binding}" Margin="0 5 5 5" MouseMove="PaletteColor_MouseMove"
                                             Drop="PaletteColor_Drop"
                                             AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 
                 RelativeSource={RelativeSource TemplatedParent}, Converter={converters:IndexToAssociatedKeyConverter}}">
