@@ -59,11 +59,12 @@
                </ItemsControl.ItemsPanel>
                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:PaletteColor Color="{Binding}" Margin="0 5 5 5"
+                        <local:PaletteColor AllowDrop="True" Color="{Binding}" Margin="0 5 5 5" MouseMove="PaletteColor_MouseMove"
+                                            Drop="PaletteColor_Drop"
                                             AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 
                 RelativeSource={RelativeSource TemplatedParent}, Converter={converters:IndexToAssociatedKeyConverter}}">
                             <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="MouseDown">
+                                <b:EventTrigger EventName="MouseUp">
                                     <b:InvokeCommandAction
                                     Command="{Binding SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Palette}}}"
                                     CommandParameter="{Binding}" />

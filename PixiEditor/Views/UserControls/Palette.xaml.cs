@@ -14,6 +14,8 @@ namespace PixiEditor.Views.UserControls
     /// </summary>
     public partial class Palette : UserControl
     {
+        public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
+
         public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(
             "Colors", typeof(ObservableCollection<SKColor>), typeof(Palette));
 
@@ -118,9 +120,33 @@ namespace PixiEditor.Views.UserControls
             return false;
         }
 
-        private void PaletteColor_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void PaletteColor_MouseMove(object sender, MouseEventArgs e)
         {
+            PaletteColor color = sender as PaletteColor;
+            if (color != null && e.LeftButton == MouseButtonState.Pressed) 
+            {
+                DataObject data = new DataObject();
+                data.SetData(PaletteColorDaoFormat, color.Color.ToString());
+                DragDrop.DoDragDrop(color, data, DragDropEffects.Move);
+                e.Handled = true;
+            }
+        }
 
+        private void PaletteColor_Drop(object sender, DragEventArgs e)
+        {
+            if(e.Data.GetDataPresent(PaletteColorDaoFormat))
+            {
+                string data = (string)e.Data.GetData(PaletteColorDaoFormat);
+                SKColor color = SKColor.Parse(data);
+                if(Colors.Contains(color))
+                {
+                    PaletteColor paletteColor = sender as PaletteColor;
+                    int currIndex = Colors.IndexOf(color);
+                    int newIndex = Colors.IndexOf(paletteColor.Color);
+                    Colors.RemoveAt(currIndex);
+                    Colors.Insert(newIndex, color);
+                }
+            }
         }
     }
 }
