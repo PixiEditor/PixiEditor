@@ -12,12 +12,12 @@ namespace PixiEditor.Views.UserControls
     /// <summary>
     /// Interaction logic for Palette.xaml
     /// </summary>
-    public partial class Palette : UserControl
+    public partial class PaletteViewer : UserControl
     {
         public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
 
         public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(
-            "Colors", typeof(ObservableCollection<SKColor>), typeof(Palette));
+            "Colors", typeof(ObservableCollection<SKColor>), typeof(PaletteViewer));
 
         public ObservableCollection<SKColor> Colors
         {
@@ -33,9 +33,9 @@ namespace PixiEditor.Views.UserControls
 
         // Using a DependencyProperty as the backing store for SelectColorCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectColorCommandProperty =
-            DependencyProperty.Register("SelectColorCommand", typeof(ICommand), typeof(Palette));
+            DependencyProperty.Register("SelectColorCommand", typeof(ICommand), typeof(PaletteViewer));
 
-        public Palette()
+        public PaletteViewer()
         {
             InitializeComponent();
         }

@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using PixiEditor.Models.DataHolders;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,15 +23,15 @@ namespace PixiEditor.Views.UserControls.Lospec
     /// </summary>
     public partial class LospecPaletteItem : UserControl
     {
-        public ObservableCollection<SKColor> Colors
+        public Palette Palette
         {
-            get { return (ObservableCollection<SKColor>)GetValue(ColorsProperty); }
-            set { SetValue(ColorsProperty, value); }
+            get { return (Palette)GetValue(PaletteProperty); }
+            set { SetValue(PaletteProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Colors.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ColorsProperty =
-            DependencyProperty.Register("Colors", typeof(ObservableCollection<SKColor>), typeof(LospecPaletteItem));
+        // Using a DependencyProperty as the backing store for Palette.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty PaletteProperty =
+            DependencyProperty.Register("Palette", typeof(Palette), typeof(LospecPaletteItem), new PropertyMetadata(null));
 
 
         public LospecPaletteItem()

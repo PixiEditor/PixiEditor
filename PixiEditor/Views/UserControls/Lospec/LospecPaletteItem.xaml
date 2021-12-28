@@ -8,18 +8,18 @@
              d:DesignHeight="100" d:DesignWidth="250" Name="paletteItem">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="4*"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="84*"/>
+            <ColumnDefinition Width="41*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="65"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <TextBlock Text="Palette Name" Foreground="White"/>
-            <TextBlock Text="Palette Creator" Foreground="White"/>
+            <TextBlock Text="{Binding Palette.Title, ElementName=paletteItem}" Foreground="White"/>
+            <TextBlock Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>
         </StackPanel>
-        <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Colors}">
+        <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
@@ -31,5 +31,6 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <Button Grid.Row="1" Grid.Column="1"  Content="Import" Style="{StaticResource AccentDarkRoundButton}"/>
     </Grid>
 </UserControl>
