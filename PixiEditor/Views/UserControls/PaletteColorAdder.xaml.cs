@@ -47,6 +47,7 @@ namespace PixiEditor.Views.UserControls
         private static void OnColorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             PaletteColorAdder adder = (PaletteColorAdder)d;
+            if (adder == null || adder.Colors == null) return;
             if (e.NewValue != null)
             {
                 adder.Colors.CollectionChanged += adder.Colors_CollectionChanged;
