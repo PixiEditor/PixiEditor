@@ -25,9 +25,9 @@
                 <SolidColorBrush Color="{Binding Color, Converter={StaticResource SKColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>
         </Border>
-        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="1 0 0 -1" Width="15"
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Margin="0 0 0 -1"
                 Visibility="{Binding ElementName=uc, Path=AssociatedKey, Converter={converters:NotNullToVisibilityConverter}}"
-                Background="{StaticResource AccentColor}" CornerRadius="3.5">
+                Background="{StaticResource AccentColor}" CornerRadius="3.5 0 3.5 0">
             <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="1 0 0 0"
                                         Text="{Binding AssociatedKey, ElementName=uc}"/>
         </Border>
