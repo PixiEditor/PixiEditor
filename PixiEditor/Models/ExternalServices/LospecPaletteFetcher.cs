@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using PixiEditor.Models.DataHolders;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,11 +19,21 @@ namespace PixiEditor.Models.ExternalServices
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     string content = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<PaletteList>(content);
+                    var obj = JsonConvert.DeserializeObject<PaletteList>(content);
+                    obj.Palettes.ForEach(x => ReadjustColors(x.Colors));
+                    return obj;
                 }
             }
 
             return null;
+        }
+
+        private static void ReadjustColors(ObservableCollection<string> colors)
+        {
+            for (int i = 0; i < colors.Count; i++)
+            {
+                colors[i] = colors[i].Insert(0, "#");
+            }
         }
     }
 }

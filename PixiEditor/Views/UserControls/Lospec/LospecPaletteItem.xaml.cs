@@ -33,6 +33,16 @@ namespace PixiEditor.Views.UserControls.Lospec
         public static readonly DependencyProperty PaletteProperty =
             DependencyProperty.Register("Palette", typeof(Palette), typeof(LospecPaletteItem), new PropertyMetadata(null));
 
+        public ICommand ImportPaletteCommand
+        {
+            get { return (ICommand)GetValue(ImportPaletteCommandProperty); }
+            set { SetValue(ImportPaletteCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ImportPaletteCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ImportPaletteCommandProperty =
+            DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(LospecPaletteItem));
+
 
         public LospecPaletteItem()
         {

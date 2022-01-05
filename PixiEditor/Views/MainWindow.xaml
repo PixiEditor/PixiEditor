@@ -356,7 +356,7 @@
                                     <avalondock:LayoutAnchorable ContentId="paletteBrowser" Title="Palette Browser" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <lospec:LospecPalettesBrowser/>
+                                        <lospec:LospecPalettesBrowser ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
                                     </avalondock:LayoutAnchorable>
 
                                 </LayoutAnchorablePane>

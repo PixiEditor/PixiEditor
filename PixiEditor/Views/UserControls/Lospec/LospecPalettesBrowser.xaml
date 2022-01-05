@@ -6,13 +6,13 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="250" GotFocus="UserControl_GotFocus" Name="lospecPalettesBrowser">
-    <Grid>
+    <ScrollViewer Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.Palettes}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <local:LospecPaletteItem Palette="{Binding}"/>
+                    <local:LospecPaletteItem Palette="{Binding}" ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=lospecPalettesBrowser}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>   
-    </Grid>
+    </ScrollViewer>
 </UserControl>

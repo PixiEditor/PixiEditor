@@ -25,8 +25,11 @@
                 <SolidColorBrush Color="{Binding Color, Converter={StaticResource SKColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>
         </Border>
-        <usercontrols:OutlinedTextBlock Stroke="White" StrokeThickness="2" FontSize="16" Margin="0, 0, 4, 2" 
-                                        Text="{Binding AssociatedKey, ElementName=uc}" 
-                                        Visibility="{Binding ElementName=uc, Path=AssociatedKey, Converter={converters:NotNullToVisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="1 0 0 -1" Width="15"
+                Visibility="{Binding ElementName=uc, Path=AssociatedKey, Converter={converters:NotNullToVisibilityConverter}}"
+                Background="{StaticResource AccentColor}" CornerRadius="3.5">
+            <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="1 0 0 0"
+                                        Text="{Binding AssociatedKey, ElementName=uc}"/>
+        </Border>
     </Grid>
 </UserControl>

@@ -3,21 +3,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec" 
+             xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="250" Name="paletteItem">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="84*"/>
-            <ColumnDefinition Width="41*"/>
+            <ColumnDefinition Width="100*"/>
+            <ColumnDefinition Width="30"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="65"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <TextBlock Text="{Binding Palette.Title, ElementName=paletteItem}" Foreground="White"/>
-            <TextBlock Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>
+            <controls:PrependTextBlock PrependColor="Gray" Prepend="Title: " Text="{Binding Palette.Title, ElementName=paletteItem}" Foreground="White"/>
+            <controls:PrependTextBlock PrependColor="Gray" Prepend="Author: " Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>
         </StackPanel>
         <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
             <ItemsControl.ItemsPanel>
@@ -27,10 +28,17 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Fill="{Binding}"/>
+                    <Rectangle Fill="{Binding}" Width="20" Height="20"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Grid.Row="1" Grid.Column="1"  Content="Import" Style="{StaticResource AccentDarkRoundButton}"/>
+        <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center" 
+                Style="{StaticResource ToolButtonStyle}" Cursor="Hand" 
+                Command="{Binding ImportPaletteCommand, ElementName=paletteItem}"
+                CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}">
+            <Button.Background>
+                <ImageBrush ImageSource="/Images/Download.png"/>
+            </Button.Background>
+        </Button>
     </Grid>
 </UserControl>

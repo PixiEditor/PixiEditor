@@ -1,6 +1,10 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using SkiaSharp;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -11,6 +15,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public RelayCommand SelectColorCommand { get; set; }
 
         public RelayCommand RemoveSwatchCommand { get; set; }
+
+        public RelayCommand<ObservableCollection<string>> ImportPaletteCommand { get; set; }
+
 
         public RelayCommand<int> SelectPaletteColorCommand { get; set; }
 
@@ -52,6 +59,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SwapColorsCommand = new RelayCommand(SwapColors);
             SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
+            ImportPaletteCommand = new RelayCommand<ObservableCollection<string>>(ImportPalette);
+        }
+
+        public void ImportPalette(ObservableCollection<string> palette)
+        {
+            if (ConfirmationDialog.Show("Replace current palette with selected one?", "Replace current palette") == ConfirmationType.Yes)
+            {
+                Owner.BitmapManager.ActiveDocument.Palette.ReplaceRange(palette.Select(x => SKColor.Parse(x)));
+            }
         }
 
         private void SelectPaletteColor(int index)
