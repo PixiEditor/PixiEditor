@@ -152,6 +152,7 @@
 		<None Remove="Images\PixiEditorLogo.png" />
 		<None Remove="Images\PixiParserLogo.png" />
 		<None Remove="Images\Placeholder.png" />
+		<None Remove="Images\Processing.gif" />
 		<None Remove="Images\SelectImage.png" />
 		<None Remove="Images\SocialMedia\DiscordIcon.png" />
 		<None Remove="Images\SocialMedia\DonateIcon.png" />
@@ -202,6 +203,7 @@
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.0.0" />
 		<PackageReference Include="SkiaSharp" Version="2.80.3" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
 		<PackageReference Include="WriteableBitmapEx">
 			<Version>1.6.8</Version>
 		</PackageReference>
@@ -224,6 +226,7 @@
 		<Resource Include="Images\PixiEditorLogo.png" />
 		<Resource Include="Images\PixiParserLogo.png" />
 		<Resource Include="Images\Placeholder.png" />
+		<Resource Include="Images\Processing.gif" />
 		<Resource Include="Images\SocialMedia\DiscordIcon.png" />
 		<Resource Include="Images\SocialMedia\DonateIcon.png" />
 		<Resource Include="Images\SocialMedia\GitHubIcon.png" />

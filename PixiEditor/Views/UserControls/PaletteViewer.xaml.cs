@@ -181,7 +181,7 @@ namespace PixiEditor.Views.UserControls
             };
 
             browser.Show();
-            browser.FetchPalettes();
+            await browser.FetchPalettes();
         }
     }
 }
