@@ -1,11 +1,9 @@
-﻿using System;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
 using System.Collections.Generic;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools
 {
@@ -54,25 +52,26 @@ namespace PixiEditor.Models.Tools
         private void InitializeStorageBasedChange(SKRectI toolSessionRect)
         {
             Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-            var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
-            SKRectI finalRect = toolSessionRect;
-            if (toolSize != null)
-            {
-                int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
-                finalRect.Inflate(halfSize, halfSize);
-            }
+            //var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
+            //SKRectI finalRect = toolSessionRect;
+            //if (toolSize != null)
+            //{
+            //    int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
+            //    finalRect.Inflate(halfSize, halfSize);
+            //}
 
-            if (toolSessionRect.IsEmpty)
-            {
-                finalRect = SKRectI.Create(doc.ActiveLayer.OffsetX, doc.ActiveLayer.OffsetY, doc.ActiveLayer.Width, doc.ActiveLayer.Height);
-            }
+            //if (toolSessionRect.IsEmpty)
+            //{
+            //    finalRect = SKRectI.Create(doc.ActiveLayer.OffsetX, doc.ActiveLayer.OffsetY, doc.ActiveLayer.Width, doc.ActiveLayer.Height);
+            //}
 
-            if (UseDocumentRectForUndo)
-            {
-                finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
-            }
+            //Commented, because rect based undo is still a little buggy
+            //if (UseDocumentRectForUndo)
+            //{
+            //    finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
+            //}
 
-            _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });
+            _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer });
         }
     }
 }
