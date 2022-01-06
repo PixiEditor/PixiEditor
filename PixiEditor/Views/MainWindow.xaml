@@ -343,8 +343,7 @@
                                     <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
-                                        Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
+                                        <usercontrols:PaletteViewer Colors="{Binding BitmapManager.ActiveDocument.Palette}"
                                                               SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
                                                                     ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
                                     </avalondock:LayoutAnchorable>

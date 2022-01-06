@@ -25,8 +25,6 @@ namespace PixiEditor.Views.Dialogs
     public partial class LospecPalettesBrowser : Window
     {
         public event ListFetched OnListFetched;
-        private int _currentPage = 0;
-
         public PaletteList PaletteList
         {
             get { return (PaletteList)GetValue(PaletteListProperty); }
@@ -47,17 +45,6 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty ImportPaletteCommandProperty =
             DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(LospecPalettesBrowser));
 
-        public bool IsFetching
-        {
-            get { return (bool)GetValue(IsFetchingProperty); }
-            set { SetValue(IsFetchingProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for IsFetching.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsFetchingProperty =
-            DependencyProperty.Register("IsFetching", typeof(bool), typeof(LospecPalettesBrowser), new PropertyMetadata(false));
-
-
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -74,28 +61,11 @@ namespace PixiEditor.Views.Dialogs
             InitializeComponent();
         }
 
-        public async Task FetchPalettes()
+        public async void FetchPalettes()
         {
-            IsFetching = true;
             if (PaletteList == null)
             {
                 PaletteList = await LospecPaletteFetcher.FetchPage(0);
-                OnListFetched.Invoke(PaletteList);
-            }
-
-            IsFetching = false;
-        }
-
-        private async void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (PaletteList == null) return;
-            var scrollViewer = (ScrollViewer)sender;
-            if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
-            {
-                _currentPage++;
-                var newPalettes = await LospecPaletteFetcher.FetchPage(_currentPage);
-                PaletteList.Palettes.AddRange(newPalettes.Palettes);
-                PaletteList = PaletteList;
                 OnListFetched.Invoke(PaletteList);
             }
         }

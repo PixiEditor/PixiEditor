@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
-             xmlns:gif="http://wpfanimatedgif.codeplex.com"
              Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="800" WindowStyle="None"
              Name="lospecPalettesBrowser">
     <Window.Resources>
@@ -36,10 +35,7 @@
             <TextBlock Text="Couldn't fetch palettes" Foreground="White" FontSize="20" HorizontalAlignment="Center" 
                        VerticalAlignment="Center" Visibility="{Binding ElementName=itemsControl, 
                 Path=Visibility, Converter={converters:OppositeVisibilityConverter}}"/>
-            <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Visibility="{Binding ElementName=lospecPalettesBrowser, Path=IsFetching, Converter={StaticResource BoolToVisibilityConverter}}"
-                   Height="50" gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
-            <ScrollViewer Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
+            <ScrollViewer Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <ItemsControl Name="itemsControl" ItemsSource="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.Palettes}" 
                           Visibility="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.FetchedCorrectly,
                 Converter={StaticResource BoolToVisibilityConverter}}">
