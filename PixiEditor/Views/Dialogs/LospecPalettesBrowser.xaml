@@ -24,7 +24,9 @@
     <Grid Background="{StaticResource AccentColor}" FocusVisualStyle="{x:Null}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
+            <RowDefinition Height="50"/>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
@@ -32,13 +34,21 @@
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
         </DockPanel>
-        <Grid Grid.Row="1" Margin="10">
+        <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.Row="1">
+            <StackPanel Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
+                <Label Content="Sort by:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
+                <ComboBox Name="sortingComboBox" FontSize="16" SelectionChanged="SortingComboBox_SelectionChanged">
+                    <ComboBoxItem IsSelected="True">Default</ComboBoxItem>
+                    <ComboBoxItem>Alphabetical</ComboBoxItem>
+                    <ComboBoxItem>Downloads</ComboBoxItem>
+                    <ComboBoxItem>Newest</ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+        <Grid Grid.Row="2" Margin="10">
             <TextBlock Text="Couldn't fetch palettes" Foreground="White" FontSize="20" HorizontalAlignment="Center" 
                        VerticalAlignment="Center" Visibility="{Binding ElementName=itemsControl, 
                 Path=Visibility, Converter={converters:OppositeVisibilityConverter}}"/>
-            <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Visibility="{Binding ElementName=lospecPalettesBrowser, Path=IsFetching, Converter={StaticResource BoolToVisibilityConverter}}"
-                   Height="50" gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
             <ScrollViewer Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
                 <ItemsControl Name="itemsControl" ItemsSource="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.Palettes}" 
                           Visibility="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.FetchedCorrectly,
@@ -51,6 +61,10 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
+            <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="{Binding ElementName=lospecPalettesBrowser, Path=IsFetching, Converter={StaticResource BoolToVisibilityConverter}}"
+                   Height="50" gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
         </Grid>
+        <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="0 0 5 0" Text="Palettes fetched from lospec.com/palette-list" Foreground="White"/>
     </Grid>
 </Window>

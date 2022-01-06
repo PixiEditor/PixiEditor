@@ -57,6 +57,8 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty IsFetchingProperty =
             DependencyProperty.Register("IsFetching", typeof(bool), typeof(LospecPalettesBrowser), new PropertyMetadata(false));
 
+        public string SortingType { get; set; } = "Default";
+
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -74,12 +76,12 @@ namespace PixiEditor.Views.Dialogs
             InitializeComponent();
         }
 
-        public async Task FetchPalettes()
+        public async Task UpdatePaletteList(bool refetch = false)
         {
             IsFetching = true;
-            if (PaletteList == null)
+            if (PaletteList == null || refetch)
             {
-                PaletteList = await LospecPaletteFetcher.FetchPage(0);
+                PaletteList = await LospecPaletteFetcher.FetchPage(0, SortingType.ToLower());
                 OnListFetched.Invoke(PaletteList);
             }
 
@@ -92,11 +94,27 @@ namespace PixiEditor.Views.Dialogs
             var scrollViewer = (ScrollViewer)sender;
             if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
             {
+                IsFetching = true;
                 _currentPage++;
                 var newPalettes = await LospecPaletteFetcher.FetchPage(_currentPage);
+                if(newPalettes == null || !newPalettes.FetchedCorrectly || newPalettes.Palettes == null)
+                {
+                    IsFetching = false;
+                    return;
+                }
+
                 PaletteList.Palettes.AddRange(newPalettes.Palettes);
-                PaletteList = PaletteList;
                 OnListFetched.Invoke(PaletteList);
+                IsFetching = false;
+            }
+        }
+
+        private async void SortingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems != null && e.AddedItems.Count > 0 && e.AddedItems[0] is ComboBoxItem item && item.Content is string value)
+            {
+                SortingType = value;
+                await UpdatePaletteList(true);
             }
         }
     }

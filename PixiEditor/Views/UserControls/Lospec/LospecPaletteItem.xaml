@@ -10,7 +10,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100*"/>
-            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="75"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
@@ -44,6 +44,7 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
         <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center"
+                ToolTip="Import"
                 Style="{StaticResource ToolButtonStyle}" Cursor="Hand" 
                     Command="{Binding ImportPaletteCommand, ElementName=paletteItem}"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}">

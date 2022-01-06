@@ -10,20 +10,24 @@ namespace PixiEditor.Models.ExternalServices
     public static class LospecPaletteFetcher
     {
         public const string LospecApiUrl = "https://lospec.com/palette-list";
-        public static async Task<PaletteList> FetchPage(int page)
+        public static async Task<PaletteList> FetchPage(int page, string sortingType = "default")
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    string url = @$"{LospecApiUrl}/load?colorNumberFilterType=any&page={page}&tag=&sortingType=default";
+                    string url = @$"{LospecApiUrl}/load?colorNumberFilterType=any&page={page}&tag=&sortingType={sortingType}";
                     HttpResponseMessage response = await client.GetAsync(url);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         string content = await response.Content.ReadAsStringAsync();
                         var obj = JsonConvert.DeserializeObject<PaletteList>(content);
                         obj.FetchedCorrectly = true;
-                        obj.Palettes.ForEach(x => ReadjustColors(x.Colors));
+                        foreach (var palette in obj.Palettes)
+                        {
+                            ReadjustColors(palette.Colors);
+                        }
+
                         return obj;
                     }
                 }
