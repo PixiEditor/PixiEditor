@@ -18,8 +18,14 @@
         <StackPanel Orientation="Vertical" Grid.Row="0" Background="{StaticResource MainColor}">
             <DockPanel VerticalAlignment="Center" Margin="0 5 0 0">
                 <local:PaletteColorAdder DockPanel.Dock="Left" Margin="5 0 0 0" Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
-                <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="55" VerticalAlignment="Center" Orientation="Horizontal">
-                <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" 
+                <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="85" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" Click="BrowsePalettes_Click" 
+                Cursor="Hand" Height="24" Width="24" ToolTip="Browse Palettes">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Images/Globe.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" 
                 Cursor="Hand" Height="24" Width="24"  ToolTip="Load Palette" Click="ImportPalette_OnClick">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Load.png"/>

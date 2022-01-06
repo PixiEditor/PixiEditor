@@ -15,13 +15,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PixiEditor.Views.UserControls.Lospec
+namespace PixiEditor.Views.Dialogs
 {
+    public delegate void ListFetched(PaletteList list);
+
     /// <summary>
     /// Interaction logic for LospecPalettesBrowser.xaml
     /// </summary>
-    public partial class LospecPalettesBrowser : UserControl
+    public partial class LospecPalettesBrowser : Window
     {
+        public event ListFetched OnListFetched;
         public PaletteList PaletteList
         {
             get { return (PaletteList)GetValue(PaletteListProperty); }
@@ -42,7 +45,15 @@ namespace PixiEditor.Views.UserControls.Lospec
         public static readonly DependencyProperty ImportPaletteCommandProperty =
             DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(LospecPalettesBrowser));
 
+        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
 
+        private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.CloseWindow(this);
+        }
 
 
         public LospecPalettesBrowser()
@@ -50,10 +61,13 @@ namespace PixiEditor.Views.UserControls.Lospec
             InitializeComponent();
         }
 
-        private async void UserControl_GotFocus(object sender, RoutedEventArgs e)
+        public async void FetchPalettes()
         {
-            if(PaletteList == null)
+            if (PaletteList == null)
+            {
                 PaletteList = await LospecPaletteFetcher.FetchPage(0);
+                OnListFetched.Invoke(PaletteList);
+            }
         }
     }
 }

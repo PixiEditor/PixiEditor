@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO.JascPalFile;
+using PixiEditor.Views.Dialogs;
 using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls
@@ -34,6 +35,18 @@ namespace PixiEditor.Views.UserControls
         // Using a DependencyProperty as the backing store for SelectColorCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectColorCommandProperty =
             DependencyProperty.Register("SelectColorCommand", typeof(ICommand), typeof(PaletteViewer));
+
+        public ICommand ImportPaletteCommand
+        {
+            get { return (ICommand)GetValue(ImportPaletteCommandProperty); }
+            set { SetValue(ImportPaletteCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ImportPaletteCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ImportPaletteCommandProperty =
+            DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PaletteViewer));
+
+        private PaletteList _cachedPaletteList;
 
         public PaletteViewer()
         {
@@ -147,6 +160,28 @@ namespace PixiEditor.Views.UserControls
                     Colors.Insert(newIndex, color);
                 }
             }
+        }
+
+        private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)
+        {
+            LospecPalettesBrowser browser = new LospecPalettesBrowser
+            {
+                Owner = Application.Current.MainWindow,
+                ImportPaletteCommand = this.ImportPaletteCommand
+            };
+
+            if(_cachedPaletteList != null)
+            {
+                browser.PaletteList = _cachedPaletteList;
+            }
+
+            browser.OnListFetched += (PaletteList list) =>
+            {
+                _cachedPaletteList = list;
+            };
+
+            browser.Show();
+            browser.FetchPalettes();
         }
     }
 }

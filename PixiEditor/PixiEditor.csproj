@@ -142,6 +142,8 @@
 		<None Remove="Images\Eye.png" />
 		<None Remove="Images\Folder-add.png" />
 		<None Remove="Images\Folder.png" />
+		<None Remove="Images\Globe.png" />
+		<None Remove="Images\Heart.png" />
 		<None Remove="Images\Layer-add.png" />
 		<None Remove="Images\MoveImage.png" />
 		<None Remove="Images\MoveViewportImage.png" />
@@ -214,6 +216,8 @@
 		<Resource Include="Images\Eye.png" />
 		<Resource Include="Images\Folder-add.png" />
 		<Resource Include="Images\Folder.png" />
+		<Resource Include="Images\Globe.png" />
+		<Resource Include="Images\Heart.png" />
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\penMode.png" />
 		<Resource Include="Images\PixiBotLogo.png" />

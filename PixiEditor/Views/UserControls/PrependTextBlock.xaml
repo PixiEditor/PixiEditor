@@ -29,6 +29,6 @@
             </TextBlock.Text>
         </TextBlock>
 
-        <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Append, ElementName=uc}"/>
+        <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Append, ElementName=uc}" Foreground="{Binding ElementName=uc, Path=AppendColor}"/>
     </StackPanel>
 </UserControl>

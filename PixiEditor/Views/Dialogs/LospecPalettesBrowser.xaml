@@ -1,0 +1,52 @@
+﻿<Window x:Class="PixiEditor.Views.Dialogs.LospecPalettesBrowser"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             mc:Ignorable="d" 
+             Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="800" WindowStyle="None"
+             Name="lospecPalettesBrowser">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed_Close" />
+    </Window.CommandBindings>
+
+    <Grid Background="{StaticResource AccentColor}" FocusVisualStyle="{x:Null}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
+            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
+        </DockPanel>
+        <Grid Grid.Row="1" Margin="10">
+            <TextBlock Text="Couldn't fetch palettes" Foreground="White" FontSize="20" HorizontalAlignment="Center" 
+                       VerticalAlignment="Center" Visibility="{Binding ElementName=itemsControl, 
+                Path=Visibility, Converter={converters:OppositeVisibilityConverter}}"/>
+            <ScrollViewer Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl Name="itemsControl" ItemsSource="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.Palettes}" 
+                          Visibility="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.FetchedCorrectly,
+                Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:LospecPaletteItem Palette="{Binding}" 
+                                                     ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=lospecPalettesBrowser}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

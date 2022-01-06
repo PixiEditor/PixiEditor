@@ -6,21 +6,32 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec" 
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d" 
-             d:DesignHeight="100" d:DesignWidth="250" Name="paletteItem">
+             d:DesignHeight="200" d:DesignWidth="800" Name="paletteItem">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100*"/>
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="60"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="65"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <controls:PrependTextBlock PrependColor="Gray" Prepend="Title: " Text="{Binding Palette.Title, ElementName=paletteItem}" Foreground="White"/>
-            <controls:PrependTextBlock PrependColor="Gray" Prepend="Author: " Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>
+            <Separator Background="{StaticResource MainColor}"/>
+            <TextBlock>
+                <Hyperlink NavigateUri="{Binding ElementName=paletteItem, Path=Palette.Url}"
+                           RequestNavigate="Hyperlink_RequestNavigate">                 
+                    <TextBlock Text="{Binding Palette.Title, ElementName=paletteItem}" Foreground="White" FontSize="20"/>
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock Margin="0 5 0 0">
+                <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="{Binding ElementName=paletteItem, Path=Palette.User.Url}">
+                    <controls:PrependTextBlock PrependColor="Gray" Prepend="Author: " Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>
+                </Hyperlink>
+            </TextBlock>
         </StackPanel>
-        <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
+        <ItemsControl Margin="0 0 0 0" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
@@ -28,17 +39,36 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Fill="{Binding}" Width="20" Height="20"/>
+                    <Rectangle Fill="{Binding}" ToolTip="{Binding}" Width="30" Height="30"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center" 
+        <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Center"
                 Style="{StaticResource ToolButtonStyle}" Cursor="Hand" 
-                Command="{Binding ImportPaletteCommand, ElementName=paletteItem}"
-                CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}">
-            <Button.Background>
-                <ImageBrush ImageSource="/Images/Download.png"/>
-            </Button.Background>
-        </Button>
+                    Command="{Binding ImportPaletteCommand, ElementName=paletteItem}"
+                    CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}">
+                <Button.Background>
+                    <ImageBrush ImageSource="/Images/Download.png"/>
+                </Button.Background>
+            </Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="2" Grid.Column="2">
+            <controls:PrependTextBlock AppendColor="Gray" Append=" likes" Text="{Binding ElementName=paletteItem, Path=Palette.Likes}" Foreground="Gray"/>
+            <Image Source="/Images/Heart.png" Height="16" Margin="2.5 0 0 0"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Margin="0 10 0 0" Orientation="Horizontal">
+            <TextBlock Text="Tags: " Foreground="Gray"/>
+            <ItemsControl  ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Tags}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate d:DataType="{x:Type TextBlock}">
+                        <TextBlock Text="{Binding}" Margin="5 0 0 0" Foreground="White"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
     </Grid>
 </UserControl>

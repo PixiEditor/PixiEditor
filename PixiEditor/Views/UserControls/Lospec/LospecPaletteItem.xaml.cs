@@ -3,6 +3,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,6 +48,15 @@ namespace PixiEditor.Views.UserControls.Lospec
         public LospecPaletteItem()
         {
             InitializeComponent();
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            using Process openProcess = new Process();
+
+            openProcess.StartInfo.UseShellExecute = true;
+            openProcess.StartInfo.FileName = e.Uri.AbsoluteUri;
+            openProcess.Start();
         }
     }
 }

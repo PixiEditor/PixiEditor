@@ -344,7 +344,8 @@
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
                                         <usercontrols:PaletteViewer Colors="{Binding BitmapManager.ActiveDocument.Palette}"
-                                                              SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"/>
+                                                              SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
+                                                                    ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
                                     </avalondock:LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
@@ -352,11 +353,6 @@
                                         <usercontrols:SwatchesView
                                             SelectSwatchCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
                                             Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"/>
-                                    </avalondock:LayoutAnchorable>
-                                    <avalondock:LayoutAnchorable ContentId="paletteBrowser" Title="Palette Browser" CanHide="False"
-                                                                 CanClose="False" CanAutoHide="False"
-                                                                 CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <lospec:LospecPalettesBrowser ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
                                     </avalondock:LayoutAnchorable>
 
                                 </LayoutAnchorablePane>
