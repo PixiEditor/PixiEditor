@@ -64,9 +64,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void ImportPalette(ObservableCollection<string> palette)
         {
+            var doc = Owner.BitmapManager.ActiveDocument;
+            if (doc == null) return;
+
             if (ConfirmationDialog.Show("Replace current palette with selected one?", "Replace current palette") == ConfirmationType.Yes)
             {
-                Owner.BitmapManager.ActiveDocument.Palette.ReplaceRange(palette.Select(x => SKColor.Parse(x)));
+                if (doc.Palette == null)
+                {
+                    doc.Palette = new Models.DataHolders.ObservableCollection<SKColor>();
+                }
+
+                doc.Palette.ReplaceRange(palette.Select(x => SKColor.Parse(x)));
             }
         }
 
