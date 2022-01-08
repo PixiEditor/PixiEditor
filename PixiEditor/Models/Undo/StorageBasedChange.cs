@@ -376,9 +376,11 @@ namespace PixiEditor.Models.Undo
 
         public void Dispose()
         {
-            var layers = LoadLayersFromDevice();
-            foreach (var layer in layers)
-                layer.LayerBitmap.Dispose();
+            for (int i = 0; i < StoredLayers.Length; i++)
+            {
+                if (File.Exists(StoredLayers[i].StoredPngLayerName))
+                    File.Delete(StoredLayers[i].StoredPngLayerName);
+            }
         }
     }
 }
