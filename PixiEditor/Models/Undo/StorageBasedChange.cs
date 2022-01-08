@@ -342,11 +342,17 @@ namespace PixiEditor.Models.Undo
             int targetWidth = widthBigger ? chunk.Width : layer.Width;
             int targetHeight = heightBigger ? chunk.Height : layer.Height;
 
+            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth);
+            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight);
+
             int offsetDiffX = layerData.OffsetX - layer.OffsetX;
             int offsetDiffY = layerData.OffsetY - layer.OffsetY;
 
             int targetOffsetX = widthBigger ? layerData.SerializedRect.Left : layerData.OffsetX;
             int targetOffsetY = heightBigger ? layerData.SerializedRect.Top : layerData.OffsetY;
+
+            targetOffsetX = Math.Max(0, targetOffsetX);
+            targetOffsetY = Math.Max(0, targetOffsetY);
 
             Surface targetSizeSurface = new Surface(targetWidth, targetHeight);
             using var foundLayerSnapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
