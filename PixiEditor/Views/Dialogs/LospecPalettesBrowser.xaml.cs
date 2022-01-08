@@ -115,6 +115,7 @@ namespace PixiEditor.Views.Dialogs
             {
                 SortingType = value;
                 await UpdatePaletteList(true);
+                scrollViewer.ScrollToHome();
             }
         }
     }

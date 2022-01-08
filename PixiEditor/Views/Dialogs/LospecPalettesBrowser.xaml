@@ -24,7 +24,7 @@
     <Grid Background="{StaticResource AccentColor}" FocusVisualStyle="{x:Null}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="55"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
@@ -37,19 +37,21 @@
         <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.Row="1">
             <StackPanel Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
                 <Label Content="Sort by:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
-                <ComboBox Name="sortingComboBox" FontSize="16" SelectionChanged="SortingComboBox_SelectionChanged">
+                <ComboBox Name="sortingComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True">Default</ComboBoxItem>
                     <ComboBoxItem>Alphabetical</ComboBoxItem>
                     <ComboBoxItem>Downloads</ComboBoxItem>
                     <ComboBoxItem>Newest</ComboBoxItem>
                 </ComboBox>
+                <Label Margin="10 0 0 0" Content="Tags:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
+                <TextBox FontSize="16" VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="150"/>
             </StackPanel>
         </StackPanel>
         <Grid Grid.Row="2" Margin="10">
             <TextBlock Text="Couldn't fetch palettes" Foreground="White" FontSize="20" HorizontalAlignment="Center" 
                        VerticalAlignment="Center" Visibility="{Binding ElementName=itemsControl, 
                 Path=Visibility, Converter={converters:OppositeVisibilityConverter}}"/>
-            <ScrollViewer Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
+            <ScrollViewer Name="scrollViewer" Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
                 <ItemsControl Name="itemsControl" ItemsSource="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.Palettes}" 
                           Visibility="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.FetchedCorrectly,
                 Converter={StaticResource BoolToVisibilityConverter}}">
