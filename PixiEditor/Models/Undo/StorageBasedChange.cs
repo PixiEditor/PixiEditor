@@ -348,8 +348,11 @@ namespace PixiEditor.Models.Undo
             int offsetDiffX = layerData.OffsetX - layer.OffsetX;
             int offsetDiffY = layerData.OffsetY - layer.OffsetY;
 
-            int targetOffsetX = widthBigger ? layerData.SerializedRect.Left : layerData.OffsetX;
-            int targetOffsetY = heightBigger ? layerData.SerializedRect.Top : layerData.OffsetY;
+            bool offsetXBigger = Math.Abs(offsetDiffX) > 0;
+            bool offsetYBigger = Math.Abs(offsetDiffY) > 0;
+
+            int targetOffsetX = offsetXBigger ? layerData.SerializedRect.Left : layerData.OffsetX;
+            int targetOffsetY = offsetYBigger ? layerData.SerializedRect.Top : layerData.OffsetY;
 
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
