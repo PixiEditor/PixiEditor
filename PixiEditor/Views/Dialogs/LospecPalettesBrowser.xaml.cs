@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.ExternalServices;
 using System;
 using System.Collections.Generic;
@@ -58,6 +59,9 @@ namespace PixiEditor.Views.Dialogs
             DependencyProperty.Register("IsFetching", typeof(bool), typeof(LospecPalettesBrowser), new PropertyMetadata(false));
 
         public string SortingType { get; set; } = "Default";
+        public string[] Tags { get; set; } = Array.Empty<string>();
+
+        private char[] _separators = new char[] { ' ', ',' };
 
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -81,7 +85,7 @@ namespace PixiEditor.Views.Dialogs
             IsFetching = true;
             if (PaletteList == null || refetch)
             {
-                PaletteList = await LospecPaletteFetcher.FetchPage(0, SortingType.ToLower());
+                PaletteList = await LospecPaletteFetcher.FetchPage(0, SortingType.ToLower(), Tags);
                 OnListFetched.Invoke(PaletteList);
             }
 
@@ -90,7 +94,7 @@ namespace PixiEditor.Views.Dialogs
 
         private async void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (PaletteList == null) return;
+            if (PaletteList == null || PaletteList.Palettes == null) return;
             var scrollViewer = (ScrollViewer)sender;
             if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
             {
@@ -117,6 +121,18 @@ namespace PixiEditor.Views.Dialogs
                 await UpdatePaletteList(true);
                 scrollViewer.ScrollToHome();
             }
+        }
+
+        private async void TagsInput_OnSubmit(object sender, InputBoxEventArgs e)
+        {
+            Tags = e.Input.Split(_separators, options: StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            await UpdatePaletteList(true);
+            scrollViewer.ScrollToHome();
+        }
+
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Grid)sender).Focus();
         }
     }
 }

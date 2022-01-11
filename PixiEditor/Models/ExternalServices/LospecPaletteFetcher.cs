@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using PixiEditor.Models.DataHolders;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,22 +11,32 @@ namespace PixiEditor.Models.ExternalServices
     public static class LospecPaletteFetcher
     {
         public const string LospecApiUrl = "https://lospec.com/palette-list";
-        public static async Task<PaletteList> FetchPage(int page, string sortingType = "default")
+        public static async Task<PaletteList> FetchPage(int page, string sortingType = "default", string[] tags = null)
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    string url = @$"{LospecApiUrl}/load?colorNumberFilterType=any&page={page}&tag=&sortingType={sortingType}";
+                    string url = @$"{LospecApiUrl}/load?colorNumberFilterType=any&page={page}&sortingType={sortingType}&tag=";
+                    
+                    if(tags != null && tags.Length > 0)
+                    {
+                        url += $"{string.Join(',', tags)}";
+                    }
+
                     HttpResponseMessage response = await client.GetAsync(url);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         string content = await response.Content.ReadAsStringAsync();
                         var obj = JsonConvert.DeserializeObject<PaletteList>(content);
-                        obj.FetchedCorrectly = true;
-                        foreach (var palette in obj.Palettes)
+
+                        obj.FetchedCorrectly = obj.Palettes != null;
+                        if (obj.Palettes != null)
                         {
-                            ReadjustColors(palette.Colors);
+                            foreach (var palette in obj.Palettes)
+                            {
+                                ReadjustColors(palette.Colors);
+                            }
                         }
 
                         return obj;

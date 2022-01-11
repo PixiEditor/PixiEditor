@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
-             xmlns:gif="http://wpfanimatedgif.codeplex.com"
-             Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="800" WindowStyle="None"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+        Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="800" WindowStyle="None"
              Name="lospecPalettesBrowser">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -21,7 +21,7 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource AccentColor}" FocusVisualStyle="{x:Null}">
+    <Grid Background="{StaticResource AccentColor}" FocusVisualStyle="{x:Null}" Focusable="True" MouseDown="Grid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition Height="55"/>
@@ -44,7 +44,8 @@
                     <ComboBoxItem>Newest</ComboBoxItem>
                 </ComboBox>
                 <Label Margin="10 0 0 0" Content="Tags:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
-                <TextBox FontSize="16" VerticalAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Width="150"/>
+                <usercontrols:InputBox OnSubmit="TagsInput_OnSubmit" FontSize="16" VerticalAlignment="Center" 
+                                       Style="{StaticResource DarkTextBoxStyle}" Width="250" />
             </StackPanel>
         </StackPanel>
         <Grid Grid.Row="2" Margin="10">
