@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Enums;
 using System;
 using System.Linq;
 using System.Net;
@@ -11,17 +12,23 @@ namespace PixiEditor.Models.ExternalServices
     public static class LospecPaletteFetcher
     {
         public const string LospecApiUrl = "https://lospec.com/palette-list";
-        public static async Task<PaletteList> FetchPage(int page, string sortingType = "default", string[] tags = null)
+        public static async Task<PaletteList> FetchPage(int page, string sortingType = "default", string[] tags = null, 
+            ColorsNumberMode colorsNumberMode = ColorsNumberMode.Any, int colorNumber = 8)
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    string url = @$"{LospecApiUrl}/load?colorNumberFilterType=any&page={page}&sortingType={sortingType}&tag=";
+                    string url = @$"{LospecApiUrl}/load?colorNumberFilterType={colorsNumberMode.ToString().ToLower()}&page={page}&sortingType={sortingType}&tag=";
                     
                     if(tags != null && tags.Length > 0)
                     {
                         url += $"{string.Join(',', tags)}";
+                    }
+
+                    if(colorsNumberMode != ColorsNumberMode.Any)
+                    {
+                        url += $"&colorNumber={colorNumber}";
                     }
 
                     HttpResponseMessage response = await client.GetAsync(url);

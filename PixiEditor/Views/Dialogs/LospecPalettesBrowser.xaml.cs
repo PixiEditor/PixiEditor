@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.ExternalServices;
 using System;
@@ -58,11 +59,27 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty IsFetchingProperty =
             DependencyProperty.Register("IsFetching", typeof(bool), typeof(LospecPalettesBrowser), new PropertyMetadata(false));
 
+        public int ColorsNumber
+        {
+            get { return (int)GetValue(ColorsNumberProperty); }
+            set { SetValue(ColorsNumberProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ColorsNumber.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ColorsNumberProperty =
+            DependencyProperty.Register("ColorsNumber", typeof(int), typeof(LospecPalettesBrowser), 
+                new PropertyMetadata(8, ColorsNumberChanged));
+
         public string SortingType { get; set; } = "Default";
+        public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
         public string[] Tags { get; set; } = Array.Empty<string>();
 
         private char[] _separators = new char[] { ' ', ',' };
 
+        public LospecPalettesBrowser()
+        {
+            InitializeComponent();
+        }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -74,18 +91,19 @@ namespace PixiEditor.Views.Dialogs
             SystemCommands.CloseWindow(this);
         }
 
-
-        public LospecPalettesBrowser()
+        private static async void ColorsNumberChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            InitializeComponent();
+            LospecPalettesBrowser browser = (LospecPalettesBrowser)d;
+            await browser.UpdatePaletteList(true);
         }
+
 
         public async Task UpdatePaletteList(bool refetch = false)
         {
             IsFetching = true;
             if (PaletteList == null || refetch)
             {
-                PaletteList = await LospecPaletteFetcher.FetchPage(0, SortingType.ToLower(), Tags);
+                PaletteList = await LospecPaletteFetcher.FetchPage(0, SortingType.ToLower(), Tags, ColorsNumberMode, ColorsNumber);
                 OnListFetched.Invoke(PaletteList);
             }
 
@@ -128,6 +146,17 @@ namespace PixiEditor.Views.Dialogs
             Tags = e.Input.Split(_separators, options: StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             await UpdatePaletteList(true);
             scrollViewer.ScrollToHome();
+        }
+
+
+        private async void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems != null && e.AddedItems.Count > 0 && e.AddedItems[0] is ComboBoxItem item && item.Content is string value)
+            {
+                ColorsNumberMode = Enum.Parse<ColorsNumberMode>(value);
+                await UpdatePaletteList(true);
+                scrollViewer.ScrollToHome();
+            }
         }
 
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)

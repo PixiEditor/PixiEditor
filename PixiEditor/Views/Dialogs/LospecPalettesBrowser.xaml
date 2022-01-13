@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
-             xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:views="clr-namespace:PixiEditor.Views"
         Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="800" WindowStyle="None"
              Name="lospecPalettesBrowser">
     <Window.Resources>
@@ -46,6 +46,15 @@
                 <Label Margin="10 0 0 0" Content="Tags:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
                 <usercontrols:InputBox OnSubmit="TagsInput_OnSubmit" FontSize="16" VerticalAlignment="Center" 
                                        Style="{StaticResource DarkTextBoxStyle}" Width="250" />
+                <Label Margin="10 0 0 0" Content="Colors:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
+                <ComboBox Name="colorsComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
+                    <ComboBoxItem IsSelected="True">Any</ComboBoxItem>
+                    <ComboBoxItem>Max</ComboBoxItem>
+                    <ComboBoxItem>Min</ComboBoxItem>
+                    <ComboBoxItem>Exact</ComboBoxItem>
+                </ComboBox>
+                <views:NumberInput Width="50" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" 
+                                   Value="{Binding ElementName=lospecPalettesBrowser, Path=ColorsNumber, Mode=TwoWay}"/>
             </StackPanel>
         </StackPanel>
         <Grid Grid.Row="2" Margin="10">
