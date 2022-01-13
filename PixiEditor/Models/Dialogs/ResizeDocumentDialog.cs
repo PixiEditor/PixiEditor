@@ -10,9 +10,6 @@ namespace PixiEditor.Models.Dialogs
 
         public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
         {
-            // Remove this
-            throw new System.Exception("Just doing some testing stuff");
-
             Width = currentWidth;
             Height = currentHeight;
             OpenResizeCanvas = openResizeCanvas;

@@ -1,18 +1,16 @@
-﻿using PixiEditor.Helpers.Extensions;
+﻿using ByteSizeLib;
+using Hardware.Info;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Parser;
-using PixiEditor.ViewModels;
 using System;
-using System.IO;
-using System.IO.Compression;
-using System.Management;
-using System.Runtime.InteropServices;
+using System.Globalization;
 using System.Text;
 
 namespace PixiEditor.Helpers
 {
-    public static class CrashHelper
+    public class CrashHelper
     {
+        private readonly IHardwareInfo hwInfo;
+
         public static void SaveCrashInfo(Exception exception)
         {
             CrashReport report = CrashReport.Generate(exception);
@@ -20,56 +18,54 @@ namespace PixiEditor.Helpers
             report.RestartToCrashReport();
         }
 
-        public static void GetCPUInformation(StringBuilder builder)
+        public CrashHelper()
+        {
+            hwInfo = new HardwareInfo();
+        }
+
+        public void GetCPUInformation(StringBuilder builder)
         {
             builder.AppendLine("CPU:");
+            hwInfo.RefreshCPUList(false);
 
-            ManagementClass processorClass = new("Win32_Processor");
-            ManagementObjectCollection processorsCollection = processorClass.GetInstances();
-
-            foreach (var processor in processorsCollection)
+            foreach (var processor in hwInfo.CpuList)
             {
                 builder
-                    .AppendLine($"  ID: {processor.Properties["DeviceID"].Value}")
-                    .AppendLine($"  Name: {processor.Properties["Name"].Value}");
+                    .AppendLine($"  Name: {processor.Name}")
+                    .AppendLine($"  Speed: {(processor.CurrentClockSpeed / 1000f).ToString("F2", CultureInfo.InvariantCulture)} GHz")
+                    .AppendLine($"  Max Speed: {(processor.MaxClockSpeed / 1000f).ToString("F2", CultureInfo.InvariantCulture)} GHz")
+                    .AppendLine();
             }
         }
 
-        public static void GetGPUInformation(StringBuilder builder)
+        public void GetGPUInformation(StringBuilder builder)
         {
-            builder.AppendLine("\nGPU:");
+            builder.AppendLine("GPU:");
+            hwInfo.RefreshVideoControllerList();
 
-            ManagementClass gpuClass = new("Win32_VideoController");
-            ManagementObjectCollection gpuCollection = gpuClass.GetInstances();
-
-            foreach (var gpu in gpuCollection)
+            foreach (var gpu in hwInfo.VideoControllerList)
             {
                 builder
-                    .AppendLine($"  ID: {gpu.Properties["DeviceID"].Value}")
-                    .AppendLine($"  Name: {gpu.Properties["Name"].Value}");
+                    .AppendLine($"  Name: {gpu.Name}")
+                    .AppendLine($"  Driver: {gpu.DriverVersion}")
+                    .AppendLine();
             }
         }
 
-        public static void GetMemoryInformation(StringBuilder builder)
+        public void GetMemoryInformation(StringBuilder builder)
         {
-            builder.AppendLine("\nMemory:");
+            builder.AppendLine("Memory:");
+            hwInfo.RefreshMemoryStatus();
 
-            // TODO: Make this work
-            if (TryGetMemoryStatus(out MemoryStatus status))
-            {
-                builder.AppendLine($"  Usage: {status.dwMemoryLoad}%");
-                builder.AppendLine($"  Available Memory: {status.ullAvailPhys}");
-                builder.AppendLine($"  Total Memory: {status.ullTotalPhys}");
-            }
-            else
-            {
-                throw new InvalidOperationException($"Getting memory failed: {Marshal.GetLastWin32Error()}");
-            }
+            var memInfo = hwInfo.MemoryStatus;
+
+            builder
+                .AppendLine($"  Available: {new ByteSize(memInfo.AvailablePhysical).ToString("", CultureInfo.InvariantCulture)}")
+                .AppendLine($"  Total: {new ByteSize(memInfo.TotalPhysical).ToString("", CultureInfo.InvariantCulture)}");
         }
 
         public static void AddExceptionMessage(StringBuilder builder, Exception e)
         {
-
             builder
                 .AppendLine("\n-------Crash message-------")
                 .Append(e.GetType().ToString())
@@ -102,36 +98,5 @@ namespace PixiEditor.Helpers
                 }
             }
         }
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        private struct MemoryStatus
-        {
-            public uint dwLength;
-            public uint dwMemoryLoad;
-            public ulong ullTotalPhys;
-            public ulong ullAvailPhys;
-            public ulong ullTotalPageFile;
-            public ulong ullAvailPageFile;
-            public ulong ullTotalVirtual;
-            public ulong ullAvailVirtual;
-            public ulong ullAvailExtendedVirtual;
-        }
-
-        private static unsafe bool TryGetMemoryStatus(out MemoryStatus status)
-        {
-            MemoryStatus memoryStatus = new();
-            memoryStatus.dwLength = (uint)sizeof(MemoryStatus);
-
-            bool success = GlobalMemoryStatusEx(memoryStatus);
-
-            status = memoryStatus;
-
-            return success;
-        }
-
-        // https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-globalmemorystatusex
-        [return: MarshalAs(UnmanagedType.Bool)]
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool GlobalMemoryStatusEx([In, Out] MemoryStatus lpBuffer);
     }
 }

@@ -183,11 +183,13 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Dirkster.AvalonDock" Version="4.60.1" />
+		<PackageReference Include="ByteSize" Version="2.1.1" />
 		<PackageReference Include="DiscordRichPresence" Version="1.0.175" />
 		<PackageReference Include="Expression.Blend.Sdk">
 			<Version>1.0.2</Version>
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
+		<PackageReference Include="Hardware.Info" Version="1.1.1.1" />
 		<PackageReference Include="MessagePack" Version="2.3.85" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="MvvmLightLibs" Version="5.4.1.1">

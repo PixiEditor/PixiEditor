@@ -1,10 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.Dialogs;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -24,13 +26,15 @@ namespace PixiEditor
 
         private readonly IPreferences preferences;
 
+        private readonly IServiceProvider services;
+
         public static MainWindow Current { get; private set; }
 
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
-            IServiceProvider services = new ServiceCollection()
+            services = new ServiceCollection()
                 .AddPixiEditor()
                 .BuildServiceProvider();
 
@@ -69,8 +73,13 @@ namespace PixiEditor
         {
             MainWindow window = new();
 
-            BitmapManager bitmapManager = window.DataContext.BitmapManager;
-            bitmapManager.Documents.AddRange(documents);
+            BitmapManager bitmapManager = window.services.GetRequiredService<BitmapManager>();
+
+            foreach (Document document in documents)
+            {
+                bitmapManager.Documents.Add(document);
+            }
+
             bitmapManager.ActiveDocument = bitmapManager.Documents.FirstOrDefault();
 
             return window;

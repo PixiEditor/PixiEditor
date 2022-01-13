@@ -27,9 +27,11 @@ namespace PixiEditor.Models.DataHolders
                 .AppendLine($"  OS: {Environment.OSVersion.VersionString}")
                 .AppendLine();
 
+            CrashHelper helper = new();
+
             try
             {
-                CrashHelper.GetCPUInformation(builder);
+                helper.GetCPUInformation(builder);
             }
             catch (Exception cpuE)
             {
@@ -38,7 +40,7 @@ namespace PixiEditor.Models.DataHolders
 
             try
             {
-                CrashHelper.GetGPUInformation(builder);
+                helper.GetGPUInformation(builder);
             }
             catch (Exception gpuE)
             {
@@ -47,7 +49,7 @@ namespace PixiEditor.Models.DataHolders
 
             try
             {
-                CrashHelper.GetMemoryInformation(builder);
+                helper.GetMemoryInformation(builder);
             }
             catch (Exception memE)
             {

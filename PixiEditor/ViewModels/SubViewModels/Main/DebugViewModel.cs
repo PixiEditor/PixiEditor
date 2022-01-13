@@ -12,11 +12,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand OpenInstallLocationCommand { get; set; }
 
+        public RelayCommand CrashCommand { get; set; }
+
         public DebugViewModel(ViewModelMain owner)
             : base(owner)
         {
             OpenFolderCommand = new RelayCommand(OpenFolder);
             OpenInstallLocationCommand = new RelayCommand(OpenInstallLocation);
+            CrashCommand = new RelayCommand(_ => throw new InvalidOperationException("Debug Crash"));
         }
 
         public static void OpenFolder(object parameter)
