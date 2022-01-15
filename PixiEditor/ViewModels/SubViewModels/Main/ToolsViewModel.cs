@@ -176,7 +176,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void SetActiveTool(Type toolType)
         {
             Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
-            SetActiveTool(foundTool);
+            if(ActiveTool != foundTool)//otherwise we would lost track of LastActionTool
+              SetActiveTool(foundTool);
         }
 
         private void SetToolCursor(Type tool)
