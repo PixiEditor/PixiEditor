@@ -247,14 +247,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void RenameLayer(object parameter)
         {
-            int? index = (int?)parameter;
+          if (Owner.BitmapManager.ActiveDocument == null)
+            return;
 
-            if (index == null)
-            {
-                index = Owner.BitmapManager.ActiveDocument.Layers.IndexOf(Owner.BitmapManager.ActiveDocument.ActiveLayer);
-            }
+          int? index = (int?)parameter;
 
-            Owner.BitmapManager.ActiveDocument.Layers[(int)index].IsRenaming = true;
+          if (index == null)
+          {
+            index = Owner.BitmapManager.ActiveDocument.Layers.IndexOf(Owner.BitmapManager.ActiveDocument.ActiveLayer);
+          }
+
+          Owner.BitmapManager.ActiveDocument.Layers[(int)index].IsRenaming = true;
         }
 
         public bool CanRenameLayer(object parameter)
