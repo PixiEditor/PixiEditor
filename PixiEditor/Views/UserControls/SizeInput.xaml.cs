@@ -71,27 +71,13 @@ namespace PixiEditor.Views
 
         public SizeInput()
         {
-            GotKeyboardFocus += SizeInput_GotKeyboardFocus;
             InitializeComponent();
         }
 
         public void FocusAndSelect()
         {
-            Focus();
-            textBox.SelectAll();
-        }
-
-        private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
             textBox.Focus();
-            Point pos = Mouse.GetPosition(textBox);
-            int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
-            var charRect = textBox.GetRectFromCharacterIndex(charIndex);
-            double middleX = (charRect.Left + charRect.Right) / 2;
-            if (pos.X > middleX)
-                textBox.CaretIndex = charIndex + 1;
-            else
-                textBox.CaretIndex = charIndex;
+            textBox.SelectAll();
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -144,7 +130,16 @@ namespace PixiEditor.Views
 
         private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            textBox.Focus();
+            if (!textBox.IsFocused)
+                textBox.Focus();
+            Point pos = Mouse.GetPosition(textBox);
+            int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
+            var charRect = textBox.GetRectFromCharacterIndex(charIndex);
+            double middleX = (charRect.Left + charRect.Right) / 2;
+            if (pos.X > middleX)
+                textBox.CaretIndex = charIndex + 1;
+            else
+                textBox.CaretIndex = charIndex;
             e.Handled = true;
         }
 
