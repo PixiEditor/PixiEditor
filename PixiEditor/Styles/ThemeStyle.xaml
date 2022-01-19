@@ -143,6 +143,7 @@
     <Style TargetType="TextBox" x:Key="DarkTextBoxStyle">
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="Snow" />
+        <Setter Property="SelectionBrush" Value="{StaticResource SelectionColor}" />
 
         <Setter Property="Template">
             <Setter.Value>
