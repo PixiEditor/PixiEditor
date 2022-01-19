@@ -10,7 +10,7 @@ namespace PixiEditor.Views
     public partial class SizeInput : UserControl
     {
         public static readonly DependencyProperty SizeProperty =
-            DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1));
+            DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));
 
         public static readonly DependencyProperty MaxSizeProperty =
             DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
@@ -60,6 +60,25 @@ namespace PixiEditor.Views
             else
                 textBox.CaretIndex = charIndex;
             e.Handled = true;
+        }
+
+        private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            int newValue = (int)e.NewValue;
+            int maxSize = (int)d.GetValue(MaxSizeProperty);
+
+            if (newValue > maxSize)
+            {
+                d.SetValue(SizeProperty, maxSize);
+
+                return;
+            }
+            else if (newValue <= 0)
+            {
+                d.SetValue(SizeProperty, 1);
+
+                return;
+            }
         }
 
         private void Border_MouseWheel(object sender, MouseWheelEventArgs e)
