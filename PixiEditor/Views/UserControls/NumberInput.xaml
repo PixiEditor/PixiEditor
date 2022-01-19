@@ -11,7 +11,7 @@
              InputScope="Number" MouseWheel="TextBox_MouseWheel"
              PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
         <i:Interaction.Behaviors>
-            <behaviours:TextBoxFocusBehavior/>
+            <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"/>
             <behaviours:GlobalShortcutFocusBehavior/>
         </i:Interaction.Behaviors>
     </TextBox>

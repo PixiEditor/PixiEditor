@@ -13,58 +13,20 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty SizeProperty =
             DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));
 
+        public static readonly DependencyProperty MaxSizeProperty =
+            DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
+
         public static readonly DependencyProperty PreserveAspectRatioProperty =
-            DependencyProperty.Register(
-                nameof(PreserveAspectRatio),
-                typeof(bool),
-                typeof(SizeInput));
+            DependencyProperty.Register(nameof(PreserveAspectRatio), typeof(bool), typeof(SizeInput));
 
         public static readonly DependencyProperty AspectRatioValueProperty =
-            DependencyProperty.Register(
-                nameof(AspectRatioValue),
-                typeof(int),
-                typeof(SizeInput),
-                new PropertyMetadata(1));
-
-        public SizeInput AspectRatioControl
-        {
-            get { return (SizeInput)GetValue(AspectRatioControlProperty); }
-            set { SetValue(AspectRatioControlProperty, value); }
-        }
+            DependencyProperty.Register(nameof(AspectRatioValue), typeof(int), typeof(SizeInput), new PropertyMetadata(1));
 
         public static readonly DependencyProperty AspectRatioControlProperty =
             DependencyProperty.Register(nameof(AspectRatioControl), typeof(SizeInput), typeof(SizeInput), new PropertyMetadata(default));
 
-        public static readonly DependencyProperty MaxSizeProperty =
-            DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
-
-        public static readonly DependencyProperty SelectOnFocusProperty =
-            DependencyProperty.Register(nameof(SelectOnFocus), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
-
-        private int loadedAspectRatioSize = -1;
-
-        private int loadedSize = -1;
-        private bool blockUpdate = false;
-
-        public static readonly DependencyProperty NextControlProperty =
-            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizeInput));
-
-        public SizeInput()
-        {
-            GotKeyboardFocus += SizeInput_GotKeyboardFocus;
-            InitializeComponent();
-        }
-
-        public bool SelectOnFocus
-        {
-            get => (bool)GetValue(SelectOnFocusProperty);
-            set => SetValue(SelectOnFocusProperty, value);
-        }
-
-        private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
-            textBox.Focus();
-        }
+        public static readonly DependencyProperty BehaveLikeSmallEmbeddedFieldProperty =
+            DependencyProperty.Register(nameof(BehaveLikeSmallEmbeddedField), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
 
         public int Size
         {
@@ -90,10 +52,46 @@ namespace PixiEditor.Views
             set => SetValue(AspectRatioValueProperty, value);
         }
 
-        public FrameworkElement NextControl
+        public SizeInput AspectRatioControl
         {
-            get => (FrameworkElement)GetValue(NextControlProperty);
-            set => SetValue(NextControlProperty, value);
+            get { return (SizeInput)GetValue(AspectRatioControlProperty); }
+            set { SetValue(AspectRatioControlProperty, value); }
+        }
+
+        public bool BehaveLikeSmallEmbeddedField
+        {
+            get => (bool)GetValue(BehaveLikeSmallEmbeddedFieldProperty);
+            set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
+        }
+
+        private int loadedAspectRatioSize = -1;
+
+        private int loadedSize = -1;
+        private bool blockUpdate = false;
+
+        public SizeInput()
+        {
+            GotKeyboardFocus += SizeInput_GotKeyboardFocus;
+            InitializeComponent();
+        }
+
+        public void FocusAndSelect()
+        {
+            Focus();
+            textBox.SelectAll();
+        }
+
+        private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            textBox.Focus();
+            Point pos = Mouse.GetPosition(textBox);
+            int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
+            var charRect = textBox.GetRectFromCharacterIndex(charIndex);
+            double middleX = (charRect.Left + charRect.Right) / 2;
+            if (pos.X > middleX)
+                textBox.CaretIndex = charIndex + 1;
+            else
+                textBox.CaretIndex = charIndex;
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

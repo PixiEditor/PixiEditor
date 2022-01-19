@@ -43,7 +43,10 @@
                      d:Text="22">
                 <i:Interaction.Behaviors>
                     <behaviors:GlobalShortcutFocusBehavior/>
-                    <behaviors:TextBoxFocusBehavior SelectOnFocus="{Binding SelectOnFocus, ElementName=uc}" NextControl="{Binding NextControl, ElementName=uc}"/>
+                    <behaviors:TextBoxFocusBehavior 
+                        SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}" 
+                        ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
+                        DeselectOnFocusLoss="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"

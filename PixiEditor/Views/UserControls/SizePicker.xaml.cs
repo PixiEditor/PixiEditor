@@ -17,9 +17,6 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty ChosenHeightProperty =
             DependencyProperty.Register(nameof(ChosenHeight), typeof(int), typeof(SizePicker), new PropertyMetadata(1));
 
-        public static readonly DependencyProperty NextControlProperty =
-            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizePicker));
-
         public SizePicker()
         {
             InitializeComponent();
@@ -43,15 +40,9 @@ namespace PixiEditor.Views
             set => SetValue(ChosenHeightProperty, value);
         }
 
-        public FrameworkElement NextControl
-        {
-            get => (FrameworkElement)GetValue(NextControlProperty);
-            set => SetValue(NextControlProperty, value);
-        }
-
         public void FocusWidthPicker()
         {
-            WidthPicker.Focus();
+            WidthPicker.FocusAndSelect();
         }
     }
 }
