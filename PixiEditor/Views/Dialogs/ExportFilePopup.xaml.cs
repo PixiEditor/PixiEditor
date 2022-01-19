@@ -4,17 +4,14 @@ using System.Windows.Input;
 
 namespace PixiEditor.Views
 {
-    /// <summary>
-    ///     Interaction logic for SaveFilePopup.xaml
-    /// </summary>
-    public partial class SaveFilePopup : Window
+    public partial class ExportFilePopup : Window
     {
         public static readonly DependencyProperty SaveHeightProperty =
-            DependencyProperty.Register("SaveHeight", typeof(int), typeof(SaveFilePopup), new PropertyMetadata(32));
+            DependencyProperty.Register("SaveHeight", typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
 
 
         public static readonly DependencyProperty SaveWidthProperty =
-            DependencyProperty.Register("SaveWidth", typeof(int), typeof(SaveFilePopup), new PropertyMetadata(32));
+            DependencyProperty.Register("SaveWidth", typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
 
         private readonly SaveFilePopupViewModel dataContext = new SaveFilePopupViewModel();
 
@@ -28,7 +25,7 @@ namespace PixiEditor.Views
             SystemCommands.CloseWindow(this);
         }
 
-        public SaveFilePopup()
+        public ExportFilePopup()
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
