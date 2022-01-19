@@ -4,9 +4,6 @@ using System.Windows.Input;
 
 namespace PixiEditor.Views
 {
-    /// <summary>
-    ///     Interaction logic for ImportFilePopup.xaml
-    /// </summary>
     public partial class ImportFilePopup : Window
     {
         private readonly ImportFilePopupViewModel dc = new ImportFilePopupViewModel();
