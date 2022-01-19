@@ -33,6 +33,7 @@ namespace PixiEditor.Views
             InitializeComponent();
             Owner = Application.Current.MainWindow;
             DataContext = dataContext;
+            Loaded += (_, _) => sizePicker.FocusWidthPicker();
         }
 
 

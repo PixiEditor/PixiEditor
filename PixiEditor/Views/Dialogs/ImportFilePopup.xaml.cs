@@ -1,6 +1,6 @@
-﻿using System.Windows;
+﻿using PixiEditor.ViewModels;
+using System.Windows;
 using System.Windows.Input;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views
 {
@@ -15,6 +15,7 @@ namespace PixiEditor.Views
         {
             InitializeComponent();
             DataContext = dc;
+            Loaded += (_, _) => sizePicker.FocusWidthPicker();
         }
 
 

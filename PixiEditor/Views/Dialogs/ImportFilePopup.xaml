@@ -40,8 +40,9 @@
                         Command="{Binding ChoosePathCommand}" />
             <StackPanel Background="{StaticResource MainColor}" Height="120" Width="225" Margin="0,30,0,0">
                 <local:SizePicker EditingEnabled="{Binding PathIsCorrect}"
-                                      ChosenWidth="{Binding ImportWidth, Mode=TwoWay}"
-                                      ChosenHeight="{Binding ImportHeight,Mode=TwoWay}" />
+                                  x:Name="sizePicker"
+                                  ChosenWidth="{Binding ImportWidth, Mode=TwoWay}"
+                                  ChosenHeight="{Binding ImportHeight,Mode=TwoWay}" />
             </StackPanel>
         </StackPanel>
         <Button Grid.Row="1" Height="30" Width="60" VerticalAlignment="Bottom" HorizontalAlignment="Right"
