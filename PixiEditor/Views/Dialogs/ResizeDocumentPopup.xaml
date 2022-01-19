@@ -39,6 +39,7 @@
                     VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
             <local:SizePicker Margin="0,20" 
                               x:Name="sizePicker"
+                              PreserveAspectRatio="True"
                               ChosenHeight="{Binding Path=NewHeight, Mode=TwoWay, ElementName=window}"
                               ChosenWidth="{Binding Path=NewWidth, Mode=TwoWay, ElementName=window}" />
         </StackPanel>

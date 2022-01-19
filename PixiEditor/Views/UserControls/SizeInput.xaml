@@ -8,7 +8,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
              mc:Ignorable="d" Foreground="White" Focusable="True"
-             d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="UserControlLayoutUpdated">
+             d:DesignHeight="30" d:DesignWidth="160" Name="uc">
 
     <Border BorderThickness="1" CornerRadius="3.5"
             x:Name="border"

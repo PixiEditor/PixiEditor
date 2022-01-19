@@ -41,6 +41,7 @@
         <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Background="{StaticResource MainColor}"
                         VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
             <local:SizePicker Margin="0,20" HorizontalAlignment="Center" Height="110"
+                              PreserveAspectRatio="False"
                               ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=newFilePopup}"
                               ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=newFilePopup}" 
                               x:Name="sizePicker"/>
