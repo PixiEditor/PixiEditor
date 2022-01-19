@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d" WindowStyle="None"
-        Title="NoticePopup" Height="200" Width="500"
+        d:Title="Notice" Height="160" Width="400"
         x:Name="popup">
 
     <WindowChrome.WindowChrome>
@@ -23,21 +23,27 @@
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
         <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" TextAlignment="Center"
-                   VerticalAlignment="Center" FontSize="18" Foreground="White"
+                   VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="20,0" d:Text="The file does not exist"
                        TextWrapping="WrapWithOverflow" TextTrimming="WordEllipsis" />
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <TextBlock Text="{Binding Title, ElementName=popup}" 
-                       FontSize="18" Foreground="White"
-                       VerticalAlignment="Center" Margin="5,0,0,0"/>
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+
+        <Grid Grid.Row="0" Background="{StaticResource MainColor}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
-        </DockPanel>
+            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                       Foreground="White" FontSize="15" Margin="5,0,0,0" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding ElementName=popup, Path=Title}"/>
+        </Grid>
+
         <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                    Margin="0,0,10,10">
-            <Button Height="30" Width="60" IsDefault="True"
+                    Margin="0,0,0,16">
+            <Button Height="28" Width="70" IsDefault="True"
                     Click="OkButton_Close"
-                    Style="{StaticResource DarkRoundButton}" Content="Ok">
+                    Style="{StaticResource DarkRoundButton}" Content="Close">
             </Button>
         </StackPanel>
     </Grid>

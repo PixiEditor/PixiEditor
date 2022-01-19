@@ -9,7 +9,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
     public class DocumentViewModel : SubViewModel<ViewModelMain>
     {
         public const string ConfirmationDialogTitle = "Unsaved changes";
-        public const string ConfirmationDialogMessage = "The document was modified. Do you want to save changes?";
+        public const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
 
         public RelayCommand CenterContentCommand { get; set; }
 

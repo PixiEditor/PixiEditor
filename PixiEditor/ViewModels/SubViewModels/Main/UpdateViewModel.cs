@@ -185,7 +185,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
-                    NoticeDialog.Show("Could not check if there's an update available");
+                    NoticeDialog.Show("Could not check if there is an update available", "Update check failed");
                 }
 
                 AskToInstall();

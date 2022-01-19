@@ -22,8 +22,13 @@
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center" Margin="20,0" TextWrapping="Wrap" TextAlignment="Center"
-                   VerticalAlignment="Center" FontSize="15" Foreground="White" d:Text="The document was modified. Do you want to save changes?"/>
+        <TextBlock Grid.Row="1" 
+                   Text="{Binding Body, ElementName=popup}" 
+                   HorizontalAlignment="Center" Margin="20,0" 
+                   TextWrapping="WrapWithOverflow" 
+                   TextTrimming="WordEllipsis"
+                   TextAlignment="Center"
+                   VerticalAlignment="Center" FontSize="15" Foreground="White" d:Text="The document has been modified. Do you want to save changes?"/>
 
         <Grid Grid.Row="0" Background="{StaticResource MainColor}">
             <Grid.ColumnDefinitions>

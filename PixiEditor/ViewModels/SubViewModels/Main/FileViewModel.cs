@@ -80,7 +80,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (!File.Exists(path))
             {
-                NoticeDialog.Show("The file does no longer exist at that path");
+                NoticeDialog.Show("The file does not exist", "Failed to open the file");
                 RecentlyOpened.Remove(path);
                 return;
             }
@@ -176,7 +176,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             catch (CorruptedFileException ex)
             {
-                NoticeDialog.Show(ex.Message, "Failed to open file.");
+                NoticeDialog.Show(ex.Message, "Failed to open the file");
             }
             catch (OldFileFormatException)
             {
