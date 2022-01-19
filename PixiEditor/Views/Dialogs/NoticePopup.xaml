@@ -35,7 +35,7 @@
         </DockPanel>
         <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Margin="0,0,10,10">
-            <Button Height="30" Width="60"
+            <Button Height="30" Width="60" IsDefault="True"
                     Click="OkButton_Close"
                     Style="{StaticResource DarkRoundButton}" Content="Ok">
             </Button>

@@ -29,7 +29,7 @@
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
         </DockPanel>
         <Button Grid.Row="1" Height="30" Width="60" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10"
-                Style="{StaticResource DarkRoundButton}" Content="OK" Command="{Binding OkCommand}"
+                Style="{StaticResource DarkRoundButton}" Content="OK" Command="{Binding OkCommand}" IsDefault="True"
                 CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
     </Grid>
 </Window>

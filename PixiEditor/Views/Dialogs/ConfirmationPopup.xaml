@@ -31,7 +31,7 @@
         </DockPanel>
         <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Margin="0,0,10,10">
-            <Button Margin="10,0,10,0" Height="30" Width="60"
+            <Button Margin="10,0,10,0" Height="30" Width="60" IsDefault="True"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="Yes">
                 <Button.CommandParameter>

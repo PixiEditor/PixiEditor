@@ -47,7 +47,7 @@
         </StackPanel>
         <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="120"
                 Style="{StaticResource DarkRoundButton}" Content="Create" Margin="0,0,10,10" Grid.Row="1"
-                Command="{Binding OkCommand}"
+                Command="{Binding OkCommand}" IsDefault="True"
                 CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
                 x:Name="createButton"/>
     </Grid>
