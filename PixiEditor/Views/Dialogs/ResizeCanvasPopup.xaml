@@ -37,7 +37,7 @@
             <Button Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
-            <TextBlock TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center" Foreground="White" FontSize="15" Margin="5,0,0,0" Grid.Column="0" Grid.ColumnSpan="2">
+            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="15" Margin="5,0,0,0" Grid.Column="0" Grid.ColumnSpan="2">
                 Resize Canvas
             </TextBlock>
         </Grid>
@@ -59,6 +59,6 @@
             </DockPanel>
         </StackPanel>
         <Button Grid.Row="1" Height="28" Width="70" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="16"
-                Style="{StaticResource DarkRoundButton}" Content="OK" Click="Button_Click" IsDefault="True" />
+                Style="{StaticResource DarkRoundButton}" Content="Resize" Click="Button_Click" IsDefault="True" />
     </Grid>
 </Window>
