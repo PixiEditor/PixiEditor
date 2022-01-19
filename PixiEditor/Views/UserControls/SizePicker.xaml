@@ -19,7 +19,7 @@
     </UserControl.Resources>
     <StackPanel Background="{StaticResource MainColor}">
         <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Height="20" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16"
+            <TextBlock Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
             <local:SizeInput x:Name="WidthPicker"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
@@ -29,7 +29,7 @@
                              Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}" />
         </DockPanel>
         <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Height="20" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16"
+            <TextBlock Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
             <local:SizeInput x:Name="HeightPicker" 
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
