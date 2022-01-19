@@ -6,7 +6,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:PixiEditor.Views" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d" Name="window"
-        Title="ResizeDocumentPopup" Topmost="True" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        Title="ResizeDocumentPopup" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
         Height="300" Width="400" WindowStyle="None">
 
     <WindowChrome.WindowChrome>

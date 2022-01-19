@@ -7,7 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d" Name="window"
-        Title="ResizeCanvasPopup" Topmost="True" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        Title="ResizeCanvasPopup" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
         Height="390" Width="400" WindowStyle="None">
 
     <WindowChrome.WindowChrome>

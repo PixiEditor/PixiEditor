@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixiEditor.Views"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
-        Title="ImportFilePopup" Topmost="True" ShowInTaskbar="False" Height="350" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen" Name="importFilePopup" MinHeight="350" MinWidth="300"
+        Title="ImportFilePopup" ShowInTaskbar="False" Height="350" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen" Name="importFilePopup" MinHeight="350" MinWidth="300"
         DataContext="{DynamicResource ImportFilePopupViewModel}">
     <Window.Resources>
         <vm:ImportFilePopupViewModel x:Key="ImportFilePopupViewModel" />

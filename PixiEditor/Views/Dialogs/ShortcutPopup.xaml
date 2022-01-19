@@ -12,7 +12,7 @@
         MinHeight="400" MinWidth="350" Topmost="{Binding IsTopmost}">
     <Window.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibility"/>
-        
+
         <Style TargetType="Border" x:Key="KeyBorder">
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{StaticResource BrighterAccentColor}"/>
@@ -23,7 +23,7 @@
         <Style TargetType="Border" x:Key="KeyBorderLast" BasedOn="{StaticResource KeyBorder}">
             <Setter Property="Margin" Value="0,3,0,3"/>
         </Style>
-        
+
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="16"/>

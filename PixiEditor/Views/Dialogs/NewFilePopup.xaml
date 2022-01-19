@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d"
-        d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450"
+        d:DesignHeight="600" ShowInTaskbar="False" d:DesignWidth="450"
         DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen" MinHeight="300" MinWidth="400" Height="600" Width="450" Name="newFilePopup" BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
