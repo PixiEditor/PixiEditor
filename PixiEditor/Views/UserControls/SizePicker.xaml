@@ -17,17 +17,27 @@
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="MaxSize" Value="9999"/>
             <Setter Property="BehaveLikeSmallEmbeddedField" Value="False"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="Height" Value="30"/>
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="25"/>
         </Style>
     </UserControl.Resources>
     <StackPanel Background="{StaticResource MainColor}">
-        <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <local:SizeInput x:Name="WidthPicker"
+        <Grid Height="90" HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" Text="Width:" VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <local:SizeInput Grid.Column="1" Grid.Row="0"
+                             x:Name="WidthPicker"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                              Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}">
                 <i:Interaction.Triggers>
@@ -36,13 +46,11 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </local:SizeInput>
-        </DockPanel>
-        <DockPanel Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <local:SizeInput x:Name="HeightPicker" 
+
+            <TextBlock Grid.Column="0" Grid.Row="1" Foreground="Snow" Text="Height:" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <local:SizeInput Grid.Column="1" Grid.Row="1"
+                             x:Name="HeightPicker" 
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
-                             Margin="5,0,0,0"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="LostFocus">
@@ -50,12 +58,15 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </local:SizeInput>
-        </DockPanel>
-        <CheckBox Name="aspectRatio" 
-                  IsChecked="{Binding ElementName=uc, Path=PreserveAspectRatio}" 
+
+            <CheckBox 
+                  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
+                  Name="aspectRatio" 
+                  IsChecked="{Binding ElementName=uc, Path=PreserveAspectRatio}"
                   Content="Preserve aspect ratio" 
                   Foreground="White" 
                   HorizontalAlignment="Left" 
-                  Margin="50,10,0,0" />
+                  VerticalAlignment="Center" />
+        </Grid>
     </StackPanel>
 </UserControl>
