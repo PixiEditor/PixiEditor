@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        mc:Ignorable="d"
-        Title="ConfirmationPopup" Name="popup" WindowStartupLocation="CenterScreen" Height="200" Width="500"
+        mc:Ignorable="d" d:Title="Unsaved changes"
+        Name="popup" WindowStartupLocation="CenterScreen" Height="180" Width="400"
         WindowStyle="None">
 
     <WindowChrome.WindowChrome>
@@ -22,30 +22,39 @@
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center"
-                   VerticalAlignment="Center" FontSize="18" Foreground="White" />
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center" Margin="20,0" TextWrapping="Wrap" TextAlignment="Center"
+                   VerticalAlignment="Center" FontSize="15" Foreground="White" d:Text="The document was modified. Do you want to save changes?"/>
+
+        <Grid Grid.Row="0" Background="{StaticResource MainColor}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
-        </DockPanel>
+            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                       Foreground="White" FontSize="15" Margin="5,0,0,0" Grid.Column="0" Grid.ColumnSpan="2"
+                       Text="{Binding ElementName=popup, Path=Title}"/>
+        </Grid>
+
         <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                    Margin="0,0,10,10">
-            <Button Margin="10,0,10,0" Height="30" Width="60" IsDefault="True"
+                    Margin="0,0,10,16">
+            <Button Margin="10,0,10,0" Height="28" Width="60" IsDefault="True"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="Yes">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Height="30" Width="60"
+            <Button Height="28" Width="60"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="No">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Margin="10,0,10,0" Height="30" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
+            <Button Margin="10,0,10,0" Height="28" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
     </Grid>

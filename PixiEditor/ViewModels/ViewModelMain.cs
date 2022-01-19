@@ -321,7 +321,7 @@ namespace PixiEditor.ViewModels
 
             if (!BitmapManager.ActiveDocument.ChangesSaved)
             {
-                result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage);
+                result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage, DocumentViewModel.ConfirmationDialogTitle);
                 if (result == ConfirmationType.Yes)
                 {
                     FileSubViewModel.SaveDocument(false);
