@@ -348,6 +348,10 @@ namespace PixiEditor.Models.Undo
             int offsetDiffX = layerData.OffsetX - layer.OffsetX;
             int offsetDiffY = layerData.OffsetY - layer.OffsetY;
 
+            // Experiment with this, there is a bug, but I still don't know where. Code below might help
+            //if (widthBigger) offsetDiffX += chunk.Width - layer.Width;
+            //if (heightBigger) offsetDiffY += chunk.Height - layer.Height;
+
             bool offsetXBigger = Math.Abs(offsetDiffX) > 0;
             bool offsetYBigger = Math.Abs(offsetDiffY) > 0;
 
