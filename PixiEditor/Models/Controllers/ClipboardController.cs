@@ -138,7 +138,6 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
-        /// <returns>WriteableBitmap.</returns>
         private static IEnumerable<Layer> GetLayersFromClipboard()
         {
             DataObject data = ClipboardHelper.TryGetDataObject();
