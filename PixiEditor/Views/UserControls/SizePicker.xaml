@@ -6,7 +6,7 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:local="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d"
-             d:DesignHeight="110" d:DesignWidth="215" Name="uc">
+             d:DesignHeight="150" d:DesignWidth="300" Name="uc">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=LoadedCommand}"/>
@@ -23,7 +23,7 @@
             <Setter Property="Height" Value="25"/>
         </Style>
     </UserControl.Resources>
-    <StackPanel Background="{StaticResource MainColor}">
+    <Border Background="{StaticResource MainColor}" VerticalAlignment="Stretch">
         <Grid Height="90" HorizontalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40"/>
@@ -68,5 +68,5 @@
                   HorizontalAlignment="Left" 
                   VerticalAlignment="Center" />
         </Grid>
-    </StackPanel>
+    </Border>
 </UserControl>

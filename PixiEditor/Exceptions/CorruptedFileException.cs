@@ -6,7 +6,7 @@ namespace PixiEditor.Exceptions
     public class CorruptedFileException : Exception
     {
         public CorruptedFileException()
-            : base("The file you chose might be corrupted.")
+            : base("The file you've chosen might be corrupted.")
         {
         }
 

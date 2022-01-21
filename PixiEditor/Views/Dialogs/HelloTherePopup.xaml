@@ -8,7 +8,7 @@
         xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" ShowInTaskbar="False"
-        Title="Hello there!" Height="662" Width="632"
+        Title="Hello there!" Height="662" Width="632" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 

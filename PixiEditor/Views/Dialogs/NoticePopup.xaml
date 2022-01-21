@@ -8,7 +8,8 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" WindowStyle="None"
-        d:Title="Notice" Height="160" Width="400"
+        d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
+        WindowStartupLocation="CenterScreen"
         x:Name="popup">
 
     <WindowChrome.WindowChrome>
@@ -24,7 +25,7 @@
         <dial:DialogTitleBar DockPanel.Dock="Top"
             TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
             <Button Width="70" IsDefault="True" Click="OkButton_Close" Style="{StaticResource DarkRoundButton}" Content="Close"/>
         </StackPanel>
 

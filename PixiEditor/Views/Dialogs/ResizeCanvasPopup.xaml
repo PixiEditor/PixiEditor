@@ -9,7 +9,7 @@
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" Name="window"
         Title="ResizeCanvasPopup" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
-        Height="350" Width="300" WindowStyle="None">
+        Height="350" Width="300" MinHeight="350" MinWidth="300" WindowStyle="None">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
@@ -27,14 +27,14 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="Resize Canvas" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+            TitleText="Resize canvas" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
-        <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" Margin="16"
+        <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" Margin="15"
                 Style="{StaticResource DarkRoundButton}" Content="Resize" Click="Button_Click" IsDefault="True" />
 
         <StackPanel HorizontalAlignment="Center" Margin="0,30,0,0" Background="{StaticResource MainColor}"
                     VerticalAlignment="Top" Grid.Row="1" Width="230" Height="225">
-            <local:SizePicker Margin="0,20,0,0" Width="200"
+            <local:SizePicker Margin="0,18,0,0" Width="200"
                               x:Name="sizePicker"
                               PreserveAspectRatio="False"
                               ChosenHeight="{Binding NewHeight, Mode=TwoWay, ElementName=window}"

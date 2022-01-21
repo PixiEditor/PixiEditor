@@ -3,10 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime" 
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" d:Title="Unsaved changes"
-        Name="popup" WindowStartupLocation="CenterScreen" Height="180" Width="400"
+        Name="popup" WindowStartupLocation="CenterScreen" 
+        Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStyle="None">
 
     <WindowChrome.WindowChrome>
@@ -23,22 +26,22 @@
             TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
         <StackPanel DockPanel.Dock="Bottom" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
-                    Margin="0,0,10,16">
-            <Button Margin="10,0,10,0" Width="60" IsDefault="True"
+                    Margin="0,0,10,15">
+            <Button Margin="10,0,10,0" Width="70" IsDefault="True"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="Yes">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Width="60"
+            <Button Width="70"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="No">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Margin="10,0,10,0" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
+            <Button Margin="10,0,10,0" Width="70" Style="{StaticResource DarkRoundButton}" Content="Cancel"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
 
