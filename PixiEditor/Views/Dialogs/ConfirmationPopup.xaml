@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" d:Title="Unsaved changes"
         Name="popup" WindowStartupLocation="CenterScreen" Height="180" Width="400"
         WindowStyle="None">
@@ -13,37 +14,15 @@
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 
-    <Grid Background="{StaticResource AccentColor}" Focusable="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
-            <RowDefinition Height="34*" />
-            <RowDefinition Height="21*" />
-        </Grid.RowDefinitions>
+    <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <TextBlock Grid.Row="1" 
-                   Text="{Binding Body, ElementName=popup}" 
-                   HorizontalAlignment="Center" Margin="20,0" 
-                   TextWrapping="WrapWithOverflow" 
-                   TextTrimming="WordEllipsis"
-                   TextAlignment="Center"
-                   VerticalAlignment="Center" FontSize="15" Foreground="White" d:Text="The document has been modified. Do you want to save changes?"/>
 
-        <Grid Grid.Row="0" Background="{StaticResource MainColor}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
-            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                       Foreground="White" FontSize="15" Margin="5,0,0,0" Grid.Column="0" Grid.ColumnSpan="2"
-                       Text="{Binding ElementName=popup, Path=Title}"/>
-        </Grid>
+        <dial:DialogTitleBar DockPanel.Dock="Top"
+            TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+        <StackPanel DockPanel.Dock="Bottom" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,16">
             <Button Margin="10,0,10,0" Height="28" Width="60" IsDefault="True"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
@@ -62,5 +41,13 @@
             <Button Margin="10,0,10,0" Height="28" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
-    </Grid>
+
+        <TextBlock Grid.Row="1" 
+                   Text="{Binding Body, ElementName=popup}" 
+                   HorizontalAlignment="Center" Margin="20,0" 
+                   TextWrapping="WrapWithOverflow" 
+                   TextTrimming="WordEllipsis"
+                   TextAlignment="Center"
+                   VerticalAlignment="Center" FontSize="15" Foreground="White" d:Text="The document has been modified. Do you want to save changes?"/>
+    </DockPanel>
 </Window>
