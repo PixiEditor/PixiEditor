@@ -72,7 +72,7 @@
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
         </DockPanel>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="3,0">
             <Grid Grid.Row="1" Margin="0,30,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="90"/>
