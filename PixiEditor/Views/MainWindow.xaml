@@ -125,7 +125,7 @@
                     <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
                     <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
                 </MenuItem>
-                <MenuItem Header="_Document">
+                <MenuItem Header="_Image">
                     <MenuItem Header="Resize _Image..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
                               InputGestureText="Ctrl+Shift+I" />
                     <MenuItem Header="_Resize Canvas..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
