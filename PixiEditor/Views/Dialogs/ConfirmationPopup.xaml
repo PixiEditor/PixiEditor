@@ -24,21 +24,21 @@
 
         <StackPanel DockPanel.Dock="Bottom" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,16">
-            <Button Margin="10,0,10,0" Height="28" Width="60" IsDefault="True"
+            <Button Margin="10,0,10,0" Width="60" IsDefault="True"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="Yes">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Height="28" Width="60"
+            <Button Width="60"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="No">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Margin="10,0,10,0" Height="28" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
+            <Button Margin="10,0,10,0" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
 

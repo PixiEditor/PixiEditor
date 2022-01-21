@@ -41,6 +41,7 @@
     <Style TargetType="Button" x:Key="DarkRoundButton" BasedOn="{StaticResource BaseDarkButton}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Background" Value="#303030" />
+        <Setter Property="Height" Value="28"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">

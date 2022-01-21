@@ -90,8 +90,8 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" Width="150" Height="28" FontSize="15" Margin="10">Open</Button>
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" Width="150" Height="28" FontSize="15" Margin="10">New</Button>
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" Width="150" Margin="10">Open</Button>
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" Width="150" Margin="10">New</Button>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">

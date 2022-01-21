@@ -25,10 +25,7 @@
             TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
-            <Button Height="28" Width="70" IsDefault="True"
-                    Click="OkButton_Close"
-                    Style="{StaticResource DarkRoundButton}" Content="Close">
-            </Button>
+            <Button Width="70" IsDefault="True" Click="OkButton_Close" Style="{StaticResource DarkRoundButton}" Content="Close"/>
         </StackPanel>
 
         <TextBlock 
