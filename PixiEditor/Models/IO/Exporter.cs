@@ -112,7 +112,7 @@ namespace PixiEditor.Models.IO
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                NoticeDialog.Show(err.ToString(), "Error");
             }
         }
     }

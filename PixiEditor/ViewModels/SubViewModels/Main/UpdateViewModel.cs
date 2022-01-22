@@ -127,11 +127,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             catch (Win32Exception)
             {
-                MessageBox.Show(
+                NoticeDialog.Show(
                     "Couldn't update without administrator rights.",
-                    "Insufficient permissions",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    "Insufficient permissions");
             }
         }
 
