@@ -9,7 +9,7 @@
              d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput">
     <TextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Focusable="True"
              InputScope="Number" MouseWheel="TextBox_MouseWheel"
-             PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
+             PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}" Padding="0" VerticalContentAlignment="Center">
         <i:Interaction.Behaviors>
             <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"/>
             <behaviours:GlobalShortcutFocusBehavior/>
