@@ -48,8 +48,10 @@
             </TextBox>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"
                   d:Background="{StaticResource BrighterAccentColor}"/>
-            <TextBlock Text="px" TextAlignment="Right"
-                       Grid.Column="2" Margin="5,0" VerticalAlignment="Center"/>
+                      <TextBlock Text="{Binding Unit, ElementName=uc, Converter={converters:EnumToStringConverter}}" TextAlignment="Right"
+                       Grid.Column="2" Margin="5,0" VerticalAlignment="Center" d:Text="%"
+                       
+                       />
         </Grid>
     </Border>
 </UserControl>

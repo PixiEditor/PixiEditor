@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.Models.Enums;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -49,6 +50,9 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty NextControlProperty =
             DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizeInput));
 
+        public static readonly DependencyProperty UnitProperty =
+            DependencyProperty.Register(nameof(Unit), typeof(SizeUnit), typeof(SizeInput));
+
         public SizeInput()
         {
             GotKeyboardFocus += SizeInput_GotKeyboardFocus;
@@ -94,6 +98,12 @@ namespace PixiEditor.Views
         {
             get => (FrameworkElement)GetValue(NextControlProperty);
             set => SetValue(NextControlProperty, value);
+        }
+
+        public SizeUnit Unit
+        {
+          get => (SizeUnit)GetValue(UnitProperty);
+          set => SetValue(UnitProperty, value);
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

@@ -39,7 +39,8 @@
             <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,50,0,0">
                 <local:SizePicker Width="250" Height="120"
                                   ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
-                                  ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
+                                  ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" 
+                                  />
                 <Button Foreground="Snow" Height="40" Width="160" Margin="0,10,0,0" Content="Path"
                         Background="{StaticResource MainColor}" BorderBrush="{Binding PathButtonBorder}"
                         Command="{Binding ChoosePathCommand}" />

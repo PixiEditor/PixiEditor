@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Enums;
+using PixiEditor.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace PixiEditor.Views
@@ -20,9 +23,30 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty NextControlProperty =
             DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizePicker));
 
+        public static readonly DependencyProperty ChosenPercentageSizeProperty =
+            DependencyProperty.Register(nameof(ChosenPercentageSize), typeof(int), typeof(SizePicker), new PropertyMetadata(1, InputSizeChanged));
+
+        public static readonly DependencyProperty SelectedUnitProperty =
+            DependencyProperty.Register(nameof(SelectedUnit), typeof(SizeUnit), typeof(SizePicker), new PropertyMetadata(SizeUnit.Pixel));
+
+        public static readonly DependencyProperty SizeUnitSelectionVisibilityProperty =
+            DependencyProperty.Register(nameof(SizeUnitSelectionVisibility), typeof(Visibility), typeof(SizePicker), new PropertyMetadata(Visibility.Collapsed));
+
+
         public SizePicker()
         {
             InitializeComponent();
+
+            EnableSizeEditors();
+
+        }
+
+        private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var newValue = (int)e.NewValue;
+            var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, new System.Drawing.Size((int)d.GetValue(ChosenWidthProperty), (int)d.GetValue(ChosenHeightProperty)));
+            d.SetValue(ChosenWidthProperty, newSize.Width);
+            d.SetValue(ChosenHeightProperty, newSize.Height);
         }
 
         public bool EditingEnabled
@@ -43,6 +67,24 @@ namespace PixiEditor.Views
             set => SetValue(ChosenHeightProperty, value);
         }
 
+        public int ChosenPercentageSize
+        {
+            get => (int)GetValue(ChosenPercentageSizeProperty);
+            set => SetValue(ChosenPercentageSizeProperty, value);
+        }
+
+        public SizeUnit SelectedUnit 
+        {
+            get => (SizeUnit)GetValue(SelectedUnitProperty);
+            set => SetValue(SelectedUnitProperty, value);
+        }
+
+        public Visibility SizeUnitSelectionVisibility
+        {
+            get => (Visibility)GetValue(SizeUnitSelectionVisibilityProperty);
+            set => SetValue(SizeUnitSelectionVisibilityProperty, value);
+        }
+        
         public FrameworkElement NextControl
         {
             get => (FrameworkElement)GetValue(NextControlProperty);
@@ -52,6 +94,26 @@ namespace PixiEditor.Views
         public void FocusWidthPicker()
         {
             WidthPicker.Focus();
+        }
+                
+        private void PercentageRb_Checked(object sender, RoutedEventArgs e)
+        {
+            EnableSizeEditors();
+        }
+
+        private void AbsoluteRb_Checked(object sender, RoutedEventArgs e)
+        {
+            EnableSizeEditors();
+        }
+
+        private void EnableSizeEditors()
+        {
+            if (PercentageSizePicker != null)
+                PercentageSizePicker.IsEnabled = EditingEnabled && PercentageRb.IsChecked.Value;
+            if (WidthPicker != null)
+                WidthPicker.IsEnabled = EditingEnabled && !PercentageRb.IsChecked.Value;
+            if (HeightPicker != null)
+                HeightPicker.IsEnabled = EditingEnabled && !PercentageRb.IsChecked.Value;
         }
     }
 }

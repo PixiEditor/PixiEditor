@@ -72,15 +72,17 @@ namespace PixiEditor.Models.Dialogs
         {
             ResizeCanvasPopup popup = new ResizeCanvasPopup
             {
-                NewHeight = Height,
-                NewWidth = Width
+                NewAbsoluteHeight = Height,
+                NewAbsoluteWidth = Width,
+                NewPercentageSize = 100,
+                NewSelectedUnit = SizeUnit.Pixel
             };
 
             popup.ShowDialog();
             if (popup.DialogResult == true)
             {
-                Width = popup.NewWidth;
-                Height = popup.NewHeight;
+                Width = popup.NewAbsoluteWidth;
+                Height = popup.NewAbsoluteHeight;
                 ResizeAnchor = popup.SelectedAnchorPoint;
             }
 
