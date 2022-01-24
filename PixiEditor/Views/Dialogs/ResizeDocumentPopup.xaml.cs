@@ -6,34 +6,14 @@ namespace PixiEditor.Views
     /// <summary>
     ///     Interaction logic for ResizeDocumentPopup.xaml
     /// </summary>
-    public partial class ResizeDocumentPopup : Window
+    public partial class ResizeDocumentPopup : ResizeablePopup
     {
-        public static readonly DependencyProperty NewHeightProperty =
-            DependencyProperty.Register("NewHeight", typeof(int), typeof(ResizeDocumentPopup), new PropertyMetadata(0));
-
-        public static readonly DependencyProperty NewWidthProperty =
-            DependencyProperty.Register("NewWidth", typeof(int), typeof(ResizeDocumentPopup), new PropertyMetadata(0));
-
         public ResizeDocumentPopup()
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
             DataContext = this;
         }
-
-        public int NewHeight
-        {
-            get => (int)GetValue(NewHeightProperty);
-            set => SetValue(NewHeightProperty, value);
-        }
-
-
-        public int NewWidth
-        {
-            get => (int)GetValue(NewWidthProperty);
-            set => SetValue(NewWidthProperty, value);
-        }
-
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
