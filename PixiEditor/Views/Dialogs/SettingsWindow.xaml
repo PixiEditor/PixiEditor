@@ -23,6 +23,7 @@
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
+
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
@@ -42,12 +43,7 @@
             TitleText="Settings" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <ListBox DockPanel.Dock="Left" SelectedIndex="0" x:Name="pages" 
-                 Background="Transparent" BorderThickness="0" Width="150">
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="BorderThickness" Value="0"/>
-                </Style>
-            </ListBox.ItemContainerStyle>
+                 Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Margin="10 5 10 5" FontSize="15" Foreground="White" Text="{Binding}"/>
@@ -125,29 +121,29 @@
             <StackPanel Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='Discord'}" Margin="15,10">
                 <Grid Tag="27">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="15"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
-                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
-                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
-                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
-                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
-                </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Rich Presence</Label>
+                    <Label Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Rich Presence</Label>
 
-                <CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"
+                    <CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"
                     IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}">Enabled</CheckBox>
-                <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"
+                    <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"
                     IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
                     IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}">Show image name</CheckBox>
-                <CheckBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center"
+                    <CheckBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center"
                     IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
                     IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentSize}">Show image size</CheckBox>
-                <CheckBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center"
+                    <CheckBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center"
                     IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
                     IsChecked="{Binding SettingsSubViewModel.Discord.ShowLayerCount}">Show layer count</CheckBox>
                 </Grid>
