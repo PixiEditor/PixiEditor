@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using PixiEditor.Views;
+﻿using PixiEditor.Views;
+using System.Windows;
 
 namespace PixiEditor.Models.Dialogs
 {
@@ -58,7 +58,7 @@ namespace PixiEditor.Models.Dialogs
 
         public override bool ShowDialog()
         {
-            SaveFilePopup popup = new SaveFilePopup
+            ExportFilePopup popup = new ExportFilePopup
             {
                 SaveWidth = FileWidth,
                 SaveHeight = FileHeight

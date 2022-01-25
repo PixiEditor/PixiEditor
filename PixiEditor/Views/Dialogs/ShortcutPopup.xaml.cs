@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
+﻿using PixiEditor.Models.Controllers.Shortcuts;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Views.Dialogs
 {

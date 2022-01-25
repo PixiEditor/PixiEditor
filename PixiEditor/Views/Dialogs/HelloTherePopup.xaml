@@ -8,7 +8,7 @@
         xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" ShowInTaskbar="False"
-        Title="Hello there!" Height="662" Width="632"
+        Title="Hello there!" Height="662" Width="632" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
         WindowStyle="None" WindowStartupLocation="CenterScreen">
 
@@ -72,7 +72,7 @@
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
         </DockPanel>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="3,0">
             <Grid Grid.Row="1" Margin="0,30,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="90"/>

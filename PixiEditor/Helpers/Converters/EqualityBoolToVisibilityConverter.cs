@@ -9,6 +9,8 @@ namespace PixiEditor.Helpers.Converters
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+                return false;
             return value.Equals(parameter) ? Visibility.Visible : Visibility.Collapsed;
         }
     }

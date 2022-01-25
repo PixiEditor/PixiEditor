@@ -3,17 +3,27 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:views="clr-namespace:PixiEditor.Views" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" 
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" 
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
+        xmlns:views="clr-namespace:PixiEditor.Views" 
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
+        xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
-        Height="600" Width="800"
-        MinHeight="350" MinWidth="600"
+        Height="500" Width="640"
+        MinHeight="500" MinWidth="640"
         WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
+        WindowStartupLocation="CenterScreen"
         BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
+
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
@@ -24,88 +34,126 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource MainColor}" Focusable="True">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="147*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <DockPanel Background="{StaticResource MainColor}" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        
-        <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource MainColor}">
-            <Label Foreground="White" FontSize="16">Settings</Label>
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
-        </DockPanel>
-        <StackPanel Grid.Row="1" Grid.Column="0">
-            <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5"
-                    Command="{Binding SelectCategoryCommand}" CommandParameter="General">General</Button>
-            <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
-                    Command="{Binding SelectCategoryCommand}" CommandParameter="Updates"
-                    Visibility="{Binding ShowUpdateTab, Converter={StaticResource BoolToVisibilityConverter}}">Updates</Button>
-            <Button Style="{StaticResource AccentDarkRoundButton}" Margin="10 5 10 5" 
-                    Command="{Binding SelectCategoryCommand}" CommandParameter="Discord">Discord</Button>
-        </StackPanel>
+
+        <dial:DialogTitleBar DockPanel.Dock="Top"
+            TitleText="Settings" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+
+        <ListBox DockPanel.Dock="Left" SelectedIndex="0" x:Name="pages" 
+                 Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Margin="10 5 10 5" FontSize="15" Foreground="White" Text="{Binding}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemsSource>
+                <x:Array Type="{x:Type sys:String}">
+                    <sys:String>General</sys:String>
+                    <sys:String>Discord</sys:String>
+                </x:Array>
+            </ListBox.ItemsSource>
+        </ListBox>
+
         <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource AccentColor}">
-            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
-            ConverterParameter='General'}">
-                <StackPanel Orientation="Vertical">
-                    <CheckBox Content="Show Document Preview in Taskbar" Margin="25,30,0,0"
-                                  IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}"/>
-                    <Label Content="File" Style="{StaticResource Header1}"/>
-                    <StackPanel Orientation="Vertical" Margin="50 0 50 0">
-                        <CheckBox Content="Show Startup Window" 
-                                  IsChecked="{Binding SettingsSubViewModel.File.ShowStartupWindow}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Label Content="Max Saved Opened Recently:" ToolTip="How many documents are shown under File > Recent. Default: 8" Style="{StaticResource BaseLabel}"/>
-                            <views:NumberInput Min="0" FontSize="16" Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Width="40"/>
-                        </StackPanel>
-                        <Label Content="Default new file size:" Style="{StaticResource Header2}" Margin="0 20 0 20"/>
-                        <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
-                            <Label Content="Width:" Style="{StaticResource BaseLabel}"/>
-                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" 
-                                             Width="70" Height="25" MaxSize="9999"/>
-                            <Label Content="Height:" Style="{StaticResource BaseLabel}"/>
-                            <views:SizeInput FontSize="16" Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" 
-                                             Width="70" Height="25" MaxSize="9999"/>
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
+            <Grid Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter},
+            ConverterParameter='General'}" Margin="15,10" Tag="27">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="230"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Misc</Label>
+
+                <CheckBox Grid.Row="1" Grid.Column="1"
+                          VerticalAlignment="Center"
+                          IsChecked="{Binding SettingsSubViewModel.File.ShowStartupWindow}">Show startup window</CheckBox>
+
+                <CheckBox Grid.Row="2" Grid.Column="1"
+                          VerticalAlignment="Center"
+                          IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}">Show image preview in taskbar</CheckBox>
+
+                <Label Grid.Row="3" Grid.Column="1" Style="{StaticResource SettingsText}"
+                       ToolTip="How many documents are shown under File > Recent. Default: 8">Recent file list length</Label>
+                <views:NumberInput Grid.Row="3" Grid.Column="2" 
+                                   Min="0" FontSize="12" HorizontalAlignment="Left"
+                                   Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Height="19" Width="40"/>
+
+                <Label Grid.Row="4" Grid.ColumnSpan="2"  Style="{StaticResource SettingsHeader}">Default new file size</Label>
+
+                <Label Grid.Row="5" Grid.Column="1" Style="{StaticResource SettingsText}">Width</Label>
+                <views:SizeInput Grid.Row="5" Grid.Column="2" 
+                                 Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" 
+                                 Width="70" Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
+
+                <Label Grid.Row="6" Grid.Column="1" Style="{StaticResource SettingsText}">Height</Label>
+                <views:SizeInput Grid.Row="6" Grid.Column="2" 
+                                 Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" 
+                                 Width="70" Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
+
+                <Label Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Automatic updates</Label>
+
+                <CheckBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center"
+                    IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}">Check updates on startup</CheckBox>
+
+                <Label Grid.Row="9" Grid.Column="1" Style="{StaticResource SettingsText}">Update stream</Label>
+                <ComboBox Grid.Row="9" Grid.Column="2" VerticalAlignment="Center"
+                    Width="110" Height="22" HorizontalAlignment="Left"
+                    ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
+                    SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
             </Grid>
-            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
-            ConverterParameter='Updates'}">
-                <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource Header1}" Content="Auto-updates"/>
-                    <StackPanel Orientation="Vertical" Margin="50 0 50 0">
-                        <CheckBox IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}" Content="Check updates on startup"/>
-                        <StackPanel Orientation="Horizontal">
-                        <Label VerticalAlignment="Center" Content="Update source" Style="{StaticResource BaseLabel}"/>
-                            <ComboBox Width="110" Margin="0 10 0 10" HorizontalAlignment="Left" 
-                                      ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
-                                      SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-            <Grid Visibility="{Binding SelectedCategory, Converter={converters:EqualityBoolToVisibilityConverter},
-            ConverterParameter='Discord'}">
-                <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource Header1}" Content="Rich Presence"/>
-                    <StackPanel Orientation="Vertical" Margin="50 0 50 0">
-                        <CheckBox Margin="5" IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" Content="Enabled"/>
-                        <CheckBox Margin="5" IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}" Content="Show Document Name"/>
-                        <CheckBox Margin="5" IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentSize}" Content="Show Document Size"/>
-                        <CheckBox Margin="5" IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" IsChecked="{Binding SettingsSubViewModel.Discord.ShowLayerCount}" Content="Show Layer Count"/>
-                        <usercontrols:DiscordRPPreview Margin="5" State="{Binding SettingsSubViewModel.Discord.StatePreview}" Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}" Width="280" IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
+
+            <StackPanel Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter},
+            ConverterParameter='Discord'}" Margin="15,10">
+                <Grid Tag="27">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                        <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Rich Presence</Label>
+
+                    <CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"
+                    IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}">Enabled</CheckBox>
+                    <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"
+                    IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
+                    IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}">Show image name</CheckBox>
+                    <CheckBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center"
+                    IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
+                    IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentSize}">Show image size</CheckBox>
+                    <CheckBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center"
+                    IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
+                    IsChecked="{Binding SettingsSubViewModel.Discord.ShowLayerCount}">Show layer count</CheckBox>
+                </Grid>
+                <usercontrols:DiscordRPPreview 
+                    Margin="15"
+                    Width="280"
+                    State="{Binding SettingsSubViewModel.Discord.StatePreview}" 
+                    Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}" 
+                    IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>
+            </StackPanel>
         </Grid>
-    </Grid>
+    </DockPanel>
 </Window>

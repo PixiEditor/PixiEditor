@@ -8,7 +8,7 @@
     <Style TargetType="Button" x:Key="BaseDarkButton">
         <Setter Property="Background" Value="#404040" />
         <Setter Property="Foreground" Value="White" />
-        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
@@ -41,6 +41,8 @@
     <Style TargetType="Button" x:Key="DarkRoundButton" BasedOn="{StaticResource BaseDarkButton}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Background" Value="#303030" />
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Width" Value="70"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -143,6 +145,7 @@
     <Style TargetType="TextBox" x:Key="DarkTextBoxStyle">
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="Snow" />
+        <Setter Property="SelectionBrush" Value="{StaticResource SelectionColor}" />
 
         <Setter Property="Template">
             <Setter.Value>
