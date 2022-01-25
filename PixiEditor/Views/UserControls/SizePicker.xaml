@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
              mc:Ignorable="d"
-             d:DesignHeight="220" d:DesignWidth="300" Name="uc">
+             d:DesignHeight="220" d:DesignWidth="300" Name="uc" Loaded="OnLoad">
     <UserControl.Resources>
         <Style TargetType="local:SizeInput">
             <Setter Property="HorizontalAlignment" Value="Left"/>

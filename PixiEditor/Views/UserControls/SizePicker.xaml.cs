@@ -32,21 +32,29 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty SizeUnitSelectionVisibilityProperty =
             DependencyProperty.Register(nameof(SizeUnitSelectionVisibility), typeof(Visibility), typeof(SizePicker), new PropertyMetadata(Visibility.Collapsed));
 
+        System.Drawing.Size? initSize = null;
 
         public SizePicker()
         {
             InitializeComponent();
 
             EnableSizeEditors();
+        }
 
+        void OnLoad(object sender, RoutedEventArgs e)
+        {
+            var sizePicker = sender as SizePicker;
+            sizePicker.initSize = new System.Drawing.Size(sizePicker.ChosenWidth, sizePicker.ChosenHeight);
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var sizePicker = d as SizePicker;
-            
+            if (!sizePicker.initSize.HasValue)
+                return;
+
             var newValue = (int)e.NewValue;
-            var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, new System.Drawing.Size(sizePicker.ChosenWidth, sizePicker.ChosenHeight));
+            var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, sizePicker.initSize.Value);
             if (newSize.Width > sizePicker.MaxWidth || newSize.Width > sizePicker.MaxHeight)
             {
                 newSize = new System.Drawing.Size(newSize.Width, newSize.Height);
