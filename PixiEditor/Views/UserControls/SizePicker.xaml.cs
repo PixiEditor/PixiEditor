@@ -43,8 +43,15 @@ namespace PixiEditor.Views
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            var sizePicker = d as SizePicker;
+            
             var newValue = (int)e.NewValue;
-            var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, new System.Drawing.Size((int)d.GetValue(ChosenWidthProperty), (int)d.GetValue(ChosenHeightProperty)));
+            var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, new System.Drawing.Size(sizePicker.ChosenWidth, sizePicker.ChosenHeight));
+            if (newSize.Width > sizePicker.MaxWidth || newSize.Width > sizePicker.MaxHeight)
+            {
+                newSize = new System.Drawing.Size(newSize.Width, newSize.Height);
+            }
+            
             d.SetValue(ChosenWidthProperty, newSize.Width);
             d.SetValue(ChosenHeightProperty, newSize.Height);
         }

@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
              mc:Ignorable="d"
-             d:DesignHeight="220" d:DesignWidth="290" Name="uc">
+             d:DesignHeight="220" d:DesignWidth="300" Name="uc">
     <UserControl.Resources>
         <Style TargetType="local:SizeInput">
             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -15,20 +15,22 @@
             <Setter Property="SelectOnFocus" Value="False"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Width" Value="150"/>
+            <Setter Property="Width" Value="130"/>
             <Setter Property="Height" Value="30"/>
         </Style>
     </UserControl.Resources>
     <DockPanel Background="{StaticResource MainColor}">
-        <DockPanel DockPanel.Dock="Top" Margin="5,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Center" 
+        
+       <DockPanel DockPanel.Dock="Top" Margin="5,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Center" 
                    Visibility="{Binding SizeUnitSelectionVisibility, ElementName=uc}">
             <StackPanel x:Name="UnitSelectionPanel" Orientation="Vertical" >
-                <StackPanel Orientation="Horizontal" >
+                <StackPanel Orientation="Horizontal" x:Name="PercentagePanel">
                     <RadioButton  x:Name="PercentageRb" 
                                   Foreground="White" 
                                   FontSize="16"
                                   GroupName="Unit"
                                   Checked="PercentageRb_Checked"
+                                  VerticalContentAlignment="Center"
                                   IsChecked="{Binding Path=SelectedUnit,  
                                               ElementName=uc, 
                                               Converter={converters:EnumBooleanConverter}, 
@@ -37,8 +39,8 @@
                                   >Percentage:</RadioButton>
                     <local:SizeInput x:Name="PercentageSizePicker"
                                     Unit="Percentage"
-                                    Width ="135"
                                     Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}" 
+                                     
                                     />
                 </StackPanel>
                 <Separator Margin="10,20,10,10" Background="{StaticResource AccentColor}" Height="1" />
@@ -47,6 +49,7 @@
                               FontSize="16"
                               GroupName="Unit"
                               Checked="AbsoluteRb_Checked"
+                              VerticalContentAlignment="Center"
                               IsChecked="{Binding Path=SelectedUnit,  
                                               ElementName=uc, 
                                               Converter={converters:EnumBooleanConverter}, 
@@ -78,7 +81,6 @@
                              NextControl="{Binding NextControl, ElementName=uc}"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}"
                              Unit="Pixel"
-                             IsEnabled="{Binding IsChecked, ElementName=PercentageRb}"
                              />
         </DockPanel>
         <DockPanel DockPanel.Dock="Top">
