@@ -60,13 +60,6 @@ namespace PixiEditor.Models.IO
             // If OK on dialog has been clicked
             if (info.ShowDialog())
             {
-                // If sizes are incorrect
-                if (info.FileWidth < bitmap.Width || info.FileHeight < bitmap.Height)
-                {
-                    MessageBox.Show("Incorrect height or width value", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
                 SaveAsPng(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
             }
         }
@@ -119,7 +112,7 @@ namespace PixiEditor.Models.IO
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                NoticeDialog.Show(err.ToString(), "Error");
             }
         }
     }

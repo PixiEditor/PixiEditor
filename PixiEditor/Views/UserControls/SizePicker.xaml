@@ -3,31 +3,46 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
              mc:Ignorable="d"
-             d:DesignHeight="220" d:DesignWidth="300" Name="uc" Loaded="OnLoad">
+             d:DesignHeight="180" d:DesignWidth="240" Name="uc">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <UserControl.Resources>
         <Style TargetType="local:SizeInput">
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="MaxSize" Value="9999"/>
-            <Setter Property="SelectOnFocus" Value="False"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="BehaveLikeSmallEmbeddedField" Value="False"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Width" Value="130"/>
+            <Setter Property="Width" Value="120"/>
             <Setter Property="Height" Value="30"/>
         </Style>
     </UserControl.Resources>
-    <DockPanel Background="{StaticResource MainColor}">
-        
-       <DockPanel DockPanel.Dock="Top" Margin="5,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Center" 
-                   Visibility="{Binding SizeUnitSelectionVisibility, ElementName=uc}">
-            <StackPanel x:Name="UnitSelectionPanel" Orientation="Vertical" >
-                <StackPanel Orientation="Horizontal" x:Name="PercentagePanel">
-                    <RadioButton  x:Name="PercentageRb" 
+    <Border Background="{StaticResource MainColor}" VerticalAlignment="Stretch">
+        <DockPanel>
+            <Grid Height="50" HorizontalAlignment="Center" DockPanel.Dock="Top"
+                  Margin="0,20,0,0"
+                  Visibility="{Binding SizeUnitSelectionVisibility, ElementName=uc}"> 
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+
+                <RadioButton    Grid.Row="0" Grid.Column="0"  
+                                x:Name="PercentageRb" 
                                   Foreground="White" 
-                                  FontSize="16"
+                                  FontSize="12"
                                   GroupName="Unit"
                                   Checked="PercentageRb_Checked"
                                   VerticalContentAlignment="Center"
@@ -37,16 +52,24 @@
                                               ConverterParameter=Percentage
                                               }"
                                   >Percentage:</RadioButton>
-                    <local:SizeInput x:Name="PercentageSizePicker"
-                                    Unit="Percentage"
-                                    Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}" 
-                                     
-                                    />
-                </StackPanel>
-                <Separator Margin="10,20,10,10" Background="{StaticResource AccentColor}" Height="1" />
-                <RadioButton  x:Name="AbsoluteRb" 
+                <local:SizeInput Grid.Column="1" Grid.Row="0"
+                             x:Name="PercentageSizePicker"
+                             IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                             Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}"
+                             Unit="Percentage"
+                             >
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="LostFocus">
+                            <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </local:SizeInput>
+
+                <RadioButton Grid.Row="1" Grid.Column="0"  
+                              x:Name="AbsoluteRb" 
                               Foreground="White" 
-                              FontSize="16"
+                              FontSize="12"
                               GroupName="Unit"
                               Checked="AbsoluteRb_Checked"
                               VerticalContentAlignment="Center"
@@ -55,36 +78,53 @@
                                               Converter={converters:EnumBooleanConverter}, 
                                               ConverterParameter=Pixel}"
                               >Absolute:</RadioButton>
-            </StackPanel>
-        </DockPanel>
+               
+            </Grid>
 
-        <DockPanel DockPanel.Dock="Top" Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Height="20" Foreground="Snow" Text="Width:" TextAlignment="Center" FontSize="16"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <local:SizeInput x:Name="WidthPicker"
-                             PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}"
-                             AspectRatioValue="{Binding Path=ChosenHeight, ElementName=uc}"
-                             AspectRatioControl="{Binding ElementName=HeightPicker}"
-                             NextControl="{Binding ElementName=HeightPicker}"
-                             Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}" 
-                             Unit="Pixel"
-                             />
+            <Grid Height="90" HorizontalAlignment="Center" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" Text="Width:" VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <local:SizeInput Grid.Column="1" Grid.Row="0"
+                             x:Name="WidthPicker"
+                             IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                             Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="LostFocus">
+                        <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </local:SizeInput>
+
+            <TextBlock Grid.Column="0" Grid.Row="1" Foreground="Snow" Text="Height:" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <local:SizeInput Grid.Column="1" Grid.Row="1"
+                             x:Name="HeightPicker" 
+                             IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                             Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="LostFocus">
+                        <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=HeightLostFocusCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </local:SizeInput>
+
+            <CheckBox 
+                  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
+                  Name="aspectRatio" 
+                  IsChecked="{Binding ElementName=uc, Path=PreserveAspectRatio}"
+                  Content="Preserve aspect ratio" 
+                  Foreground="White" 
+                  HorizontalAlignment="Left" 
+                  VerticalAlignment="Center" />
+        </Grid>
         </DockPanel>
-        <DockPanel DockPanel.Dock="Top" Margin="5,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Height="20" Foreground="Snow" Text="Height:" TextAlignment="Center" FontSize="16"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <local:SizeInput x:Name="HeightPicker" 
-                             Margin="5,0,0,0"
-                             PreserveAspectRatio="{Binding Path=IsChecked, ElementName=aspectRatio}"
-                             AspectRatioValue="{Binding Path=ChosenWidth, ElementName=uc}"
-                             AspectRatioControl="{Binding ElementName=WidthPicker}"
-                             NextControl="{Binding NextControl, ElementName=uc}"
-                             Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}"
-                             Unit="Pixel"
-                             />
-        </DockPanel>
-        <DockPanel DockPanel.Dock="Top">
-            <CheckBox Name="aspectRatio" Content="Preserve aspect ratio" Foreground="White" HorizontalAlignment="Left" Margin="50,10,0,0" />
-        </DockPanel>
-    </DockPanel>
+    </Border>
 </UserControl>

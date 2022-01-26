@@ -1,18 +1,19 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace PixiEditor.Views
 {
-    /// <summary>
-    ///     Interaction logic for SizePicker.xaml.
-    /// </summary>
     public partial class SizePicker : UserControl
     {
         public static readonly DependencyProperty EditingEnabledProperty =
             DependencyProperty.Register(nameof(EditingEnabled), typeof(bool), typeof(SizePicker), new PropertyMetadata(true));
+
+        public static readonly DependencyProperty PreserveAspectRatioProperty =
+            DependencyProperty.Register(nameof(PreserveAspectRatio), typeof(bool), typeof(SizePicker), new PropertyMetadata(true));
 
         public static readonly DependencyProperty ChosenWidthProperty =
             DependencyProperty.Register(nameof(ChosenWidth), typeof(int), typeof(SizePicker), new PropertyMetadata(1));
@@ -33,20 +34,7 @@ namespace PixiEditor.Views
             DependencyProperty.Register(nameof(SizeUnitSelectionVisibility), typeof(Visibility), typeof(SizePicker), new PropertyMetadata(Visibility.Collapsed));
 
         System.Drawing.Size? initSize = null;
-
-        public SizePicker()
-        {
-            InitializeComponent();
-
-            EnableSizeEditors();
-        }
-
-        void OnLoad(object sender, RoutedEventArgs e)
-        {
-            var sizePicker = sender as SizePicker;
-            sizePicker.initSize = new System.Drawing.Size(sizePicker.ChosenWidth, sizePicker.ChosenHeight);
-        }
-
+               
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var sizePicker = d as SizePicker;
@@ -99,16 +87,58 @@ namespace PixiEditor.Views
             get => (Visibility)GetValue(SizeUnitSelectionVisibilityProperty);
             set => SetValue(SizeUnitSelectionVisibilityProperty, value);
         }
-        
+
         public FrameworkElement NextControl
         {
             get => (FrameworkElement)GetValue(NextControlProperty);
             set => SetValue(NextControlProperty, value);
         }
 
+        public bool PreserveAspectRatio
+        {
+            get => (bool)GetValue(PreserveAspectRatioProperty);
+            set => SetValue(PreserveAspectRatioProperty, value);
+        }
+
+        public RelayCommand LoadedCommand { get; private set; }
+        public RelayCommand WidthLostFocusCommand { get; private set; }
+        public RelayCommand HeightLostFocusCommand { get; private set; }
+                        
+        public SizePicker()
+        {
+            LoadedCommand = new(AfterLoaded);
+            WidthLostFocusCommand = new(WidthLostFocus);
+            HeightLostFocusCommand = new(HeightLostFocus);
+            InitializeComponent();
+        }
+
         public void FocusWidthPicker()
         {
-            WidthPicker.Focus();
+            PercentageSizePicker.FocusAndSelect();
+        }
+
+        private void AfterLoaded(object parameter)
+        {
+            initSize = new System.Drawing.Size(ChosenWidth, ChosenHeight);
+            EnableSizeEditors();
+        }
+
+        private void WidthLostFocus(object param) => OnSizeUpdate(true);
+        private void HeightLostFocus(object param) => OnSizeUpdate(false);
+
+        private void OnSizeUpdate(bool widthUpdated)
+        {
+            if (!initSize.HasValue || !PreserveAspectRatio)
+                return;
+
+            if (widthUpdated)
+            {
+                ChosenHeight = Math.Clamp(ChosenWidth * initSize.Value.Height / initSize.Value.Width, 1, HeightPicker.MaxSize);
+            }
+            else
+            {
+                ChosenWidth = Math.Clamp(ChosenHeight * initSize.Value.Width / initSize.Value.Height, 1, WidthPicker.MaxSize);
+            }
         }
                 
         private void PercentageRb_Checked(object sender, RoutedEventArgs e)
@@ -123,11 +153,11 @@ namespace PixiEditor.Views
 
         private void EnableSizeEditors()
         {
-            if (PercentageSizePicker != null)
+            if(PercentageSizePicker != null)
                 PercentageSizePicker.IsEnabled = EditingEnabled && PercentageRb.IsChecked.Value;
             if (WidthPicker != null)
                 WidthPicker.IsEnabled = EditingEnabled && !PercentageRb.IsChecked.Value;
-            if (HeightPicker != null)
+            if(HeightPicker != null)
                 HeightPicker.IsEnabled = EditingEnabled && !PercentageRb.IsChecked.Value;
         }
     }

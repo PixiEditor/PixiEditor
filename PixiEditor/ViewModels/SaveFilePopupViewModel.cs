@@ -8,50 +8,16 @@ namespace PixiEditor.ViewModels
     {
         private string _filePath;
 
-
-        private string _pathButtonBorder = "#f08080";
-
-
-        private bool _pathIsCorrect;
-
         public SaveFilePopupViewModel()
         {
             CloseButtonCommand = new RelayCommand(CloseWindow);
             DragMoveCommand = new RelayCommand(MoveWindow);
-            ChoosePathCommand = new RelayCommand(ChoosePath);
-            OkCommand = new RelayCommand(OkButton, CanClickOk);
+            OkCommand = new RelayCommand(OkButton);
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
         public RelayCommand DragMoveCommand { get; set; }
-        public RelayCommand ChoosePathCommand { get; set; }
         public RelayCommand OkCommand { get; set; }
-
-        public string PathButtonBorder
-        {
-            get => _pathButtonBorder;
-            set
-            {
-                if (_pathButtonBorder != value)
-                {
-                    _pathButtonBorder = value;
-                    RaisePropertyChanged("PathButtonBorder");
-                }
-            }
-        }
-
-        public bool PathIsCorrect
-        {
-            get => _pathIsCorrect;
-            set
-            {
-                if (_pathIsCorrect != value)
-                {
-                    _pathIsCorrect = value;
-                    RaisePropertyChanged("PathIsCorrect");
-                }
-            }
-        }
 
         public string FilePath
         {
@@ -69,7 +35,7 @@ namespace PixiEditor.ViewModels
         /// <summary>
         ///     Command that handles Path choosing to save file
         /// </summary>
-        private void ChoosePath(object parameter)
+        private string ChoosePath()
         {
             SaveFileDialog path = new SaveFileDialog
             {
@@ -82,16 +48,10 @@ namespace PixiEditor.ViewModels
             {
                 if (string.IsNullOrEmpty(path.FileName) == false)
                 {
-                    PathButtonBorder = "#b8f080";
-                    PathIsCorrect = true;
-                    FilePath = path.FileName;
-                }
-                else
-                {
-                    PathButtonBorder = "#f08080";
-                    PathIsCorrect = false;
+                    return path.FileName;
                 }
             }
+            return null;
         }
 
         private void CloseWindow(object parameter)
@@ -107,13 +67,12 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
+            string path = ChoosePath();
+            if (path == null)
+                return;
+            FilePath = path;
             ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
-        }
-
-        private bool CanClickOk(object property)
-        {
-            return PathIsCorrect;
         }
     }
 }

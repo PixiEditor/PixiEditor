@@ -7,4 +7,5 @@
     <SolidColorBrush x:Key="DarkerAccentColor" Color="#202020" />
     <SolidColorBrush x:Key="BrighterAccentColor" Color="#3F3F46" />
     <SolidColorBrush x:Key="AlmostLightModeAccentColor" Color="#4F4F4F" />
+    <SolidColorBrush x:Key="SelectionColor" Color="#999" />
 </ResourceDictionary>
