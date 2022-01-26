@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Dialogs;
+﻿using PixiEditor.Models;
+using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
 {
@@ -12,7 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
             set => RaiseAndUpdatePreference(ref showStartupWindow, value);
         }
 
-        private int defaultNewFileWidth = GetPreference("DefaultNewFileWidth", NewFileDialog.defaultSize);
+        private int defaultNewFileWidth = GetPreference("DefaultNewFileWidth", Constants.DefaultSize);
 
         public int DefaultNewFileWidth
         {
@@ -25,7 +26,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
             }
         }
 
-        private int defaultNewFileHeight = GetPreference("DefaultNewFileHeight", NewFileDialog.defaultSize);
+        private int defaultNewFileHeight = GetPreference("DefaultNewFileHeight", Constants.DefaultSize);
 
         public int DefaultNewFileHeight
         {

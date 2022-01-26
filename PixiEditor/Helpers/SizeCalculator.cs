@@ -9,5 +9,9 @@
             var newHeight = currentSize.Height * percFactor;
             return new System.Drawing.Size((int)newWidth, (int)newHeight);
         }
+        public static int CalcPercentageFromAbsolute(int initAbsoluteSize, int currentAbsoluteSize)
+        {
+            return (int)((float)currentAbsoluteSize*100) / initAbsoluteSize;
+        }
     }
 }

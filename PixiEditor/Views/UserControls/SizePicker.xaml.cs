@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
 using System;
@@ -43,9 +44,10 @@ namespace PixiEditor.Views
 
             var newValue = (int)e.NewValue;
             var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, sizePicker.initSize.Value);
-            if (newSize.Width > sizePicker.MaxWidth || newSize.Width > sizePicker.MaxHeight)
+            if (newSize.Width > Constants.MaxWidth || newSize.Width > Constants.MaxHeight)
             {
-                newSize = new System.Drawing.Size(newSize.Width, newSize.Height);
+                newSize = new System.Drawing.Size(Constants.MaxWidth, Constants.MaxHeight);
+                d.SetValue(ChosenPercentageSizeProperty, SizeCalculator.CalcPercentageFromAbsolute(sizePicker.initSize.Value.Width, newSize.Width));
             }
             
             d.SetValue(ChosenWidthProperty, newSize.Width);

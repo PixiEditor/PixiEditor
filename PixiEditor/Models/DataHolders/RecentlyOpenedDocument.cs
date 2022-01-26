@@ -105,18 +105,16 @@ namespace PixiEditor.Models.DataHolders
                 {
                     corrupt = true;
                 }
-
-                const int MaxWidthInPixels = 2048;
-                const int MaxHeightInPixels = 2048;
+                                
                 ImageFileMaxSizeChecker imageFileMaxSizeChecker = new ImageFileMaxSizeChecker()
                 {
-                    MaxAllowedWidthInPixels = MaxWidthInPixels,
-                    MaxAllowedHeightInPixels = MaxHeightInPixels,
+                    MaxAllowedWidthInPixels = Constants.MaxWidth,
+                    MaxAllowedHeightInPixels = Constants.MaxHeight,
                 };
 
                 return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
                     bitmap
-                    : bitmap.Resize(width: MaxWidthInPixels, height: MaxHeightInPixels, WriteableBitmapExtensions.Interpolation.Bilinear);
+                    : bitmap.Resize(width: Constants.MaxWidth, height: Constants.MaxHeight, WriteableBitmapExtensions.Interpolation.Bilinear);
             }
 
             return null;
