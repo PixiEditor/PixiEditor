@@ -4,6 +4,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using SkiaSharp;
 using System;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
@@ -60,10 +61,13 @@ namespace PixiEditor.Models.IO
             // If OK on dialog has been clicked
             if (info.ShowDialog())
             {
-                SaveAsPng(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+                if(info.ChosenFormat == ImageFormat.Png)
+                    SaveAs(new PngBitmapEncoder(), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+                else if (info.ChosenFormat == ImageFormat.Jpeg)
+                    SaveAs(new JpegBitmapEncoder(), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
             }
         }
-
+                
         public static void SaveAsGZippedBytes(string path, Surface surface)
         {
             SaveAsGZippedBytes(path, surface, SKRectI.Create(0, 0, surface.Width, surface.Height));
@@ -94,18 +98,19 @@ namespace PixiEditor.Models.IO
         /// <summary>
         ///     Saves image to PNG file.
         /// </summary>
+        /// <param name="encoder">encoder to do the job.</param>
         /// <param name="savePath">Save file path.</param>
         /// <param name="exportWidth">File width.</param>
         /// <param name="exportHeight">File height.</param>
         /// <param name="bitmap">Bitmap to save.</param>
-        public static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+        private static void SaveAs(BitmapEncoder encoder, string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try
             {
                 bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                using (FileStream stream = new FileStream(savePath, FileMode.Create))
+                using (var stream = new FileStream(savePath, FileMode.Create))
                 {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder = new JpegBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     encoder.Save(stream);
                 }

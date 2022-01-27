@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ViewModels;
+using System.Drawing.Imaging;
 using System.Windows;
 using System.Windows.Input;
 
@@ -51,6 +52,12 @@ namespace PixiEditor.Views
         {
             get => dataContext.FilePath;
             set => dataContext.FilePath = value;
+        }
+
+        public ImageFormat SaveFormat 
+        {
+            get => dataContext.ChosenFormat;
+            set => dataContext.ChosenFormat = value;
         }
     }
 }

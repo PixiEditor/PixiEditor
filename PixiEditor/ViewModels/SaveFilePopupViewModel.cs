@@ -1,12 +1,19 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
+using System;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 
 namespace PixiEditor.ViewModels
 {
     internal class SaveFilePopupViewModel : ViewModelBase
     {
+        ImageFormat[] _formats = new[] { ImageFormat.Png, ImageFormat.Jpeg };
         private string _filePath;
+        private ImageFormat _chosenFormat;
 
         public SaveFilePopupViewModel()
         {
@@ -27,9 +34,42 @@ namespace PixiEditor.ViewModels
                 if (_filePath != value)
                 {
                     _filePath = value;
-                    RaisePropertyChanged("FilePath");
+                    RaisePropertyChanged(nameof(FilePath));
                 }
             }
+        }
+
+        public ImageFormat ChosenFormat 
+        { 
+            get => _chosenFormat;
+            set
+            {
+                if (_chosenFormat != value)
+                {
+                    _chosenFormat = value;
+                    RaisePropertyChanged(nameof(ChosenFormat));
+                }
+            }
+        }
+
+        string GetFormattedString(ImageFormat imageFormat)
+        {
+            var formatLower = imageFormat.ToString().ToLower();
+            return $"{imageFormat} Image (.{formatLower}) | *.{formatLower}";
+        }
+
+        string BuildFilter()
+        {
+            var filter = string.Join("|", _formats.Select(i => GetFormattedString(i)));
+            return filter;
+        }
+
+        ImageFormat ParseImageFormat(string fileExtension)
+        {
+            fileExtension = fileExtension.Replace(".", "");
+            return (ImageFormat)typeof(ImageFormat)
+                    .GetProperty(fileExtension, BindingFlags.Public | BindingFlags.Static | BindingFlags.IgnoreCase)
+                    .GetValue(null);
         }
 
         /// <summary>
@@ -41,13 +81,14 @@ namespace PixiEditor.ViewModels
             {
                 Title = "Export path",
                 CheckPathExists = true,
-                DefaultExt = "PNG Image (.png) | *.png",
-                Filter = "PNG Image (.png) | *.png"
+                DefaultExt = "." + _formats.First().ToString().ToLower(),
+                Filter = BuildFilter()
             };
             if (path.ShowDialog() == true)
             {
                 if (string.IsNullOrEmpty(path.FileName) == false)
                 {
+                    ChosenFormat = ParseImageFormat(Path.GetExtension(path.SafeFileName));
                     return path.FileName;
                 }
             }
@@ -71,6 +112,7 @@ namespace PixiEditor.ViewModels
             if (path == null)
                 return;
             FilePath = path;
+            
             ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
         }
