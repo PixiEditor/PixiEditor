@@ -64,8 +64,9 @@ namespace PixiEditor.Models.DataHolders
             if (original.PixelWidth <= 0 || original.PixelHeight <= 0)
                 throw new ArgumentException("Surface dimensions must be non-zero");
 
-            byte[] pixels = new byte[original.PixelWidth * original.PixelHeight * 4];
-            original.CopyPixels(pixels, original.PixelWidth * 4, 0);
+            int stride = (original.PixelWidth * original.Format.BitsPerPixel + 7) / 8;
+            byte[] pixels = new byte[stride * original.PixelHeight];
+            original.CopyPixels(pixels, stride, 0);
 
             Width = original.PixelWidth;
             Height = original.PixelHeight;

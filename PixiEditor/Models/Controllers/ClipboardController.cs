@@ -138,7 +138,6 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
-        /// <returns>WriteableBitmap.</returns>
         private static IEnumerable<Layer> GetLayersFromClipboard()
         {
             DataObject data = ClipboardHelper.TryGetDataObject();
@@ -290,7 +289,7 @@ namespace PixiEditor.Models.Controllers
                     FormatConvertedBitmap newFormat = new FormatConvertedBitmap();
                     newFormat.BeginInit();
                     newFormat.Source = source;
-                    newFormat.DestinationFormat = PixelFormats.Rgba64;
+                    newFormat.DestinationFormat = PixelFormats.Bgra32;
                     newFormat.EndInit();
 
                     result = new Surface(newFormat);
@@ -315,7 +314,7 @@ namespace PixiEditor.Models.Controllers
 
             while (i < document.Layers.Count)
             {
-                document.RemoveLayer(i, true);
+                document.RemoveLayer(i, false);
             }
         }
 
