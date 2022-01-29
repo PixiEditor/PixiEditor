@@ -44,9 +44,9 @@ namespace PixiEditor.Views
 
             var newValue = (int)e.NewValue;
             var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, sizePicker.initSize.Value);
-            if (newSize.Width > Constants.MaxWidth || newSize.Width > Constants.MaxHeight)
+            if (newSize.Width > Constants.MaxCanvasWidth || newSize.Height > Constants.MaxCanvasHeight)
             {
-                newSize = new System.Drawing.Size(Constants.MaxWidth, Constants.MaxHeight);
+                newSize = new System.Drawing.Size(Constants.MaxCanvasWidth, Constants.MaxCanvasHeight);
                 d.SetValue(ChosenPercentageSizeProperty, SizeCalculator.CalcPercentageFromAbsolute(sizePicker.initSize.Value.Width, newSize.Width));
             }
             

@@ -13,7 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
             set => RaiseAndUpdatePreference(ref showStartupWindow, value);
         }
 
-        private int defaultNewFileWidth = GetPreference("DefaultNewFileWidth", Constants.DefaultSize);
+        private int defaultNewFileWidth = GetPreference("DefaultNewFileWidth", Constants.DefaultCanvasSize);
 
         public int DefaultNewFileWidth
         {
@@ -26,7 +26,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
             }
         }
 
-        private int defaultNewFileHeight = GetPreference("DefaultNewFileHeight", Constants.DefaultSize);
+        private int defaultNewFileHeight = GetPreference("DefaultNewFileHeight", Constants.DefaultCanvasSize);
 
         public int DefaultNewFileHeight
         {
