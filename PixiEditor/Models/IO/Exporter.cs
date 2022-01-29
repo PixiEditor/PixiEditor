@@ -4,6 +4,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
@@ -15,6 +16,8 @@ namespace PixiEditor.Models.IO
 {
     public class Exporter
     {
+
+
         /// <summary>
         ///     Saves document as .pixi file that contains all document data.
         /// </summary>
@@ -49,6 +52,19 @@ namespace PixiEditor.Models.IO
             return path;
         }
 
+        //static Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>> encoders = new Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>>();
+        //TODO remove static methods/members
+        static Dictionary<ImageFormat, Func<BitmapEncoder>> encodersFactory = new Dictionary<ImageFormat, Func<BitmapEncoder>>();
+
+        static Exporter()
+        {
+            encodersFactory[ImageFormat.Png] = () => { return new PngBitmapEncoder(); };
+            encodersFactory[ImageFormat.Jpeg] = () => { return new JpegBitmapEncoder(); };
+            encodersFactory[ImageFormat.Bmp] = () => { return new BmpBitmapEncoder(); };
+            encodersFactory[ImageFormat.Gif] = () => { return new GifBitmapEncoder(); };
+            encodersFactory[ImageFormat.Tiff] = () => { return new TiffBitmapEncoder(); };
+        }
+
         /// <summary>
         ///     Creates ExportFileDialog to get width, height and path of file.
         /// </summary>
@@ -56,18 +72,15 @@ namespace PixiEditor.Models.IO
         /// <param name="fileDimensions">Size of file.</param>
         public static void Export(WriteableBitmap bitmap, Size fileDimensions)
         {
-            ExportFileDialog info = new ExportFileDialog(fileDimensions);
+          ExportFileDialog info = new ExportFileDialog(fileDimensions);
 
-            // If OK on dialog has been clicked
-            if (info.ShowDialog())
-            {
-                if(info.ChosenFormat == ImageFormat.Png)
-                    SaveAs(new PngBitmapEncoder(), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
-                else if (info.ChosenFormat == ImageFormat.Jpeg)
-                    SaveAs(new JpegBitmapEncoder(), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
-            }
+          // If OK on dialog has been clicked
+          if (info.ShowDialog())
+          {
+            if(encodersFactory.ContainsKey(info.ChosenFormat))
+              SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+          }
         }
-                
         public static void SaveAsGZippedBytes(string path, Surface surface)
         {
             SaveAsGZippedBytes(path, surface, SKRectI.Create(0, 0, surface.Width, surface.Height));
@@ -110,7 +123,6 @@ namespace PixiEditor.Models.IO
                 bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
                 using (var stream = new FileStream(savePath, FileMode.Create))
                 {
-                    encoder = new JpegBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     encoder.Save(stream);
                 }

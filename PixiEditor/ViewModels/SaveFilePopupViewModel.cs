@@ -11,7 +11,7 @@ namespace PixiEditor.ViewModels
 {
     internal class SaveFilePopupViewModel : ViewModelBase
     {
-        ImageFormat[] _formats = new[] { ImageFormat.Png, ImageFormat.Jpeg };
+        ImageFormat[] _formats = new[] { ImageFormat.Png, ImageFormat.Jpeg, ImageFormat.Bmp, ImageFormat.Gif, ImageFormat.Tiff };
         private string _filePath;
         private ImageFormat _chosenFormat;
 
