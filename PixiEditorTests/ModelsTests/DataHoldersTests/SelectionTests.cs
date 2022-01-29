@@ -2,7 +2,6 @@
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
-using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -13,7 +12,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionNewSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
+            Selection selection = new Selection();
             Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
 
             selection.SetSelection(points, SelectionType.New);
@@ -25,7 +24,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionAddSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
+            Selection selection = new Selection();
             Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
             Coordinates[] points2 = { new Coordinates(2, 4), new Coordinates(5, 7) };
 
@@ -38,7 +37,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionSubtractSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
+            Selection selection = new Selection();
             Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
             Coordinates[] points2 = { new Coordinates(1, 1) };
 
@@ -62,7 +61,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatUndoWorks()
         {
-            Document document = new Document(10, 10);
+            using Document document = new Document(10, 10);
 
             IEnumerable<Coordinates> oldSelection = new List<Coordinates>(document.ActiveSelection.SelectedPoints);
 

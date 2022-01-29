@@ -1,16 +1,14 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
-using System;
+using SkiaSharp;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SkiaSharp;
+using System.Windows;
 
 namespace PixiEditor.Models.Tools.Tools
 {
@@ -63,64 +61,24 @@ namespace PixiEditor.Models.Tools.Tools
             Select(pixels, Toolbar.GetEnumSetting<SelectionShape>("SelectShape").Value);
         }
 
-        public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
-        {
-            List<Coordinates> result = new List<Coordinates>();
-            ToolCalculator.GenerateRectangleNonAlloc(
-                start, end, true, 1, result);
-            return result;
-        }
-
-        public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
-        {
-            List<Coordinates> result = new List<Coordinates>();
-            ToolCalculator.GenerateEllipseNonAlloc(
-                start, end, true, result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Gets coordinates of every pixel in root layer.
-        /// </summary>
-        /// <returns>Coordinates array of pixels.</returns>
-        public IEnumerable<Coordinates> GetAllSelection()
-        {
-            return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument);
-        }
-
-        /// <summary>
-        ///     Gets coordinates of every pixel in chosen document.
-        /// </summary>
-        /// <returns>Coordinates array of pixels.</returns>
-        public IEnumerable<Coordinates> GetAllSelection(Document document)
-        {
-            return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
-        }
-
         private void Select(IReadOnlyList<Coordinates> pixels, SelectionShape shape)
         {
-            IEnumerable<Coordinates> selection;
-
-            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(oldSelectedPoints, SelectionType.New);
-
+            Int32Rect rect;
             if (pixels.Count < 2)
             {
-                selection = new List<Coordinates>();
-            }
-            else if (shape == SelectionShape.Circle)
-            {
-                selection = GetCircleSelectionForPoints(pixels[^1], pixels[0]);
-            }
-            else if (shape == SelectionShape.Rectangle)
-            {
-                selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
+                rect = Int32Rect.Empty;
             }
             else
             {
-                throw new NotImplementedException($"Selection shape '{shape}' has not been implemented");
+                DoubleCoords fixedCoordinates = ShapeTool.CalculateCoordinatesForShapeRotation(pixels[^1], pixels[0]);
+                rect = new(
+                    fixedCoordinates.Coords1.X,
+                    fixedCoordinates.Coords2.X,
+                    fixedCoordinates.Coords2.X - fixedCoordinates.Coords1.X + 1,
+                    fixedCoordinates.Coords2.Y - fixedCoordinates.Coords1.Y + 1);
             }
 
-            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
+            BitmapManager.ActiveDocument.ActiveSelection.SetSelectionWithUndo(rect, shape, SelectionType);
         }
     }
 }

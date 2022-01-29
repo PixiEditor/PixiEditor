@@ -335,7 +335,7 @@ namespace PixiEditor.Models.Undo
             }
         }
 
-        private static void ApplyChunkToLayer(Layer layer, UndoLayer layerData, Surface chunk)
+        public static void ApplyChunkToLayer(Layer layer, UndoLayer layerData, Surface chunk)
         {
             bool widthBigger = layer.Width < chunk.Width;
             bool heightBigger = layer.Height < chunk.Height;

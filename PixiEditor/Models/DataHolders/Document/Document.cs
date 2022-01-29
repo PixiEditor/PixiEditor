@@ -61,17 +61,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private Selection selection = new Selection(Array.Empty<Coordinates>());
-
-        public Selection ActiveSelection
-        {
-            get => selection;
-            set
-            {
-                selection = value;
-                RaisePropertyChanged(nameof(ActiveSelection));
-            }
-        }
+        public Selection ActiveSelection { get; }
 
         private double mouseXonCanvas;
         public double MouseXOnCanvas // Mouse X coordinate relative to canvas

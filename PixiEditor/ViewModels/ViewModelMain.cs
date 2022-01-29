@@ -360,7 +360,6 @@ namespace PixiEditor.ViewModels
 
         private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
         {
-            BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>());
             BitmapManager.ActiveDocument.ChangesSaved = false;
             BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
         }
