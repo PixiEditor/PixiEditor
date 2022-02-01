@@ -26,7 +26,6 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path where file was saved.</param>
         public static bool SaveAsEditableFileWithDialog(Document document, out string path)
         {
-            
             SaveFileDialog dialog = new SaveFileDialog
             {
                 Filter = BuildFilter(true),

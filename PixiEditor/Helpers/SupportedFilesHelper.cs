@@ -5,7 +5,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-
 namespace PixiEditor.Helpers
 {
     internal class SupportedFilesHelper
