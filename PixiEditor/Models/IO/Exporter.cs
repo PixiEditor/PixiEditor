@@ -79,7 +79,7 @@ namespace PixiEditor.Models.IO
             {
                 var chosenFormat = ParseImageFormat(Path.GetExtension(path));
                 var bitmap = document.Renderer.FinalBitmap;
-                SaveAs(encodersFactory[chosenFormat](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
+                SaveAs(encodersFactory[chosenFormat], path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
             }
             else
             {
@@ -98,17 +98,15 @@ namespace PixiEditor.Models.IO
         }
 
         //TODO remove static methods/members
-        static Dictionary<ImageFormat, Func<BitmapEncoder>> encodersFactory = new Dictionary<ImageFormat, Func<BitmapEncoder>>();
-
-        
+        static Dictionary<ImageFormat,BitmapEncoder> encodersFactory = new Dictionary<ImageFormat, BitmapEncoder>();
 
         static Exporter()
         {
-            encodersFactory[ImageFormat.Png] = () => { return new PngBitmapEncoder(); };
-            encodersFactory[ImageFormat.Jpeg] = () => { return new JpegBitmapEncoder(); };
-            encodersFactory[ImageFormat.Bmp] = () => { return new BmpBitmapEncoder(); };
-            encodersFactory[ImageFormat.Gif] = () => { return new GifBitmapEncoder(); };
-            encodersFactory[ImageFormat.Tiff] = () => { return new TiffBitmapEncoder(); };
+            encodersFactory[ImageFormat.Png] = new PngBitmapEncoder();
+            encodersFactory[ImageFormat.Jpeg] = new JpegBitmapEncoder();
+            encodersFactory[ImageFormat.Bmp] = new BmpBitmapEncoder(); 
+            encodersFactory[ImageFormat.Gif] = new GifBitmapEncoder();
+            encodersFactory[ImageFormat.Tiff] = new TiffBitmapEncoder();
         }
 
         /// <summary>
@@ -124,7 +122,7 @@ namespace PixiEditor.Models.IO
           if (info.ShowDialog())
           {
             if(encodersFactory.ContainsKey(info.ChosenFormat))
-              SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+              SaveAs(encodersFactory[info.ChosenFormat], info.FilePath, info.FileWidth, info.FileHeight, bitmap);
           }
         }
         public static void SaveAsGZippedBytes(string path, Surface surface)
