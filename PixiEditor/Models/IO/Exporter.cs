@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -18,8 +19,6 @@ namespace PixiEditor.Models.IO
 {
     public class Exporter
     {
-        static ImageFormat[] _formats = new[] { ImageFormat.Png, ImageFormat.Jpeg, ImageFormat.Bmp, ImageFormat.Gif, ImageFormat.Tiff };
-        
         /// <summary>
         ///     Saves document as .pixi file that contains all document data.
         /// </summary>
@@ -27,10 +26,10 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path where file was saved.</param>
         public static bool SaveAsEditableFileWithDialog(Document document, out string path)
         {
-            var pixi = GetFormattedString("PixiEditor File", Constants.NativeExtensionNoDot);
+            
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = pixi + "|" + BuildFilter(),
+                Filter = BuildFilter(true),
                 FilterIndex = 0
             };
             if ((bool)dialog.ShowDialog())
@@ -43,21 +42,29 @@ namespace PixiEditor.Models.IO
             return false;
         }
 
-        public static string BuildFilter()
+        public static string BuildFilter(bool includePixi)
         {
-          var filter = string.Join("|", Formats.Select(i => GetFormattedString(i)));
+          string filter = string.Empty;
+          if(includePixi)
+            filter += GetFormattedString("PixiEditor Files", Constants.NativeExtensionNoDot) + "|";
+          filter += string.Join("|", SupportedFilesHelper.ImageFormats.Select(i => GetFormattedString(i)));
           return filter;
         }
 
         public static string GetFormattedString(ImageFormat imageFormat)
         {
-            var formatLower = imageFormat.ToString().ToLower();
-            return GetFormattedString(imageFormat.ToString() + " Image", formatLower);
+            return GetFormattedString(imageFormat.ToString() + " Images", SupportedFilesHelper.GetExtensionsFormattedForDialog(imageFormat));
         }
 
-        private static string GetFormattedString(string imageFormat, string formatLower)
+        /// <summary>
+        /// Returns formatted line describing image
+        /// </summary>
+        /// <param name="imageFormatDisplayName">Human name like 'PNG Images' </param>
+        /// <param name="extensions">Extensions of the image e.g. (*.jpg;*.jpeg)</param>
+        /// <returns>Description of the image kind, e.g. PNG Images (*.png)</returns>
+        private static string GetFormattedString(string imageFormatDisplayName, string extensions)
         {
-            return $"{imageFormat}|*.{formatLower}";
+            return $"{imageFormatDisplayName}|{extensions}";
         }
 
         /// <summary>
@@ -90,11 +97,10 @@ namespace PixiEditor.Models.IO
                     .GetValue(null);
         }
 
-        //static Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>> encoders = new Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>>();
         //TODO remove static methods/members
         static Dictionary<ImageFormat, Func<BitmapEncoder>> encodersFactory = new Dictionary<ImageFormat, Func<BitmapEncoder>>();
 
-        public static ImageFormat[] Formats { get => _formats; }
+        
 
         static Exporter()
         {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using System;
@@ -56,7 +57,7 @@ namespace PixiEditor.Views.UserControls.Layers
             {
                 Title = "Reference layer path",
                 CheckPathExists = true,
-                Filter = "Image Files|*.png;*.jpeg;*.jpg|PNG Files|*.png|JPG Files|*.jpeg;*.jpg"
+                Filter = "Image Files | " + SupportedFilesHelper.GetFormattedFilesExtensions(false)
             };
 
             return (bool)dialog.ShowDialog() ? dialog.FileName : null;

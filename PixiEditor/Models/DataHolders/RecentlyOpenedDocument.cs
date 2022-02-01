@@ -43,11 +43,8 @@ namespace PixiEditor.Models.DataHolders
                 {
                     return "? (Corrupt)";
                 }
-
                 string extension = Path.GetExtension(filePath).ToLower();
-                return extension is not (".pixi" or ".png" or ".jpg" or ".jpeg")
-                    ? $"? ({extension})"
-                    : extension;
+                return SupportedFilesHelper.IsExtensionSupported(extension) ? extension : $"? ({extension})";
             }
         }
 
@@ -93,7 +90,7 @@ namespace PixiEditor.Models.DataHolders
 
                 return surface.ToWriteableBitmap();
             }
-            else if (FileExtension is ".png" or ".jpg" or ".jpeg")
+            else if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
             {
                 WriteableBitmap bitmap = null;
 
@@ -114,6 +111,9 @@ namespace PixiEditor.Models.DataHolders
                     MaxAllowedWidthInPixels = Constants.MaxPreviewWidth,
                     MaxAllowedHeightInPixels = Constants.MaxPreviewHeight,
                 };
+
+                if (bitmap == null)
+                    return null;
 
                 return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
                     bitmap
