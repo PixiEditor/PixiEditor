@@ -3,42 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
-        mc:Ignorable="d" Background="{StaticResource AccentColor}"
-        Title="SendCrashReportWindow" Height="450" Width="800">
-    <Grid Margin="5">
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition Height="30"/>
-        </Grid.RowDefinitions>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="E-Mail:" ToolTip="In case we could use more information from you"/>
-                <TextBox Grid.Column="1" />
-            </Grid>
-            <TextBlock ToolTip="You can use this box to send us additional information"
-                       Grid.Row="1">Additional Information</TextBlock>
-            <TextBox Grid.Row="2"/>
-        </Grid>
-        <ScrollViewer Grid.Row="1" Margin="50,0">
-            <StackPanel>
-                <StackPanel>
-                    <TextBlock>Documents</TextBlock>
-                    <TextBlock>report.txt</TextBlock>
-                </StackPanel>
-                <Grid Height="5" Background="{StaticResource BrighterAccentColor}"/>
-            </StackPanel>
-        </ScrollViewer>
-        <Button Grid.Row="2" Width="250" Style="{StaticResource AccentDarkRoundButton}">Send</Button>
-    </Grid>
+        mc:Ignorable="d"
+        Background="{StaticResource AccentColor}" Foreground="White"
+        Title="SendCrashReportWindow" Height="180" Width="340">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Width" Value="100"/>
+        </Style>
+    </Window.Resources>
+    <StackPanel Margin="5" VerticalAlignment="Center">
+        <TextBlock>You can find the report here:</TextBlock>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Width="130">Copy to clipboard</Button>
+            <Button Width="130">Open in Explorer</Button>
+        </StackPanel>
+        <TextBlock TextAlignment="Center">You can report your crash report here:</TextBlock>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button>GitHub</Button>
+            <Button>Discord</Button>
+            <Button>E-Mail</Button>
+        </StackPanel>
+    </StackPanel>
 </Window>
