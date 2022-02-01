@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
+using PixiEditor.Models.IO;
 using System;
 using System.Drawing.Imaging;
 using System.IO;
@@ -11,7 +12,6 @@ namespace PixiEditor.ViewModels
 {
     internal class SaveFilePopupViewModel : ViewModelBase
     {
-        ImageFormat[] _formats = new[] { ImageFormat.Png, ImageFormat.Jpeg, ImageFormat.Bmp, ImageFormat.Gif, ImageFormat.Tiff };
         private string _filePath;
         private ImageFormat _chosenFormat;
 
@@ -51,27 +51,7 @@ namespace PixiEditor.ViewModels
                 }
             }
         }
-
-        string GetFormattedString(ImageFormat imageFormat)
-        {
-            var formatLower = imageFormat.ToString().ToLower();
-            return $"{imageFormat} Image (.{formatLower}) | *.{formatLower}";
-        }
-
-        string BuildFilter()
-        {
-            var filter = string.Join("|", _formats.Select(i => GetFormattedString(i)));
-            return filter;
-        }
-
-        ImageFormat ParseImageFormat(string fileExtension)
-        {
-            fileExtension = fileExtension.Replace(".", "");
-            return (ImageFormat)typeof(ImageFormat)
-                    .GetProperty(fileExtension, BindingFlags.Public | BindingFlags.Static | BindingFlags.IgnoreCase)
-                    .GetValue(null);
-        }
-
+                
         /// <summary>
         ///     Command that handles Path choosing to save file
         /// </summary>
@@ -81,14 +61,14 @@ namespace PixiEditor.ViewModels
             {
                 Title = "Export path",
                 CheckPathExists = true,
-                DefaultExt = "." + _formats.First().ToString().ToLower(),
-                Filter = BuildFilter()
+                DefaultExt = "." + Exporter.Formats.First().ToString().ToLower(),
+                Filter = Exporter.BuildFilter()
             };
             if (path.ShowDialog() == true)
             {
                 if (string.IsNullOrEmpty(path.FileName) == false)
                 {
-                    ChosenFormat = ParseImageFormat(Path.GetExtension(path.SafeFileName));
+                    ChosenFormat = Exporter.ParseImageFormat(Path.GetExtension(path.SafeFileName));
                     return path.FileName;
                 }
             }

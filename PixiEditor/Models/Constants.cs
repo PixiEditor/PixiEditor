@@ -8,5 +8,8 @@
 
         public const int MaxCanvasWidth = 9999;
         public const int MaxCanvasHeight = 9999;
+
+        public const string NativeExtensionNoDot = "pixi";
+        public const string NativeExtension = "." + NativeExtensionNoDot;
     }
 }
