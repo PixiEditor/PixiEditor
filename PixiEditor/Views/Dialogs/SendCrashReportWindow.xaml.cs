@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +21,29 @@ namespace PixiEditor.Views.Dialogs
     /// </summary>
     public partial class SendCrashReportWindow : Window
     {
-        public SendCrashReportWindow()
+        private readonly CrashReport report;
+
+        public SendCrashReportWindow(CrashReport report)
         {
+            this.report = report;
             InitializeComponent();
+        }
+
+        private void CopyToClipboard(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetFileDropList(new() { report.FilePath });
+        }
+
+        private void OpenInExplorer(object sender, RoutedEventArgs e)
+        {
+            ProcessHelpers.ShellExecute(report.FilePath);
+        }
+
+        private void OpenHyperlink(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+
+            ProcessHelpers.ShellExecute(button.Tag as string);
         }
     }
 }

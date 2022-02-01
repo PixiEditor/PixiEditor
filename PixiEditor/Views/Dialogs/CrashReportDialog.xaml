@@ -4,21 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         d:DataContext="{d:DesignInstance vm:CrashReportViewModel}"
-        mc:Ignorable="d" Background="{StaticResource AccentColor}"
+        mc:Ignorable="d"
+        Background="{StaticResource AccentColor}" Foreground="White"
         Title="Oh no!" WindowStyle="None"
-        MinWidth="400" MinHeight="250"
-        Width="500" Height="300">
-
-    <Window.Resources>
-        <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-        </Style>
-
-    </Window.Resources>
-
+        MinWidth="450" MinHeight="195"
+        Width="450" Height="195">
+    
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="35"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}"/>
@@ -29,37 +22,25 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
-        </DockPanel>
-        <StackPanel Grid.Row="1" Margin="5">
-
+    <StackPanel>
+        <dial:DialogTitleBar TitleText="Oh no!" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+        <StackPanel Grid.Row="1" Margin="5" VerticalAlignment="Center">
             <TextBlock>PixiEditor has crashed!</TextBlock>
             <TextBlock Text="{Binding DocumentCount, StringFormat={}{0} file(s) can be recovered}"
-                   d:Text="2 file(s) can be recovered"/>
+                       d:Text="2 file(s) can be recovered"/>
             <TextBlock TextWrapping="Wrap">You can help the developers fixing this bug by sending a crash report that was generated</TextBlock>
 
-            <Grid Margin="0,20,0,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Button Margin="0,0,5,0"
+            <StackPanel Margin="0,20,0,5" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Margin="0,0,5,0" Command="{Binding OpenSendCrashReportCommand}"
+                        Width="120"
                         Style="{StaticResource DarkRoundButton}">Send report</Button>
-                <Button Grid.Column="1" Margin="5,0,0,0"
+                <Button Grid.Column="1" Margin="5,0,0,0" Width="120"
                         Command="{Binding RecoverDocumentsCommand}"
                         Style="{StaticResource DarkRoundButton}">Recover files</Button>
-            </Grid>
+            </StackPanel>
             <Button Visibility="{Binding IsDebugBuild, Converter={BoolToVisibilityConverter}}"
-                    Style="{StaticResource DarkRoundButton}"
+                    Style="{StaticResource DarkRoundButton}" Width="250"
                     Command="{Binding AttachDebuggerCommand}">(Re)Attach debugger</Button>
         </StackPanel>
-    </Grid>
+    </StackPanel>
 </Window>

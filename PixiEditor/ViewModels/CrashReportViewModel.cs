@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Views.Dialogs;
 using System.Diagnostics;
 using System.Windows;
 
@@ -12,6 +13,8 @@ namespace PixiEditor.ViewModels
         public string ReportText { get; }
 
         public int DocumentCount { get; }
+
+        public RelayCommand OpenSendCrashReportCommand { get; }
 
         public RelayCommand RecoverDocumentsCommand { get; }
 
@@ -26,6 +29,7 @@ namespace PixiEditor.ViewModels
             CrashReport = report;
             ReportText = report.ReportText;
             DocumentCount = report.GetDocumentCount();
+            OpenSendCrashReportCommand = new(() => new SendCrashReportWindow(CrashReport).Show());
             RecoverDocumentsCommand = new(RecoverDocuments);
             AttachDebuggerCommand = new(AttachDebugger);
         }

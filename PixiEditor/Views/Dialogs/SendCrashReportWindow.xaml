@@ -3,33 +3,41 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
-        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d"
         Background="{StaticResource AccentColor}" Foreground="White"
-        Title="SendCrashReportWindow" Height="180" Width="340">
+        Title="Send crash report"
+        WindowStyle="None"
+        Height="150" Width="340">
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">
-            <Setter Property="FontSize" Value="14"/>
             <Setter Property="Margin" Value="5"/>
-            <Setter Property="Height" Value="25"/>
             <Setter Property="Width" Value="100"/>
         </Style>
     </Window.Resources>
-    <StackPanel Margin="5" VerticalAlignment="Center">
-        <TextBlock>You can find the report here:</TextBlock>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Width="130">Copy to clipboard</Button>
-            <Button Width="130">Open in Explorer</Button>
-        </StackPanel>
-        <TextBlock TextAlignment="Center">You can report your crash report here:</TextBlock>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button>GitHub</Button>
-            <Button>Discord</Button>
-            <Button>E-Mail</Button>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="35"  GlassFrameThickness="0.1"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}"/>
+    </WindowChrome.WindowChrome>
+
+    <StackPanel>
+        <dial:DialogTitleBar TitleText="Send crash report" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+        <StackPanel Margin="5">
+            <TextBlock>You can find the report here:</TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Width="140" Click="CopyToClipboard">Copy to clipboard</Button>
+                <Button Width="140" Click="OpenInExplorer">Open in Explorer</Button>
+            </StackPanel>
+            <TextBlock TextAlignment="Center">You can report your crash report here:</TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Click="OpenHyperlink" Tag="">GitHub</Button>
+                <Button Click="OpenHyperlink" Tag="">Discord</Button>
+                <Button Click="OpenHyperlink" Tag="">E-Mail</Button>
+            </StackPanel>
         </StackPanel>
     </StackPanel>
 </Window>

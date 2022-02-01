@@ -40,18 +40,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void OpenHyperlink(object parameter)
         {
-            if (parameter == null)
+            if (parameter is not string s)
             {
                 return;
             }
 
-            var url = (string)parameter;
-            var processInfo = new ProcessStartInfo()
-            {
-                FileName = url,
-                UseShellExecute = true
-            };
-            Process.Start(processInfo);
+            ProcessHelpers.ShellExecute(s);
         }
 
         private void OpenShortcutWindow(object parameter)
