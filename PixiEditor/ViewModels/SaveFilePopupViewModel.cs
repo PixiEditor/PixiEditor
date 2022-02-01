@@ -1,5 +1,11 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
+using PixiEditor.Models.IO;
+using System;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 
 namespace PixiEditor.ViewModels
@@ -7,6 +13,7 @@ namespace PixiEditor.ViewModels
     internal class SaveFilePopupViewModel : ViewModelBase
     {
         private string _filePath;
+        private ImageFormat _chosenFormat;
 
         public SaveFilePopupViewModel()
         {
@@ -27,11 +34,24 @@ namespace PixiEditor.ViewModels
                 if (_filePath != value)
                 {
                     _filePath = value;
-                    RaisePropertyChanged("FilePath");
+                    RaisePropertyChanged(nameof(FilePath));
                 }
             }
         }
 
+        public ImageFormat ChosenFormat 
+        { 
+            get => _chosenFormat;
+            set
+            {
+                if (_chosenFormat != value)
+                {
+                    _chosenFormat = value;
+                    RaisePropertyChanged(nameof(ChosenFormat));
+                }
+            }
+        }
+                
         /// <summary>
         ///     Command that handles Path choosing to save file
         /// </summary>
@@ -41,13 +61,14 @@ namespace PixiEditor.ViewModels
             {
                 Title = "Export path",
                 CheckPathExists = true,
-                DefaultExt = "PNG Image (.png) | *.png",
-                Filter = "PNG Image (.png) | *.png"
+                DefaultExt = "." + Exporter.Formats.First().ToString().ToLower(),
+                Filter = Exporter.BuildFilter()
             };
             if (path.ShowDialog() == true)
             {
                 if (string.IsNullOrEmpty(path.FileName) == false)
                 {
+                    ChosenFormat = Exporter.ParseImageFormat(Path.GetExtension(path.SafeFileName));
                     return path.FileName;
                 }
             }
@@ -71,6 +92,7 @@ namespace PixiEditor.ViewModels
             if (path == null)
                 return;
             FilePath = path;
+            
             ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
         }

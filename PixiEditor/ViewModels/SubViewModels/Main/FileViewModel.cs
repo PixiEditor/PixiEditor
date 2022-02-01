@@ -244,8 +244,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
             if (paramIsAsNew ||
-                string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath) ||
-                !Owner.BitmapManager.ActiveDocument.DocumentFilePath.EndsWith(".pixi"))
+                string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath)) 
             {
                 Owner.BitmapManager.ActiveDocument.SaveWithDialog();
             }

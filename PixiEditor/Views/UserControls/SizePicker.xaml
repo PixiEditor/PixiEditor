@@ -5,8 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:local="clr-namespace:PixiEditor.Views"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
              mc:Ignorable="d"
-             d:DesignHeight="150" d:DesignWidth="300" Name="uc">
+             d:DesignHeight="180" d:DesignWidth="240" Name="uc">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=LoadedCommand}"/>
@@ -19,12 +21,69 @@
             <Setter Property="BehaveLikeSmallEmbeddedField" Value="False"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="25"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Height" Value="30"/>
         </Style>
     </UserControl.Resources>
     <Border Background="{StaticResource MainColor}" VerticalAlignment="Stretch">
-        <Grid Height="90" HorizontalAlignment="Center">
+        <DockPanel>
+            <Grid Height="50" HorizontalAlignment="Center" DockPanel.Dock="Top"
+                  Margin="0,20,0,0"
+                  Visibility="{Binding SizeUnitSelectionVisibility, ElementName=uc}"> 
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+
+                <RadioButton    Grid.Row="0" Grid.Column="0"  
+                                x:Name="PercentageRb" 
+                                  Foreground="White" 
+                                  FontSize="12"
+                                  GroupName="Unit"
+                                  Checked="PercentageRb_Checked"
+                                  VerticalContentAlignment="Center"
+                                  IsChecked="{Binding Path=SelectedUnit,  
+                                              ElementName=uc, 
+                                              Converter={converters:EnumBooleanConverter}, 
+                                              ConverterParameter=Percentage
+                                              }"
+                                  >Percentage:</RadioButton>
+                <local:SizeInput Grid.Column="1" Grid.Row="0"
+                             x:Name="PercentageSizePicker"
+                             IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                             Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}"
+                             Unit="Percentage"
+                                 Margin="-10,0,0,0"
+                             Width="80"
+                             >
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="LostFocus">
+                            <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </local:SizeInput>
+
+                <RadioButton Grid.Row="1" Grid.Column="0"  
+                              x:Name="AbsoluteRb" 
+                              Foreground="White" 
+                              FontSize="12"
+                              GroupName="Unit"
+                              Checked="AbsoluteRb_Checked"
+                              VerticalContentAlignment="Center"
+                              IsChecked="{Binding Path=SelectedUnit,  
+                                              ElementName=uc, 
+                                              Converter={converters:EnumBooleanConverter}, 
+                                              ConverterParameter=Pixel}"
+                              >Absolute:</RadioButton>
+               
+            </Grid>
+
+            <Grid Height="90" HorizontalAlignment="Center" DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40"/>
                 <ColumnDefinition/>
@@ -38,8 +97,11 @@
             <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" Text="Width:" VerticalAlignment="Center" HorizontalAlignment="Left" />
             <local:SizeInput Grid.Column="1" Grid.Row="0"
                              x:Name="WidthPicker"
+                             Width="80"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
-                             Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}">
+                             Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}"
+                             Margin="50,0,0,0"
+                             >
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="LostFocus">
                         <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>
@@ -51,6 +113,7 @@
             <local:SizeInput Grid.Column="1" Grid.Row="1"
                              x:Name="HeightPicker" 
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
+                             Margin="50,0,0,0"
                              Size="{Binding ChosenHeight, ElementName=uc, Mode=TwoWay}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="LostFocus">
@@ -68,5 +131,6 @@
                   HorizontalAlignment="Left" 
                   VerticalAlignment="Center" />
         </Grid>
+        </DockPanel>
     </Border>
 </UserControl>
