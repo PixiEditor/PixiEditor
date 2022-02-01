@@ -345,18 +345,14 @@ namespace PixiEditor.Models.Undo
             targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth);
             targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight);
 
-            int offsetDiffX = layerData.OffsetX - layer.OffsetX;
-            int offsetDiffY = layerData.OffsetY - layer.OffsetY;
-
-            // Experiment with this, there is a bug, but I still don't know where. Code below might help
-            //if (widthBigger) offsetDiffX += chunk.Width - layer.Width;
-            //if (heightBigger) offsetDiffY += chunk.Height - layer.Height;
+            int offsetDiffX = layerData.SerializedRect.Left - layer.OffsetX;
+            int offsetDiffY = layerData.SerializedRect.Top - layer.OffsetY;
 
             bool offsetXBigger = Math.Abs(offsetDiffX) > 0;
             bool offsetYBigger = Math.Abs(offsetDiffY) > 0;
 
-            int targetOffsetX = offsetXBigger ? layerData.SerializedRect.Left : layerData.OffsetX;
-            int targetOffsetY = offsetYBigger ? layerData.SerializedRect.Top : layerData.OffsetY;
+            int targetOffsetX = offsetXBigger ? layerData.OffsetX : layerData.SerializedRect.Left;
+            int targetOffsetY = offsetYBigger ? layerData.OffsetY : layerData.SerializedRect.Top;
 
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
@@ -365,7 +361,7 @@ namespace PixiEditor.Models.Undo
             using var foundLayerSnapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
             targetSizeSurface.SkiaSurface.Canvas.DrawImage(
                 foundLayerSnapshot,
-                SKRect.Create(offsetDiffX, offsetDiffY, layer.Width, layer.Height),
+                SKRect.Create(0, 0, layer.Width, layer.Height),
                 SKRect.Create(0, 0, targetWidth, targetHeight),
                 Surface.ReplacingPaint);
 
