@@ -28,7 +28,7 @@ namespace PixiEditor.Models.IO
         {
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = BuildFilter(true),
+                Filter = SupportedFilesHelper.BuildSaveFilter(true),
                 FilterIndex = 0
             };
             if ((bool)dialog.ShowDialog())
@@ -39,31 +39,6 @@ namespace PixiEditor.Models.IO
 
             path = string.Empty;
             return false;
-        }
-
-        public static string BuildFilter(bool includePixi)
-        {
-          string filter = string.Empty;
-          if(includePixi)
-            filter += GetFormattedString("PixiEditor Files", Constants.NativeExtensionNoDot) + "|";
-          filter += string.Join("|", SupportedFilesHelper.ImageFormats.Select(i => GetFormattedString(i)));
-          return filter;
-        }
-
-        public static string GetFormattedString(ImageFormat imageFormat)
-        {
-            return GetFormattedString(imageFormat.ToString() + " Images", SupportedFilesHelper.GetExtensionsFormattedForDialog(imageFormat));
-        }
-
-        /// <summary>
-        /// Returns formatted line describing image
-        /// </summary>
-        /// <param name="imageFormatDisplayName">Human name like 'PNG Images' </param>
-        /// <param name="extensions">Extensions of the image e.g. (*.jpg;*.jpeg)</param>
-        /// <returns>Description of the image kind, e.g. PNG Images (*.png)</returns>
-        private static string GetFormattedString(string imageFormatDisplayName, string extensions)
-        {
-            return $"{imageFormatDisplayName}|{extensions}";
         }
 
         /// <summary>

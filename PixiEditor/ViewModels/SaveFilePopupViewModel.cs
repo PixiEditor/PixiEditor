@@ -62,7 +62,7 @@ namespace PixiEditor.ViewModels
                 Title = "Export path",
                 CheckPathExists = true,
                 DefaultExt = "." + SupportedFilesHelper.ImageFormats.First().ToString().ToLower(),
-                Filter = Exporter.BuildFilter(false)
+                Filter = SupportedFilesHelper.BuildSaveFilter(false)
             };
             if (path.ShowDialog() == true)
             {

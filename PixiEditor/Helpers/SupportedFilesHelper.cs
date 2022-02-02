@@ -18,15 +18,20 @@ namespace PixiEditor.Helpers
             extensions = new Dictionary<string, List<string>>();
             extensions[Constants.NativeExtension] = new List<string>() { Constants.NativeExtension };
             foreach(var format in _imageFormats)
-                extensions[Format2Extension(format)] = GetExtensions(format);
+                extensions[Format2Extension(format)] = GetFormatExtensions(format);
         }
 
-        public static IEnumerable<string> GetSupportedExtensions()
+        public static IEnumerable<string> GetAllSupportedExtensions()
         {
             return extensions.SelectMany(i => i.Value);
         }
 
-        public static List<string> GetExtensions(ImageFormat format)
+        public static List<string> GetExtensions()
+        {
+            return extensions.Keys.ToList();
+        }
+
+        public static List<string> GetFormatExtensions(ImageFormat format)
         {
             var res = new List<string>();
             res.Add(Format2Extension(format));
@@ -35,45 +40,62 @@ namespace PixiEditor.Helpers
             return res;
         }
 
-        private static string Format2Extension(ImageFormat format)
+        public static string Format2Extension(ImageFormat format)
         {
             return "." + format.ToString().ToLower();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="imageFormat">ImageFormat</param>
-        /// <returns>Extensions of the image e.g. *.jpg;*.jpeg</returns>
-        public static string GetExtensionsFormattedForDialog(ImageFormat imageFormat)
+        static string GetExtensionsFormattedForDialog(IEnumerable<string> parts)
         {
-            var parts = GetExtensions(imageFormat);
-            return GetExtensionsFormattedForDialog(parts);
+            return string.Join(";", parts.Select(i => GetExtensionFormattedForDialog(i)));
         }
 
-        public static string GetExtensionsFormattedForDialog(IEnumerable<string> parts)
+        static string GetExtensionFormattedForDialog(string extension)
         {
-            return string.Join(";", parts.Select(i => "*" + i));
+            return "*" + extension;
         }
 
         public static bool IsSupportedFile(string path)
         {
             var ext = Path.GetExtension(path.ToLower());
-            return GetSupportedExtensions().Contains(ext);
+            return GetAllSupportedExtensions().Contains(ext);
         }
 
         public static bool IsExtensionSupported(string fileExtension)
         {
-            return GetSupportedExtensions().Contains(fileExtension);
+            return GetAllSupportedExtensions().Contains(fileExtension);
         }
 
         public static string GetFormattedFilesExtensions(bool includePixi)
         {
-            var allExts = SupportedFilesHelper.GetSupportedExtensions().ToList();
+            var allExts = GetAllSupportedExtensions().ToList();
             if (!includePixi)
                 allExts.Remove(Constants.NativeExtension);
-            var imageFilesExts = SupportedFilesHelper.GetExtensionsFormattedForDialog(allExts);
+            var imageFilesExts = GetExtensionsFormattedForDialog(allExts);
             return imageFilesExts;
+        }
+
+        public static string BuildSaveFilter(bool includePixi)
+        {
+            var formatName2Extension = new Dictionary<string, string>();
+            if (includePixi)
+                formatName2Extension.Add("PixiEditor Files", Constants.NativeExtension);
+
+            foreach (var format in ImageFormats)
+                formatName2Extension.Add(format + " Images", Format2Extension(format));
+
+            var filter = string.Join("|", formatName2Extension.Select(i => i.Key + "|" + GetExtensionFormattedForDialog(i.Value)));
+            return filter;
+        }
+
+        public static string BuildOpenFilter()
+        {
+            var filter =
+               "Any |" + GetFormattedFilesExtensions(true) + "|" +
+               "PixiEditor Files |" + GetExtensionsFormattedForDialog(new[] { Constants.NativeExtension }) + "|" +
+               "Image Files |" + GetFormattedFilesExtensions(false);
+
+            return filter;
         }
     }
 }

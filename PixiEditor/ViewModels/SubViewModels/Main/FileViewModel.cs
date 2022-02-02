@@ -204,10 +204,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 
         private void Open(object property)
         {
-            var filter = 
-                "Any |" + SupportedFilesHelper.GetFormattedFilesExtensions(true) + "|" + 
-                "PixiEditor Files |" + SupportedFilesHelper.GetExtensionsFormattedForDialog(new[] { Constants.NativeExtension }) + "|" +
-                "Image Files |" + SupportedFilesHelper.GetFormattedFilesExtensions(false);
+            var filter = SupportedFilesHelper.BuildOpenFilter();
+
             OpenFileDialog dialog = new OpenFileDialog
             {
                 Filter = filter,
