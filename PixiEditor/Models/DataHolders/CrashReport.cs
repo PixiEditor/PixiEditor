@@ -21,7 +21,7 @@ namespace PixiEditor.Models.DataHolders
             DateTime currentTime = DateTime.Now;
 
             builder
-                .AppendLine($"PixiEditor crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss}\n")
+                .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString()} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss}\n")
                 .AppendLine("-----System Information----")
                 .AppendLine("General:")
                 .AppendLine($"  OS: {Environment.OSVersion.VersionString}")
