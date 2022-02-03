@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -17,11 +18,19 @@ namespace PixiEditor.Helpers.Converters
         static FileExtensionToColorConverter()
         {
             extensions2Brushes = new Dictionary<string, SolidColorBrush>();
-            extensions2Brushes[Constants.NativeExtension] = ColorBrush(226, 1, 45);
-            extensions2Brushes[SupportedFilesHelper.Format2Extension(ImageFormat.Png)] = ColorBrush(56, 108, 254);
-            extensions2Brushes[SupportedFilesHelper.Format2Extension(ImageFormat.Jpeg)] = ColorBrush(36, 179, 66);
-            extensions2Brushes[SupportedFilesHelper.Format2Extension(ImageFormat.Bmp)] = ColorBrush(40, 170, 236);
-            extensions2Brushes[SupportedFilesHelper.Format2Extension(ImageFormat.Gif)] = ColorBrush(180, 0, 255);
+            AssignFormat2Brush(Constants.NativeExtension, ColorBrush(226, 1, 45));
+            AssignFormat2Brush(ImageFormat.Png, ColorBrush(56, 108, 254));
+            AssignFormat2Brush(ImageFormat.Jpeg, ColorBrush(36, 179, 66));
+            AssignFormat2Brush(ImageFormat.Bmp, ColorBrush(40, 170, 236));
+            AssignFormat2Brush(ImageFormat.Gif, ColorBrush(180, 0, 255));
+        }
+        static void AssignFormat2Brush(ImageFormat format, SolidColorBrush brush)
+        {
+            SupportedFilesHelper.GetFormatExtensions(format).ForEach(i => AssignFormat2Brush(i, brush));
+        }
+        static void AssignFormat2Brush(string format, SolidColorBrush brush)
+        {
+            extensions2Brushes[format] = brush;
         }
 
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
