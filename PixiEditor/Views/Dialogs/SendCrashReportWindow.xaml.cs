@@ -43,6 +43,7 @@ namespace PixiEditor.Views.Dialogs
         {
             var button = sender as Button;
 
+            CopyToClipboard(null, null);
             ProcessHelpers.ShellExecute(button.Tag as string);
         }
     }

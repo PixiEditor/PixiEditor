@@ -8,7 +8,7 @@
         Background="{StaticResource AccentColor}" Foreground="White"
         Title="Send crash report"
         WindowStyle="None"
-        Height="150" Width="340">
+        Height="170" Width="340">
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -26,7 +26,7 @@
 
     <StackPanel>
         <dial:DialogTitleBar TitleText="Send crash report" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
-        <StackPanel Margin="5">
+        <StackPanel Margin="10">
             <TextBlock>You can find the report here:</TextBlock>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Width="140" Click="CopyToClipboard">Copy to clipboard</Button>
@@ -38,6 +38,8 @@
                 <Button Click="OpenHyperlink" Tag="">Discord</Button>
                 <Button Click="OpenHyperlink" Tag="">E-Mail</Button>
             </StackPanel>
+            <TextBlock TextAlignment="Center" FontSize="8"
+                       TextWrapping="Wrap" Foreground="#DDD">The report contains all documents that were opened when the crash happenend</TextBlock>
         </StackPanel>
     </StackPanel>
 </Window>
