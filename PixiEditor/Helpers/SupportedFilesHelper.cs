@@ -1,7 +1,8 @@
 ﻿using PixiEditor.Models;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.IO;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
@@ -9,92 +10,78 @@ namespace PixiEditor.Helpers
 {
     public class SupportedFilesHelper
     {
-        static ImageFormat[] _imageFormats = new[] { ImageFormat.Png, ImageFormat.Jpeg, ImageFormat.Bmp, ImageFormat.Gif, /*ImageFormat.Tiff */};
-        static Dictionary<string, List<string>> extensions;
-        public static ImageFormat[] ImageFormats { get => _imageFormats; }
+        static Dictionary<FileType, FileTypeDialogData> fileTypeDialogsData;
+        static List<FileTypeDialogData> allFileTypeDialogsData;
+        public static string[] AllSupportedExtensions { get; private set; }
+        public static string[] PrimaryExtensions { get; private set; }
 
         static SupportedFilesHelper()
         {
-            extensions = new Dictionary<string, List<string>>();
-            extensions[Constants.NativeExtension] = new List<string>() { Constants.NativeExtension };
-            foreach(var format in _imageFormats)
-                extensions[Format2Extension(format)] = GetFormatExtensions(format);
+            fileTypeDialogsData = new Dictionary<FileType, FileTypeDialogData>();
+            allFileTypeDialogsData = new List<FileTypeDialogData>();
+
+            var allFormats = Enum.GetValues(typeof(FileType)).Cast<FileType>().ToList();
+            
+            foreach (var format in allFormats)
+            {
+                var fileTypeDialogData = new FileTypeDialogData(format);
+                if (format != FileType.Unset)
+                    fileTypeDialogsData[format] = fileTypeDialogData;
+
+                allFileTypeDialogsData.Add(fileTypeDialogData);
+            }
+
+            AllSupportedExtensions = fileTypeDialogsData.SelectMany(i => i.Value.Extensions).ToArray();
+            PrimaryExtensions = fileTypeDialogsData.Select(i => i.Value.PrimaryExtension).ToArray();
         }
 
-        public static IEnumerable<string> GetAllSupportedExtensions()
+        public static FileTypeDialogData GetFileTypeDialogData(FileType type)
         {
-            return extensions.SelectMany(i => i.Value);
-        }
-
-        public static List<string> GetExtensions()
-        {
-            return extensions.Keys.ToList();
-        }
-
-        public static List<string> GetFormatExtensions(ImageFormat format)
-        {
-            var res = new List<string>();
-            res.Add(Format2Extension(format));
-            if (format == ImageFormat.Jpeg)
-                res.Add(".jpg");
-            return res;
-        }
-
-        public static string Format2Extension(ImageFormat format)
-        {
-            return "." + format.ToString().ToLower();
-        }
-
-        static string GetExtensionsFormattedForDialog(IEnumerable<string> parts)
-        {
-            return string.Join(";", parts.Select(i => GetExtensionFormattedForDialog(i)));
-        }
-
-        static string GetExtensionFormattedForDialog(string extension)
-        {
-            return "*" + extension;
+            return allFileTypeDialogsData.Where(i => i.FileType == type).Single();
         }
 
         public static bool IsSupportedFile(string path)
         {
             var ext = Path.GetExtension(path.ToLower());
-            return GetAllSupportedExtensions().Contains(ext);
+            return IsExtensionSupported(ext);
         }
 
         public static bool IsExtensionSupported(string fileExtension)
         {
-            return GetAllSupportedExtensions().Contains(fileExtension);
+            return AllSupportedExtensions.Contains(fileExtension);
+        }
+        public static FileType ParseImageFormat(string extension)
+        {
+            var allExts = fileTypeDialogsData.Values.ToList();
+            var fileData = allExts.Where(i => i.Extensions.Contains(extension)).SingleOrDefault();
+            if (fileData != null)
+                return fileData.FileType;
+            return FileType.Unset;
         }
 
-        public static string GetFormattedFilesExtensions(bool includePixi)
+        public static List<FileTypeDialogData> GetAllSupportedFileTypes(bool includePixi)
         {
-            var allExts = GetAllSupportedExtensions().ToList();
+            var allExts = fileTypeDialogsData.Values.ToList();
             if (!includePixi)
-                allExts.Remove(Constants.NativeExtension);
-            var imageFilesExts = GetExtensionsFormattedForDialog(allExts);
-            return imageFilesExts;
+                allExts.RemoveAll(item => item.FileType == FileType.Pixi);
+            return allExts;
         }
 
         public static string BuildSaveFilter(bool includePixi)
         {
-            var formatName2Extension = new Dictionary<string, string>();
-            if (includePixi)
-                formatName2Extension.Add("PixiEditor Files", Constants.NativeExtension);
+            var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
+            var filter = string.Join("|", allSupportedExtensions.Select(i => i.SaveFilter));
 
-            foreach (var format in ImageFormats)
-                formatName2Extension.Add(format + " Images", Format2Extension(format));
-
-            var filter = string.Join("|", formatName2Extension.Select(i => i.Key + "|" + GetExtensionFormattedForDialog(i.Value)));
             return filter;
         }
 
         public static string BuildOpenFilter()
         {
-            var filter =
-               "Any |" + GetFormattedFilesExtensions(true) + "|" +
-               "PixiEditor Files |" + GetExtensionsFormattedForDialog(new[] { Constants.NativeExtension }) + "|" +
-               "Image Files |" + GetFormattedFilesExtensions(false);
+            var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes();
+            var pixi = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Pixi).GetFormattedTypes();
+            var images = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
 
+            var filter = any + "|" + pixi + "|" + images;
             return filter;
         }
     }

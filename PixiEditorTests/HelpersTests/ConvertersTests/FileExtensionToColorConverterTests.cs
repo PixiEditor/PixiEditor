@@ -20,7 +20,7 @@ namespace PixiEditorTests.HelpersTests.ConvertersTests
         [Fact]
         public void TestThatEachFormatHasColor()
         {
-            SupportedFilesHelper.GetAllSupportedExtensions().ToList().ForEach(i =>
+            SupportedFilesHelper.AllSupportedExtensions.ToList().ForEach(i =>
             {
                 var typed = GetTypedColor(i);
                 Assert.NotEqual(FileExtensionToColorConverter.UnknownBrush, typed);

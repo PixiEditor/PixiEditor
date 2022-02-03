@@ -3,6 +3,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -63,24 +64,19 @@ namespace PixiEditor.Models.IO
             return path;
         }
 
-        public static ImageFormat ParseImageFormat(string fileExtension)
+        public static FileType ParseImageFormat(string extension)
         {
-            fileExtension = fileExtension.Replace(".", "");
-            return (ImageFormat)typeof(ImageFormat)
-                    .GetProperty(fileExtension, BindingFlags.Public | BindingFlags.Static | BindingFlags.IgnoreCase)
-                    .GetValue(null);
+            return SupportedFilesHelper.ParseImageFormat(extension);
         }
 
-        //TODO remove static methods/members
-        static Dictionary<ImageFormat,BitmapEncoder> encodersFactory = new Dictionary<ImageFormat, BitmapEncoder>();
+        static Dictionary<FileType, BitmapEncoder> encodersFactory = new Dictionary<FileType, BitmapEncoder>();
 
         static Exporter()
         {
-            encodersFactory[ImageFormat.Png] = new PngBitmapEncoder();
-            encodersFactory[ImageFormat.Jpeg] = new JpegBitmapEncoder();
-            encodersFactory[ImageFormat.Bmp] = new BmpBitmapEncoder(); 
-            encodersFactory[ImageFormat.Gif] = new GifBitmapEncoder();
-            encodersFactory[ImageFormat.Tiff] = new TiffBitmapEncoder();
+            encodersFactory[FileType.Png] = new PngBitmapEncoder();
+            encodersFactory[FileType.Jpeg] = new JpegBitmapEncoder();
+            encodersFactory[FileType.Bmp] = new BmpBitmapEncoder(); 
+            encodersFactory[FileType.Gif] = new GifBitmapEncoder();
         }
 
         /// <summary>

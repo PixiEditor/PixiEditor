@@ -1,21 +1,12 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using static PixiEditor.Helpers.SupportedFilesHelper;
 
 namespace PixiEditor.Views.UserControls.Layers
 {
@@ -52,12 +43,12 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private string OpenFilePicker()
         {
-
+            var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
             OpenFileDialog dialog = new OpenFileDialog
             {
                 Title = "Reference layer path",
                 CheckPathExists = true,
-                Filter = "Image Files | " + SupportedFilesHelper.GetFormattedFilesExtensions(false)
+                Filter = imagesFilter
             };
 
             return (bool)dialog.ShowDialog() ? dialog.FileName : null;

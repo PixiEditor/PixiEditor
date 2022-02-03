@@ -2,6 +2,6 @@
 {
     public enum FileType
     {
-        Png = 0
+        Unset, Pixi, Png, Jpeg, Bmp, Gif
     }
 }

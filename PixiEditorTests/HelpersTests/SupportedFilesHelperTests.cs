@@ -8,7 +8,7 @@ namespace PixiEditorTests.HelpersTests
         [Fact]
         public void TestAllExtensionsAreSupported()
         {
-            var all = SupportedFilesHelper.GetAllSupportedExtensions();
+            var all = SupportedFilesHelper.AllSupportedExtensions;
             Assert.Contains(all, i => i == ".pixi");
             Assert.Contains(all, i => i == ".png");
             Assert.Contains(all, i => i == ".jpg");
