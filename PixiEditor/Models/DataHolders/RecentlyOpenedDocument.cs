@@ -104,6 +104,7 @@ namespace PixiEditor.Models.DataHolders
                 catch
                 {
                     corrupt = true;
+                    return null;
                 }
                                 
                 ImageFileMaxSizeChecker imageFileMaxSizeChecker = new ImageFileMaxSizeChecker()
