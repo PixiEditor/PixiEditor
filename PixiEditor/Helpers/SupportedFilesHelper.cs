@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PixiEditor.Helpers
 {
-    internal class SupportedFilesHelper
+    public class SupportedFilesHelper
     {
         static ImageFormat[] _imageFormats = new[] { ImageFormat.Png, ImageFormat.Jpeg, ImageFormat.Bmp, ImageFormat.Gif, /*ImageFormat.Tiff */};
         static Dictionary<string, List<string>> extensions;

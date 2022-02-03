@@ -13,7 +13,7 @@ namespace PixiEditor.Helpers.Converters
     {
         private static readonly Dictionary<string, SolidColorBrush> extensions2Brushes;
 
-        private static readonly SolidColorBrush UnknownBrush = ColorBrush(100, 100, 100);
+        public static readonly SolidColorBrush UnknownBrush = ColorBrush(100, 100, 100);
 
         static FileExtensionToColorConverter()
         {
