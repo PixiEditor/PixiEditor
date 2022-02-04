@@ -36,11 +36,10 @@ namespace PixiEditor.Models.Controllers
 
             Tool.Session = this;
             InvokeKeyboardEvents(keyboardStates);
-            int x = (int)Math.Floor(mouseXOnCanvas);
-            int y = (int)Math.Floor(mouseYOnCanvas);
-            mouseMovement.Add(new(x, y));
+            var coord = new Coordinates(mouseXOnCanvas, mouseYOnCanvas);
+            mouseMovement.Add(coord);
 
-            UpdateMinMax(x, y);
+            UpdateMinMax(coord.X, coord.Y);
 
             Tool.BeforeUse();
         }
@@ -108,6 +107,11 @@ namespace PixiEditor.Models.Controllers
         {
             UpdateMinMax(pos.X, pos.Y);
             mouseMovement.Add(pos);
+        }
+
+        public void OnOutOfSelectionMove()
+        {
+            mouseMovement.Clear();
         }
 
         private void UpdateMinMax(int x, int y)

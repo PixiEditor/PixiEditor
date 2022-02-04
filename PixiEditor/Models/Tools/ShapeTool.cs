@@ -1,8 +1,11 @@
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using PixiEditor.ViewModels;
 using SkiaSharp;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools
@@ -66,5 +69,7 @@ namespace PixiEditor.Models.Tools
             var dcords = CoordinatesCalculator.CalculateThicknessCenter(coords, thickness);
             CoordinatesCalculator.DrawRectangle(layer, color, dcords.Coords1.X, dcords.Coords1.Y, dcords.Coords2.X, dcords.Coords2.Y);
         }
+
+        public override bool RespectsSelection() { return true; }
     }
 }

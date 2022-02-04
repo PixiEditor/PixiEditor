@@ -1,5 +1,7 @@
-﻿using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
@@ -21,14 +23,12 @@ namespace PixiEditor.Models.Controllers
         public bool IsCtrlDown => keyboardState.ContainsKey(Key.LeftCtrl) ? keyboardState[Key.LeftCtrl] == KeyStates.Down : false;
         public bool IsAltDown => keyboardState.ContainsKey(Key.LeftAlt) ? keyboardState[Key.LeftAlt] == KeyStates.Down : false;
 
-        public Coordinates LastPixelPosition => new(lastPixelX, lastPixelY);
-
-        private int lastPixelX;
-        private int lastPixelY;
+        public Coordinates LastPixelPosition { get; private set; } = new(0, 0);
 
         private Dictionary<Key, KeyStates> keyboardState = new();
         private Tool currentTool = null;
         private ToolSession currentSession = null;
+        private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
 
         private void TryStartToolSession(Tool tool, double mouseXOnCanvas, double mouseYOnCanvas)
         {
@@ -94,26 +94,37 @@ namespace PixiEditor.Models.Controllers
         public void OnMouseMove(double newCanvasX, double newCanvasY)
         {
             //update internal state
+            var coord = new Coordinates(newCanvasX, newCanvasY);
 
-            int newX = (int)Math.Floor(newCanvasX);
-            int newY = (int)Math.Floor(newCanvasY);
             bool pixelPosChanged = false;
-            if (lastPixelX != newX || lastPixelY != newY)
+            if (LastPixelPosition != coord)
             {
-                lastPixelX = newX;
-                lastPixelY = newY;
+                LastPixelPosition = coord;
                 pixelPosChanged = true;
             }
 
-
             //call session events
             if (currentSession != null && pixelPosChanged)
-                currentSession.OnPixelPositionChange(new(newX, newY));
+            {
+                if (SelectionAllowsAction(coord))
+                {
+                    currentSession.OnPixelPositionChange(coord);
+                }
+                else
+                {
+                    currentSession.OnOutOfSelectionMove();
+                }
+            }
 
             //call internal events
             PreciseMousePositionChanged?.Invoke(this, (newCanvasX, newCanvasY));
             if (pixelPosChanged)
-                PixelMousePositionChanged?.Invoke(this, new MouseMovementEventArgs(new Coordinates(newX, newY)));
+                PixelMousePositionChanged?.Invoke(this, new MouseMovementEventArgs(coord));
+        }
+
+        private bool SelectionAllowsAction(Coordinates coord)
+        {
+            return !currentTool.RespectsSelection() || ActiveSelection == null || ActiveSelection.Empty || ActiveSelection.Contains(coord);
         }
 
         public void OnLeftMouseButtonDown(double canvasPosX, double canvasPosY)
@@ -125,6 +136,7 @@ namespace PixiEditor.Models.Controllers
 
             if (currentTool == null)
                 throw new Exception("Current tool must not be null here");
+
             TryStartToolSession(currentTool, canvasPosX, canvasPosY);
         }
 

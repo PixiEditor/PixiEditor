@@ -1,9 +1,11 @@
 ﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Brushes;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+using PixiEditor.ViewModels;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -29,8 +31,7 @@ namespace PixiEditor.Models.Tools.Tools
         private Coordinates lastChangedPixel = new Coordinates(-1, -1);
 
         private BitmapManager BitmapManager { get; }
-
-
+        
         public PenTool(BitmapManager bitmapManager)
         {
             Cursor = Cursors.Pen;
@@ -64,7 +65,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
-            Coordinates startingCords = recordedMouseMovement.Count > 1 ? recordedMouseMovement[^2] : recordedMouseMovement[0];
+            var startingCords = recordedMouseMovement.Count > 1 ? recordedMouseMovement[^2] : recordedMouseMovement[0];
             paint.Color = color;
             if (AutomaticallyResizeCanvas)
             {
