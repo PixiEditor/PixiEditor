@@ -22,7 +22,7 @@ namespace PixiEditor.Helpers.Converters
             AssignFormat2Brush(FileType.Pixi, ColorBrush(226, 1, 45));
             AssignFormat2Brush(FileType.Png, ColorBrush(56, 108, 254));
             AssignFormat2Brush(FileType.Jpeg, ColorBrush(36, 179, 66));
-            AssignFormat2Brush(FileType.Bmp, ColorBrush(40, 170, 236));
+            AssignFormat2Brush(FileType.Bmp, ColorBrush(255, 140, 0));
             AssignFormat2Brush(FileType.Gif, ColorBrush(180, 0, 255));
         }
         static void AssignFormat2Brush(FileType format, SolidColorBrush brush)

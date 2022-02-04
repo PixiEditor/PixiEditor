@@ -2,11 +2,7 @@
 using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using System;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Windows;
 
 namespace PixiEditor.ViewModels
