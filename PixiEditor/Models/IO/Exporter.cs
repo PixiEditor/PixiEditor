@@ -54,7 +54,7 @@ namespace PixiEditor.Models.IO
             {
                 var chosenFormat = ParseImageFormat(Path.GetExtension(path));
                 var bitmap = document.Renderer.FinalBitmap;
-                SaveAs(encodersFactory[chosenFormat], path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
+                SaveAs(encodersFactory[chosenFormat](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
             }
             else
             {
@@ -69,14 +69,14 @@ namespace PixiEditor.Models.IO
             return SupportedFilesHelper.ParseImageFormat(extension);
         }
 
-        static Dictionary<FileType, BitmapEncoder> encodersFactory = new Dictionary<FileType, BitmapEncoder>();
+        static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
 
         static Exporter()
         {
-            encodersFactory[FileType.Png] = new PngBitmapEncoder();
-            encodersFactory[FileType.Jpeg] = new JpegBitmapEncoder();
-            encodersFactory[FileType.Bmp] = new BmpBitmapEncoder(); 
-            encodersFactory[FileType.Gif] = new GifBitmapEncoder();
+            encodersFactory[FileType.Png] = () => new PngBitmapEncoder();
+            encodersFactory[FileType.Jpeg] = () => new JpegBitmapEncoder();
+            encodersFactory[FileType.Bmp] = () => new BmpBitmapEncoder(); 
+            encodersFactory[FileType.Gif] = () => new GifBitmapEncoder();
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace PixiEditor.Models.IO
           if (info.ShowDialog())
           {
             if(encodersFactory.ContainsKey(info.ChosenFormat))
-              SaveAs(encodersFactory[info.ChosenFormat], info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+              SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
           }
         }
         public static void SaveAsGZippedBytes(string path, Surface surface)
