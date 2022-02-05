@@ -65,7 +65,5 @@ namespace PixiEditor.Models.Tools
         public virtual void AfterUse(SKRectI sessionRect) { }
 
         public virtual void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
-
-        public virtual bool RespectsSelection() { return false; }
     }
 }

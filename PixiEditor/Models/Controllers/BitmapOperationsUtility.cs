@@ -3,12 +3,10 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 
 namespace PixiEditor.Models.Controllers
@@ -16,7 +14,7 @@ namespace PixiEditor.Models.Controllers
     public class BitmapOperationsUtility
     {
         public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
-        private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
+
         public BitmapManager Manager { get; set; }
 
         public ToolsViewModel Tools { get; set; }
@@ -47,32 +45,10 @@ namespace PixiEditor.Models.Controllers
             Manager.ActiveDocument.UndoManager.AddUndoChange(change.ToChange(StorageBasedChange.BasicUndoProcess, args, "Delete selected pixels"));
         }
 
-        public IReadOnlyList<Coordinates> GetCoordsToApply(IReadOnlyList<Coordinates> recordedMouseMovement)
-        {
-            List<Coordinates> selectionCoordinates = null;
-            if (ActiveSelection != null && ActiveSelection.SelectedPoints.Any())
-            {
-                selectionCoordinates = recordedMouseMovement.Where(i => ActiveSelection.Contains(i)).ToList();
-            }
-            if (selectionCoordinates != null)
-            {
-                recordedMouseMovement = selectionCoordinates;
-            }
-
-            return recordedMouseMovement;
-        }
-
         public void UseTool(IReadOnlyList<Coordinates> recordedMouseMovement, BitmapOperationTool tool, SKColor color)
         {
             if (Manager.ActiveDocument.Layers.Count == 0)
                 return;
-
-            if (tool.RespectsSelection())
-            {
-                recordedMouseMovement = GetCoordsToApply(recordedMouseMovement);
-                if (!recordedMouseMovement.Any())
-                    return;
-            }
 
             if (!tool.RequiresPreviewLayer)
             {

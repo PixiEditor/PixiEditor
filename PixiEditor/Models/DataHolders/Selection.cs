@@ -102,12 +102,5 @@ namespace PixiEditor.Models.DataHolders
             SelectionLayer.Reset();
             SelectedPoints.Clear();
         }
-
-        public bool Contains(Coordinates coord)
-        {
-            return SelectedPoints.Contains(coord);
-        }
-
-        public bool Empty => !SelectedPoints.Any();
     }
 }

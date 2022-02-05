@@ -18,12 +18,6 @@ namespace PixiEditor.Models.Position
             Y = y;
         }
 
-        public Coordinates(double x, double y)
-        {
-            X = (int)Math.Floor(x);
-            Y = (int)Math.Floor(y);
-        }
-
         public int X { get; set; }
 
         public int Y { get; set; }

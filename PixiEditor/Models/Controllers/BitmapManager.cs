@@ -10,7 +10,6 @@ using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 
 namespace PixiEditor.Models.Controllers
@@ -177,9 +176,6 @@ namespace PixiEditor.Models.Controllers
         {
             if (activeSession == null)
                 throw new Exception("Can't execute tool's Use outside a session");
-
-            if (!activeSession.MouseMovement.Any())
-                return;
 
             if (activeSession.Tool is BitmapOperationTool operationTool)
             {
