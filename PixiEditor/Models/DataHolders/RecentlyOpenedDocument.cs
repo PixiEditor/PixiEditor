@@ -104,6 +104,7 @@ namespace PixiEditor.Models.DataHolders
                 catch
                 {
                     corrupt = true;
+                    return null;
                 }
                 
                 if (bitmap == null)//prevent crash
