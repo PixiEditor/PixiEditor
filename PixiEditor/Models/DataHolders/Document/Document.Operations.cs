@@ -31,7 +31,6 @@ namespace PixiEditor.Models.DataHolders
             int offsetX = GetOffsetXForAnchor(Width, width, anchor);
             int offsetY = GetOffsetYForAnchor(Height, height, anchor);
 
-            //Thickness[] oldOffsets = Layers.Select(x => x.Offset).ToArray();
             Thickness[] newOffsets = Layers.Select(x => new Thickness(offsetX + x.OffsetX, offsetY + x.OffsetY, 0, 0))
                 .ToArray();
 
