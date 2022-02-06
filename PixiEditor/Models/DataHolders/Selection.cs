@@ -51,7 +51,6 @@ namespace PixiEditor.Models.DataHolders
                   selection.Max(i => i.X) - minX + 1,
                   selection.Max(i => i.Y) - minY + 1
                   );
-
             }
             else
             {

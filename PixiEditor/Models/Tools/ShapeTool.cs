@@ -74,7 +74,6 @@ namespace PixiEditor.Models.Tools
         public Int32Rect ApplyDirtyRect(Layer layer, Int32Rect dirtyRect)
         {
             return DoApplyDirtyRect(layer, dirtyRect);
-
         }
 
         protected static Int32Rect DoApplyDirtyRect(Layer layer, Int32Rect dirtyRect)

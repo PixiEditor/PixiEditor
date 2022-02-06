@@ -60,8 +60,8 @@ namespace PixiEditor.Models.Tools.Tools
             Int32Rect dirtyRect = new Int32Rect(
                 corners.Coords1.X - halfThickness,
                 corners.Coords1.Y - halfThickness,
-                corners.Coords2.X + halfThickness * 2 - corners.Coords1.X,
-                corners.Coords2.Y + halfThickness * 2 - corners.Coords1.Y);
+                corners.Coords2.X + (halfThickness * 2) - corners.Coords1.X,
+                corners.Coords2.Y + (halfThickness * 2) - corners.Coords1.Y);
 
             if(tool != null)
                 dirtyRect = tool.ApplyDirtyRect(layer, dirtyRect);
