@@ -30,7 +30,6 @@ namespace PixiEditor.Models.Tools.Tools
 
         private BitmapManager BitmapManager { get; }
 
-
         public PenTool(BitmapManager bitmapManager)
         {
             Cursor = Cursors.Pen;
@@ -72,7 +71,8 @@ namespace PixiEditor.Models.Tools.Tools
                 int maxY = recordedMouseMovement.Max(x => x.Y);
                 int minX = recordedMouseMovement.Min(x => x.X);
                 int minY = recordedMouseMovement.Min(x => x.Y);
-                previewLayer.DynamicResizeAbsolute(new(minX, minY, maxX - minX + 1, maxX - minX + 1));
+                Int32Rect dirtyRect = new(minX, minY, maxX - minX + 1, maxX - minX + 1);
+                ApplyDirtyRect(previewLayer, dirtyRect);
             }
             Draw(
                 previewLayer,

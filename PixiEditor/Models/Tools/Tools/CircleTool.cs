@@ -41,11 +41,17 @@ namespace PixiEditor.Models.Tools.Tools
                 CoordinatesHelper.GetSquareCoordiantes(recordedMouseMovement) :
                 (recordedMouseMovement[0], recordedMouseMovement[^1]);
 
-            DrawEllipseFromCoordinates(previewLayer, start, end, color, fill, thickness, hasFillColor);
+            DrawEllipseFromCoordinates(previewLayer, start, end, color, fill, thickness, hasFillColor, this);
         }
 
         public static void DrawEllipseFromCoordinates(Layer layer, Coordinates first, Coordinates second,
             SKColor color, SKColor fillColor, int thickness, bool hasFillColor)
+        {
+            DrawEllipseFromCoordinates(layer, first, second, color, fillColor, thickness, hasFillColor, null);
+        }
+
+        static void DrawEllipseFromCoordinates(Layer layer, Coordinates first, Coordinates second,
+            SKColor color, SKColor fillColor, int thickness, bool hasFillColor, ShapeTool tool) 
         {
             DoubleCoords corners = CalculateCoordinatesForShapeRotation(first, second);
             corners.Coords2 = new(corners.Coords2.X, corners.Coords2.Y);
@@ -56,7 +62,11 @@ namespace PixiEditor.Models.Tools.Tools
                 corners.Coords1.Y - halfThickness,
                 corners.Coords2.X + halfThickness * 2 - corners.Coords1.X,
                 corners.Coords2.Y + halfThickness * 2 - corners.Coords1.Y);
-            layer.DynamicResizeAbsolute(dirtyRect);
+
+            if(tool != null)
+                dirtyRect = tool.ApplyDirtyRect(layer, dirtyRect);
+            else
+                dirtyRect = DoApplyDirtyRect(layer, dirtyRect);
 
             using (SKPaint paint = new SKPaint())
             {

@@ -67,7 +67,7 @@ namespace PixiEditor.Models.Tools.Tools
                 Math.Max(y1, y) + thickness - dirtyY);
             if (AutomaticallyResizeCanvas)
             {
-                layer.DynamicResizeAbsolute(dirtyRect);
+                dirtyRect = ApplyDirtyRect(layer, dirtyRect);
             }
 
             x -= layer.OffsetX;

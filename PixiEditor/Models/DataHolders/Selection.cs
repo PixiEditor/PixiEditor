@@ -36,8 +36,28 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
+        public bool Empty { get => Rect.IsEmpty; }
+
+        public Int32Rect Rect { get; private set; }
         public void SetSelection(IEnumerable<Coordinates> selection, SelectionType mode)
         {
+            if (selection.Any())
+            {
+                var minX = selection.Min(i => i.X);
+                var minY = selection.Min(i => i.Y);
+                Rect = new Int32Rect(
+                  minX,
+                  minY,
+                  selection.Max(i => i.X) - minX + 1,
+                  selection.Max(i => i.Y) - minY + 1
+                  );
+
+            }
+            else
+            {
+                Rect = default(Int32Rect);
+            }
+
             SKColor selectionColor = selectionBlue;
             switch (mode)
             {
@@ -101,6 +121,7 @@ namespace PixiEditor.Models.DataHolders
         {
             SelectionLayer.Reset();
             SelectedPoints.Clear();
+            Rect = default(Int32Rect);
         }
     }
 }
