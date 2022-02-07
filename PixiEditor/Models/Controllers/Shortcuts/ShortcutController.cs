@@ -17,6 +17,8 @@ namespace PixiEditor.Models.Controllers.Shortcuts
 
         public Shortcut LastShortcut { get; private set; }
 
+        public const Key MoveViewportToolTransientChangeKey = Key.Space;
+
         public void KeyPressed(Key key, ModifierKeys modifiers)
         {
             if (!BlockShortcutExecution)

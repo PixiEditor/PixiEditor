@@ -174,7 +174,7 @@ namespace PixiEditor.ViewModels
                         CreateToolShortcut<MoveTool>(Key.V, "Move selection"),
                         CreateToolShortcut<SelectTool>(Key.M, "Select"),
                         CreateToolShortcut<ZoomTool>(Key.Z, "Zoom"),
-                        CreateToolShortcut<MoveViewportTool>(Key.Space, "Move viewport"),
+                        CreateToolShortcut<MoveViewportTool>(Key.H, "Move viewport"),
                         CreateToolShortcut<MagicWandTool>(Key.W, "Magic wand"),
                         new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, "Zoom in", 1),
                         new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, "Zoom out", -1),
