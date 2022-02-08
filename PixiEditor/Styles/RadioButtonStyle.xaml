@@ -23,7 +23,6 @@
                         <Trigger Property="IsChecked" Value="true">
                             <!--If item is checked, trigger the visibility of the mark and change the color of the selected bullet into a darker gray for better highlighting-->
                             <Setter TargetName="RadioMark" Property="Visibility" Value="Visible"/>
-                            <Setter TargetName="RadioOuter" Property="BorderBrush" Value="White" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
