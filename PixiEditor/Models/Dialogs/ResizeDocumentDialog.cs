@@ -50,41 +50,35 @@ namespace PixiEditor.Models.Dialogs
             return OpenResizeCanvas ? ShowResizeCanvasDialog() : ShowResizeDocumentCanvas();
         }
 
-        private bool ShowResizeDocumentCanvas()
+        bool ShowDialog<T>()
+            where T : ResizeablePopup, new()
         {
-            ResizeDocumentPopup popup = new ResizeDocumentPopup
+            var popup = new T()
             {
-                NewHeight = Height,
-                NewWidth = Width
+                NewAbsoluteHeight = Height,
+                NewAbsoluteWidth = Width,
+                NewPercentageSize = 100,
+                NewSelectedUnit = SizeUnit.Pixel
             };
 
             popup.ShowDialog();
             if (popup.DialogResult == true)
             {
-                Width = popup.NewWidth;
-                Height = popup.NewHeight;
+                Width = popup.NewAbsoluteWidth;
+                Height = popup.NewAbsoluteHeight;
             }
 
             return (bool)popup.DialogResult;
         }
 
+        private bool ShowResizeDocumentCanvas()
+        {
+            return ShowDialog<ResizeDocumentPopup>();
+        }
+
         private bool ShowResizeCanvasDialog()
         {
-            ResizeCanvasPopup popup = new ResizeCanvasPopup
-            {
-                NewHeight = Height,
-                NewWidth = Width
-            };
-
-            popup.ShowDialog();
-            if (popup.DialogResult == true)
-            {
-                Width = popup.NewWidth;
-                Height = popup.NewHeight;
-                ResizeAnchor = popup.SelectedAnchorPoint;
-            }
-
-            return (bool)popup.DialogResult;
+            return ShowDialog<ResizeCanvasPopup>();
         }
     }
 }

@@ -4,8 +4,12 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -14,6 +18,8 @@ namespace PixiEditor.Models.IO
 {
     public class Exporter
     {
+        static ImageFormat[] _formats = new[] { ImageFormat.Png, ImageFormat.Jpeg, ImageFormat.Bmp, ImageFormat.Gif, ImageFormat.Tiff };
+        
         /// <summary>
         ///     Saves document as .pixi file that contains all document data.
         /// </summary>
@@ -21,10 +27,11 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path where file was saved.</param>
         public static bool SaveAsEditableFileWithDialog(Document document, out string path)
         {
+            var pixi = GetFormattedString("PixiEditor File", Constants.NativeExtensionNoDot);
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = "PixiEditor Files | *.pixi",
-                DefaultExt = "pixi"
+                Filter = pixi + "|" + BuildFilter(),
+                FilterIndex = 0
             };
             if ((bool)dialog.ShowDialog())
             {
@@ -36,6 +43,23 @@ namespace PixiEditor.Models.IO
             return false;
         }
 
+        public static string BuildFilter()
+        {
+          var filter = string.Join("|", Formats.Select(i => GetFormattedString(i)));
+          return filter;
+        }
+
+        public static string GetFormattedString(ImageFormat imageFormat)
+        {
+            var formatLower = imageFormat.ToString().ToLower();
+            return GetFormattedString(imageFormat.ToString() + " Image", formatLower);
+        }
+
+        private static string GetFormattedString(string imageFormat, string formatLower)
+        {
+            return $"{imageFormat}|*.{formatLower}";
+        }
+
         /// <summary>
         /// Saves editable file to chosen path and returns it.
         /// </summary>
@@ -44,8 +68,41 @@ namespace PixiEditor.Models.IO
         /// <returns>Path.</returns>
         public static string SaveAsEditableFile(Document document, string path)
         {
-            Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
+            if (Path.GetExtension(path) != Constants.NativeExtension)
+            {
+                var chosenFormat = ParseImageFormat(Path.GetExtension(path));
+                var bitmap = document.Renderer.FinalBitmap;
+                SaveAs(encodersFactory[chosenFormat](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
+            }
+            else
+            {
+                Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
+            }
+
             return path;
+        }
+
+        public static ImageFormat ParseImageFormat(string fileExtension)
+        {
+            fileExtension = fileExtension.Replace(".", "");
+            return (ImageFormat)typeof(ImageFormat)
+                    .GetProperty(fileExtension, BindingFlags.Public | BindingFlags.Static | BindingFlags.IgnoreCase)
+                    .GetValue(null);
+        }
+
+        //static Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>> encoders = new Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>>();
+        //TODO remove static methods/members
+        static Dictionary<ImageFormat, Func<BitmapEncoder>> encodersFactory = new Dictionary<ImageFormat, Func<BitmapEncoder>>();
+
+        public static ImageFormat[] Formats { get => _formats; }
+
+        static Exporter()
+        {
+            encodersFactory[ImageFormat.Png] = () => { return new PngBitmapEncoder(); };
+            encodersFactory[ImageFormat.Jpeg] = () => { return new JpegBitmapEncoder(); };
+            encodersFactory[ImageFormat.Bmp] = () => { return new BmpBitmapEncoder(); };
+            encodersFactory[ImageFormat.Gif] = () => { return new GifBitmapEncoder(); };
+            encodersFactory[ImageFormat.Tiff] = () => { return new TiffBitmapEncoder(); };
         }
 
         /// <summary>
@@ -55,15 +112,15 @@ namespace PixiEditor.Models.IO
         /// <param name="fileDimensions">Size of file.</param>
         public static void Export(WriteableBitmap bitmap, Size fileDimensions)
         {
-            ExportFileDialog info = new ExportFileDialog(fileDimensions);
+          ExportFileDialog info = new ExportFileDialog(fileDimensions);
 
-            // If OK on dialog has been clicked
-            if (info.ShowDialog())
-            {
-                SaveAsPng(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
-            }
+          // If OK on dialog has been clicked
+          if (info.ShowDialog())
+          {
+            if(encodersFactory.ContainsKey(info.ChosenFormat))
+              SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+          }
         }
-
         public static void SaveAsGZippedBytes(string path, Surface surface)
         {
             SaveAsGZippedBytes(path, surface, SKRectI.Create(0, 0, surface.Width, surface.Height));
@@ -94,18 +151,18 @@ namespace PixiEditor.Models.IO
         /// <summary>
         ///     Saves image to PNG file.
         /// </summary>
+        /// <param name="encoder">encoder to do the job.</param>
         /// <param name="savePath">Save file path.</param>
         /// <param name="exportWidth">File width.</param>
         /// <param name="exportHeight">File height.</param>
         /// <param name="bitmap">Bitmap to save.</param>
-        public static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+        private static void SaveAs(BitmapEncoder encoder, string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try
             {
                 bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                using (FileStream stream = new FileStream(savePath, FileMode.Create))
+                using (var stream = new FileStream(savePath, FileMode.Create))
                 {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     encoder.Save(stream);
                 }

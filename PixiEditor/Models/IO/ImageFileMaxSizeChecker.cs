@@ -4,8 +4,8 @@ namespace PixiEditor.Models.IO
 {
     internal class ImageFileMaxSizeChecker
     {
-        public int MaxAllowedWidthInPixels { get; init; } = 2048;
-        public int MaxAllowedHeightInPixels { get; init; } = 2048;
+        public int MaxAllowedWidthInPixels { get; init; } = Constants.MaxPreviewWidth;
+        public int MaxAllowedHeightInPixels { get; init; } = Constants.MaxPreviewHeight;
 
         public ImageFileMaxSizeChecker()
         {

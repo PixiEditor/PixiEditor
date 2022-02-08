@@ -50,6 +50,7 @@ steps:
   displayName: Collect code coverage
 
 - task: CmdLine@2
+  continueOnError: true
   inputs:
     script: codecov -f .\PixiEditorTests\PixiEditor_coverage.xml -t $(CODECOV_TOKEN)
   displayName: Upload to Codecov.io
