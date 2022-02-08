@@ -9,6 +9,10 @@
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
 
+    <Style TargetType="{x:Type Border}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    </Style>
+
     <Style TargetType="Button" x:Key="BaseDarkButton">
         <Setter Property="Background" Value="#404040" />
         <Setter Property="Foreground" Value="White" />
