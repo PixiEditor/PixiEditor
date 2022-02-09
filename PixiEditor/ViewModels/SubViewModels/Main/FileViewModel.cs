@@ -186,12 +186,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void Owner_OnStartupEvent(object sender, System.EventArgs e)
         {
-            var lastArg = Environment.GetCommandLineArgs().Last();
-            if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
+            var args = Environment.GetCommandLineArgs();
+            var file = args.Last();
+            if (Importer.IsSupportedFile(file) && File.Exists(file))
             {
-                Open(lastArg);
+                Open(file);
             }
-            else
+            else if (Owner.BitmapManager.Documents.Count == 0 || !args.Contains("--crash"))
             {
                 if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
                 {
