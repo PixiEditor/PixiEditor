@@ -34,7 +34,6 @@
         <StackPanel Margin="10">
             <TextBlock>You can find the report here:</TextBlock>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Width="140" Click="CopyToClipboard">Copy to clipboard</Button>
                 <Button Width="140" Click="OpenInExplorer">Open in Explorer</Button>
             </StackPanel>
             <TextBlock TextAlignment="Center">You can report your crash report here:</TextBlock>

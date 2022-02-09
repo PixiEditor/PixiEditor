@@ -35,11 +35,6 @@ namespace PixiEditor.Views.Dialogs
             SystemCommands.CloseWindow(this);
         }
 
-        private void CopyToClipboard(object sender, RoutedEventArgs e)
-        {
-            Clipboard.SetFileDropList(new() { report.FilePath });
-        }
-
         private void OpenInExplorer(object sender, RoutedEventArgs e)
         {
             string tempPath = Path.Combine(
