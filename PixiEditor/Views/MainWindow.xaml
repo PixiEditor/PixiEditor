@@ -177,11 +177,12 @@
                               CommandParameter="https://pixieditor.net/docs/Third-party-licenses"/>
                 </MenuItem>
                 <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <MenuItem Header="_Open Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
+                    <MenuItem Header="Open _Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
                               CommandParameter="%LocalAppData%/PixiEditor"/>
-                    <MenuItem Header="_Open Roaming App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
+                    <MenuItem Header="Open _Roaming App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
                               CommandParameter="%AppData%/PixiEditor"/>
-                    <MenuItem Header="_Open Install Location"  Command="{Binding DebugSubViewModel.OpenInstallLocationCommand}"/>
+                    <MenuItem Header="Open _Install Location"  Command="{Binding DebugSubViewModel.OpenInstallLocationCommand}"/>
+                    <MenuItem Header="_Crash"  Command="{Binding DebugSubViewModel.CrashCommand}"/>
                 </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,-5,-5,0"
