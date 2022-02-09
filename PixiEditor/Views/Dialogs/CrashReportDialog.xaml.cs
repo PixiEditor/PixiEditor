@@ -21,11 +21,9 @@ namespace PixiEditor.Views.Dialogs
             e.CanExecute = true;
         }
 
-
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
         }
-
     }
 }
