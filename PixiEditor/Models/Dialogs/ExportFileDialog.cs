@@ -1,4 +1,5 @@
-﻿using PixiEditor.Views;
+﻿using PixiEditor.Models.Enums;
+using PixiEditor.Views;
 using System.Drawing.Imaging;
 using System.Windows;
 
@@ -6,7 +7,7 @@ namespace PixiEditor.Models.Dialogs
 {
     public class ExportFileDialog : CustomDialog
     {
-        ImageFormat _chosenFormat;
+        FileType _chosenFormat;
 
         private int fileHeight;
 
@@ -59,7 +60,7 @@ namespace PixiEditor.Models.Dialogs
             }
         }
 
-        public ImageFormat ChosenFormat
+        public FileType ChosenFormat
         {
             get => _chosenFormat;
             set

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -18,8 +20,6 @@ namespace PixiEditor.Models.IO
 {
     public class Exporter
     {
-        static ImageFormat[] _formats = new[] { ImageFormat.Png, ImageFormat.Jpeg, ImageFormat.Bmp, ImageFormat.Gif, ImageFormat.Tiff };
-        
         /// <summary>
         ///     Saves document as .pixi file that contains all document data.
         /// </summary>
@@ -27,10 +27,9 @@ namespace PixiEditor.Models.IO
         /// <param name="path">Path where file was saved.</param>
         public static bool SaveAsEditableFileWithDialog(Document document, out string path)
         {
-            var pixi = GetFormattedString("PixiEditor File", Constants.NativeExtensionNoDot);
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = pixi + "|" + BuildFilter(),
+                Filter = SupportedFilesHelper.BuildSaveFilter(true),
                 FilterIndex = 0
             };
             if ((bool)dialog.ShowDialog())
@@ -41,23 +40,6 @@ namespace PixiEditor.Models.IO
 
             path = string.Empty;
             return false;
-        }
-
-        public static string BuildFilter()
-        {
-          var filter = string.Join("|", Formats.Select(i => GetFormattedString(i)));
-          return filter;
-        }
-
-        public static string GetFormattedString(ImageFormat imageFormat)
-        {
-            var formatLower = imageFormat.ToString().ToLower();
-            return GetFormattedString(imageFormat.ToString() + " Image", formatLower);
-        }
-
-        private static string GetFormattedString(string imageFormat, string formatLower)
-        {
-            return $"{imageFormat}|*.{formatLower}";
         }
 
         /// <summary>
@@ -82,27 +64,19 @@ namespace PixiEditor.Models.IO
             return path;
         }
 
-        public static ImageFormat ParseImageFormat(string fileExtension)
+        public static FileType ParseImageFormat(string extension)
         {
-            fileExtension = fileExtension.Replace(".", "");
-            return (ImageFormat)typeof(ImageFormat)
-                    .GetProperty(fileExtension, BindingFlags.Public | BindingFlags.Static | BindingFlags.IgnoreCase)
-                    .GetValue(null);
+            return SupportedFilesHelper.ParseImageFormat(extension);
         }
 
-        //static Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>> encoders = new Dictionary<ImageFormat, Action<ExportFileDialog, WriteableBitmap>>();
-        //TODO remove static methods/members
-        static Dictionary<ImageFormat, Func<BitmapEncoder>> encodersFactory = new Dictionary<ImageFormat, Func<BitmapEncoder>>();
-
-        public static ImageFormat[] Formats { get => _formats; }
+        static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
 
         static Exporter()
         {
-            encodersFactory[ImageFormat.Png] = () => { return new PngBitmapEncoder(); };
-            encodersFactory[ImageFormat.Jpeg] = () => { return new JpegBitmapEncoder(); };
-            encodersFactory[ImageFormat.Bmp] = () => { return new BmpBitmapEncoder(); };
-            encodersFactory[ImageFormat.Gif] = () => { return new GifBitmapEncoder(); };
-            encodersFactory[ImageFormat.Tiff] = () => { return new TiffBitmapEncoder(); };
+            encodersFactory[FileType.Png] = () => new PngBitmapEncoder();
+            encodersFactory[FileType.Jpeg] = () => new JpegBitmapEncoder();
+            encodersFactory[FileType.Bmp] = () => new BmpBitmapEncoder(); 
+            encodersFactory[FileType.Gif] = () => new GifBitmapEncoder();
         }
 
         /// <summary>

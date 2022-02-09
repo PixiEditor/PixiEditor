@@ -1,11 +1,8 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using System;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Windows;
 
 namespace PixiEditor.ViewModels
@@ -13,7 +10,7 @@ namespace PixiEditor.ViewModels
     internal class SaveFilePopupViewModel : ViewModelBase
     {
         private string _filePath;
-        private ImageFormat _chosenFormat;
+        private FileType _chosenFormat;
 
         public SaveFilePopupViewModel()
         {
@@ -39,7 +36,7 @@ namespace PixiEditor.ViewModels
             }
         }
 
-        public ImageFormat ChosenFormat 
+        public FileType ChosenFormat 
         { 
             get => _chosenFormat;
             set
@@ -61,8 +58,8 @@ namespace PixiEditor.ViewModels
             {
                 Title = "Export path",
                 CheckPathExists = true,
-                DefaultExt = "." + Exporter.Formats.First().ToString().ToLower(),
-                Filter = Exporter.BuildFilter()
+                Filter = SupportedFilesHelper.BuildSaveFilter(false),
+                FilterIndex = 0
             };
             if (path.ShowDialog() == true)
             {

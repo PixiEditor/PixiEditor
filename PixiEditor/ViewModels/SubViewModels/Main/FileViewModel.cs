@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Models;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
@@ -10,6 +11,7 @@ using PixiEditor.Parser;
 using PixiEditor.Views.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -199,16 +201,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
             }
         }
-
+                
         private void Open(object property)
         {
+            var filter = SupportedFilesHelper.BuildOpenFilter();
+
             OpenFileDialog dialog = new OpenFileDialog
             {
-                Filter =
-                "Any|*.pixi;*.png;*.jpg;*.jpeg;|" +
-                "PixiEditor Files | *.pixi|" +
-                "Image Files|*.png;*.jpg;*.jpeg;",
-                DefaultExt = "pixi"
+                Filter = filter,
+                FilterIndex = 0
             };
 
             if ((bool)dialog.ShowDialog())

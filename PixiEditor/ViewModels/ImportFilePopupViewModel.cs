@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Models.IO;
 using System;
 using System.IO;
 using System.Windows;
@@ -69,12 +70,12 @@ namespace PixiEditor.ViewModels
 
         private void CheckForPath(string path)
         {
-            if (File.Exists(path) && (path.EndsWith(".png") || path.EndsWith(".jpeg") || path.EndsWith(".jpg")))
+            if (SupportedFilesHelper.IsSupportedFile(path))
             {
                 try
                 {
                     filePath = path;
-                    BitmapImage bitmap = new BitmapImage(new Uri(path));
+                    var bitmap = new BitmapImage(new Uri(path));
                     ImportHeight = bitmap.PixelHeight;
                     ImportWidth = bitmap.PixelWidth;
                 }
