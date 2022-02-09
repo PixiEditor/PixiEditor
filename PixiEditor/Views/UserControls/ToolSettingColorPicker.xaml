@@ -9,7 +9,7 @@
              d:Background="{StaticResource AccentColor}">
     <Grid>
         <StackPanel Orientation="Horizontal">
-            <colorpicker:PortableColorPicker x:Name="ColorPicker" SelectedColor="{Binding SelectedColor, ElementName=uc,Mode=TwoWay}"/>
+            <colorpicker:PortableColorPicker Width="40" Height="20" x:Name="ColorPicker" SelectedColor="{Binding SelectedColor, ElementName=uc,Mode=TwoWay}"/>
             <Button Command="{Binding CopyMainColorCommand, ElementName=uc}" Style="{StaticResource DarkRoundButton}" FontSize="12" Width="100" Margin="5,0,0,0">Copy Main Color</Button>
         </StackPanel>
     </Grid>
