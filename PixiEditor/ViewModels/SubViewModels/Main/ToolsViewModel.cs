@@ -23,6 +23,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public Tool LastActionTool { get; private set; }
 
+        public bool MoveToolIsTransient { get; set; }
+
         public Cursor ToolCursor
         {
             get => toolCursor;
@@ -82,6 +84,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetActiveTool(Tool tool)
         {
+            MoveToolIsTransient = false;
             if (ActiveTool != null)
             {
                 activeTool.IsActive = false;
