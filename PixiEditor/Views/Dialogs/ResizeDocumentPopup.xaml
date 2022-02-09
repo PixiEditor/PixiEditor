@@ -9,7 +9,7 @@
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" x:Name="window"
         Title="ResizeDocumentPopup" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
-        Height="300" Width="320" MaxHeight="300" MaxWidth="300"
+        Height="305" Width="310" MinHeight="305" MinWidth="310"
         xmlns:base="clr-namespace:PixiEditor.Views"
         WindowStyle="None">
 
@@ -45,4 +45,4 @@
             />
 
     </DockPanel>
-    </base:ResizeablePopup>
+</base:ResizeablePopup>
