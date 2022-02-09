@@ -24,6 +24,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private bool restoreToolOnKeyUp = false;
 
         private MouseInputFilter filter = new();
+            
     
         public IoViewModel(ViewModelMain owner)
             : base(owner)
@@ -122,10 +123,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             if (setOn)
             {
-                if(!(Owner.ToolsSubViewModel.ActiveTool is MoveViewportTool))
+                var moveViewportToolIsActive = Owner.ToolsSubViewModel.ActiveTool is MoveViewportTool;
+                if (!moveViewportToolIsActive)
+                {
                     Owner.ToolsSubViewModel.SetActiveTool<MoveViewportTool>();
+                    Owner.ToolsSubViewModel.MoveToolIsTransient = true;
+                }
             }
-            else if (Owner.ToolsSubViewModel.LastActionTool != null)
+            else if (Owner.ToolsSubViewModel.LastActionTool != null && Owner.ToolsSubViewModel.MoveToolIsTransient)
             {
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
             }
