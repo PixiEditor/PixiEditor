@@ -24,6 +24,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private bool restoreToolOnKeyUp = false;
 
         private MouseInputFilter filter = new();
+            
     
         public IoViewModel(ViewModelMain owner)
             : base(owner)
