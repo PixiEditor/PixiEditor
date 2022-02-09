@@ -8,6 +8,8 @@ namespace PixiEditor.ViewModels
 {
     public class CrashReportViewModel : ViewModelBase
     {
+        private bool hasRecoveredDocuments = true;
+
         public CrashReport CrashReport { get; }
 
         public string ReportText { get; }
@@ -30,7 +32,7 @@ namespace PixiEditor.ViewModels
             ReportText = report.ReportText;
             DocumentCount = report.GetDocumentCount();
             OpenSendCrashReportCommand = new(() => new SendCrashReportWindow(CrashReport).Show());
-            RecoverDocumentsCommand = new(RecoverDocuments);
+            RecoverDocumentsCommand = new(RecoverDocuments, () => hasRecoveredDocuments, false);
             AttachDebuggerCommand = new(AttachDebugger);
         }
 
@@ -40,6 +42,7 @@ namespace PixiEditor.ViewModels
 
             Application.Current.MainWindow = window;
             window.Show();
+            hasRecoveredDocuments = false;
         }
 
         [Conditional("DEBUG")]
