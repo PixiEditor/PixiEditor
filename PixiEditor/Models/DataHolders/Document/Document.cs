@@ -132,11 +132,13 @@ namespace PixiEditor.Models.DataHolders
             Thickness[] oldOffsets = Layers.Select(x => x.Offset).ToArray();
             int oldWidth = Width;
             int oldHeight = Height;
+            PixelSize diff = new PixelSize(width - oldWidth, height - oldHeight);
+            PixelSize[] oldSize = Layers.Select(x => x.GetSize()).ToArray();
 
             MoveOffsets(Layers, moveVector);
 
-            object[] reverseArguments = { oldOffsets, oldWidth, oldHeight };
-            object[] processArguments = { Layers.Select(x => x.Offset).ToArray(), width, height };
+            object[] reverseArguments = { oldOffsets, oldWidth, oldHeight, oldSize };
+            object[] processArguments = { Layers.Select(x => x.Offset).ToArray(), width, height, Layers.Select(x => x.GetSize() + diff).ToArray() };
 
             ResizeCanvasProcess(processArguments);
 

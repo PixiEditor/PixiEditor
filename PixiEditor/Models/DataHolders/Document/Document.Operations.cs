@@ -7,6 +7,7 @@ using SkiaSharp;
 using System;
 using System.Linq;
 using System.Windows;
+using Windows.Graphics;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -31,12 +32,19 @@ namespace PixiEditor.Models.DataHolders
             int offsetX = GetOffsetXForAnchor(Width, width, anchor);
             int offsetY = GetOffsetYForAnchor(Height, height, anchor);
 
+            int widthDiff = width - oldWidth;
+            int heightDiff = height - oldHeight;
+
+            PixelSize diff = new PixelSize(widthDiff, heightDiff);
+
             Thickness[] oldOffsets = Layers.Select(x => x.Offset).ToArray();
+            PixelSize[] oldRects = Layers.Select(x => x.GetSize()).ToArray();
+            PixelSize[] newRects = Layers.Select(x => x.GetSize() + diff).ToArray();
             Thickness[] newOffsets = Layers.Select(x => new Thickness(offsetX + x.OffsetX, offsetY + x.OffsetY, 0, 0))
                 .ToArray();
 
-            object[] processArgs = { newOffsets, width, height };
-            object[] reverseProcessArgs = { oldOffsets, Width, Height };
+            object[] processArgs = { newOffsets, width, height, newRects };
+            object[] reverseProcessArgs = { oldOffsets, Width, Height, oldRects };
 
             ResizeCanvas(newOffsets, width, height);
             UndoManager.AddUndoChange(new Change(
@@ -269,8 +277,18 @@ namespace PixiEditor.Models.DataHolders
             Thickness[] offset = (Thickness[])arguments[0];
             int width = (int)arguments[1];
             int height = (int)arguments[2];
+            PixelSize[] layersBounds = (PixelSize[])arguments[3];
             ResizeCanvas(offset, width, height);
+            RestoreLayerBounds(layersBounds);
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
+        }
+
+        private void RestoreLayerBounds(PixelSize[] layersBounds)
+        {
+            for (int i = 0; i < layersBounds.Length; i++)
+            {
+                Layers[i].DynamicResizeAbsolute(new Int32Rect(Layers[i].OffsetX, Layers[i].OffsetY, layersBounds[i].Width, layersBounds[i].Height));
+            }
         }
     }
 }

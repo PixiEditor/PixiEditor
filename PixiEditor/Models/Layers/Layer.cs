@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using Windows.Graphics;
 
 namespace PixiEditor.Models.Layers
 {
@@ -525,6 +526,7 @@ namespace PixiEditor.Models.Layers
         }
 
         public SKRectI GetRect() => SKRectI.Create(OffsetX, OffsetY, Width, Height);
+        public PixelSize GetSize() => new PixelSize(Width, Height);
 
         public void CropIntersect(SKRectI rect)
         {

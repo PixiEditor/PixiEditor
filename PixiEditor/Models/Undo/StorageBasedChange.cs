@@ -98,6 +98,8 @@ namespace PixiEditor.Models.Undo
 
                     targetSizeSurface.SkiaSurface.Canvas.DrawImage(image, finalRect, SKRect.Create(0, 0, finalRect.Width, finalRect.Height), Surface.ReplacingPaint);
 
+                    //DebugSavePng(targetSizeSurface, storedLayer);
+
                     Exporter.SaveAsGZippedBytes(storedLayer.StoredPngLayerName, targetSizeSurface);
                 }
 
@@ -112,7 +114,7 @@ namespace PixiEditor.Models.Undo
         {
             //Debug png visualization
             using var targetSizeImage = surface.SkiaSurface.Snapshot();
-            using (var data = targetSizeImage.Encode(SKEncodedImageFormat.Png, 80))
+            using (var data = targetSizeImage.Encode(SKEncodedImageFormat.Png, 100))
             using (var stream = File.OpenWrite(storedLayer.StoredPngLayerName + ".png"))
             {
                 // save the data to a stream
@@ -360,6 +362,19 @@ namespace PixiEditor.Models.Undo
             int targetOffsetX = Math.Min(layerData.OffsetX, layerData.SerializedRect.Left);
             int targetOffsetY = Math.Min(layerData.OffsetY, layerData.SerializedRect.Top);
 
+            bool applyOffsetDiffX = layerData.OffsetX < layerData.SerializedRect.Left && chunk.Width > layer.Width;
+            bool applyOffsetDiffY = layerData.OffsetY < layerData.SerializedRect.Top && chunk.Height > layer.Height;
+
+            if(applyOffsetDiffX)
+            {
+                targetWidth += layerData.SerializedRect.Left;
+            }
+
+            if(applyOffsetDiffY)
+            {
+                targetHeight += layerData.SerializedRect.Top;
+            }
+
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
 
@@ -375,7 +390,7 @@ namespace PixiEditor.Models.Undo
 
             SKRect finalRect = SKRect.Create(
                 layerData.SerializedRect.Left - layer.OffsetX,
-                layerData.SerializedRect.Top - layer.OffsetY,
+                layerData.SerializedRect.Top - layer.OffsetY, 
                 layerData.SerializedRect.Width,
                 layerData.SerializedRect.Height);
 
@@ -385,6 +400,8 @@ namespace PixiEditor.Models.Undo
                 snapshot,
                 finalRect,
                 Surface.ReplacingPaint);
+
+            //DebugSavePng(targetSizeSurface, layerData);
 
             layer.LayerBitmap = targetSizeSurface;
         }
