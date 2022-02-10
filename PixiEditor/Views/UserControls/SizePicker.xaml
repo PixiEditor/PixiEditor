@@ -57,10 +57,11 @@
                                      Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}"
                                      Unit="Percentage"
                                      Margin="-10,0,0,0"
+                                     MaxSize="999900"
                                      Width="80">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="LostFocus">
-                            <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>
+                            <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=PercentageLostFocusCommand}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </local:SizeInput>
