@@ -76,6 +76,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
+        public void SetupToolsTooltipShortcuts(IServiceProvider services)
+        {
+            foreach (var tool in ToolSet)
+            {
+                tool.ShortcutKey = Owner.ShortcutController.GetToolShortcutKey(tool.GetType());
+            }
+        }
+
         public void SetActiveTool<T>()
             where T : Tool
         {
