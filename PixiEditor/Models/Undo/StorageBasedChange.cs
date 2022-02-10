@@ -4,6 +4,7 @@ using PixiEditor.Models.Layers;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -104,6 +105,19 @@ namespace PixiEditor.Models.Undo
             }
 
             layersToStore = new List<Guid>();
+        }
+
+        [Conditional("DEBUG")]
+        private static void DebugSavePng(Surface surface, UndoLayer storedLayer)
+        {
+            //Debug png visualization
+            using var targetSizeImage = surface.SkiaSurface.Snapshot();
+            using (var data = targetSizeImage.Encode(SKEncodedImageFormat.Png, 80))
+            using (var stream = File.OpenWrite(storedLayer.StoredPngLayerName + ".png"))
+            {
+                // save the data to a stream
+                data.SaveTo(stream);
+            }
         }
 
         /// <summary>
@@ -337,22 +351,14 @@ namespace PixiEditor.Models.Undo
 
         private static void ApplyChunkToLayer(Layer layer, UndoLayer layerData, Surface chunk)
         {
-            bool widthBigger = layer.Width < chunk.Width;
-            bool heightBigger = layer.Height < chunk.Height;
-            int targetWidth = widthBigger ? chunk.Width : layer.Width;
-            int targetHeight = heightBigger ? chunk.Height : layer.Height;
+            int targetWidth = Math.Max(chunk.Width, layer.Width);
+            int targetHeight = Math.Max(chunk.Height, layer.Height);
 
-            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth);
-            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight);
+            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth - layerData.OffsetX);
+            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight - layerData.OffsetY);
 
-            int offsetDiffX = layerData.SerializedRect.Left - layer.OffsetX;
-            int offsetDiffY = layerData.SerializedRect.Top - layer.OffsetY;
-
-            bool offsetXBigger = Math.Abs(offsetDiffX) > 0;
-            bool offsetYBigger = Math.Abs(offsetDiffY) > 0;
-
-            int targetOffsetX = offsetXBigger ? layerData.OffsetX : layerData.SerializedRect.Left;
-            int targetOffsetY = offsetYBigger ? layerData.OffsetY : layerData.SerializedRect.Top;
+            int targetOffsetX = Math.Min(layerData.OffsetX, layerData.SerializedRect.Left);
+            int targetOffsetY = Math.Min(layerData.OffsetY, layerData.SerializedRect.Top);
 
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
