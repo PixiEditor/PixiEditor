@@ -218,6 +218,8 @@ namespace PixiEditor.ViewModels
                         new Shortcut(Key.F1, MiscSubViewModel.OpenShortcutWindowCommand, "Open shortcuts window", true)));
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
+
+            ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
         }
 
         /// <summary>
