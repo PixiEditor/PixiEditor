@@ -372,25 +372,25 @@ namespace PixiEditor.Models.Undo
                 targetHeight += layerData.SerializedRect.Top;
             }
 
-            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth - layerData.OffsetX);
-            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight - layerData.OffsetY);
-
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
+
+            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth - targetOffsetX);
+            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight - targetOffsetY);
 
             Surface targetSizeSurface = new Surface(targetWidth, targetHeight);
             using var foundLayerSnapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
             targetSizeSurface.SkiaSurface.Canvas.DrawImage(
                 foundLayerSnapshot,
                 SKRect.Create(0, 0, layer.Width, layer.Height),
-                SKRect.Create(0, 0, targetWidth, targetHeight),
+                SKRect.Create(0, 0, layer.Width, layer.Height),
                 Surface.ReplacingPaint);
 
             layer.Offset = new Thickness(targetOffsetX, targetOffsetY, 0, 0);
 
             SKRect finalRect = SKRect.Create(
-                layerData.SerializedRect.Left - layer.OffsetX,
-                layerData.SerializedRect.Top - layer.OffsetY, 
+                layerData.SerializedRect.Left - targetOffsetX,
+                layerData.SerializedRect.Top - targetOffsetY, 
                 layerData.SerializedRect.Width,
                 layerData.SerializedRect.Height);
 
