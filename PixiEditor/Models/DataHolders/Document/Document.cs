@@ -132,7 +132,7 @@ namespace PixiEditor.Models.DataHolders
             Thickness[] oldOffsets = Layers.Select(x => x.Offset).ToArray();
             int oldWidth = Width;
             int oldHeight = Height;
-            PixelSize diff = new PixelSize(width - oldWidth, height - oldHeight);
+            PixelSize diff = new PixelSize(Math.Abs(width - oldWidth), Math.Abs(height - oldHeight));
             PixelSize[] oldSize = Layers.Select(x => x.GetSize()).ToArray();
 
             MoveOffsets(Layers, moveVector);

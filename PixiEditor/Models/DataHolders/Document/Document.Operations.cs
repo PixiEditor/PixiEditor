@@ -32,8 +32,8 @@ namespace PixiEditor.Models.DataHolders
             int offsetX = GetOffsetXForAnchor(Width, width, anchor);
             int offsetY = GetOffsetYForAnchor(Height, height, anchor);
 
-            int widthDiff = width - oldWidth;
-            int heightDiff = height - oldHeight;
+            int widthDiff = Math.Abs(width - oldWidth);
+            int heightDiff = Math.Abs(height - oldHeight);
 
             PixelSize diff = new PixelSize(widthDiff, heightDiff);
 

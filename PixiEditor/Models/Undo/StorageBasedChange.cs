@@ -356,9 +356,6 @@ namespace PixiEditor.Models.Undo
             int targetWidth = Math.Max(chunk.Width, layer.Width);
             int targetHeight = Math.Max(chunk.Height, layer.Height);
 
-            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth - layerData.OffsetX);
-            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight - layerData.OffsetY);
-
             int targetOffsetX = Math.Min(layerData.OffsetX, layerData.SerializedRect.Left);
             int targetOffsetY = Math.Min(layerData.OffsetY, layerData.SerializedRect.Top);
 
@@ -374,6 +371,9 @@ namespace PixiEditor.Models.Undo
             {
                 targetHeight += layerData.SerializedRect.Top;
             }
+
+            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth - layerData.OffsetX);
+            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight - layerData.OffsetY);
 
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
