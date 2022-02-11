@@ -112,6 +112,9 @@ namespace PixiEditor.Models.DataHolders
                     MaxAllowedHeightInPixels = Constants.MaxHeight,
                 };
 
+                if (bitmap == null)
+                    return null;
+
                 return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
                     bitmap
                     : bitmap.Resize(width: Constants.MaxWidth, height: Constants.MaxHeight, WriteableBitmapExtensions.Interpolation.Bilinear);
