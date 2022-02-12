@@ -416,7 +416,6 @@ namespace PixiEditor.Models.Undo
             //DebugSavePng(targetSizeSurface, layerData);
 
             layer.LayerBitmap = targetSizeSurface;
-            layer.ClipCanvas();
         }
 
         public void Dispose()
