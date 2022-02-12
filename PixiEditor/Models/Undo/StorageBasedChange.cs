@@ -359,18 +359,11 @@ namespace PixiEditor.Models.Undo
             int targetOffsetX = Math.Min(layerData.OffsetX, layerData.SerializedRect.Left);
             int targetOffsetY = Math.Min(layerData.OffsetY, layerData.SerializedRect.Top);
 
-            bool applyOffsetDiffX = layerData.OffsetX < layerData.SerializedRect.Left && chunk.Width > layer.Width;
-            bool applyOffsetDiffY = layerData.OffsetY < layerData.SerializedRect.Top && chunk.Height > layer.Height;
+            int offsetDiffX = Math.Abs(layerData.OffsetX - layerData.SerializedRect.Left);
+            int offsetDiffY = Math.Abs(layerData.OffsetY - layerData.SerializedRect.Top);
 
-            if(applyOffsetDiffX)
-            {
-                targetWidth += layerData.SerializedRect.Left;
-            }
-
-            if(applyOffsetDiffY)
-            {
-                targetHeight += layerData.SerializedRect.Top;
-            }
+            targetWidth += offsetDiffX;
+            targetHeight += offsetDiffY;
 
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
@@ -383,7 +376,7 @@ namespace PixiEditor.Models.Undo
             targetSizeSurface.SkiaSurface.Canvas.DrawImage(
                 foundLayerSnapshot,
                 SKRect.Create(0, 0, layer.Width, layer.Height),
-                SKRect.Create(0, 0, layer.Width, layer.Height),
+                SKRect.Create(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height),
                 Surface.ReplacingPaint);
 
             layer.Offset = new Thickness(targetOffsetX, targetOffsetY, 0, 0);
@@ -404,6 +397,7 @@ namespace PixiEditor.Models.Undo
             //DebugSavePng(targetSizeSurface, layerData);
 
             layer.LayerBitmap = targetSizeSurface;
+            layer.ClipCanvas();
         }
 
         public void Dispose()
