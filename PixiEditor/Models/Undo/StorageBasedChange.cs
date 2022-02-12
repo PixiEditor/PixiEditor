@@ -32,6 +32,12 @@ namespace PixiEditor.Models.Undo
             Initialize(layers, DefaultUndoChangeLocation, saveOnStartup);
         }
 
+        public StorageBasedChange(Document doc, IEnumerable<Layer> layers, bool useDocumentSize, bool saveOnStartup)
+        {
+            Document = doc;
+            Initialize(layers, DefaultUndoChangeLocation, saveOnStartup, useDocumentSize);
+        }
+
         public StorageBasedChange(Document doc, IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup = true)
         {
             Document = doc;
@@ -58,14 +64,27 @@ namespace PixiEditor.Models.Undo
             }
         }
 
-        private void Initialize(IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup)
+        private void Initialize(IEnumerable<Layer> layers, string undoChangeLocation, bool saveOnStartup, bool useDocumentSize = false)
         {
             var layersArray = layers as Layer[] ?? layers.ToArray();
             LayerChunk[] layerChunks = new LayerChunk[layersArray.Length];
             for (var i = 0; i < layersArray.Length; i++)
             {
                 var layer = layersArray[i];
-                layerChunks[i] = new LayerChunk(layer, SKRectI.Create(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height));
+                int width = layer.Width;
+                int height = layer.Height;
+                int offsetX = layer.OffsetX;
+                int offsetY = layer.OffsetY;
+
+                if (useDocumentSize)
+                {
+                    width = layer.MaxWidth;
+                    height = layer.MaxHeight;
+                    offsetX = 0;
+                    offsetY = 0;
+                }
+
+                layerChunks[i] = new LayerChunk(layer, SKRectI.Create(offsetX, offsetY, width, height));
                 layersToStore.Add(layer.GuidValue);
             }
 
