@@ -378,11 +378,11 @@ namespace PixiEditor.Models.Undo
             int targetOffsetX = Math.Min(layerData.OffsetX, layerData.SerializedRect.Left);
             int targetOffsetY = Math.Min(layerData.OffsetY, layerData.SerializedRect.Top);
 
-            int offsetDiffX = Math.Abs(layerData.OffsetX - layerData.SerializedRect.Left);
-            int offsetDiffY = Math.Abs(layerData.OffsetY - layerData.SerializedRect.Top);
+            int offsetDiffX = layerData.OffsetX - layerData.SerializedRect.Left;
+            int offsetDiffY = layerData.OffsetY - layerData.SerializedRect.Top;
 
-            targetWidth += offsetDiffX;
-            targetHeight += offsetDiffY;
+            targetWidth += Math.Abs(offsetDiffX);
+            targetHeight += Math.Abs(offsetDiffY);
 
             targetOffsetX = Math.Max(0, targetOffsetX);
             targetOffsetY = Math.Max(0, targetOffsetY);
@@ -395,7 +395,7 @@ namespace PixiEditor.Models.Undo
             targetSizeSurface.SkiaSurface.Canvas.DrawImage(
                 foundLayerSnapshot,
                 SKRect.Create(0, 0, layer.Width, layer.Height),
-                SKRect.Create(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height),
+                SKRect.Create(offsetDiffX > 0 ? layer.OffsetX : 0, offsetDiffY > 0 ? layer.OffsetY : 0, layer.Width, layer.Height),
                 Surface.ReplacingPaint);
 
             layer.Offset = new Thickness(targetOffsetX, targetOffsetY, 0, 0);
