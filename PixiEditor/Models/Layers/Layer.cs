@@ -528,7 +528,6 @@ namespace PixiEditor.Models.Layers
         }
 
         public SKRectI GetRect() => SKRectI.Create(OffsetX, OffsetY, Width, Height);
-        public PixelSize GetSize() => new PixelSize(Width, Height);
 
         public void CropIntersect(SKRectI rect)
         {

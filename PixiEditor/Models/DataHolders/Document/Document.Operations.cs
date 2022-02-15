@@ -290,18 +290,8 @@ namespace PixiEditor.Models.DataHolders
             Thickness[] offset = (Thickness[])arguments[0];
             int width = (int)arguments[1];
             int height = (int)arguments[2];
-            PixelSize[] layersBounds = (PixelSize[])arguments[3];
             ResizeCanvas(offset, width, height);
-            RestoreLayerBounds(layersBounds);
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
-        }
-
-        private void RestoreLayerBounds(PixelSize[] layersBounds)
-        {
-            for (int i = 0; i < layersBounds.Length; i++)
-            {
-                Layers[i].DynamicResizeAbsolute(new Int32Rect(Layers[i].OffsetX, Layers[i].OffsetY, layersBounds[i].Width, layersBounds[i].Height));
-            }
         }
     }
 }
