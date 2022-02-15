@@ -93,7 +93,7 @@ namespace PixiEditor.Models.Undo
                         storedLayer.SerializedRect.Height);
 
                     using var image = layer.LayerBitmap.SkiaSurface.Snapshot();
-                    Surface targetSizeSurface = new Surface(finalRect.Width, finalRect.Height);
+                    using Surface targetSizeSurface = new Surface(finalRect.Width, finalRect.Height);
 
                     targetSizeSurface.SkiaSurface.Canvas.DrawImage(image, finalRect, SKRect.Create(0, 0, finalRect.Width, finalRect.Height), Surface.ReplacingPaint);
 

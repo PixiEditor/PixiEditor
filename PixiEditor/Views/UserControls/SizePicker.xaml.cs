@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,11 +21,8 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty ChosenHeightProperty =
             DependencyProperty.Register(nameof(ChosenHeight), typeof(int), typeof(SizePicker), new PropertyMetadata(1));
 
-        public static readonly DependencyProperty NextControlProperty =
-            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizePicker));
-
         public static readonly DependencyProperty ChosenPercentageSizeProperty =
-            DependencyProperty.Register(nameof(ChosenPercentageSize), typeof(int), typeof(SizePicker), new PropertyMetadata(1, InputSizeChanged));
+            DependencyProperty.Register(nameof(ChosenPercentageSize), typeof(float), typeof(SizePicker), new PropertyMetadata(100f));
 
         public static readonly DependencyProperty SelectedUnitProperty =
             DependencyProperty.Register(nameof(SelectedUnit), typeof(SizeUnit), typeof(SizePicker), new PropertyMetadata(SizeUnit.Pixel));
@@ -35,24 +31,6 @@ namespace PixiEditor.Views
             DependencyProperty.Register(nameof(SizeUnitSelectionVisibility), typeof(Visibility), typeof(SizePicker), new PropertyMetadata(Visibility.Collapsed));
 
         System.Drawing.Size? initSize = null;
-               
-        private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var sizePicker = d as SizePicker;
-            if (!sizePicker.initSize.HasValue)
-                return;
-
-            var newValue = (int)e.NewValue;
-            var newSize = SizeCalculator.CalcAbsoluteFromPercentage(newValue, sizePicker.initSize.Value);
-            if (newSize.Width > Constants.MaxCanvasWidth || newSize.Height > Constants.MaxCanvasHeight)
-            {
-                newSize = new System.Drawing.Size(Constants.MaxCanvasWidth, Constants.MaxCanvasHeight);
-                d.SetValue(ChosenPercentageSizeProperty, SizeCalculator.CalcPercentageFromAbsolute(sizePicker.initSize.Value.Width, newSize.Width));
-            }
-            
-            d.SetValue(ChosenWidthProperty, newSize.Width);
-            d.SetValue(ChosenHeightProperty, newSize.Height);
-        }
 
         public bool EditingEnabled
         {
@@ -72,13 +50,13 @@ namespace PixiEditor.Views
             set => SetValue(ChosenHeightProperty, value);
         }
 
-        public int ChosenPercentageSize
+        public float ChosenPercentageSize
         {
-            get => (int)GetValue(ChosenPercentageSizeProperty);
+            get => (float)GetValue(ChosenPercentageSizeProperty);
             set => SetValue(ChosenPercentageSizeProperty, value);
         }
 
-        public SizeUnit SelectedUnit 
+        public SizeUnit SelectedUnit
         {
             get => (SizeUnit)GetValue(SelectedUnitProperty);
             set => SetValue(SelectedUnitProperty, value);
@@ -90,12 +68,6 @@ namespace PixiEditor.Views
             set => SetValue(SizeUnitSelectionVisibilityProperty, value);
         }
 
-        public FrameworkElement NextControl
-        {
-            get => (FrameworkElement)GetValue(NextControlProperty);
-            set => SetValue(NextControlProperty, value);
-        }
-
         public bool PreserveAspectRatio
         {
             get => (bool)GetValue(PreserveAspectRatioProperty);
@@ -105,12 +77,14 @@ namespace PixiEditor.Views
         public RelayCommand LoadedCommand { get; private set; }
         public RelayCommand WidthLostFocusCommand { get; private set; }
         public RelayCommand HeightLostFocusCommand { get; private set; }
-                        
+        public RelayCommand PercentageLostFocusCommand { get; private set; }
+
         public SizePicker()
         {
             LoadedCommand = new(AfterLoaded);
             WidthLostFocusCommand = new(WidthLostFocus);
             HeightLostFocusCommand = new(HeightLostFocus);
+            PercentageLostFocusCommand = new(PercentageLostFocus);
             InitializeComponent();
         }
 
@@ -128,6 +102,46 @@ namespace PixiEditor.Views
         private void WidthLostFocus(object param) => OnSizeUpdate(true);
         private void HeightLostFocus(object param) => OnSizeUpdate(false);
 
+        private void PercentageLostFocus(object param)
+        {
+            if (!initSize.HasValue)
+                return;
+
+            float targetPercentage = GetTargetPercentage(initSize.Value, ChosenPercentageSize);
+            var newSize = SizeCalculator.CalcAbsoluteFromPercentage(targetPercentage, initSize.Value);
+
+            //this shouldn't ever be necessary but just in case
+            newSize.Width = Math.Clamp(newSize.Width, 1, Constants.MaxCanvasSize);
+            newSize.Height = Math.Clamp(newSize.Height, 1, Constants.MaxCanvasSize);
+
+            ChosenPercentageSize = targetPercentage;
+            ChosenWidth = newSize.Width;
+            ChosenHeight = newSize.Height;
+        }
+
+        private static float GetTargetPercentage(System.Drawing.Size initSize, float desiredPercentage)
+        {
+            var potentialSize = SizeCalculator.CalcAbsoluteFromPercentage(desiredPercentage, initSize);
+            // all good
+            if (potentialSize.Width > 0 && potentialSize.Height > 0 && potentialSize.Width <= Constants.MaxCanvasSize && potentialSize.Height <= Constants.MaxCanvasSize)
+                return desiredPercentage;
+
+            // canvas too small
+            if (potentialSize.Width <= 0 || potentialSize.Height <= 0)
+            {
+                if (potentialSize.Width < potentialSize.Height)
+                    return 100f / initSize.Width;
+                else
+                    return 100f / initSize.Height;
+            }
+
+            // canvas too big
+            if (potentialSize.Width > potentialSize.Height)
+                return Constants.MaxCanvasSize * 100f / initSize.Width;
+            else
+                return Constants.MaxCanvasSize * 100f / initSize.Height;
+        }
+
         private void OnSizeUpdate(bool widthUpdated)
         {
             if (!initSize.HasValue || !PreserveAspectRatio)
@@ -142,7 +156,7 @@ namespace PixiEditor.Views
                 ChosenWidth = Math.Clamp(ChosenHeight * initSize.Value.Width / initSize.Value.Height, 1, WidthPicker.MaxSize);
             }
         }
-                
+
         private void PercentageRb_Checked(object sender, RoutedEventArgs e)
         {
             EnableSizeEditors();
@@ -155,11 +169,11 @@ namespace PixiEditor.Views
 
         private void EnableSizeEditors()
         {
-            if(PercentageSizePicker != null)
+            if (PercentageSizePicker != null)
                 PercentageSizePicker.IsEnabled = EditingEnabled && PercentageRb.IsChecked.Value;
             if (WidthPicker != null)
                 WidthPicker.IsEnabled = EditingEnabled && !PercentageRb.IsChecked.Value;
-            if(HeightPicker != null)
+            if (HeightPicker != null)
                 HeightPicker.IsEnabled = EditingEnabled && !PercentageRb.IsChecked.Value;
         }
     }

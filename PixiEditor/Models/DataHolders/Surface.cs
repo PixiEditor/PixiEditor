@@ -118,8 +118,8 @@ namespace PixiEditor.Models.DataHolders
         public unsafe SKColor GetSRGBPixel(int x, int y)
         {
             Half* ptr = (Half*)(surfaceBuffer + (x + y * Width) * 8);
-            SKColor color = (SKColor)new SKColorF((float)ptr[0], (float)ptr[1], (float)ptr[2], (float)ptr[3]);
-            return SKPMColor.UnPreMultiply(new SKPMColor((uint)color));
+            float a = (float)ptr[3];
+            return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
         }
 
         public void SetSRGBPixel(int x, int y, SKColor color)
