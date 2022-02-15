@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using PixiEditor.Models.Enums;
+using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -18,6 +20,19 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty BehaveLikeSmallEmbeddedFieldProperty =
             DependencyProperty.Register(nameof(BehaveLikeSmallEmbeddedField), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
 
+        public static readonly DependencyProperty UnitProperty =
+            DependencyProperty.Register(nameof(Unit), typeof(SizeUnit), typeof(SizeInput), new PropertyMetadata(SizeUnit.Pixel));
+
+        public SizeInput()
+        {
+            InitializeComponent();
+        }
+
+        private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            textBox.Focus();
+        }
+
         public int Size
         {
             get => (int)GetValue(SizeProperty);
@@ -35,12 +50,7 @@ namespace PixiEditor.Views
             get => (bool)GetValue(BehaveLikeSmallEmbeddedFieldProperty);
             set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
         }
-
-        public SizeInput()
-        {
-            InitializeComponent();
-        }
-
+                
         public void FocusAndSelect()
         {
             textBox.Focus();
@@ -60,6 +70,12 @@ namespace PixiEditor.Views
             else
                 textBox.CaretIndex = charIndex;
             e.Handled = true;
+        }
+
+        public SizeUnit Unit
+        {
+          get => (SizeUnit)GetValue(UnitProperty);
+          set => SetValue(UnitProperty, value);
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

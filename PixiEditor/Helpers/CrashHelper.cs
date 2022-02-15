@@ -1,25 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using ByteSizeLib;
+using Hardware.Info;
+using PixiEditor.Models.DataHolders;
+using System;
+using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Helpers
 {
-    public static class CrashHelper
+    public class CrashHelper
     {
-        public static void SaveCrashInfo(Exception e)
+        private readonly IHardwareInfo hwInfo;
+
+        public static void SaveCrashInfo(Exception exception)
         {
-            StringBuilder builder = new System.Text.StringBuilder();
-            DateTime currentTime = DateTime.Now;
+            CrashReport report = CrashReport.Generate(exception);
+            report.TrySave();
+            report.RestartToCrashReport();
+        }
+
+        public CrashHelper()
+        {
+            hwInfo = new HardwareInfo();
+        }
+
+        public void GetCPUInformation(StringBuilder builder)
+        {
+            builder.AppendLine("CPU:");
+            hwInfo.RefreshCPUList(false);
+
+            foreach (var processor in hwInfo.CpuList)
+            {
+                builder
+                    .AppendLine($"  Name: {processor.Name}")
+                    .AppendLine($"  Speed: {(processor.CurrentClockSpeed / 1000f).ToString("F2", CultureInfo.InvariantCulture)} GHz")
+                    .AppendLine($"  Max Speed: {(processor.MaxClockSpeed / 1000f).ToString("F2", CultureInfo.InvariantCulture)} GHz")
+                    .AppendLine();
+            }
+        }
+
+        public void GetGPUInformation(StringBuilder builder)
+        {
+            builder.AppendLine("GPU:");
+            hwInfo.RefreshVideoControllerList();
+
+            foreach (var gpu in hwInfo.VideoControllerList)
+            {
+                builder
+                    .AppendLine($"  Name: {gpu.Name}")
+                    .AppendLine($"  Driver: {gpu.DriverVersion}")
+                    .AppendLine();
+            }
+        }
+
+        public void GetMemoryInformation(StringBuilder builder)
+        {
+            builder.AppendLine("Memory:");
+            hwInfo.RefreshMemoryStatus();
+
+            var memInfo = hwInfo.MemoryStatus;
 
             builder
-                .Append($"PixiEditor crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss}\n\n")
-                .Append("-------Crash message-------\n")
+                .AppendLine($"  Available: {new ByteSize(memInfo.AvailablePhysical).ToString("", CultureInfo.InvariantCulture)}")
+                .AppendLine($"  Total: {new ByteSize(memInfo.TotalPhysical).ToString("", CultureInfo.InvariantCulture)}");
+        }
+
+        public static void AddExceptionMessage(StringBuilder builder, Exception e)
+        {
+            builder
+                .AppendLine("\n-------Crash message-------")
                 .Append(e.GetType().ToString())
                 .Append(": ")
-                .Append(e.Message);
+                .AppendLine(e.Message);
             {
                 var innerException = e.InnerException;
                 while (innerException != null)
@@ -46,14 +97,6 @@ namespace PixiEditor.Helpers
                     innerException = innerException.InnerException;
                 }
             }
-
-            string filename = $"crash-{currentTime:yyyy-MM-dd_HH-mm-ss_fff}.txt";
-            string path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "PixiEditor",
-                "crash_logs");
-            Directory.CreateDirectory(path);
-            File.WriteAllText(Path.Combine(path, filename), builder.ToString());
         }
     }
 }

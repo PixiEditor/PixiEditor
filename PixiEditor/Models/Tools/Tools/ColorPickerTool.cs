@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override bool RequiresPreciseMouseData => true;
 
-        public override string Tooltip => "Picks the primary color from the canvas. (O)";
+        public override string Tooltip => $"Picks the primary color from the canvas. ({ShortcutKey})";
 
         public override void Use(IReadOnlyList<Coordinates> recordedMouseMovement)
         {

@@ -8,4 +8,6 @@
     <SolidColorBrush x:Key="BrighterAccentColor" Color="#3F3F46" />
     <SolidColorBrush x:Key="AlmostLightModeAccentColor" Color="#4F4F4F" />
     <SolidColorBrush x:Key="SelectionColor" Color="#999" />
+    <SolidColorBrush x:Key="UIElementBlue" Color="#FF0077C9"/>
+    <SolidColorBrush x:Key="UIElementBorder" Color="#3F3F46" />
 </ResourceDictionary>

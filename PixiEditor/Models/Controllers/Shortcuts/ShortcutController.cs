@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
@@ -16,6 +17,29 @@ namespace PixiEditor.Models.Controllers.Shortcuts
         public ObservableCollection<ShortcutGroup> ShortcutGroups { get; init; }
 
         public Shortcut LastShortcut { get; private set; }
+
+        public const Key MoveViewportToolTransientChangeKey = Key.Space;
+
+        public Shortcut GetToolShortcut<T>()
+        {
+            return GetToolShortcut(typeof(T));
+        }
+
+        public Shortcut GetToolShortcut(Type type)
+        {
+            return ShortcutGroups.SelectMany(x => x.Shortcuts).ToList().Where(i => i.CommandParameter is Type nextType && nextType == type).SingleOrDefault();
+        }
+
+        public Key GetToolShortcutKey<T>()
+        {
+            return GetToolShortcutKey(typeof(T));
+        }
+
+        public Key GetToolShortcutKey(Type type)
+        {
+            var sh = GetToolShortcut(type);
+            return sh != null ? sh.ShortcutKey : Key.None;
+        }
 
         public void KeyPressed(Key key, ModifierKeys modifiers)
         {
