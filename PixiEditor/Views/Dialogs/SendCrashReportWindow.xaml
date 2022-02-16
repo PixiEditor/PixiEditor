@@ -9,6 +9,7 @@
         Title="Send crash report"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
+        MinHeight="195" MinWidth="340"
         Height="195" Width="340">
     <Window.Resources>
         <Style TargetType="TextBlock">
