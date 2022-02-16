@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Tools.Tools
                 affectedLayers = doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray();
             }
 
-            change = new StorageBasedChange(doc, affectedLayers, true);
+            change = new StorageBasedChange(doc, affectedLayers, true, true);
 
             Layer selLayer = selection.SelectionLayer;
             moveStartRect = anySelection ?

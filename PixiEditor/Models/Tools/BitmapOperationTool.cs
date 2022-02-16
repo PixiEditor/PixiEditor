@@ -56,7 +56,7 @@ namespace PixiEditor.Models.Tools
             Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
             var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
             SKRectI finalRect = toolSessionRect;
-            if (toolSize != null)
+            if (toolSize != null && toolSize.Value > 1)
             {
                 int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
                 finalRect.Inflate(halfSize, halfSize);
