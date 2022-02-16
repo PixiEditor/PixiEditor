@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using Windows.Graphics;
 
 namespace PixiEditor.Models.Layers
 {
@@ -207,6 +208,8 @@ namespace PixiEditor.Models.Layers
         public int MaxHeight { get; set; } = int.MaxValue;
 
         public bool IsReset { get; private set; }
+
+        public Int32Rect TightBounds => GetContentDimensions();
 
         public event EventHandler<Int32Rect> LayerBitmapChanged;
 

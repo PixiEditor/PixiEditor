@@ -43,11 +43,8 @@ namespace PixiEditor.Models.DataHolders
                 {
                     return "? (Corrupt)";
                 }
-
                 string extension = Path.GetExtension(filePath).ToLower();
-                return extension is not (".pixi" or ".png" or ".jpg" or ".jpeg")
-                    ? $"? ({extension})"
-                    : extension;
+                return SupportedFilesHelper.IsExtensionSupported(extension) ? extension : $"? ({extension})";
             }
         }
 
@@ -93,7 +90,7 @@ namespace PixiEditor.Models.DataHolders
 
                 return surface.ToWriteableBitmap();
             }
-            else if (FileExtension is ".png" or ".jpg" or ".jpeg")
+            else if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
             {
                 WriteableBitmap bitmap = null;
 
@@ -104,19 +101,24 @@ namespace PixiEditor.Models.DataHolders
                 catch
                 {
                     corrupt = true;
+                    return null;
                 }
+                
+                if (bitmap == null)//prevent crash
+                    return null;
 
-                const int MaxWidthInPixels = 2048;
-                const int MaxHeightInPixels = 2048;
                 ImageFileMaxSizeChecker imageFileMaxSizeChecker = new ImageFileMaxSizeChecker()
                 {
-                    MaxAllowedWidthInPixels = MaxWidthInPixels,
-                    MaxAllowedHeightInPixels = MaxHeightInPixels,
+                    MaxAllowedWidthInPixels = Constants.MaxPreviewWidth,
+                    MaxAllowedHeightInPixels = Constants.MaxPreviewHeight,
                 };
+
+                if (bitmap == null)
+                    return null;
 
                 return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
                     bitmap
-                    : bitmap.Resize(width: MaxWidthInPixels, height: MaxHeightInPixels, WriteableBitmapExtensions.Interpolation.Bilinear);
+                    : bitmap.Resize(width: Constants.MaxPreviewWidth, height: Constants.MaxPreviewHeight, WriteableBitmapExtensions.Interpolation.Bilinear);
             }
 
             return null;

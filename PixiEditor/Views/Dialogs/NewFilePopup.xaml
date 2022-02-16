@@ -6,9 +6,15 @@
         xmlns:local="clr-namespace:PixiEditor.Views"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d"
-        d:DesignHeight="600" Topmost="True" ShowInTaskbar="False" d:DesignWidth="450"
-        DataContext="{DynamicResource NewFileMenuViewModel}" WindowStyle="None" WindowStartupLocation="CenterScreen" MinHeight="300" MinWidth="400" Height="600" Width="450" Name="newFilePopup" BorderBrush="Black" BorderThickness="1">
+        ShowInTaskbar="False"
+        DataContext="{DynamicResource NewFileMenuViewModel}" 
+        WindowStyle="None" 
+        WindowStartupLocation="CenterScreen" 
+        MinHeight="250" MinWidth="300" Height="250" Width="300" 
+        Name="newFilePopup" 
+        BorderBrush="Black" BorderThickness="1">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
     </Window.Resources>
@@ -22,34 +28,24 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource AccentColor}" Focusable="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
 
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
-        </DockPanel>
-        <Label Content="New File" Grid.Row="1" Margin="0,10,0,0" HorizontalAlignment="Center"
-                   VerticalAlignment="Top" Foreground="White" FontSize="24" />
-        <StackPanel HorizontalAlignment="Center" Margin="0,60,0,0" Background="{StaticResource MainColor}"
-                        VerticalAlignment="Top" Grid.Row="1" Width="350" Height="150">
-            <local:SizePicker Margin="0,20" HorizontalAlignment="Center" Height="110"
+        <dial:DialogTitleBar DockPanel.Dock="Top"
+            TitleText="Create a new image" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+
+        <Button DockPanel.Dock="Bottom" Width="70" Margin="0,15,0,15" HorizontalAlignment="Center"
+                IsDefault="True" Content="Create" x:Name="createButton"
+                Style="{StaticResource DarkRoundButton}" 
+                Command="{Binding OkCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
+
+        <local:SizePicker HorizontalAlignment="Center" Width="230" Height="125" Margin="0,30,0,0"
+                              PreserveAspectRatio="False"
                               ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=newFilePopup}"
                               ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=newFilePopup}" 
-                              x:Name="sizePicker"
-                              NextControl="{Binding ElementName=createButton}"/>
-        </StackPanel>
-        <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Height="30" Width="120"
-                Style="{StaticResource DarkRoundButton}" Content="Create" Margin="0,0,10,10" Grid.Row="1"
-                Command="{Binding OkCommand}"
-                CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" 
-                x:Name="createButton"/>
-    </Grid>
+                              x:Name="sizePicker"/>
+    </DockPanel>
 </Window>

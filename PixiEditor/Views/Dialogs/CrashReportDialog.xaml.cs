@@ -1,15 +1,18 @@
-﻿using System.Windows;
+﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels;
+using System.Windows;
 using System.Windows.Input;
 
-namespace PixiEditor.Views
+namespace PixiEditor.Views.Dialogs
 {
     /// <summary>
-    ///     Interaction logic for PopupTemplate.xaml
+    /// Interaction logic for CrashReportDialog.xaml
     /// </summary>
-    public partial class PopupTemplate : Window
+    public partial class CrashReportDialog : Window
     {
-        public PopupTemplate()
+        public CrashReportDialog(CrashReport report)
         {
+            DataContext = new CrashReportViewModel(report);
             InitializeComponent();
         }
 

@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
-using PixiEditor.Models.Undo;
 using PixiEditor.Views.UserControls.Layers;
 using System;
 using System.Linq;
@@ -48,7 +47,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
             NewGroupCommand = new RelayCommand(NewGroup, CanCreateNewLayer);
             CreateGroupFromActiveLayersCommand = new RelayCommand(CreateGroupFromActiveLayers, CanCreateGroupFromSelected);
-            DeleteLayersCommand = new RelayCommand(DeleteLayer, CanDeleteLayer);
+            DeleteLayersCommand = new RelayCommand(DeleteActiveLayers, CanDeleteActiveLayers);
             DuplicateLayerCommand = new RelayCommand(DuplicateLayer, CanDuplicateLayer);
             MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
             MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
@@ -57,7 +56,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
             MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
             RenameGroupCommand = new RelayCommand(RenameGroup);
-            DeleteGroupCommand = new RelayCommand(DeleteGroup);
+            DeleteGroupCommand = new RelayCommand(DeleteGroup, CanDeleteGroup);
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, CanDeleteSelected);
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
@@ -73,22 +72,37 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool CanDeleteSelected(object parameter)
         {
-            return (
-                (
-                    parameter is not null and (Layer or LayerGroup)) || (Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null)
-                )
-                && Owner.BitmapManager.ActiveDocument != null;
+            bool paramIsLayerOrGroup = parameter is not null and (Layer or LayerGroup);
+            bool activeLayerExists = Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null;
+            bool activeDocumentExists = Owner.BitmapManager.ActiveDocument != null;
+            bool allGood = (paramIsLayerOrGroup || activeLayerExists) && activeDocumentExists;
+            if (!allGood)
+                return false;
+
+            if (parameter is Layer or LayerStructureItemContainer)
+            {
+                return CanDeleteActiveLayers(null);
+            }
+            else if (parameter is LayerGroup group)
+            {
+                return CanDeleteGroup(group.GuidValue);
+            }
+            else if (parameter is LayerGroupControl groupControl)
+            {
+                return CanDeleteGroup(groupControl.GroupGuid);
+            }
+            else if (Owner.BitmapManager.ActiveDocument.ActiveLayer != null)
+            {
+                return CanDeleteActiveLayers(null);
+            }
+            return false;
         }
 
         public void DeleteSelected(object parameter)
         {
-            if (parameter is Layer layer)
+            if (parameter is Layer or LayerStructureItemContainer)
             {
-                DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(layer));
-            }
-            else if (parameter is LayerStructureItemContainer container)
-            {
-                DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(container.Layer));
+                DeleteActiveLayers(null);
             }
             else if (parameter is LayerGroup group)
             {
@@ -100,14 +114,35 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else if (Owner.BitmapManager.ActiveDocument.ActiveLayer != null)
             {
-                DeleteLayer(Owner.BitmapManager.ActiveDocument.Layers.IndexOf(Owner.BitmapManager.ActiveDocument.ActiveLayer));
+                DeleteActiveLayers(null);
             }
+        }
+
+        public bool CanDeleteGroup(object parameter)
+        {
+            if (parameter is not Guid guid)
+                return false;
+
+            var document = Owner.BitmapManager.ActiveDocument;
+            if (document == null)
+                return false;
+
+            var group = document.LayerStructure.GetGroupByGuid(guid);
+            if (group == null)
+                return false;
+
+            return document.LayerStructure.GetGroupLayers(group).Count < document.Layers.Count;
         }
 
         public void DeleteGroup(object parameter)
         {
             if (parameter is Guid guid)
             {
+                foreach (var layer in Owner.BitmapManager.ActiveDocument?.Layers)
+                {
+                    layer.IsActive = false;
+                }
+
                 var group = Owner.BitmapManager.ActiveDocument?.LayerStructure.GetGroupByGuid(guid);
                 var layers = Owner.BitmapManager.ActiveDocument?.LayerStructure.GetGroupLayers(group);
                 foreach (var layer in layers)
@@ -224,15 +259,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public void DeleteLayer(object parameter)
+        public void DeleteActiveLayers(object unusedParameter)
         {
             var doc = Owner.BitmapManager.ActiveDocument;
             doc.RemoveActiveLayers();
         }
 
-        public bool CanDeleteLayer(object property)
+        public bool CanDeleteActiveLayers(object unusedParam)
         {
-            return Owner.BitmapManager.ActiveDocument != null && Owner.BitmapManager.ActiveDocument.Layers.Count > 1;
+            if (Owner.BitmapManager.ActiveDocument == null)
+                return false;
+            int activeLayerCount = Owner.BitmapManager.ActiveDocument.Layers.Where(layer => layer.IsActive).Count();
+            return Owner.BitmapManager.ActiveDocument.Layers.Count > activeLayerCount;
         }
 
         public void DuplicateLayer(object parameter)
@@ -247,6 +285,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void RenameLayer(object parameter)
         {
+            if (Owner.BitmapManager.ActiveDocument == null)
+                return;
+
             int? index = (int?)parameter;
 
             if (index == null)

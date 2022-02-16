@@ -3,9 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime" 
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" WindowStyle="None"
-        Title="NoticePopup" Height="200" Width="500"
+        d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
+        WindowStartupLocation="CenterScreen"
         x:Name="popup">
 
     <WindowChrome.WindowChrome>
@@ -13,32 +17,21 @@
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 
-    <Grid Background="{StaticResource AccentColor}" Focusable="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
-            <RowDefinition Height="34*" />
-            <RowDefinition Height="21*" />
-        </Grid.RowDefinitions>
+    <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" TextAlignment="Center"
-                   VerticalAlignment="Center" FontSize="18" Foreground="White"
-                       TextWrapping="WrapWithOverflow" TextTrimming="WordEllipsis" />
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <TextBlock Text="{Binding Title, ElementName=popup}" 
-                       FontSize="18" Foreground="White"
-                       VerticalAlignment="Center" Margin="5,0,0,0"/>
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
-        </DockPanel>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                    Margin="0,0,10,10">
-            <Button Height="30" Width="60"
-                    Click="OkButton_Close"
-                    Style="{StaticResource DarkRoundButton}" Content="Ok">
-            </Button>
+
+        <dial:DialogTitleBar DockPanel.Dock="Top"
+            TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+            <Button Width="70" IsDefault="True" Click="OkButton_Close" Style="{StaticResource DarkRoundButton}" Content="Close"/>
         </StackPanel>
-    </Grid>
+
+        <TextBlock 
+            Grid.Row="1" Text="{Binding Body, ElementName=popup}" TextAlignment="Center"
+            VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="20,0" d:Text="The file does not exist"
+            TextWrapping="WrapWithOverflow" TextTrimming="WordEllipsis" />
+    </DockPanel>
 </Window>

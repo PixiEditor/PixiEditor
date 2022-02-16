@@ -26,6 +26,8 @@ namespace PixiEditorTests.ModelsTests.IO
         [InlineData("dub.jpeg")]
         [InlineData("-.JPEG")]
         [InlineData("dub.jpg")]
+        [InlineData("dub.gif")]
+        [InlineData("dub.bmp")]
         public void TestThatIsSupportedFile(string file)
         {
             Assert.True(Importer.IsSupportedFile(file));

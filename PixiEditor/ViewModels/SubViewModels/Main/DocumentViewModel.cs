@@ -8,7 +8,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class DocumentViewModel : SubViewModel<ViewModelMain>
     {
-        public const string ConfirmationDialogMessage = "Document was modified. Do you want to save changes?";
+        public const string ConfirmationDialogTitle = "Unsaved changes";
+        public const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
 
         public RelayCommand CenterContentCommand { get; set; }
 
@@ -61,7 +62,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             if (!document.ChangesSaved)
             {
-                ConfirmationType result = ConfirmationDialog.Show(ConfirmationDialogMessage);
+                ConfirmationType result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
                 if (result == ConfirmationType.Yes)
                 {
                     Owner.FileSubViewModel.SaveDocument(false);
