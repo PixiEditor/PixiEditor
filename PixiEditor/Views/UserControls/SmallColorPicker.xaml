@@ -38,10 +38,11 @@
                 <RowDefinition Height="25"/>
             </Grid.RowDefinitions>
             <colorpicker:SquarePicker Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="3"
-                                ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"
+                                x:Name="mainPicker"
+                                ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc, Delay=50}"
                                 PickerType="{Binding ElementName=colorSpaceComboBox, Path=SelectedIndex, Converter={conv:IntToPickerTypeConverter}}"/>
             <colorpicker:ColorDisplay Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3,0,0,0"
-                                ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}" 
+                                ColorState="{Binding ColorState, Mode=TwoWay, ElementName=mainPicker}" 
                                 SecondColorState="{Binding SecondColorState, Mode=TwoWay, ElementName=uc}"/>
             <ComboBox Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Width="50" Height="20" HorizontalAlignment="Right" 
                 VerticalAlignment="Bottom" x:Name="colorSpaceComboBox" Margin="0,0,80,0">

@@ -19,7 +19,7 @@
             FontSize="15" 
             Margin="5,0,0,0" 
             Grid.Column="0" Grid.ColumnSpan="2"/>
-        <Button Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
+        <Button Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}" IsCancel="True"
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{Binding ElementName=uc, Path=CloseCommand}" />
     </Grid>

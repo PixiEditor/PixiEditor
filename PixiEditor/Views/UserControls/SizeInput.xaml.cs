@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Models.Enums;
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -50,7 +49,7 @@ namespace PixiEditor.Views
             get => (bool)GetValue(BehaveLikeSmallEmbeddedFieldProperty);
             set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
         }
-                
+
         public void FocusAndSelect()
         {
             textBox.Focus();
@@ -59,8 +58,6 @@ namespace PixiEditor.Views
 
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (!textBox.IsFocused)
-                textBox.Focus();
             Point pos = Mouse.GetPosition(textBox);
             int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
             var charRect = textBox.GetRectFromCharacterIndex(charIndex);
@@ -70,12 +67,14 @@ namespace PixiEditor.Views
             else
                 textBox.CaretIndex = charIndex;
             e.Handled = true;
+            if (!textBox.IsFocused)
+                textBox.Focus();
         }
 
         public SizeUnit Unit
         {
-          get => (SizeUnit)GetValue(UnitProperty);
-          set => SetValue(UnitProperty, value);
+            get => (SizeUnit)GetValue(UnitProperty);
+            set => SetValue(UnitProperty, value);
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

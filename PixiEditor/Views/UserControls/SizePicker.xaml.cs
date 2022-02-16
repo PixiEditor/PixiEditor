@@ -90,7 +90,7 @@ namespace PixiEditor.Views
 
         public void FocusWidthPicker()
         {
-            PercentageSizePicker.FocusAndSelect();
+            WidthPicker.FocusAndSelect();
         }
 
         private void AfterLoaded(object parameter)
