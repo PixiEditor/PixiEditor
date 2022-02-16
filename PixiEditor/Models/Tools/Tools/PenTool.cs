@@ -49,7 +49,7 @@ namespace PixiEditor.Models.Tools.Tools
             };
         }
 
-        public override string Tooltip => "Standard brush. (B)";
+        public override string Tooltip => $"Standard brush. ({ShortcutKey})";
 
         public bool AutomaticallyResizeCanvas { get; set; } = true;
 

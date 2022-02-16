@@ -127,11 +127,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             catch (Win32Exception)
             {
-                MessageBox.Show(
+                NoticeDialog.Show(
                     "Couldn't update without administrator rights.",
-                    "Insufficient permissions",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    "Insufficient permissions");
             }
         }
 
@@ -185,7 +183,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
-                    NoticeDialog.Show("Could not check if there's an update available");
+                    NoticeDialog.Show("Could not check if there is an update available", "Update check failed");
                 }
 
                 AskToInstall();

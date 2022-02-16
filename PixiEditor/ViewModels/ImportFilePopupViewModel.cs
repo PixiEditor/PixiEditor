@@ -1,6 +1,6 @@
-﻿using Microsoft.Win32;
-using PixiEditor.Exceptions;
+﻿using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Models.IO;
 using System;
 using System.IO;
 using System.Windows;
@@ -15,52 +15,18 @@ namespace PixiEditor.ViewModels
         private int importHeight = 16;
 
         private int importWidth = 16;
-
-        private string pathButtonBorder = "#f08080";
-
-        private bool pathIsCorrect;
-
         public ImportFilePopupViewModel()
         {
             CloseButtonCommand = new RelayCommand(CloseWindow);
             DragMoveCommand = new RelayCommand(MoveWindow);
-            ChoosePathCommand = new RelayCommand(ChoosePath);
-            OkCommand = new RelayCommand(OkButton, CanClickOk);
+            OkCommand = new RelayCommand(OkButton);
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
 
         public RelayCommand DragMoveCommand { get; set; }
 
-        public RelayCommand ChoosePathCommand { get; set; }
-
         public RelayCommand OkCommand { get; set; }
-
-        public string PathButtonBorder
-        {
-            get => pathButtonBorder;
-            set
-            {
-                if (pathButtonBorder != value)
-                {
-                    pathButtonBorder = value;
-                    RaisePropertyChanged("PathButtonBorder");
-                }
-            }
-        }
-
-        public bool PathIsCorrect
-        {
-            get => pathIsCorrect;
-            set
-            {
-                if (pathIsCorrect != value)
-                {
-                    pathIsCorrect = value;
-                    RaisePropertyChanged("PathIsCorrect");
-                }
-            }
-        }
 
         public string FilePath
         {
@@ -71,7 +37,7 @@ namespace PixiEditor.ViewModels
                 {
                     filePath = value;
                     CheckForPath(value);
-                    RaisePropertyChanged("FilePath");
+                    RaisePropertyChanged(nameof(FilePath));
                 }
             }
         }
@@ -84,7 +50,7 @@ namespace PixiEditor.ViewModels
                 if (importWidth != value)
                 {
                     importWidth = value;
-                    RaisePropertyChanged("ImportWidth");
+                    RaisePropertyChanged(nameof(ImportWidth));
                 }
             }
         }
@@ -97,47 +63,19 @@ namespace PixiEditor.ViewModels
                 if (importHeight != value)
                 {
                     importHeight = value;
-                    RaisePropertyChanged("ImportHeight");
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Command that handles Path choosing to save file.
-        /// </summary>
-        /// <param name="parameter">Binding parameter.</param>
-        private void ChoosePath(object parameter)
-        {
-            OpenFileDialog path = new OpenFileDialog
-            {
-                Title = "Import path",
-                CheckPathExists = true,
-                Filter = "Image Files|*.png;*.jpeg;*.jpg"
-            };
-            if (path.ShowDialog() == true)
-            {
-                if (string.IsNullOrEmpty(path.FileName) == false)
-                {
-                    CheckForPath(path.FileName);
-                }
-                else
-                {
-                    PathButtonBorder = "#f08080";
-                    PathIsCorrect = false;
+                    RaisePropertyChanged(nameof(ImportHeight));
                 }
             }
         }
 
         private void CheckForPath(string path)
         {
-            if (File.Exists(path) && (path.EndsWith(".png") || path.EndsWith(".jpeg") || path.EndsWith(".jpg")))
+            if (SupportedFilesHelper.IsSupportedFile(path))
             {
                 try
                 {
-                    PathButtonBorder = "#b8f080";
-                    PathIsCorrect = true;
                     filePath = path;
-                    BitmapImage bitmap = new BitmapImage(new Uri(path));
+                    var bitmap = new BitmapImage(new Uri(path));
                     ImportHeight = bitmap.PixelHeight;
                     ImportWidth = bitmap.PixelWidth;
                 }
@@ -167,11 +105,6 @@ namespace PixiEditor.ViewModels
         {
             ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
-        }
-
-        private bool CanClickOk(object property)
-        {
-            return PathIsCorrect;
         }
     }
 }

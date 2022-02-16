@@ -64,8 +64,9 @@ namespace PixiEditor.Models.DataHolders
             if (original.PixelWidth <= 0 || original.PixelHeight <= 0)
                 throw new ArgumentException("Surface dimensions must be non-zero");
 
-            byte[] pixels = new byte[original.PixelWidth * original.PixelHeight * 4];
-            original.CopyPixels(pixels, original.PixelWidth * 4, 0);
+            int stride = (original.PixelWidth * original.Format.BitsPerPixel + 7) / 8;
+            byte[] pixels = new byte[stride * original.PixelHeight];
+            original.CopyPixels(pixels, stride, 0);
 
             Width = original.PixelWidth;
             Height = original.PixelHeight;
@@ -117,8 +118,8 @@ namespace PixiEditor.Models.DataHolders
         public unsafe SKColor GetSRGBPixel(int x, int y)
         {
             Half* ptr = (Half*)(surfaceBuffer + (x + y * Width) * 8);
-            SKColor color = (SKColor)new SKColorF((float)ptr[0], (float)ptr[1], (float)ptr[2], (float)ptr[3]);
-            return SKPMColor.UnPreMultiply(new SKPMColor((uint)color));
+            float a = (float)ptr[3];
+            return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
         }
 
         public void SetSRGBPixel(int x, int y, SKColor color)

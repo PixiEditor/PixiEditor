@@ -4,9 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
-        Title="ImportFilePopup" Topmost="True" ShowInTaskbar="False" Height="350" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen" Name="importFilePopup" MinHeight="350" MinWidth="300"
+        Title="ImportFilePopup" ShowInTaskbar="False" 
+        MinHeight="250" MinWidth="300" Height="250" Width="300" 
+        WindowStyle="None" 
+        WindowStartupLocation="CenterScreen" 
+        Name="importFilePopup"
         DataContext="{DynamicResource ImportFilePopupViewModel}">
     <Window.Resources>
         <vm:ImportFilePopupViewModel x:Key="ImportFilePopupViewModel" />
@@ -21,31 +28,19 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
-    <Grid Background="{StaticResource AccentColor}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <DockPanel Background="{StaticResource AccentColor}">
+        <i:Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </i:Interaction.Behaviors>
 
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
-        </DockPanel>
-        <StackPanel Grid.Row="1">
-            <Label Height="40" Width="120" VerticalAlignment="Top" Content="Open" Foreground="Snow"
-                       HorizontalContentAlignment="Center" FontSize="24" Margin="0,10,0,0" />
-            <Button Grid.Row="1" BorderThickness="1" Foreground="Snow" Height="40" Width="160" Margin="0,30,0,0"
-                        Content="File Path" Background="#303030" BorderBrush="{Binding PathButtonBorder}"
-                        Command="{Binding ChoosePathCommand}" />
-            <StackPanel Background="{StaticResource MainColor}" Height="120" Width="225" Margin="0,30,0,0">
-                <local:SizePicker EditingEnabled="{Binding PathIsCorrect}"
-                                      ChosenWidth="{Binding ImportWidth, Mode=TwoWay}"
-                                      ChosenHeight="{Binding ImportHeight,Mode=TwoWay}" />
-            </StackPanel>
-        </StackPanel>
-        <Button Grid.Row="1" Height="30" Width="60" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                    Margin="10" Style="{StaticResource DarkRoundButton}" Content="OK" Command="{Binding OkCommand}"
+        <dial:DialogTitleBar DockPanel.Dock="Top"
+            TitleText="Import image" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+        <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" IsDefault="True"
+                    Margin="15" Style="{StaticResource DarkRoundButton}" Content="Import" Command="{Binding OkCommand}"
                     CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
-    </Grid>
+        <local:SizePicker x:Name="sizePicker" Width="230" Height="125" Margin="0,30,0,0"
+                                  ChosenWidth="{Binding ImportWidth, Mode=TwoWay}"
+                                  ChosenHeight="{Binding ImportHeight, Mode=TwoWay}" />
+
+    </DockPanel>
 </Window>
