@@ -9,7 +9,7 @@
         Title="Send crash report"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
-        Height="170" Width="340">
+        Height="195" Width="340">
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -37,13 +37,13 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Width="140" Click="OpenInExplorer">Open in Explorer</Button>
             </StackPanel>
-            <TextBlock TextAlignment="Center">You can report your crash report here:</TextBlock>
+            <TextBlock TextAlignment="Center">You can send your crash report using:</TextBlock>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Click="OpenHyperlink" Tag="github">GitHub</Button>
                 <Button Click="OpenHyperlink" Tag="discord">Discord</Button>
                 <Button Click="OpenHyperlink" Tag="email">E-Mail</Button>
             </StackPanel>
-            <TextBlock TextWrapping="Wrap" FontSize="8">The report might contain the doucments that were opened when the crash happened</TextBlock>
+            <TextBlock TextWrapping="Wrap" TextAlignment="Center">The report contains the documents that were opened when the crash happened, feel free to review it before sending.</TextBlock>
         </StackPanel>
     </StackPanel>
 </Window>

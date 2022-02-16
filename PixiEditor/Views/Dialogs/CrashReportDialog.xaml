@@ -35,7 +35,7 @@
                     <StackPanel Margin="7" VerticalAlignment="Center">
                         <TextBlock Text="{Binding DocumentCount, StringFormat={}{0} file(s) can be recovered}"
                        d:Text="2 file(s) can be recovered"/>
-                        <TextBlock TextWrapping="Wrap">You can help the developers fixing this bug by sending a crash report that was generated</TextBlock>
+                        <TextBlock TextWrapping="Wrap">You can help the developers fix this bug by sending a crash report that was generated (you will still be able to recover the files).</TextBlock>
                     </StackPanel>
                 </Grid>
 
