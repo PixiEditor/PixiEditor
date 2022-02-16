@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using SkiaSharp;
@@ -354,7 +355,7 @@ namespace PixiEditor.Models.Undo
 
                     if (foundLayer != null)
                     {
-                        ApplyChunkToLayer(foundLayer, layerData, layer.LayerBitmap);
+                        ApplyChunkToLayer(foundLayer, layerData.SerializedRect, layer.LayerBitmap);
                     }
                     else
                     {
@@ -370,52 +371,12 @@ namespace PixiEditor.Models.Undo
             }
         }
 
-        private static void ApplyChunkToLayer(Layer layer, UndoLayer layerData, Surface chunk)
+        private static void ApplyChunkToLayer(Layer layer, SKRectI rect, Surface chunk)
         {
-            int targetWidth = Math.Max(chunk.Width, layer.Width);
-            int targetHeight = Math.Max(chunk.Height, layer.Height);
-
-            int targetOffsetX = Math.Min(layerData.OffsetX, layerData.SerializedRect.Left);
-            int targetOffsetY = Math.Min(layerData.OffsetY, layerData.SerializedRect.Top);
-
-            int offsetDiffX = layerData.OffsetX - layerData.SerializedRect.Left;
-            int offsetDiffY = layerData.OffsetY - layerData.SerializedRect.Top;
-
-            targetWidth += Math.Abs(offsetDiffX);
-            targetHeight += Math.Abs(offsetDiffY);
-
-            targetOffsetX = Math.Max(0, targetOffsetX);
-            targetOffsetY = Math.Max(0, targetOffsetY);
-
-            targetWidth = Math.Clamp(targetWidth, 0, layerData.MaxWidth - targetOffsetX);
-            targetHeight = Math.Clamp(targetHeight, 0, layerData.MaxHeight - targetOffsetY);
-
-            Surface targetSizeSurface = new Surface(targetWidth, targetHeight);
-            using var foundLayerSnapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
-            targetSizeSurface.SkiaSurface.Canvas.DrawImage(
-                foundLayerSnapshot,
-                SKRect.Create(0, 0, layer.Width, layer.Height),
-                SKRect.Create(offsetDiffX > 0 ? layer.OffsetX : 0, offsetDiffY > 0 ? layer.OffsetY : 0, layer.Width, layer.Height),
-                Surface.ReplacingPaint);
-
-            layer.Offset = new Thickness(targetOffsetX, targetOffsetY, 0, 0);
-
-            SKRect finalRect = SKRect.Create(
-                layerData.SerializedRect.Left - targetOffsetX,
-                layerData.SerializedRect.Top - targetOffsetY, 
-                layerData.SerializedRect.Width,
-                layerData.SerializedRect.Height);
-
+            layer.DynamicResizeAbsolute(rect.ToInt32Rect());
             using var snapshot = chunk.SkiaSurface.Snapshot();
-
-            targetSizeSurface.SkiaSurface.Canvas.DrawImage(
-                snapshot,
-                finalRect,
-                Surface.ReplacingPaint);
-
-            //DebugSavePng(targetSizeSurface, layerData);
-
-            layer.LayerBitmap = targetSizeSurface;
+            layer.LayerBitmap.SkiaSurface.Canvas.DrawImage(snapshot, new SKPoint(rect.Left - layer.OffsetX, rect.Top - layer.OffsetY), Surface.ReplacingPaint);
+            layer.InvokeLayerBitmapChange(rect.ToInt32Rect());
         }
 
         public void Dispose()
