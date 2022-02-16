@@ -10,6 +10,7 @@
         Background="{StaticResource AccentColor}" Foreground="White"
         Title="PixiEditor has crashed!" WindowStyle="None"
         MinWidth="450" MinHeight="195"
+        WindowStartupLocation="CenterScreen"
         Width="480" Height="180">
 
     <WindowChrome.WindowChrome>

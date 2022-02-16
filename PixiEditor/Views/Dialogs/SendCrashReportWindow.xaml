@@ -8,6 +8,7 @@
         Background="{StaticResource AccentColor}" Foreground="White"
         Title="Send crash report"
         WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
         Height="170" Width="340">
     <Window.Resources>
         <Style TargetType="TextBlock">
