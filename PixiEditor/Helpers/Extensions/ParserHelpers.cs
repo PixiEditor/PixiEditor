@@ -36,6 +36,8 @@ namespace PixiEditor.Helpers.Extensions
             foreach (SerializableLayer slayer in document)
             {
                 layers.Add(slayer.ToLayer());
+                layers[^1].MaxHeight = document.Height;
+                layers[^1].MaxWidth = document.Width;
             }
 
             return layers;
@@ -47,7 +49,7 @@ namespace PixiEditor.Helpers.Extensions
             {
                 Opacity = layer.Opacity,
                 IsVisible = layer.IsVisible,
-                Offset = new(layer.OffsetX, layer.OffsetY, 0, 0)
+                Offset = new(layer.OffsetX, layer.OffsetY, 0, 0),
             };
         }
 
