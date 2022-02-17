@@ -132,6 +132,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             else if (Owner.ToolsSubViewModel.LastActionTool != null && Owner.ToolsSubViewModel.MoveToolIsTransient)
             {
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+                ShortcutController.BlockShortcutExecution = false;
             }
         }
 
