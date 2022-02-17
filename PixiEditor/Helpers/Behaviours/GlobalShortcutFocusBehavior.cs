@@ -27,12 +27,12 @@ namespace PixiEditor.Helpers.Behaviours
 
         private void AssociatedObject_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
-            ShortcutController.BlockShortcutExecution = false;
+            ShortcutController.UnblockShortcutExecution("GlobalShortcutFocusBehavior");
         }
 
         private void AssociatedObject_GotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
         {
-            ShortcutController.BlockShortcutExecution = true;
+            ShortcutController.BlockShortcutExection("GlobalShortcutFocusBehavior");
         }
     }
 }
