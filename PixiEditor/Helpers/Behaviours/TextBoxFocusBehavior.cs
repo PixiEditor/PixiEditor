@@ -85,7 +85,6 @@ namespace PixiEditor.Helpers.Behaviours
             }
 
             FocusManager.SetFocusedElement(scope, parent);
-            Keyboard.ClearFocus();
         }
 
         private void AssociatedObjectGotKeyboardFocus(
