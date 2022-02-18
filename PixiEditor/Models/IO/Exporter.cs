@@ -56,9 +56,13 @@ namespace PixiEditor.Models.IO
                 var bitmap = document.Renderer.FinalBitmap;
                 SaveAs(encodersFactory[chosenFormat](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
             }
-            else
+            else if(File.Exists(path))
             {
                 Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
+            }
+            else
+            {
+                SaveAsEditableFileWithDialog(document, out path);
             }
 
             return path;
