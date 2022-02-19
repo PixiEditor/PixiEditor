@@ -42,7 +42,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
             RelayCommand shortcutCommand = new RelayCommand(arg => { result = (int)arg; });
 
             ShortcutController controller = GenerateStandardShortcutController(Key.A, ModifierKeys.None, shortcutCommand);
-            ShortcutController.BlockShortcutExecution = true;
+            ShortcutController.BlockShortcutExection("Test");
 
             controller.KeyPressed(Key.A, ModifierKeys.None);
             Assert.Equal(-1, result);
@@ -75,7 +75,7 @@ namespace PixiEditorTests.ModelsTests.ControllersTests
         {
             ShortcutController controller = new ShortcutController();
             controller.ShortcutGroups.Add(new ShortcutGroup(string.Empty, new Shortcut(shortcutKey, shortcutCommand, 0, modifiers)));
-            ShortcutController.BlockShortcutExecution = false;
+            ShortcutController.UnblockShortcutExecutionAll();
             return controller;
         }
     }

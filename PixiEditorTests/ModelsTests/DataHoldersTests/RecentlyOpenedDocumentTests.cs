@@ -11,7 +11,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatForBigPixiFilesPreviewImageIsResizedToMaxSize()
         {
-            string bigFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\BigPixiFile.pixi";
+            string bigFilePath = $@"{Environment.CurrentDirectory}\..\..\..\..\ModelsTests\IO\BigPixiFile.pixi";
             RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(bigFilePath);
 
             var bigPixiFilePreviewImage = recentlyOpenedDocument.PreviewBitmap;
@@ -29,7 +29,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatForSmallEnoughPixiFilesPreviewImageIsLoaded()
         {
-            string smallEnoughFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\SmallEnoughPixiFile.pixi";
+            string smallEnoughFilePath = $@"{Environment.CurrentDirectory}\..\..\..\..\ModelsTests\IO\SmallEnoughPixiFile.pixi";
             RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(smallEnoughFilePath);
 
             var smallEnoughFilePreviewImage = recentlyOpenedDocument.PreviewBitmap;
@@ -43,7 +43,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData("jpeg")]
         public void TestThatForBigImageFilesPreviewImageIsResizedToMaxSize(string imageFormat)
         {
-            string bigImageFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\BigImage.{imageFormat}";
+            string bigImageFilePath = $@"{Environment.CurrentDirectory}\..\..\..\..\ModelsTests\IO\BigImage.{imageFormat}";
             RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(bigImageFilePath);
 
             var bigImagePreviewImage = recentlyOpenedDocument.PreviewBitmap;
@@ -61,7 +61,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData("jpeg")]
         public void TestThatForSmallEnoughImageFilesPreviewImageIsLoaded(string imageFormat)
         {
-            string smallEnoughImageFilePath = $@"{Environment.CurrentDirectory}\..\..\..\ModelsTests\IO\SmallEnoughImage.{imageFormat}";
+            string smallEnoughImageFilePath = $@"{Environment.CurrentDirectory}\..\..\..\..\ModelsTests\IO\SmallEnoughImage.{imageFormat}";
             RecentlyOpenedDocument recentlyOpenedDocument = new RecentlyOpenedDocument(smallEnoughImageFilePath);
 
             var smallEnoughImagePreviewImage = recentlyOpenedDocument.PreviewBitmap;
