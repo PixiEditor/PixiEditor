@@ -96,12 +96,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (ActiveTool != null)
             {
                 activeTool.IsActive = false;
+                ActiveTool.Toolbar.SaveToolbarSettings();
             }
 
             LastActionTool = ActiveTool;
 
 
             ActiveTool = tool;
+
+            ActiveTool.Toolbar.LoadSharedSettings();
+
 
             if (LastActionTool != ActiveTool)
                 SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
