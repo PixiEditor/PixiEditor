@@ -56,7 +56,7 @@ namespace PixiEditor.Models.IO
                 var bitmap = document.Renderer.FinalBitmap;
                 SaveAs(encodersFactory[chosenFormat](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
             }
-            else if(File.Exists(path))
+            else if(Directory.Exists(Path.GetDirectoryName(path)))
             {
                 Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
             }
