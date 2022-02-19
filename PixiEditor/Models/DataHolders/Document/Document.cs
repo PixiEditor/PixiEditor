@@ -153,8 +153,8 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void CenterContent()
         {
-            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure));
-            if (!layersToCenter.Any())
+            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure)).ToArray();
+            if (layersToCenter.Length == 0)
             {
                 return;
             }
