@@ -16,8 +16,8 @@ namespace PixiEditorTests.ModelsTests.IO
         // I am not testing ImportDocument, because it's just a wrapper for BinarySerialization which is tested.
         public ImporterTests()
         {
-            testImagePath = $"{Environment.CurrentDirectory}\\..\\..\\..\\..\\ModelsTests\\IO\\TestImage.png";
-            testCorruptedPixiImagePath = $"{Environment.CurrentDirectory}\\..\\..\\..\\..\\ModelsTests\\IO\\CorruptedPixiFile.pixi";
+            testImagePath = $"{Environment.CurrentDirectory}\\..\\..\\..\\ModelsTests\\IO\\TestImage.png";
+            testCorruptedPixiImagePath = $"{Environment.CurrentDirectory}\\..\\..\\..\\ModelsTests\\IO\\CorruptedPixiFile.pixi";
         }
 
         [Theory]
