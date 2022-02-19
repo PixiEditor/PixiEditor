@@ -106,7 +106,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             ActiveTool.Toolbar.LoadSharedSettings();
 
-
             if (LastActionTool != ActiveTool)
                 SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
