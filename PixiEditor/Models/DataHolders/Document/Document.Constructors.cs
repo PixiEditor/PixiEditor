@@ -30,9 +30,9 @@ namespace PixiEditor.Models.DataHolders
             Layers.CollectionChanged += Layers_CollectionChanged;
             LayerStructure.Groups.CollectionChanged += Groups_CollectionChanged;
             LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
-            ActiveSelection = new Selection(Array.Empty<Coordinates>(), new PixelSize(Width, Height));
             DocumentSizeChanged += (sender, args) =>
             {
+                ActiveSelection = new Selection(Array.Empty<Coordinates>(), new PixelSize(args.NewWidth, args.NewHeight));
                 Renderer.Resize(args.NewWidth, args.NewHeight);
                 GeneratePreviewLayer();
             };
