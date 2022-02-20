@@ -35,17 +35,15 @@ namespace PixiEditor.Helpers.Extensions
             WpfObservableRangeCollection<Layer> layers = new();
             foreach (SerializableLayer slayer in document)
             {
-                layers.Add(slayer.ToLayer());
-                layers[^1].MaxHeight = document.Height;
-                layers[^1].MaxWidth = document.Width;
+                layers.Add(slayer.ToLayer(document.Width, document.Height));
             }
 
             return layers;
         }
 
-        public static Layer ToLayer(this SerializableLayer layer)
+        public static Layer ToLayer(this SerializableLayer layer, int maxWidth, int maxHeight)
         {
-            return new Layer(layer.Name, new Surface(layer.ToSKImage()))
+            return new Layer(layer.Name, new Surface(layer.ToSKImage()), maxWidth, maxHeight)
             {
                 Opacity = layer.Opacity,
                 IsVisible = layer.IsVisible,

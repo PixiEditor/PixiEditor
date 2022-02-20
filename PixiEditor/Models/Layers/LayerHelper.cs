@@ -66,11 +66,9 @@ namespace PixiEditor.Models.Layers
 
             Surface mergedBitmap = BitmapUtils.CombineLayers(combined, new Layer[] { thisLayer, otherLayer });
 
-            Layer mergedLayer = new Layer(newName, mergedBitmap)
+            Layer mergedLayer = new Layer(newName, mergedBitmap, documentSize.Width, documentSize.Height)
             {
                 Offset = new Thickness(combined.X, combined.Y, 0, 0),
-                MaxWidth = documentSize.Width,
-                MaxHeight = documentSize.Height
             };
 
             return mergedLayer;

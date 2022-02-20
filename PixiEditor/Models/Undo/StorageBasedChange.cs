@@ -153,14 +153,12 @@ namespace PixiEditor.Models.Undo
             {
                 UndoLayer storedLayer = StoredLayers[i];
                 var bitmap = Importer.LoadFromGZippedBytes(storedLayer.StoredPngLayerName);
-                layers[i] = new Layer(storedLayer.Name, bitmap)
+                layers[i] = new Layer(storedLayer.Name, bitmap, storedLayer.MaxWidth, storedLayer.MaxHeight)
                 {
                     Width = storedLayer.Width,
                     Height = storedLayer.Height,
                     Offset = new Thickness(storedLayer.OffsetX, storedLayer.OffsetY, 0, 0),
                     Opacity = storedLayer.Opacity,
-                    MaxWidth = storedLayer.MaxWidth,
-                    MaxHeight = storedLayer.MaxHeight,
                     IsVisible = storedLayer.IsVisible,
                     IsActive = storedLayer.IsActive,
                     LayerHighlightColor = storedLayer.LayerHighlightColor

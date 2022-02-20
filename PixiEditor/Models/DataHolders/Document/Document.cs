@@ -61,7 +61,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private Selection selection = new Selection(Array.Empty<Coordinates>());
+        private Selection selection;
 
         public Selection ActiveSelection
         {

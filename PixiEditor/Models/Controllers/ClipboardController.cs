@@ -111,34 +111,43 @@ namespace PixiEditor.Models.Controllers
         /// <summary>
         ///     Pastes image from clipboard into new layer.
         /// </summary>
-        public static void PasteFromClipboard()
+        public static void PasteFromClipboard(Document document)
         {
             IEnumerable<Layer> layers;
             try
             {
-                layers = GetLayersFromClipboard();
+                layers = GetLayersFromClipboard(document);
             }
             catch
             {
                 return;
             }
 
-            Document activeDocument = ViewModelMain.Current.BitmapManager.ActiveDocument;
-            int startIndex = activeDocument.Layers.Count;
+            int startIndex = document.Layers.Count;
+
+            int resizedCount = 0;
 
             foreach (var layer in layers)
             {
-                activeDocument.Layers.Add(layer);
+                if(layer.Width > document.Width || layer.Height > document.Height)
+                {
+                    document.ResizeCanvas(Math.Max(document.Width, layer.Width), Math.Max(document.Height, layer.Height), Enums.AnchorPoint.Left | Enums.AnchorPoint.Top);
+                    resizedCount++;
+                }
+
+                document.Layers.Add(layer);
             }
 
-            activeDocument.UndoManager.AddUndoChange(
+            document.UndoManager.AddUndoChange(
                 new Change(RemoveLayersProcess, new object[] { startIndex }, AddLayersProcess, new object[] { layers }) { DisposeProcess = DisposeProcess });
+
+            document.UndoManager.SquashUndoChanges(resizedCount + 1, "Paste from clipboard");
         }
 
         /// <summary>
         ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
         /// </summary>
-        private static IEnumerable<Layer> GetLayersFromClipboard()
+        private static IEnumerable<Layer> GetLayersFromClipboard(Document document)
         {
             DataObject data = ClipboardHelper.TryGetDataObject();
             if (data == null)
@@ -172,7 +181,7 @@ namespace PixiEditor.Models.Controllers
             else */
             if (TryFromSingleImage(data, out Surface singleImage))
             {
-                yield return new Layer("Image", singleImage);
+                yield return new Layer("Image", singleImage, document.Width, document.Height);
             }
             else if (data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -187,13 +196,13 @@ namespace PixiEditor.Models.Controllers
 
                     try
                     {
-                        layer = new(Path.GetFileName(path), Importer.ImportSurface(path));
+                        layer = new(Path.GetFileName(path), Importer.ImportSurface(path), document.Width, document.Height);
                     }
                     catch (CorruptedFileException)
                     {
                     }
 
-                    yield return layer ?? new($"Corrupt {path}");
+                    yield return layer ?? new($"Corrupt {path}", document.Width, document.Height);
                 }
             }
             else

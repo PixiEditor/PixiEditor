@@ -221,9 +221,7 @@ namespace PixiEditor.Models.DataHolders
             if (width <= 0 || height <= 0)
                 throw new ArgumentException("Dimensions must be greater than 0");
 
-            layer = bitmap == null ? new Layer(name, width, height) : new Layer(name, bitmap);
-            layer.MaxHeight = Height;
-            layer.MaxWidth = Width;
+            layer = bitmap == null ? new Layer(name, width, height, Width, Height) : new Layer(name, bitmap, Width, Height);
 
             Layers.Add(layer);
 
@@ -441,7 +439,7 @@ namespace PixiEditor.Models.DataHolders
 
             var groupParent = LayerStructure.GetGroupByLayer(layersToMerge[^1].GuidValue);
 
-            Layer placeholderLayer = new("_placeholder");
+            Layer placeholderLayer = new("_placeholder", Width, Height);
             Layers.Insert(index, placeholderLayer);
             LayerStructure.AssignParent(placeholderLayer.GuidValue, groupParent?.GroupGuid);
 

@@ -32,32 +32,38 @@ namespace PixiEditor.Models.Layers
 
         private string layerHighlightColor = "#666666";
 
-        public Layer(string name)
+        public Layer(string name, int maxWidth, int maxHeight)
         {
             Name = name;
             LayerBitmap = new Surface(1, 1);
             IsReset = true;
             Width = 1;
             Height = 1;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             GuidValue = Guid.NewGuid();
         }
 
-        public Layer(string name, int width, int height)
+        public Layer(string name, int width, int height, int maxWidth, int maxHeight)
         {
             Name = name;
             LayerBitmap = new Surface(width, height);
             IsReset = true;
             Width = width;
             Height = height;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             GuidValue = Guid.NewGuid();
         }
 
-        public Layer(string name, Surface layerBitmap)
+        public Layer(string name, Surface layerBitmap, int maxWidth, int maxHeight)
         {
             Name = name;
             LayerBitmap = layerBitmap;
             Width = layerBitmap.Width;
             Height = layerBitmap.Height;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             GuidValue = Guid.NewGuid();
         }
 
@@ -246,12 +252,10 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public Layer Clone(bool generateNewGuid = false)
         {
-            return new Layer(Name, new Surface(LayerBitmap))
+            return new Layer(Name, new Surface(LayerBitmap), MaxWidth, MaxHeight)
             {
                 IsVisible = IsVisible,
                 Offset = Offset,
-                MaxHeight = MaxHeight,
-                MaxWidth = MaxWidth,
                 Opacity = Opacity,
                 IsActive = IsActive,
                 IsRenaming = IsRenaming,
