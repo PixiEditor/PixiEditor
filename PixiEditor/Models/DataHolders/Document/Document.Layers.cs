@@ -449,6 +449,8 @@ namespace PixiEditor.Models.DataHolders
             {
                 Layer firstLayer = mergedLayer;
                 Layer secondLayer = layersToMerge[i + 1];
+                firstLayer.ClipCanvas();
+                secondLayer.ClipCanvas();
                 mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
                 RemoveLayer(layersToMerge[i], false);
             }
@@ -471,7 +473,7 @@ namespace PixiEditor.Models.DataHolders
                 throw new ArgumentException("Not enough layers were provided to merge. Minimum amount is 2");
             }
 
-            IEnumerable<Layer> undoArgs = layersToMerge;
+            Layer[] undoArgs = layersToMerge;
 
             var oldLayerStructure = LayerStructure.CloneGroups();
 
@@ -602,7 +604,7 @@ namespace PixiEditor.Models.DataHolders
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
-                    layer.IsActive = true;
+                    layer.IsActive = data[i].IsActive;
                     Layers.Insert(data[i].LayerIndex, layer);
                 }
 
@@ -614,7 +616,7 @@ namespace PixiEditor.Models.DataHolders
         /// <summary>
         ///     Moves offsets of layers by specified vector.
         /// </summary>
-        private void MoveOffsets(IEnumerable<Layer> layers, Coordinates moveVector)
+        private void MoveOffsets(IList<Layer> layers, Coordinates moveVector)
         {
             foreach (Layer layer in layers)
             {
@@ -625,8 +627,14 @@ namespace PixiEditor.Models.DataHolders
 
         private void MoveOffsetsProcess(object[] arguments)
         {
-            if (arguments.Length > 0 && arguments[0] is IEnumerable<Layer> layers && arguments[1] is Coordinates vector)
+            if (arguments.Length > 0 && arguments[0] is List<Guid> guids && arguments[1] is Coordinates vector)
             {
+                List<Layer> layers = new List<Layer>(guids.Count);
+                foreach (Guid guid in guids)
+                {
+                    layers.Add(Layers.First(x => x.GuidValue == guid));
+                }
+
                 MoveOffsets(layers, vector);
             }
             else

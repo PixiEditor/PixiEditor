@@ -153,8 +153,8 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void CenterContent()
         {
-            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure)).ToArray();
-            if (layersToCenter.Length == 0)
+            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure)).ToList();
+            if (layersToCenter.Count == 0)
             {
                 return;
             }
@@ -178,12 +178,13 @@ namespace PixiEditor.Models.DataHolders
             Coordinates moveVector = new Coordinates(documentCenter.X - contentCenter.X, documentCenter.Y - contentCenter.Y);
 
             MoveOffsets(layersToCenter, moveVector);
+            List<Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
             UndoManager.AddUndoChange(
                 new Change(
                     MoveOffsetsProcess,
-                    new object[] { layersToCenter, new Coordinates(-moveVector.X, -moveVector.Y) },
+                    new object[] { guids, new Coordinates(-moveVector.X, -moveVector.Y) },
                     MoveOffsetsProcess,
-                    new object[] { layersToCenter, moveVector },
+                    new object[] { guids, moveVector },
                     "Center content"));
         }
 
