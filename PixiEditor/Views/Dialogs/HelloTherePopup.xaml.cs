@@ -28,7 +28,6 @@ namespace PixiEditor.Views.Dialogs
 
         public bool RecentlyOpenedEmpty { get => (bool)GetValue(RecentlyOpenedEmptyProperty); set => SetValue(RecentlyOpenedEmptyProperty, value); }
 
-
         public RelayCommand OpenFileCommand { get; set; }
 
         public RelayCommand OpenNewFileCommand { get; set; }
