@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Media;
 
@@ -10,7 +9,6 @@ namespace PixiEditor.Helpers.Converters
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             double zoomLevel = (double)value;
-            Debug.WriteLine(zoomLevel);
             if (zoomLevel < 1)
                 return BitmapScalingMode.HighQuality;
             return BitmapScalingMode.NearestNeighbor;
