@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -113,35 +114,61 @@ namespace PixiEditor.Models.Controllers
         /// </summary>
         public static void PasteFromClipboard(Document document)
         {
-            IEnumerable<Layer> layers;
+            Layer[] layers;
             try
             {
-                layers = GetLayersFromClipboard(document);
+                layers = GetLayersFromClipboard(document).ToArray();
             }
             catch
             {
                 return;
             }
 
-            int startIndex = document.Layers.Count;
 
             int resizedCount = 0;
 
+            Guid[] guids = layers.Select(x => x.GuidValue).ToArray();
+
+            var undoArgs = new object[] { guids, document, new PixelSize(document.Width, document.Height) };
+
+
             foreach (var layer in layers)
             {
-                if(layer.Width > document.Width || layer.Height > document.Height)
+                document.Layers.Add(layer);
+
+                if (layer.Width > document.Width || layer.Height > document.Height)
                 {
-                    document.ResizeCanvas(Math.Max(document.Width, layer.Width), Math.Max(document.Height, layer.Height), Enums.AnchorPoint.Left | Enums.AnchorPoint.Top);
+                    ResizeToLayer(document, layer);
                     resizedCount++;
                 }
-
-                document.Layers.Add(layer);
             }
 
-            document.UndoManager.AddUndoChange(
-                new Change(RemoveLayersProcess, new object[] { startIndex }, AddLayersProcess, new object[] { layers }) { DisposeProcess = DisposeProcess });
 
-            document.UndoManager.SquashUndoChanges(resizedCount + 1, "Paste from clipboard");
+            StorageBasedChange change = new StorageBasedChange(document, layers, false);
+
+            document.UndoManager.AddUndoChange(change.ToChange(RemoveLayersProcess, undoArgs,
+                RestoreLayersProcess, new object[] { document }, "Paste from clipboard"));
+        }
+
+        private static void RemoveLayersProcess(object[] parameters)
+        {
+            if (parameters.Length > 2 && parameters[1] is Document document && parameters[2] is PixelSize size) 
+            {
+                document.RemoveLayersProcess(parameters);
+                document.ResizeCanvas(size.Width, size.Height, Enums.AnchorPoint.Left | Enums.AnchorPoint.Top, false);
+            }
+        }
+
+        private static void RestoreLayersProcess(Layer[] layers, UndoLayer[] data, object[] parameters)
+        {
+            if (parameters.Length > 0 && parameters[0] is Document document)
+            {
+                document.RestoreLayersProcess(layers, data);
+                foreach (var layer in layers)
+                {
+                    ResizeToLayer(document, layer);
+                }
+            }
         }
 
         /// <summary>
@@ -217,17 +244,23 @@ namespace PixiEditor.Models.Controllers
             if (dao == null)
                 return false;
 
-            var files = dao.GetFileDropList();
-
-            if (files != null)
+            try
             {
-                foreach (var file in files)
+                var files = dao.GetFileDropList();
+                if (files != null)
                 {
-                    if (Importer.IsSupportedFile(file))
+                    foreach (var file in files)
                     {
-                        return true;
+                        if (Importer.IsSupportedFile(file))
+                        {
+                            return true;
+                        }
                     }
                 }
+            }
+            catch(COMException)
+            {
+                return false;
             }
 
             return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) ||
@@ -312,43 +345,9 @@ namespace PixiEditor.Models.Controllers
             return false;
         }
 
-        private static void RemoveLayersProcess(object[] parameters)
+        private static void ResizeToLayer(Document document, Layer layer)
         {
-            if (parameters.Length == 0 || parameters[0] is not int i)
-            {
-                return;
-            }
-
-            Document document = ViewModelMain.Current.BitmapManager.ActiveDocument;
-
-            while (i < document.Layers.Count)
-            {
-                document.RemoveLayer(i, false);
-            }
-        }
-
-        private static void AddLayersProcess(object[] parameters)
-        {
-            if (parameters.Length == 0 || parameters[0] is not IEnumerable<Layer> layers)
-            {
-                return;
-            }
-
-            foreach (var layer in layers)
-            {
-                ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.Add(layer);
-            }
-        }
-
-        private static void DisposeProcess(object[] rev, object[] proc)
-        {
-            if (proc[0] is IEnumerable<Layer> layers)
-            {
-                foreach (var layer in layers)
-                {
-                    layer.LayerBitmap.Dispose();
-                }
-            }
+            document.ResizeCanvas(Math.Max(document.Width, layer.Width), Math.Max(document.Height, layer.Height), Enums.AnchorPoint.Left | Enums.AnchorPoint.Top, false);
         }
     }
 }

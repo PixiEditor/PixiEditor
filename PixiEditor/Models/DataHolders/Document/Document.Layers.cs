@@ -718,7 +718,7 @@ namespace PixiEditor.Models.DataHolders
             Renderer.ForceRerender();
         }
 
-        private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
+        public void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
         {
             for (int i = 0; i < layers.Length; i++)
             {
@@ -732,7 +732,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private void RemoveLayerProcess(object[] parameters)
+        public void RemoveLayerProcess(object[] parameters)
         {
             if (parameters is { Length: > 0 } && parameters[0] is Guid layerGuid)
             {
@@ -843,7 +843,7 @@ namespace PixiEditor.Models.DataHolders
             return sucess;
         }
 
-        private void RemoveLayersProcess(object[] parameters)
+        public void RemoveLayersProcess(object[] parameters)
         {
             if (parameters != null && parameters.Length > 0 && parameters[0] is IEnumerable<Guid> layerGuids)
             {

@@ -23,7 +23,7 @@ namespace PixiEditor.Models.DataHolders
         ///     Point that will act as "starting position" of resizing. Use pipe to connect horizontal and
         ///     vertical.
         /// </param>
-        public void ResizeCanvas(int width, int height, AnchorPoint anchor)
+        public void ResizeCanvas(int width, int height, AnchorPoint anchor, bool addToUndo = true)
         {
             int oldWidth = Width;
             int oldHeight = Height;
@@ -37,16 +37,23 @@ namespace PixiEditor.Models.DataHolders
             object[] processArgs = { newOffsets, width, height };
             object[] reverseProcessArgs = { Width, Height };
 
-            StorageBasedChange change = new(this, Layers);
+            if (addToUndo) 
+            { 
+                StorageBasedChange change = new(this, Layers);
+                ResizeCanvas(newOffsets, width, height);
 
-            ResizeCanvas(newOffsets, width, height);
+                UndoManager.AddUndoChange(change.ToChange(
+                    RestoreDocumentLayersProcess,
+                    reverseProcessArgs,
+                    ResizeCanvasProcess,
+                    processArgs,
+                    "Resize canvas"));
+            }
+            else
+            {
+                ResizeCanvas(newOffsets, width, height);
+            }
 
-            UndoManager.AddUndoChange(change.ToChange(
-                RestoreDocumentLayersProcess,
-                reverseProcessArgs,
-                ResizeCanvasProcess,
-                processArgs,
-                "Resize canvas"));
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 
