@@ -3,6 +3,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace PixiEditor.Models.DataHolders
                               .Where(x => x.Opacity > 0.8)
                               .Select(x => (x.ToSKImage(), new Coordinates(x.OffsetX, x.OffsetY))));
 
-                return surface.ToWriteableBitmap();
+                return DownscaleToMaxSize(surface.ToWriteableBitmap());
             }
             else if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
             {
@@ -103,25 +104,24 @@ namespace PixiEditor.Models.DataHolders
                     corrupt = true;
                     return null;
                 }
-                
-                if (bitmap == null)//prevent crash
+
+                if (bitmap == null) //prevent crash
                     return null;
 
-                ImageFileMaxSizeChecker imageFileMaxSizeChecker = new ImageFileMaxSizeChecker()
-                {
-                    MaxAllowedWidthInPixels = Constants.MaxPreviewWidth,
-                    MaxAllowedHeightInPixels = Constants.MaxPreviewHeight,
-                };
-
-                if (bitmap == null)
-                    return null;
-
-                return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
-                    bitmap
-                    : bitmap.Resize(width: Constants.MaxPreviewWidth, height: Constants.MaxPreviewHeight, WriteableBitmapExtensions.Interpolation.Bilinear);
+                return DownscaleToMaxSize(bitmap);
             }
 
             return null;
+        }
+
+        private WriteableBitmap DownscaleToMaxSize(WriteableBitmap bitmap)
+        {
+            if (bitmap.PixelWidth > Constants.MaxPreviewWidth || bitmap.PixelHeight > Constants.MaxPreviewHeight)
+            {
+                double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.PixelWidth, Constants.MaxPreviewHeight / (double)bitmap.PixelHeight);
+                return bitmap.Resize((int)(bitmap.PixelWidth * factor), (int)(bitmap.PixelHeight * factor), WriteableBitmapExtensions.Interpolation.Bilinear);
+            }
+            return bitmap;
         }
     }
 }

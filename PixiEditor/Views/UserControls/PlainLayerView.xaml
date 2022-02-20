@@ -4,9 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              x:Name="uc"
              d:DesignHeight="450" d:DesignWidth="800">
     <Image x:Name="image" Width="{Binding Width, ElementName=uc}" Height="{Binding Height, ElementName=uc}" 
-           RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"/>
+           Stretch="Uniform">
+        <RenderOptions.BitmapScalingMode>
+            <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
+                <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Source.PixelWidth"/>
+                <Binding RelativeSource="{RelativeSource Mode=Self}" Path="ActualWidth"/>
+            </MultiBinding>
+        </RenderOptions.BitmapScalingMode>
+    </Image>
 </UserControl>
