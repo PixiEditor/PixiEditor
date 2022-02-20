@@ -12,6 +12,7 @@ namespace PixiEditor.Models.Controllers
         public SKSurface BackingSurface { get; private set; }
         public WriteableBitmap FinalBitmap { get; private set; }
         private SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+        private SKPaint HighQualityResizePaint { get; } = new SKPaint() { FilterQuality = SKFilterQuality.High };
         public SurfaceRenderer(int width, int height)
         {
             FinalBitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Pbgra32, null);
@@ -23,6 +24,7 @@ namespace PixiEditor.Models.Controllers
         {
             BackingSurface.Dispose();
             BlendingPaint.Dispose();
+            HighQualityResizePaint.Dispose();
         }
 
         public void Draw(Surface otherSurface, byte opacity)
@@ -31,7 +33,7 @@ namespace PixiEditor.Models.Controllers
             FinalBitmap.Lock();
             BlendingPaint.Color = new SKColor(255, 255, 255, opacity);
             using (var snapshot = otherSurface.SkiaSurface.Snapshot())
-                BackingSurface.Canvas.DrawImage(snapshot, new SKRect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight));
+                BackingSurface.Canvas.DrawImage(snapshot, new SKRect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight), HighQualityResizePaint);
             FinalBitmap.AddDirtyRect(new Int32Rect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight));
             FinalBitmap.Unlock();
         }

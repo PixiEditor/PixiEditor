@@ -3,8 +3,8 @@
     internal class Constants
     {
         public const int DefaultCanvasSize = 64;
-        public const int MaxPreviewWidth = 2048;
-        public const int MaxPreviewHeight = 2048;
+        public const int MaxPreviewWidth = 128;
+        public const int MaxPreviewHeight = 128;
 
         public const int MaxCanvasSize = 9999;
 

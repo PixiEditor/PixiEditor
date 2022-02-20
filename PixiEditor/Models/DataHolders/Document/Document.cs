@@ -114,16 +114,19 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void ClipCanvas()
         {
-            DoubleCoords points = GetEdgePoints(Layers);
+            DoubleCoords? maybePoints = GetEdgePoints(Layers);
+
+            if (maybePoints == null)
+            {
+                //all layers are empty
+                return;
+            }
+            DoubleCoords points = maybePoints.Value;
+
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
             int biggestX = points.Coords2.X;
             int biggestY = points.Coords2.Y;
-
-            if (smallestX == 0 && smallestY == 0 && biggestX == 0 && biggestY == 0)
-            {
-                return;
-            }
 
             int width = biggestX - smallestX;
             int height = biggestY - smallestY;
@@ -133,15 +136,15 @@ namespace PixiEditor.Models.DataHolders
             int oldWidth = Width;
             int oldHeight = Height;
 
-            MoveOffsets(Layers, moveVector);
+            StorageBasedChange change = new StorageBasedChange(this, Layers);
 
-            object[] reverseArguments = { oldOffsets, oldWidth, oldHeight };
-            object[] processArguments = { Layers.Select(x => x.Offset).ToArray(), width, height };
+            object[] reverseArguments = { oldWidth, oldHeight };
+            object[] processArguments = { Layers.Select(x => new Thickness(x.OffsetX - smallestX, x.OffsetY - smallestY, 0, 0)).ToArray(), width, height };
 
             ResizeCanvasProcess(processArguments);
 
-            UndoManager.AddUndoChange(new Change(
-                ResizeCanvasProcess,
+            UndoManager.AddUndoChange(change.ToChange(
+                RestoreDocumentLayersProcess,
                 reverseArguments,
                 ResizeCanvasProcess,
                 processArguments,
@@ -157,19 +160,16 @@ namespace PixiEditor.Models.DataHolders
             if (layersToCenter.Count == 0)
             {
                 return;
-            }
 
-            DoubleCoords points = GetEdgePoints(layersToCenter);
+            DoubleCoords? maybePoints = ClipLayersAndGetEdgePoints(layersToCenter);
+            if (maybePoints == null)
+                return;
+            DoubleCoords points = maybePoints.Value;
 
             int smallestX = points.Coords1.X;
             int smallestY = points.Coords1.Y;
             int biggestX = points.Coords2.X;
             int biggestY = points.Coords2.Y;
-
-            if (smallestX == 0 && smallestY == 0 && biggestX == 0 && biggestY == 0)
-            {
-                return;
-            }
 
             Coordinates contentCenter = CoordinatesCalculator.GetCenterPoint(points.Coords1, points.Coords2);
             Coordinates documentCenter = CoordinatesCalculator.GetCenterPoint(
@@ -242,7 +242,47 @@ namespace PixiEditor.Models.DataHolders
             return 0;
         }
 
-        private DoubleCoords GetEdgePoints(IEnumerable<Layer> layers)
+        private DoubleCoords? GetEdgePoints(IEnumerable<Layer> layers)
+        {
+            if (Layers.Count == 0)
+                throw new ArgumentException("Not enough layers");
+
+            int smallestX = int.MaxValue;
+            int smallestY = int.MaxValue;
+            int biggestX = int.MinValue;
+            int biggestY = int.MinValue;
+
+            bool allLayersSkipped = true;
+
+            foreach (Layer layer in layers)
+            {
+                Int32Rect bounds = layer.TightBounds;
+                if (layer.IsReset || !bounds.HasArea)
+                    continue;
+                allLayersSkipped = false;
+
+                if (layer.OffsetX + bounds.X < smallestX)
+                    smallestX = layer.OffsetX + bounds.X;
+
+                if (layer.OffsetX + bounds.X + bounds.Width > biggestX)
+                    biggestX = layer.OffsetX + bounds.X + bounds.Width;
+
+                if (layer.OffsetY + bounds.Y < smallestY)
+                    smallestY = layer.OffsetY + bounds.Y;
+
+                if (layer.OffsetY + bounds.Y + bounds.Height > biggestY)
+                    biggestY = layer.OffsetY + bounds.Y + bounds.Height;
+            }
+
+            if (allLayersSkipped)
+                return null;
+
+            return new DoubleCoords(
+                new Coordinates(smallestX, smallestY),
+                new Coordinates(biggestX, biggestY));
+        }
+
+        private DoubleCoords? ClipLayersAndGetEdgePoints(IEnumerable<Layer> layers)
         {
             if (Layers.Count == 0)
             {
@@ -254,9 +294,15 @@ namespace PixiEditor.Models.DataHolders
             int biggestX = int.MinValue;
             int biggestY = int.MinValue;
 
+            bool allLayersSkipped = true;
+
             foreach (Layer layer in layers)
             {
                 layer.ClipCanvas();
+                if (layer.IsReset)
+                    continue;
+                allLayersSkipped = false;
+
                 if (layer.OffsetX < smallestX)
                 {
                     smallestX = layer.OffsetX;
@@ -277,6 +323,9 @@ namespace PixiEditor.Models.DataHolders
                     biggestY = layer.OffsetY + layer.Height;
                 }
             }
+
+            if (allLayersSkipped)
+                return null;
 
             return new DoubleCoords(
                 new Coordinates(smallestX, smallestY),

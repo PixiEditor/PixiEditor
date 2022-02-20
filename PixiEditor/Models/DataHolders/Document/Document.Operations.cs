@@ -7,7 +7,6 @@ using SkiaSharp;
 using System;
 using System.Linq;
 using System.Windows;
-using Windows.Graphics;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -231,9 +230,19 @@ namespace PixiEditor.Models.DataHolders
             for (int i = 0; i < Layers.Count; i++)
             {
                 Layer layer = Layers[i];
+                Layers[i].MaxWidth = newWidth;
+                Layers[i].MaxHeight = newHeight;
+                if (layer.IsReset)
+                    continue;
+
                 Thickness newOffset = offset[i];
                 Int32Rect newRect = new((int)newOffset.Left, (int)newOffset.Top, layer.Width, layer.Height);
                 Int32Rect newLayerRect = newRect.Intersect(newCanvasRect);
+                if (!newLayerRect.HasArea)
+                {
+                    layer.Reset();
+                    continue;
+                }
                 Surface newBitmap = new(newLayerRect.Width, newLayerRect.Height);
                 var oldBitmap = layer.LayerBitmap;
                 using var snapshot = oldBitmap.SkiaSurface.Snapshot();
@@ -243,8 +252,6 @@ namespace PixiEditor.Models.DataHolders
                 oldBitmap.Dispose();
 
                 Layers[i].Offset = new Thickness(newLayerRect.X, newLayerRect.Y, 0, 0);
-                Layers[i].MaxWidth = newWidth;
-                Layers[i].MaxHeight = newHeight;
             }
 
             Width = newWidth;

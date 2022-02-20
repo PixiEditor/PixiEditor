@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using Windows.Graphics;
 
 namespace PixiEditor.Models.Layers
 {
@@ -495,7 +494,11 @@ namespace PixiEditor.Models.Layers
         public void ClipCanvas()
         {
             var dimensions = GetContentDimensions();
-            if (dimensions == Int32Rect.Empty) return;
+            if (dimensions == Int32Rect.Empty)
+            {
+                Reset();
+                return;
+            }
 
             ResizeCanvas(0, 0, dimensions.X, dimensions.Y, dimensions.Width, dimensions.Height);
             Offset = new Thickness(OffsetX + dimensions.X, OffsetY + dimensions.Y, 0, 0);
