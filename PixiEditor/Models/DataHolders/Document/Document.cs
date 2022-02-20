@@ -160,6 +160,7 @@ namespace PixiEditor.Models.DataHolders
             if (layersToCenter.Count == 0)
             {
                 return;
+            }
 
             DoubleCoords? maybePoints = ClipLayersAndGetEdgePoints(layersToCenter);
             if (maybePoints == null)
