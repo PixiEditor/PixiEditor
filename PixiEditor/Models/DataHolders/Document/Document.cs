@@ -259,17 +259,17 @@ namespace PixiEditor.Models.DataHolders
                     continue;
                 allLayersSkipped = false;
 
-                if (bounds.X < smallestX)
-                    smallestX = bounds.X;
+                if (layer.OffsetX + bounds.X < smallestX)
+                    smallestX = layer.OffsetX + bounds.X;
 
-                if (bounds.X + bounds.Width > biggestX)
-                    biggestX = bounds.X + bounds.Width;
+                if (layer.OffsetX + bounds.X + bounds.Width > biggestX)
+                    biggestX = layer.OffsetX + bounds.X + bounds.Width;
 
-                if (bounds.Y < smallestY)
-                    smallestY = bounds.Y;
+                if (layer.OffsetY + bounds.Y < smallestY)
+                    smallestY = layer.OffsetY + bounds.Y;
 
-                if (bounds.Y + bounds.Height > biggestY)
-                    biggestY = bounds.Y + bounds.Height;
+                if (layer.OffsetY + bounds.Y + bounds.Height > biggestY)
+                    biggestY = layer.OffsetY + bounds.Y + bounds.Height;
             }
 
             if (allLayersSkipped)
