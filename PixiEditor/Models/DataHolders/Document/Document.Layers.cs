@@ -627,6 +627,10 @@ namespace PixiEditor.Models.DataHolders
                 {
                     layer.DynamicResizeAbsolute(bound);
                 }
+                else
+                {
+                    layer.ClipCanvas();
+                }
             }
         }
 
