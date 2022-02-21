@@ -180,9 +180,12 @@ namespace PixiEditor.Models.DataHolders
                 new Coordinates(Width, Height));
             Coordinates moveVector = new Coordinates(documentCenter.X - contentCenter.X, documentCenter.Y - contentCenter.Y);
 
-            List<Int32Rect> newBounds = layersToCenter.Select(x => x.Bounds).ToList();
+
+            List<Int32Rect> newBounds = Enumerable.Repeat(Int32Rect.Empty, layersToCenter.Count).ToList();
 
             MoveOffsets(layersToCenter, newBounds, moveVector);
+
+
             List<Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
             UndoManager.AddUndoChange(
                 new Change(

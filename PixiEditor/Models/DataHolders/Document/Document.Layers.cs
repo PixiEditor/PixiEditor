@@ -623,7 +623,7 @@ namespace PixiEditor.Models.DataHolders
                 Int32Rect bound = bounds[i];
                 Thickness offset = layer.Offset;
                 layer.Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
-                if (layer.Bounds != bound)
+                if (!bound.IsEmpty && layer.Bounds != bound)
                 {
                     layer.DynamicResizeAbsolute(bound);
                 }
