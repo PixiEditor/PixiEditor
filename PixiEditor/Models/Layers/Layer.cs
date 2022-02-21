@@ -215,6 +215,7 @@ namespace PixiEditor.Models.Layers
         public bool IsReset { get; private set; }
 
         public Int32Rect TightBounds => GetContentDimensions();
+        public Int32Rect Bounds => new Int32Rect(OffsetX, OffsetY, Width, Height);
 
         public event EventHandler<Int32Rect> LayerBitmapChanged;
 

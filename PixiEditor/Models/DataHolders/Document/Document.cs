@@ -162,6 +162,8 @@ namespace PixiEditor.Models.DataHolders
                 return;
             }
 
+            List<Int32Rect> oldBounds = layersToCenter.Select(x => x.Bounds).ToList();
+
             DoubleCoords? maybePoints = ClipLayersAndGetEdgePoints(layersToCenter);
             if (maybePoints == null)
                 return;
@@ -178,14 +180,16 @@ namespace PixiEditor.Models.DataHolders
                 new Coordinates(Width, Height));
             Coordinates moveVector = new Coordinates(documentCenter.X - contentCenter.X, documentCenter.Y - contentCenter.Y);
 
-            MoveOffsets(layersToCenter, moveVector);
+            List<Int32Rect> newBounds = layersToCenter.Select(x => x.Bounds).ToList();
+
+            MoveOffsets(layersToCenter, newBounds, moveVector);
             List<Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
             UndoManager.AddUndoChange(
                 new Change(
                     MoveOffsetsProcess,
-                    new object[] { guids, new Coordinates(-moveVector.X, -moveVector.Y) },
+                    new object[] { guids, oldBounds, new Coordinates(-moveVector.X, -moveVector.Y) },
                     MoveOffsetsProcess,
-                    new object[] { guids, moveVector },
+                    new object[] { guids, newBounds, moveVector },
                     "Center content"));
         }
 

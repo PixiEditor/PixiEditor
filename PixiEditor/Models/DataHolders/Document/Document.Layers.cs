@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using Windows.Graphics;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -614,18 +615,24 @@ namespace PixiEditor.Models.DataHolders
         /// <summary>
         ///     Moves offsets of layers by specified vector.
         /// </summary>
-        private void MoveOffsets(IList<Layer> layers, Coordinates moveVector)
+        private void MoveOffsets(IList<Layer> layers, IList<Int32Rect> bounds, Coordinates moveVector)
         {
-            foreach (Layer layer in layers)
+            for (int i = 0; i < layers.Count; i++)
             {
+                Layer layer = layers[i];
+                Int32Rect bound = bounds[i];
                 Thickness offset = layer.Offset;
                 layer.Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
+                if (layer.Bounds != bound)
+                {
+                    layer.DynamicResizeAbsolute(bound);
+                }
             }
         }
 
         private void MoveOffsetsProcess(object[] arguments)
         {
-            if (arguments.Length > 0 && arguments[0] is List<Guid> guids && arguments[1] is Coordinates vector)
+            if (arguments.Length > 0 && arguments[0] is List<Guid> guids && arguments[1] is List<Int32Rect> bounds && arguments[2] is Coordinates vector)
             {
                 List<Layer> layers = new List<Layer>(guids.Count);
                 foreach (Guid guid in guids)
@@ -633,7 +640,7 @@ namespace PixiEditor.Models.DataHolders
                     layers.Add(Layers.First(x => x.GuidValue == guid));
                 }
 
-                MoveOffsets(layers, vector);
+                MoveOffsets(layers, bounds, vector);
             }
             else
             {
