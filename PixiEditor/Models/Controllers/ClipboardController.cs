@@ -124,13 +124,11 @@ namespace PixiEditor.Models.Controllers
                 return;
             }
 
-
             int resizedCount = 0;
 
             Guid[] guids = layers.Select(x => x.GuidValue).ToArray();
 
             var undoArgs = new object[] { guids, document, new PixelSize(document.Width, document.Height) };
-
 
             foreach (var layer in layers)
             {
@@ -142,7 +140,6 @@ namespace PixiEditor.Models.Controllers
                     resizedCount++;
                 }
             }
-
 
             StorageBasedChange change = new StorageBasedChange(document, layers, false);
 
