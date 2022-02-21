@@ -102,7 +102,9 @@ namespace PixiEditor.Views.UserControls
 
         private void OnLayerBitmapChanged(object sender, Int32Rect e)
         {
-            if (TargetLayer.Width != prevLayerWidth || TargetLayer.Height != prevLayerHeight)
+            if (TargetLayer.Width != prevLayerWidth || TargetLayer.Height != prevLayerHeight 
+                || TargetLayer.OffsetX != _cachedTightBounds.X
+                || TargetLayer.OffsetY != _cachedTightBounds.Y)
             {
                 ResizeWithOptimized(RenderSize);
                 prevLayerWidth = TargetLayer.Width;
@@ -120,7 +122,7 @@ namespace PixiEditor.Views.UserControls
             var tightBounds = targetLayer.TightBounds;
             if (tightBounds.IsEmpty)
             {
-                tightBounds = new Int32Rect(0, 0, 1, 1);
+                tightBounds = new Int32Rect(0, 0, targetLayer.Width, targetLayer.Height);
             }
 
             return tightBounds;
