@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
+using SkiaSharp;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +21,8 @@ namespace PixiEditor.Views.UserControls
         private SurfaceRenderer renderer;
         private int prevLayerWidth = -1;
         private int prevLayerHeight = -1;
+
+        private Int32Rect _cachedTightBounds;
 
         public PlainLayerView()
         {
@@ -49,14 +52,17 @@ namespace PixiEditor.Views.UserControls
                     view.TargetLayer = null;
                     return;
                 }
+
                 layer.LayerBitmapChanged += view.OnLayerBitmapChanged;
-                view.Resize(layer.Width, layer.Height);
+                view._cachedTightBounds = GetTightBounds(layer);
+
+                view.Resize(view._cachedTightBounds.Width, view._cachedTightBounds.Height);
             }
         }
 
         private void Update()
         {
-            renderer.Draw(TargetLayer.LayerBitmap, (byte)(TargetLayer.Opacity * 255));
+            renderer.Draw(TargetLayer.LayerBitmap, (byte)(TargetLayer.Opacity * 255), SKRectI.Create(_cachedTightBounds.X, _cachedTightBounds.Y, _cachedTightBounds.Width, _cachedTightBounds.Height));
         }
 
         private void OnControlSizeChanged(object sender, SizeChangedEventArgs e)
@@ -101,11 +107,23 @@ namespace PixiEditor.Views.UserControls
                 ResizeWithOptimized(RenderSize);
                 prevLayerWidth = TargetLayer.Width;
                 prevLayerHeight = TargetLayer.Height;
+                _cachedTightBounds = GetTightBounds(TargetLayer);
             }
             else
             {
                 Update();
             }
+        }
+
+        private static Int32Rect GetTightBounds(Layer targetLayer)
+        {
+            var tightBounds = targetLayer.TightBounds;
+            if (tightBounds.IsEmpty)
+            {
+                tightBounds = new Int32Rect(0, 0, 1, 1);
+            }
+
+            return tightBounds;
         }
     }
 }

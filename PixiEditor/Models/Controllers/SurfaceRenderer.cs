@@ -29,10 +29,15 @@ namespace PixiEditor.Models.Controllers
 
         public void Draw(Surface otherSurface, byte opacity)
         {
+            Draw(otherSurface, opacity, new SKRectI(0, 0, otherSurface.Width, otherSurface.Height));
+        }
+
+        public void Draw(Surface otherSurface, byte opacity, SKRectI drawRect)
+        {
             BackingSurface.Canvas.Clear();
             FinalBitmap.Lock();
             BlendingPaint.Color = new SKColor(255, 255, 255, opacity);
-            using (var snapshot = otherSurface.SkiaSurface.Snapshot())
+            using (var snapshot = otherSurface.SkiaSurface.Snapshot(drawRect))
                 BackingSurface.Canvas.DrawImage(snapshot, new SKRect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight), HighQualityResizePaint);
             FinalBitmap.AddDirtyRect(new Int32Rect(0, 0, FinalBitmap.PixelWidth, FinalBitmap.PixelHeight));
             FinalBitmap.Unlock();
