@@ -370,6 +370,7 @@ namespace PixiEditor.Views.UserControls.Layers
             }
 
             ShortcutController.UnblockShortcutExecutionAll();
+            MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
         }
 
         private void HandleLayerOpacityChange(float val, Layer layer)
