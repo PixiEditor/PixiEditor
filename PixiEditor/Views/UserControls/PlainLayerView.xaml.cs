@@ -119,11 +119,13 @@ namespace PixiEditor.Views.UserControls
 
         private static Int32Rect GetTightBounds(Layer targetLayer)
         {
-            var tightBounds = targetLayer.TightBounds;
-            if (tightBounds.IsEmpty)
-            {
-                tightBounds = new Int32Rect(0, 0, targetLayer.Width, targetLayer.Height);
-            }
+            //var tightBounds = targetLayer.TightBounds;
+            //if (tightBounds.IsEmpty)
+            //{
+            //    tightBounds = new Int32Rect(0, 0, targetLayer.Width, targetLayer.Height);
+            //}
+
+            var tightBounds = new Int32Rect(0, 0, targetLayer.Width, targetLayer.Height);
 
             return tightBounds;
         }
