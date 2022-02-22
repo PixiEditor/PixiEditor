@@ -45,7 +45,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void Paste(object parameter)
         {
-            ClipboardController.PasteFromClipboard();
+            if (Owner.BitmapManager.ActiveDocument == null) return;
+            ClipboardController.PasteFromClipboard(Owner.BitmapManager.ActiveDocument);
         }
 
         private bool CanPaste(object property)

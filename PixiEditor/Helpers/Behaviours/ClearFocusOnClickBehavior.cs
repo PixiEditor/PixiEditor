@@ -20,7 +20,7 @@ namespace PixiEditor.Helpers.Behaviours
         private void AssociatedObject_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             AssociatedObject.Focus();
-            ShortcutController.BlockShortcutExecution = false;
+            ShortcutController.UnblockShortcutExecutionAll();
         }
     }
 }

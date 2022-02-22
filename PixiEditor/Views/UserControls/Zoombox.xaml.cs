@@ -105,7 +105,7 @@ namespace PixiEditor.Views.UserControls
         public static readonly DependencyProperty UseTouchGesturesProperty =
             DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(Zoombox));
 
-        private const double zoomFactor = 1.1;
+        private const double zoomFactor = 1.09050773267; //2^(1/8)
         private const double maxZoom = 50;
         private double minZoom = -28;
         public object AdditionalContent

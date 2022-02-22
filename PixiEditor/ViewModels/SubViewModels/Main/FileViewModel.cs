@@ -148,6 +148,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 Owner.BitmapManager.ActiveDocument.AddNewLayer(
                     "Image",
                     Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
+                Owner.BitmapManager.ActiveDocument.UpdatePreviewImage();
             }
         }
 

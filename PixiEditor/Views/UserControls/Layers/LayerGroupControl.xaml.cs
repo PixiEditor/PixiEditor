@@ -201,7 +201,7 @@ namespace PixiEditor.Views.UserControls.Layers
         private void MoveGroupWithTempLayer(bool above, Models.DataHolders.Document document, Guid group, int indexOfReferenceLayer, bool putItInside) // ¯\_(ツ)_/¯
         {
             // The trick here is to insert a temp layer, assign group to it, then delete it.
-            Layer tempLayer = new("_temp");
+            Layer tempLayer = new("_temp", document.Width, document.Height);
             document.Layers.Insert(indexOfReferenceLayer, tempLayer);
 
             Guid? refGuid = putItInside ? GroupData?.GroupGuid : GroupData?.Parent?.GroupGuid;

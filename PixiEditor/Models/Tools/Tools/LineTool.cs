@@ -45,10 +45,11 @@ namespace PixiEditor.Models.Tools.Tools
             if (Session.IsShiftDown)
                 (start, end) = CoordinatesHelper.GetSquareOrLineCoordinates(recordedMouseMovement);
 
-            DrawLine(previewLayer, start, end, color, thickness, SKBlendMode.Src);
+            var dirtyRect = DrawLine(previewLayer, start, end, color, thickness, SKBlendMode.Src);
+            ReportCustomSessionRect(SKRectI.Create(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height));
         }
 
-        public void DrawLine(
+        public Int32Rect DrawLine(
             Layer layer, Coordinates start, Coordinates end, SKColor color, int thickness, SKBlendMode blendMode,
             SKStrokeCap strokeCap = SKStrokeCap.Butt)
         {
@@ -90,6 +91,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             layer.InvokeLayerBitmapChange(dirtyRect);
+            return dirtyRect;
         }
 
         private void DrawBresenhamLine(Layer layer, int x1, int y1, int x2, int y2, SKPaint paint)

@@ -88,7 +88,7 @@ namespace PixiEditor.Models.Tools.Tools
             cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(
                 new Int32Rect(0, 0, document.Width, document.Height),
                 document.Layers,
-                document.LayerStructure));
+                document.LayerStructure), document.Width, document.Height);
         }
     }
 }

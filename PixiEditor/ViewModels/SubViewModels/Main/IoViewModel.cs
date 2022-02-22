@@ -65,7 +65,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 Owner.ShortcutController.LastShortcut.Command == Owner.ToolsSubViewModel.SelectToolCommand)
             {
                 restoreToolOnKeyUp = true;
-                ShortcutController.BlockShortcutExecution = true;
+                ShortcutController.BlockShortcutExection("ShortcutDown");
             }
 
             Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
@@ -96,7 +96,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 restoreToolOnKeyUp = false;
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
-                ShortcutController.BlockShortcutExecution = false;
+                ShortcutController.UnblockShortcutExecution("ShortcutDown");
             }
         }
 
@@ -132,6 +132,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             else if (Owner.ToolsSubViewModel.LastActionTool != null && Owner.ToolsSubViewModel.MoveToolIsTransient)
             {
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+                restoreToolOnKeyUp = false;
+                ShortcutController.UnblockShortcutExecution("ShortcutDown");
             }
         }
 

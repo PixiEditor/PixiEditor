@@ -19,6 +19,9 @@ namespace PixiEditor.Models.Tools
 
         public bool UseDocumentRectForUndo { get; set; } = false;
 
+        private SKRectI _rectReportedByTool;
+        private bool _customRectReported = false;
+
         private StorageBasedChange _change;
 
         public abstract void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color);
@@ -51,6 +54,12 @@ namespace PixiEditor.Models.Tools
             _change = null;
         }
 
+        protected void ReportCustomSessionRect(SKRectI rect)
+        {
+            _rectReportedByTool = rect;
+            _customRectReported = true;
+        }
+
         private void InitializeStorageBasedChange(SKRectI toolSessionRect)
         {
             Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
@@ -70,6 +79,13 @@ namespace PixiEditor.Models.Tools
             if (UseDocumentRectForUndo)
             {
                 finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
+            }
+
+            if (_customRectReported)
+            {
+                _customRectReported = false;
+                finalRect = _rectReportedByTool;
+                _rectReportedByTool = SKRectI.Empty;
             }
 
             _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });

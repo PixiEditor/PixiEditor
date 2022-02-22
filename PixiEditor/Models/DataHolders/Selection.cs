@@ -17,10 +17,10 @@ namespace PixiEditor.Models.DataHolders
         private readonly SKColor selectionBlue;
         private Layer selectionLayer;
 
-        public Selection(Coordinates[] selectedPoints)
+        public Selection(Coordinates[] selectedPoints, PixelSize maxSize)
         {
             SelectedPoints = new ObservableCollection<Coordinates>(selectedPoints);
-            SelectionLayer = new Layer("_selectionLayer");
+            SelectionLayer = new Layer("_selectionLayer", maxSize.Width, maxSize.Height);
             selectionBlue = new SKColor(142, 202, 255, 255);
         }
 

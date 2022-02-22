@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using Windows.Graphics;
 
 namespace PixiEditor.Models.Layers
 {
@@ -32,32 +31,38 @@ namespace PixiEditor.Models.Layers
 
         private string layerHighlightColor = "#666666";
 
-        public Layer(string name)
+        public Layer(string name, int maxWidth, int maxHeight)
         {
             Name = name;
             LayerBitmap = new Surface(1, 1);
             IsReset = true;
             Width = 1;
             Height = 1;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             GuidValue = Guid.NewGuid();
         }
 
-        public Layer(string name, int width, int height)
+        public Layer(string name, int width, int height, int maxWidth, int maxHeight)
         {
             Name = name;
             LayerBitmap = new Surface(width, height);
             IsReset = true;
             Width = width;
             Height = height;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             GuidValue = Guid.NewGuid();
         }
 
-        public Layer(string name, Surface layerBitmap)
+        public Layer(string name, Surface layerBitmap, int maxWidth, int maxHeight)
         {
             Name = name;
             LayerBitmap = layerBitmap;
             Width = layerBitmap.Width;
             Height = layerBitmap.Height;
+            MaxWidth = maxWidth;
+            MaxHeight = maxHeight;
             GuidValue = Guid.NewGuid();
         }
 
@@ -210,6 +215,7 @@ namespace PixiEditor.Models.Layers
         public bool IsReset { get; private set; }
 
         public Int32Rect TightBounds => GetContentDimensions();
+        public Int32Rect Bounds => new Int32Rect(OffsetX, OffsetY, Width, Height);
 
         public event EventHandler<Int32Rect> LayerBitmapChanged;
 
@@ -246,12 +252,10 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         public Layer Clone(bool generateNewGuid = false)
         {
-            return new Layer(Name, new Surface(LayerBitmap))
+            return new Layer(Name, new Surface(LayerBitmap), MaxWidth, MaxHeight)
             {
                 IsVisible = IsVisible,
                 Offset = Offset,
-                MaxHeight = MaxHeight,
-                MaxWidth = MaxWidth,
                 Opacity = Opacity,
                 IsActive = IsActive,
                 IsRenaming = IsRenaming,
@@ -491,7 +495,11 @@ namespace PixiEditor.Models.Layers
         public void ClipCanvas()
         {
             var dimensions = GetContentDimensions();
-            if (dimensions == Int32Rect.Empty) return;
+            if (dimensions == Int32Rect.Empty)
+            {
+                Reset();
+                return;
+            }
 
             ResizeCanvas(0, 0, dimensions.X, dimensions.Y, dimensions.Width, dimensions.Height);
             Offset = new Thickness(OffsetX + dimensions.X, OffsetY + dimensions.Y, 0, 0);

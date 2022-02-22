@@ -4,7 +4,6 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
-using PixiEditor.Views.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -48,7 +47,6 @@ namespace PixiEditor
 
             UpdateWindowChromeBorderThickness();
             StateChanged += MainWindow_StateChanged;
-            Activated += MainWindow_Activated;
 
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -65,6 +63,8 @@ namespace PixiEditor
                     UpdateTaskbarIcon(null);
                 }
             });
+
+            Current = this;
 
             OnReleaseBuild();
         }
@@ -95,12 +95,6 @@ namespace PixiEditor
         {
             base.OnSourceInitialized(e);
             ((HwndSource)PresentationSource.FromVisual(this)).AddHook(Helpers.WindowSizeHelper.SetMaxSizeHook);
-        }
-
-        [Conditional("RELEASE")]
-        private static void CloseHelloThereIfRelease()
-        {
-            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
         }
 
         [Conditional("RELEASE")]
@@ -156,11 +150,6 @@ namespace PixiEditor
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
-        }
-
-        private void MainWindow_Activated(object sender, EventArgs e)
-        {
-            CloseHelloThereIfRelease();
         }
 
         private void UpdateWindowChromeBorderThickness()

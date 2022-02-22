@@ -27,6 +27,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void ShowAvalonDockWindow(string id)
         {
+            if (MainWindow.Current?.LayoutRoot?.Manager?.Layout == null) return;
             var anchorables = new List<LayoutAnchorable>(MainWindow.Current.LayoutRoot.Manager.Layout
                     .Descendents()
                     .OfType<LayoutAnchorable>());

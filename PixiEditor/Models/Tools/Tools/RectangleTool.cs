@@ -38,10 +38,11 @@ namespace PixiEditor.Models.Tools.Tools
                 var temp = Toolbar.GetSetting<ColorSetting>("FillColor").Value;
                 fillColor = new SKColor(temp.R, temp.G, temp.B, temp.A);
             }
-            CreateRectangle(previewLayer, color, fillColor, recordedMouseMovement, thickness);
+            var dirtyRect = CreateRectangle(previewLayer, color, fillColor, recordedMouseMovement, thickness);
+            ReportCustomSessionRect(SKRectI.Create(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height));
         }
 
-        private void CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, IReadOnlyList<Coordinates> coordinates, int thickness)
+        private Int32Rect CreateRectangle(Layer layer, SKColor color, SKColor? fillColor, IReadOnlyList<Coordinates> coordinates, int thickness)
         {
             var (start, end) = Session.IsShiftDown ? CoordinatesHelper.GetSquareCoordiantes(coordinates) : (coordinates[0], coordinates[^1]);
 
@@ -75,7 +76,9 @@ namespace PixiEditor.Models.Tools.Tools
                 paint.Color = color;
                 layer.LayerBitmap.SkiaSurface.Canvas.DrawRect(x, y, w, h, paint);
             }
+
             layer.InvokeLayerBitmapChange(dirtyRect);
+            return dirtyRect;
         }
     }
 }

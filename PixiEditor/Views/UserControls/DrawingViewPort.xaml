@@ -82,11 +82,14 @@
                                           RenderOptions.BitmapScalingMode="NearestNeighbor"/>
 
                 <Image Source="{Binding PreviewLayerRenderer.FinalBitmap}" Panel.ZIndex="2"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform"
+                       RenderOptions.BitmapScalingMode="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Zoombox}}, Path=Zoom, Converter={converters:ZoomLevelToBitmapScalingModeConverter}}" 
+                       Stretch="Uniform"
                        Width="{Binding Width}" Height="{Binding Height}"/>
 
+
                 <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Renderer.FinalBitmap}"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" 
+                       RenderOptions.BitmapScalingMode="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Zoombox}}, Path=Zoom, Converter={converters:ZoomLevelToBitmapScalingModeConverter}}" 
+                       Stretch="Uniform" 
                        Visibility="{Binding XamlAccesibleViewModel.BitmapManager.OnlyReferenceLayer, Converter={InverseBoolToVisibilityConverter}}"/>
 
                 <local:PlainLayerView TargetLayer="{Binding ActiveSelection.SelectionLayer}"

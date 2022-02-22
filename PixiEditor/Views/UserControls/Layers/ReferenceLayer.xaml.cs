@@ -37,7 +37,7 @@ namespace PixiEditor.Views.UserControls.Layers
             if (path != null)
             {
                 var bitmap = Importer.ImportSurface(path);
-                Layer = new Layer("_Reference Layer", bitmap);
+                Layer = new Layer("_Reference Layer", bitmap, bitmap.Width, bitmap.Height);
             }
         }
 
