@@ -57,7 +57,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        public static Layer MergeWith(this Layer thisLayer, Layer otherLayer, string newName, Vector documentsSize)
+        public static Layer MergeWith(this Layer thisLayer, Layer otherLayer, string newName, PixelSize documentSize)
         {
             Int32Rect thisRect = new(thisLayer.OffsetX, thisLayer.OffsetY, thisLayer.Width, thisLayer.Height);
             Int32Rect otherRect = new(otherLayer.OffsetX, otherLayer.OffsetY, otherLayer.Width, otherLayer.Height);
@@ -66,9 +66,9 @@ namespace PixiEditor.Models.Layers
 
             Surface mergedBitmap = BitmapUtils.CombineLayers(combined, new Layer[] { thisLayer, otherLayer });
 
-            Layer mergedLayer = new Layer(newName, mergedBitmap)
+            Layer mergedLayer = new Layer(newName, mergedBitmap, documentSize.Width, documentSize.Height)
             {
-                Offset = new Thickness(combined.X, combined.Y, 0, 0)
+                Offset = new Thickness(combined.X, combined.Y, 0, 0),
             };
 
             return mergedLayer;
@@ -76,7 +76,7 @@ namespace PixiEditor.Models.Layers
 
         public static Layer MergeWith(this Layer thisLayer, Layer otherLayer, string newName, int documentWidth, int documentHeight)
         {
-            return MergeWith(thisLayer, otherLayer, newName, new Vector(documentWidth, documentHeight));
+            return MergeWith(thisLayer, otherLayer, newName, new PixelSize(documentWidth, documentHeight));
         }
     }
 }

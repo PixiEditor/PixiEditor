@@ -61,7 +61,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private Selection selection = new Selection(Array.Empty<Coordinates>());
+        private Selection selection;
 
         public Selection ActiveSelection
         {
@@ -156,9 +156,13 @@ namespace PixiEditor.Models.DataHolders
         /// </summary>
         public void CenterContent()
         {
-            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure));
-            if (!layersToCenter.Any())
+            var layersToCenter = Layers.Where(x => x.IsActive && LayerStructureUtils.GetFinalLayerIsVisible(x, LayerStructure)).ToList();
+            if (layersToCenter.Count == 0)
+            {
                 return;
+            }
+
+            List<Int32Rect> oldBounds = layersToCenter.Select(x => x.Bounds).ToList();
 
             DoubleCoords? maybePoints = ClipLayersAndGetEdgePoints(layersToCenter);
             if (maybePoints == null)
@@ -176,13 +180,17 @@ namespace PixiEditor.Models.DataHolders
                 new Coordinates(Width, Height));
             Coordinates moveVector = new Coordinates(documentCenter.X - contentCenter.X, documentCenter.Y - contentCenter.Y);
 
-            MoveOffsets(layersToCenter, moveVector);
+            List<Int32Rect> emptyBounds = Enumerable.Repeat(Int32Rect.Empty, layersToCenter.Count).ToList();
+
+            MoveOffsets(layersToCenter, emptyBounds, moveVector);
+
+            List <Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
             UndoManager.AddUndoChange(
                 new Change(
                     MoveOffsetsProcess,
-                    new object[] { layersToCenter, new Coordinates(-moveVector.X, -moveVector.Y) },
+                    new object[] { guids, oldBounds, new Coordinates(-moveVector.X, -moveVector.Y) },
                     MoveOffsetsProcess,
-                    new object[] { layersToCenter, moveVector },
+                    new object[] { guids, emptyBounds, moveVector },
                     "Center content"));
         }
 

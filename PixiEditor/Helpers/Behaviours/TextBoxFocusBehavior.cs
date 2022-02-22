@@ -85,7 +85,6 @@ namespace PixiEditor.Helpers.Behaviours
             }
 
             FocusManager.SetFocusedElement(scope, parent);
-            Keyboard.ClearFocus();
         }
 
         private void AssociatedObjectGotKeyboardFocus(
@@ -108,6 +107,7 @@ namespace PixiEditor.Helpers.Behaviours
         {
             if (DeselectOnFocusLoss)
                 AssociatedObject.Select(0, 0);
+            RemoveFocus();
         }
 
         private void AssociatedObjectPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

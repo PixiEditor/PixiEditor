@@ -49,8 +49,9 @@ steps:
     workingDirectory: 'PixiEditorTests\'
   displayName: Collect code coverage
 
-- task: CmdLine@2
-  continueOnError: true
-  inputs:
-    script: codecov -f .\PixiEditorTests\PixiEditor_coverage.xml -t $(CODECOV_TOKEN)
-  displayName: Upload to Codecov.io
+  # Disiabled, because there is a problem with .NET 6 and OpenCover.Console.exe
+#- task: CmdLine@2
+#  continueOnError: true
+#  inputs:
+#    script: codecov -f .\PixiEditorTests\PixiEditor_coverage.xml -t $(CODECOV_TOKEN)
+#  displayName: Upload to Codecov.io

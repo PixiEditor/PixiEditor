@@ -62,7 +62,7 @@ namespace PixiEditor.Views
 
         public void EnableEditing()
         {
-            ShortcutController.BlockShortcutExecution = true;
+            ShortcutController.BlockShortcutExection("EditableTextBlock");
             TextBlockVisibility = Visibility.Hidden;
             IsEditing = true;
             Dispatcher.BeginInvoke(
@@ -78,7 +78,7 @@ namespace PixiEditor.Views
         public void DisableEditing()
         {
             TextBlockVisibility = Visibility.Visible;
-            ShortcutController.BlockShortcutExecution = false;
+            ShortcutController.UnblockShortcutExecution("EditableTextBlock");
             IsEditing = false;
         }
 

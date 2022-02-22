@@ -64,6 +64,8 @@ namespace PixiEditor
                 }
             });
 
+            Current = this;
+
             OnReleaseBuild();
         }
 
