@@ -150,6 +150,8 @@ namespace PixiEditor.ViewModels
             UndoSubViewModel = services.GetService<UndoViewModel>();
             ViewportSubViewModel = services.GetService<ViewportViewModel>();
             ColorsSubViewModel = services.GetService<ColorsViewModel>();
+            ColorsSubViewModel?.SetupPaletteParsers(services);
+
             DocumentSubViewModel = services.GetService<DocumentViewModel>();
             DiscordViewModel = services.GetService<DiscordViewModel>();
             UpdateSubViewModel = services.GetService<UpdateViewModel>();

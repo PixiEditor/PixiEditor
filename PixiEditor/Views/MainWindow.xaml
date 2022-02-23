@@ -17,7 +17,7 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
         xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" 
         xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers" 
-        xmlns:sys="clr-namespace:System;assembly=System.Runtime" 
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime" xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
         d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
@@ -349,7 +349,7 @@
                                     <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
+                                        <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
                                         Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
                                                               SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
                                                                     ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>

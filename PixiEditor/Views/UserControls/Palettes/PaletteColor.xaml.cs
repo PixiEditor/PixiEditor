@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using SkiaSharp;
 
-namespace PixiEditor.Views.UserControls;
+namespace PixiEditor.Views.UserControls.Palettes;
 
 public partial class PaletteColor : UserControl
 {
@@ -14,7 +14,6 @@ public partial class PaletteColor : UserControl
         get { return (SKColor)GetValue(ColorProperty); }
         set { SetValue(ColorProperty, value); }
     }
-
 
 
     public int? AssociatedKey

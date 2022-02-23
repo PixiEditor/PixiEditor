@@ -1,28 +1,17 @@
 ﻿using PixiEditor.Models.DataHolders;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using PixiEditor.Models.DataHolders.Palettes;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
-namespace PixiEditor.Views.UserControls.Lospec
+namespace PixiEditor.Views.UserControls.Palettes
 {
     /// <summary>
     /// Interaction logic for LospecPaletteItem.xaml
     /// </summary>
-    public partial class LospecPaletteItem : UserControl
+    public partial class PaletteItem : UserControl
     {
         public Palette Palette
         {
@@ -32,7 +21,7 @@ namespace PixiEditor.Views.UserControls.Lospec
 
         // Using a DependencyProperty as the backing store for Palette.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PaletteProperty =
-            DependencyProperty.Register("Palette", typeof(Palette), typeof(LospecPaletteItem), new PropertyMetadata(null));
+            DependencyProperty.Register("Palette", typeof(Palette), typeof(PaletteItem), new PropertyMetadata(null));
 
         public ICommand ImportPaletteCommand
         {
@@ -42,21 +31,12 @@ namespace PixiEditor.Views.UserControls.Lospec
 
         // Using a DependencyProperty as the backing store for ImportPaletteCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ImportPaletteCommandProperty =
-            DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(LospecPaletteItem));
+            DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PaletteItem));
 
 
-        public LospecPaletteItem()
+        public PaletteItem()
         {
             InitializeComponent();
-        }
-
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-        {
-            using Process openProcess = new Process();
-
-            openProcess.StartInfo.UseShellExecute = true;
-            openProcess.StartInfo.FileName = e.Uri.AbsoluteUri;
-            openProcess.Start();
         }
     }
 }

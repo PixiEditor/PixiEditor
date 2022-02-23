@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.ExternalServices;
@@ -24,7 +25,7 @@ namespace PixiEditor.Views.Dialogs
     /// <summary>
     /// Interaction logic for LospecPalettesBrowser.xaml
     /// </summary>
-    public partial class LospecPalettesBrowser : Window
+    public partial class PalettesBrowser : Window
     {
         public event ListFetched OnListFetched;
         private int _currentPage = 0;
@@ -37,7 +38,7 @@ namespace PixiEditor.Views.Dialogs
 
         // Using a DependencyProperty as the backing store for PaletteList.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PaletteListProperty =
-            DependencyProperty.Register("PaletteList", typeof(PaletteList), typeof(LospecPalettesBrowser));
+            DependencyProperty.Register("PaletteList", typeof(PaletteList), typeof(PalettesBrowser));
 
         public ICommand ImportPaletteCommand
         {
@@ -47,7 +48,7 @@ namespace PixiEditor.Views.Dialogs
 
         // Using a DependencyProperty as the backing store for ImportPaletteCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ImportPaletteCommandProperty =
-            DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(LospecPalettesBrowser));
+            DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PalettesBrowser));
 
         public bool IsFetching
         {
@@ -57,7 +58,7 @@ namespace PixiEditor.Views.Dialogs
 
         // Using a DependencyProperty as the backing store for IsFetching.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsFetchingProperty =
-            DependencyProperty.Register("IsFetching", typeof(bool), typeof(LospecPalettesBrowser), new PropertyMetadata(false));
+            DependencyProperty.Register("IsFetching", typeof(bool), typeof(PalettesBrowser), new PropertyMetadata(false));
 
         public int ColorsNumber
         {
@@ -67,7 +68,7 @@ namespace PixiEditor.Views.Dialogs
 
         // Using a DependencyProperty as the backing store for ColorsNumber.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorsNumberProperty =
-            DependencyProperty.Register("ColorsNumber", typeof(int), typeof(LospecPalettesBrowser), 
+            DependencyProperty.Register("ColorsNumber", typeof(int), typeof(PalettesBrowser), 
                 new PropertyMetadata(8, ColorsNumberChanged));
 
         public string SortingType { get; set; } = "Default";
@@ -76,7 +77,7 @@ namespace PixiEditor.Views.Dialogs
 
         private char[] _separators = new char[] { ' ', ',' };
 
-        public LospecPalettesBrowser()
+        public PalettesBrowser()
         {
             InitializeComponent();
         }
@@ -93,7 +94,7 @@ namespace PixiEditor.Views.Dialogs
 
         private static async void ColorsNumberChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            LospecPalettesBrowser browser = (LospecPalettesBrowser)d;
+            PalettesBrowser browser = (PalettesBrowser)d;
             await browser.UpdatePaletteList(true);
         }
 

@@ -36,9 +36,9 @@ namespace PixiEditor.Models.Undo
 
         public float Opacity { get; set; }
 
-        //public SKRectI SerializedRect { get; set; }
+        public SKRectI SerializedRect { get; set; }
 
-        public UndoLayer(string storedPngLayerName, Layer layer, int layerIndex/*, SKRectI serializedRect*/)
+        public UndoLayer(string storedPngLayerName, Layer layer, int layerIndex, SKRectI serializedRect)
         {
             StoredPngLayerName = storedPngLayerName;
             LayerIndex = layerIndex;
@@ -54,7 +54,7 @@ namespace PixiEditor.Models.Undo
             IsActive = layer.IsActive;
             LayerGuid = layer.GuidValue;
             LayerHighlightColor = layer.LayerHighlightColor;
-            //SerializedRect = serializedRect;
+            SerializedRect = serializedRect;
         }
     }
 }

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters" xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              mc:Ignorable="d" Name="swatchesView"
              d:DesignHeight="450" d:DesignWidth="300">
     <UserControl.Resources>
@@ -34,7 +34,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <local:PaletteColor Color="{Binding}" Margin="0 5 5 5">
+                    <palettes:PaletteColor Color="{Binding}" Margin="0 5 5 5">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown">
                                 <i:InvokeCommandAction
@@ -42,14 +42,14 @@
                                     CommandParameter="{Binding}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <local:PaletteColor.ContextMenu>
+                        <palettes:PaletteColor.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Remove" Foreground="White"
                                           Command="{Binding Source={x:Reference Name=swatchesView}, Path=DataContext.ColorsSubViewModel.RemoveSwatchCommand}"
                                           CommandParameter="{Binding}" />
                             </ContextMenu>
-                        </local:PaletteColor.ContextMenu>
-                    </local:PaletteColor>
+                        </palettes:PaletteColor.ContextMenu>
+                    </palettes:PaletteColor>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

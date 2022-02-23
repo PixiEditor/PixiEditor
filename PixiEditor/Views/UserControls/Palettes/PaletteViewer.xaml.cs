@@ -1,14 +1,17 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Palettes;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Views.Dialogs;
 using SkiaSharp;
 
-namespace PixiEditor.Views.UserControls
+namespace PixiEditor.Views.UserControls.Palettes
 {
     /// <summary>
     /// Interaction logic for Palette.xaml
@@ -63,7 +66,7 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void ImportPalette_OnClick(object sender, RoutedEventArgs e)
+        private async void ImportPalette_OnClick(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
@@ -71,27 +74,28 @@ namespace PixiEditor.Views.UserControls
             };
             if (openFileDialog.ShowDialog() == true)
             {
-                ImportPallete(openFileDialog.FileName);
+                await ImportPalette(openFileDialog.FileName);
             }
         }
 
-        private void ImportPallete(string fileName)
+        private async Task ImportPalette(string fileName)
         {
-            var jascData = JascFileParser.Parse(fileName);
+            var jascData = await JascFileParser.ParseFile(fileName);
             Colors.Clear();
             Colors.AddRange(jascData.Colors);
         }
 
-        private void SavePalette_OnClick(object sender, RoutedEventArgs e)
+        private async void SavePalette_OnClick(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "Palette (*.pal)|*.pal"
             };
+
             if (saveFileDialog.ShowDialog() == true)
             {
                 string fileName = saveFileDialog.FileName;
-                JascFileParser.Save(fileName, new JascFileData(Colors.ToArray()));
+                await JascFileParser.SaveFile(fileName, new PaletteFileData(Colors.ToArray()));
             }
         }
 
@@ -108,11 +112,11 @@ namespace PixiEditor.Views.UserControls
             dragDropGrid.Visibility = Visibility.Hidden;
         }
 
-        private void Grid_Drop(object sender, DragEventArgs e)
+        private async void Grid_Drop(object sender, DragEventArgs e)
         {
             if(IsPalFilePresent(e, out string filePath))
             {
-                ImportPallete(filePath);
+                await ImportPalette(filePath);
                 dragDropGrid.Visibility = Visibility.Hidden;
             }
         }
@@ -164,7 +168,7 @@ namespace PixiEditor.Views.UserControls
 
         private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)
         {
-            LospecPalettesBrowser browser = new LospecPalettesBrowser
+            PalettesBrowser browser = new PalettesBrowser
             {
                 Owner = Application.Current.MainWindow,
                 ImportPaletteCommand = this.ImportPaletteCommand

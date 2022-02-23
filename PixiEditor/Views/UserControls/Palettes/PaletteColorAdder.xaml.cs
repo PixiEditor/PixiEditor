@@ -15,7 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PixiEditor.Views.UserControls
+namespace PixiEditor.Views.UserControls.Palettes
+
 {
     /// <summary>
     /// Interaction logic for PaletteColorAdder.xaml

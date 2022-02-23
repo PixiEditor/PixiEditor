@@ -1,8 +1,12 @@
-﻿using PixiEditor.Helpers;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.IO;
 using SkiaSharp;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -20,6 +24,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
 
         public RelayCommand<int> SelectPaletteColorCommand { get; set; }
+
+        public IEnumerable<PaletteFileParser> PaletteParsers { get; private set; }
 
         private SKColor primaryColor = SKColors.Black;
 
@@ -55,6 +61,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public ColorsViewModel(ViewModelMain owner)
             : base(owner)
         {
+
             SelectColorCommand = new RelayCommand(SelectColor);
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SwapColorsCommand = new RelayCommand(SwapColors);
@@ -119,6 +126,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void SelectColor(object parameter)
         {
             PrimaryColor = parameter as SKColor? ?? throw new ArgumentException();
+        }
+
+        public void SetupPaletteParsers(IServiceProvider services)
+        {
+            PaletteParsers = services.GetServices<PaletteFileParser>();
         }
     }
 }

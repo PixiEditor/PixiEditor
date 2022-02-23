@@ -1,17 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Models.Services;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Helpers.Extensions
 {
@@ -57,6 +54,8 @@ namespace PixiEditor.Helpers.Extensions
                 .AddSingleton<Tool, ColorPickerTool>()
                 .AddSingleton<Tool, BrightnessTool>()
                 .AddSingleton<Tool, ZoomTool>()
+                // Palette Parsers
+                .AddSingleton<PaletteFileParser, JascFileParser>()
                 // Other
                 .AddSingleton<DocumentProvider>();
     }

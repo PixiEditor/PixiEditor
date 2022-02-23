@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using SkiaSharp;
 
 namespace PixiEditor.Models.IO.JascPalFile;
@@ -6,11 +7,15 @@ namespace PixiEditor.Models.IO.JascPalFile;
 /// <summary>
 ///     This class is responsible for parsing JASC-PAL files. Which holds the color palette data.
 /// </summary>
-public static class JascFileParser
+public class JascFileParser : PaletteFileParser
 {
-    public static JascFileData Parse(string path)
+    private static readonly string[] _supportedFileExtensions = new string[] { ".pal" };
+    public override string[] SupportedFileExtensions => _supportedFileExtensions;
+    public override string FileName => "Jasc Palette";
+
+    public static async Task<PaletteFileData> ParseFile(string path)
     {
-        string fileContent = File.ReadAllText(path);
+        string fileContent = await File.ReadAllTextAsync(path);
         string[] lines = fileContent.Split('\n');
         string fileType = lines[0];
         string magicBytes = lines[1];
@@ -24,13 +29,13 @@ public static class JascFileParser
                 colors[i] = new SKColor(byte.Parse(colorData[0]), byte.Parse(colorData[1]), byte.Parse(colorData[2]));
             }
 
-            return new JascFileData(colors);
+            return new PaletteFileData(colors);
         }
 
         throw new JascFileException("Invalid JASC-PAL file.");
     }
 
-    public static void Save(string path, JascFileData data)
+    public static async Task SaveFile(string path, PaletteFileData data)
     {
         string fileContent = "JASC-PAL\n0100\n" + data.Colors.Length;
         for (int i = 0; i < data.Colors.Length; i++)
@@ -38,8 +43,12 @@ public static class JascFileParser
             fileContent += "\n" + data.Colors[i].Red + " " + data.Colors[i].Green + " " + data.Colors[i].Blue;
         }
 
-        File.WriteAllText(path, fileContent);
+        await File.WriteAllTextAsync(path, fileContent);
     }
+
+    public override async Task<PaletteFileData> Parse(string path) => await ParseFile(path);
+
+    public override async Task Save(string path, PaletteFileData data) => await SaveFile(path, data);
 
     private static bool ValidateFile(string fileType, string magicBytes)
     {

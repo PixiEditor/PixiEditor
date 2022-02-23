@@ -1,9 +1,9 @@
-﻿<Window x:Class="PixiEditor.Views.Dialogs.LospecPalettesBrowser"
+﻿<Window x:Class="PixiEditor.Views.Dialogs.PalettesBrowser"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Lospec" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:views="clr-namespace:PixiEditor.Views"
         Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="800" WindowStyle="None"
@@ -67,7 +67,7 @@
                 Converter={StaticResource BoolToVisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:LospecPaletteItem Palette="{Binding}" 
+                            <local:PaletteItem Palette="{Binding}" 
                                                      ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=lospecPalettesBrowser}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

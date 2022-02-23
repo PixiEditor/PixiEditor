@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.Enums;
-using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
