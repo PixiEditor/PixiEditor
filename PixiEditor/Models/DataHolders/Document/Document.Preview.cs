@@ -43,11 +43,7 @@ namespace PixiEditor.Models.DataHolders
 
         public void GeneratePreviewLayer()
         {
-            PreviewLayer = new Layer("_previewLayer")
-            {
-                MaxWidth = Width,
-                MaxHeight = Height
-            };
+            PreviewLayer = new Layer("_previewLayer", Width, Height);
         }
     }
 }

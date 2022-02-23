@@ -23,6 +23,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public Tool LastActionTool { get; private set; }
 
+        public bool MoveToolIsTransient { get; set; }
+
         public Cursor ToolCursor
         {
             get => toolCursor;
@@ -74,6 +76,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
         }
 
+        public void SetupToolsTooltipShortcuts(IServiceProvider services)
+        {
+            foreach (var tool in ToolSet)
+            {
+                tool.ShortcutKey = Owner.ShortcutController.GetToolShortcutKey(tool.GetType());
+            }
+        }
+
         public void SetActiveTool<T>()
             where T : Tool
         {
@@ -82,15 +92,19 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetActiveTool(Tool tool)
         {
+            MoveToolIsTransient = false;
             if (ActiveTool != null)
             {
                 activeTool.IsActive = false;
+                ActiveTool.Toolbar.SaveToolbarSettings();
             }
 
             LastActionTool = ActiveTool;
 
 
             ActiveTool = tool;
+
+            ActiveTool.Toolbar.LoadSharedSettings();
 
             if (LastActionTool != ActiveTool)
                 SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));

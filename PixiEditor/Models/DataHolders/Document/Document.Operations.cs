@@ -23,7 +23,7 @@ namespace PixiEditor.Models.DataHolders
         ///     Point that will act as "starting position" of resizing. Use pipe to connect horizontal and
         ///     vertical.
         /// </param>
-        public void ResizeCanvas(int width, int height, AnchorPoint anchor)
+        public void ResizeCanvas(int width, int height, AnchorPoint anchor, bool addToUndo = true)
         {
             int oldWidth = Width;
             int oldHeight = Height;
@@ -31,20 +31,29 @@ namespace PixiEditor.Models.DataHolders
             int offsetX = GetOffsetXForAnchor(Width, width, anchor);
             int offsetY = GetOffsetYForAnchor(Height, height, anchor);
 
-            Thickness[] oldOffsets = Layers.Select(x => x.Offset).ToArray();
             Thickness[] newOffsets = Layers.Select(x => new Thickness(offsetX + x.OffsetX, offsetY + x.OffsetY, 0, 0))
                 .ToArray();
 
             object[] processArgs = { newOffsets, width, height };
-            object[] reverseProcessArgs = { oldOffsets, Width, Height };
+            object[] reverseProcessArgs = { Width, Height };
 
-            ResizeCanvas(newOffsets, width, height);
-            UndoManager.AddUndoChange(new Change(
-                ResizeCanvasProcess,
-                reverseProcessArgs,
-                ResizeCanvasProcess,
-                processArgs,
-                "Resize canvas"));
+            if (addToUndo) 
+            { 
+                StorageBasedChange change = new(this, Layers);
+                ResizeCanvas(newOffsets, width, height);
+
+                UndoManager.AddUndoChange(change.ToChange(
+                    RestoreDocumentLayersProcess,
+                    reverseProcessArgs,
+                    ResizeCanvasProcess,
+                    processArgs,
+                    "Resize canvas"));
+            }
+            else
+            {
+                ResizeCanvas(newOffsets, width, height);
+            }
+
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 
@@ -137,7 +146,7 @@ namespace PixiEditor.Models.DataHolders
                         int diff = documentCenter.X - newOffsetX;
                         newOffsetX = layer.OffsetX + (diff * 2);
                     }
-                    else if(flip == FlipType.Vertical)
+                    else if (flip == FlipType.Vertical)
                     {
                         newOffsetY += layerCenter.Y;
                         int diff = documentCenter.Y - newOffsetY;
@@ -205,8 +214,13 @@ namespace PixiEditor.Models.DataHolders
 
         private void RestoreDocumentLayersProcess(Layer[] layers, UndoLayer[] data, object[] args)
         {
+            int oldWidth = Width;
+            int oldHeight = Height;
             Width = (int)args[0];
             Height = (int)args[1];
+            DocumentSizeChanged?.Invoke(
+                this,
+                new DocumentSizeChangedEventArgs(oldWidth, oldHeight, Width, Height));
             Layers.Clear();
             Layers.AddRange(layers);
         }
@@ -219,11 +233,32 @@ namespace PixiEditor.Models.DataHolders
         /// <param name="newHeight">New canvas height.</param>
         private void ResizeCanvas(Thickness[] offset, int newWidth, int newHeight)
         {
+            Int32Rect newCanvasRect = new(0, 0, newWidth, newHeight);
             for (int i = 0; i < Layers.Count; i++)
             {
-                Layers[i].Offset = offset[i];
+                Layer layer = Layers[i];
                 Layers[i].MaxWidth = newWidth;
                 Layers[i].MaxHeight = newHeight;
+                if (layer.IsReset)
+                    continue;
+
+                Thickness newOffset = offset[i];
+                Int32Rect newRect = new((int)newOffset.Left, (int)newOffset.Top, layer.Width, layer.Height);
+                Int32Rect newLayerRect = newRect.Intersect(newCanvasRect);
+                if (!newLayerRect.HasArea)
+                {
+                    layer.Reset();
+                    continue;
+                }
+                Surface newBitmap = new(newLayerRect.Width, newLayerRect.Height);
+                var oldBitmap = layer.LayerBitmap;
+                using var snapshot = oldBitmap.SkiaSurface.Snapshot();
+                newBitmap.SkiaSurface.Canvas.DrawImage(snapshot, newRect.X - newLayerRect.X, newRect.Y - newLayerRect.Y, Surface.ReplacingPaint);
+
+                layer.LayerBitmap = newBitmap;
+                oldBitmap.Dispose();
+
+                Layers[i].Offset = new Thickness(newLayerRect.X, newLayerRect.Y, 0, 0);
             }
 
             Width = newWidth;

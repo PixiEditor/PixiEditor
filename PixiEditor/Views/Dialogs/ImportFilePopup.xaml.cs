@@ -1,12 +1,9 @@
-﻿using System.Windows;
+﻿using PixiEditor.ViewModels;
+using System.Windows;
 using System.Windows.Input;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views
 {
-    /// <summary>
-    ///     Interaction logic for ImportFilePopup.xaml
-    /// </summary>
     public partial class ImportFilePopup : Window
     {
         private readonly ImportFilePopupViewModel dc = new ImportFilePopupViewModel();
@@ -15,6 +12,7 @@ namespace PixiEditor.Views
         {
             InitializeComponent();
             DataContext = dc;
+            Loaded += (_, _) => sizePicker.FocusWidthPicker();
         }
 
 

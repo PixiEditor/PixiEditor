@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
@@ -367,6 +368,9 @@ namespace PixiEditor.Views.UserControls.Layers
             {
                 HandleGroupOpacityChange(groupControl.GroupData, val);
             }
+
+            ShortcutController.UnblockShortcutExecutionAll();
+            MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
         }
 
         private void HandleLayerOpacityChange(float val, Layer layer)

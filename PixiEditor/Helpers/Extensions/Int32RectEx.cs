@@ -1,9 +1,10 @@
-﻿using System;
+﻿using SkiaSharp;
+using System;
 using System.Windows;
 
 namespace PixiEditor.Helpers.Extensions
 {
-    static class Int32RectEx
+    public static class Int32RectEx
     {
         public static Int32Rect Intersect(this Int32Rect rect, Int32Rect other)
         {
@@ -49,6 +50,11 @@ namespace PixiEditor.Helpers.Extensions
                 return Int32Rect.Empty;
 
             return new Int32Rect(minX1, minY1, width, height);
+        }
+
+        public static SKRectI ToSKRectI(this Int32Rect rect)
+        {
+            return new SKRectI(rect.X, rect.Y, rect.X + rect.Width, rect.Y + rect.Height);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private bool restoreToolOnKeyUp = false;
 
         private MouseInputFilter filter = new();
-
+    
         public IoViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -54,6 +54,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 Owner.BitmapManager.InputTarget.OnKeyDown(key);
             }
+
+            if (args.Key == ShortcutController.MoveViewportToolTransientChangeKey)
+                ChangeMoveViewportToolState(true);
         }
 
         private void ProcessShortcutDown(bool isRepeat, Key key)
@@ -62,7 +65,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 Owner.ShortcutController.LastShortcut.Command == Owner.ToolsSubViewModel.SelectToolCommand)
             {
                 restoreToolOnKeyUp = true;
-                ShortcutController.BlockShortcutExecution = true;
+                ShortcutController.BlockShortcutExection("ShortcutDown");
             }
 
             Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
@@ -79,6 +82,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (Owner.BitmapManager.ActiveDocument != null)
                 Owner.BitmapManager.InputTarget.OnKeyUp(key);
+
+            if (args.Key == ShortcutController.MoveViewportToolTransientChangeKey)
+            {
+                ChangeMoveViewportToolState(false);     
+            }
         }
 
         private void ProcessShortcutUp(Key key)
@@ -88,7 +96,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 restoreToolOnKeyUp = false;
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
-                ShortcutController.BlockShortcutExecution = false;
+                ShortcutController.UnblockShortcutExecution("ShortcutDown");
             }
         }
 
@@ -107,7 +115,26 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void OnPreviewMiddleMouseButton(object sender)
         {
-            Owner.ToolsSubViewModel.SetActiveTool<MoveViewportTool>();
+            ChangeMoveViewportToolState(true);
+        }
+
+        void ChangeMoveViewportToolState(bool setOn)
+        {
+            if (setOn)
+            {
+                var moveViewportToolIsActive = Owner.ToolsSubViewModel.ActiveTool is MoveViewportTool;
+                if (!moveViewportToolIsActive)
+                {
+                    Owner.ToolsSubViewModel.SetActiveTool<MoveViewportTool>();
+                    Owner.ToolsSubViewModel.MoveToolIsTransient = true;
+                }
+            }
+            else if (Owner.ToolsSubViewModel.LastActionTool != null && Owner.ToolsSubViewModel.MoveToolIsTransient)
+            {
+                Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+                restoreToolOnKeyUp = false;
+                ShortcutController.UnblockShortcutExecution("ShortcutDown");
+            }
         }
 
         private void OnMouseMove(object sender, EventArgs args)
@@ -128,8 +155,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else if (button == MouseButton.Middle)
             {
-                if (Owner.ToolsSubViewModel.LastActionTool != null)
-                    Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+                ChangeMoveViewportToolState(false);
             }
         }
     }

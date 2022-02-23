@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Tools.Tools
             BitmapManager = bitmapManager;
         }
 
-        public override string Tooltip => "Moves selected pixels (V). Hold Ctrl to move all layers.";
+        public override string Tooltip => $"Moves selected pixels ({ShortcutKey}). Hold Ctrl to move all layers.";
 
         public override bool HideHighlight => true;
 
@@ -69,7 +69,7 @@ namespace PixiEditor.Models.Tools.Tools
                 affectedLayers = doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray();
             }
 
-            change = new StorageBasedChange(doc, affectedLayers, true);
+            change = new StorageBasedChange(doc, affectedLayers, true, true);
 
             Layer selLayer = selection.SelectionLayer;
             moveStartRect = anySelection ?

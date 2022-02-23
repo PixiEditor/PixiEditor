@@ -3,9 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        mc:Ignorable="d"
-        Title="ConfirmationPopup" Name="popup" WindowStartupLocation="CenterScreen" Height="200" Width="500"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime" 
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
+        mc:Ignorable="d" d:Title="Unsaved changes"
+        Name="popup" WindowStartupLocation="CenterScreen" 
+        Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStyle="None">
 
     <WindowChrome.WindowChrome>
@@ -13,40 +17,40 @@
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
 
-    <Grid Background="{StaticResource AccentColor}" Focusable="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
-            <RowDefinition Height="34*" />
-            <RowDefinition Height="21*" />
-        </Grid.RowDefinitions>
+    <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <TextBlock Grid.Row="1" Text="{Binding Body, ElementName=popup}" HorizontalAlignment="Center"
-                   VerticalAlignment="Center" FontSize="18" Foreground="White" />
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
-        </DockPanel>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                    Margin="0,0,10,10">
-            <Button Margin="10,0,10,0" Height="30" Width="60"
+
+        <dial:DialogTitleBar DockPanel.Dock="Top"
+            TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
+
+        <StackPanel DockPanel.Dock="Bottom" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
+                    Margin="0,0,10,15">
+            <Button Margin="10,0,10,0" Width="70" IsDefault="True"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="Yes">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Height="30" Width="60"
+            <Button Width="70"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
                     Style="{StaticResource DarkRoundButton}" Content="No">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Margin="10,0,10,0" Height="30" Width="80" Style="{StaticResource DarkRoundButton}" Content="Cancel"
+            <Button Margin="10,0,10,0" Width="70" Style="{StaticResource DarkRoundButton}" Content="Cancel"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
-    </Grid>
+
+        <TextBlock Grid.Row="1" 
+                   Text="{Binding Body, ElementName=popup}" 
+                   HorizontalAlignment="Center" Margin="20,0" 
+                   TextWrapping="WrapWithOverflow" 
+                   TextTrimming="WordEllipsis"
+                   TextAlignment="Center"
+                   VerticalAlignment="Center" FontSize="15" Foreground="White" d:Text="The document has been modified. Do you want to save changes?"/>
+    </DockPanel>
 </Window>

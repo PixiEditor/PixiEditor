@@ -34,6 +34,7 @@ namespace PixiEditor.Models.Controllers
                 activeDocument?.UpdatePreviewImage();
                 Document oldDoc = activeDocument;
                 activeDocument = value;
+                activeDocument?.UpdatePreviewImage();
                 RaisePropertyChanged(nameof(ActiveDocument));
                 ActiveWindow = value;
                 DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value, oldDoc));

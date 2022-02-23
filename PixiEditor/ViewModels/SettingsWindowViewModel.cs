@@ -10,20 +10,6 @@ namespace PixiEditor.ViewModels
 {
     public class SettingsWindowViewModel : ViewModelBase
     {
-        public RelayCommand SelectCategoryCommand { get; set; }
-
-        private string selectedCategory = "General";
-
-        public string SelectedCategory
-        {
-            get => selectedCategory;
-            set
-            {
-                selectedCategory = value;
-                RaisePropertyChanged(nameof(SelectedCategory));
-            }
-        }
-
         public bool ShowUpdateTab
         {
             get
@@ -41,15 +27,6 @@ namespace PixiEditor.ViewModels
         public SettingsWindowViewModel()
         {
             SettingsSubViewModel = new SettingsViewModel(this);
-            SelectCategoryCommand = new RelayCommand(SelectCategory);
-        }
-
-        private void SelectCategory(object parameter)
-        {
-            if (parameter is not null && parameter is string value)
-            {
-                SelectedCategory = value;
-            }
         }
     }
 }

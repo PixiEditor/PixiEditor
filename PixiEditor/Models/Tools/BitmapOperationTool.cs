@@ -17,6 +17,9 @@ namespace PixiEditor.Models.Tools
 
         public bool UseDocumentRectForUndo { get; set; } = false;
 
+        private SKRectI _rectReportedByTool;
+        private bool _customRectReported = false;
+
         private StorageBasedChange _change;
 
         public abstract void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color);
@@ -49,16 +52,22 @@ namespace PixiEditor.Models.Tools
             _change = null;
         }
 
+        protected void ReportCustomSessionRect(SKRectI rect)
+        {
+            _rectReportedByTool = rect;
+            _customRectReported = true;
+        }
+
         private void InitializeStorageBasedChange(SKRectI toolSessionRect)
         {
             Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-            //var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
-            //SKRectI finalRect = toolSessionRect;
-            //if (toolSize != null)
-            //{
-            //    int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
-            //    finalRect.Inflate(halfSize, halfSize);
-            //}
+            var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
+            SKRectI finalRect = toolSessionRect;
+            if (toolSize != null && toolSize.Value > 1)
+            {
+                int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
+                finalRect.Inflate(halfSize, halfSize);
+            }
 
             //if (toolSessionRect.IsEmpty)
             //{
@@ -71,7 +80,14 @@ namespace PixiEditor.Models.Tools
             //    finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
             //}
 
-            _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer });
+            if (_customRectReported)
+            {
+                _customRectReported = false;
+                finalRect = _rectReportedByTool;
+                _rectReportedByTool = SKRectI.Empty;
+            }
+
+            _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });
         }
     }
 }

@@ -1,11 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
-using PixiEditor.Views.Dialogs;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -25,11 +26,15 @@ namespace PixiEditor
 
         private readonly IPreferences preferences;
 
+        private readonly IServiceProvider services;
+
+        public static MainWindow Current { get; private set; }
+
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
         public MainWindow()
         {
-            IServiceProvider services = new ServiceCollection()
+            services = new ServiceCollection()
                 .AddPixiEditor()
                 .BuildServiceProvider();
 
@@ -43,7 +48,6 @@ namespace PixiEditor
 
             UpdateWindowChromeBorderThickness();
             StateChanged += MainWindow_StateChanged;
-            Activated += MainWindow_Activated;
 
             DataContext.CloseAction = Close;
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
@@ -61,7 +65,25 @@ namespace PixiEditor
                 }
             });
 
+            Current = this;
+
             OnReleaseBuild();
+        }
+
+        public static MainWindow CreateWithDocuments(IEnumerable<Document> documents)
+        {
+            MainWindow window = new();
+
+            BitmapManager bitmapManager = window.services.GetRequiredService<BitmapManager>();
+
+            foreach (Document document in documents)
+            {
+                bitmapManager.Documents.Add(document);
+            }
+
+            bitmapManager.ActiveDocument = bitmapManager.Documents.FirstOrDefault();
+
+            return window;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -74,12 +96,6 @@ namespace PixiEditor
         {
             base.OnSourceInitialized(e);
             ((HwndSource)PresentationSource.FromVisual(this)).AddHook(Helpers.WindowSizeHelper.SetMaxSizeHook);
-        }
-
-        [Conditional("RELEASE")]
-        private static void CloseHelloThereIfRelease()
-        {
-            Application.Current.Windows.OfType<HelloTherePopup>().ToList().ForEach(x => { if (!x.IsClosing) x.Close(); });
         }
 
         [Conditional("RELEASE")]
@@ -135,11 +151,6 @@ namespace PixiEditor
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
-        }
-
-        private void MainWindow_Activated(object sender, EventArgs e)
-        {
-            CloseHelloThereIfRelease();
         }
 
         private void UpdateWindowChromeBorderThickness()

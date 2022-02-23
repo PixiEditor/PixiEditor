@@ -8,7 +8,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
              mc:Ignorable="d" Foreground="White" Focusable="True"
-             d:DesignHeight="30" d:DesignWidth="160" Name="uc" LayoutUpdated="UserControlLayoutUpdated">
+             d:DesignHeight="30" d:DesignWidth="160" Name="uc">
 
     <Border BorderThickness="1" CornerRadius="3.5"
             x:Name="border"
@@ -36,20 +36,28 @@
             </Grid.ColumnDefinitions>
             <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Right"
                      InputScope="Number" BorderThickness="0" Background="Transparent"
+                     SelectionBrush="{StaticResource SelectionColor}"
                      Foreground="{Binding Foreground, ElementName=uc}" Focusable="True" CaretBrush="{Binding Foreground, ElementName=uc}"
                      Margin="0,0,5,0" VerticalAlignment="Center"
                      x:Name="textBox"
                      Text="{Binding Size, ElementName=uc, Converter={converters:ToolSizeToIntConverter}}"
-                     d:Text="22">
+                     d:Text="22"
+                     MaxLength = "6"
+                     >
                 <i:Interaction.Behaviors>
                     <behaviors:GlobalShortcutFocusBehavior/>
-                    <behaviors:TextBoxFocusBehavior SelectOnFocus="{Binding SelectOnFocus, ElementName=uc}" NextControl="{Binding NextControl, ElementName=uc}"/>
+                    <behaviors:TextBoxFocusBehavior 
+                        SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}" 
+                        ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
+                        DeselectOnFocusLoss="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"
                   d:Background="{StaticResource BrighterAccentColor}"/>
-            <TextBlock Text="px" TextAlignment="Right"
-                       Grid.Column="2" Margin="5,0" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding Unit, ElementName=uc, Converter={converters:EnumToStringConverter}}" TextAlignment="Right"
+                       Grid.Column="2" Margin="5,0" VerticalAlignment="Center" d:Text="px"
+                       
+                       />
         </Grid>
     </Border>
 </UserControl>

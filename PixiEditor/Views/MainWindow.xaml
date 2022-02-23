@@ -12,8 +12,13 @@
         xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
         xmlns:cmd="http://www.galasoft.ch/mvvmlight" 
         xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers" xmlns:sys="clr-namespace:System;assembly=System.Runtime" xmlns:lospec="clr-namespace:PixiEditor.Views.UserControls.Lospec" d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" 
+        xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" 
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
+        xmlns:avalonDockTheme="clr-namespace:PixiEditor.Styles.AvalonDock" 
+        xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers" 
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime" 
+        d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
         mc:Ignorable="d" WindowStyle="None" Initialized="MainWindow_Initialized"
         Title="PixiEditor" Name="mainWindow" Height="1000" Width="1600" Background="{StaticResource MainColor}"
         WindowStartupLocation="CenterScreen" WindowState="Maximized">
@@ -122,8 +127,8 @@
                     <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
                     <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
                 </MenuItem>
-                <MenuItem Header="_Document">
-                    <MenuItem Header="_Resize Document..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
+                <MenuItem Header="_Image">
+                    <MenuItem Header="Resize _Image..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
                               InputGestureText="Ctrl+Shift+I" />
                     <MenuItem Header="_Resize Canvas..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
                               CommandParameter="canvas" InputGestureText="Ctrl+Shift+C" />
@@ -169,11 +174,12 @@
                               CommandParameter="https://pixieditor.net/docs/Third-party-licenses"/>
                 </MenuItem>
                 <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <MenuItem Header="_Open Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
+                    <MenuItem Header="Open _Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
                               CommandParameter="%LocalAppData%/PixiEditor"/>
-                    <MenuItem Header="_Open Roaming App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
+                    <MenuItem Header="Open _Roaming App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
                               CommandParameter="%AppData%/PixiEditor"/>
-                    <MenuItem Header="_Open Install Location"  Command="{Binding DebugSubViewModel.OpenInstallLocationCommand}"/>
+                    <MenuItem Header="Open _Install Location"  Command="{Binding DebugSubViewModel.OpenInstallLocationCommand}"/>
+                    <MenuItem Header="_Crash"  Command="{Binding DebugSubViewModel.CrashCommand}"/>
                 </MenuItem>
             </Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,-5,-5,0"

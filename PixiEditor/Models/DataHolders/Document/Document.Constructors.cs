@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
+using PixiEditor.Models.Position;
 using PixiEditor.ViewModels;
 using System;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace PixiEditor.Models.DataHolders
             LayerStructure.LayerStructureChanged += LayerStructure_LayerStructureChanged;
             DocumentSizeChanged += (sender, args) =>
             {
+                ActiveSelection = new Selection(Array.Empty<Coordinates>(), new PixelSize(args.NewWidth, args.NewHeight));
                 Renderer.Resize(args.NewWidth, args.NewHeight);
                 GeneratePreviewLayer();
             };

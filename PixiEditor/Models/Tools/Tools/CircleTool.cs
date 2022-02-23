@@ -20,7 +20,7 @@ namespace PixiEditor.Models.Tools.Tools
             ActionDisplay = defaultActionDisplay;
         }
 
-        public override string Tooltip => "Draws circle on canvas (C). Hold Shift to draw even circle.";
+        public override string Tooltip => $"Draws circle on canvas ({ShortcutKey}). Hold Shift to draw even circle.";
 
         public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
@@ -41,10 +41,11 @@ namespace PixiEditor.Models.Tools.Tools
                 CoordinatesHelper.GetSquareCoordiantes(recordedMouseMovement) :
                 (recordedMouseMovement[0], recordedMouseMovement[^1]);
 
-            DrawEllipseFromCoordinates(previewLayer, start, end, color, fill, thickness, hasFillColor);
+            var dirtyRect = DrawEllipseFromCoordinates(previewLayer, start, end, color, fill, thickness, hasFillColor);
+            ReportCustomSessionRect(SKRectI.Create(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height));
         }
 
-        public static void DrawEllipseFromCoordinates(Layer layer, Coordinates first, Coordinates second,
+        public static Int32Rect DrawEllipseFromCoordinates(Layer layer, Coordinates first, Coordinates second,
             SKColor color, SKColor fillColor, int thickness, bool hasFillColor)
         {
             DoubleCoords corners = CalculateCoordinatesForShapeRotation(first, second);
@@ -71,6 +72,7 @@ namespace PixiEditor.Models.Tools.Tools
             }
 
             layer.InvokeLayerBitmapChange(dirtyRect);
+            return dirtyRect;
         }
 
         public static void DrawEllipseFill(Layer layer, SKColor color, List<Coordinates> outlineCoordinates)

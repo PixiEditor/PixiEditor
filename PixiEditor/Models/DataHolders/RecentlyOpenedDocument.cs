@@ -3,6 +3,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -43,11 +44,8 @@ namespace PixiEditor.Models.DataHolders
                 {
                     return "? (Corrupt)";
                 }
-
                 string extension = Path.GetExtension(filePath).ToLower();
-                return extension is not (".pixi" or ".png" or ".jpg" or ".jpeg")
-                    ? $"? ({extension})"
-                    : extension;
+                return SupportedFilesHelper.IsExtensionSupported(extension) ? extension : $"? ({extension})";
             }
         }
 
@@ -91,9 +89,9 @@ namespace PixiEditor.Models.DataHolders
                               .Where(x => x.Opacity > 0.8)
                               .Select(x => (x.ToSKImage(), new Coordinates(x.OffsetX, x.OffsetY))));
 
-                return surface.ToWriteableBitmap();
+                return DownscaleToMaxSize(surface.ToWriteableBitmap());
             }
-            else if (FileExtension is ".png" or ".jpg" or ".jpeg")
+            else if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
             {
                 WriteableBitmap bitmap = null;
 
@@ -104,22 +102,26 @@ namespace PixiEditor.Models.DataHolders
                 catch
                 {
                     corrupt = true;
+                    return null;
                 }
 
-                const int MaxWidthInPixels = 2048;
-                const int MaxHeightInPixels = 2048;
-                ImageFileMaxSizeChecker imageFileMaxSizeChecker = new ImageFileMaxSizeChecker()
-                {
-                    MaxAllowedWidthInPixels = MaxWidthInPixels,
-                    MaxAllowedHeightInPixels = MaxHeightInPixels,
-                };
+                if (bitmap == null) //prevent crash
+                    return null;
 
-                return imageFileMaxSizeChecker.IsFileUnderMaxSize(bitmap) ?
-                    bitmap
-                    : bitmap.Resize(width: MaxWidthInPixels, height: MaxHeightInPixels, WriteableBitmapExtensions.Interpolation.Bilinear);
+                return DownscaleToMaxSize(bitmap);
             }
 
             return null;
+        }
+
+        private WriteableBitmap DownscaleToMaxSize(WriteableBitmap bitmap)
+        {
+            if (bitmap.PixelWidth > Constants.MaxPreviewWidth || bitmap.PixelHeight > Constants.MaxPreviewHeight)
+            {
+                double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.PixelWidth, Constants.MaxPreviewHeight / (double)bitmap.PixelHeight);
+                return bitmap.Resize((int)(bitmap.PixelWidth * factor), (int)(bitmap.PixelHeight * factor), WriteableBitmapExtensions.Interpolation.Bilinear);
+            }
+            return bitmap;
         }
     }
 }

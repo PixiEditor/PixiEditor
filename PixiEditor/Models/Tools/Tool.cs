@@ -10,6 +10,7 @@ namespace PixiEditor.Models.Tools
 {
     public abstract class Tool : NotifyableObject
     {
+        public Key ShortcutKey { get; set; }
         public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty);
 
         public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();

@@ -1,11 +1,17 @@
 ﻿using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -23,8 +29,8 @@ namespace PixiEditor.Models.IO
         {
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = "PixiEditor Files | *.pixi",
-                DefaultExt = "pixi"
+                Filter = SupportedFilesHelper.BuildSaveFilter(true),
+                FilterIndex = 0
             };
             if ((bool)dialog.ShowDialog())
             {
@@ -44,8 +50,37 @@ namespace PixiEditor.Models.IO
         /// <returns>Path.</returns>
         public static string SaveAsEditableFile(Document document, string path)
         {
-            Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
+            if (Path.GetExtension(path) != Constants.NativeExtension)
+            {
+                var chosenFormat = ParseImageFormat(Path.GetExtension(path));
+                var bitmap = document.Renderer.FinalBitmap;
+                SaveAs(encodersFactory[chosenFormat](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
+            }
+            else if(Directory.Exists(Path.GetDirectoryName(path)))
+            {
+                Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
+            }
+            else
+            {
+                SaveAsEditableFileWithDialog(document, out path);
+            }
+
             return path;
+        }
+
+        public static FileType ParseImageFormat(string extension)
+        {
+            return SupportedFilesHelper.ParseImageFormat(extension);
+        }
+
+        static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
+
+        static Exporter()
+        {
+            encodersFactory[FileType.Png] = () => new PngBitmapEncoder();
+            encodersFactory[FileType.Jpeg] = () => new JpegBitmapEncoder();
+            encodersFactory[FileType.Bmp] = () => new BmpBitmapEncoder(); 
+            encodersFactory[FileType.Gif] = () => new GifBitmapEncoder();
         }
 
         /// <summary>
@@ -55,22 +90,15 @@ namespace PixiEditor.Models.IO
         /// <param name="fileDimensions">Size of file.</param>
         public static void Export(WriteableBitmap bitmap, Size fileDimensions)
         {
-            ExportFileDialog info = new ExportFileDialog(fileDimensions);
+          ExportFileDialog info = new ExportFileDialog(fileDimensions);
 
-            // If OK on dialog has been clicked
-            if (info.ShowDialog())
-            {
-                // If sizes are incorrect
-                if (info.FileWidth < bitmap.Width || info.FileHeight < bitmap.Height)
-                {
-                    MessageBox.Show("Incorrect height or width value", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                SaveAsPng(info.FilePath, info.FileWidth, info.FileHeight, bitmap);
-            }
+          // If OK on dialog has been clicked
+          if (info.ShowDialog())
+          {
+            if(encodersFactory.ContainsKey(info.ChosenFormat))
+              SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+          }
         }
-
         public static void SaveAsGZippedBytes(string path, Surface surface)
         {
             SaveAsGZippedBytes(path, surface, SKRectI.Create(0, 0, surface.Width, surface.Height));
@@ -101,25 +129,25 @@ namespace PixiEditor.Models.IO
         /// <summary>
         ///     Saves image to PNG file.
         /// </summary>
+        /// <param name="encoder">encoder to do the job.</param>
         /// <param name="savePath">Save file path.</param>
         /// <param name="exportWidth">File width.</param>
         /// <param name="exportHeight">File height.</param>
         /// <param name="bitmap">Bitmap to save.</param>
-        public static void SaveAsPng(string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+        private static void SaveAs(BitmapEncoder encoder, string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
         {
             try
             {
                 bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-                using (FileStream stream = new FileStream(savePath, FileMode.Create))
+                using (var stream = new FileStream(savePath, FileMode.Create))
                 {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     encoder.Save(stream);
                 }
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                NoticeDialog.Show(err.ToString(), "Error");
             }
         }
     }

@@ -185,10 +185,7 @@ namespace PixiEditor.Models.ImageManipulation
                 throw new ArgumentException("There were not the same amount of bitmaps and offsets", nameof(layerBitmaps));
             }
 
-            using Surface previewSurface = new Surface(maxPreviewWidth, maxPreviewHeight);
-            return previewSurface.ToWriteableBitmap();
-            /*
-            WriteableBitmap previewBitmap = BitmapFactory.New(width, height);
+            using Surface previewSurface = new Surface(width, height);
 
             var layerBitmapsEnumerator = layerBitmaps.GetEnumerator();
             var offsetsXEnumerator = offsetsX.GetEnumerator();
@@ -199,19 +196,18 @@ namespace PixiEditor.Models.ImageManipulation
                 offsetsXEnumerator.MoveNext();
                 offsetsYEnumerator.MoveNext();
 
-                var bitmap = layerBitmapsEnumerator.Current;
+                var bitmap = layerBitmapsEnumerator.Current.SkiaSurface.Snapshot();
                 var offsetX = offsetsXEnumerator.Current;
                 var offsetY = offsetsYEnumerator.Current;
 
-                previewBitmap.Blit(
-                    new Rect(offsetX, offsetY, bitmap.Width, bitmap.Height),
+                previewSurface.SkiaSurface.Canvas.DrawImage(
                     bitmap,
-                    new Rect(0, 0, bitmap.Width, bitmap.Height));
+                    offsetX, offsetY, Surface.BlendingPaint);
             }
 
             int newWidth = width >= height ? maxPreviewWidth : (int)Math.Ceiling(width / ((float)height / maxPreviewHeight));
             int newHeight = height > width ? maxPreviewHeight : (int)Math.Ceiling(height / ((float)width / maxPreviewWidth));
-            return previewBitmap.Redesize(newWidth, newHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);*/
+            return previewSurface.ResizeNearestNeighbor(newWidth, newHeight).ToWriteableBitmap();
         }
     }
 }
