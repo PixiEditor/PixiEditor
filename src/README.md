@@ -43,4 +43,4 @@ A mockup UI with viewmodels used for testing
 
 ## How it all integrates together
 
-![Diagram](/diagram.svg)
+![Diagram](/diagram.svg?raw=true&sanitize=true)
