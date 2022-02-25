@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChangeableDocument\ChangeableDocument.csproj" />
+    <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
+  </ItemGroup>
+
+</Project>
