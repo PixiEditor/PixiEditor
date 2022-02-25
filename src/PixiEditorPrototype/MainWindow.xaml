@@ -8,7 +8,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
-        <Button DockPanel.Dock="Top">Create a new document</Button>
         <views:DocumentView DataContext="{Binding Document}"></views:DocumentView>
     </DockPanel>
 </Window>

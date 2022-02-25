@@ -13,7 +13,7 @@ namespace StructureRenderer
 
         public async Task<List<IChangeInfo>> ProcessChanges(IReadOnlyList<IChangeInfo> changes)
         {
-
+            throw new NotImplementedException();
         }
     }
 }

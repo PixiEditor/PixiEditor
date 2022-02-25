@@ -3,7 +3,6 @@ using ChangeableDocument.Actions;
 using PixiEditorPrototype.Models;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditorPrototype.ViewModels
 {
@@ -27,9 +26,6 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? DeleteStructureMemberCommand { get; }
         public RelayCommand? ChangeSelectedItemCommand { get; }
 
-        public WriteableBitmap FinalBitmap
-        {
-        }
 
         public DocumentViewModel()
         {
