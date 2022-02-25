@@ -45,19 +45,17 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void SaveToolbarSettings()
         {
-            //TODO: Setting
-
-            //for (int i = 0; i < Settings.Count; i++)
-            //{
-            //    if (SharedSettings.Any(x => x.Name == Settings[i].Name))
-            //    {
-            //        SharedSettings.First(x => x.Name == Settings[i].Name).Value = Settings[i].Value;
-            //    }
-            //    else
-            //    {
-            //        SharedSettings.Add(Settings[i]);
-            //    }
-            //}
+            for (int i = 0; i < Settings.Count; i++)
+            {
+                if (SharedSettings.Any(x => x.Name == Settings[i].Name))
+                {
+                    SharedSettings.First(x => x.Name == Settings[i].Name).Value = Settings[i].Value;
+                }
+                else
+                {
+                    SharedSettings.Add(Settings[i]);
+                }
+            }
         }
 
         /// <summary>
@@ -65,15 +63,13 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         /// </summary>
         public void LoadSharedSettings()
         {
-            //TODO: Setting
-
-            //for (int i = 0; i < SharedSettings.Count; i++)
-            //{
-            //    if (Settings.Any(x => x.Name == SharedSettings[i].Name))
-            //    {
-            //        Settings.First(x => x.Name == SharedSettings[i].Name).Value = SharedSettings[i].Value;
-            //    }
-            //}
+            for (int i = 0; i < SharedSettings.Count; i++)
+            {
+                if (Settings.Any(x => x.Name == SharedSettings[i].Name))
+                {
+                    Settings.First(x => x.Name == SharedSettings[i].Name).Value = SharedSettings[i].Value;
+                }
+            }
         }
     }
 }

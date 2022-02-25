@@ -5,6 +5,7 @@ using PixiEditor.Models.Events;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
+using PixiEditor.Models.UserPreferences;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,7 +105,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             ActiveTool = tool;
 
-            ActiveTool.Toolbar.LoadSharedSettings();
+            if (IPreferences.Current.GetPreference<bool>("EnableSharedToolbar"))
+            {
+                ActiveTool.Toolbar.LoadSharedSettings();
+            }
 
             if (LastActionTool != ActiveTool)
                 SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
