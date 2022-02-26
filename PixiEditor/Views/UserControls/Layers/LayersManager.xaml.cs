@@ -285,7 +285,8 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private void LayerStructureItemContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (sender is LayerStructureItemContainer container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (sender is LayerStructureItemContainer container
+                && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed && !container.Layer.IsRenaming)
             {
                 Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
             }
@@ -332,7 +333,8 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private void LayerGroup_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed
+                && !container.GroupData.IsRenaming)
             {
                 Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
             }
@@ -370,7 +372,6 @@ namespace PixiEditor.Views.UserControls.Layers
             }
 
             ShortcutController.UnblockShortcutExecutionAll();
-            MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
         }
 
         private void HandleLayerOpacityChange(float val, Layer layer)

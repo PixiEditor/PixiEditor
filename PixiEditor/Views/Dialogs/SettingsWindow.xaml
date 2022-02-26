@@ -76,6 +76,8 @@
                     <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
                     <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
                     <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
                 </Grid.RowDefinitions>
 
                 <Label Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Misc</Label>
@@ -106,13 +108,18 @@
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" 
                                  Width="70" Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
 
-                <Label Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Automatic updates</Label>
+                <Label Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Tools</Label>
 
                 <CheckBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center"
+                    IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}">Enable shared toolbar</CheckBox>
+                
+                <Label Grid.Row="9" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Automatic updates</Label>
+
+                <CheckBox Grid.Row="10" Grid.Column="1" VerticalAlignment="Center"
                     IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}">Check updates on startup</CheckBox>
 
-                <Label Grid.Row="9" Grid.Column="1" Style="{StaticResource SettingsText}">Update stream</Label>
-                <ComboBox Grid.Row="9" Grid.Column="2" VerticalAlignment="Center"
+                <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}">Update stream</Label>
+                <ComboBox Grid.Row="11" Grid.Column="2" VerticalAlignment="Center"
                     Width="110" Height="22" HorizontalAlignment="Left"
                     ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
                     SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
