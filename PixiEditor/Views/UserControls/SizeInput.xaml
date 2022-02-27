@@ -6,7 +6,6 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             xmlns:validators="clr-namespace:PixiEditor.Helpers.Validators"
              mc:Ignorable="d" Foreground="White" Focusable="True"
              d:DesignHeight="30" d:DesignWidth="160" Name="uc">
 

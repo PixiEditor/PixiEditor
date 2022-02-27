@@ -367,7 +367,7 @@ namespace PixiEditor.ViewModels
             BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
         }
 
-        private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
+        private void BitmapUtility_BitmapChanged(object sender, EventArgs e)
         {
             BitmapManager.ActiveDocument.ChangesSaved = false;
             if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)

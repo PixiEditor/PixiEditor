@@ -13,7 +13,7 @@ namespace PixiEditor.Models.Controllers
 {
     public class BitmapOperationsUtility
     {
-        public event EventHandler<BitmapChangedEventArgs> BitmapChanged;
+        public event EventHandler BitmapChanged;
 
         public BitmapManager Manager { get; set; }
 
