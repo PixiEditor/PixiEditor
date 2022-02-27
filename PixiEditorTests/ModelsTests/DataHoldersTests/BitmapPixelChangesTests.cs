@@ -1,5 +1,4 @@
-﻿using PixiEditor.Exceptions;
-using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Position;
 using SkiaSharp;
 using Xunit;
@@ -31,28 +30,6 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             Assert.Equal(SKColors.Red, output.ChangedPixels[new Coordinates(3, 2)]);
             Assert.Equal(SKColors.Red, output.ChangedPixels[new Coordinates(0, 0)]);
             Assert.Equal(SKColors.Lime, output.ChangedPixels[new Coordinates(1, 0)]);
-        }
-
-        [Fact]
-        public void TestThatFromArraysThrowsError()
-        {
-            Assert.Throws<ArrayLengthMismatchException>(
-                () => BitmapPixelChanges.FromArrays(new[] { new Coordinates(0, 0) }, new[] { SKColors.Red, SKColors.Lime }));
-        }
-
-        [Fact]
-        public void TestThatFormArraysWorks()
-        {
-            Coordinates[] coordinatesArray = { new Coordinates(0, 0), new Coordinates(2, 3), new Coordinates(5, 5) };
-            SKColor[] colorsArray = { SKColors.Red, SKColors.Lime, SKColors.Blue };
-            BitmapPixelChanges result = BitmapPixelChanges.FromArrays(coordinatesArray, colorsArray);
-            for (int i = 0; i < coordinatesArray.Length; i++)
-            {
-                Coordinates cords = coordinatesArray[i];
-                Assert.Equal(colorsArray[i], result.ChangedPixels[cords]);
-            }
-
-            Assert.False(result.WasBuiltAsSingleColored);
         }
     }
 }

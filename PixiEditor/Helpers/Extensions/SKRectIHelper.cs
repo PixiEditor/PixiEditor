@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace PixiEditor.Helpers.Extensions
 {
-    public static class SKRectIEx
+    public static class SKRectIHelper
     {
         public static Int32Rect ToInt32Rect(this SKRectI rect)
         {
