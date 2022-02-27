@@ -84,7 +84,7 @@ namespace PixiEditor.Views.UserControls.Layers
             manager.CachedLayerTreeRoot = newRoot;
             return;
             //layer tree caching goes after than and disabled for now
-
+            /*
             if (manager.CachedLayerTreeRoot == null || newRoot == null)
             {
                 manager.CachedLayerTreeRoot = newRoot;
@@ -94,7 +94,7 @@ namespace PixiEditor.Views.UserControls.Layers
             if (object.ReferenceEquals(manager.CachedLayerTreeRoot, newRoot))
                 return;
 
-            UpdateCachedTree(manager.CachedLayerTreeRoot, newRoot);
+            UpdateCachedTree(manager.CachedLayerTreeRoot, newRoot);*/
         }
 
         private static void UpdateCachedTree(IList<IHasGuid> tree, IList<IHasGuid> newTree)

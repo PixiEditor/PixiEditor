@@ -184,7 +184,7 @@ namespace PixiEditor.Models.DataHolders
 
             MoveOffsets(layersToCenter, emptyBounds, moveVector);
 
-            List <Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
+            List<Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
             UndoManager.AddUndoChange(
                 new Change(
                     MoveOffsetsProcess,
