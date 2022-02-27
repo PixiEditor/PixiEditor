@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.Position;
+using System.Globalization;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.PositionTests
@@ -10,7 +11,7 @@ namespace PixiEditorTests.ModelsTests.PositionTests
         {
             Coordinates cords = new Coordinates(5, 5);
 
-            Assert.Equal("5, 5", cords.ToString());
+            Assert.Equal("5, 5", cords.ToString(CultureInfo.InvariantCulture));
         }
 
         [Fact]
