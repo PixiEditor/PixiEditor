@@ -591,6 +591,7 @@ namespace PixiEditor.Models.DataHolders
 
                 Layer layer = MergeLayers(layers, nameOfSecond, indexes[0]);
                 layer.ChangeGuid(mergedLayerGuid);
+                SetMainActiveLayer(Layers.IndexOf(layer));
             }
         }
 
