@@ -7,6 +7,9 @@ namespace PixiEditorTests.ModelsTests.LayersTests
     {
         public static void LayersAreEqual(Layer expected, Layer actual)
         {
+            Assert.NotNull(actual);
+            Assert.NotNull(expected);
+#pragma warning disable CA1062 // Validate arguments of public methods
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.Offset, actual.Offset);
             Assert.Equal(expected.Width, actual.Width);
@@ -17,6 +20,7 @@ namespace PixiEditorTests.ModelsTests.LayersTests
             Assert.Equal(expected.IsVisible, actual.IsVisible);
             Assert.Equal(expected.IsRenaming, actual.IsRenaming);
             Assert.Equal(expected.ConvertBitmapToBytes(), actual.ConvertBitmapToBytes());
+#pragma warning restore CA1062 // Validate arguments of public methods
         }
     }
 }

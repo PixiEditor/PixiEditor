@@ -1,6 +1,5 @@
-﻿using System;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.ViewModels.SubViewModels.Main;
+﻿using PixiEditor.Models.DataHolders;
+using System;
 using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
@@ -11,7 +10,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatToggleLayerDoesNotToggleLastLayer()
         {
-            Document doc = new (5, 5);
+            using Document doc = new(5, 5);
             doc.AddNewLayer("layer");
             bool isActive = doc.Layers[^1].IsActive;
             doc.ToggleLayer(0);
@@ -21,7 +20,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatToggleLayerTogglesLayer()
         {
-            Document doc = new (5, 5);
+            using Document doc = new(5, 5);
             doc.AddNewLayer("layer");
             doc.AddNewLayer("layer 1");
             doc.Layers[0].IsActive = true;
@@ -35,7 +34,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatToggleLayerDoesNothingOnNonExistingIndex()
         {
-            Document document = new Document(5, 5);
+            using Document document = new Document(5, 5);
             document.AddNewLayer("test");
             document.ToggleLayer(1);
             document.ToggleLayer(-1);
@@ -48,7 +47,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(1, 1)]
         public void TestThatSelectLayersRangeSelectsRange(int startIndex, int endIndex)
         {
-            Document document = new Document(5, 5);
+            using Document document = new Document(5, 5);
 
             document.AddNewLayer("1");
             document.AddNewLayer("2");
@@ -62,7 +61,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             {
                 Assert.Equal(
                     i >= Math.Min(startIndex, endIndex)
-                    && i <= Math.Max(startIndex, endIndex), 
+                    && i <= Math.Max(startIndex, endIndex),
                     document.Layers[i].IsActive);
             }
         }
@@ -73,7 +72,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [InlineData(2)]
         public void TestThatDeselectAllExceptDeselectsAllExceptLayer(int index)
         {
-            Document document = new Document(5, 5);
+            using Document document = new Document(5, 5);
 
             document.AddNewLayer("1");
             document.AddNewLayer("2");
@@ -94,7 +93,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatUpdateLayersColorMakesOnlyOneLayerMainColorAndOtherSecondary()
         {
-            Document document = new Document(1, 1);
+            using Document document = new Document(1, 1);
 
             document.AddNewLayer("1");
             document.AddNewLayer("2");
@@ -114,7 +113,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatUpdateLayersColorMakesLayerMainColorAndRestNonActiveReturnsTransparent()
         {
-            Document document = new Document(1, 1);
+            using Document document = new Document(1, 1);
 
             document.AddNewLayer("1");
             document.AddNewLayer("2");
@@ -134,7 +133,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetNextSelectedLayerAsActiveSelectsFirstAvailableLayer()
         {
-            Document document = new Document(1, 1);
+            using Document document = new Document(1, 1);
 
             document.AddNewLayer("1");
             document.AddNewLayer("2");

@@ -101,7 +101,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (updateZipExists || updateExeExists)
                 {
                     ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-                    var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
+                    var result = ConfirmationDialog.Show("Update is ready to be installed. Do you want to install it now?", "New update");
                     if (result == Models.Enums.ConfirmationType.Yes)
                     {
                         if (updateZipExists && File.Exists(updaterPath))
