@@ -91,8 +91,9 @@ namespace PixiEditor.Models.DataHolders
 
         public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-        public IEnumerable<Document> RecoverDocuments()
+        public List<Document> RecoverDocuments()
         {
+            List<Document> documents = new();
             foreach (ZipArchiveEntry entry in ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")))
             {
                 using Stream stream = entry.Open();
@@ -109,8 +110,10 @@ namespace PixiEditor.Models.DataHolders
                     continue;
                 }
 
-                yield return document;
+                documents.Add(document);
             }
+
+            return documents;
         }
 
         public void Dispose()
@@ -159,15 +162,14 @@ namespace PixiEditor.Models.DataHolders
                 try
                 {
                     string documentPath =
-                        $"{(string.IsNullOrWhiteSpace(document.DocumentFilePath) ? "Unsaved" : Path.GetFileNameWithoutExtension(document.DocumentFilePath))}-{document.OpenedUTC}.pixi";
+                        $"{(string.IsNullOrWhiteSpace(document.DocumentFilePath) ? "Unsaved" : Path.GetFileNameWithoutExtension(document.DocumentFilePath))}-{document.OpenedUTC}.pixi".Replace(':', '_');
 
                     byte[] serialized = PixiParser.Serialize(document.ToSerializable());
 
                     using Stream documentStream = archive.CreateEntry($"Documents/{documentPath}").Open();
                     documentStream.Write(serialized);
                 }
-                catch
-                { }
+                catch { }
             }
         }
 
