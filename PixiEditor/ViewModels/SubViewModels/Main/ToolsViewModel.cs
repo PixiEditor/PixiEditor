@@ -94,10 +94,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void SetActiveTool(Tool tool)
         {
             MoveToolIsTransient = false;
+            bool shareToolbar = IPreferences.Current.GetPreference<bool>("EnableSharedToolbar");
             if (ActiveTool != null)
             {
                 activeTool.IsActive = false;
-                ActiveTool.Toolbar.SaveToolbarSettings();
+                if (shareToolbar)
+                {
+                    ActiveTool.Toolbar.SaveToolbarSettings();
+                }
             }
 
             LastActionTool = ActiveTool;
@@ -105,7 +109,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             ActiveTool = tool;
 
-            if (IPreferences.Current.GetPreference<bool>("EnableSharedToolbar"))
+            if (shareToolbar)
             {
                 ActiveTool.Toolbar.LoadSharedSettings();
             }
