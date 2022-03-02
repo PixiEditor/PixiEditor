@@ -53,7 +53,7 @@
                         IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 
                         Width="40" Height="20"
                         VerticalAlignment="Center"
-                        LostFocus="NumberInput_LostFocus"/>
+                        Value="{Binding OpacityValue, ElementName=layersManager, Mode=TwoWay}"/>
                 <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
             </StackPanel>
         </DockPanel>
