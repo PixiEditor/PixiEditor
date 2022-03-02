@@ -150,7 +150,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             doc.LayerStructure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
             var group1 = doc.LayerStructure.AddNewGroup("Test group nested", doc.Layers[0].GuidValue);
 
-            doc.LayerStructure.PreMoveReassignBounds(new GroupData(group1.GroupGuid), doc.Layers[0].GuidValue);
+            doc.LayerStructure.Unassign(new GroupData(group1.GroupGuid), doc.Layers[0].GuidValue);
 
             Assert.Empty(doc.LayerStructure.Groups);
         }
@@ -168,7 +168,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
             var firstLayer = doc.Layers[0];
             var layer = doc.Layers[^1];
 
-            doc.LayerStructure.PostMoveReassignBounds(new GroupData(group1.GroupGuid), layer.GuidValue);
+            doc.LayerStructure.Assign(new GroupData(group1.GroupGuid), layer.GuidValue);
 
             Assert.Single(doc.LayerStructure.Groups);
             Assert.Single(doc.LayerStructure.Groups[0].Subgroups);
