@@ -492,6 +492,8 @@ namespace PixiEditor.Models.DataHolders
 
             UndoManager.SquashUndoChanges(2, "Undo merge layers", false);
 
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(layer.GuidValue, LayerAction.Add));
+
             return layer;
         }
 
