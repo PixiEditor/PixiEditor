@@ -93,6 +93,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetActiveTool(Tool tool)
         {
+            if (ActiveTool == tool) return;
             MoveToolIsTransient = false;
             bool shareToolbar = IPreferences.Current.GetPreference<bool>("EnableSharedToolbar");
             if (ActiveTool != null)
