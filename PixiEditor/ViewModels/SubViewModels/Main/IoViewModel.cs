@@ -4,6 +4,7 @@ using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -18,10 +19,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand MouseUpCommand { get; set; }
 
-        public RelayCommand KeyDownCommand { get; set; }
-
-        public RelayCommand KeyUpCommand { get; set; }
-
         private bool restoreToolOnKeyUp = false;
 
         private MouseInputFilter filter = new();
@@ -34,17 +31,42 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MouseUpCommand = new RelayCommand(filter.MouseUp);
             PreviewMouseMiddleButtonCommand = new RelayCommand(OnPreviewMiddleMouseButton);
             GlobalMouseHook.OnMouseUp += filter.MouseUp;
-            KeyDownCommand = new RelayCommand(OnKeyDown);
-            KeyUpCommand = new RelayCommand(OnKeyUp);
+
+            InputManager.Current.PreProcessInput += Current_PreProcessInput;
 
             filter.OnMouseDown += OnMouseDown;
             filter.OnMouseMove += OnMouseMove;
             filter.OnMouseUp += OnMouseUp;
         }
 
-        private void OnKeyDown(object parameter)
+        private void Current_PreProcessInput(object sender, PreProcessInputEventArgs e)
         {
-            KeyEventArgs args = (KeyEventArgs)parameter;
+            if (e != null && e.StagingItem != null && e.StagingItem.Input != null)
+            {
+                InputEventArgs inputEvent = e.StagingItem.Input;
+
+                if (inputEvent is KeyboardEventArgs)
+                {
+                    KeyboardEventArgs k = inputEvent as KeyboardEventArgs;
+                    RoutedEvent r = k.RoutedEvent;
+                    KeyEventArgs keyEvent = k as KeyEventArgs;
+
+                    if (keyEvent != null && keyEvent?.InputSource?.RootVisual != MainWindow.Current) return;
+                    if (r == Keyboard.KeyDownEvent)
+                    {
+                        OnKeyDown(keyEvent);
+                    }
+
+                    if (r == Keyboard.KeyUpEvent)
+                    {
+                        OnKeyUp(keyEvent);
+                    }
+                }
+            }
+        }
+
+        private void OnKeyDown(KeyEventArgs args)
+        {
             var key = args.Key;
             if (key == Key.System)
                 key = args.SystemKey;
@@ -87,9 +109,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
         }
 
-        private void OnKeyUp(object parameter)
+        private void OnKeyUp(KeyEventArgs args)
         {
-            KeyEventArgs args = (KeyEventArgs)parameter;
             var key = args.Key;
             if (key == Key.System)
                 key = args.SystemKey;
