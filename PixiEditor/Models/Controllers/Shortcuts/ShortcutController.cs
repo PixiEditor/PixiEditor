@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PixiEditor.Models.Tools;
+using PixiEditor.Models.Tools.Tools;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -22,7 +24,7 @@ namespace PixiEditor.Models.Controllers.Shortcuts
 
         public Shortcut LastShortcut { get; private set; }
 
-        public const Key MoveViewportToolTransientChangeKey = Key.Space;
+        public Dictionary<Key, Tool> TransientShortcuts { get; set; } = new Dictionary<Key, Tool>();
 
         public static void BlockShortcutExection(string blocker)
         {

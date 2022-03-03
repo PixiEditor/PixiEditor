@@ -24,7 +24,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public Tool LastActionTool { get; private set; }
 
-        public bool MoveToolIsTransient { get; set; }
+        public bool ActiveToolIsTransient { get; set; }
 
         public Cursor ToolCursor
         {
@@ -57,7 +57,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public IEnumerable<Tool> ToolSet { get; private set; }
+        public List<Tool> ToolSet { get; private set; }
 
         public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
 
@@ -70,7 +70,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetupTools(IServiceProvider services)
         {
-            ToolSet = services.GetServices<Tool>();
+            ToolSet = services.GetServices<Tool>().ToList();
             SetActiveTool<PenTool>();
 
             Owner.BitmapManager.BitmapOperations.BitmapChanged += (_, _) => TriggerCacheOutdated();
@@ -94,7 +94,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void SetActiveTool(Tool tool)
         {
             if (ActiveTool == tool) return;
-            MoveToolIsTransient = false;
+            ActiveToolIsTransient = false;
             bool shareToolbar = IPreferences.Current.GetPreference<bool>("EnableSharedToolbar");
             if (ActiveTool != null)
             {
@@ -196,8 +196,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void SetActiveTool(Type toolType)
+        public void SetActiveTool(Type toolType)
         {
+            if (!typeof(Tool).IsAssignableFrom(toolType)) { throw new ArgumentException($"'{toolType}' does not inherit from {typeof(Tool)}"); }
             Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
             SetActiveTool(foundTool);
         }
