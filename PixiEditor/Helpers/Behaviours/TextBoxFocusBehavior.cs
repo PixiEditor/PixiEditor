@@ -76,15 +76,7 @@ namespace PixiEditor.Helpers.Behaviours
 
         private void RemoveFocus()
         {
-            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
-            FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
-
-            while (parent != null && parent is IInputElement element && !element.Focusable)
-            {
-                parent = (FrameworkElement)parent.Parent;
-            }
-
-            FocusManager.SetFocusedElement(scope, parent);
+            MainWindow.Current.mainGrid.Focus();
         }
 
         private void AssociatedObjectGotKeyboardFocus(

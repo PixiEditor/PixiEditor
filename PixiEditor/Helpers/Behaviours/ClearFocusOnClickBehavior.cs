@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Controllers.Shortcuts;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interactivity;
 
 namespace PixiEditor.Helpers.Behaviours
@@ -8,8 +9,14 @@ namespace PixiEditor.Helpers.Behaviours
     {
         protected override void OnAttached()
         {
-            AssociatedObject.MouseDown += AssociatedObject_MouseDown;
             base.OnAttached();
+            AssociatedObject.MouseDown += AssociatedObject_MouseDown;
+            AssociatedObject.LostKeyboardFocus += AssociatedObject_LostKeyboardFocus;
+        }
+
+        private void AssociatedObject_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        {
+            
         }
 
         protected override void OnDetaching()
