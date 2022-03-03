@@ -34,7 +34,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
-                          Focusable="False"
                       IsThreeState="False" HorizontalAlignment="Center" 
                       IsChecked="{Binding Path=IsVisibleUndoTriggerable, Mode=TwoWay}" Grid.Column="0" Height="16" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">

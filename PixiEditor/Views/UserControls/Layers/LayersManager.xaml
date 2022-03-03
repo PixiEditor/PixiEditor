@@ -19,7 +19,7 @@
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                 <Button Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" 
-                        Height="24" Width="24" Cursor="Hand" ToolTip="New Layer" Focusable="False"
+                        Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
                         CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
