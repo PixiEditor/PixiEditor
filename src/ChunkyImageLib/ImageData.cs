@@ -51,7 +51,7 @@ namespace ChunkyImageLib
 
         public SKSurface CreateSKSurface()
         {
-            var surface = SKSurface.Create(new SKImageInfo(Width, Height, ColorType, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
+            var surface = SKSurface.Create(new SKImageInfo(Width, Height, ColorType, SKAlphaType.Premul, SKColorSpace.CreateSrgb()), PixelBuffer);
             if (surface == null)
                 throw new Exception("Could not create surface");
             return surface;

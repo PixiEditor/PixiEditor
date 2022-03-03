@@ -5,6 +5,7 @@ namespace ChunkyImageLib
 {
     public class ChunkyImage
     {
+        private bool locked = false;
         //const int chunkSize = 32;
         private Queue<IOperation> queuedOperations = new Queue<IOperation>();
 
