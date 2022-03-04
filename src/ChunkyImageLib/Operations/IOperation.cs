@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChunkyImageLib.Operations
+﻿namespace ChunkyImageLib.Operations
 {
     internal interface IOperation
     {
+        void DrawOnChunk(ImageData chunk, int chunkX, int chunkY);
+        HashSet<(int, int)> FindAffectedChunks(int chunkSize);
     }
 }

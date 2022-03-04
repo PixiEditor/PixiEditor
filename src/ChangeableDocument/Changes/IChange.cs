@@ -5,8 +5,8 @@ namespace ChangeableDocument.Changes
 {
     internal interface IChange
     {
-        void Initialize(IChangeable target);
-        IChangeInfo? Apply(IChangeable target);
-        IChangeInfo? Revert(IChangeable target);
-    }
+        void Initialize(Document target);
+        IChangeInfo? Apply(Document target);
+        IChangeInfo? Revert(Document target);
+    };
 }

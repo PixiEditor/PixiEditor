@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class Document_UpdateStructureMemberProperties_Change : Change<Document>
+    internal class SetStructureMemberProperties_Change : IChange
     {
         private Guid memberGuid;
 
@@ -13,19 +13,19 @@ namespace ChangeableDocument.Changes
         private string? originalName;
         public string? NewName { get; init; } = null;
 
-        public Document_UpdateStructureMemberProperties_Change(Guid memberGuid)
+        public SetStructureMemberProperties_Change(Guid memberGuid)
         {
             this.memberGuid = memberGuid;
         }
 
-        protected override void DoInitialize(Document document)
+        public void Initialize(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
             if (NewIsVisible != null) originalIsVisible = member.IsVisible;
             if (NewName != null) originalName = member.Name;
         }
 
-        protected override IChangeInfo? DoApply(Document document)
+        public IChangeInfo? Apply(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
             if (NewIsVisible != null) member.IsVisible = NewIsVisible.Value;
@@ -39,7 +39,7 @@ namespace ChangeableDocument.Changes
             };
         }
 
-        protected override IChangeInfo? DoRevert(Document document)
+        public IChangeInfo? Revert(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
             if (NewIsVisible != null) member.IsVisible = originalIsVisible;

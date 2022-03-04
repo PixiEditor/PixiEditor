@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class Document_CreateStructureMember_Change : Change<Document>
+    internal class CreateStructureMember_Change : IChange
     {
         private Guid newMemberGuid;
 
@@ -11,19 +11,19 @@ namespace ChangeableDocument.Changes
         private int parentFolderIndex;
         private StructureMemberType type;
 
-        public Document_CreateStructureMember_Change(Guid parentFolder, int parentFolderIndex, StructureMemberType type)
+        public CreateStructureMember_Change(Guid parentFolder, int parentFolderIndex, StructureMemberType type)
         {
             this.parentFolderGuid = parentFolder;
             this.parentFolderIndex = parentFolderIndex;
             this.type = type;
         }
 
-        protected override void DoInitialize(Document target)
+        public void Initialize(Document target)
         {
             newMemberGuid = Guid.NewGuid();
         }
 
-        protected override IChangeInfo DoApply(Document document)
+        public IChangeInfo Apply(Document document)
         {
             var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
 
@@ -39,7 +39,7 @@ namespace ChangeableDocument.Changes
             return new Document_CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
         }
 
-        protected override IChangeInfo DoRevert(Document document)
+        public IChangeInfo Revert(Document document)
         {
             var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
             folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));

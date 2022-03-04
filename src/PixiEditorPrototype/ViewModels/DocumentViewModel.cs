@@ -46,7 +46,7 @@ namespace PixiEditorPrototype.ViewModels
         public void DeleteStructureMember(object? param)
         {
             if (SelectedStructureMember != null)
-                ActionAccumulator.AddAction(new DeleteStructureMemberAction(SelectedStructureMember.GuidValue));
+                ActionAccumulator.AddAction(new DeleteStructureMember_Action(SelectedStructureMember.GuidValue));
         }
 
         public void Undo(object? param)

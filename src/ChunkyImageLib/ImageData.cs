@@ -10,6 +10,7 @@ namespace ChunkyImageLib
         private int bytesPerPixel;
         public SKColorType ColorType { get; }
         public IntPtr PixelBuffer { get; }
+        public SKSurface SkiaSurface { get; }
         public int Width { get; }
         public int Height { get; }
         public ImageData(int width, int height, SKColorType colorType)
@@ -24,6 +25,7 @@ namespace ChunkyImageLib
             ColorType = colorType;
             bytesPerPixel = colorType == SKColorType.RgbaF16 ? 8 : 4;
             PixelBuffer = CreateBuffer(width, height, bytesPerPixel);
+            SkiaSurface = CreateSKSurface();
         }
 
         public unsafe void CopyTo(ImageData other)
@@ -49,7 +51,7 @@ namespace ChunkyImageLib
             }
         }
 
-        public SKSurface CreateSKSurface()
+        private SKSurface CreateSKSurface()
         {
             var surface = SKSurface.Create(new SKImageInfo(Width, Height, ColorType, SKAlphaType.Premul, SKColorSpace.CreateSrgb()), PixelBuffer);
             if (surface == null)

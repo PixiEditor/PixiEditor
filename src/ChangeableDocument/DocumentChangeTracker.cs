@@ -11,6 +11,8 @@ namespace ChangeableDocument
         private Document document;
         public IReadOnlyDocument Document => document;
 
+        private IUpdateableChange? activeChange = null;
+
         private Stack<IChange> undoStack = new();
         private Stack<IChange> redoStack = new();
 
@@ -19,46 +21,10 @@ namespace ChangeableDocument
             document = new Document();
         }
 
-        private IChangeInfo? InitAndApplyWithUndo(IChange change)
+        private void AddToUndo(IChange change)
         {
-            change.Initialize(document);
-            var info = change.Apply(document);
             undoStack.Push(change);
             redoStack.Clear();
-            return info;
-        }
-
-        private IChangeInfo? MoveStructureMember(Guid member, Guid targetFolder, int index)
-        {
-            return InitAndApplyWithUndo(new Document_MoveStructureMember_Change(member, targetFolder, index));
-        }
-
-        private IChangeInfo? CreateStructureMember(Guid parentGuid, int index, StructureMemberType type)
-        {
-            return InitAndApplyWithUndo(new Document_CreateStructureMember_Change(parentGuid, index, type));
-        }
-
-        private IChangeInfo? DeleteStructureMember(Guid member)
-        {
-            return InitAndApplyWithUndo(new Document_DeleteStructureMember_Change(member));
-        }
-
-        private IChangeInfo? SetStructureMemberVisibility(Guid guid, bool isVisible)
-        {
-            Document_UpdateStructureMemberProperties_Change change = new(guid)
-            {
-                NewIsVisible = isVisible,
-            };
-            return InitAndApplyWithUndo(change);
-        }
-
-        private IChangeInfo? SetStructureMemberName(Guid guid, string name)
-        {
-            Document_UpdateStructureMemberProperties_Change change = new(guid)
-            {
-                NewName = name,
-            };
-            return InitAndApplyWithUndo(change);
         }
 
         private IChangeInfo? Undo()
@@ -85,55 +51,52 @@ namespace ChangeableDocument
         {
             List<IChangeInfo?> result = await Task.Run(() =>
             {
-                List<IChangeInfo?> changes = new();
+                List<IChangeInfo?> changeInfos = new();
                 foreach (var action in actions)
                 {
                     switch (action)
                     {
-                        case CreateStructureMemberAction act:
-                            changes.Add(CreateStructureMember(act.ParentGuid, act.Index, act.Type));
+                        case IMakeChangeAction act:
+                            if (activeChange != null)
+                                throw new Exception("Can't make a change while another change is active");
+                            var change = act.CreateCorrespondingChange();
+                            change.Initialize(document);
+                            changeInfos.Add(change.Apply(document));
+                            AddToUndo(change);
                             break;
-                        case MoveStructureMemberAction act:
-                            changes.Add(MoveStructureMember(act.Member, act.TargetFolder, act.Index));
+                        case IStartChangeAction act:
+                            if (activeChange != null)
+                                throw new Exception("Can't start a change while another change is active");
+                            activeChange = act.CreateCorrespondingChange();
+                            activeChange.Initialize(document);
                             break;
-                        case SetStructureMemberNameAction act:
-                            changes.Add(SetStructureMemberName(act.GuidValue, act.Name));
+                        case IUpdateChangeAction act:
+                            if (activeChange == null)
+                                throw new Exception("Can't update a change: no changes are active");
+                            act.UpdateCorrespodingChange(activeChange);
+                            changeInfos.Add(activeChange.Apply(document));
                             break;
-                        case SetStructureMemberVisibilityAction act:
-                            changes.Add(SetStructureMemberVisibility(act.GuidValue, act.isVisible));
-                            break;
-                        case DeleteStructureMemberAction act:
-                            changes.Add(DeleteStructureMember(act.GuidValue));
+                        case IEndChangeAction act:
+                            if (activeChange == null)
+                                throw new Exception("Can't end a change: no changes are active");
+                            if (!act.IsChangeTypeMatching(activeChange))
+                                throw new Exception($"Trying to end a change via action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
+                            AddToUndo(activeChange);
+                            activeChange = null;
                             break;
                         case UndoAction act:
-                            changes.Add(Undo());
+                            changeInfos.Add(Undo());
                             break;
                         case RedoAction act:
-                            changes.Add(Redo());
+                            changeInfos.Add(Redo());
                             break;
+                        default:
+                            throw new Exception("Unknown action type");
                     }
                 }
-                return changes;
+                return changeInfos;
             }).ConfigureAwait(true);
             return result;
-        }
-    }
-
-    class OperationStateMachine
-    {
-        public void ExecuteSingularChange(IChange change)
-        {
-
-        }
-
-        public void StartUpdateableChange()
-        {
-
-        }
-
-        public void EndUpdateableChange()
-        {
-
         }
     }
 }

@@ -14,13 +14,13 @@ namespace PixiEditorPrototype.ViewModels
         public string Name
         {
             get => member.Name;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberNameAction(value, member.GuidValue));
+            set => Document.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.GuidValue));
         }
 
         public bool IsVisible
         {
             get => member.IsVisible;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibilityAction(value, member.GuidValue));
+            set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
         }
 
         public Guid GuidValue

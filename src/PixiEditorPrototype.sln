@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditorPrototype", "PixiEditorPrototype\PixiEditorPrototype.csproj", "{64D7EBA9-A3D0-4832-ACB7-3C519BD23755}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditorPrototype", "PixiEditorPrototype\PixiEditorPrototype.csproj", "{64D7EBA9-A3D0-4832-ACB7-3C519BD23755}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeableDocument", "ChangeableDocument\ChangeableDocument.csproj", "{181C9914-75B5-4BEB-AA16-F29B42A401EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChangeableDocument", "ChangeableDocument\ChangeableDocument.csproj", "{181C9914-75B5-4BEB-AA16-F29B42A401EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLib", "ChunkyImageLib\ChunkyImageLib.csproj", "{EFA4866B-F03E-4F6F-A7B8-1CA6467D5D17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLib", "ChunkyImageLib\ChunkyImageLib.csproj", "{EFA4866B-F03E-4F6F-A7B8-1CA6467D5D17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructureRenderer", "StructureRenderer\StructureRenderer.csproj", "{2B396104-7F74-4E03-849E-0AD6EF003666}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StructureRenderer", "StructureRenderer\StructureRenderer.csproj", "{2B396104-7F74-4E03-849E-0AD6EF003666}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLibTest", "ChunkyImageLibTest\ChunkyImageLibTest.csproj", "{794971CA-8CD2-4D1D-BDD9-F41E2638D138}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{2B396104-7F74-4E03-849E-0AD6EF003666}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B396104-7F74-4E03-849E-0AD6EF003666}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B396104-7F74-4E03-849E-0AD6EF003666}.Release|Any CPU.Build.0 = Release|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

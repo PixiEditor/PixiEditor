@@ -1,7 +1,9 @@
-﻿namespace ChangeableDocument.Actions;
-public record CreateStructureMemberAction : IAction
+﻿using ChangeableDocument.Changes;
+
+namespace ChangeableDocument.Actions;
+public record CreateStructureMember_Action : IMakeChangeAction
 {
-    public CreateStructureMemberAction(Guid parentGuid, int index, StructureMemberType type)
+    public CreateStructureMember_Action(Guid parentGuid, int index, StructureMemberType type)
     {
         ParentGuid = parentGuid;
         Index = index;
@@ -11,21 +13,31 @@ public record CreateStructureMemberAction : IAction
     public Guid ParentGuid { get; init; }
     public int Index { get; init; }
     public StructureMemberType Type { get; init; }
+
+    IChange IMakeChangeAction.CreateCorrespondingChange()
+    {
+        return new CreateStructureMember_Change(ParentGuid, Index, Type);
+    }
 }
 
-public record DeleteStructureMemberAction : IAction
+public record DeleteStructureMember_Action : IMakeChangeAction
 {
-    public DeleteStructureMemberAction(Guid guidValue)
+    public DeleteStructureMember_Action(Guid guidValue)
     {
         GuidValue = guidValue;
     }
 
     public Guid GuidValue { get; }
+
+    IChange IMakeChangeAction.CreateCorrespondingChange()
+    {
+        return new DeleteStructureMember_Change(GuidValue);
+    }
 }
 
-public record MoveStructureMemberAction : IAction
+public record MoveStructureMember_Action : IMakeChangeAction
 {
-    public MoveStructureMemberAction(Guid member, Guid targetFolder, int index)
+    public MoveStructureMember_Action(Guid member, Guid targetFolder, int index)
     {
         Member = member;
         TargetFolder = targetFolder;
@@ -35,11 +47,16 @@ public record MoveStructureMemberAction : IAction
     public Guid Member { get; init; }
     public Guid TargetFolder { get; init; }
     public int Index { get; init; }
+
+    IChange IMakeChangeAction.CreateCorrespondingChange()
+    {
+        return new MoveStructureMember_Change(Member, TargetFolder, Index);
+    }
 }
 
-public record SetStructureMemberNameAction : IAction
+public record SetStructureMemberName_Action : IMakeChangeAction
 {
-    public SetStructureMemberNameAction(string name, Guid guidValue)
+    public SetStructureMemberName_Action(string name, Guid guidValue)
     {
         Name = name;
         GuidValue = guidValue;
@@ -47,11 +64,16 @@ public record SetStructureMemberNameAction : IAction
 
     public string Name { get; init; }
     public Guid GuidValue { get; init; }
+
+    IChange IMakeChangeAction.CreateCorrespondingChange()
+    {
+        return new SetStructureMemberProperties_Change(GuidValue) { NewName = Name };
+    }
 }
 
-public record SetStructureMemberVisibilityAction : IAction
+public record SetStructureMemberVisibility_Action : IMakeChangeAction
 {
-    public SetStructureMemberVisibilityAction(bool isVisible, Guid guidValue)
+    public SetStructureMemberVisibility_Action(bool isVisible, Guid guidValue)
     {
         this.isVisible = isVisible;
         GuidValue = guidValue;
@@ -59,4 +81,9 @@ public record SetStructureMemberVisibilityAction : IAction
 
     public bool isVisible { get; init; }
     public Guid GuidValue { get; init; }
+
+    IChange IMakeChangeAction.CreateCorrespondingChange()
+    {
+        return new SetStructureMemberProperties_Change(GuidValue) { NewIsVisible = isVisible };
+    }
 }
