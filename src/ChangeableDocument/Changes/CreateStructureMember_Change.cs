@@ -36,7 +36,7 @@ namespace ChangeableDocument.Changes
 
             folder.Children.Insert(parentFolderIndex, member);
 
-            return new Document_CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
+            return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
         }
 
         public IChangeInfo Revert(Document document)
@@ -44,7 +44,7 @@ namespace ChangeableDocument.Changes
             var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
             folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
 
-            return new Document_DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
+            return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
         }
     }
 }

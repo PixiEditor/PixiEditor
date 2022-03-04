@@ -8,7 +8,16 @@ namespace PixiEditorPrototype.ViewModels
 {
     internal class DocumentViewModel : INotifyPropertyChanged
     {
-        public StructureMemberViewModel? SelectedStructureMember { get; private set; }
+        private StructureMemberViewModel? selectedStructureMember;
+        public StructureMemberViewModel? SelectedStructureMember
+        {
+            get => selectedStructureMember;
+            private set
+            {
+                selectedStructureMember = value;
+                PropertyChanged?.Invoke(this, new(nameof(SelectedStructureMember)));
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

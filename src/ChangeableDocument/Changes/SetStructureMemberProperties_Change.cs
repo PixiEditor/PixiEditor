@@ -31,7 +31,7 @@ namespace ChangeableDocument.Changes
             if (NewIsVisible != null) member.IsVisible = NewIsVisible.Value;
             if (NewName != null) member.Name = NewName;
 
-            return new Document_UpdateStructureMemberProperties_ChangeInfo()
+            return new StructureMemberProperties_ChangeInfo()
             {
                 GuidValue = member.GuidValue,
                 IsVisibleChanged = NewIsVisible != null,
@@ -45,7 +45,7 @@ namespace ChangeableDocument.Changes
             if (NewIsVisible != null) member.IsVisible = originalIsVisible;
             if (NewName != null) member.Name = originalName!;
 
-            return new Document_UpdateStructureMemberProperties_ChangeInfo()
+            return new StructureMemberProperties_ChangeInfo()
             {
                 GuidValue = member.GuidValue,
                 IsVisibleChanged = NewIsVisible != null,

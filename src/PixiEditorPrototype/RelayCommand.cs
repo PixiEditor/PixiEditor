@@ -8,12 +8,17 @@ namespace PixiEditorPrototype
         public event EventHandler? CanExecuteChanged;
 
         private Action<object?> execute;
-        private Func<object?, bool> canExecute;
+        private Func<object?, bool>? canExecute;
 
         public RelayCommand(Action<object?> execute, Func<object?, bool> canExecute)
         {
             this.execute = execute;
             this.canExecute = canExecute;
+        }
+
+        public RelayCommand(Action<object?> execute)
+        {
+            this.execute = execute;
         }
 
         public void RaiseCanExecuteChanged()

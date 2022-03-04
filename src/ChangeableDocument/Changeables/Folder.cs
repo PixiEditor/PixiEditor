@@ -20,6 +20,7 @@ namespace ChangeableDocument.Changeables
                 GuidValue = GuidValue,
                 IsVisible = IsVisible,
                 Name = Name,
+                Opacity = Opacity,
                 Children = clonedChildren
             };
         }

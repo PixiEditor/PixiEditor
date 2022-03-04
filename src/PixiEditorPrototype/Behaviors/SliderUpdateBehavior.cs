@@ -1,0 +1,111 @@
+﻿using Microsoft.Xaml.Behaviors;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+
+namespace PixiEditorPrototype.Behaviors
+{
+    class SliderUpdateBehavior : Behavior<Slider>
+    {
+        public static DependencyProperty DragValueChangedProperty = DependencyProperty.Register(nameof(DragValueChanged), typeof(ICommand), typeof(SliderUpdateBehavior));
+        public ICommand? DragValueChanged
+        {
+            get => (ICommand)GetValue(DragValueChangedProperty);
+            set => SetValue(DragValueChangedProperty, value);
+        }
+        public static DependencyProperty DragEndedProperty = DependencyProperty.Register(nameof(DragEnded), typeof(ICommand), typeof(SliderUpdateBehavior));
+        public ICommand? DragEnded
+        {
+            get => (ICommand)GetValue(DragEndedProperty);
+            set => SetValue(DragEndedProperty, value);
+        }
+        public static DependencyProperty RegularValueChangedProperty = DependencyProperty.Register(nameof(RegularValueChanged), typeof(ICommand), typeof(SliderUpdateBehavior));
+        public ICommand? RegularValueChanged
+        {
+            get => (ICommand)GetValue(RegularValueChangedProperty);
+            set => SetValue(RegularValueChangedProperty, value);
+        }
+
+        private bool attached = false;
+        private bool dragging = false;
+        private bool valueChangedWhileDragging = false;
+        protected override void OnAttached()
+        {
+            AssociatedObject.Loaded += AssociatedObject_Loaded;
+            if (AssociatedObject.IsLoaded)
+                AttachEvents();
+        }
+
+        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+        {
+            AttachEvents();
+        }
+
+        private void AttachEvents()
+        {
+            if (attached)
+                return;
+            attached = true;
+            var thumb = GetThumb(AssociatedObject);
+            if (thumb == null)
+                return;
+
+            thumb.DragStarted += Thumb_DragStarted;
+            thumb.DragCompleted += Thumb_DragCompleted;
+            AssociatedObject.ValueChanged += Slider_ValueChanged;
+        }
+
+        protected override void OnDetaching()
+        {
+            AssociatedObject.Loaded -= AssociatedObject_Loaded;
+            if (!attached)
+                return;
+            var thumb = GetThumb(AssociatedObject);
+            if (thumb == null)
+                return;
+
+            thumb.DragStarted -= Thumb_DragStarted;
+            thumb.DragCompleted -= Thumb_DragCompleted;
+            AssociatedObject.ValueChanged -= Slider_ValueChanged;
+        }
+
+
+
+        private void Slider_ValueChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (dragging)
+            {
+                if (DragValueChanged != null && DragValueChanged.CanExecute(e.NewValue))
+                    DragValueChanged.Execute(e.NewValue);
+                valueChangedWhileDragging = true;
+            }
+            else
+            {
+                if (RegularValueChanged != null && RegularValueChanged.CanExecute(e.NewValue))
+                    RegularValueChanged.Execute(e.NewValue);
+            }
+        }
+
+        private void Thumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            dragging = false;
+            if (valueChangedWhileDragging == true && DragEnded != null && DragEnded.CanExecute(null))
+                DragEnded.Execute(null);
+            valueChangedWhileDragging = false;
+        }
+
+        private void Thumb_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            dragging = true;
+        }
+
+        private static Thumb? GetThumb(Slider slider)
+        {
+            var track = slider.Template.FindName("PART_Track", slider) as Track;
+            return track == null ? null : track.Thumb;
+        }
+
+
+    }
+}

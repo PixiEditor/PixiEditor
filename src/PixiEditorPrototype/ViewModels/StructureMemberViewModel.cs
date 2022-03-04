@@ -23,6 +23,12 @@ namespace PixiEditorPrototype.ViewModels
             set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
         }
 
+        public float Opacity
+        {
+            get => member.Opacity;
+            set => SetOpacity(value);
+        }
+
         public Guid GuidValue
         {
             get => member.GuidValue;
@@ -30,6 +36,12 @@ namespace PixiEditorPrototype.ViewModels
 
         public RelayCommand MoveUpCommand { get; }
         public RelayCommand MoveDownCommand { get; }
+
+        public RelayCommand UpdateOpacityCommand { get; }
+
+        public RelayCommand EndOpacityUpdateCommand { get; }
+
+        public RelayCommand SetOpacityCommand { get; }
 
         public void RaisePropertyChanged(string name)
         {
@@ -40,8 +52,28 @@ namespace PixiEditorPrototype.ViewModels
         {
             this.member = member;
             Document = doc;
-            MoveUpCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, true), _ => true);
-            MoveDownCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, false), _ => true);
+            MoveUpCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, true));
+            MoveDownCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, false));
+            UpdateOpacityCommand = new(UpdateOpacity);
+            EndOpacityUpdateCommand = new(EndOpacityUpdate);
+            SetOpacityCommand = new((value) => { if (value != null) SetOpacity((float)(double)value); });
+        }
+
+        private void EndOpacityUpdate(object? opacity)
+        {
+            Document.ActionAccumulator.AddAction(new EndOpacityChange_Action());
+        }
+
+        private void UpdateOpacity(object? opacity)
+        {
+            if (opacity != null)
+                Document.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, (float)(double)opacity));
+        }
+
+        private void SetOpacity(float value)
+        {
+            //Document.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, value));
+            //Document.ActionAccumulator.AddAction(new EndOpacityChange_Action());
         }
     }
 }

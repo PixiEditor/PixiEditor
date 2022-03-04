@@ -27,7 +27,7 @@ namespace ChangeableDocument.Changes
         {
             var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
             parent.Children.Remove(member);
-            return new Document_DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid };
+            return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 
         public IChangeInfo Revert(Document doc)
@@ -35,7 +35,7 @@ namespace ChangeableDocument.Changes
             var parent = (Folder)doc.FindMemberOrThrow(parentGuid);
 
             parent.Children.Insert(originalIndex, savedCopy!.Clone());
-            return new Document_CreateStructureMember_ChangeInfo() { GuidValue = memberGuid };
+            return new CreateStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
     }
 }

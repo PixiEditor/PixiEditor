@@ -12,7 +12,8 @@ namespace ChangeableDocument.Changeables
             {
                 GuidValue = GuidValue,
                 IsVisible = IsVisible,
-                Name = Name
+                Name = Name,
+                Opacity = Opacity
             };
         }
     }

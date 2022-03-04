@@ -64,15 +64,12 @@ namespace ChangeableDocument
                             changeInfos.Add(change.Apply(document));
                             AddToUndo(change);
                             break;
-                        case IStartChangeAction act:
-                            if (activeChange != null)
-                                throw new Exception("Can't start a change while another change is active");
-                            activeChange = act.CreateCorrespondingChange();
-                            activeChange.Initialize(document);
-                            break;
-                        case IUpdateChangeAction act:
+                        case IStartOrUpdateChangeAction act:
                             if (activeChange == null)
-                                throw new Exception("Can't update a change: no changes are active");
+                            {
+                                activeChange = act.CreateCorrespondingChange();
+                                activeChange.Initialize(document);
+                            }
                             act.UpdateCorrespodingChange(activeChange);
                             changeInfos.Add(activeChange.Apply(document));
                             break;

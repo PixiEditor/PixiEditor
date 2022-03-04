@@ -39,13 +39,13 @@ namespace ChangeableDocument.Changes
         public IChangeInfo? Apply(Document target)
         {
             Move(target, memberGuid, targetFolderGuid, targetFolderIndex);
-            return new Document_MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
+            return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 
         public IChangeInfo? Revert(Document target)
         {
             Move(target, memberGuid, originalFolderGuid, originalFolderIndex);
-            return new Document_MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
+            return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
     }
 }
