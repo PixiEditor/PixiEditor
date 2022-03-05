@@ -26,7 +26,6 @@ namespace PixiEditorPrototype.ViewModels
         public float Opacity
         {
             get => member.Opacity;
-            set => SetOpacity(value);
         }
 
         public Guid GuidValue
@@ -41,8 +40,6 @@ namespace PixiEditorPrototype.ViewModels
 
         public RelayCommand EndOpacityUpdateCommand { get; }
 
-        public RelayCommand SetOpacityCommand { get; }
-
         public void RaisePropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -56,7 +53,6 @@ namespace PixiEditorPrototype.ViewModels
             MoveDownCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, false));
             UpdateOpacityCommand = new(UpdateOpacity);
             EndOpacityUpdateCommand = new(EndOpacityUpdate);
-            SetOpacityCommand = new((value) => { if (value != null) SetOpacity((float)(double)value); });
         }
 
         private void EndOpacityUpdate(object? opacity)
@@ -66,14 +62,9 @@ namespace PixiEditorPrototype.ViewModels
 
         private void UpdateOpacity(object? opacity)
         {
-            if (opacity != null)
-                Document.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, (float)(double)opacity));
-        }
-
-        private void SetOpacity(float value)
-        {
-            //Document.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, value));
-            //Document.ActionAccumulator.AddAction(new EndOpacityChange_Action());
+            if (opacity == null || opacity is not double value)
+                throw new Exception("Can't update opacity");
+            Document.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, (float)value));
         }
     }
 }

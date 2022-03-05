@@ -20,13 +20,13 @@
                     <Button Margin="5" Command="{Binding DeleteStructureMemberCommand}" Width="80">Delete</Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Center">
-                    <Slider Width="100" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.01" 
+                    <Slider Width="100" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.01" x:Name="opacitySlider"
                             Value="{Binding SelectedStructureMember.Opacity, Mode=OneWay}">
                         <i:Interaction.Behaviors>
                             <behaviors:SliderUpdateBehavior
                                 DragValueChanged="{Binding SelectedStructureMember.UpdateOpacityCommand}"
                                 DragEnded="{Binding SelectedStructureMember.EndOpacityUpdateCommand}"
-                                RegularValueChanged="{Binding SelectedStructureMember.SetOpacityCommand}"/>
+                                ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}"/>
                         </i:Interaction.Behaviors>
                     </Slider>
                     <TextBlock Text="{Binding SelectedStructureMember.Opacity, StringFormat=N2}" TextAlignment="Center" d:Text="1.00" Width="30"></TextBlock>

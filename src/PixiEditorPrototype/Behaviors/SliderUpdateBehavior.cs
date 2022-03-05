@@ -20,11 +20,13 @@ namespace PixiEditorPrototype.Behaviors
             get => (ICommand)GetValue(DragEndedProperty);
             set => SetValue(DragEndedProperty, value);
         }
-        public static DependencyProperty RegularValueChangedProperty = DependencyProperty.Register(nameof(RegularValueChanged), typeof(ICommand), typeof(SliderUpdateBehavior));
-        public ICommand? RegularValueChanged
+
+        public static DependencyProperty ValueFromSliderProperty =
+            DependencyProperty.Register(nameof(ValueFromSlider), typeof(double), typeof(SliderUpdateBehavior), new(OnSliderValuePropertyChange));
+        public double ValueFromSlider
         {
-            get => (ICommand)GetValue(RegularValueChangedProperty);
-            set => SetValue(RegularValueChangedProperty, value);
+            get => (double)GetValue(ValueFromSliderProperty);
+            set => SetValue(ValueFromSliderProperty, value);
         }
 
         private bool attached = false;
@@ -33,6 +35,9 @@ namespace PixiEditorPrototype.Behaviors
         protected override void OnAttached()
         {
             AssociatedObject.Loaded += AssociatedObject_Loaded;
+            AssociatedObject.Focusable = false;
+
+
             if (AssociatedObject.IsLoaded)
                 AttachEvents();
         }
@@ -53,7 +58,6 @@ namespace PixiEditorPrototype.Behaviors
 
             thumb.DragStarted += Thumb_DragStarted;
             thumb.DragCompleted += Thumb_DragCompleted;
-            AssociatedObject.ValueChanged += Slider_ValueChanged;
         }
 
         protected override void OnDetaching()
@@ -67,23 +71,16 @@ namespace PixiEditorPrototype.Behaviors
 
             thumb.DragStarted -= Thumb_DragStarted;
             thumb.DragCompleted -= Thumb_DragCompleted;
-            AssociatedObject.ValueChanged -= Slider_ValueChanged;
         }
 
-
-
-        private void Slider_ValueChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e)
+        private static void OnSliderValuePropertyChange(DependencyObject slider, DependencyPropertyChangedEventArgs e)
         {
-            if (dragging)
+            var obj = (SliderUpdateBehavior)slider;
+            if (obj.dragging)
             {
-                if (DragValueChanged != null && DragValueChanged.CanExecute(e.NewValue))
-                    DragValueChanged.Execute(e.NewValue);
-                valueChangedWhileDragging = true;
-            }
-            else
-            {
-                if (RegularValueChanged != null && RegularValueChanged.CanExecute(e.NewValue))
-                    RegularValueChanged.Execute(e.NewValue);
+                if (obj.DragValueChanged != null && obj.DragValueChanged.CanExecute(e.NewValue))
+                    obj.DragValueChanged.Execute(e.NewValue);
+                obj.valueChangedWhileDragging = true;
             }
         }
 

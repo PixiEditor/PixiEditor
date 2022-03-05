@@ -8,6 +8,8 @@ namespace PixiEditorPrototype.Models
     internal class ActionAccumulator
     {
         private bool executing = false;
+        private bool applying = false;
+
         private List<IAction> queuedActions = new();
         private DocumentChangeTracker tracker;
         private DocumentUpdater documentUpdater;
@@ -20,24 +22,30 @@ namespace PixiEditorPrototype.Models
 
         public void AddAction(IAction action)
         {
+            if (applying)
+                return;
             queuedActions.Add(action);
             TryExecuteAccumulatedActions();
         }
 
         public async void TryExecuteAccumulatedActions()
         {
-            if (executing)
+            if (executing || queuedActions.Count == 0)
                 return;
             executing = true;
-            var toExecute = queuedActions;
-            queuedActions = new List<IAction>();
-
-            var result = await tracker.ProcessActions(toExecute);
-            foreach (IChangeInfo? info in result)
+            while (queuedActions.Count > 0)
             {
-                documentUpdater.ApplyChangeFromChangeInfo(info);
-            }
+                var toExecute = queuedActions;
+                queuedActions = new List<IAction>();
 
+                var result = await tracker.ProcessActions(toExecute);
+                applying = true;
+                foreach (IChangeInfo? info in result)
+                {
+                    documentUpdater.ApplyChangeFromChangeInfo(info);
+                }
+                applying = false;
+            }
 
             executing = false;
         }
