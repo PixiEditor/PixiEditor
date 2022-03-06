@@ -3,14 +3,14 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class UpdateStructureMemberOpacity_Change : IUpdateableChange
+    internal class StructureMemberOpacity_UpdateableChange : IUpdateableChange
     {
         private Guid memberGuid;
 
         private float originalOpacity;
         public float NewOpacity { get; private set; }
 
-        public UpdateStructureMemberOpacity_Change(Guid memberGuid, float opacity)
+        public StructureMemberOpacity_UpdateableChange(Guid memberGuid, float opacity)
         {
             this.memberGuid = memberGuid;
             NewOpacity = opacity;
@@ -27,6 +27,8 @@ namespace ChangeableDocument.Changes
             originalOpacity = member.Opacity;
         }
 
+        public IChangeInfo? ApplyTemporarily(Document target) => Apply(target);
+
         public IChangeInfo? Apply(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
@@ -42,5 +44,7 @@ namespace ChangeableDocument.Changes
 
             return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
         }
+
+
     }
 }

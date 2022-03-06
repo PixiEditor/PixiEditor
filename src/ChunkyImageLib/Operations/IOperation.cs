@@ -1,8 +1,8 @@
 ﻿namespace ChunkyImageLib.Operations
 {
-    internal interface IOperation
+    internal interface IOperation : IDisposable
     {
-        void DrawOnChunk(ImageData chunk, int chunkX, int chunkY);
-        HashSet<(int, int)> FindAffectedChunks(int chunkSize);
+        void DrawOnChunk(Chunk chunk, int chunkX, int chunkY);
+        HashSet<(int, int)> FindAffectedChunks();
     }
 }

@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class SetStructureMemberProperties_Change : IChange
+    internal class StructureMemberProperties_Change : IChange
     {
         private Guid memberGuid;
 
@@ -13,7 +13,7 @@ namespace ChangeableDocument.Changes
         private string? originalName;
         public string? NewName { get; init; } = null;
 
-        public SetStructureMemberProperties_Change(Guid memberGuid)
+        public StructureMemberProperties_Change(Guid memberGuid)
         {
             this.memberGuid = memberGuid;
         }

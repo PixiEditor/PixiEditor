@@ -71,13 +71,14 @@ namespace ChangeableDocument
                                 activeChange.Initialize(document);
                             }
                             act.UpdateCorrespodingChange(activeChange);
-                            changeInfos.Add(activeChange.Apply(document));
+                            changeInfos.Add(activeChange.ApplyTemporarily(document));
                             break;
                         case IEndChangeAction act:
                             if (activeChange == null)
                                 throw new Exception("Can't end a change: no changes are active");
                             if (!act.IsChangeTypeMatching(activeChange))
                                 throw new Exception($"Trying to end a change via action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
+                            changeInfos.Add(activeChange.Apply(document));
                             AddToUndo(activeChange);
                             activeChange = null;
                             break;

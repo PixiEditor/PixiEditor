@@ -4,16 +4,17 @@ using System.Runtime.InteropServices;
 
 namespace ChunkyImageLib
 {
-    public class ImageData : IDisposable
+    public class Surface : IDisposable
     {
         private bool disposed;
         private int bytesPerPixel;
         public SKColorType ColorType { get; }
-        public IntPtr PixelBuffer { get; }
+        private IntPtr PixelBuffer { get; }
         public SKSurface SkiaSurface { get; }
         public int Width { get; }
         public int Height { get; }
-        public ImageData(int width, int height, SKColorType colorType)
+
+        public Surface(int width, int height, SKColorType colorType)
         {
             if (colorType is not SKColorType.RgbaF16 or SKColorType.Bgra8888)
                 throw new ArgumentException("Unsupported color type");
@@ -28,7 +29,12 @@ namespace ChunkyImageLib
             SkiaSurface = CreateSKSurface();
         }
 
-        public unsafe void CopyTo(ImageData other)
+        public Surface(Surface original) : this(original.Width, original.Height, original.ColorType)
+        {
+            SkiaSurface.Canvas.DrawSurface(original.SkiaSurface, 0, 0);
+        }
+
+        public unsafe void CopyTo(Surface other)
         {
             if (other.Width != Width || other.Height != Height || other.ColorType != ColorType)
                 throw new ArgumentException("Target ImageData must have the same format");
@@ -76,7 +82,7 @@ namespace ChunkyImageLib
             GC.SuppressFinalize(this);
         }
 
-        ~ImageData()
+        ~Surface()
         {
             Marshal.FreeHGlobal(PixelBuffer);
         }

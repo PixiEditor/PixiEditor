@@ -8,12 +8,14 @@
         private static ChunkPool? instance;
         public static ChunkPool Instance => instance ??= new ChunkPool();
 
-        private List<ImageData> freeChunks = new();
-        private HashSet<ImageData> usedChunks = new();
+        private List<Chunk> freeChunks = new();
+        private HashSet<Chunk> usedChunks = new();
 
-        public ImageData BorrowChunk()
+        public Chunk TransparentChunk { get; } = new Chunk();
+
+        public Chunk BorrowChunk()
         {
-            ImageData chunk;
+            Chunk chunk;
             if (freeChunks.Count > 0)
             {
                 chunk = freeChunks[^1];
@@ -21,14 +23,14 @@
             }
             else
             {
-                chunk = new ImageData(ChunkSize, ChunkSize, SkiaSharp.SKColorType.RgbaF16);
+                chunk = new Chunk();
             }
             usedChunks.Add(chunk);
 
             return chunk;
         }
 
-        public void ReturnChunk(ImageData chunk)
+        public void ReturnChunk(Chunk chunk)
         {
             if (!usedChunks.Contains(chunk))
                 throw new Exception("This chunk wasn't borrowed");

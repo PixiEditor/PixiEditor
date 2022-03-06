@@ -15,17 +15,17 @@ namespace ChangeableDocument.Actions
 
         IUpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
         {
-            return new UpdateStructureMemberOpacity_Change(MemberGuid, Opacity);
+            return new StructureMemberOpacity_UpdateableChange(MemberGuid, Opacity);
         }
 
         void IStartOrUpdateChangeAction.UpdateCorrespodingChange(IUpdateableChange change)
         {
-            ((UpdateStructureMemberOpacity_Change)change).Update(Opacity);
+            ((StructureMemberOpacity_UpdateableChange)change).Update(Opacity);
         }
     }
 
     public record EndOpacityChange_Action : IEndChangeAction
     {
-        bool IEndChangeAction.IsChangeTypeMatching(IChange change) => change is UpdateStructureMemberOpacity_Change;
+        bool IEndChangeAction.IsChangeTypeMatching(IChange change) => change is StructureMemberOpacity_UpdateableChange;
     }
 }

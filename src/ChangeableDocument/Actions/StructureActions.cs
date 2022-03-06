@@ -67,7 +67,7 @@ public record SetStructureMemberName_Action : IMakeChangeAction
 
     IChange IMakeChangeAction.CreateCorrespondingChange()
     {
-        return new SetStructureMemberProperties_Change(GuidValue) { NewName = Name };
+        return new StructureMemberProperties_Change(GuidValue) { NewName = Name };
     }
 }
 
@@ -84,6 +84,6 @@ public record SetStructureMemberVisibility_Action : IMakeChangeAction
 
     IChange IMakeChangeAction.CreateCorrespondingChange()
     {
-        return new SetStructureMemberProperties_Change(GuidValue) { NewIsVisible = isVisible };
+        return new StructureMemberProperties_Change(GuidValue) { NewIsVisible = isVisible };
     }
 }

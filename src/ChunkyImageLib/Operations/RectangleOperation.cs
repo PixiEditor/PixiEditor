@@ -1,65 +1,53 @@
-﻿using SkiaSharp;
+﻿using ChunkyImageLib.DataHolders;
+using SkiaSharp;
 
 namespace ChunkyImageLib.Operations
 {
     internal record RectangleOperation : IOperation
     {
-        public RectangleOperation(int x, int y, int width, int height, int borderThickness, SKColor borderColor, SKColor fillColor)
+        public RectangleOperation(ShapeData rect)
         {
-            StrokeColor = borderColor;
-            FillColor = fillColor;
-            StrokeWidth = borderThickness;
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
+            Data = rect;
         }
 
-        public SKColor StrokeColor { get; }
-        public SKColor FillColor { get; }
-        public int StrokeWidth { get; }
-        public int X { get; }
-        public int Y { get; }
-        public int Width { get; }
-        public int Height { get; }
-        public int MaxX => X + Width - 1;
-        public int MaxY => Y + Height - 1;
+        public ShapeData Data { get; }
 
-        public void DrawOnChunk(ImageData chunk, int chunkX, int chunkY)
+        public void DrawOnChunk(Chunk chunk, int chunkX, int chunkY)
         {
+            var skiaSurf = chunk.Surface.SkiaSurface;
             // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
-            chunk.SkiaSurface.Canvas.Save();
-            var rect = SKRect.Create(X, Y, Width, Height);
-            chunk.SkiaSurface.Canvas.ClipRect(rect);
+            skiaSurf.Canvas.Save();
+            var rect = SKRect.Create(Data.X - chunkX * ChunkPool.ChunkSize, Data.Y - chunkY * ChunkPool.ChunkSize, Data.Width, Data.Height);
+            skiaSurf.Canvas.ClipRect(rect);
 
             // draw fill
             using SKPaint paint = new()
             {
-                Color = FillColor,
+                Color = Data.FillColor,
                 Style = SKPaintStyle.Fill,
             };
 
-            if (FillColor.Alpha > 0)
-                chunk.SkiaSurface.Canvas.DrawRect(rect, paint);
+            if (Data.FillColor.Alpha > 0)
+                skiaSurf.Canvas.DrawRect(rect, paint);
 
             // draw stroke
-            paint.Color = StrokeColor;
+            paint.Color = Data.StrokeColor;
             paint.Style = SKPaintStyle.Stroke;
-            paint.StrokeWidth = StrokeWidth * 2;
+            paint.StrokeWidth = Data.StrokeWidth * 2;
 
-            chunk.SkiaSurface.Canvas.DrawRect(rect, paint);
+            skiaSurf.Canvas.DrawRect(rect, paint);
 
             // get rid of the clipping rectangle
-            chunk.SkiaSurface.Canvas.Restore();
+            skiaSurf.Canvas.Restore();
         }
 
-        public HashSet<(int, int)> FindAffectedChunks(int chunkSize)
+        public HashSet<(int, int)> FindAffectedChunks()
         {
-            if (Width < 1 || Height < 1 || StrokeColor.Alpha == 0 && FillColor.Alpha == 0)
+            if (Data.Width < 1 || Data.Height < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
                 return new();
-            if (FillColor.Alpha != 0 || Width == 1 || Height == 1)
-                return GetChunksForFilled(chunkSize);
-            return GetChunksForStroke(chunkSize);
+            if (Data.FillColor.Alpha != 0 || Data.Width == 1 || Data.Height == 1)
+                return GetChunksForFilled(ChunkPool.ChunkSize);
+            return GetChunksForStroke(ChunkPool.ChunkSize);
         }
 
         private static (int, int)? Inset(int min, int max, int inset)
@@ -76,14 +64,14 @@ namespace ChunkyImageLib.Operations
         {
             //we need to account for wide strokes covering multiple chunks
             //find inner stroke boudaries in pixel coords
-            var xInset = Inset(X, MaxX, StrokeWidth);
-            var yInset = Inset(Y, MaxY, StrokeWidth);
+            var xInset = Inset(Data.X, Data.MaxX, Data.StrokeWidth);
+            var yInset = Inset(Data.Y, Data.MaxY, Data.StrokeWidth);
             if (xInset == null || yInset == null)
                 return GetChunksForFilled(chunkSize);
 
             //find two chunk rectanges, outer and inner
-            var (minX, minY) = OperationHelper.GetChunkPos(X, Y, chunkSize);
-            var (maxX, maxY) = OperationHelper.GetChunkPos(MaxX, MaxY, chunkSize);
+            var (minX, minY) = OperationHelper.GetChunkPos(Data.X, Data.Y, chunkSize);
+            var (maxX, maxY) = OperationHelper.GetChunkPos(Data.MaxX, Data.MaxY, chunkSize);
             var (minInsetX, minInsetY) = OperationHelper.GetChunkPos(xInset.Value.Item1, yInset.Value.Item1, chunkSize);
             var (maxInsetX, maxInsetY) = OperationHelper.GetChunkPos(xInset.Value.Item2, yInset.Value.Item2, chunkSize);
 
@@ -98,8 +86,8 @@ namespace ChunkyImageLib.Operations
 
         private HashSet<(int, int)> GetChunksForFilled(int chunkSize)
         {
-            var (minX, minY) = OperationHelper.GetChunkPos(X, Y, chunkSize);
-            var (maxX, maxY) = OperationHelper.GetChunkPos(MaxX, MaxY, chunkSize);
+            var (minX, minY) = OperationHelper.GetChunkPos(Data.X, Data.Y, chunkSize);
+            var (maxX, maxY) = OperationHelper.GetChunkPos(Data.MaxX, Data.MaxY, chunkSize);
             HashSet<(int, int)> output = new();
             AddRectangle(minX, minY, maxX, maxY, output);
             return output;
@@ -115,5 +103,7 @@ namespace ChunkyImageLib.Operations
                 }
             }
         }
+
+        public void Dispose() { }
     }
 }

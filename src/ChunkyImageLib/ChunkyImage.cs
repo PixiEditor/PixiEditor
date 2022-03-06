@@ -1,5 +1,5 @@
-﻿using ChunkyImageLib.Operations;
-using SkiaSharp;
+﻿using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
@@ -11,10 +11,10 @@ namespace ChunkyImageLib
 
         private Queue<(IOperation, HashSet<(int, int)>)> queuedOperations = new();
 
-        private Dictionary<(int, int), ImageData> chunks = new();
-        private Dictionary<(int, int), ImageData> uncommitedChunks = new();
+        private Dictionary<(int, int), Chunk> chunks = new();
+        private Dictionary<(int, int), Chunk> uncommitedChunks = new();
 
-        public ImageData? GetChunk(int x, int y)
+        public Chunk? GetChunk(int x, int y)
         {
             if (queuedOperations.Count == 0)
                 return MaybeGetChunk(x, y, chunks);
@@ -22,16 +22,24 @@ namespace ChunkyImageLib
             return MaybeGetChunk(x, y, uncommitedChunks) ?? MaybeGetChunk(x, y, chunks);
         }
 
-        private ImageData? MaybeGetChunk(int x, int y, Dictionary<(int, int), ImageData> from) => from.ContainsKey((x, y)) ? from[(x, y)] : null;
+        private Chunk? MaybeGetChunk(int x, int y, Dictionary<(int, int), Chunk> from) => from.ContainsKey((x, y)) ? from[(x, y)] : null;
 
-        public void DrawRectangle(int x, int y, int width, int height, int strokeThickness, SKColor strokeColor, SKColor fillColor)
+        public void DrawRectangle(ShapeData rect)
         {
-            RectangleOperation operation = new(x, y, width, height, strokeThickness, strokeColor, fillColor);
-            queuedOperations.Enqueue((operation, operation.FindAffectedChunks(ChunkPool.ChunkSize)));
+            RectangleOperation operation = new(rect);
+            queuedOperations.Enqueue((operation, operation.FindAffectedChunks()));
+        }
+
+        internal void DrawImage(int x, int y, Surface image)
+        {
+            ImageOperation operation = new(x, y, image);
+            queuedOperations.Enqueue((operation, operation.FindAffectedChunks()));
         }
 
         public void CancelChanges()
         {
+            foreach (var operation in queuedOperations)
+                operation.Item1.Dispose();
             queuedOperations.Clear();
             foreach (var (_, chunk) in uncommitedChunks)
             {
@@ -45,6 +53,11 @@ namespace ChunkyImageLib
             ProcessQueueFinal();
         }
 
+        public HashSet<(int, int)> FindAffectedChunks()
+        {
+            return uncommitedChunks.Select(chunk => chunk.Key).ToHashSet();
+        }
+
         private void ProcessQueueFinal()
         {
             foreach (var (operation, operChunks) in queuedOperations)
@@ -53,6 +66,7 @@ namespace ChunkyImageLib
                 {
                     operation.DrawOnChunk(GetOrCreateCommitedChunk(x, y), x, y);
                 }
+                operation.Dispose();
             }
             queuedOperations.Clear();
         }
@@ -73,7 +87,7 @@ namespace ChunkyImageLib
 
         private void ProcessQueue(int chunkX, int chunkY)
         {
-            ImageData? targetChunk = null;
+            Chunk? targetChunk = null;
             foreach (var (operation, operChunks) in queuedOperations)
             {
                 if (!operChunks.Contains((chunkX, chunkY)))
@@ -85,32 +99,31 @@ namespace ChunkyImageLib
 
                 operation.DrawOnChunk(targetChunk, chunkX, chunkY);
             }
-            queuedOperations.Clear();
         }
 
-        private ImageData GetOrCreateCommitedChunk(int chunkX, int chunkY)
+        private Chunk GetOrCreateCommitedChunk(int chunkX, int chunkY)
         {
-            ImageData? targetChunk = MaybeGetChunk(chunkX, chunkY, chunks);
+            Chunk? targetChunk = MaybeGetChunk(chunkX, chunkY, chunks);
             if (targetChunk != null)
                 return targetChunk;
             var newChunk = ChunkPool.Instance.BorrowChunk();
-            newChunk.SkiaSurface.Canvas.Clear();
+            newChunk.Surface.SkiaSurface.Canvas.Clear();
             chunks.Add((chunkX, chunkY), newChunk);
             return newChunk;
         }
 
-        private ImageData GetOrCreateUncommitedChunk(int chunkX, int chunkY)
+        private Chunk GetOrCreateUncommitedChunk(int chunkX, int chunkY)
         {
-            ImageData? targetChunk;
+            Chunk? targetChunk;
             targetChunk = MaybeGetChunk(chunkX, chunkY, uncommitedChunks);
             if (targetChunk == null)
             {
                 targetChunk = ChunkPool.Instance.BorrowChunk();
                 var maybeCommitedChunk = MaybeGetChunk(chunkX, chunkY, chunks);
                 if (maybeCommitedChunk != null)
-                    maybeCommitedChunk.CopyTo(targetChunk);
+                    maybeCommitedChunk.Surface.CopyTo(targetChunk.Surface);
                 else
-                    targetChunk.SkiaSurface.Canvas.Clear();
+                    targetChunk.Surface.SkiaSurface.Canvas.Clear();
             }
             uncommitedChunks.Add((chunkX, chunkY), targetChunk);
             return targetChunk;
