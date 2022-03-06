@@ -51,7 +51,7 @@
                         </Button.Background>
                     </Button>
                 </StackPanel>
-                <CheckBox Panel.ZIndex="10" Name="visibilityCheckbox" Grid.Column="1" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
+                <CheckBox Focusable="False" Panel.ZIndex="10" Name="visibilityCheckbox" Grid.Column="1" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
                     <CheckBox.Triggers>
                         <EventTrigger RoutedEvent="CheckBox.Checked">
                             <BeginStoryboard>
@@ -73,13 +73,13 @@
                     </CheckBox.Triggers>
                     <CheckBox.Template>
                         <ControlTemplate TargetType="{x:Type CheckBox}">
-                            <StackPanel Orientation="Horizontal">
-                                <Image Width="14" Cursor="Hand" x:Name="checkboxImage" Source="/Images/ChevronDown.png">
+                            <StackPanel Orientation="Horizontal" Focusable="False">
+                                <Image Focusable="False" Width="14" Cursor="Hand" x:Name="checkboxImage" Source="/Images/ChevronDown.png">
                                     <Image.RenderTransform>
                                         <RotateTransform Angle="0"/>
                                     </Image.RenderTransform>
                                 </Image>
-                                <ContentPresenter/>
+                                <ContentPresenter Focusable="False"/>
                             </StackPanel>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsChecked" Value="True">

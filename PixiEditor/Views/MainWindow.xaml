@@ -203,7 +203,7 @@
             <Button Command="{Binding UndoSubViewModel.RedoCommand}" ToolTip="Redo"
                     Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A6;"/>
             <ToggleButton Width="30" BorderThickness="0"
-                          ToolTip="Pen Mode"
+                          ToolTip="Pen Mode" Focusable="False"
                           IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
                 <ToggleButton.Style>
                     <Style TargetType="ToggleButton">
@@ -211,9 +211,9 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="ToggleButton">
                                     <Border BorderBrush="{TemplateBinding BorderBrush}" 
-                                            Background="{TemplateBinding Background}">
+                                            Background="{TemplateBinding Background}" Focusable="False">
                                         <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                                              VerticalAlignment="Center" Focusable="False"/>
                                     </Border>
                                 </ControlTemplate>
                             </Setter.Value>
@@ -223,7 +223,7 @@
                                 <Setter Property="Background" Value="Transparent"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#606060"/>
+                                <Setter Property="Background" Value="#404040"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter Property="Background" Value="#707070"/>

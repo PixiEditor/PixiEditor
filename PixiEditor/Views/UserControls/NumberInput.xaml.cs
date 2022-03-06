@@ -50,6 +50,18 @@ namespace PixiEditor.Views
             DependencyProperty.Register("Decimals", typeof(int), typeof(NumberInput), new PropertyMetadata(2));
 
 
+        public Action OnScrollAction
+        {
+            get { return (Action)GetValue(OnScrollActionProperty); }
+            set { SetValue(OnScrollActionProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for OnScrollAction.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty OnScrollActionProperty =
+            DependencyProperty.Register("OnScrollAction", typeof(Action), typeof(NumberInput), new PropertyMetadata(null));
+
+
+
         public NumberInput()
         {
             InitializeComponent();
@@ -101,6 +113,8 @@ namespace PixiEditor.Views
             {
                 Value += step;
             }
+
+            OnScrollAction?.Invoke();
         }
     }
 }

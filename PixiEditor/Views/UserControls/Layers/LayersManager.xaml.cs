@@ -71,21 +71,10 @@ namespace PixiEditor.Views.UserControls.Layers
         public static readonly DependencyProperty OpacityInputEnabledProperty =
             DependencyProperty.Register(nameof(OpacityInputEnabled), typeof(bool), typeof(LayersManager), new PropertyMetadata(false));
 
-
-        public float OpacityValue
-        {
-            get { return (float)GetValue(OpacityValueProperty); }
-            set { SetValue(OpacityValueProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for OpacityValue.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty OpacityValueProperty =
-            DependencyProperty.Register("OpacityValue", typeof(float), typeof(LayersManager), new PropertyMetadata(100f, OpacityChanged));
-
-
         public LayersManager()
         {
             InitializeComponent();
+            numberInput.OnScrollAction = () => NumberInput_LostFocus(null, null);
         }
 
         private static void LayerTreeRootChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -352,21 +341,14 @@ namespace PixiEditor.Views.UserControls.Layers
             }
         }
 
-        private static void OpacityChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private void NumberInput_LostFocus(object sender, RoutedEventArgs e)
         {
-            LayersManager layersManager = d as LayersManager;
-            layersManager.HandleOpacityChanged((float)e.NewValue);
-        }
-
-        private void HandleOpacityChanged(float newVal)
-        {
-            float val = newVal / 100f;
+            float val = numberInput.Value / 100f;
 
             object item = SelectedItem;
 
             if (item is Layer || item is LayerStructureItemContainer)
             {
-
                 Layer layer = null;
 
                 if (item is Layer lr)
