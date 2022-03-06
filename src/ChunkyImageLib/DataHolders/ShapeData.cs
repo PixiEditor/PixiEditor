@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.DataHolders
 {
-    public record ShapeData
+    public record struct ShapeData
     {
         public ShapeData(int x, int y, int width, int height, int strokeWidth, SKColor strokeColor, SKColor fillColor)
         {

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditorPrototype.Views"
+             xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:behaviors="clr-namespace:PixiEditorPrototype.Behaviors"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:cmd="mvvm"
@@ -70,10 +71,23 @@
             <StackPanel Orientation="Horizontal" Margin="5" Background="White">
                 <Button Width="50" Margin="0,0,5,0" Command="{Binding UndoCommand}">Undo</Button>
                 <Button Width="50" Command="{Binding RedoCommand}">Redo</Button>
+                <colorpicker:PortableColorPicker Margin="5,0,0,0" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="40" Height="20"/>
             </StackPanel>
         </Border>
         <Border BorderThickness="1" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-            <Image Margin="5"/>
+            <Image Margin="5" Source="{Binding FinalBitmap}" Width="200" Height="200" RenderOptions.BitmapScalingMode="NearestNeighbor">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown">
+                        <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseMove">
+                        <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseUp">
+                        <i:InvokeCommandAction Command="{Binding MouseUpCommand}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Image>
         </Border>
     </DockPanel>
 </UserControl>

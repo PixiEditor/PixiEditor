@@ -2,7 +2,7 @@
 
 namespace ChangeableDocument.Actions
 {
-    public record OpacityChange_Action : IStartOrUpdateChangeAction
+    public record struct OpacityChange_Action : IStartOrUpdateChangeAction
     {
         public OpacityChange_Action(Guid memberGuid, float opacity)
         {
@@ -24,7 +24,7 @@ namespace ChangeableDocument.Actions
         }
     }
 
-    public record EndOpacityChange_Action : IEndChangeAction
+    public record struct EndOpacityChange_Action : IEndChangeAction
     {
         bool IEndChangeAction.IsChangeTypeMatching(IChange change) => change is StructureMemberOpacity_UpdateableChange;
     }

@@ -7,7 +7,7 @@ namespace ChunkyImageLib
         internal Surface Surface { get; }
         internal Chunk()
         {
-            Surface = new Surface(ChunkPool.ChunkSize, ChunkPool.ChunkSize, SkiaSharp.SKColorType.RgbaF16);
+            Surface = new Surface(ChunkPool.ChunkSize, ChunkPool.ChunkSize);
         }
 
         public SKImage Snapshot()

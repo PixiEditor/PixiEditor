@@ -1,10 +1,13 @@
-﻿namespace ChunkyImageLib.Operations
+﻿using SkiaSharp;
+
+namespace ChunkyImageLib.Operations
 {
-    internal record ImageOperation : IOperation
+    internal record class ImageOperation : IOperation
     {
         private int x;
         private int y;
         private Surface toPaint;
+        private static SKPaint ReplacingPaint = new() { BlendMode = SKBlendMode.Src };
         public ImageOperation(int x, int y, Surface image)
         {
             this.x = x;
@@ -14,7 +17,7 @@
 
         public void DrawOnChunk(Chunk chunk, int chunkX, int chunkY)
         {
-            chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, x - chunkX * ChunkPool.ChunkSize, y - chunkY * ChunkPool.ChunkSize);
+            chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, x - chunkX * ChunkPool.ChunkSize, y - chunkY * ChunkPool.ChunkSize, ReplacingPaint);
         }
 
         public HashSet<(int, int)> FindAffectedChunks()

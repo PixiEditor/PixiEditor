@@ -14,12 +14,19 @@ namespace ChunkyImageLib
         private Dictionary<(int, int), Chunk> chunks = new();
         private Dictionary<(int, int), Chunk> uncommitedChunks = new();
 
+        public static int ChunkSize => ChunkPool.ChunkSize;
+
         public Chunk? GetChunk(int x, int y)
         {
             if (queuedOperations.Count == 0)
                 return MaybeGetChunk(x, y, chunks);
             ProcessQueue(x, y);
             return MaybeGetChunk(x, y, uncommitedChunks) ?? MaybeGetChunk(x, y, chunks);
+        }
+
+        public Chunk? GetCommitedChunk(int x, int y)
+        {
+            return MaybeGetChunk(x, y, chunks);
         }
 
         private Chunk? MaybeGetChunk(int x, int y, Dictionary<(int, int), Chunk> from) => from.ContainsKey((x, y)) ? from[(x, y)] : null;
@@ -45,6 +52,7 @@ namespace ChunkyImageLib
             {
                 ChunkPool.Instance.ReturnChunk(chunk);
             }
+            uncommitedChunks.Clear();
         }
 
         public void CommitChanges()
@@ -55,7 +63,12 @@ namespace ChunkyImageLib
 
         public HashSet<(int, int)> FindAffectedChunks()
         {
-            return uncommitedChunks.Select(chunk => chunk.Key).ToHashSet();
+            var chunks = uncommitedChunks.Select(chunk => chunk.Key).ToHashSet();
+            foreach (var (operation, opChunks) in queuedOperations)
+            {
+                chunks.UnionWith(opChunks);
+            }
+            return chunks;
         }
 
         private void ProcessQueueFinal()
@@ -83,6 +96,7 @@ namespace ChunkyImageLib
                 }
                 chunks.Add(pos, chunk);
             }
+            uncommitedChunks.Clear();
         }
 
         private void ProcessQueue(int chunkX, int chunkY)
@@ -108,7 +122,7 @@ namespace ChunkyImageLib
                 return targetChunk;
             var newChunk = ChunkPool.Instance.BorrowChunk();
             newChunk.Surface.SkiaSurface.Canvas.Clear();
-            chunks.Add((chunkX, chunkY), newChunk);
+            chunks[(chunkX, chunkY)] = newChunk;
             return newChunk;
         }
 
@@ -120,12 +134,14 @@ namespace ChunkyImageLib
             {
                 targetChunk = ChunkPool.Instance.BorrowChunk();
                 var maybeCommitedChunk = MaybeGetChunk(chunkX, chunkY, chunks);
+
                 if (maybeCommitedChunk != null)
                     maybeCommitedChunk.Surface.CopyTo(targetChunk.Surface);
                 else
                     targetChunk.Surface.SkiaSurface.Canvas.Clear();
+
+                uncommitedChunks[(chunkX, chunkY)] = targetChunk;
             }
-            uncommitedChunks.Add((chunkX, chunkY), targetChunk);
             return targetChunk;
         }
     }

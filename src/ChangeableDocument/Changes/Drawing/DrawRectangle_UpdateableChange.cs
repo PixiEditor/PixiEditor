@@ -26,11 +26,14 @@ namespace ChangeableDocument.Changes.Drawing
         public IChangeInfo? ApplyTemporarily(Document target)
         {
             Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
+            var oldChunks = layer.LayerImage.FindAffectedChunks();
             layer.LayerImage.CancelChanges();
             layer.LayerImage.DrawRectangle(rect);
+            var newChunks = layer.LayerImage.FindAffectedChunks();
+            newChunks.UnionWith(oldChunks);
             return new LayerImageChunks_ChangeInfo()
             {
-                Chunks = layer.LayerImage.FindAffectedChunks(),
+                Chunks = newChunks,
                 LayerGuid = layerGuid
             };
         }

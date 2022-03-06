@@ -4,11 +4,11 @@
     {
         private bool disposed = false;
         private List<(int, int, Chunk?)> savedChunks = new();
-        public ChunkStorage(ChunkyImage image, HashSet<(int, int)> chunksToSave)
+        public ChunkStorage(ChunkyImage image, HashSet<(int, int)> commitedChunksToSave)
         {
-            foreach (var (x, y) in chunksToSave)
+            foreach (var (x, y) in commitedChunksToSave)
             {
-                Chunk? chunk = image.GetChunk(x, y);
+                Chunk? chunk = image.GetCommitedChunk(x, y);
                 if (chunk == null)
                 {
                     savedChunks.Add((x, y, null));

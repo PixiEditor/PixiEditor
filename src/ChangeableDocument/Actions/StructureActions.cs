@@ -1,7 +1,7 @@
 ﻿using ChangeableDocument.Changes;
 
 namespace ChangeableDocument.Actions;
-public record CreateStructureMember_Action : IMakeChangeAction
+public record struct CreateStructureMember_Action : IMakeChangeAction
 {
     public CreateStructureMember_Action(Guid parentGuid, int index, StructureMemberType type)
     {
@@ -20,7 +20,7 @@ public record CreateStructureMember_Action : IMakeChangeAction
     }
 }
 
-public record DeleteStructureMember_Action : IMakeChangeAction
+public record struct DeleteStructureMember_Action : IMakeChangeAction
 {
     public DeleteStructureMember_Action(Guid guidValue)
     {
@@ -35,7 +35,7 @@ public record DeleteStructureMember_Action : IMakeChangeAction
     }
 }
 
-public record MoveStructureMember_Action : IMakeChangeAction
+public record struct MoveStructureMember_Action : IMakeChangeAction
 {
     public MoveStructureMember_Action(Guid member, Guid targetFolder, int index)
     {
@@ -54,7 +54,7 @@ public record MoveStructureMember_Action : IMakeChangeAction
     }
 }
 
-public record SetStructureMemberName_Action : IMakeChangeAction
+public record struct SetStructureMemberName_Action : IMakeChangeAction
 {
     public SetStructureMemberName_Action(string name, Guid guidValue)
     {
@@ -71,7 +71,7 @@ public record SetStructureMemberName_Action : IMakeChangeAction
     }
 }
 
-public record SetStructureMemberVisibility_Action : IMakeChangeAction
+public record struct SetStructureMemberVisibility_Action : IMakeChangeAction
 {
     public SetStructureMemberVisibility_Action(bool isVisible, Guid guidValue)
     {

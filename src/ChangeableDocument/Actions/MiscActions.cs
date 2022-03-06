@@ -1,9 +1,9 @@
 ﻿namespace ChangeableDocument.Actions;
 
-public record RedoAction : IAction
+public record struct RedoAction : IAction
 {
 }
 
-public record UndoAction : IAction
+public record struct UndoAction : IAction
 {
 }

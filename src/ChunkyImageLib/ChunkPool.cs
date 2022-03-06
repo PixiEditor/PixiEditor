@@ -2,9 +2,9 @@
 {
     internal class ChunkPool
     {
-        // not thread-safe!
         public const int ChunkSize = 32;
 
+        // not thread-safe!
         private static ChunkPool? instance;
         public static ChunkPool Instance => instance ??= new ChunkPool();
 
