@@ -207,7 +207,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void SetAsActiveOnClick(object obj)
         {
-            if (XamlAccesibleViewModel.BitmapManager.ActiveDocument != this)
+            if (XamlAccesibleViewModel?.BitmapManager?.ActiveDocument != this)
             {
                 XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
             }
