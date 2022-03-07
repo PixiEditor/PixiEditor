@@ -13,7 +13,7 @@ namespace PixiEditor.Views
             DependencyProperty.Register(nameof(EditingEnabled), typeof(bool), typeof(SizePicker), new PropertyMetadata(true));
 
         public static readonly DependencyProperty PreserveAspectRatioProperty =
-            DependencyProperty.Register(nameof(PreserveAspectRatio), typeof(bool), typeof(SizePicker), new PropertyMetadata(true));
+            DependencyProperty.Register(nameof(PreserveAspectRatio), typeof(bool), typeof(SizePicker), new PropertyMetadata(true, OnPreserveAspectRatioChanged));
 
         public static readonly DependencyProperty ChosenWidthProperty =
             DependencyProperty.Register(nameof(ChosenWidth), typeof(int), typeof(SizePicker), new PropertyMetadata(1));
@@ -85,12 +85,24 @@ namespace PixiEditor.Views
             WidthLostFocusCommand = new(WidthLostFocus);
             HeightLostFocusCommand = new(HeightLostFocus);
             PercentageLostFocusCommand = new(PercentageLostFocus);
+
             InitializeComponent();
+
+            WidthPicker.OnScrollAction = () => OnSizeUpdate(true);
+            HeightPicker.OnScrollAction = () => OnSizeUpdate(false);
+            PercentageSizePicker.OnScrollAction = () => PercentageLostFocus(null);
         }
 
         public void FocusWidthPicker()
         {
             WidthPicker.FocusAndSelect();
+        }
+
+
+        private static void OnPreserveAspectRatioChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SizePicker picker = (SizePicker)d;
+            picker.initSize = new System.Drawing.Size(picker.ChosenWidth, picker.ChosenHeight);
         }
 
         private void AfterLoaded(object parameter)
