@@ -37,6 +37,7 @@
         <local:SizePicker HorizontalAlignment="Center" Width="240" Height="180" Margin="0,30,0,0"
             x:Name="sizePicker"
             PreserveAspectRatio="True"
+                          Focusable="True"
             ChosenHeight="{Binding NewAbsoluteHeight, Mode=TwoWay, ElementName=window}"
             ChosenWidth="{Binding NewAbsoluteWidth, Mode=TwoWay, ElementName=window}" 
             ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"

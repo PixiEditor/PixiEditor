@@ -42,6 +42,7 @@
                               Width="240"
                               Height="170"
                               x:Name="sizePicker"
+                              Focusable="True"
                               ChosenHeight="{Binding NewAbsoluteHeight, Mode=TwoWay, ElementName=window}"
                               ChosenWidth="{Binding NewAbsoluteWidth, Mode=TwoWay, ElementName=window}" 
                               ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"

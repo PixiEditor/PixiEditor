@@ -492,6 +492,8 @@ namespace PixiEditor.Models.DataHolders
 
             UndoManager.SquashUndoChanges(2, "Undo merge layers", false);
 
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(layer.GuidValue, LayerAction.Add));
+
             return layer;
         }
 
@@ -535,13 +537,13 @@ namespace PixiEditor.Models.DataHolders
 
             var startGroup = LayerStructure.GetGroupByLayer(layerGuid);
 
-            LayerStructure.PreMoveReassignBounds(new GroupData(startGroup?.GroupGuid), layerGuid);
+            LayerStructure.Unassign(new GroupData(startGroup?.GroupGuid), layerGuid);
 
             Layers.Move(Layers.IndexOf(Layers.First(x => x.GuidValue == layerGuid)), indexTo);
 
             var newGroup = LayerStructure.GetGroupByLayer(layerAtOldIndex);
 
-            LayerStructure.PostMoveReassignBounds(new GroupData(newGroup?.GroupGuid), layerGuid);
+            LayerStructure.Assign(new GroupData(newGroup?.GroupGuid), layerGuid);
 
             RaisePropertyChanged(nameof(LayerStructure));
         }
@@ -680,7 +682,7 @@ namespace PixiEditor.Models.DataHolders
 
             LayerStructure.ReassignParent(group, referenceLayerGroup);
 
-            LayerStructure.PostMoveReassignBounds(new GroupData(group?.Parent?.GroupGuid), new GroupData(group?.GroupGuid));
+            LayerStructure.Assign(new GroupData(group?.Parent?.GroupGuid), new GroupData(group?.GroupGuid));
         }
 
         private int CalculateNewIndex(int layerIndex, bool above, int oldIndex)
@@ -713,13 +715,13 @@ namespace PixiEditor.Models.DataHolders
 
             var startGroup = LayerStructure.GetGroupByLayer(layer);
 
-            LayerStructure.PreMoveReassignBounds(new GroupData(startGroup?.GroupGuid), layer);
+            LayerStructure.Unassign(new GroupData(startGroup?.GroupGuid), layer);
 
             Layers.Move(oldIndex, newIndex);
 
             var newFolder = LayerStructure.GetGroupByLayer(referenceLayer);
 
-            LayerStructure.PostMoveReassignBounds(new GroupData(newFolder?.GroupGuid), layer);
+            LayerStructure.Assign(new GroupData(newFolder?.GroupGuid), layer);
 
             if (Layers.IndexOf(ActiveLayer) == oldIndex)
             {
@@ -758,8 +760,9 @@ namespace PixiEditor.Models.DataHolders
 
                 if (layerGroup?.Parent != null && LayerStructure.GroupContainsOnlyLayer(layer.GuidValue, layerGroup))
                 {
-                    LayerStructure.PreMoveReassignBounds(new GroupData(layerGroup.Parent.GroupGuid), new GroupData(layerGroup.GroupGuid));
+                    LayerStructure.Unassign(new GroupData(layerGroup.Parent.GroupGuid), new GroupData(layerGroup.GroupGuid));
                 }
+
                 LayerStructure.AssignParent(Layers[index].GuidValue, null);
                 RemoveGroupsIfEmpty(layer, layerGroup);
 
