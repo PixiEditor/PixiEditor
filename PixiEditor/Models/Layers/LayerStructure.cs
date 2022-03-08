@@ -191,7 +191,7 @@ namespace PixiEditor.Models.Layers
                 return;
             }
 
-            PreMoveReassignBounds(parentGroup, group);
+            Unassign(parentGroup, group);
 
             List<Guid> layersInOrder = GetLayersInOrder(new GroupData(groupTopIndex, groupBottomIndex));
 
@@ -250,9 +250,9 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         /// <param name="parentGroup">Parent group to reassign data in.</param>
         /// <param name="group">Group which data should be reassigned.</param>
-        public void PreMoveReassignBounds(GroupData parentGroup, GroupData group)
+        public void Unassign(GroupData parentGroup, GroupData group)
         {
-            PreMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), GetGroupByGuid(group.GroupGuid));
+            Unassign(GetGroupByGuid(parentGroup.GroupGuid), GetGroupByGuid(group.GroupGuid));
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         /// <param name="parentGroup">Parent group to reassign data in.</param>
         /// <param name="layer">Layer which data should be reassigned.</param>
-        public void PreMoveReassignBounds(GroupData parentGroup, Guid layer)
+        public void Unassign(GroupData parentGroup, Guid layer)
         {
             PreMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), layer);
         }
@@ -270,9 +270,9 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         /// <param name="parentGroup">Parent group to reassign data in.</param>
         /// <param name="layerGuid">Group which data should be reassigned.</param>
-        public void PostMoveReassignBounds(GroupData parentGroup, Guid layerGuid)
+        public void Assign(GroupData parentGroup, Guid layerGuid)
         {
-            PostMoveReassignBounds(GetGroupByGuid(parentGroup.GroupGuid), layerGuid);
+            Assign(GetGroupByGuid(parentGroup.GroupGuid), layerGuid);
         }
 
         /// <summary>
@@ -280,9 +280,9 @@ namespace PixiEditor.Models.Layers
         /// </summary>
         /// <param name="parentGroup">Parent group to reassign data in.</param>
         /// <param name="group">Group which data should be reassigned.</param>
-        public void PostMoveReassignBounds(GroupData parentGroup, GroupData group)
+        public void Assign(GroupData parentGroup, GroupData group)
         {
-            PostMoveReassignBounds(GetGroupByGuid(parentGroup?.GroupGuid), GetGroupByGuid(group.GroupGuid));
+            Assign(GetGroupByGuid(parentGroup?.GroupGuid), GetGroupByGuid(group.GroupGuid));
         }
 
         /// <summary>
@@ -450,7 +450,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void PreMoveReassignBounds(GuidStructureItem parentGroup, GuidStructureItem group)
+        private void Unassign(GuidStructureItem parentGroup, GuidStructureItem group)
         {
             if (parentGroup != null)
             {
@@ -481,7 +481,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void PostMoveReassignBounds(GuidStructureItem parentGroup, Guid layerGuid)
+        private void Assign(GuidStructureItem parentGroup, Guid layerGuid)
         {
             if (parentGroup != null)
             {
@@ -529,7 +529,7 @@ namespace PixiEditor.Models.Layers
             }
         }
 
-        private void PostMoveReassignBounds(GuidStructureItem parentGroup, GuidStructureItem group)
+        private void Assign(GuidStructureItem parentGroup, GuidStructureItem group)
         {
             if (parentGroup != null)
             {
@@ -572,7 +572,7 @@ namespace PixiEditor.Models.Layers
                 PreMoveReassignBounds(currentParent, layer);
             }
 
-            PostMoveReassignBounds(parent, layer);
+            Assign(parent, layer);
 
             LayerStructureChanged?.Invoke(this, new LayerStructureChangedEventArgs(layer));
         }

@@ -74,6 +74,7 @@ namespace PixiEditor.Views.UserControls.Layers
         public LayersManager()
         {
             InitializeComponent();
+            numberInput.OnScrollAction = () => NumberInput_LostFocus(null, null);
         }
 
         private static void LayerTreeRootChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -348,7 +349,6 @@ namespace PixiEditor.Views.UserControls.Layers
 
             if (item is Layer || item is LayerStructureItemContainer)
             {
-
                 Layer layer = null;
 
                 if (item is Layer lr)

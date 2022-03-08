@@ -13,9 +13,14 @@
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
 
+    <Style TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="False"/>
+    </Style>
+    
     <Style TargetType="Button" x:Key="BaseDarkButton">
         <Setter Property="Background" Value="#404040" />
         <Setter Property="Foreground" Value="White" />
+        <Setter Property="Focusable" Value="False" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
@@ -49,6 +54,7 @@
     <Style TargetType="Button" x:Key="DarkRoundButton" BasedOn="{StaticResource BaseDarkButton}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Background" Value="#303030" />
+        <Setter Property="Focusable" Value="False" />
         <Setter Property="Height" Value="28"/>
         <Setter Property="Width" Value="70"/>
         <Setter Property="Template">
@@ -113,6 +119,7 @@
 
     <Style TargetType="Button" x:Key="ImageButtonStyle">
         <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Focusable" Value="False" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -134,6 +141,7 @@
            BasedOn="{StaticResource BaseDarkButton}">
         <Setter Property="TextBlock.FontFamily" Value="Segoe MDL2 Assets"/>
         <Setter Property="TextBlock.FontSize" Value="15"/>
+        <Setter Property="Focusable" Value="False" />
         <Setter Property="TextBlock.Width" Value="30"/>
 
         <Style.Triggers>
@@ -147,6 +155,10 @@
                 <Setter Property="Cursor" Value="Hand" />
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Focusable" Value="False"/>
     </Style>
 
 
@@ -187,6 +199,7 @@
 
     <Style TargetType="Button" x:Key="OpacityButtonStyle">
         <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Focusable" Value="False" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -213,6 +226,7 @@
 
     <Style TargetType="Button" x:Key="ToolButtonStyle">
         <Setter Property="Height" Value="32" />
+        <Setter Property="Focusable" Value="False" />
         <Setter Property="Width" Value="32" />
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="HorizontalAlignment" Value="Center" />

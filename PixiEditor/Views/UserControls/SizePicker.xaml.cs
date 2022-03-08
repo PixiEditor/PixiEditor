@@ -85,7 +85,12 @@ namespace PixiEditor.Views
             WidthLostFocusCommand = new(WidthLostFocus);
             HeightLostFocusCommand = new(HeightLostFocus);
             PercentageLostFocusCommand = new(PercentageLostFocus);
+
             InitializeComponent();
+
+            WidthPicker.OnScrollAction = () => OnSizeUpdate(true);
+            HeightPicker.OnScrollAction = () => OnSizeUpdate(false);
+            PercentageSizePicker.OnScrollAction = () => PercentageLostFocus(null);
         }
 
         public void FocusWidthPicker()

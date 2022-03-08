@@ -34,7 +34,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             //sometimes CanRedo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
             if (CanRedo(null))
+            {
                 Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
+                Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
+            }
         }
 
         /// <summary>
@@ -47,7 +50,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             //sometimes CanUndo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
             if (CanUndo(null))
+            {
                 Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
+                Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
+            }
         }
 
         /// <summary>
