@@ -13,7 +13,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionNewSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
+            Selection selection = new Selection(Array.Empty<Coordinates>(), new(10, 10));
             Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
 
             selection.SetSelection(points, SelectionType.New);
@@ -25,7 +25,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionAddSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
+            Selection selection = new Selection(Array.Empty<Coordinates>(), new PixelSize(10, 10));
             Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
             Coordinates[] points2 = { new Coordinates(2, 4), new Coordinates(5, 7) };
 
@@ -38,7 +38,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionSubtractSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>());
+            Selection selection = new Selection(Array.Empty<Coordinates>(), new PixelSize(10, 10));
             Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
             Coordinates[] points2 = { new Coordinates(1, 1) };
 
@@ -51,7 +51,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestClearWorks()
         {
-            Selection selection = new Selection(new[] { new Coordinates(0, 0), new Coordinates(5, 7) });
+            Selection selection = new Selection(new[] { new Coordinates(0, 0), new Coordinates(5, 7) }, new PixelSize(10, 10));
             selection.Clear();
 
             Assert.Empty(selection.SelectedPoints);
@@ -62,7 +62,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatUndoWorks()
         {
-            Document document = new Document(10, 10);
+            using Document document = new Document(10, 10);
 
             IEnumerable<Coordinates> oldSelection = new List<Coordinates>(document.ActiveSelection.SelectedPoints);
 

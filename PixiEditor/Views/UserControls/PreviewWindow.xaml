@@ -34,8 +34,14 @@
                         </MultiBinding>
                     </Grid.LayoutTransform>
                 </Grid>
-                <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Document.Renderer.FinalBitmap, ElementName=uc}"
-                                               RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Uniform" />
+                <Image VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Document.Renderer.FinalBitmap, ElementName=uc}" Stretch="Uniform">
+                    <RenderOptions.BitmapScalingMode>
+                        <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
+                            <Binding ElementName="uc" Path="Document.Renderer.FinalBitmap.PixelWidth"/>
+                            <Binding ElementName="previewWindowViewbox" Path="ActualWidth"/>
+                        </MultiBinding>
+                    </RenderOptions.BitmapScalingMode>
+                </Image>
                 <Border x:Name="colorCursor" Width="1" Height="1"
                     Margin="{Binding ColorCursorPosition, ElementName=uc}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"

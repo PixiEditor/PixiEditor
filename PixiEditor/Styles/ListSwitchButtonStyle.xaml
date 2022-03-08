@@ -7,6 +7,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Focusable" Value="False"/>
         <Setter Property="Padding" Value="2, 0"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Template">

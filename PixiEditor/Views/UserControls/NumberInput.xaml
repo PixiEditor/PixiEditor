@@ -6,12 +6,12 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d"
-             d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput">
+             d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput" Focusable="True" FocusVisualStyle="{x:Null}">
     <TextBox TextAlignment="Center" Style="{StaticResource DarkTextBoxStyle}" Focusable="True"
              InputScope="Number" MouseWheel="TextBox_MouseWheel"
-             PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}">
+             PreviewTextInput="TextBox_PreviewTextInput" Text="{Binding ElementName=numberInput, Path=Value}" Padding="0" VerticalContentAlignment="Center">
         <i:Interaction.Behaviors>
-            <behaviours:TextBoxFocusBehavior/>
+            <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"/>
             <behaviours:GlobalShortcutFocusBehavior/>
         </i:Interaction.Behaviors>
     </TextBox>

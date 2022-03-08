@@ -18,6 +18,11 @@ namespace PixiEditor.Views
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
+            Loaded += OnDialogShown;
+        }
+
+        private void OnDialogShown(object sender, RoutedEventArgs e)
+        {
             sizePicker.FocusWidthPicker();
         }
 

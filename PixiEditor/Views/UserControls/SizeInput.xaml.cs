@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PixiEditor.Models.Enums;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,52 +14,28 @@ namespace PixiEditor.Views
         public static readonly DependencyProperty SizeProperty =
             DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));
 
-        public static readonly DependencyProperty PreserveAspectRatioProperty =
-            DependencyProperty.Register(
-                nameof(PreserveAspectRatio),
-                typeof(bool),
-                typeof(SizeInput));
-
-        public static readonly DependencyProperty AspectRatioValueProperty =
-            DependencyProperty.Register(
-                nameof(AspectRatioValue),
-                typeof(int),
-                typeof(SizeInput),
-                new PropertyMetadata(1));
-
-        public SizeInput AspectRatioControl
-        {
-            get { return (SizeInput)GetValue(AspectRatioControlProperty); }
-            set { SetValue(AspectRatioControlProperty, value); }
-        }
-
-        public static readonly DependencyProperty AspectRatioControlProperty =
-            DependencyProperty.Register(nameof(AspectRatioControl), typeof(SizeInput), typeof(SizeInput), new PropertyMetadata(default));
-
         public static readonly DependencyProperty MaxSizeProperty =
             DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
 
-        public static readonly DependencyProperty SelectOnFocusProperty =
-            DependencyProperty.Register(nameof(SelectOnFocus), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
+        public static readonly DependencyProperty BehaveLikeSmallEmbeddedFieldProperty =
+            DependencyProperty.Register(nameof(BehaveLikeSmallEmbeddedField), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
 
-        private int loadedAspectRatioSize = -1;
+        public static readonly DependencyProperty UnitProperty =
+            DependencyProperty.Register(nameof(Unit), typeof(SizeUnit), typeof(SizeInput), new PropertyMetadata(SizeUnit.Pixel));
 
-        private int loadedSize = -1;
-        private bool blockUpdate = false;
+        public Action OnScrollAction
+        {
+            get { return (Action)GetValue(OnScrollActionProperty); }
+            set { SetValue(OnScrollActionProperty, value); }
+        }
 
-        public static readonly DependencyProperty NextControlProperty =
-            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(SizeInput));
+        // Using a DependencyProperty as the backing store for OnScrollAction.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty OnScrollActionProperty =
+            DependencyProperty.Register("OnScrollAction", typeof(Action), typeof(SizeInput), new PropertyMetadata(null));
 
         public SizeInput()
         {
-            GotKeyboardFocus += SizeInput_GotKeyboardFocus;
             InitializeComponent();
-        }
-
-        public bool SelectOnFocus
-        {
-            get => (bool)GetValue(SelectOnFocusProperty);
-            set => SetValue(SelectOnFocusProperty, value);
         }
 
         private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -78,22 +55,37 @@ namespace PixiEditor.Views
             set => SetValue(MaxSizeProperty, value);
         }
 
-        public bool PreserveAspectRatio
+        public bool BehaveLikeSmallEmbeddedField
         {
-            get => (bool)GetValue(PreserveAspectRatioProperty);
-            set => SetValue(PreserveAspectRatioProperty, value);
+            get => (bool)GetValue(BehaveLikeSmallEmbeddedFieldProperty);
+            set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
         }
 
-        public int AspectRatioValue
+        public void FocusAndSelect()
         {
-            get => (int)GetValue(AspectRatioValueProperty);
-            set => SetValue(AspectRatioValueProperty, value);
+            textBox.Focus();
+            textBox.SelectAll();
         }
 
-        public FrameworkElement NextControl
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            get => (FrameworkElement)GetValue(NextControlProperty);
-            set => SetValue(NextControlProperty, value);
+            Point pos = Mouse.GetPosition(textBox);
+            int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
+            var charRect = textBox.GetRectFromCharacterIndex(charIndex);
+            double middleX = (charRect.Left + charRect.Right) / 2;
+            if (pos.X > middleX)
+                textBox.CaretIndex = charIndex + 1;
+            else
+                textBox.CaretIndex = charIndex;
+            e.Handled = true;
+            if (!textBox.IsFocused)
+                textBox.Focus();
+        }
+
+        public SizeUnit Unit
+        {
+            get => (SizeUnit)GetValue(UnitProperty);
+            set => SetValue(UnitProperty, value);
         }
 
         private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -113,44 +105,9 @@ namespace PixiEditor.Views
 
                 return;
             }
-
-            SizeInput input = ((SizeInput)d).AspectRatioControl;
-            if (input == null)
-            {
-                return;
-            }
-
-            int newVal = (int)e.NewValue;
-            if (input.PreserveAspectRatio && !input.IsFocused && !input.blockUpdate)
-            {
-                float ratio = newVal / Math.Clamp(input.loadedAspectRatioSize, 1f, float.MaxValue);
-                int newSize = (int)(input.loadedSize * ratio);
-                input.AspectRatioControl.blockUpdate = true; // Block update is used to prevent infinite feedback loop.
-                input.Size = newSize;
-            }
-
-            if (input.blockUpdate)
-            {
-                input.blockUpdate = false;
-            }
         }
 
-        private void UserControlLayoutUpdated(object sender, EventArgs e)
-        {
-            if (loadedSize == -1)
-            {
-                loadedSize = Size;
-                loadedAspectRatioSize = AspectRatioValue;
-            }
-        }
-
-        private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            textBox.Focus();
-            e.Handled = true;
-        }
-
-        private void Border_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private void Border_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             int step = e.Delta / 100;
 
@@ -173,6 +130,8 @@ namespace PixiEditor.Views
             {
                 Size += step;
             }
+
+            OnScrollAction?.Invoke();
         }
     }
 }

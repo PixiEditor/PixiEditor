@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
+using Windows.Graphics;
 
 namespace PixiEditor.Models.DataHolders
 {
@@ -221,9 +222,7 @@ namespace PixiEditor.Models.DataHolders
             if (width <= 0 || height <= 0)
                 throw new ArgumentException("Dimensions must be greater than 0");
 
-            layer = bitmap == null ? new Layer(name, width, height) : new Layer(name, bitmap);
-            layer.MaxHeight = Height;
-            layer.MaxWidth = Width;
+            layer = bitmap == null ? new Layer(name, width, height, Width, Height) : new Layer(name, bitmap, Width, Height);
 
             Layers.Add(layer);
 
@@ -441,7 +440,7 @@ namespace PixiEditor.Models.DataHolders
 
             var groupParent = LayerStructure.GetGroupByLayer(layersToMerge[^1].GuidValue);
 
-            Layer placeholderLayer = new("_placeholder");
+            Layer placeholderLayer = new("_placeholder", Width, Height);
             Layers.Insert(index, placeholderLayer);
             LayerStructure.AssignParent(placeholderLayer.GuidValue, groupParent?.GroupGuid);
 
@@ -449,6 +448,8 @@ namespace PixiEditor.Models.DataHolders
             {
                 Layer firstLayer = mergedLayer;
                 Layer secondLayer = layersToMerge[i + 1];
+                firstLayer.ClipCanvas();
+                secondLayer.ClipCanvas();
                 mergedLayer = firstLayer.MergeWith(secondLayer, name, Width, Height);
                 RemoveLayer(layersToMerge[i], false);
             }
@@ -471,7 +472,7 @@ namespace PixiEditor.Models.DataHolders
                 throw new ArgumentException("Not enough layers were provided to merge. Minimum amount is 2");
             }
 
-            IEnumerable<Layer> undoArgs = layersToMerge;
+            Layer[] undoArgs = layersToMerge;
 
             var oldLayerStructure = LayerStructure.CloneGroups();
 
@@ -490,6 +491,8 @@ namespace PixiEditor.Models.DataHolders
                 new object[] { indexes, nameIsLastLayers, layer.GuidValue }));
 
             UndoManager.SquashUndoChanges(2, "Undo merge layers", false);
+
+            LayersChanged?.Invoke(this, new LayersChangedEventArgs(layer.GuidValue, LayerAction.Add));
 
             return layer;
         }
@@ -534,13 +537,13 @@ namespace PixiEditor.Models.DataHolders
 
             var startGroup = LayerStructure.GetGroupByLayer(layerGuid);
 
-            LayerStructure.PreMoveReassignBounds(new GroupData(startGroup?.GroupGuid), layerGuid);
+            LayerStructure.Unassign(new GroupData(startGroup?.GroupGuid), layerGuid);
 
             Layers.Move(Layers.IndexOf(Layers.First(x => x.GuidValue == layerGuid)), indexTo);
 
             var newGroup = LayerStructure.GetGroupByLayer(layerAtOldIndex);
 
-            LayerStructure.PostMoveReassignBounds(new GroupData(newGroup?.GroupGuid), layerGuid);
+            LayerStructure.Assign(new GroupData(newGroup?.GroupGuid), layerGuid);
 
             RaisePropertyChanged(nameof(LayerStructure));
         }
@@ -590,6 +593,7 @@ namespace PixiEditor.Models.DataHolders
 
                 Layer layer = MergeLayers(layers, nameOfSecond, indexes[0]);
                 layer.ChangeGuid(mergedLayerGuid);
+                SetMainActiveLayer(Layers.IndexOf(layer));
             }
         }
 
@@ -602,7 +606,7 @@ namespace PixiEditor.Models.DataHolders
                 for (int i = 0; i < layers.Length; i++)
                 {
                     Layer layer = layers[i];
-                    layer.IsActive = true;
+                    layer.IsActive = data[i].IsActive;
                     Layers.Insert(data[i].LayerIndex, layer);
                 }
 
@@ -614,20 +618,36 @@ namespace PixiEditor.Models.DataHolders
         /// <summary>
         ///     Moves offsets of layers by specified vector.
         /// </summary>
-        private void MoveOffsets(IEnumerable<Layer> layers, Coordinates moveVector)
+        private void MoveOffsets(IList<Layer> layers, IList<Int32Rect> bounds, Coordinates moveVector)
         {
-            foreach (Layer layer in layers)
+            for (int i = 0; i < layers.Count; i++)
             {
+                Layer layer = layers[i];
+                Int32Rect bound = bounds[i];
                 Thickness offset = layer.Offset;
                 layer.Offset = new Thickness(offset.Left + moveVector.X, offset.Top + moveVector.Y, 0, 0);
+                if (!bound.IsEmpty && layer.Bounds != bound)
+                {
+                    layer.DynamicResizeAbsolute(bound);
+                }
+                else
+                {
+                    layer.ClipCanvas();
+                }
             }
         }
 
         private void MoveOffsetsProcess(object[] arguments)
         {
-            if (arguments.Length > 0 && arguments[0] is IEnumerable<Layer> layers && arguments[1] is Coordinates vector)
+            if (arguments.Length > 0 && arguments[0] is List<Guid> guids && arguments[1] is List<Int32Rect> bounds && arguments[2] is Coordinates vector)
             {
-                MoveOffsets(layers, vector);
+                List<Layer> layers = new List<Layer>(guids.Count);
+                foreach (Guid guid in guids)
+                {
+                    layers.Add(Layers.First(x => x.GuidValue == guid));
+                }
+
+                MoveOffsets(layers, bounds, vector);
             }
             else
             {
@@ -662,7 +682,7 @@ namespace PixiEditor.Models.DataHolders
 
             LayerStructure.ReassignParent(group, referenceLayerGroup);
 
-            LayerStructure.PostMoveReassignBounds(new GroupData(group?.Parent?.GroupGuid), new GroupData(group?.GroupGuid));
+            LayerStructure.Assign(new GroupData(group?.Parent?.GroupGuid), new GroupData(group?.GroupGuid));
         }
 
         private int CalculateNewIndex(int layerIndex, bool above, int oldIndex)
@@ -695,13 +715,13 @@ namespace PixiEditor.Models.DataHolders
 
             var startGroup = LayerStructure.GetGroupByLayer(layer);
 
-            LayerStructure.PreMoveReassignBounds(new GroupData(startGroup?.GroupGuid), layer);
+            LayerStructure.Unassign(new GroupData(startGroup?.GroupGuid), layer);
 
             Layers.Move(oldIndex, newIndex);
 
             var newFolder = LayerStructure.GetGroupByLayer(referenceLayer);
 
-            LayerStructure.PostMoveReassignBounds(new GroupData(newFolder?.GroupGuid), layer);
+            LayerStructure.Assign(new GroupData(newFolder?.GroupGuid), layer);
 
             if (Layers.IndexOf(ActiveLayer) == oldIndex)
             {
@@ -712,7 +732,7 @@ namespace PixiEditor.Models.DataHolders
             Renderer.ForceRerender();
         }
 
-        private void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
+        public void RestoreLayersProcess(Layer[] layers, UndoLayer[] layersData)
         {
             for (int i = 0; i < layers.Length; i++)
             {
@@ -726,7 +746,7 @@ namespace PixiEditor.Models.DataHolders
             }
         }
 
-        private void RemoveLayerProcess(object[] parameters)
+        public void RemoveLayerProcess(object[] parameters)
         {
             if (parameters is { Length: > 0 } && parameters[0] is Guid layerGuid)
             {
@@ -740,8 +760,9 @@ namespace PixiEditor.Models.DataHolders
 
                 if (layerGroup?.Parent != null && LayerStructure.GroupContainsOnlyLayer(layer.GuidValue, layerGroup))
                 {
-                    LayerStructure.PreMoveReassignBounds(new GroupData(layerGroup.Parent.GroupGuid), new GroupData(layerGroup.GroupGuid));
+                    LayerStructure.Unassign(new GroupData(layerGroup.Parent.GroupGuid), new GroupData(layerGroup.GroupGuid));
                 }
+
                 LayerStructure.AssignParent(Layers[index].GuidValue, null);
                 RemoveGroupsIfEmpty(layer, layerGroup);
 
@@ -837,7 +858,7 @@ namespace PixiEditor.Models.DataHolders
             return sucess;
         }
 
-        private void RemoveLayersProcess(object[] parameters)
+        public void RemoveLayersProcess(object[] parameters)
         {
             if (parameters != null && parameters.Length > 0 && parameters[0] is IEnumerable<Guid> layerGuids)
             {

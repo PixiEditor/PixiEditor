@@ -2,7 +2,7 @@
 
 ---
 
-**PixiEditor** is a Pixel art editing software. Create beautiful sprites for your games, animations (coming soon!) and edit images. All packed in eye-friendly dark theme.
+**PixiEditor** is a Pixel art editing software. Create beautiful sprites for your games, animations (coming soon!), and edit images. All packed in eye-friendly dark theme.
 
 [![Build Status](https://img.shields.io/azure-devops/build/flabbet/PixiEditor/6/master)](https://dev.azure.com/flabbet/PixiEditor/_build?definitionId=6) 
 [![codecov](https://codecov.io/gh/PixiEditor/PixiEditor/branch/master/graph/badge.svg)](https://codecov.io/gh/PixiEditor/PixiEditor)
@@ -17,19 +17,19 @@
 
 ## About PixiEditor
 
-Want to create beautiful pixel arts for your games? PixiEditor can help you! Our goal is to create fully open-source, fast and feature rich pixel art creator. 
+Want to create beautiful pixel art for your games? PixiEditor can help you! Our goal is to create a fully open-source, fast, and feature-rich pixel art creator. 
 
 ### Familiar interface
 
 Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted users to get familiar with the tool quickly and with ease. 
 
-![](https://github.com/flabbet/PixiEditor/blob/master/Screenshot.png)
+![](https://user-images.githubusercontent.com/45312141/146670495-ae521a18-a89e-4e94-9317-6838b51407fa.png)
 
 
 
 ### Lightweight
 
-Program weighs only 3.3 MB! Already have .NET 5 installed? Download installer and enjoy saved space.
+The program weighs only 9 MB! Already have .NET 6 installed? Download installer and enjoy saved space.
 
 ### Active development
 
@@ -74,7 +74,7 @@ Struggling with something? You can find support in a few places:
 
 * Ask on [Discord](https://discord.gg/qSRMYmq)
 * Open new [Issue](https://github.com/flabbet/PixiEditor/issues)
-* Check out [FAQ](https://github.com/PixiEditor/PixiEditor/wiki/FAQ). 
+* Check out the [FAQ](https://github.com/PixiEditor/PixiEditor/wiki/FAQ). 
 
 
 
@@ -82,7 +82,7 @@ Struggling with something? You can find support in a few places:
 
 ### Software Requirements
 
-* .NET 5
+* .NET 6
 
 * Visual Studio
 

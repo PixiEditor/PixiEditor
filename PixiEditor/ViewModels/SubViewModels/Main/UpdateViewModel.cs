@@ -101,7 +101,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 if (updateZipExists || updateExeExists)
                 {
                     ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-                    var result = ConfirmationDialog.Show("Update is ready to install. Do you want to install it now?");
+                    var result = ConfirmationDialog.Show("Update is ready to be installed. Do you want to install it now?", "New update");
                     if (result == Models.Enums.ConfirmationType.Yes)
                     {
                         if (updateZipExists && File.Exists(updaterPath))
@@ -127,11 +127,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             catch (Win32Exception)
             {
-                MessageBox.Show(
+                NoticeDialog.Show(
                     "Couldn't update without administrator rights.",
-                    "Insufficient permissions",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    "Insufficient permissions");
             }
         }
 
@@ -185,7 +183,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
-                    NoticeDialog.Show("Could not check if there's an update available");
+                    NoticeDialog.Show("Could not check if there is an update available", "Update check failed");
                 }
 
                 AskToInstall();

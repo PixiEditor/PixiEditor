@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interactivity;
@@ -8,27 +7,42 @@ namespace PixiEditor.Helpers.Behaviours
 {
     internal class TextBoxFocusBehavior : Behavior<TextBox>
     {
-        // Using a DependencyProperty as the backing store for FillSize.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SelectOnFocusProperty =
+        public static readonly DependencyProperty SelectOnMouseClickProperty =
             DependencyProperty.Register(
-                nameof(SelectOnFocus),
+                nameof(SelectOnMouseClick),
                 typeof(bool),
                 typeof(TextBoxFocusBehavior),
-                new PropertyMetadata(true));
+                new PropertyMetadata(false));
 
-        public static readonly DependencyProperty NextControlProperty =
-            DependencyProperty.Register(nameof(NextControl), typeof(FrameworkElement), typeof(TextBoxFocusBehavior));
+        public static readonly DependencyProperty ConfirmOnEnterProperty =
+            DependencyProperty.Register(
+                nameof(ConfirmOnEnter),
+                typeof(bool),
+                typeof(TextBoxFocusBehavior),
+                new PropertyMetadata(false));
 
-        public FrameworkElement NextControl
+        public static readonly DependencyProperty DeselectOnFocusLossProperty =
+            DependencyProperty.Register(
+                nameof(DeselectOnFocusLoss),
+                typeof(bool),
+                typeof(TextBoxFocusBehavior),
+                new PropertyMetadata(false));
+
+        public bool SelectOnMouseClick
         {
-            get => (FrameworkElement)GetValue(NextControlProperty);
-            set => SetValue(NextControlProperty, value);
+            get => (bool)GetValue(SelectOnMouseClickProperty);
+            set => SetValue(SelectOnMouseClickProperty, value);
         }
 
-        public bool SelectOnFocus
+        public bool ConfirmOnEnter
         {
-            get => (bool)GetValue(SelectOnFocusProperty);
-            set => SetValue(SelectOnFocusProperty, value);
+            get => (bool)GetValue(ConfirmOnEnterProperty);
+            set => SetValue(ConfirmOnEnterProperty, value);
+        }
+        public bool DeselectOnFocusLoss
+        {
+            get => (bool)GetValue(DeselectOnFocusLossProperty);
+            set => SetValue(DeselectOnFocusLossProperty, value);
         }
 
         protected override void OnAttached()
@@ -36,6 +50,7 @@ namespace PixiEditor.Helpers.Behaviours
             base.OnAttached();
             AssociatedObject.GotKeyboardFocus += AssociatedObjectGotKeyboardFocus;
             AssociatedObject.GotMouseCapture += AssociatedObjectGotMouseCapture;
+            AssociatedObject.LostFocus += AssociatedObject_LostFocus;
             AssociatedObject.PreviewMouseLeftButtonDown += AssociatedObjectPreviewMouseLeftButtonDown;
             AssociatedObject.KeyUp += AssociatedObject_KeyUp;
         }
@@ -45,6 +60,7 @@ namespace PixiEditor.Helpers.Behaviours
             base.OnDetaching();
             AssociatedObject.GotKeyboardFocus -= AssociatedObjectGotKeyboardFocus;
             AssociatedObject.GotMouseCapture -= AssociatedObjectGotMouseCapture;
+            AssociatedObject.LostFocus -= AssociatedObject_LostFocus;
             AssociatedObject.PreviewMouseLeftButtonDown -= AssociatedObjectPreviewMouseLeftButtonDown;
             AssociatedObject.KeyUp -= AssociatedObject_KeyUp;
         }
@@ -52,39 +68,22 @@ namespace PixiEditor.Helpers.Behaviours
         // Converts number to proper format if enter is clicked and moves focus to next object
         private void AssociatedObject_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Enter)
-            {
+            if (e.Key != Key.Enter || !ConfirmOnEnter)
                 return;
-            }
 
             RemoveFocus();
         }
 
         private void RemoveFocus()
         {
-            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
-
-            if (NextControl != null)
-            {
-                FocusManager.SetFocusedElement(scope, NextControl);
-                return;
-            }
-
-            FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
-
-            while (parent != null && parent is IInputElement element && !element.Focusable)
-            {
-                parent = (FrameworkElement)parent.Parent;
-            }
-
-            FocusManager.SetFocusedElement(scope, parent);
+            MainWindow.Current.mainGrid.Focus();
         }
 
         private void AssociatedObjectGotKeyboardFocus(
             object sender,
             KeyboardFocusChangedEventArgs e)
         {
-            if (SelectOnFocus)
+            if (SelectOnMouseClick || e.KeyboardDevice.IsKeyDown(Key.Tab))
                 AssociatedObject.SelectAll();
         }
 
@@ -92,12 +91,22 @@ namespace PixiEditor.Helpers.Behaviours
             object sender,
             MouseEventArgs e)
         {
-            if (SelectOnFocus)
+            if (SelectOnMouseClick)
                 AssociatedObject.SelectAll();
+        }
+
+        private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (DeselectOnFocusLoss)
+                AssociatedObject.Select(0, 0);
+            RemoveFocus();
         }
 
         private void AssociatedObjectPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (!SelectOnMouseClick)
+                return;
+
             if (!AssociatedObject.IsKeyboardFocusWithin)
             {
                 AssociatedObject.Focus();

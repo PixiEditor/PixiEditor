@@ -10,8 +10,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatAddNewGroupAddsNewGroup()
         {
-            Document doc = new Document(1, 1);
-            doc.Layers.Add(new("_testLayer"));
+            using Document doc = new Document(1, 1);
+            doc.Layers.Add(new("_testLayer", 1, 1));
             var testLayer = doc.Layers[^1];
             doc.LayerStructure.AddNewGroup("test", testLayer.GuidValue);
 
@@ -23,8 +23,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatAddNewGroupAddsNewGroupAsASubgroup()
         {
-            Document doc = new Document(1, 1);
-            doc.Layers.Add(new("_testLayer"));
+            using Document doc = new Document(1, 1);
+            doc.Layers.Add(new("_testLayer", 1, 1));
             var testLayer = doc.Layers[^1];
             doc.LayerStructure.AddNewGroup("test", testLayer.GuidValue);
             doc.LayerStructure.AddNewGroup("test1", testLayer.GuidValue);
@@ -40,9 +40,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatMoveGroupMovesSwapsLayerPlacesWithOtherGroup()
         {
-            Document doc = new Document(1, 1);
-            doc.Layers.Add(new Layer("_testLayer"));
-            doc.Layers.Add(new Layer("_testLayer1"));
+            using Document doc = new Document(1, 1);
+            doc.Layers.Add(new Layer("_testLayer", 1, 1));
+            doc.Layers.Add(new Layer("_testLayer1", 1, 1));
             var testLayer = doc.Layers[0];
             var testLayer1 = doc.Layers[^1];
             doc.LayerStructure.AddNewGroup("test", testLayer.GuidValue);
@@ -60,8 +60,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatIsChildOfDetectsNestedGroupCorrectly()
         {
-            LayerStructure ls = new LayerStructure(new Document(1, 1));
-            Layer testLayer = new Layer("tst");
+            using var doc = new Document(1, 1);
+            LayerStructure ls = new LayerStructure(doc);
+            Layer testLayer = new Layer("tst", 1, 1);
             ls.Groups.Add(new GuidStructureItem("group 1", testLayer.GuidValue));
             ls.Groups[0].Subgroups.Add(new GuidStructureItem("group 1 nested", testLayer.GuidValue));
 
@@ -72,8 +73,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatIsChildOfDetectsNestedLayersCorrectly()
         {
-            var doc = new Document(1, 1);
-            doc.Layers.Add(new Layer("tst"));
+            using var doc = new Document(1, 1);
+            doc.Layers.Add(new Layer("tst", 1, 1));
             Guid testLayerGuid = doc.Layers[0].GuidValue;
             LayerStructure ls = new LayerStructure(doc);
             ls.AddNewGroup("Test group", testLayerGuid);
@@ -86,8 +87,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatGroupContainsOnlyLayerDetectsOnlySingleLayerCorrectly()
         {
-            var doc = new Document(1, 1);
-            doc.Layers.Add(new Layer("layer"));
+            using var doc = new Document(1, 1);
+            doc.Layers.Add(new Layer("layer", 1, 1));
             var guid = doc.Layers[0].GuidValue;
             doc.LayerStructure.AddNewGroup("layer group", guid);
             Assert.True(LayerStructure.GroupContainsOnlyLayer(guid, doc.LayerStructure.Groups[0]));
@@ -96,8 +97,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatGroupContainsOnlyLayerDetectsOnlySingleLayerThatIsNested()
         {
-            var doc = new Document(1, 1);
-            doc.Layers.Add(new Layer("layer"));
+            using var doc = new Document(1, 1);
+            doc.Layers.Add(new Layer("layer", 1, 1));
             var guid = doc.Layers[0].GuidValue;
             doc.LayerStructure.AddNewGroup("layer group", guid);
             doc.LayerStructure.AddNewGroup("layer group nested", guid);
@@ -108,9 +109,9 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatCloneReturnsSameLayerStructure()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new("Test"));
-            doc.Layers.Add(new("Test2"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new("Test", 1, 1));
+            doc.Layers.Add(new("Test2", 1, 1));
             LayerStructure structure = new(doc);
             structure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
 
@@ -124,8 +125,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatGetGroupByGuidReturnsNullForNonExistingGroup()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new("Test"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new("Test", 1, 1));
 
             Assert.Null(doc.LayerStructure.GetGroupByGuid(null));
             Assert.Null(doc.LayerStructure.GetGroupByGuid(Guid.NewGuid()));
@@ -134,8 +135,8 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatGetGroupByGuidReturnsGroupCorrectly()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new("Test"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new("Test", 1, 1));
             var group = doc.LayerStructure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
 
             Assert.Equal(group.GroupGuid, doc.LayerStructure.GetGroupByGuid(group.GroupGuid).GroupGuid);
@@ -144,12 +145,12 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatPreMoveReassignBoundsMakesNestedGroupEmptyAndRemovesItAndParent()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new("Test"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new("Test", 1, 1));
             doc.LayerStructure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
             var group1 = doc.LayerStructure.AddNewGroup("Test group nested", doc.Layers[0].GuidValue);
 
-            doc.LayerStructure.PreMoveReassignBounds(new GroupData(group1.GroupGuid), doc.Layers[0].GuidValue);
+            doc.LayerStructure.Unassign(new GroupData(group1.GroupGuid), doc.Layers[0].GuidValue);
 
             Assert.Empty(doc.LayerStructure.Groups);
         }
@@ -157,17 +158,17 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatPostMoveReassignBoundsAssignsNewLayerToGroup()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new("Test"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new("Test", 1, 1));
             doc.LayerStructure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
             var group1 = doc.LayerStructure.AddNewGroup("Test group nested", doc.Layers[0].GuidValue);
 
-            doc.Layers.Add(new("Test 1"));
+            doc.Layers.Add(new("Test 1", 1, 1));
 
             var firstLayer = doc.Layers[0];
             var layer = doc.Layers[^1];
 
-            doc.LayerStructure.PostMoveReassignBounds(new GroupData(group1.GroupGuid), layer.GuidValue);
+            doc.LayerStructure.Assign(new GroupData(group1.GroupGuid), layer.GuidValue);
 
             Assert.Single(doc.LayerStructure.Groups);
             Assert.Single(doc.LayerStructure.Groups[0].Subgroups);
@@ -180,14 +181,14 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatAssignParentAssignsParent()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new Layer("Test"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new Layer("Test", 1, 1));
 
             var firstLayer = doc.Layers[0];
 
             doc.LayerStructure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
 
-            doc.Layers.Add(new Layer("Test 1"));
+            doc.Layers.Add(new Layer("Test 1", 1, 1));
 
             var layer = doc.Layers[^1];
 
@@ -200,14 +201,14 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatAssignParentDeAssignsParentOnNull()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new Layer("Test"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new Layer("Test", 1, 1));
 
             var firstLayer = doc.Layers[0];
 
             doc.LayerStructure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
 
-            doc.Layers.Add(new Layer("Test 1"));
+            doc.Layers.Add(new Layer("Test 1", 1, 1));
 
             var layer = doc.Layers[^1];
 
@@ -221,11 +222,11 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatGetGroupLayersReturnsAllLayersInGroup()
         {
-            Document doc = new(1, 1);
-            doc.Layers.Add(new Layer("Test"));
-            doc.Layers.Add(new Layer("Test 1"));
-            doc.Layers.Add(new Layer("Test 2"));
-            doc.Layers.Add(new Layer("Test 3"));
+            using Document doc = new(1, 1);
+            doc.Layers.Add(new Layer("Test", 1, 1));
+            doc.Layers.Add(new Layer("Test 1", 1, 1));
+            doc.Layers.Add(new Layer("Test 2", 1, 1));
+            doc.Layers.Add(new Layer("Test 3", 1, 1));
             doc.LayerStructure.AddNewGroup("Test group", doc.Layers[0].GuidValue);
 
             doc.LayerStructure.AssignParent(doc.Layers[1].GuidValue, doc.LayerStructure.Groups[0].GroupGuid);

@@ -162,8 +162,9 @@
 	<Style x:Key="PixiEditorDockThemeButtonStyle" TargetType="Button">
 		<Setter Property="Background" Value="Transparent" />
 		<Setter Property="BorderThickness" Value="1" />
-		<Setter Property="BorderBrush" Value="Transparent" />
-		<Setter Property="Padding" Value="0" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Padding" Value="0" />
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="Button">

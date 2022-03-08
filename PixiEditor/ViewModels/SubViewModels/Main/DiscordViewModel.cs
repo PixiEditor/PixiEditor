@@ -1,8 +1,8 @@
-﻿using System;
-using DiscordRPC;
+﻿using DiscordRPC;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
+using System;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -158,7 +158,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 Assets = new Assets
                 {
                     LargeImageKey = "editorlogo",
-                    LargeImageText = "You discovered PixiEditor's logo",
+                    LargeImageText = "You've discovered PixiEditor's logo",
                     SmallImageKey = "github",
                     SmallImageText = "Download PixiEditor on GitHub (github.com/PixiEditor/PixiEditor)!"
                 },

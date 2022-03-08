@@ -24,7 +24,7 @@ namespace PixiEditor.Models.Tools.Tools
         private IEnumerable<Coordinates> oldSelection;
         private List<Coordinates> newSelection = new List<Coordinates>();
 
-        public override string Tooltip => "Magic Wand (W). Flood's the selection";
+        public override string Tooltip => $"Magic Wand ({ShortcutKey}). Flood's the selection";
 
         private Layer cachedDocument;
 
@@ -88,7 +88,7 @@ namespace PixiEditor.Models.Tools.Tools
             cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(
                 new Int32Rect(0, 0, document.Width, document.Height),
                 document.Layers,
-                document.LayerStructure));
+                document.LayerStructure), document.Width, document.Height);
         }
     }
 }

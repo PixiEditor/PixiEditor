@@ -1,5 +1,8 @@
 ﻿using Microsoft.Win32;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Enums;
+using PixiEditor.Models.IO;
+using System.IO;
 using System.Windows;
 
 namespace PixiEditor.ViewModels
@@ -7,51 +10,18 @@ namespace PixiEditor.ViewModels
     internal class SaveFilePopupViewModel : ViewModelBase
     {
         private string _filePath;
-
-
-        private string _pathButtonBorder = "#f08080";
-
-
-        private bool _pathIsCorrect;
+        private FileType _chosenFormat;
 
         public SaveFilePopupViewModel()
         {
             CloseButtonCommand = new RelayCommand(CloseWindow);
             DragMoveCommand = new RelayCommand(MoveWindow);
-            ChoosePathCommand = new RelayCommand(ChoosePath);
-            OkCommand = new RelayCommand(OkButton, CanClickOk);
+            OkCommand = new RelayCommand(OkButton);
         }
 
         public RelayCommand CloseButtonCommand { get; set; }
         public RelayCommand DragMoveCommand { get; set; }
-        public RelayCommand ChoosePathCommand { get; set; }
         public RelayCommand OkCommand { get; set; }
-
-        public string PathButtonBorder
-        {
-            get => _pathButtonBorder;
-            set
-            {
-                if (_pathButtonBorder != value)
-                {
-                    _pathButtonBorder = value;
-                    RaisePropertyChanged("PathButtonBorder");
-                }
-            }
-        }
-
-        public bool PathIsCorrect
-        {
-            get => _pathIsCorrect;
-            set
-            {
-                if (_pathIsCorrect != value)
-                {
-                    _pathIsCorrect = value;
-                    RaisePropertyChanged("PathIsCorrect");
-                }
-            }
-        }
 
         public string FilePath
         {
@@ -61,37 +31,45 @@ namespace PixiEditor.ViewModels
                 if (_filePath != value)
                 {
                     _filePath = value;
-                    RaisePropertyChanged("FilePath");
+                    RaisePropertyChanged(nameof(FilePath));
                 }
             }
         }
 
+        public FileType ChosenFormat 
+        { 
+            get => _chosenFormat;
+            set
+            {
+                if (_chosenFormat != value)
+                {
+                    _chosenFormat = value;
+                    RaisePropertyChanged(nameof(ChosenFormat));
+                }
+            }
+        }
+                
         /// <summary>
         ///     Command that handles Path choosing to save file
         /// </summary>
-        private void ChoosePath(object parameter)
+        private string ChoosePath()
         {
             SaveFileDialog path = new SaveFileDialog
             {
                 Title = "Export path",
                 CheckPathExists = true,
-                DefaultExt = "PNG Image (.png) | *.png",
-                Filter = "PNG Image (.png) | *.png"
+                Filter = SupportedFilesHelper.BuildSaveFilter(false),
+                FilterIndex = 0
             };
             if (path.ShowDialog() == true)
             {
                 if (string.IsNullOrEmpty(path.FileName) == false)
                 {
-                    PathButtonBorder = "#b8f080";
-                    PathIsCorrect = true;
-                    FilePath = path.FileName;
-                }
-                else
-                {
-                    PathButtonBorder = "#f08080";
-                    PathIsCorrect = false;
+                    ChosenFormat = Exporter.ParseImageFormat(Path.GetExtension(path.SafeFileName));
+                    return path.FileName;
                 }
             }
+            return null;
         }
 
         private void CloseWindow(object parameter)
@@ -107,13 +85,13 @@ namespace PixiEditor.ViewModels
 
         private void OkButton(object parameter)
         {
+            string path = ChoosePath();
+            if (path == null)
+                return;
+            FilePath = path;
+            
             ((Window)parameter).DialogResult = true;
             CloseButton(parameter);
-        }
-
-        private bool CanClickOk(object property)
-        {
-            return PathIsCorrect;
         }
     }
 }

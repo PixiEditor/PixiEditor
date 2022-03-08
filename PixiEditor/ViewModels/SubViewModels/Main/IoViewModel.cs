@@ -1,8 +1,10 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
+using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -17,14 +19,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand MouseUpCommand { get; set; }
 
-        public RelayCommand KeyDownCommand { get; set; }
-
-        public RelayCommand KeyUpCommand { get; set; }
-
         private bool restoreToolOnKeyUp = false;
 
         private MouseInputFilter filter = new();
-
+    
         public IoViewModel(ViewModelMain owner)
             : base(owner)
         {
@@ -33,17 +31,42 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             MouseUpCommand = new RelayCommand(filter.MouseUp);
             PreviewMouseMiddleButtonCommand = new RelayCommand(OnPreviewMiddleMouseButton);
             GlobalMouseHook.OnMouseUp += filter.MouseUp;
-            KeyDownCommand = new RelayCommand(OnKeyDown);
-            KeyUpCommand = new RelayCommand(OnKeyUp);
+
+            InputManager.Current.PreProcessInput += Current_PreProcessInput;
 
             filter.OnMouseDown += OnMouseDown;
             filter.OnMouseMove += OnMouseMove;
             filter.OnMouseUp += OnMouseUp;
         }
 
-        private void OnKeyDown(object parameter)
+        private void Current_PreProcessInput(object sender, PreProcessInputEventArgs e)
         {
-            KeyEventArgs args = (KeyEventArgs)parameter;
+            if (e != null && e.StagingItem != null && e.StagingItem.Input != null)
+            {
+                InputEventArgs inputEvent = e.StagingItem.Input;
+
+                if (inputEvent is KeyboardEventArgs)
+                {
+                    KeyboardEventArgs k = inputEvent as KeyboardEventArgs;
+                    RoutedEvent r = k.RoutedEvent;
+                    KeyEventArgs keyEvent = k as KeyEventArgs;
+
+                    if (keyEvent != null && keyEvent?.InputSource?.RootVisual != MainWindow.Current) return;
+                    if (r == Keyboard.KeyDownEvent)
+                    {
+                        OnKeyDown(keyEvent);
+                    }
+
+                    if (r == Keyboard.KeyUpEvent)
+                    {
+                        OnKeyUp(keyEvent);
+                    }
+                }
+            }
+        }
+
+        private void OnKeyDown(KeyEventArgs args)
+        {
             var key = args.Key;
             if (key == Key.System)
                 key = args.SystemKey;
@@ -54,6 +77,24 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 Owner.BitmapManager.InputTarget.OnKeyDown(key);
             }
+
+            HandleTransientKey(args, true);
+        }
+
+        private void HandleTransientKey(KeyEventArgs args, bool state)
+        {
+            var controller = Owner.ShortcutController;
+
+            Key finalKey = args.Key;
+            if (finalKey == Key.System)
+            {
+                finalKey = args.SystemKey;
+            }
+
+            if (controller.TransientShortcuts.ContainsKey(finalKey))
+            {
+                ChangeToolState(controller.TransientShortcuts[finalKey].GetType(), state);
+            }
         }
 
         private void ProcessShortcutDown(bool isRepeat, Key key)
@@ -62,15 +103,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 Owner.ShortcutController.LastShortcut.Command == Owner.ToolsSubViewModel.SelectToolCommand)
             {
                 restoreToolOnKeyUp = true;
-                ShortcutController.BlockShortcutExecution = true;
+                ShortcutController.BlockShortcutExection("ShortcutDown");
             }
 
             Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
         }
 
-        private void OnKeyUp(object parameter)
+        private void OnKeyUp(KeyEventArgs args)
         {
-            KeyEventArgs args = (KeyEventArgs)parameter;
             var key = args.Key;
             if (key == Key.System)
                 key = args.SystemKey;
@@ -79,6 +119,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (Owner.BitmapManager.ActiveDocument != null)
                 Owner.BitmapManager.InputTarget.OnKeyUp(key);
+
+            HandleTransientKey(args, false);
         }
 
         private void ProcessShortcutUp(Key key)
@@ -88,7 +130,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 restoreToolOnKeyUp = false;
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
-                ShortcutController.BlockShortcutExecution = false;
+                ShortcutController.UnblockShortcutExecution("ShortcutDown");
             }
         }
 
@@ -107,7 +149,32 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void OnPreviewMiddleMouseButton(object sender)
         {
-            Owner.ToolsSubViewModel.SetActiveTool<MoveViewportTool>();
+            ChangeToolState<MoveViewportTool>(true);
+        }
+
+        private void ChangeToolState<T>(bool setOn)
+            where T : Tool
+        {
+            ChangeToolState(typeof(T), setOn);
+        }
+
+        private void ChangeToolState(Type type, bool setOn)
+        {
+            if (setOn)
+            {
+                var transientToolIsActive = Owner.ToolsSubViewModel.ActiveTool.GetType() == type;
+                if (!transientToolIsActive)
+                {
+                    Owner.ToolsSubViewModel.SetActiveTool(type);
+                    Owner.ToolsSubViewModel.ActiveToolIsTransient = true;
+                }
+            }
+            else if (Owner.ToolsSubViewModel.LastActionTool != null && Owner.ToolsSubViewModel.ActiveToolIsTransient)
+            {
+                Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+                restoreToolOnKeyUp = false;
+                ShortcutController.UnblockShortcutExecution("ShortcutDown");
+            }
         }
 
         private void OnMouseMove(object sender, EventArgs args)
@@ -128,8 +195,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             else if (button == MouseButton.Middle)
             {
-                if (Owner.ToolsSubViewModel.LastActionTool != null)
-                    Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+                ChangeToolState<MoveViewportTool>(false);
             }
         }
     }

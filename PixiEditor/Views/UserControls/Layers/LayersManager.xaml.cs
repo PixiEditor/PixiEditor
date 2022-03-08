@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
@@ -73,6 +74,7 @@ namespace PixiEditor.Views.UserControls.Layers
         public LayersManager()
         {
             InitializeComponent();
+            numberInput.OnScrollAction = () => NumberInput_LostFocus(null, null);
         }
 
         private static void LayerTreeRootChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -83,7 +85,7 @@ namespace PixiEditor.Views.UserControls.Layers
             manager.CachedLayerTreeRoot = newRoot;
             return;
             //layer tree caching goes after than and disabled for now
-
+            /*
             if (manager.CachedLayerTreeRoot == null || newRoot == null)
             {
                 manager.CachedLayerTreeRoot = newRoot;
@@ -93,7 +95,7 @@ namespace PixiEditor.Views.UserControls.Layers
             if (object.ReferenceEquals(manager.CachedLayerTreeRoot, newRoot))
                 return;
 
-            UpdateCachedTree(manager.CachedLayerTreeRoot, newRoot);
+            UpdateCachedTree(manager.CachedLayerTreeRoot, newRoot);*/
         }
 
         private static void UpdateCachedTree(IList<IHasGuid> tree, IList<IHasGuid> newTree)
@@ -284,7 +286,8 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private void LayerStructureItemContainer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (sender is LayerStructureItemContainer container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (sender is LayerStructureItemContainer container
+                && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed && !container.Layer.IsRenaming)
             {
                 Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
             }
@@ -331,7 +334,8 @@ namespace PixiEditor.Views.UserControls.Layers
 
         private void LayerGroup_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            if (sender is LayerGroupControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed
+                && !container.GroupData.IsRenaming)
             {
                 Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
             }
@@ -345,7 +349,6 @@ namespace PixiEditor.Views.UserControls.Layers
 
             if (item is Layer || item is LayerStructureItemContainer)
             {
-
                 Layer layer = null;
 
                 if (item is Layer lr)
@@ -367,6 +370,8 @@ namespace PixiEditor.Views.UserControls.Layers
             {
                 HandleGroupOpacityChange(groupControl.GroupData, val);
             }
+
+            ShortcutController.UnblockShortcutExecutionAll();
         }
 
         private void HandleLayerOpacityChange(float val, Layer layer)

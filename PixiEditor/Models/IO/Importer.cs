@@ -7,6 +7,7 @@ using SkiaSharp;
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
 
@@ -87,8 +88,7 @@ namespace PixiEditor.Models.IO
 
         public static bool IsSupportedFile(string path)
         {
-            path = path.ToLower();
-            return path.EndsWith(".pixi") || path.EndsWith(".png") || path.EndsWith(".jpg") || path.EndsWith(".jpeg");
+            return SupportedFilesHelper.IsSupportedFile(path);
         }
 
         public static Surface LoadFromGZippedBytes(string path)

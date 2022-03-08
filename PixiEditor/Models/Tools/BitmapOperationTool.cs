@@ -1,9 +1,11 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using System;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
 using System.Collections.Generic;
+using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools
 {
@@ -16,6 +18,9 @@ namespace PixiEditor.Models.Tools
         public bool UseDefaultUndoMethod { get; set; } = true;
 
         public bool UseDocumentRectForUndo { get; set; } = false;
+
+        private SKRectI _rectReportedByTool;
+        private bool _customRectReported = false;
 
         private StorageBasedChange _change;
 
@@ -49,29 +54,41 @@ namespace PixiEditor.Models.Tools
             _change = null;
         }
 
+        protected void ReportCustomSessionRect(SKRectI rect)
+        {
+            _rectReportedByTool = rect;
+            _customRectReported = true;
+        }
+
         private void InitializeStorageBasedChange(SKRectI toolSessionRect)
         {
             Document doc = ViewModels.ViewModelMain.Current.BitmapManager.ActiveDocument;
-            //var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
-            //SKRectI finalRect = toolSessionRect;
-            //if (toolSize != null)
-            //{
-            //    int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
-            //    finalRect.Inflate(halfSize, halfSize);
-            //}
+            var toolSize = Toolbar.GetSetting<SizeSetting>("ToolSize");
+            SKRectI finalRect = toolSessionRect;
+            if (toolSize != null && toolSize.Value > 1)
+            {
+                int halfSize = (int)Math.Ceiling(toolSize.Value / 2f);
+                finalRect.Inflate(halfSize, halfSize);
+            }
 
-            //if (toolSessionRect.IsEmpty)
-            //{
-            //    finalRect = SKRectI.Create(doc.ActiveLayer.OffsetX, doc.ActiveLayer.OffsetY, doc.ActiveLayer.Width, doc.ActiveLayer.Height);
-            //}
+            if (toolSessionRect.IsEmpty)
+            {
+                finalRect = SKRectI.Create(doc.ActiveLayer.OffsetX, doc.ActiveLayer.OffsetY, doc.ActiveLayer.Width, doc.ActiveLayer.Height);
+            }
 
-            //Commented, because rect based undo is still a little buggy
-            //if (UseDocumentRectForUndo)
-            //{
-            //    finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
-            //}
+            if (UseDocumentRectForUndo)
+            {
+                finalRect = SKRectI.Create(0, 0, doc.Width, doc.Height);
+            }
 
-            _change = new StorageBasedChange(doc, new[] { doc.ActiveLayer });
+            if (_customRectReported)
+            {
+                _customRectReported = false;
+                finalRect = _rectReportedByTool;
+                _rectReportedByTool = SKRectI.Empty;
+            }
+
+            _change = new StorageBasedChange(doc, new[] { new LayerChunk(doc.ActiveLayer, finalRect) });
         }
     }
 }

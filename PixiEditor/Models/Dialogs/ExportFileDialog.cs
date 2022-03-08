@@ -1,10 +1,14 @@
-﻿using System.Windows;
+﻿using PixiEditor.Models.Enums;
 using PixiEditor.Views;
+using System.Drawing.Imaging;
+using System.Windows;
 
 namespace PixiEditor.Models.Dialogs
 {
     public class ExportFileDialog : CustomDialog
     {
+        FileType _chosenFormat;
+
         private int fileHeight;
 
         private string filePath;
@@ -56,9 +60,22 @@ namespace PixiEditor.Models.Dialogs
             }
         }
 
+        public FileType ChosenFormat
+        {
+            get => _chosenFormat;
+            set
+            {
+                if (_chosenFormat != value)
+                {
+                    _chosenFormat = value;
+                    RaisePropertyChanged(nameof(ChosenFormat));
+                }
+            }
+        }
+
         public override bool ShowDialog()
         {
-            SaveFilePopup popup = new SaveFilePopup
+            ExportFilePopup popup = new ExportFilePopup
             {
                 SaveWidth = FileWidth,
                 SaveHeight = FileHeight
@@ -69,6 +86,7 @@ namespace PixiEditor.Models.Dialogs
                 FileWidth = popup.SaveWidth;
                 FileHeight = popup.SaveHeight;
                 FilePath = popup.SavePath;
+                ChosenFormat = popup.SaveFormat;
             }
 
             return (bool)popup.DialogResult;

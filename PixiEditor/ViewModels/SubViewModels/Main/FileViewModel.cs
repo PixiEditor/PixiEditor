@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Models;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
@@ -10,6 +11,7 @@ using PixiEditor.Parser;
 using PixiEditor.Views.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -80,7 +82,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (!File.Exists(path))
             {
-                NoticeDialog.Show("The file does no longer exist at that path");
+                NoticeDialog.Show("The file does not exist", "Failed to open the file");
                 RecentlyOpened.Remove(path);
                 return;
             }
@@ -146,6 +148,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 Owner.BitmapManager.ActiveDocument.AddNewLayer(
                     "Image",
                     Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
+                Owner.BitmapManager.ActiveDocument.UpdatePreviewImage();
             }
         }
 
@@ -176,7 +179,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
             catch (CorruptedFileException ex)
             {
-                NoticeDialog.Show(ex.Message, "Failed to open file.");
+                NoticeDialog.Show(ex.Message, "Failed to open the file");
             }
             catch (OldFileFormatException)
             {
@@ -186,12 +189,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void Owner_OnStartupEvent(object sender, System.EventArgs e)
         {
-            var lastArg = Environment.GetCommandLineArgs().Last();
-            if (Importer.IsSupportedFile(lastArg) && File.Exists(lastArg))
+            var args = Environment.GetCommandLineArgs();
+            var file = args.Last();
+            if (Importer.IsSupportedFile(file) && File.Exists(file))
             {
-                Open(lastArg);
+                Open(file);
             }
-            else
+            else if (Owner.BitmapManager.Documents.Count == 0 || !args.Contains("--crash"))
             {
                 if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
                 {
@@ -199,16 +203,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
             }
         }
-
+                
         private void Open(object property)
         {
+            var filter = SupportedFilesHelper.BuildOpenFilter();
+
             OpenFileDialog dialog = new OpenFileDialog
             {
-                Filter =
-                "Any|*.pixi;*.png;*.jpg;*.jpeg;|" +
-                "PixiEditor Files | *.pixi|" +
-                "Image Files|*.png;*.jpg;*.jpeg;",
-                DefaultExt = "pixi"
+                Filter = filter,
+                FilterIndex = 0
             };
 
             if ((bool)dialog.ShowDialog())
@@ -244,8 +247,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
             if (paramIsAsNew ||
-                string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath) ||
-                !Owner.BitmapManager.ActiveDocument.DocumentFilePath.EndsWith(".pixi"))
+                string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath)) 
             {
                 Owner.BitmapManager.ActiveDocument.SaveWithDialog();
             }
