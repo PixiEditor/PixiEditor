@@ -230,6 +230,9 @@ namespace PixiEditor.ViewModels
                         "Misc",
                         new Shortcut(Key.F1, MiscSubViewModel.OpenShortcutWindowCommand, "Open shortcuts window", true)));
 
+            ShortcutController.TransientShortcuts[Key.Space] = ToolsSubViewModel.ToolSet.First(x => x is MoveViewportTool);
+            ShortcutController.TransientShortcuts[Key.LeftAlt] = ToolsSubViewModel.ToolSet.First(x => x is ColorPickerTool);
+
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
 
             ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
@@ -380,7 +383,7 @@ namespace PixiEditor.ViewModels
             BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
         }
 
-        private void BitmapUtility_BitmapChanged(object sender, BitmapChangedEventArgs e)
+        private void BitmapUtility_BitmapChanged(object sender, EventArgs e)
         {
             BitmapManager.ActiveDocument.ChangesSaved = false;
             if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)

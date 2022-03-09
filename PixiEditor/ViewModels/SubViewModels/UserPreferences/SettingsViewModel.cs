@@ -6,6 +6,8 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
     {
         public GeneralSettings General { get; set; } = new GeneralSettings();
 
+        public ToolsSettings Tools { get; set; } = new ToolsSettings();
+
         public FileSettings File { get; set; } = new FileSettings();
 
         public UpdateSettings Update { get; set; } = new UpdateSettings();

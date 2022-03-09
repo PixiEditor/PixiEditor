@@ -4,7 +4,9 @@ using Xunit;
 
 namespace PixiEditorTests.ModelsTests.DataHoldersTests
 {
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable
     public class SurfaceTests
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         SKColor redColor = new SKColor(254, 2, 3);
         SKColor greenColor = new SKColor(6, 224, 3);

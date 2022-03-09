@@ -27,7 +27,7 @@ namespace PixiEditor.Models.Dialogs
                 if (width != value)
                 {
                     width = value;
-                    RaisePropertyChanged("Width");
+                    RaisePropertyChanged(nameof(Width));
                 }
             }
         }
@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Dialogs
                 if (height != value)
                 {
                     height = value;
-                    RaisePropertyChanged("Height");
+                    RaisePropertyChanged(nameof(Height));
                 }
             }
         }

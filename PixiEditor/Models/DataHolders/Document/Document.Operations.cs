@@ -54,6 +54,8 @@ namespace PixiEditor.Models.DataHolders
                 ResizeCanvas(newOffsets, width, height);
             }
 
+            if (oldWidth == Width && Height == oldHeight) return;
+
             DocumentSizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(oldWidth, oldHeight, width, height));
         }
 

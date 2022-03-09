@@ -185,7 +185,7 @@ namespace PixiEditor.Models.DataHolders
 
             MoveOffsets(layersToCenter, emptyBounds, moveVector);
 
-            List <Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
+            List<Guid> guids = layersToCenter.Select(x => x.GuidValue).ToList();
             UndoManager.AddUndoChange(
                 new Change(
                     MoveOffsetsProcess,
@@ -208,7 +208,7 @@ namespace PixiEditor.Models.DataHolders
 
         private void SetAsActiveOnClick(object obj)
         {
-            if (XamlAccesibleViewModel.BitmapManager.ActiveDocument != this)
+            if (XamlAccesibleViewModel?.BitmapManager?.ActiveDocument != this)
             {
                 XamlAccesibleViewModel.BitmapManager.ActiveDocument = this;
             }

@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Layers.Utils;
-using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using SkiaSharp;
@@ -127,32 +126,6 @@ namespace PixiEditor.Models.ImageManipulation
                 height,
                 maxPreviewWidth,
                 maxPreviewHeight);
-        }
-
-        public static Dictionary<Guid, SKColor[]> GetPixelsForSelection(Layer[] layers, Coordinates[] selection)
-        {
-            Dictionary<Guid, SKColor[]> result = new();
-
-            foreach (Layer layer in layers)
-            {
-                SKColor[] pixels = new SKColor[selection.Length];
-
-                for (int j = 0; j < pixels.Length; j++)
-                {
-                    Coordinates position = layer.GetRelativePosition(selection[j]);
-                    if (position.X < 0 || position.X > layer.Width - 1 || position.Y < 0 ||
-                        position.Y > layer.Height - 1)
-                    {
-                        continue;
-                    }
-
-                    var cl = layer.GetPixel(position.X, position.Y);
-                    pixels[j] = cl;
-                }
-                result[layer.GuidValue] = pixels;
-            }
-
-            return result;
         }
 
         public static SKColor BlendColors(SKColor bottomColor, SKColor topColor)

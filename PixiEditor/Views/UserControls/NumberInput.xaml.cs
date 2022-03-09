@@ -38,6 +38,30 @@ namespace PixiEditor.Views
 
         private readonly Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$", RegexOptions.Compiled);
 
+
+        public int Decimals
+        {
+            get { return (int)GetValue(DecimalsProperty); }
+            set { SetValue(DecimalsProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Precision.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DecimalsProperty =
+            DependencyProperty.Register("Decimals", typeof(int), typeof(NumberInput), new PropertyMetadata(2));
+
+
+        public Action OnScrollAction
+        {
+            get { return (Action)GetValue(OnScrollActionProperty); }
+            set { SetValue(OnScrollActionProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for OnScrollAction.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty OnScrollActionProperty =
+            DependencyProperty.Register("OnScrollAction", typeof(Action), typeof(NumberInput), new PropertyMetadata(null));
+
+
+
         public NumberInput()
         {
             InitializeComponent();
@@ -64,7 +88,7 @@ namespace PixiEditor.Views
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             NumberInput input = (NumberInput)d;
-            input.Value = Math.Clamp((float)e.NewValue, input.Min, input.Max);
+            input.Value = (float)Math.Round(Math.Clamp((float)e.NewValue, input.Min, input.Max), input.Decimals);
         }
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -89,6 +113,8 @@ namespace PixiEditor.Views
             {
                 Value += step;
             }
+
+            OnScrollAction?.Invoke();
         }
     }
 }

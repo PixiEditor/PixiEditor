@@ -1,5 +1,4 @@
-﻿using PixiEditor.Exceptions;
-using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Position;
 using SkiaSharp;
 using System;
@@ -67,27 +66,6 @@ namespace PixiEditor.Models.DataHolders
         public static BitmapPixelChanges CombineOverride(BitmapPixelChanges changes1, BitmapPixelChanges changes2)
         {
             return CombineOverride(new[] { changes1, changes2 });
-        }
-
-        /// <summary>
-        ///     Builds BitmapPixelChanges using 2 same-length enumerables of coordinates and colors.
-        /// </summary>
-        public static BitmapPixelChanges FromArrays(IEnumerable<Coordinates> coordinates, IEnumerable<SKColor> color)
-        {
-            Coordinates[] coordinateArray = coordinates.ToArray();
-            SKColor[] colorArray = color.ToArray();
-            if (coordinateArray.Length != colorArray.Length)
-            {
-                throw new ArrayLengthMismatchException();
-            }
-
-            Dictionary<Coordinates, SKColor> dict = new Dictionary<Coordinates, SKColor>();
-            for (int i = 0; i < coordinateArray.Length; i++)
-            {
-                dict.Add(coordinateArray[i], colorArray[i]);
-            }
-
-            return new BitmapPixelChanges(dict);
         }
 
         public BitmapPixelChanges WithoutTransparentPixels()

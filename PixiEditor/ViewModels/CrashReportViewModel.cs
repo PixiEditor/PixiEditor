@@ -2,6 +2,7 @@
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Views.Dialogs;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 
 namespace PixiEditor.ViewModels

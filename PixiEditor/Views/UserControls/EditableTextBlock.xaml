@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              mc:Ignorable="d"
-             d:DesignHeight="60" d:DesignWidth="100">
+             d:DesignHeight="60" d:DesignWidth="100" Focusable="True">
     <Grid>
         <TextBlock Foreground="Snow" MouseLeftButtonDown="TextBlock_MouseDown"
                    TextTrimming="CharacterEllipsis" Name="textBlock"

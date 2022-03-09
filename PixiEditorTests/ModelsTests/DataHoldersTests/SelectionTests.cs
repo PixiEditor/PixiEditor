@@ -13,7 +13,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatSetSelectionNewSetsCorrectSelection()
         {
-            Selection selection = new Selection(Array.Empty<Coordinates>(), new (10, 10));
+            Selection selection = new Selection(Array.Empty<Coordinates>(), new(10, 10));
             Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
 
             selection.SetSelection(points, SelectionType.New);
@@ -62,7 +62,7 @@ namespace PixiEditorTests.ModelsTests.DataHoldersTests
         [Fact]
         public void TestThatUndoWorks()
         {
-            Document document = new Document(10, 10);
+            using Document document = new Document(10, 10);
 
             IEnumerable<Coordinates> oldSelection = new List<Coordinates>(document.ActiveSelection.SelectedPoints);
 

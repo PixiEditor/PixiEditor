@@ -5,7 +5,6 @@ using PixiEditor.Models.Undo;
 using PixiEditorTests.ModelsTests.LayersTests;
 using SkiaSharp;
 using System;
-using System.Collections.ObjectModel;
 using System.IO;
 using Xunit;
 
@@ -23,11 +22,11 @@ namespace PixiEditorTests.ModelsTests.UndoTests
             }
         }
 
-        public Document GenerateTestDocument()
+        public static Document GenerateTestDocument()
         {
-            Document testDocument = new Document(10, 10);
-            Surface testBitmap = new Surface(10, 10);
-            Surface testBitmap2 = new Surface(5, 8);
+            using Document testDocument = new Document(10, 10);
+            using Surface testBitmap = new Surface(10, 10);
+            using Surface testBitmap2 = new Surface(5, 8);
             testBitmap.SetSRGBPixel(0, 0, SKColors.Black);
             testBitmap2.SetSRGBPixel(4, 4, SKColors.Blue);
             Random random = new Random();
@@ -42,9 +41,9 @@ namespace PixiEditorTests.ModelsTests.UndoTests
         [Fact]
         public void TestThatConstructorGeneratesUndoLayersProperly()
         {
-            Document testDocument = GenerateTestDocument();
+            using Document testDocument = GenerateTestDocument();
 
-            StorageBasedChange change = new StorageBasedChange(testDocument, testDocument.Layers, UndoStoreLocation);
+            using StorageBasedChange change = new StorageBasedChange(testDocument, testDocument.Layers, UndoStoreLocation);
 
             Assert.Equal(testDocument.Layers.Count, change.StoredLayers.Length);
 
@@ -69,9 +68,9 @@ namespace PixiEditorTests.ModelsTests.UndoTests
         [Fact]
         public void TestThatSaveLayersOnDeviceSavesLayers()
         {
-            Document document = GenerateTestDocument();
+            using Document document = GenerateTestDocument();
 
-            StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
+            using StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
 
             foreach (var layer in change.StoredLayers)
             {
@@ -83,9 +82,9 @@ namespace PixiEditorTests.ModelsTests.UndoTests
         [Fact]
         public void TestThatLoadLayersFromDeviceLoadsLayers()
         {
-            Document document = GenerateTestDocument();
+            using Document document = GenerateTestDocument();
 
-            StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
+            using StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
 
             Layer[] layers = change.LoadLayersFromDevice();
 
@@ -101,9 +100,9 @@ namespace PixiEditorTests.ModelsTests.UndoTests
         [Fact]
         public void TestThatUndoInvokesLoadFromDeviceAndExecutesProcess()
         {
-            Document document = GenerateTestDocument();
+            using Document document = GenerateTestDocument();
 
-            StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
+            using StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
             bool undoInvoked = false;
 
             Action<Layer[], UndoLayer[]> testUndoProcess = (layers, data) =>
@@ -120,7 +119,7 @@ namespace PixiEditorTests.ModelsTests.UndoTests
             Action<object[]> testRedoProcess = parameters => { };
 
             Change undoChange = change.ToChange(testUndoProcess, testRedoProcess, null);
-            UndoManager manager = new UndoManager(this);
+            using UndoManager manager = new UndoManager(this);
 
             manager.AddUndoChange(undoChange);
             manager.Undo();
@@ -131,9 +130,9 @@ namespace PixiEditorTests.ModelsTests.UndoTests
         [Fact]
         public void TestThatRedoInvokesSaveToDeviceAndExecutesProcess()
         {
-            Document document = GenerateTestDocument();
+            using Document document = GenerateTestDocument();
 
-            StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
+            using StorageBasedChange change = new StorageBasedChange(document, document.Layers, UndoStoreLocation);
             bool redoInvoked = false;
 
             Action<Layer[], UndoLayer[]> testUndoProcess = (layers, data) => { };
@@ -152,7 +151,7 @@ namespace PixiEditorTests.ModelsTests.UndoTests
             };
 
             Change undoChange = change.ToChange(testUndoProcess, testRedoProcess, new object[] { 2 });
-            UndoManager manager = new UndoManager(this);
+            using UndoManager manager = new UndoManager(this);
 
             manager.AddUndoChange(undoChange);
             manager.Undo();

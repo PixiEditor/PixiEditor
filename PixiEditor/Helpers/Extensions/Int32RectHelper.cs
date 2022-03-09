@@ -4,7 +4,7 @@ using System.Windows;
 
 namespace PixiEditor.Helpers.Extensions
 {
-    public static class Int32RectEx
+    public static class Int32RectHelper
     {
         public static Int32Rect Intersect(this Int32Rect rect, Int32Rect other)
         {
