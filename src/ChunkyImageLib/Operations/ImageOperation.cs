@@ -1,35 +1,34 @@
-﻿using SkiaSharp;
+﻿using ChunkyImageLib.DataHolders;
+using SkiaSharp;
 
 namespace ChunkyImageLib.Operations
 {
     internal record class ImageOperation : IOperation
     {
-        private int x;
-        private int y;
+        private Vector2i pos;
         private Surface toPaint;
         private static SKPaint ReplacingPaint = new() { BlendMode = SKBlendMode.Src };
-        public ImageOperation(int x, int y, Surface image)
+        public ImageOperation(Vector2i pos, Surface image)
         {
-            this.x = x;
-            this.y = y;
+            this.pos = pos;
             toPaint = new Surface(image);
         }
 
-        public void DrawOnChunk(Chunk chunk, int chunkX, int chunkY)
+        public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
         {
-            chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, x - chunkX * ChunkPool.ChunkSize, y - chunkY * ChunkPool.ChunkSize, ReplacingPaint);
+            chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.ChunkSize, ReplacingPaint);
         }
 
-        public HashSet<(int, int)> FindAffectedChunks()
+        public HashSet<Vector2i> FindAffectedChunks()
         {
-            var (startX, startY) = OperationHelper.GetChunkPos(x, y, ChunkPool.ChunkSize);
-            var (endX, endY) = OperationHelper.GetChunkPos(x + toPaint.Width - 1, y + toPaint.Height - 1, ChunkPool.ChunkSize);
-            HashSet<(int, int)> output = new();
-            for (int cx = startX; cx <= endX; cx++)
+            Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.ChunkSize);
+            Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Width - 1, pos.Y + toPaint.Height - 1), ChunkPool.ChunkSize);
+            HashSet<Vector2i> output = new();
+            for (int cx = start.X; cx <= end.X; cx++)
             {
-                for (int cy = startY; cy <= endY; cy++)
+                for (int cy = start.Y; cy <= end.Y; cy++)
                 {
-                    output.Add((cx, cy));
+                    output.Add(new(cx, cy));
                 }
             }
             return output;

@@ -1,9 +1,11 @@
-﻿namespace ChunkyImageLib
+﻿using ChunkyImageLib.DataHolders;
+
+namespace ChunkyImageLib
 {
     internal class ChunkPool
     {
         public const int ChunkSize = 32;
-
+        public static Vector2i ChunkSizeVec => new(ChunkSize, ChunkSize);
         // not thread-safe!
         private static ChunkPool? instance;
         public static ChunkPool Instance => instance ??= new ChunkPool();

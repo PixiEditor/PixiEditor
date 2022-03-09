@@ -2,6 +2,7 @@
 using ChangeableDocument.Changeables.Interfaces;
 using ChangeableDocument.ChangeInfos;
 using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using SkiaSharp;
 using StructureRenderer.RenderInfos;
 
@@ -23,9 +24,9 @@ namespace StructureRenderer
             return await Task.Run(() => Render(changes, screenSurface, screenW, screenH)).ConfigureAwait(true);
         }
 
-        private HashSet<(int, int)> FindChunksToRerender(IReadOnlyList<IChangeInfo> changes)
+        private HashSet<Vector2i> FindChunksToRerender(IReadOnlyList<IChangeInfo> changes)
         {
-            HashSet<(int, int)> chunks = new();
+            HashSet<Vector2i> chunks = new();
             foreach (var change in changes)
             {
                 if (change is LayerImageChunks_ChangeInfo layerImageChunks)
@@ -57,13 +58,13 @@ namespace StructureRenderer
             }
             else
             {
-                HashSet<(int, int)> chunks = FindChunksToRerender(changes);
+                HashSet<Vector2i> chunks = FindChunksToRerender(changes);
                 var (minX, minY, maxX, maxY) = (int.MaxValue, int.MaxValue, int.MinValue, int.MinValue);
-                foreach (var (x, y) in chunks)
+                foreach (var chunkPos in chunks)
                 {
-                    RenderChunk(x, y, screenSurface);
-                    (minX, minY) = (Math.Min(x, minX), Math.Min(y, minY));
-                    (maxX, maxY) = (Math.Max(x, maxX), Math.Max(y, maxY));
+                    RenderChunk(chunkPos, screenSurface);
+                    (minX, minY) = (Math.Min(chunkPos.X, minX), Math.Min(chunkPos.Y, minY));
+                    (maxX, maxY) = (Math.Max(chunkPos.X, maxX), Math.Max(chunkPos.Y, maxY));
                 }
                 if (minX != int.MaxValue)
                 {
@@ -89,21 +90,21 @@ namespace StructureRenderer
             {
                 for (int y = 0; y < chunksHeight; y++)
                 {
-                    RenderChunk(x, y, screenSurface);
+                    RenderChunk(new(x, y), screenSurface);
                 }
             }
         }
 
-        private void RenderChunk(int chunkX, int chunkY, SKSurface screenSurface)
+        private void RenderChunk(Vector2i chunkPos, SKSurface screenSurface)
         {
-            screenSurface.Canvas.DrawRect(chunkX * ChunkyImage.ChunkSize, chunkY * ChunkyImage.ChunkSize, ChunkyImage.ChunkSize, ChunkyImage.ChunkSize, ClearPaint);
+            screenSurface.Canvas.DrawRect(SKRect.Create(chunkPos * ChunkyImage.ChunkSize, new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)), ClearPaint);
             ForEachLayer((layer) =>
             {
-                var chunk = layer.LayerImage.GetChunk(chunkX, chunkY);
+                var chunk = layer.LayerImage.GetChunk(chunkPos);
                 if (chunk == null)
                     return;
                 using var snapshot = chunk.Snapshot();
-                screenSurface.Canvas.DrawImage(snapshot, chunkX * ChunkyImage.ChunkSize, chunkY * ChunkyImage.ChunkSize, BlendingPaint);
+                screenSurface.Canvas.DrawImage(snapshot, chunkPos * ChunkyImage.ChunkSize, BlendingPaint);
             }, tracker.Document.ReadOnlyStructureRoot);
         }
 

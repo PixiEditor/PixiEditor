@@ -108,10 +108,18 @@ namespace PixiEditorPrototype.ViewModels
             var pos = args.GetPosition(source);
             int curX = (int)(pos.X / source.Width * FinalBitmap.PixelHeight);
             int curY = (int)(pos.Y / source.Height * FinalBitmap.PixelHeight);
-            ActionAccumulator.AddAction(
-                new DrawRectangle_Action(
-                    SelectedStructureMember!.GuidValue,
-                    new(mouseDownX, mouseDownY, curX - mouseDownX, curY - mouseDownY, 1, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A), SKColors.Transparent)));
+            ActionAccumulator.AddAction
+                (
+                    new DrawRectangle_Action
+                    (
+                        SelectedStructureMember!.GuidValue,
+                        new(new(mouseDownX, mouseDownY),
+                        new(curX - mouseDownX, curY - mouseDownY),
+                        1,
+                        new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                        SKColors.Transparent)
+                    )
+                );
         }
 
         public void MouseUp(object? param)

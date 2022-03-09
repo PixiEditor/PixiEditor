@@ -1,22 +1,24 @@
-﻿namespace ChunkyImageLib
+﻿using ChunkyImageLib.DataHolders;
+
+namespace ChunkyImageLib
 {
     public class ChunkStorage : IDisposable
     {
         private bool disposed = false;
-        private List<(int, int, Chunk?)> savedChunks = new();
-        public ChunkStorage(ChunkyImage image, HashSet<(int, int)> commitedChunksToSave)
+        private List<(Vector2i, Chunk?)> savedChunks = new();
+        public ChunkStorage(ChunkyImage image, HashSet<Vector2i> commitedChunksToSave)
         {
-            foreach (var (x, y) in commitedChunksToSave)
+            foreach (var chunkPos in commitedChunksToSave)
             {
-                Chunk? chunk = image.GetCommitedChunk(x, y);
+                Chunk? chunk = image.GetCommitedChunk(chunkPos);
                 if (chunk == null)
                 {
-                    savedChunks.Add((x, y, null));
+                    savedChunks.Add((chunkPos, null));
                     continue;
                 }
                 Chunk copy = ChunkPool.Instance.BorrowChunk();
                 chunk.Surface.CopyTo(copy.Surface);
-                savedChunks.Add((x, y, copy));
+                savedChunks.Add((chunkPos, copy));
             }
         }
 
@@ -24,12 +26,12 @@
         {
             if (disposed)
                 throw new Exception("This instance has been disposed");
-            foreach (var (x, y, chunk) in savedChunks)
+            foreach (var (pos, chunk) in savedChunks)
             {
                 if (chunk == null)
-                    image.DrawImage(x * ChunkPool.ChunkSize, y * ChunkPool.ChunkSize, ChunkPool.Instance.TransparentChunk.Surface);
+                    image.DrawImage(pos * ChunkPool.ChunkSize, ChunkPool.Instance.TransparentChunk.Surface);
                 else
-                    image.DrawImage(x * ChunkPool.ChunkSize, y * ChunkPool.ChunkSize, chunk.Surface);
+                    image.DrawImage(pos * ChunkPool.ChunkSize, chunk.Surface);
             }
         }
 
@@ -37,7 +39,7 @@
         {
             if (disposed)
                 return;
-            foreach (var (x, y, chunk) in savedChunks)
+            foreach (var (pos, chunk) in savedChunks)
             {
                 if (chunk != null)
                     ChunkPool.Instance.ReturnChunk(chunk);

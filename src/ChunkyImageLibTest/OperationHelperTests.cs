@@ -1,3 +1,4 @@
+using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Xunit;
 
@@ -13,9 +14,9 @@ namespace ChunkyImageLibTest
         [InlineData(-33, -33, -2, -2)]
         public void GetChunkPos_32ChunkSize_ReturnsCorrectValues(int x, int y, int expX, int expY)
         {
-            var (actX, actY) = OperationHelper.GetChunkPos(x, y, 32);
-            Assert.Equal(expX, actX);
-            Assert.Equal(expY, actY);
+            Vector2i act = OperationHelper.GetChunkPos(new(x, y), 32);
+            Assert.Equal(expX, act.X);
+            Assert.Equal(expY, act.Y);
         }
     }
 }

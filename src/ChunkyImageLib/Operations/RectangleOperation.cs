@@ -12,12 +12,12 @@ namespace ChunkyImageLib.Operations
 
         public ShapeData Data { get; }
 
-        public void DrawOnChunk(Chunk chunk, int chunkX, int chunkY)
+        public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
         {
             var skiaSurf = chunk.Surface.SkiaSurface;
             // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
             skiaSurf.Canvas.Save();
-            var rect = SKRect.Create(Data.X - chunkX * ChunkPool.ChunkSize, Data.Y - chunkY * ChunkPool.ChunkSize, Data.Width, Data.Height);
+            var rect = SKRect.Create(Data.Pos - chunkPos * ChunkPool.ChunkSize, Data.Size);
             skiaSurf.Canvas.ClipRect(rect);
 
             // draw fill
@@ -41,11 +41,11 @@ namespace ChunkyImageLib.Operations
             skiaSurf.Canvas.Restore();
         }
 
-        public HashSet<(int, int)> FindAffectedChunks()
+        public HashSet<Vector2i> FindAffectedChunks()
         {
-            if (Data.Width < 1 || Data.Height < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
+            if (Data.Size.X < 1 || Data.Size.Y < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
                 return new();
-            if (Data.FillColor.Alpha != 0 || Data.Width == 1 || Data.Height == 1)
+            if (Data.FillColor.Alpha != 0 || Data.Size.X == 1 || Data.Size.Y == 1)
                 return GetChunksForFilled(ChunkPool.ChunkSize);
             return GetChunksForStroke(ChunkPool.ChunkSize);
         }
@@ -60,46 +60,46 @@ namespace ChunkyImageLib.Operations
             return (insetMin, insetMax);
         }
 
-        private HashSet<(int, int)> GetChunksForStroke(int chunkSize)
+        private HashSet<Vector2i> GetChunksForStroke(int chunkSize)
         {
             //we need to account for wide strokes covering multiple chunks
             //find inner stroke boudaries in pixel coords
-            var xInset = Inset(Data.X, Data.MaxX, Data.StrokeWidth);
-            var yInset = Inset(Data.Y, Data.MaxY, Data.StrokeWidth);
+            var xInset = Inset(Data.Pos.X, Data.MaxPos.X, Data.StrokeWidth);
+            var yInset = Inset(Data.Pos.Y, Data.MaxPos.Y, Data.StrokeWidth);
             if (xInset == null || yInset == null)
                 return GetChunksForFilled(chunkSize);
 
             //find two chunk rectanges, outer and inner
-            var (minX, minY) = OperationHelper.GetChunkPos(Data.X, Data.Y, chunkSize);
-            var (maxX, maxY) = OperationHelper.GetChunkPos(Data.MaxX, Data.MaxY, chunkSize);
-            var (minInsetX, minInsetY) = OperationHelper.GetChunkPos(xInset.Value.Item1, yInset.Value.Item1, chunkSize);
-            var (maxInsetX, maxInsetY) = OperationHelper.GetChunkPos(xInset.Value.Item2, yInset.Value.Item2, chunkSize);
+            Vector2i min = OperationHelper.GetChunkPos(Data.Pos, chunkSize);
+            Vector2i max = OperationHelper.GetChunkPos(Data.MaxPos, chunkSize);
+            Vector2i minInset = OperationHelper.GetChunkPos(new(xInset.Value.Item1, yInset.Value.Item1), chunkSize);
+            Vector2i maxInset = OperationHelper.GetChunkPos(new(xInset.Value.Item2, yInset.Value.Item2), chunkSize);
 
             //fill in sides
-            HashSet<(int, int)> chunks = new();
-            AddRectangle(minX, minY, maxX, minInsetY, chunks); //top
-            AddRectangle(minX, minInsetY + 1, minInsetX, maxInsetY - 1, chunks); //left
-            AddRectangle(maxInsetX, minInsetY + 1, maxX, maxInsetY - 1, chunks); //right
-            AddRectangle(minX, maxInsetY, maxX, maxY, chunks); //bottom
+            HashSet<Vector2i> chunks = new();
+            AddRectangle(min, new(max.X, minInset.Y), chunks); //top
+            AddRectangle(new(min.X, minInset.Y + 1), new(minInset.X, maxInset.Y - 1), chunks); //left
+            AddRectangle(new(maxInset.X, minInset.Y + 1), new(max.X, maxInset.Y - 1), chunks); //right
+            AddRectangle(new(min.X, maxInset.Y), max, chunks); //bottom
             return chunks;
         }
 
-        private HashSet<(int, int)> GetChunksForFilled(int chunkSize)
+        private HashSet<Vector2i> GetChunksForFilled(int chunkSize)
         {
-            var (minX, minY) = OperationHelper.GetChunkPos(Data.X, Data.Y, chunkSize);
-            var (maxX, maxY) = OperationHelper.GetChunkPos(Data.MaxX, Data.MaxY, chunkSize);
-            HashSet<(int, int)> output = new();
-            AddRectangle(minX, minY, maxX, maxY, output);
+            Vector2i min = OperationHelper.GetChunkPos(Data.Pos, chunkSize);
+            Vector2i max = OperationHelper.GetChunkPos(Data.MaxPos, chunkSize);
+            HashSet<Vector2i> output = new();
+            AddRectangle(min, max, output);
             return output;
         }
 
-        private static void AddRectangle(int minX, int minY, int maxX, int maxY, HashSet<(int, int)> set)
+        private static void AddRectangle(Vector2i min, Vector2i max, HashSet<Vector2i> set)
         {
-            for (int x = minX; x <= maxX; x++)
+            for (int x = min.X; x <= max.X; x++)
             {
-                for (int y = minY; y <= maxY; y++)
+                for (int y = min.Y; y <= max.Y; y++)
                 {
-                    set.Add((x, y));
+                    set.Add(new(x, y));
                 }
             }
         }

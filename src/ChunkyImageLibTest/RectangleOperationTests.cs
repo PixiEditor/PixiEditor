@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using SkiaSharp;
 using System.Collections.Generic;
@@ -15,9 +16,9 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_SmallStrokeOnly_FindsCorrectChunks()
         {
             var (x, y, w, h) = (0, 0, chunkSize, chunkSize);
-            RectangleOperation operation = new(new(x, y, w, h, 1, SKColors.Black, SKColors.Transparent));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-            HashSet<(int, int)> expected = new() { (0, 0) };
+            HashSet<Vector2i> expected = new() { new(0, 0) };
             var actual = operation.FindAffectedChunks();
 
             Assert.Equal(expected, actual);
@@ -27,9 +28,9 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_2by2StrokeOnly_FindsCorrectChunks()
         {
             var (x, y, w, h) = (-chunkSize, -chunkSize, chunkSize * 2, chunkSize * 2);
-            RectangleOperation operation = new(new(x, y, w, h, 1, SKColors.Black, SKColors.Transparent));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-            HashSet<(int, int)> expected = new() { (-1, -1), (0, -1), (-1, 0), (0, 0) };
+            HashSet<Vector2i> expected = new() { new(-1, -1), new(0, -1), new(-1, 0), new(0, 0) };
             var actual = operation.FindAffectedChunks();
 
             Assert.Equal(expected, actual);
@@ -39,13 +40,13 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_3x3PositiveStrokeOnly_FindsCorrectChunks()
         {
             var (x, y, w, h) = (chunkSize + chunkSize / 2, chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
-            RectangleOperation operation = new(new(x, y, w, h, 1, SKColors.Black, SKColors.Transparent));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-            HashSet<(int, int)> expected = new()
+            HashSet<Vector2i> expected = new()
             {
-                (1, 1), (2, 1), (3, 1), 
-                (1, 2),         (3, 2), 
-                (1, 3), (2, 3), (3, 3),
+                new(1, 1), new(2, 1), new(3, 1),
+                new(1, 2),            new(3, 2),
+                new(1, 3), new(2, 3), new(3, 3),
             };
             var actual = operation.FindAffectedChunks();
 
@@ -56,13 +57,13 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_3x3NegativeStrokeOnly_FindsCorrectChunks()
         {
             var (x, y, w, h) = (-chunkSize * 3 + chunkSize / 2, -chunkSize * 3 + chunkSize / 2, chunkSize * 2, chunkSize * 2);
-            RectangleOperation operation = new(new(x, y, w, h, 1, SKColors.Black, SKColors.Transparent));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-            HashSet<(int, int)> expected = new()
+            HashSet<Vector2i> expected = new()
             {
-                (-4, -4), (-3, -4), (-2, -4),
-                (-4, -3),           (-2, -3),
-                (-4, -2), (-3, -2), (-2, -2),
+                new(-4, -4), new(-3, -4), new(-2, -4),
+                new(-4, -3),              new(-2, -3),
+                new(-4, -2), new(-3, -2), new(-2, -2),
             };
             var actual = operation.FindAffectedChunks();
 
@@ -73,13 +74,13 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_3x3PositiveFilled_FindsCorrectChunks()
         {
             var (x, y, w, h) = (chunkSize + chunkSize / 2, chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
-            RectangleOperation operation = new(new(x, y, w, h, 1, SKColors.Black, SKColors.White));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.White));
 
-            HashSet<(int, int)> expected = new()
+            HashSet<Vector2i> expected = new()
             {
-                (1, 1), (2, 1), (3, 1), 
-                (1, 2), (2, 2), (3, 2),
-                (1, 3), (2, 3), (3, 3),
+                new(1, 1), new(2, 1), new(3, 1), 
+                new(1, 2), new(2, 2), new(3, 2),
+                new(1, 3), new(2, 3), new(3, 3),
             };
             var actual = operation.FindAffectedChunks();
 
@@ -90,15 +91,15 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_ThickPositiveStroke_FindsCorrectChunks()
         {
             var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, chunkSize * 4, chunkSize * 4);
-            RectangleOperation operation = new(new(x, y, w, h, 32, SKColors.Black, SKColors.Transparent));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), 32, SKColors.Black, SKColors.Transparent));
 
-            HashSet<(int, int)> expected = new()
+            HashSet<Vector2i> expected = new()
             {
-                (0, 0), (1, 0), (2, 0), (3, 0), (4, 0),
-                (0, 1), (1, 1), (2, 1), (3, 1), (4, 1),
-                (0, 2), (1, 2),         (3, 2), (4, 2),
-                (0, 3), (1, 3), (2, 3), (3, 3), (4, 3),
-                (0, 4), (1, 4), (2, 4), (3, 4), (4, 4),
+                new(0, 0), new(1, 0), new(2, 0), new(3, 0), new(4, 0),
+                new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1),
+                new(0, 2), new(1, 2),            new(3, 2), new(4, 2),
+                new(0, 3), new(1, 3), new(2, 3), new(3, 3), new(4, 3),
+                new(0, 4), new(1, 4), new(2, 4), new(3, 4), new(4, 4),
             };
             var actual = operation.FindAffectedChunks();
 
@@ -109,9 +110,9 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_SmallButThick_FindsCorrectChunks()
         {
             var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, 1, 1);
-            RectangleOperation operation = new(new(x, y, w, h, 256, SKColors.Black, SKColors.White));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), 256, SKColors.Black, SKColors.White));
 
-            HashSet<(int, int)> expected = new() { (0, 0) };
+            HashSet<Vector2i> expected = new() { new(0, 0) };
             var actual = operation.FindAffectedChunks();
 
             Assert.Equal(expected, actual);

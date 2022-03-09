@@ -9,27 +9,27 @@ namespace ChunkyImageLib
     {
         private bool locked = false; //todo implement locking
 
-        private Queue<(IOperation, HashSet<(int, int)>)> queuedOperations = new();
+        private Queue<(IOperation, HashSet<Vector2i>)> queuedOperations = new();
 
-        private Dictionary<(int, int), Chunk> chunks = new();
-        private Dictionary<(int, int), Chunk> uncommitedChunks = new();
+        private Dictionary<Vector2i, Chunk> chunks = new();
+        private Dictionary<Vector2i, Chunk> uncommitedChunks = new();
 
         public static int ChunkSize => ChunkPool.ChunkSize;
 
-        public Chunk? GetChunk(int x, int y)
+        public Chunk? GetChunk(Vector2i pos)
         {
             if (queuedOperations.Count == 0)
-                return MaybeGetChunk(x, y, chunks);
-            ProcessQueue(x, y);
-            return MaybeGetChunk(x, y, uncommitedChunks) ?? MaybeGetChunk(x, y, chunks);
+                return MaybeGetChunk(pos, chunks);
+            ProcessQueue(pos);
+            return MaybeGetChunk(pos, uncommitedChunks) ?? MaybeGetChunk(pos, chunks);
         }
 
-        public Chunk? GetCommitedChunk(int x, int y)
+        public Chunk? GetCommitedChunk(Vector2i pos)
         {
-            return MaybeGetChunk(x, y, chunks);
+            return MaybeGetChunk(pos, chunks);
         }
 
-        private Chunk? MaybeGetChunk(int x, int y, Dictionary<(int, int), Chunk> from) => from.ContainsKey((x, y)) ? from[(x, y)] : null;
+        private Chunk? MaybeGetChunk(Vector2i pos, Dictionary<Vector2i, Chunk> from) => from.ContainsKey(pos) ? from[pos] : null;
 
         public void DrawRectangle(ShapeData rect)
         {
@@ -37,9 +37,9 @@ namespace ChunkyImageLib
             queuedOperations.Enqueue((operation, operation.FindAffectedChunks()));
         }
 
-        internal void DrawImage(int x, int y, Surface image)
+        internal void DrawImage(Vector2i pos, Surface image)
         {
-            ImageOperation operation = new(x, y, image);
+            ImageOperation operation = new(pos, image);
             queuedOperations.Enqueue((operation, operation.FindAffectedChunks()));
         }
 
@@ -61,7 +61,7 @@ namespace ChunkyImageLib
             ProcessQueueFinal();
         }
 
-        public HashSet<(int, int)> FindAffectedChunks()
+        public HashSet<Vector2i> FindAffectedChunks()
         {
             var chunks = uncommitedChunks.Select(chunk => chunk.Key).ToHashSet();
             foreach (var (operation, opChunks) in queuedOperations)
@@ -75,9 +75,9 @@ namespace ChunkyImageLib
         {
             foreach (var (operation, operChunks) in queuedOperations)
             {
-                foreach (var (x, y) in operChunks)
+                foreach (var pos in operChunks)
                 {
-                    operation.DrawOnChunk(GetOrCreateCommitedChunk(x, y), x, y);
+                    operation.DrawOnChunk(GetOrCreateCommitedChunk(pos), pos);
                 }
                 operation.Dispose();
             }
@@ -99,48 +99,48 @@ namespace ChunkyImageLib
             uncommitedChunks.Clear();
         }
 
-        private void ProcessQueue(int chunkX, int chunkY)
+        private void ProcessQueue(Vector2i chunkPos)
         {
             Chunk? targetChunk = null;
             foreach (var (operation, operChunks) in queuedOperations)
             {
-                if (!operChunks.Contains((chunkX, chunkY)))
+                if (!operChunks.Contains(chunkPos))
                     continue;
-                operChunks.Remove((chunkX, chunkY));
+                operChunks.Remove(chunkPos);
 
                 if (targetChunk == null)
-                    targetChunk = GetOrCreateUncommitedChunk(chunkX, chunkY);
+                    targetChunk = GetOrCreateUncommitedChunk(chunkPos);
 
-                operation.DrawOnChunk(targetChunk, chunkX, chunkY);
+                operation.DrawOnChunk(targetChunk, chunkPos);
             }
         }
 
-        private Chunk GetOrCreateCommitedChunk(int chunkX, int chunkY)
+        private Chunk GetOrCreateCommitedChunk(Vector2i chunkPos)
         {
-            Chunk? targetChunk = MaybeGetChunk(chunkX, chunkY, chunks);
+            Chunk? targetChunk = MaybeGetChunk(chunkPos, chunks);
             if (targetChunk != null)
                 return targetChunk;
             var newChunk = ChunkPool.Instance.BorrowChunk();
             newChunk.Surface.SkiaSurface.Canvas.Clear();
-            chunks[(chunkX, chunkY)] = newChunk;
+            chunks[chunkPos] = newChunk;
             return newChunk;
         }
 
-        private Chunk GetOrCreateUncommitedChunk(int chunkX, int chunkY)
+        private Chunk GetOrCreateUncommitedChunk(Vector2i chunkPos)
         {
             Chunk? targetChunk;
-            targetChunk = MaybeGetChunk(chunkX, chunkY, uncommitedChunks);
+            targetChunk = MaybeGetChunk(chunkPos, uncommitedChunks);
             if (targetChunk == null)
             {
                 targetChunk = ChunkPool.Instance.BorrowChunk();
-                var maybeCommitedChunk = MaybeGetChunk(chunkX, chunkY, chunks);
+                var maybeCommitedChunk = MaybeGetChunk(chunkPos, chunks);
 
                 if (maybeCommitedChunk != null)
                     maybeCommitedChunk.Surface.CopyTo(targetChunk.Surface);
                 else
                     targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
-                uncommitedChunks[(chunkX, chunkY)] = targetChunk;
+                uncommitedChunks[chunkPos] = targetChunk;
             }
             return targetChunk;
         }
