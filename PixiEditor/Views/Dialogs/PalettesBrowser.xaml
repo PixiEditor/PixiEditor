@@ -68,7 +68,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <local:PaletteItem Palette="{Binding}" 
-                                                     ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=lospecPalettesBrowser}"/>
+                                               ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=lospecPalettesBrowser}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -77,6 +77,5 @@
                    Visibility="{Binding ElementName=lospecPalettesBrowser, Path=IsFetching, Converter={StaticResource BoolToVisibilityConverter}}"
                    Height="50" gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
         </Grid>
-        <TextBlock Grid.Row="3" HorizontalAlignment="Right" Margin="0 0 5 0" Text="Palettes fetched from lospec.com/palette-list" Foreground="White"/>
     </Grid>
 </Window>

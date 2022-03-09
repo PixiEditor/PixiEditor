@@ -13,7 +13,7 @@ namespace PixiEditor.Helpers.Extensions
         /// <returns>List of file paths found.</returns>
         public static string[] GetFiles(string sourceFolder, string filters, System.IO.SearchOption searchOption)
         {
-            return filters.Split('|').SelectMany(filter => System.IO.Directory.GetFiles(sourceFolder, filter, searchOption)).ToArray();
+            return filters.Split('|').SelectMany(filter => System.IO.Directory.GetFiles(sourceFolder, $"*{filter}", searchOption)).ToArray();
         }
     }
 }

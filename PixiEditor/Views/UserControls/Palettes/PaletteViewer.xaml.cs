@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -6,6 +7,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
+using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Views.Dialogs;
@@ -49,6 +51,51 @@ namespace PixiEditor.Views.UserControls.Palettes
         public static readonly DependencyProperty ImportPaletteCommandProperty =
             DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PaletteViewer));
 
+        public WpfObservableRangeCollection<PaletteListDataSource> DataSources
+        {
+            get { return (WpfObservableRangeCollection<PaletteListDataSource>)GetValue(DataSourcesProperty); }
+            set { SetValue(DataSourcesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for DataSources.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DataSourcesProperty =
+            DependencyProperty.Register("DataSources", typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PaletteViewer), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
+
+        public WpfObservableRangeCollection<PaletteFileParser> FileParsers
+        {
+            get { return (WpfObservableRangeCollection<PaletteFileParser>)GetValue(FileParsersProperty); }
+            set { SetValue(FileParsersProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for FileParsers.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty FileParsersProperty =
+            DependencyProperty.Register("FileParsers", typeof(WpfObservableRangeCollection<PaletteFileParser>), typeof(PaletteViewer), new PropertyMetadata(new WpfObservableRangeCollection<PaletteFileParser>()));
+
+        private string _filesFilter;
+
+        public string FilesFilter
+        {
+            get
+            {
+                if(_filesFilter == null)
+                {
+                    string filter = "";
+
+                    foreach (var parser in FileParsers)
+                    {
+                        string supportedFormats = string.Join(';', parser.SupportedFileExtensions);
+                        filter += $"{parser.FileName} ({supportedFormats})|{supportedFormats}|";
+                    }
+                    
+                    _filesFilter = filter.Remove(filter.Length - 1);
+                }
+
+                return _filesFilter;
+            }
+            set => _filesFilter = value;
+        }
+
+
         private PaletteList _cachedPaletteList;
 
         public PaletteViewer()
@@ -70,7 +117,7 @@ namespace PixiEditor.Views.UserControls.Palettes
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Palette (*.pal)|*.pal"
+                Filter = FilesFilter
             };
             if (openFileDialog.ShowDialog() == true)
             {
@@ -80,22 +127,24 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private async Task ImportPalette(string fileName)
         {
-            var jascData = await JascFileParser.ParseFile(fileName);
+            var parser = FileParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+            var data = await parser.Parse(fileName);
             Colors.Clear();
-            Colors.AddRange(jascData.Colors);
+            Colors.AddRange(data.Colors);
         }
 
         private async void SavePalette_OnClick(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                Filter = "Palette (*.pal)|*.pal"
+                Filter = FilesFilter
             };
 
             if (saveFileDialog.ShowDialog() == true)
             {
                 string fileName = saveFileDialog.FileName;
-                await JascFileParser.SaveFile(fileName, new PaletteFileData(Colors.ToArray()));
+                var foundParser = FileParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+                await foundParser.Save(fileName, new PaletteFileData(Colors.ToArray()));
             }
         }
 
@@ -171,7 +220,8 @@ namespace PixiEditor.Views.UserControls.Palettes
             PalettesBrowser browser = new PalettesBrowser
             {
                 Owner = Application.Current.MainWindow,
-                ImportPaletteCommand = this.ImportPaletteCommand
+                ImportPaletteCommand = this.ImportPaletteCommand,
+                PaletteListDataSources = DataSources,
             };
 
             if(_cachedPaletteList != null)

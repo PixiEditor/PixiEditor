@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
+using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Models.Services;
@@ -56,6 +57,8 @@ namespace PixiEditor.Helpers.Extensions
                 .AddSingleton<Tool, ZoomTool>()
                 // Palette Parsers
                 .AddSingleton<PaletteFileParser, JascFileParser>()
+                // Palette data sources
+                .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
                 // Other
                 .AddSingleton<DocumentProvider>();
     }

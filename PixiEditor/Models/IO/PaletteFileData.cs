@@ -13,6 +13,8 @@ namespace PixiEditor.Models.IO
         public PaletteFileData(SKColor[] colors)
         {
             Colors = colors;
+            Title = "";
+            Tags = Array.Empty<string>();
         }
 
         public PaletteFileData(string title, SKColor[] colors, string[] tags)

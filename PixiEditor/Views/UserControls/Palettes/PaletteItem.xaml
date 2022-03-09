@@ -21,7 +21,7 @@
             <Separator Background="{StaticResource MainColor}"/>
             <TextBlock Text="{Binding Palette.Title, ElementName=paletteItem}" Foreground="White" FontSize="20"/>
             <TextBlock Margin="0 5 0 0">
-            <controls:PrependTextBlock PrependColor="Gray" Prepend="Author: " Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>
+            <!--<controls:PrependTextBlock PrependColor="Gray" Prepend="Author: " Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>-->
             </TextBlock>
         </StackPanel>
         <ItemsControl Margin="0 0 0 0" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
@@ -47,7 +47,7 @@
         </Button>
         <StackPanel Grid.Row="2" Margin="0 10 0 0" Orientation="Horizontal">
             <TextBlock Text="Tags: " Foreground="Gray"/>
-            <ItemsControl  ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Tags}">
+            <ItemsControl ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Tags}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>

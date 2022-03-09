@@ -346,6 +346,8 @@
                                         <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
                                         Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
                                                               SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
+                                                                DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
+                                                                FileParsers="{Binding ColorsSubViewModel.PaletteParsers}"
                                                                     ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
                                     </avalondock:LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"

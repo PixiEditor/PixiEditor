@@ -37,6 +37,7 @@ namespace PixiEditor.Helpers
 
         public bool CanExecute(object parameter)
         {
+            if (canExecute == null) return true;
             if(parameter != null && parameter is not T)
             {
                 throw new ArgumentException("Provided parameter type does not match RelayCommand parameter type");

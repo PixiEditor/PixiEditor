@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
@@ -21,12 +22,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand RemoveSwatchCommand { get; set; }
 
-        public RelayCommand<WpfObservableRangeCollection<string>> ImportPaletteCommand { get; set; }
-
+        public RelayCommand<List<string>> ImportPaletteCommand { get; set; }
 
         public RelayCommand<int> SelectPaletteColorCommand { get; set; }
 
-        public IEnumerable<PaletteFileParser> PaletteParsers { get; private set; }
+        public WpfObservableRangeCollection<PaletteFileParser> PaletteParsers { get; private set; }
+        public WpfObservableRangeCollection<PaletteListDataSource> PaletteDataSources { get; private set; }
 
         private SKColor primaryColor = SKColors.Black;
 
@@ -67,10 +68,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SwapColorsCommand = new RelayCommand(SwapColors);
             SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
-            ImportPaletteCommand = new RelayCommand<WpfObservableRangeCollection<string>>(ImportPalette);
+            ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette);
         }
 
-        public void ImportPalette(WpfObservableRangeCollection<string> palette)
+        public void ImportPalette(List<string> palette)
         {
             var doc = Owner.BitmapManager.ActiveDocument;
             if (doc == null) return;
@@ -131,7 +132,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SetupPaletteParsers(IServiceProvider services)
         {
-            PaletteParsers = services.GetServices<PaletteFileParser>();
+            PaletteParsers = new WpfObservableRangeCollection<PaletteFileParser>(services.GetServices<PaletteFileParser>());
+            PaletteDataSources = new WpfObservableRangeCollection<PaletteListDataSource>(services.GetServices<PaletteListDataSource>());
+            var parsers = PaletteParsers.ToList();
+
+            foreach (var dataSource in PaletteDataSources)
+            {
+                dataSource.AvailableParsers = parsers;
+                dataSource.Initialize();
+            }
         }
     }
 }

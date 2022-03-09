@@ -17,14 +17,15 @@ namespace PixiEditor.Models.DataProviders
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "PixiEditor", "Palettes");
 
-        public IEnumerable<PaletteFileParser> AvailableParsers { get; private set; }
-
         public override async Task<PaletteList> FetchPaletteList()
         {
             string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder, string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)), SearchOption.TopDirectoryOnly);
 
-            PaletteList result = new PaletteList();
-            result.Palettes = new WpfObservableRangeCollection<Palette>();
+            PaletteList result = new PaletteList
+            {
+                Palettes = new WpfObservableRangeCollection<Palette>()
+            };
+
             for (int i = 0; i < files.Length; i++)
             {
                 string filePath = files[i];
@@ -33,12 +34,20 @@ namespace PixiEditor.Models.DataProviders
                 if (foundParser != null)
                 {
                     PaletteFileData fileData = await foundParser.Parse(filePath);
-                    result.Palettes.Add(new Palette(fileData.Title, new WpfObservableRangeCollection<string>(fileData.GetHexColors()), fileData.Tags));
+                    result.Palettes.Add(new Palette(fileData.Title, new List<string>(fileData.GetHexColors()), fileData.Tags));
                 }
             }
 
             result.FetchedCorrectly = true;
             return result;
+        }
+
+        public override void Initialize()
+        {
+            if(!Directory.Exists(PathToPalettesFolder))
+            {
+                Directory.CreateDirectory(PathToPalettesFolder);
+            }
         }
     }
 }
