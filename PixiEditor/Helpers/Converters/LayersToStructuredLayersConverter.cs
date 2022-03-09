@@ -15,11 +15,11 @@ namespace PixiEditor.Helpers.Converters
         private static StructuredLayerTree cachedTree;
         private List<Guid> lastLayerGuids = new List<Guid>();
         private IList<Layer> lastLayers = new List<Layer>();
-        private ObservableCollection<GuidStructureItem> lastStructure = new ObservableCollection<GuidStructureItem>();
+        private WpfObservableRangeCollection<GuidStructureItem> lastStructure = new WpfObservableRangeCollection<GuidStructureItem>();
 
         public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values[0] is ObservableCollection<Layer> layers && values[1] is LayerStructure structure)
+            if (values[0] is WpfObservableRangeCollection<Layer> layers && values[1] is LayerStructure structure)
             {
                 if (cachedTree == null)
                 {

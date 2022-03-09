@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
@@ -20,7 +21,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public RelayCommand RemoveSwatchCommand { get; set; }
 
-        public RelayCommand<ObservableCollection<string>> ImportPaletteCommand { get; set; }
+        public RelayCommand<WpfObservableRangeCollection<string>> ImportPaletteCommand { get; set; }
 
 
         public RelayCommand<int> SelectPaletteColorCommand { get; set; }
@@ -66,10 +67,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SwapColorsCommand = new RelayCommand(SwapColors);
             SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
-            ImportPaletteCommand = new RelayCommand<ObservableCollection<string>>(ImportPalette);
+            ImportPaletteCommand = new RelayCommand<WpfObservableRangeCollection<string>>(ImportPalette);
         }
 
-        public void ImportPalette(ObservableCollection<string> palette)
+        public void ImportPalette(WpfObservableRangeCollection<string> palette)
         {
             var doc = Owner.BitmapManager.ActiveDocument;
             if (doc == null) return;
@@ -78,7 +79,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             {
                 if (doc.Palette == null)
                 {
-                    doc.Palette = new Models.DataHolders.ObservableCollection<SKColor>();
+                    doc.Palette = new WpfObservableRangeCollection<SKColor>();
                 }
 
                 doc.Palette.ReplaceRange(palette.Select(x => SKColor.Parse(x)));

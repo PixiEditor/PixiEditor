@@ -70,7 +70,7 @@
                                             AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 
                 RelativeSource={RelativeSource TemplatedParent}, Converter={converters:IndexToAssociatedKeyConverter}}">
                             <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="MouseUp">
+                                <b:EventTrigger EventName="MouseLeftButtonUp">
                                     <b:InvokeCommandAction
                                     Command="{Binding SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type palettes:PaletteViewer}}}"
                                     CommandParameter="{Binding}" />

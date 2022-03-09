@@ -57,7 +57,7 @@ namespace PixiEditor.Models.ExternalServices
             return null;
         }
 
-        private static void ReadjustColors(ObservableCollection<string> colors)
+        private static void ReadjustColors(WpfObservableRangeCollection<string> colors)
         {
             for (int i = 0; i < colors.Count; i++)
             {

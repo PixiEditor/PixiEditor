@@ -24,7 +24,7 @@ namespace PixiEditor.Models.DataProviders
             string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder, string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)), SearchOption.TopDirectoryOnly);
 
             PaletteList result = new PaletteList();
-            result.Palettes = new ObservableCollection<Palette>();
+            result.Palettes = new WpfObservableRangeCollection<Palette>();
             for (int i = 0; i < files.Length; i++)
             {
                 string filePath = files[i];
@@ -33,7 +33,7 @@ namespace PixiEditor.Models.DataProviders
                 if (foundParser != null)
                 {
                     PaletteFileData fileData = await foundParser.Parse(filePath);
-                    result.Palettes.Add(new Palette(fileData.Title, new ObservableCollection<string>(fileData.GetHexColors()), fileData.Tags));
+                    result.Palettes.Add(new Palette(fileData.Title, new WpfObservableRangeCollection<string>(fileData.GetHexColors()), fileData.Tags));
                 }
             }
 

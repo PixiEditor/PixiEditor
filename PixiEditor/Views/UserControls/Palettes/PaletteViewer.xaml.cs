@@ -21,11 +21,11 @@ namespace PixiEditor.Views.UserControls.Palettes
         public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
 
         public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(
-            "Colors", typeof(ObservableCollection<SKColor>), typeof(PaletteViewer));
+            "Colors", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer));
 
-        public ObservableCollection<SKColor> Colors
+        public WpfObservableRangeCollection<SKColor> Colors
         {
-            get { return (ObservableCollection<SKColor>)GetValue(ColorsProperty); }
+            get { return (WpfObservableRangeCollection<SKColor>)GetValue(ColorsProperty); }
             set { SetValue(ColorsProperty, value); }
         }
 

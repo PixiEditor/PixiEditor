@@ -3,6 +3,6 @@
     public class PaletteList
     {
         public bool FetchedCorrectly { get; set; }
-        public ObservableCollection<Palette> Palettes { get; set; }
+        public WpfObservableRangeCollection<Palette> Palettes { get; set; }
     }
 }

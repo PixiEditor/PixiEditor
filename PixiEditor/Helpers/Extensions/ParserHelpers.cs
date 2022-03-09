@@ -16,7 +16,7 @@ namespace PixiEditor.Helpers.Extensions
             Document document = new Document(serializableDocument.Width, serializableDocument.Height)
             {
                 Layers = serializableDocument.ToLayers(),
-                Swatches = new Models.DataHolders.ObservableCollection<SKColor>(serializableDocument.Swatches.ToSKColors())
+                Swatches = new WpfObservableRangeCollection<SKColor>(serializableDocument.Swatches.ToSKColors())
             };
 
             document.LayerStructure.Groups = serializableDocument.ToGroups(document);
@@ -30,9 +30,9 @@ namespace PixiEditor.Helpers.Extensions
             return document;
         }
 
-        public static Models.DataHolders.ObservableCollection<Layer> ToLayers(this SerializableDocument document)
+        public static WpfObservableRangeCollection<Layer> ToLayers(this SerializableDocument document)
         {
-            Models.DataHolders.ObservableCollection<Layer> layers = new();
+            WpfObservableRangeCollection<Layer> layers = new();
             foreach (SerializableLayer slayer in document)
             {
                 layers.Add(slayer.ToLayer(document.Width, document.Height));
@@ -51,9 +51,9 @@ namespace PixiEditor.Helpers.Extensions
             };
         }
 
-        public static Models.DataHolders.ObservableCollection<GuidStructureItem> ToGroups(this SerializableDocument sdocument, Document document)
+        public static WpfObservableRangeCollection<GuidStructureItem> ToGroups(this SerializableDocument sdocument, Document document)
         {
-            Models.DataHolders.ObservableCollection<GuidStructureItem> groups = new();
+            WpfObservableRangeCollection<GuidStructureItem> groups = new();
 
             if (sdocument.Groups == null)
             {

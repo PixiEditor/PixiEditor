@@ -102,8 +102,8 @@ namespace PixiEditor.Models.DataHolders
 
         public UndoManager UndoManager { get; set; }
 
-        public ObservableCollection<SKColor> Swatches { get; set; } = new ObservableCollection<SKColor>();
-        public ObservableCollection<SKColor> Palette { get; set; } = new ObservableCollection<SKColor>();
+        public WpfObservableRangeCollection<SKColor> Swatches { get; set; } = new WpfObservableRangeCollection<SKColor>();
+        public WpfObservableRangeCollection<SKColor> Palette { get; set; } = new WpfObservableRangeCollection<SKColor>();
 
         public void RaisePropertyChange(string name)
         {

@@ -23,9 +23,9 @@ namespace PixiEditor.Views.UserControls.Palettes
     /// </summary>
     public partial class PaletteColorAdder : UserControl
     {
-        public ObservableCollection<SKColor> Colors
+        public WpfObservableRangeCollection<SKColor> Colors
         {
-            get { return (ObservableCollection<SKColor>)GetValue(ColorsProperty); }
+            get { return (WpfObservableRangeCollection<SKColor>)GetValue(ColorsProperty); }
             set { SetValue(ColorsProperty, value); }
         }
 
@@ -43,7 +43,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         // Using a DependencyProperty as the backing store for Colors.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorsProperty =
-            DependencyProperty.Register("Colors", typeof(ObservableCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(ObservableCollection<SKColor>), OnColorsChanged));
+            DependencyProperty.Register("Colors", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnColorsChanged));
 
         private static void OnColorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
