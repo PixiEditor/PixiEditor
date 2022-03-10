@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using SkiaSharp;
 
@@ -17,6 +18,7 @@ public class JascFileParser : PaletteFileParser
     {
         string fileContent = await File.ReadAllTextAsync(path);
         string[] lines = fileContent.Split('\n');
+        string name = Path.GetFileNameWithoutExtension(path);
         string fileType = lines[0];
         string magicBytes = lines[1];
         if (ValidateFile(fileType, magicBytes))
@@ -29,7 +31,7 @@ public class JascFileParser : PaletteFileParser
                 colors[i] = new SKColor(byte.Parse(colorData[0]), byte.Parse(colorData[1]), byte.Parse(colorData[2]));
             }
 
-            return new PaletteFileData(colors);
+            return new PaletteFileData(name, colors, Array.Empty<string>());
         }
 
         throw new JascFileException("Invalid JASC-PAL file.");

@@ -83,7 +83,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
                     foreach (var parser in FileParsers)
                     {
-                        string supportedFormats = string.Join(';', parser.SupportedFileExtensions);
+                        string supportedFormats = string.Join(';', parser.SupportedFileExtensions).Replace(".", "*.");
                         filter += $"{parser.FileName} ({supportedFormats})|{supportedFormats}|";
                     }
                     
