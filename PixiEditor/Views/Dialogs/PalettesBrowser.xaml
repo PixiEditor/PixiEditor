@@ -40,7 +40,6 @@
                 <ComboBox Name="sortingComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True">Default</ComboBoxItem>
                     <ComboBoxItem>Alphabetical</ComboBoxItem>
-                    <ComboBoxItem>Downloads</ComboBoxItem>
                     <ComboBoxItem>Newest</ComboBoxItem>
                 </ComboBox>
                 <Label Margin="10 0 0 0" Content="Tags:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
@@ -62,7 +61,7 @@
                        VerticalAlignment="Center" Visibility="{Binding ElementName=itemsControl, 
                 Path=Visibility, Converter={converters:OppositeVisibilityConverter}}"/>
             <ScrollViewer Name="scrollViewer" Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
-                <ItemsControl Name="itemsControl" ItemsSource="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.Palettes}" 
+                <ItemsControl Name="itemsControl" ItemsSource="{Binding ElementName=lospecPalettesBrowser, Path=FilteredPalettes}" 
                           Visibility="{Binding ElementName=lospecPalettesBrowser, Path=PaletteList.FetchedCorrectly,
                 Converter={StaticResource BoolToVisibilityConverter}}">
                     <ItemsControl.ItemTemplate>

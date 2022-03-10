@@ -73,6 +73,18 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty PaletteListDataSourcesProperty =
             DependencyProperty.Register("PaletteListDataSources", typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PalettesBrowser), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
 
+        public WpfObservableRangeCollection<Palette> FilteredPalettes
+        {
+            get { return (WpfObservableRangeCollection<Palette>)GetValue(FilteredPalettesProperty); }
+            set { SetValue(FilteredPalettesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for FilteredPalettes.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty FilteredPalettesProperty =
+            DependencyProperty.Register("FilteredPalettes", typeof(WpfObservableRangeCollection<Palette>), typeof(PalettesBrowser));
+
+
+
 
         public string SortingType { get; set; } = "Default";
         public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
@@ -95,10 +107,10 @@ namespace PixiEditor.Views.Dialogs
             SystemCommands.CloseWindow(this);
         }
 
-        private static async void ColorsNumberChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void ColorsNumberChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             PalettesBrowser browser = (PalettesBrowser)d;
-            await browser.UpdatePaletteList(true);
+            browser.FilterPalettes();
         }
 
 
@@ -121,6 +133,12 @@ namespace PixiEditor.Views.Dialogs
                     }
                 }
 
+                if (FilteredPalettes == null)
+                {
+                    FilteredPalettes = new WpfObservableRangeCollection<Palette>(PaletteList.Palettes);
+                }
+
+                FilterPalettes();
                 OnListFetched.Invoke(PaletteList);
             }
 
@@ -149,35 +167,61 @@ namespace PixiEditor.Views.Dialogs
                 }
 
                 PaletteList.Palettes.AddRange(newPalettes.Palettes);
+                FilterPalettes();
                 OnListFetched.Invoke(PaletteList);
                 IsFetching = false;
             }
         }
 
-        private async void SortingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SortingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems != null && e.AddedItems.Count > 0 && e.AddedItems[0] is ComboBoxItem item && item.Content is string value)
             {
                 SortingType = value;
-                await UpdatePaletteList(true);
+                FilterPalettes();
                 scrollViewer.ScrollToHome();
             }
         }
 
-        private async void TagsInput_OnSubmit(object sender, InputBoxEventArgs e)
+        private void FilterPalettes()
+        {
+            FilteredPalettes.Clear();
+            switch (ColorsNumberMode)
+            {
+                case ColorsNumberMode.Any:
+                    FilteredPalettes.AddRange(PaletteList.Palettes);
+                    break;
+                case ColorsNumberMode.Max:
+                    FilteredPalettes.AddRange(PaletteList.Palettes.Where(x => x.Colors.Count <= ColorsNumber));
+                    break;
+                case ColorsNumberMode.Min:
+                    FilteredPalettes.AddRange(PaletteList.Palettes.Where(x => x.Colors.Count >= ColorsNumber));
+                    break;
+                case ColorsNumberMode.Exact:
+                    FilteredPalettes.AddRange(PaletteList.Palettes.Where(x => x.Colors.Count == ColorsNumber));
+                    break;
+                default:
+                    break;
+            }
+
+            
+            FilteredPalettes.OrderBy()
+        }
+
+        private void TagsInput_OnSubmit(object sender, InputBoxEventArgs e)
         {
             Tags = e.Input.Split(_separators, options: StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            await UpdatePaletteList(true);
+            FilterPalettes();
             scrollViewer.ScrollToHome();
         }
 
 
-        private async void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems != null && e.AddedItems.Count > 0 && e.AddedItems[0] is ComboBoxItem item && item.Content is string value)
             {
                 ColorsNumberMode = Enum.Parse<ColorsNumberMode>(value);
-                await UpdatePaletteList(true);
+                FilterPalettes();
                 scrollViewer.ScrollToHome();
             }
         }
