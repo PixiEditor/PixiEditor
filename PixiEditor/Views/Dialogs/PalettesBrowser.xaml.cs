@@ -20,7 +20,7 @@ namespace PixiEditor.Views.Dialogs
     public partial class PalettesBrowser : Window
     {
         public event ListFetched OnListFetched;
-        private int _currentPage = 0;
+        public const int ItemsPerLoad = 10;
 
         public PaletteList PaletteList
         {
@@ -107,13 +107,18 @@ namespace PixiEditor.Views.Dialogs
             IsFetching = true;
             if (PaletteList == null || refetch)
             {
-                //PaletteList.Palettes.Clear();
                 for (int i = 0; i < PaletteListDataSources.Count; i++)
                 {
-                    var src = await PaletteListDataSources[i].FetchPaletteList();
+                    PaletteList src = await FetchPaletteList(i);
                     if (!src.FetchedCorrectly) continue;
-                    //PaletteList.Palettes.AddRange(src.Palettes); //WHY TF IT DOESN'T UPDATE IN VIEW
-                    PaletteList = src; // So yeah, since we don't have more than 1 palette data source right now, then temp solution
+                    if (PaletteList == null)
+                    {
+                        PaletteList = src;
+                    }
+                    else
+                    {
+                        PaletteList.Palettes.AddRange(src.Palettes);
+                    }
                 }
 
                 OnListFetched.Invoke(PaletteList);
@@ -122,25 +127,31 @@ namespace PixiEditor.Views.Dialogs
             IsFetching = false;
         }
 
+        private async Task<PaletteList> FetchPaletteList(int index)
+        {
+            int startIndex = PaletteList != null ? PaletteList.Palettes.Count : 0;
+            var src = await PaletteListDataSources[index].FetchPaletteList(startIndex, ItemsPerLoad);
+            return src;
+        }
+
         private async void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            //if (PaletteList == null || PaletteList.Palettes == null) return;
-            //var scrollViewer = (ScrollViewer)sender;
-            //if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
-            //{
-            //    IsFetching = true;
-            //    _currentPage++;
-            //    var newPalettes = await LospecPaletteFetcher.FetchPage(_currentPage);
-            //    if(newPalettes == null || !newPalettes.FetchedCorrectly || newPalettes.Palettes == null)
-            //    {
-            //        IsFetching = false;
-            //        return;
-            //    }
+            if (PaletteList == null || PaletteList.Palettes == null) return;
+            var scrollViewer = (ScrollViewer)sender;
+            if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
+            {
+                IsFetching = true;
+                var newPalettes = await FetchPaletteList(0);
+                if (newPalettes == null || !newPalettes.FetchedCorrectly || newPalettes.Palettes == null)
+                {
+                    IsFetching = false;
+                    return;
+                }
 
-            //    PaletteList.Palettes.AddRange(newPalettes.Palettes);
-            //    OnListFetched.Invoke(PaletteList);
-            //    IsFetching = false;
-            //}
+                PaletteList.Palettes.AddRange(newPalettes.Palettes);
+                OnListFetched.Invoke(PaletteList);
+                IsFetching = false;
+            }
         }
 
         private async void SortingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

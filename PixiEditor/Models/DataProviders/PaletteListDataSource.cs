@@ -8,7 +8,7 @@ namespace PixiEditor.Models.DataProviders
     public abstract class PaletteListDataSource
     {
         public virtual void Initialize() { }
-        public abstract Task<PaletteList> FetchPaletteList();
+        public abstract Task<PaletteList> FetchPaletteList(int startIndex, int items);
         public List<PaletteFileParser> AvailableParsers { get; set; }
 
     }
