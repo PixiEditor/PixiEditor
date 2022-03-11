@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
 namespace ChunkyImageLib
 {
-    public class ChunkyImage
+    public class ChunkyImage : IReadOnlyChunkyImage
     {
         private bool locked = false; //todo implement locking
 
@@ -24,7 +24,7 @@ namespace ChunkyImageLib
             return MaybeGetChunk(pos, uncommitedChunks) ?? MaybeGetChunk(pos, chunks);
         }
 
-        public Chunk? GetCommitedChunk(Vector2i pos)
+        internal Chunk? GetCommitedChunk(Vector2i pos)
         {
             return MaybeGetChunk(pos, chunks);
         }

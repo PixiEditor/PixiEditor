@@ -4,6 +4,6 @@ namespace ChangeableDocument.Changeables.Interfaces
 {
     public interface IReadOnlyLayer : IReadOnlyStructureMember
     {
-        ChunkyImage LayerImage { get; }
+        IReadOnlyChunkyImage LayerImage { get; }
     }
 }
