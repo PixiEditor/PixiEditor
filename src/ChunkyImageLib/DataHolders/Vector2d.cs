@@ -53,6 +53,13 @@ namespace ChunkyImageLib.DataHolders
         {
             return Math.Acos((this * other) / Length / other.Length);
         }
+
+        public double CCWAngleTo(Vector2d other)
+        {
+            var rot = other.Rotate(-Angle);
+            return rot.Angle;
+        }
+
         public Vector2d Normalize()
         {
             return new Vector2d(X / Length, Y / Length);

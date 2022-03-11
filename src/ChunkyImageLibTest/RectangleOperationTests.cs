@@ -56,7 +56,7 @@ namespace ChunkyImageLibTest
         [Fact]
         public void FindAffectedChunks_3x3NegativeStrokeOnly_FindsCorrectChunks()
         {
-            var (x, y, w, h) = (-chunkSize * 3 + chunkSize / 2, -chunkSize * 3 + chunkSize / 2, chunkSize * 2, chunkSize * 2);
+            var (x, y, w, h) = (-chunkSize * 3 - chunkSize / 2, -chunkSize * 3 - chunkSize / 2, chunkSize * 2, chunkSize * 2);
             RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
             HashSet<Vector2i> expected = new()

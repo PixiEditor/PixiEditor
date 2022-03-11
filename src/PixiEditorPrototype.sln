@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLib", "ChunkyIma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StructureRenderer", "StructureRenderer\StructureRenderer.csproj", "{2B396104-7F74-4E03-849E-0AD6EF003666}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLibTest", "ChunkyImageLibTest\ChunkyImageLibTest.csproj", "{794971CA-8CD2-4D1D-BDD9-F41E2638D138}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLibTest", "ChunkyImageLibTest\ChunkyImageLibTest.csproj", "{794971CA-8CD2-4D1D-BDD9-F41E2638D138}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLibVis", "ChunkyImageLibVis\ChunkyImageLibVis.csproj", "{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
