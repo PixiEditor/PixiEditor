@@ -51,13 +51,13 @@ namespace PixiEditorPrototype.Models
                 }
 
                 document.FinalBitmap.Lock();
-                var renderResult = await renderer.ProcessChanges(result!, document.FinalBitmapSurface, document.FinalBitmap.PixelWidth, document.FinalBitmap.PixelHeight);
+                var renderResult = await renderer.ProcessChanges(result!, document.FinalBitmapSurface, new(document.FinalBitmap.PixelWidth, document.FinalBitmap.PixelHeight));
 
                 foreach (IRenderInfo info in renderResult)
                 {
                     if (info is DirtyRect_RenderInfo dirtyRect)
                     {
-                        document.FinalBitmap.AddDirtyRect(new(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height));
+                        document.FinalBitmap.AddDirtyRect(new(dirtyRect.Pos.X, dirtyRect.Pos.Y, dirtyRect.Size.X, dirtyRect.Size.Y));
                     }
                 }
                 document.FinalBitmap.Unlock();

@@ -11,7 +11,9 @@ namespace StructureRenderer
     public class Renderer
     {
         private DocumentChangeTracker tracker;
+        private List<Surface> temporarySurfaces = new();
         private Surface? backSurface;
+        private static SKPaint PaintToDrawChunksWith = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
         private static SKPaint BlendingPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
         private static SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
         public Renderer(DocumentChangeTracker tracker)
@@ -19,108 +21,167 @@ namespace StructureRenderer
             this.tracker = tracker;
         }
 
-        public async Task<List<IRenderInfo>> ProcessChanges(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, int screenW, int screenH)
+        public async Task<List<IRenderInfo>> ProcessChanges(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, Vector2i screenSize)
         {
-            return await Task.Run(() => Render(changes, screenSurface, screenW, screenH)).ConfigureAwait(true);
+            return await Task.Run(() => Render(changes, screenSurface, screenSize)).ConfigureAwait(true);
         }
 
-        private HashSet<Vector2i> FindChunksToRerender(IReadOnlyList<IChangeInfo> changes)
+        private HashSet<Vector2i>? FindChunksToRerender(IReadOnlyList<IChangeInfo> changes)
         {
             HashSet<Vector2i> chunks = new();
             foreach (var change in changes)
             {
-                if (change is LayerImageChunks_ChangeInfo layerImageChunks)
+                switch (change)
                 {
-                    if (layerImageChunks.Chunks == null)
-                        throw new Exception("Chunks must not be null");
-                    chunks.UnionWith(layerImageChunks.Chunks);
+                    case LayerImageChunks_ChangeInfo layerImageChunks:
+                        if (layerImageChunks.Chunks == null)
+                            throw new Exception("Chunks must not be null");
+                        chunks.UnionWith(layerImageChunks.Chunks);
+                        break;
+                    case CreateStructureMember_ChangeInfo:
+                    case DeleteStructureMember_ChangeInfo:
+                    case MoveStructureMember_ChangeInfo:
+                        return null;
+                    case StructureMemberOpacity_ChangeInfo opacityChangeInfo:
+                        var memberWithOpacity = tracker.Document.FindMemberOrThrow(opacityChangeInfo.GuidValue);
+                        if (memberWithOpacity is IReadOnlyLayer layerWithOpacity)
+                            chunks.UnionWith(layerWithOpacity.LayerImage.FindAllChunks());
+                        else
+                            return null;
+                        break;
+                    case StructureMemberProperties_ChangeInfo propertiesChangeInfo:
+                        if (!propertiesChangeInfo.IsVisibleChanged)
+                            break;
+                        var memberWithVisibility = tracker.Document.FindMemberOrThrow(propertiesChangeInfo.GuidValue);
+                        if (memberWithVisibility is IReadOnlyLayer layerWithVisibility)
+                            chunks.UnionWith(layerWithVisibility.LayerImage.FindAllChunks());
+                        else
+                            return null;
+                        break;
                 }
             }
             return chunks;
         }
 
-        private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, int screenW, int screenH)
+        private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, Vector2i screenSize)
         {
             bool redrawEverything = false;
-            if (backSurface == null || backSurface.Width != screenW || backSurface.Height != screenH)
+            if (backSurface == null || backSurface.Width != screenSize.X || backSurface.Height != screenSize.Y)
             {
                 backSurface?.Dispose();
-                backSurface = new(screenW, screenH);
+                backSurface = new(screenSize.X, screenSize.Y);
                 redrawEverything = true;
             }
+            HashSet<Vector2i>? chunks = null;
+            if (!redrawEverything)
+                chunks = FindChunksToRerender(changes);
+            if (chunks == null)
+                redrawEverything = true;
 
-            DirtyRect_RenderInfo? info = null;
+            AllocateTempSurfaces(tracker.Document.ReadOnlyStructureRoot);
+
+            List<IRenderInfo> infos = new();
+
             // draw to back surface
             if (redrawEverything)
             {
-                RenderScreen(screenW, screenH, screenSurface);
-                info = new(0, 0, screenW, screenH);
+                RenderScreen(screenSize, screenSurface, tracker.Document.ReadOnlyStructureRoot);
+                infos.Add(new DirtyRect_RenderInfo(new Vector2i(0, 0), screenSize));
             }
             else
             {
-                HashSet<Vector2i> chunks = FindChunksToRerender(changes);
-                var (minX, minY, maxX, maxY) = (int.MaxValue, int.MaxValue, int.MinValue, int.MinValue);
-                foreach (var chunkPos in chunks)
+                foreach (var chunkPos in chunks!)
                 {
-                    RenderChunk(chunkPos, screenSurface);
-                    (minX, minY) = (Math.Min(chunkPos.X, minX), Math.Min(chunkPos.Y, minY));
-                    (maxX, maxY) = (Math.Max(chunkPos.X, maxX), Math.Max(chunkPos.Y, maxY));
-                }
-                if (minX != int.MaxValue)
-                {
-                    info = new(
-                        minX * ChunkyImage.ChunkSize,
-                        minY * ChunkyImage.ChunkSize,
-                        (maxX - minX + 1) * ChunkyImage.ChunkSize,
-                        (maxY - minY + 1) * ChunkyImage.ChunkSize);
+                    screenSurface.Canvas.DrawRect(SKRect.Create(chunkPos * ChunkyImage.ChunkSize, new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)), ClearPaint);
+                    var renderedSurface = RenderChunkRecursively(chunkPos, 0, tracker.Document.ReadOnlyStructureRoot);
+                    if (renderedSurface != null)
+                        screenSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, chunkPos * ChunkyImage.ChunkSize, BlendingPaint);
+                    infos.Add(new DirtyRect_RenderInfo(
+                        chunkPos * ChunkyImage.ChunkSize,
+                        new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)
+                        ));
                 }
             }
 
-            // transfer back surface to screen surface
+            // transfer the back surface to the screen surface
             screenSurface.Canvas.DrawSurface(backSurface.SkiaSurface, 0, 0);
 
-            return info == null ? new() : new() { info };
+            return infos;
         }
 
-        private void RenderScreen(int screenW, int screenH, SKSurface screenSurface)
+        private void RenderScreen(Vector2i screenSize, SKSurface screenSurface, IReadOnlyFolder structureRoot)
         {
-            int chunksWidth = (int)Math.Ceiling(screenW / (float)ChunkyImage.ChunkSize);
-            int chunksHeight = (int)Math.Ceiling(screenH / (float)ChunkyImage.ChunkSize);
+            int chunksWidth = (int)Math.Ceiling(screenSize.X / (float)ChunkyImage.ChunkSize);
+            int chunksHeight = (int)Math.Ceiling(screenSize.Y / (float)ChunkyImage.ChunkSize);
+            screenSurface.Canvas.Clear();
             for (int x = 0; x < chunksWidth; x++)
             {
                 for (int y = 0; y < chunksHeight; y++)
                 {
-                    RenderChunk(new(x, y), screenSurface);
+                    var renderedSurface = RenderChunkRecursively(new(x, y), 0, structureRoot);
+                    if (renderedSurface != null)
+                        screenSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, x * ChunkyImage.ChunkSize, y * ChunkyImage.ChunkSize, BlendingPaint);
                 }
             }
         }
 
-        private void RenderChunk(Vector2i chunkPos, SKSurface screenSurface)
+        private void AllocateTempSurfaces(IReadOnlyFolder structureRoot)
         {
-            screenSurface.Canvas.DrawRect(SKRect.Create(chunkPos * ChunkyImage.ChunkSize, new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)), ClearPaint);
-            ForEachLayer((layer) =>
+            int depth = FindDeepestLayerDepth(structureRoot, 0);
+            while (temporarySurfaces.Count < depth)
             {
-                var chunk = layer.LayerImage.GetChunk(chunkPos);
-                if (chunk == null)
-                    return;
-                using var snapshot = chunk.Snapshot();
-                screenSurface.Canvas.DrawImage(snapshot, chunkPos * ChunkyImage.ChunkSize, BlendingPaint);
-            }, tracker.Document.ReadOnlyStructureRoot);
+                temporarySurfaces.Add(new Surface(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize));
+            }
         }
 
-        private void ForEachLayer(Action<IReadOnlyLayer> action, IReadOnlyFolder folder)
+        private int FindDeepestLayerDepth(IReadOnlyFolder folder, int folderDepth)
         {
+            int deepestLayer = -1;
             foreach (var child in folder.ReadOnlyChildren)
             {
                 if (child is IReadOnlyLayer layer)
                 {
-                    action(layer);
+                    deepestLayer = folderDepth + 1;
                 }
                 else if (child is IReadOnlyFolder innerFolder)
                 {
-                    ForEachLayer(action, innerFolder);
+                    deepestLayer = FindDeepestLayerDepth(innerFolder, folderDepth + 1);
                 }
             }
+            return deepestLayer;
+        }
+
+        private Surface? RenderChunkRecursively(Vector2i chunkPos, int depth, IReadOnlyFolder folder)
+        {
+            Surface? surface = temporarySurfaces.Count > depth ? temporarySurfaces[depth] : null;
+            surface?.SkiaSurface.Canvas.Clear();
+            foreach (var child in folder.ReadOnlyChildren)
+            {
+                if (!child.IsVisible)
+                    continue;
+                if (child is IReadOnlyLayer layer)
+                {
+                    var chunk = layer.LayerImage.GetChunk(chunkPos);
+                    if (chunk == null)
+                        continue;
+                    if (surface == null)
+                        throw new Exception("Not enough surfaces have been allocated to draw the entire layer tree");
+                    using var snapshot = chunk.Snapshot();
+                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
+                    surface.SkiaSurface.Canvas.DrawImage(snapshot, 0, 0, PaintToDrawChunksWith);
+                }
+                else if (child is IReadOnlyFolder innerFolder)
+                {
+                    var renderedSurface = RenderChunkRecursively(chunkPos, depth + 1, innerFolder);
+                    if (renderedSurface == null)
+                        continue;
+                    if (surface == null)
+                        throw new Exception("Not enough surfaces have been allocated to draw the entire layer tree");
+                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
+                    surface.SkiaSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, 0, 0, PaintToDrawChunksWith);
+                }
+            }
+            return surface;
         }
     }
 }

@@ -61,6 +61,17 @@ namespace ChunkyImageLib
             ProcessQueueFinal();
         }
 
+        public HashSet<Vector2i> FindAllChunks()
+        {
+            var allChunks = chunks.Select(chunk => chunk.Key).ToHashSet();
+            allChunks.UnionWith(uncommitedChunks.Select(chunk => chunk.Key).ToHashSet());
+            foreach (var (operation, opChunks) in queuedOperations)
+            {
+                allChunks.UnionWith(opChunks);
+            }
+            return allChunks;
+        }
+
         public HashSet<Vector2i> FindAffectedChunks()
         {
             var chunks = uncommitedChunks.Select(chunk => chunk.Key).ToHashSet();

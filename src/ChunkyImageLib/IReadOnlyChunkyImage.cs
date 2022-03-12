@@ -6,5 +6,6 @@ namespace ChunkyImageLib
     {
         Chunk? GetChunk(Vector2i pos);
         HashSet<Vector2i> FindAffectedChunks();
+        HashSet<Vector2i> FindAllChunks();
     }
 }
