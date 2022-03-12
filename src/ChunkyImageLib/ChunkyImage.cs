@@ -16,6 +16,20 @@ namespace ChunkyImageLib
 
         public static int ChunkSize => ChunkPool.ChunkSize;
 
+        public ChunkyImage Clone()
+        {
+            ChunkyImage output = new();
+            var chunks = FindAllChunks();
+            foreach (var chunk in chunks)
+            {
+                var image = GetChunk(chunk);
+                if (image != null)
+                    output.DrawImage(chunk * ChunkSize, image.Surface);
+            }
+            output.CommitChanges();
+            return output;
+        }
+
         public Chunk? GetChunk(Vector2i pos)
         {
             if (queuedOperations.Count == 0)
