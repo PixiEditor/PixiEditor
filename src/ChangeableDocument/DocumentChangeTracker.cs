@@ -1,4 +1,5 @@
 ﻿using ChangeableDocument.Actions;
+using ChangeableDocument.Actions.Undo;
 using ChangeableDocument.Changeables;
 using ChangeableDocument.Changeables.Interfaces;
 using ChangeableDocument.ChangeInfos;

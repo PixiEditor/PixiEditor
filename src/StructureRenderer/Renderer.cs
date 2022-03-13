@@ -15,6 +15,7 @@ namespace StructureRenderer
         private Surface? backSurface;
         private static SKPaint PaintToDrawChunksWith = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
         private static SKPaint BlendingPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+        private static SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
         private static SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
         public Renderer(DocumentChangeTracker tracker)
         {
@@ -38,6 +39,18 @@ namespace StructureRenderer
                             throw new Exception("Chunks must not be null");
                         chunks.UnionWith(layerImageChunks.Chunks);
                         break;
+                    case Selection_ChangeInfo selection:
+                        if (tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            if (selection.Chunks == null)
+                                throw new Exception("Chunks must not be null");
+                            chunks.UnionWith(selection.Chunks);
+                        }
+                        break;
                     case CreateStructureMember_ChangeInfo:
                     case DeleteStructureMember_ChangeInfo:
                     case MoveStructureMember_ChangeInfo:
@@ -45,7 +58,7 @@ namespace StructureRenderer
                     case StructureMemberOpacity_ChangeInfo opacityChangeInfo:
                         var memberWithOpacity = tracker.Document.FindMemberOrThrow(opacityChangeInfo.GuidValue);
                         if (memberWithOpacity is IReadOnlyLayer layerWithOpacity)
-                            chunks.UnionWith(layerWithOpacity.LayerImage.FindAllChunks());
+                            chunks.UnionWith(layerWithOpacity.ReadOnlyLayerImage.FindAllChunks());
                         else
                             return null;
                         break;
@@ -54,7 +67,7 @@ namespace StructureRenderer
                             break;
                         var memberWithVisibility = tracker.Document.FindMemberOrThrow(propertiesChangeInfo.GuidValue);
                         if (memberWithVisibility is IReadOnlyLayer layerWithVisibility)
-                            chunks.UnionWith(layerWithVisibility.LayerImage.FindAllChunks());
+                            chunks.UnionWith(layerWithVisibility.ReadOnlyLayerImage.FindAllChunks());
                         else
                             return null;
                         break;
@@ -93,9 +106,7 @@ namespace StructureRenderer
                 foreach (var chunkPos in chunks!)
                 {
                     screenSurface.Canvas.DrawRect(SKRect.Create(chunkPos * ChunkyImage.ChunkSize, new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)), ClearPaint);
-                    var renderedSurface = RenderChunkRecursively(chunkPos, 0, tracker.Document.ReadOnlyStructureRoot);
-                    if (renderedSurface != null)
-                        screenSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, chunkPos * ChunkyImage.ChunkSize, BlendingPaint);
+                    RenderChunk(chunkPos, screenSurface);
                     infos.Add(new DirtyRect_RenderInfo(
                         chunkPos * ChunkyImage.ChunkSize,
                         new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)
@@ -118,9 +129,7 @@ namespace StructureRenderer
             {
                 for (int y = 0; y < chunksHeight; y++)
                 {
-                    var renderedSurface = RenderChunkRecursively(new(x, y), 0, structureRoot);
-                    if (renderedSurface != null)
-                        screenSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, x * ChunkyImage.ChunkSize, y * ChunkyImage.ChunkSize, BlendingPaint);
+                    RenderChunk(new(x, y), screenSurface);
                 }
             }
         }
@@ -151,24 +160,36 @@ namespace StructureRenderer
             return deepestLayer;
         }
 
+        private void RenderChunk(Vector2i chunkPos, SKSurface screenSurface)
+        {
+            var renderedSurface = RenderChunkRecursively(chunkPos, 0, tracker.Document.ReadOnlyStructureRoot);
+            if (renderedSurface != null)
+                screenSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, chunkPos * ChunkyImage.ChunkSize, BlendingPaint);
+
+            if (tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
+                return;
+            var selectionChunk = tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.GetLatestChunk(chunkPos);
+            if (selectionChunk != null)
+                selectionChunk.DrawOnSurface(screenSurface, chunkPos * ChunkyImage.ChunkSize, SelectionPaint);
+        }
+
         private Surface? RenderChunkRecursively(Vector2i chunkPos, int depth, IReadOnlyFolder folder)
         {
             Surface? surface = temporarySurfaces.Count > depth ? temporarySurfaces[depth] : null;
             surface?.SkiaSurface.Canvas.Clear();
             foreach (var child in folder.ReadOnlyChildren)
             {
-                if (!child.IsVisible)
+                if (!child.ReadOnlyIsVisible)
                     continue;
                 if (child is IReadOnlyLayer layer)
                 {
-                    var chunk = layer.LayerImage.GetChunk(chunkPos);
+                    var chunk = layer.ReadOnlyLayerImage.GetLatestChunk(chunkPos);
                     if (chunk == null)
                         continue;
                     if (surface == null)
                         throw new Exception("Not enough surfaces have been allocated to draw the entire layer tree");
-                    using var snapshot = chunk.Snapshot();
-                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
-                    surface.SkiaSurface.Canvas.DrawImage(snapshot, 0, 0, PaintToDrawChunksWith);
+                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.ReadOnlyOpacity * 255));
+                    chunk.DrawOnSurface(surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
                 }
                 else if (child is IReadOnlyFolder innerFolder)
                 {
@@ -177,7 +198,7 @@ namespace StructureRenderer
                         continue;
                     if (surface == null)
                         throw new Exception("Not enough surfaces have been allocated to draw the entire layer tree");
-                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
+                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.ReadOnlyOpacity * 255));
                     surface.SkiaSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, 0, 0, PaintToDrawChunksWith);
                 }
             }

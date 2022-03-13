@@ -1,6 +1,9 @@
 ﻿using ChangeableDocument;
-using ChangeableDocument.Actions;
-using ChangeableDocument.Actions.Drawing;
+using ChangeableDocument.Actions.Drawing.Rectangle;
+using ChangeableDocument.Actions.Drawing.Selection;
+using ChangeableDocument.Actions.Structure;
+using ChangeableDocument.Actions.Undo;
+using ChunkyImageLib.DataHolders;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
 using System.ComponentModel;
@@ -24,6 +27,8 @@ namespace PixiEditorPrototype.ViewModels
             }
         }
 
+        private Tool activeTool = Tool.Rectangle;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ActionAccumulator ActionAccumulator { get; }
@@ -35,10 +40,12 @@ namespace PixiEditorPrototype.ViewModels
         public FolderViewModel StructureRoot { get; }
         public RelayCommand? UndoCommand { get; }
         public RelayCommand? RedoCommand { get; }
+        public RelayCommand? ClearSelectionCommand { get; }
         public RelayCommand? CreateNewLayerCommand { get; }
         public RelayCommand? CreateNewFolderCommand { get; }
         public RelayCommand? DeleteStructureMemberCommand { get; }
         public RelayCommand? ChangeSelectedItemCommand { get; }
+        public RelayCommand? ChangeActiveToolCommand { get; }
 
         public RelayCommand? MouseDownCommand { get; }
         public RelayCommand? MouseMoveCommand { get; }
@@ -66,12 +73,14 @@ namespace PixiEditorPrototype.ViewModels
             ActionAccumulator = new ActionAccumulator(Tracker, Updater, this);
             StructureHelper = new DocumentStructureHelper(this);
 
-            UndoCommand = new RelayCommand(Undo, _ => true);
-            RedoCommand = new RelayCommand(Redo, _ => true);
-            CreateNewLayerCommand = new RelayCommand(_ => StructureHelper.CreateNewStructureMember(StructureMemberType.Layer), _ => true);
-            CreateNewFolderCommand = new RelayCommand(_ => StructureHelper.CreateNewStructureMember(StructureMemberType.Folder), _ => true);
-            DeleteStructureMemberCommand = new RelayCommand(DeleteStructureMember, _ => true);
-            ChangeSelectedItemCommand = new RelayCommand(ChangeSelectedItem, _ => true);
+            UndoCommand = new RelayCommand(Undo);
+            RedoCommand = new RelayCommand(Redo);
+            ClearSelectionCommand = new RelayCommand(ClearSelection);
+            CreateNewLayerCommand = new RelayCommand(_ => StructureHelper.CreateNewStructureMember(StructureMemberType.Layer));
+            CreateNewFolderCommand = new RelayCommand(_ => StructureHelper.CreateNewStructureMember(StructureMemberType.Folder));
+            DeleteStructureMemberCommand = new RelayCommand(DeleteStructureMember);
+            ChangeSelectedItemCommand = new RelayCommand(ChangeSelectedItem);
+            ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
 
             MouseDownCommand = new RelayCommand(MouseDown);
             MouseMoveCommand = new RelayCommand(MouseMove);
@@ -83,51 +92,88 @@ namespace PixiEditorPrototype.ViewModels
                 FinalBitmap.BackBufferStride);
         }
 
-        private bool drawing = false;
-        private int mouseDownX = 0;
-        private int mouseDownY = 0;
+        private bool mouseIsDown = false;
+        private int mouseDownCanvasX = 0;
+        private int mouseDownCanvasY = 0;
+
+        private bool startedDrawingRect = false;
+        private bool startedSelectingRect = false;
+
         public void MouseDown(object? param)
         {
-            if (SelectedStructureMember != null && SelectedStructureMember is LayerViewModel)
-            {
-                drawing = true;
-                var args = (MouseButtonEventArgs)(param!);
-                var source = (System.Windows.Controls.Image)args.Source;
-                var pos = args.GetPosition(source);
-                mouseDownX = (int)(pos.X / source.Width * FinalBitmap.PixelHeight);
-                mouseDownY = (int)(pos.Y / source.Height * FinalBitmap.PixelHeight);
-            }
+            mouseIsDown = true;
+            var args = (MouseButtonEventArgs)(param!);
+            var source = (System.Windows.Controls.Image)args.Source;
+            var pos = args.GetPosition(source);
+            mouseDownCanvasX = (int)(pos.X / source.Width * FinalBitmap.PixelHeight);
+            mouseDownCanvasY = (int)(pos.Y / source.Height * FinalBitmap.PixelHeight);
         }
 
         public void MouseMove(object? param)
         {
-            if (!drawing)
+            if (!mouseIsDown)
                 return;
             var args = (MouseEventArgs)(param!);
             var source = (System.Windows.Controls.Image)args.Source;
             var pos = args.GetPosition(source);
             int curX = (int)(pos.X / source.Width * FinalBitmap.PixelHeight);
             int curY = (int)(pos.Y / source.Height * FinalBitmap.PixelHeight);
-            ActionAccumulator.AddAction
-                (
-                    new DrawRectangle_Action
-                    (
-                        SelectedStructureMember!.GuidValue,
-                        new(new(mouseDownX, mouseDownY),
-                        new(curX - mouseDownX, curY - mouseDownY),
-                        1,
-                        new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
-                        SKColors.Transparent)
-                    )
-                );
+
+            ProcessToolMouseMove(curX, curY);
+        }
+
+        private void ProcessToolMouseMove(int canvasX, int canvasY)
+        {
+            if (activeTool == Tool.Rectangle)
+            {
+                if (SelectedStructureMember == null)
+                    return;
+                startedDrawingRect = true;
+                ActionAccumulator.AddAction(new DrawRectangle_Action(
+                        SelectedStructureMember.GuidValue,
+                        new ShapeData(
+                            new(mouseDownCanvasX, mouseDownCanvasY),
+                            new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY),
+                            1,
+                            new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                            SKColors.Transparent)
+                    ));
+            }
+            else if (activeTool == Tool.Select)
+            {
+                startedSelectingRect = true;
+                ActionAccumulator.AddAction(new SelectRectangle_Action(
+                        new(mouseDownCanvasX, mouseDownCanvasY),
+                        new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY)
+                    ));
+            }
         }
 
         public void MouseUp(object? param)
         {
-            if (!drawing)
+            if (!mouseIsDown)
                 return;
-            ActionAccumulator.AddAction(new EndDrawRectangle_Action());
-            drawing = false;
+            mouseIsDown = false;
+            ProcessToolMouseUp();
+        }
+
+        private void ProcessToolMouseUp()
+        {
+            if (startedDrawingRect)
+            {
+                startedDrawingRect = false;
+                ActionAccumulator.AddAction(new EndDrawRectangle_Action());
+            }
+            if (startedSelectingRect)
+            {
+                startedSelectingRect = false;
+                ActionAccumulator.AddAction(new EndSelectRectangle_Action());
+            }
+        }
+
+        public void ClearSelection(object? param)
+        {
+            ActionAccumulator.AddAction(new ClearSelection_Action());
         }
 
         public void DeleteStructureMember(object? param)
@@ -149,6 +195,13 @@ namespace PixiEditorPrototype.ViewModels
         private void ChangeSelectedItem(object? param)
         {
             SelectedStructureMember = (StructureMemberViewModel?)((RoutedPropertyChangedEventArgs<object>?)param)?.NewValue;
+        }
+
+        private void ChangeActiveTool(object? param)
+        {
+            if (param == null)
+                return;
+            activeTool = (Tool)param;
         }
     }
 }

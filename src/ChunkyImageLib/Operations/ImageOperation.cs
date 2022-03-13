@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace ChunkyImageLib.Operations
 {
-    internal record class ImageOperation : IOperation
+    internal record class ImageOperation : IChunkOperation
     {
         private Vector2i pos;
         private Surface toPaint;
@@ -19,7 +19,7 @@ namespace ChunkyImageLib.Operations
             chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.ChunkSize, ReplacingPaint);
         }
 
-        public HashSet<Vector2i> FindAffectedChunks()
+        public HashSet<Vector2i> FindAffectedChunks(IReadOnlyChunkyImage image)
         {
             Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.ChunkSize);
             Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Width - 1, pos.Y + toPaint.Height - 1), ChunkPool.ChunkSize);

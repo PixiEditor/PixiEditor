@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace ChunkyImageLib.Operations
 {
-    internal record class RectangleOperation : IOperation
+    internal record class RectangleOperation : IChunkOperation
     {
         public RectangleOperation(ShapeData rect)
         {
@@ -41,7 +41,7 @@ namespace ChunkyImageLib.Operations
             skiaSurf.Canvas.Restore();
         }
 
-        public HashSet<Vector2i> FindAffectedChunks()
+        public HashSet<Vector2i> FindAffectedChunks(IReadOnlyChunkyImage image)
         {
             if (Data.Size.X < 1 || Data.Size.Y < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
                 return new();

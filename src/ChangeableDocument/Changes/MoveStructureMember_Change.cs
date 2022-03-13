@@ -23,7 +23,7 @@ namespace ChangeableDocument.Changes
         public void Initialize(Document document)
         {
             var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
-            originalFolderGuid = curFolder.GuidValue;
+            originalFolderGuid = curFolder.ReadOnlyGuidValue;
             originalFolderIndex = curFolder.Children.IndexOf(member);
         }
 

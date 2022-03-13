@@ -19,7 +19,7 @@ namespace ChangeableDocument.Changes
             var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
 
             originalIndex = parent.Children.IndexOf(member);
-            parentGuid = parent.GuidValue;
+            parentGuid = parent.ReadOnlyGuidValue;
             savedCopy = member.Clone();
         }
 

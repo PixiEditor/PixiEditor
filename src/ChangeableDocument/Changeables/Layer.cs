@@ -6,17 +6,17 @@ namespace ChangeableDocument.Changeables
     internal class Layer : StructureMember, IReadOnlyLayer
     {
         public ChunkyImage LayerImage { get; set; } = new();
-        IReadOnlyChunkyImage IReadOnlyLayer.LayerImage => LayerImage;
+        IReadOnlyChunkyImage IReadOnlyLayer.ReadOnlyLayerImage => LayerImage;
 
         internal override Layer Clone()
         {
             return new Layer()
             {
-                GuidValue = GuidValue,
-                IsVisible = IsVisible,
-                Name = Name,
-                Opacity = Opacity,
-                LayerImage = LayerImage.Clone()
+                ReadOnlyGuidValue = ReadOnlyGuidValue,
+                ReadOnlyIsVisible = ReadOnlyIsVisible,
+                ReadOnlyName = ReadOnlyName,
+                ReadOnlyOpacity = ReadOnlyOpacity,
+                LayerImage = LayerImage.CloneFromLatest()
             };
         }
     }

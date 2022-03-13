@@ -17,10 +17,10 @@ namespace ChangeableDocument.Changeables
 
             return new Folder()
             {
-                GuidValue = GuidValue,
-                IsVisible = IsVisible,
-                Name = Name,
-                Opacity = Opacity,
+                ReadOnlyGuidValue = ReadOnlyGuidValue,
+                ReadOnlyIsVisible = ReadOnlyIsVisible,
+                ReadOnlyName = ReadOnlyName,
+                ReadOnlyOpacity = ReadOnlyOpacity,
                 Children = clonedChildren
             };
         }

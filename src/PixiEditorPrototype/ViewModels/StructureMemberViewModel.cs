@@ -1,4 +1,4 @@
-﻿using ChangeableDocument.Actions;
+﻿using ChangeableDocument.Actions.Properties;
 using ChangeableDocument.Changeables.Interfaces;
 using System;
 using System.ComponentModel;
@@ -13,24 +13,24 @@ namespace PixiEditorPrototype.ViewModels
 
         public string Name
         {
-            get => member.Name;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.GuidValue));
+            get => member.ReadOnlyName;
+            set => Document.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.ReadOnlyGuidValue));
         }
 
         public bool IsVisible
         {
-            get => member.IsVisible;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
+            get => member.ReadOnlyIsVisible;
+            set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.ReadOnlyGuidValue));
         }
 
         public float Opacity
         {
-            get => member.Opacity;
+            get => member.ReadOnlyOpacity;
         }
 
         public Guid GuidValue
         {
-            get => member.GuidValue;
+            get => member.ReadOnlyGuidValue;
         }
 
         public RelayCommand MoveUpCommand { get; }

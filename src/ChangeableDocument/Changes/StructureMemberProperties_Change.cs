@@ -21,19 +21,19 @@ namespace ChangeableDocument.Changes
         public void Initialize(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
-            if (NewIsVisible != null) originalIsVisible = member.IsVisible;
-            if (NewName != null) originalName = member.Name;
+            if (NewIsVisible != null) originalIsVisible = member.ReadOnlyIsVisible;
+            if (NewName != null) originalName = member.ReadOnlyName;
         }
 
         public IChangeInfo? Apply(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
-            if (NewIsVisible != null) member.IsVisible = NewIsVisible.Value;
-            if (NewName != null) member.Name = NewName;
+            if (NewIsVisible != null) member.ReadOnlyIsVisible = NewIsVisible.Value;
+            if (NewName != null) member.ReadOnlyName = NewName;
 
             return new StructureMemberProperties_ChangeInfo()
             {
-                GuidValue = member.GuidValue,
+                GuidValue = member.ReadOnlyGuidValue,
                 IsVisibleChanged = NewIsVisible != null,
                 NameChanged = NewName != null
             };
@@ -42,12 +42,12 @@ namespace ChangeableDocument.Changes
         public IChangeInfo? Revert(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
-            if (NewIsVisible != null) member.IsVisible = originalIsVisible;
-            if (NewName != null) member.Name = originalName!;
+            if (NewIsVisible != null) member.ReadOnlyIsVisible = originalIsVisible;
+            if (NewName != null) member.ReadOnlyName = originalName!;
 
             return new StructureMemberProperties_ChangeInfo()
             {
-                GuidValue = member.GuidValue,
+                GuidValue = member.ReadOnlyGuidValue,
                 IsVisibleChanged = NewIsVisible != null,
                 NameChanged = NewName != null,
             };

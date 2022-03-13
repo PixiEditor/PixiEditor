@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using ChunkyImageLib.DataHolders;
+using SkiaSharp;
 
 namespace ChunkyImageLib
 {
@@ -10,9 +11,9 @@ namespace ChunkyImageLib
             Surface = new Surface(ChunkPool.ChunkSize, ChunkPool.ChunkSize);
         }
 
-        public SKImage Snapshot()
+        public void DrawOnSurface(SKSurface surface, Vector2i pos, SKPaint? paint = null)
         {
-            return Surface.SkiaSurface.Snapshot();
+            surface.Canvas.DrawSurface(Surface.SkiaSurface, pos.X, pos.Y, paint);
         }
 
         public void Dispose()

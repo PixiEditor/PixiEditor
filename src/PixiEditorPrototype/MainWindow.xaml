@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixiEditorPrototype"
         xmlns:views="clr-namespace:PixiEditorPrototype.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="576" Width="1024">
     <DockPanel>
         <views:DocumentView DataContext="{Binding Document}"></views:DocumentView>
     </DockPanel>

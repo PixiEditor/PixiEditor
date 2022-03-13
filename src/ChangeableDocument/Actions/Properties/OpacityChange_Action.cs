@@ -1,6 +1,6 @@
 ﻿using ChangeableDocument.Changes;
 
-namespace ChangeableDocument.Actions
+namespace ChangeableDocument.Actions.Properties
 {
     public record struct OpacityChange_Action : IStartOrUpdateChangeAction
     {
@@ -22,10 +22,5 @@ namespace ChangeableDocument.Actions
         {
             ((StructureMemberOpacity_UpdateableChange)change).Update(Opacity);
         }
-    }
-
-    public record struct EndOpacityChange_Action : IEndChangeAction
-    {
-        bool IEndChangeAction.IsChangeTypeMatching(IChange change) => change is StructureMemberOpacity_UpdateableChange;
     }
 }

@@ -41,7 +41,7 @@ namespace PixiEditorPrototype.Models
         private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
         {
             var (member, parentFolder) = doc.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
-            var parentFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(parentFolder.GuidValue);
+            var parentFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(parentFolder.ReadOnlyGuidValue);
 
             int index = parentFolder.ReadOnlyChildren.IndexOf(member);
 
@@ -58,7 +58,7 @@ namespace PixiEditorPrototype.Models
             {
                 foreach (IReadOnlyStructureMember child in folder2.ReadOnlyChildren)
                 {
-                    ProcessCreateStructureMember(new CreateStructureMember_ChangeInfo() { GuidValue = child.GuidValue });
+                    ProcessCreateStructureMember(new CreateStructureMember_ChangeInfo() { GuidValue = child.ReadOnlyGuidValue });
                 }
             }
         }
@@ -88,7 +88,7 @@ namespace PixiEditorPrototype.Models
             var (member, targetFolder) = doc.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
 
             int index = targetFolder.ReadOnlyChildren.IndexOf(member);
-            var targetFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(targetFolder.GuidValue);
+            var targetFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(targetFolder.ReadOnlyGuidValue);
 
             curFolderVM.Children.Remove(memberVM);
             targetFolderVM.Children.Insert(index, memberVM);

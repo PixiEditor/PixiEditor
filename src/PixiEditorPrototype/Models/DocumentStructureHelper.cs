@@ -1,5 +1,5 @@
 ﻿using ChangeableDocument;
-using ChangeableDocument.Actions;
+using ChangeableDocument.Actions.Structure;
 using PixiEditorPrototype.ViewModels;
 using System;
 using System.Collections.Generic;

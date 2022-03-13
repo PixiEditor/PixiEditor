@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditorPrototype.Views"
+             xmlns:models="clr-namespace:PixiEditorPrototype.Models"
              xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:behaviors="clr-namespace:PixiEditorPrototype.Behaviors"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
@@ -11,7 +12,7 @@
              xmlns:vm="clr-namespace:PixiEditorPrototype.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:DocumentViewModel, IsDesignTimeCreatable=True}"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="576" d:DesignWidth="1024">
     <DockPanel Background="Gray">
         <Border BorderThickness="1" Background="White" BorderBrush="Black" Width="280" DockPanel.Dock="Right" Margin="5">
             <DockPanel>
@@ -68,14 +69,21 @@
             </DockPanel>
         </Border>
         <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Top" Margin="5">
-            <StackPanel Orientation="Horizontal" Margin="5" Background="White">
-                <Button Width="50" Margin="0,0,5,0" Command="{Binding UndoCommand}">Undo</Button>
-                <Button Width="50" Command="{Binding RedoCommand}">Redo</Button>
-                <colorpicker:PortableColorPicker Margin="5,0,0,0" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="40" Height="20"/>
+            <StackPanel Orientation="Horizontal" Background="White">
+                <Button Width="50" Margin="5" Command="{Binding UndoCommand}">Undo</Button>
+                <Button Width="50" Margin="5" Command="{Binding RedoCommand}">Redo</Button>
+                <Button Width="100" Margin="5" Command="{Binding ClearSelectionCommand}">Clear selection</Button>
+            </StackPanel>
+        </Border>
+        <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Left" Margin="5">
+            <StackPanel Orientation="Vertical" Background="White">
+                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
+                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
+                <colorpicker:PortableColorPicker Margin="5" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="30" Height="30"/>
             </StackPanel>
         </Border>
         <Border BorderThickness="1" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-            <Image Margin="5" Source="{Binding FinalBitmap}" Width="200" Height="200" RenderOptions.BitmapScalingMode="NearestNeighbor">
+            <Image Margin="5" Source="{Binding FinalBitmap}" Width="400" Height="400" RenderOptions.BitmapScalingMode="NearestNeighbor">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">
                         <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>

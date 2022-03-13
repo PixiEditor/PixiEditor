@@ -8,7 +8,7 @@ namespace ChunkyImageLib
     {
         private bool disposed;
         private int bytesPerPixel;
-        private IntPtr PixelBuffer { get; }
+        public IntPtr PixelBuffer { get; }
         public SKSurface SkiaSurface { get; }
         public int Width { get; }
         public int Height { get; }

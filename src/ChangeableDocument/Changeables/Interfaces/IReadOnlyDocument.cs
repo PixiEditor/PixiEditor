@@ -3,6 +3,7 @@
     public interface IReadOnlyDocument
     {
         IReadOnlyFolder ReadOnlyStructureRoot { get; }
+        IReadOnlySelection ReadOnlySelection { get; }
         IReadOnlyStructureMember? FindMember(Guid guid);
         IReadOnlyStructureMember FindMemberOrThrow(Guid guid);
         (IReadOnlyStructureMember, IReadOnlyFolder) FindChildAndParentOrThrow(Guid guid);

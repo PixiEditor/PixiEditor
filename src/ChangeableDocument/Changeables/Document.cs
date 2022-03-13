@@ -5,12 +5,14 @@ namespace ChangeableDocument.Changeables
     internal class Document : IChangeable, IReadOnlyDocument
     {
         public IReadOnlyFolder ReadOnlyStructureRoot => StructureRoot;
+        public IReadOnlySelection ReadOnlySelection => Selection;
         IReadOnlyStructureMember? IReadOnlyDocument.FindMember(Guid guid) => FindMember(guid);
         IReadOnlyList<IReadOnlyStructureMember> IReadOnlyDocument.FindMemberPath(Guid guid) => FindMemberPath(guid);
         IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
         (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
-        internal Folder StructureRoot { get; set; } = new() { GuidValue = Guid.Empty };
+        internal Folder StructureRoot { get; } = new() { ReadOnlyGuidValue = Guid.Empty };
+        internal Selection Selection { get; } = new();
 
         public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new Exception("Could not find member with guid " + guid.ToString());
         public StructureMember? FindMember(Guid guid)
@@ -37,13 +39,13 @@ namespace ChangeableDocument.Changeables
 
         private bool FillMemberPath(Folder folder, Guid guid, List<StructureMember> toFill)
         {
-            if (folder.GuidValue == guid)
+            if (folder.ReadOnlyGuidValue == guid)
             {
                 return true;
             }
             foreach (var member in folder.Children)
             {
-                if (member is Layer childLayer && childLayer.GuidValue == guid)
+                if (member is Layer childLayer && childLayer.ReadOnlyGuidValue == guid)
                 {
                     toFill.Add(member);
                     return true;

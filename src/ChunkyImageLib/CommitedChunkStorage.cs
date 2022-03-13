@@ -2,11 +2,11 @@
 
 namespace ChunkyImageLib
 {
-    public class ChunkStorage : IDisposable
+    public class CommitedChunkStorage : IDisposable
     {
         private bool disposed = false;
         private List<(Vector2i, Chunk?)> savedChunks = new();
-        public ChunkStorage(ChunkyImage image, HashSet<Vector2i> commitedChunksToSave)
+        public CommitedChunkStorage(ChunkyImage image, HashSet<Vector2i> commitedChunksToSave)
         {
             foreach (var chunkPos in commitedChunksToSave)
             {

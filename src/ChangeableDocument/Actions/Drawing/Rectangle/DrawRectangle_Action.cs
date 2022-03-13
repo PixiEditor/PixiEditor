@@ -2,7 +2,7 @@
 using ChangeableDocument.Changes.Drawing;
 using ChunkyImageLib.DataHolders;
 
-namespace ChangeableDocument.Actions.Drawing
+namespace ChangeableDocument.Actions.Drawing.Rectangle
 {
     public record struct DrawRectangle_Action : IStartOrUpdateChangeAction
     {
@@ -23,14 +23,6 @@ namespace ChangeableDocument.Actions.Drawing
         IUpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
         {
             return new DrawRectangle_UpdateableChange(LayerGuid, Rectangle);
-        }
-    }
-
-    public record struct EndDrawRectangle_Action : IEndChangeAction
-    {
-        bool IEndChangeAction.IsChangeTypeMatching(IChange change)
-        {
-            return change is DrawRectangle_UpdateableChange;
         }
     }
 }
