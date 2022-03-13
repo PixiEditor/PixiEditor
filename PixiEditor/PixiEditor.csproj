@@ -136,6 +136,7 @@
 		<None Remove="Images\AnchorDot.png" />
 		<None Remove="Images\CheckerTile.png" />
 		<None Remove="Images\ChevronDown.png" />
+		<None Remove="Images\ChevronsDown.png" />
 		<None Remove="Images\DiagonalRed.png" />
 		<None Remove="Images\Download.png" />
 		<None Remove="Images\Eye-off.png" />
@@ -214,6 +215,7 @@
 		<Resource Include="Images\AnchorDot.png" />
 		<Resource Include="Images\CheckerTile.png" />
 		<Resource Include="Images\ChevronDown.png" />
+		<Resource Include="Images\ChevronsDown.png" />
 		<Resource Include="Images\DiagonalRed.png" />
 		<Resource Include="Images\Download.png" />
 		<Resource Include="Images\Eye-off.png" />
