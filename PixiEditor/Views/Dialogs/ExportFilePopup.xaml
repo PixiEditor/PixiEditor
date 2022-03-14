@@ -8,7 +8,7 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
-        Title="SaveFilePopup" Height="250" Width="300" WindowStyle="None" MinHeight="250" MinWidth="300"
+        Title="SaveFilePopup" WindowStyle="None" Height="330" Width="310" MinHeight="330" MinWidth="310"
         WindowStartupLocation="CenterScreen" Name="saveFilePopup">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
@@ -33,10 +33,16 @@
                     Margin="15" Style="{StaticResource DarkRoundButton}" Content="Export" Command="{Binding OkCommand}"
                     CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
 
-        <local:SizePicker Width="230" Height="125" Margin="0,30,0,0"
-            x:Name="sizePicker"
-            ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
-            ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
+        <Grid HorizontalAlignment="Center" Margin="0,30,0,0" Background="{StaticResource MainColor}"
+                    VerticalAlignment="Top" Grid.Row="1" Width="240" Height="205">
+            <local:SizePicker Width="240" Height="180" Margin="0,0,0,25"
+                x:Name="sizePicker"
+                SizeUnitSelectionVisibility="Visible"
+                ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
+                ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
+            <TextBlock Foreground="Snow" Margin="10,5" TextWrapping="Wrap" VerticalAlignment="Bottom" TextAlignment="Center" 
+                       d:Text="If you want to share the image, try 400% for the best clarity" Text="{Binding SizeHint, ElementName=saveFilePopup}"/>
+        </Grid>
 
     </DockPanel>
 </Window>
