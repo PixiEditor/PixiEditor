@@ -8,15 +8,12 @@ namespace PixiEditor.Models.DataHolders.Palettes
     {
         public ColorsNumberMode ColorsNumberMode { get; set; }
         public int ColorsCount { get; set; }
-        public string[] Tags { get; set; }
-
         public string Name { get; set; }
 
-        public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string[] tags, string name)
+        public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string name)
         {
             ColorsNumberMode = colorsNumberMode;
             ColorsCount = colorsCount;
-            Tags = tags;
             Name = name;
         }
 
@@ -40,11 +37,6 @@ namespace PixiEditor.Models.DataHolders.Palettes
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-
-            if (Tags.Length > 0)
-            {
-                result = Tags.All(tag => palette.Tags.Contains(tag));
             }
 
             return result;

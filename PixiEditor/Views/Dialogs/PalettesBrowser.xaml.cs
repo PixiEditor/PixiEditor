@@ -95,7 +95,8 @@ namespace PixiEditor.Views.Dialogs
         }
 
         public static readonly DependencyProperty NameFilterProperty = DependencyProperty.Register(
-            "NameFilter", typeof(string), typeof(PalettesBrowser), new PropertyMetadata(default(string)));
+            "NameFilter", typeof(string), typeof(PalettesBrowser),
+            new PropertyMetadata(default(string), OnNameFilterChanged));
 
         public string NameFilter
         {
@@ -105,11 +106,10 @@ namespace PixiEditor.Views.Dialogs
 
         public string SortingType { get; set; } = "Default";
         public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
-        public string[] Tags { get; set; } = Array.Empty<string>();
 
         private FilteringSettings _filteringSettings;
 
-        public FilteringSettings Filtering => _filteringSettings ??= new FilteringSettings(ColorsNumberMode, ColorsNumber, Tags, NameFilter);
+        public FilteringSettings Filtering => _filteringSettings ??= new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter);
 
         private char[] _separators = new char[] { ' ', ',' };
 
@@ -176,6 +176,14 @@ namespace PixiEditor.Views.Dialogs
             return src;
         }
 
+        private static async void OnNameFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var browser = (PalettesBrowser)d;
+            browser.Filtering.Name = browser.NameFilter;
+            await browser.UpdatePaletteList();
+            browser.scrollViewer.ScrollToHome();
+        }
+
         private async void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (PaletteList?.Palettes == null) return;
@@ -205,22 +213,6 @@ namespace PixiEditor.Views.Dialogs
                 Sort();
                 scrollViewer.ScrollToHome();
             }
-        }
-
-        private async void TagsInput_OnSubmit(object sender, InputBoxEventArgs e)
-        {
-            Tags = e.Input.Split(_separators, options: StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            Filtering.Tags = Tags;
-            await UpdatePaletteList();
-            scrollViewer.ScrollToHome();
-        }
-
-        private async void NameInput_OnSubmit(object sender, InputBoxEventArgs e)
-        {
-            NameFilter = e.Input;
-            Filtering.Name = NameFilter;
-            await UpdatePaletteList();
-            scrollViewer.ScrollToHome();
         }
 
         private async void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -297,6 +289,11 @@ namespace PixiEditor.Views.Dialogs
                     Verb = "open"
                 });
             }
+        }
+
+        private void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

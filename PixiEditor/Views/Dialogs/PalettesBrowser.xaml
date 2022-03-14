@@ -68,12 +68,12 @@
                     </Image>
                 </ToggleButton>
                 <Label Margin="10 0 0 0" Content="Name:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
-                <usercontrols:InputBox OnSubmit="NameInput_OnSubmit" FontSize="16" VerticalAlignment="Center"
-                                       Style="{StaticResource DarkTextBoxStyle}" Width="125" />
+                <usercontrols:InputBox FontSize="16"
+                                       Text="{Binding ElementName=palettesBrowser, Path=NameFilter,
+                                       Delay=100, UpdateSourceTrigger=PropertyChanged}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource DarkTextBoxStyle}" Width="200" />
 
-                <Label Margin="10 0 0 0" Content="Tags:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
-                <usercontrols:InputBox OnSubmit="TagsInput_OnSubmit" FontSize="16" VerticalAlignment="Center" 
-                                       Style="{StaticResource DarkTextBoxStyle}" Width="125" />
                 <Label Margin="10 0 0 0" Content="Colors:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
                 <ComboBox Name="colorsComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True">Any</ComboBoxItem>
@@ -86,7 +86,7 @@
                                    Value="{Binding ElementName=palettesBrowser, Path=ColorsNumber, Mode=TwoWay}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
-                <Button Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
+                <Button Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
                     <Image Source="/Images/Plus-square.png"/>
                 </Button>
                 <Button Cursor="Hand" Click="OpenFolder_OnClick" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
