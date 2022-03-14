@@ -10,16 +10,21 @@ namespace PixiEditor.Models.DataHolders.Palettes
         public int ColorsCount { get; set; }
         public string[] Tags { get; set; }
 
-        public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string[] tags)
+        public string Name { get; set; }
+
+        public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string[] tags, string name)
         {
             ColorsNumberMode = colorsNumberMode;
             ColorsCount = colorsCount;
             Tags = tags;
+            Name = name;
         }
 
         public bool Filter(Palette palette)
         {
-            bool result = true;
+            // Lexical comparison
+            bool result = palette.Title.Contains(Name, StringComparison.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(Name)) result = true;
 
             switch (ColorsNumberMode)
             {

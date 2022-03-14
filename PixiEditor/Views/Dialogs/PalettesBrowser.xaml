@@ -67,9 +67,13 @@
                         </Image.Style>
                     </Image>
                 </ToggleButton>
+                <Label Margin="10 0 0 0" Content="Name:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
+                <usercontrols:InputBox OnSubmit="NameInput_OnSubmit" FontSize="16" VerticalAlignment="Center"
+                                       Style="{StaticResource DarkTextBoxStyle}" Width="125" />
+
                 <Label Margin="10 0 0 0" Content="Tags:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
                 <usercontrols:InputBox OnSubmit="TagsInput_OnSubmit" FontSize="16" VerticalAlignment="Center" 
-                                       Style="{StaticResource DarkTextBoxStyle}" Width="250" />
+                                       Style="{StaticResource DarkTextBoxStyle}" Width="125" />
                 <Label Margin="10 0 0 0" Content="Colors:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
                 <ComboBox Name="colorsComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True">Any</ComboBoxItem>
