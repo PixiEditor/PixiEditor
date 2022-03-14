@@ -13,7 +13,7 @@ namespace PixiEditor.Models.DataProviders
 {
     public class LocalPalettesFetcher : PaletteListDataSource
     {
-        public string PathToPalettesFolder { get; private set; } = Path.Join(
+        public static string PathToPalettesFolder { get; } = Path.Join(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "PixiEditor", "Palettes");
 

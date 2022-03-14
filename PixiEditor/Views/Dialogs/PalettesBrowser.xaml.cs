@@ -4,6 +4,8 @@ using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -281,6 +283,19 @@ namespace PixiEditor.Views.Dialogs
             if(sorted != null)
             {
                 SortedResults = new WpfObservableRangeCollection<Palette>(sorted);
+            }
+        }
+
+        private void OpenFolder_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (Directory.Exists(LocalPalettesFetcher.PathToPalettesFolder))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = LocalPalettesFetcher.PathToPalettesFolder,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
             }
         }
     }

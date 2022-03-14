@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-             Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="800" WindowStyle="None"
+             Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="825" WindowStyle="None"
              Name="palettesBrowser">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -35,8 +35,8 @@
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
         </DockPanel>
-        <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.Row="1">
-            <StackPanel Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
+        <DockPanel Background="{StaticResource MainColor}" Grid.Row="1">
+            <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
                 <Label Content="Sort by:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
                 <ComboBox Name="sortingComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True">Default</ComboBoxItem>
@@ -85,7 +85,15 @@
                                    FocusNext="True"
                                    Value="{Binding ElementName=palettesBrowser, Path=ColorsNumber, Mode=TwoWay}"/>
             </StackPanel>
-        </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
+                <Button Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
+                    <Image Source="/Images/Plus-square.png"/>
+                </Button>
+                <Button Cursor="Hand" Click="OpenFolder_OnClick" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
+                    <Image Source="/Images/Folder.png"/>
+                </Button>
+            </StackPanel>
+        </DockPanel>
         <Grid Grid.Row="2" Margin="10">
             <TextBlock Text="Couldn't fetch palettes" Foreground="White" FontSize="20" HorizontalAlignment="Center" 
                        VerticalAlignment="Center" Visibility="{Binding ElementName=itemsControl, 
