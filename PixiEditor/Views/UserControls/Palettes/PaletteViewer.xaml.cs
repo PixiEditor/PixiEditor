@@ -220,8 +220,8 @@ namespace PixiEditor.Views.UserControls.Palettes
             PalettesBrowser browser = new PalettesBrowser
             {
                 Owner = Application.Current.MainWindow,
-                ImportPaletteCommand = this.ImportPaletteCommand,
-                PaletteListDataSources = DataSources,
+                ImportPaletteCommand = ImportPaletteCommand,
+                PaletteListDataSources = DataSources
             };
 
             if(_cachedPaletteList != null)
@@ -229,10 +229,12 @@ namespace PixiEditor.Views.UserControls.Palettes
                 browser.PaletteList = _cachedPaletteList;
             }
 
-            browser.OnListFetched += (PaletteList list) =>
+            browser.OnListFetched += list =>
             {
                 _cachedPaletteList = list;
             };
+
+            browser.CurrentEditingPalette = Colors;
 
             browser.Show();
             await browser.UpdatePaletteList();

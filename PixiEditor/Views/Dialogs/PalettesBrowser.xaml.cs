@@ -11,6 +11,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.IO.JascPalFile;
+using PixiEditor.Views.UserControls.Palettes;
+using SkiaSharp;
 
 namespace PixiEditor.Views.Dialogs
 {
@@ -114,6 +118,7 @@ namespace PixiEditor.Views.Dialogs
         private char[] _separators = new char[] { ' ', ',' };
 
         private SortingType _sortingType => (SortingType)Enum.Parse(typeof(SortingType), SortingType.Replace(" ", ""));
+        public WpfObservableRangeCollection<SKColor> CurrentEditingPalette { get; set; }
 
         public PalettesBrowser()
         {
@@ -291,9 +296,40 @@ namespace PixiEditor.Views.Dialogs
             }
         }
 
-        private void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
+        private async void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
         {
-            
+            string path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, "Unnamed Palette.pal");
+            int i = 1;
+            while (File.Exists(path))
+            {
+                path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, $"Unnamed Palette {i}.pal");
+                i++;
+            }
+
+            await JascFileParser.SaveFile(path, new PaletteFileData(CurrentEditingPalette.ToArray()));
+            LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+            await paletteListDataSource.RefreshCache();
+            await UpdatePaletteList();
+        }
+
+        private async void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
+        {
+            PaletteItem item = (PaletteItem)sender;
+            if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || e.NewText == item.Palette.Title)
+            {
+                return;
+            }
+
+            string oldFileName = item.Palette.FileName;
+            item.Palette.FileName = $"{e.NewText}.pal";
+            File.Move(
+                Path.Join(LocalPalettesFetcher.PathToPalettesFolder, oldFileName),
+                Path.Join(LocalPalettesFetcher.PathToPalettesFolder, item.Palette.FileName));
+
+
+            LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+            await paletteListDataSource.RefreshCache();
+            await UpdatePaletteList();
         }
     }
 }

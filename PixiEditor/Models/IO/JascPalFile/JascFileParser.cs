@@ -31,7 +31,7 @@ public class JascFileParser : PaletteFileParser
                 colors[i] = new SKColor(byte.Parse(colorData[0]), byte.Parse(colorData[1]), byte.Parse(colorData[2]));
             }
 
-            return new PaletteFileData(name, colors, Array.Empty<string>());
+            return new PaletteFileData(name, colors);
         }
 
         throw new JascFileException("Invalid JASC-PAL file.");

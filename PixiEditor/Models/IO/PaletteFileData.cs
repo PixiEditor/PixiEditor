@@ -8,20 +8,28 @@ namespace PixiEditor.Models.IO
     {
         public string Title { get; set; }
         public SKColor[] Colors { get; set; }
-        public string[] Tags { get; set; }
 
         public PaletteFileData(SKColor[] colors)
         {
             Colors = colors;
             Title = "";
-            Tags = Array.Empty<string>();
         }
 
-        public PaletteFileData(string title, SKColor[] colors, string[] tags)
+        public PaletteFileData(List<string> colors)
+        {
+            Colors = new SKColor[colors.Count];
+            for (int i = 0; i < colors.Count; i++)
+            {
+                Colors[i] = SKColor.Parse(colors[i]);
+            }
+
+            Title = "";
+        }
+
+        public PaletteFileData(string title, SKColor[] colors)
         {
             Title = title;
             Colors = colors;
-            Tags = tags;
         }
 
         public string[] GetHexColors()

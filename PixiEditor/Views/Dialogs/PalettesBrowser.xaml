@@ -86,7 +86,7 @@
                                    Value="{Binding ElementName=palettesBrowser, Path=ColorsNumber, Mode=TwoWay}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
-                <Button Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
+                <Button ToolTip="Add from current palette" Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
                     <Image Source="/Images/Plus-square.png"/>
                 </Button>
                 <Button Cursor="Hand" Click="OpenFolder_OnClick" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
@@ -104,7 +104,8 @@
                 Converter={StaticResource BoolToVisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:PaletteItem Palette="{Binding}" 
+                            <local:PaletteItem Palette="{Binding}"
+                                               OnRename="PaletteItem_OnRename"
                                                ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=palettesBrowser}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

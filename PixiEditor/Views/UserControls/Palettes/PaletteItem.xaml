@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" 
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="800" Name="paletteItem">
     <Grid>
@@ -15,11 +16,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="60*"/>
-            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
             <Separator Background="{StaticResource MainColor}"/>
-            <TextBlock Text="{Binding Palette.Title, ElementName=paletteItem}" Foreground="White" FontSize="20"/>
+            <views:EditableTextBlock OnSubmit="EditableTextBlock_OnSubmit" Text="{Binding Palette.Title, ElementName=paletteItem, Mode=TwoWay}" Foreground="White" FontSize="20"/>
             <TextBlock Margin="0 5 0 0">
             <!--<controls:PrependTextBlock PrependColor="Gray" Prepend="Author: " Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>-->
             </TextBlock>
@@ -45,20 +45,5 @@
                 <ImageBrush ImageSource="/Images/Download.png"/>
             </Button.Background>
         </Button>
-        <StackPanel Grid.Row="2" Margin="0 10 0 0" Orientation="Horizontal">
-            <TextBlock Text="Tags: " Foreground="Gray"/>
-            <ItemsControl ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Tags}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate d:DataType="{x:Type TextBlock}">
-                        <TextBlock Text="{Binding}" Margin="5 0 0 0" Foreground="White"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
     </Grid>
 </UserControl>

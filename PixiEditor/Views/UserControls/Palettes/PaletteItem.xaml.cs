@@ -1,10 +1,8 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using System;
 using PixiEditor.Models.DataHolders.Palettes;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Navigation;
 
 namespace PixiEditor.Views.UserControls.Palettes
 {
@@ -34,9 +32,16 @@ namespace PixiEditor.Views.UserControls.Palettes
             DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PaletteItem));
 
 
+        public event EventHandler<EditableTextBlock.TextChangedEventArgs> OnRename;
+
         public PaletteItem()
         {
             InitializeComponent();
+        }
+
+        private void EditableTextBlock_OnSubmit(object sender, EditableTextBlock.TextChangedEventArgs e)
+        {
+            OnRename?.Invoke(this, e);
         }
     }
 }

@@ -37,6 +37,8 @@ namespace PixiEditor.Views
                 typeof(EditableTextBlock),
                 new PropertyMetadata(OnIsEditingChanged));
 
+        public event EventHandler<TextChangedEventArgs> OnSubmit;
+
         public EditableTextBlock()
         {
             InitializeComponent();
@@ -80,6 +82,7 @@ namespace PixiEditor.Views
             TextBlockVisibility = Visibility.Visible;
             ShortcutController.UnblockShortcutExecution("EditableTextBlock");
             IsEditing = false;
+            OnSubmit?.Invoke(this, new TextChangedEventArgs(textBox.Text, Text));
         }
 
         private static void OnIsEditingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -115,6 +118,19 @@ namespace PixiEditor.Views
         private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             DisableEditing();
+        }
+
+        public class TextChangedEventArgs : EventArgs
+        {
+            public string NewText { get; set; }
+
+            public string OldText { get; set; }
+
+            public TextChangedEventArgs(string newText, string oldText)
+            {
+                NewText = newText;
+                OldText = oldText;
+            }
         }
     }
 }

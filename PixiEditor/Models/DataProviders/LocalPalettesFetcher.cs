@@ -3,7 +3,6 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,11 +20,9 @@ namespace PixiEditor.Models.DataProviders
 
         public override async Task<PaletteList> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
         {
-            string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder, string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)), SearchOption.TopDirectoryOnly);
-
             if(_cachedPalettes == null)
             {
-                _cachedPalettes = await ParseAll(files);
+                await RefreshCache();
             }
 
             PaletteList result = new PaletteList
@@ -48,6 +45,12 @@ namespace PixiEditor.Models.DataProviders
             return result;
         }
 
+        public async Task RefreshCache()
+        {
+            string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder, string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)), SearchOption.TopDirectoryOnly);
+            _cachedPalettes = await ParseAll(files);
+        }
+
         private async Task<List<Palette>> ParseAll(string[] files)
         {
             List<Palette> result = new List<Palette>();
@@ -57,7 +60,11 @@ namespace PixiEditor.Models.DataProviders
                 var foundParser = AvailableParsers.First(x => x.SupportedFileExtensions.Contains(extension));
                 {
                     PaletteFileData fileData = await foundParser.Parse(file);
-                    result.Add(new Palette(fileData.Title, new List<string>(fileData.GetHexColors()), fileData.Tags));
+                    result.Add(
+                        new Palette(
+                            fileData.Title,
+                            new List<string>(fileData.GetHexColors()),
+                            Path.GetFileName(file)));
                 }
             }
 
