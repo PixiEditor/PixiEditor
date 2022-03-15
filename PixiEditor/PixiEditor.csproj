@@ -139,6 +139,7 @@
 		<None Remove="Images\ChevronsDown.png" />
 		<None Remove="Images\DiagonalRed.png" />
 		<None Remove="Images\Download.png" />
+		<None Remove="Images\Edit.png" />
 		<None Remove="Images\Eye-off.png" />
 		<None Remove="Images\Eye.png" />
 		<None Remove="Images\Folder-add.png" />
@@ -218,6 +219,7 @@
 		<Resource Include="Images\ChevronsDown.png" />
 		<Resource Include="Images\DiagonalRed.png" />
 		<Resource Include="Images\Download.png" />
+		<Resource Include="Images\Edit.png" />
 		<Resource Include="Images\Eye-off.png" />
 		<Resource Include="Images\Eye.png" />
 		<Resource Include="Images\Folder-add.png" />

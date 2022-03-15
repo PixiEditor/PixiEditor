@@ -217,6 +217,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)
         {
+            if (PalettesBrowser.Instance != null) return;
             PalettesBrowser browser = new PalettesBrowser
             {
                 Owner = Application.Current.MainWindow,

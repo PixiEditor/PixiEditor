@@ -16,11 +16,11 @@ namespace PixiEditor.Models.DataProviders
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "PixiEditor", "Palettes");
 
-        private List<Palette> _cachedPalettes;
+        public List<Palette> CachedPalettes { get; private set; }
 
         public override async Task<PaletteList> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
         {
-            if(_cachedPalettes == null)
+            if(CachedPalettes == null)
             {
                 await RefreshCache();
             }
@@ -30,7 +30,7 @@ namespace PixiEditor.Models.DataProviders
                 Palettes = new WpfObservableRangeCollection<Palette>()
             };
 
-            var filteredPalettes = _cachedPalettes.Where(filtering.Filter).ToArray();
+            var filteredPalettes = CachedPalettes.Where(filtering.Filter).ToArray();
 
             if (startIndex >= filteredPalettes.Length) return result;
 
@@ -48,7 +48,7 @@ namespace PixiEditor.Models.DataProviders
         public async Task RefreshCache()
         {
             string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder, string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)), SearchOption.TopDirectoryOnly);
-            _cachedPalettes = await ParseAll(files);
+            CachedPalettes = await ParseAll(files);
         }
 
         private async Task<List<Palette>> ParseAll(string[] files)

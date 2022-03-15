@@ -15,6 +15,8 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
+using PixiEditor.Helpers;
+using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Views.Dialogs
 {
@@ -47,6 +49,15 @@ namespace PixiEditor.Views.Dialogs
         // Using a DependencyProperty as the backing store for ImportPaletteCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ImportPaletteCommandProperty =
             DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PalettesBrowser));
+
+        public static readonly DependencyProperty DeletePaletteCommandProperty = DependencyProperty.Register(
+            "DeletePaletteCommand", typeof(ICommand), typeof(PalettesBrowser), new PropertyMetadata(default(ICommand)));
+
+        public ICommand DeletePaletteCommand
+        {
+            get { return (ICommand)GetValue(DeletePaletteCommandProperty); }
+            set { SetValue(DeletePaletteCommandProperty, value); }
+        }
 
         public bool IsFetching
         {
@@ -108,6 +119,8 @@ namespace PixiEditor.Views.Dialogs
             set { SetValue(NameFilterProperty, value); }
         }
 
+        public RelayCommand AddFromPaletteCommand;
+
         public string SortingType { get; set; } = "Default";
         public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
 
@@ -119,15 +132,43 @@ namespace PixiEditor.Views.Dialogs
 
         private SortingType _sortingType => (SortingType)Enum.Parse(typeof(SortingType), SortingType.Replace(" ", ""));
         public WpfObservableRangeCollection<SKColor> CurrentEditingPalette { get; set; }
+        public static PalettesBrowser Instance { get; internal set; }
 
         public PalettesBrowser()
         {
             InitializeComponent();
+            Instance = this;
+            DeletePaletteCommand = new RelayCommand<Palette>(DeletePalettte);
+            AddFromPaletteCommand = new RelayCommand(AddFromPalette);
+            Closed += (s, e) => Instance = null;
+        }
+
+        private async void DeletePalettte(Palette palette)
+        {
+            if (palette == null) return;
+
+            string filePath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, palette.FileName);
+            if (File.Exists(filePath))
+            {
+                if (ConfirmationDialog.Show("Are you sure you want to delete this palette? This cannot be undone.", "Warning!") == ConfirmationType.Yes)
+                {
+                    File.Delete(filePath);
+
+                    LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+                    await paletteListDataSource.RefreshCache();
+                    await UpdatePaletteList();
+                }
+            }
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
+        }
+
+        private void AddFromPalette(object obj)
+        {
+            
         }
 
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
@@ -298,11 +339,16 @@ namespace PixiEditor.Views.Dialogs
 
         private async void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
         {
-            string path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, "Unnamed Palette.pal");
+            if (CurrentEditingPalette?.Count == 0) return;
+
+            string finalFileName = "Unnamed Palette.pal";
+
+            string path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalFileName);
             int i = 1;
             while (File.Exists(path))
             {
-                path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, $"Unnamed Palette {i}.pal");
+                finalFileName = $"Unnamed Palette {i}.pal";
+                path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalFileName);
                 i++;
             }
 
@@ -310,6 +356,19 @@ namespace PixiEditor.Views.Dialogs
             LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
             await paletteListDataSource.RefreshCache();
             await UpdatePaletteList();
+
+            var palette = paletteListDataSource.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
+            if (palette != null)
+            {
+                if (SortedResults.Contains(palette))
+                {
+                    SortedResults.Move(SortedResults.IndexOf(palette), 0);
+                }
+                else
+                {
+                    SortedResults.Insert(0, palette);
+                }
+            }
         }
 
         private async void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)

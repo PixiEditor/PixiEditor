@@ -106,6 +106,7 @@
                         <DataTemplate>
                             <local:PaletteItem Palette="{Binding}"
                                                OnRename="PaletteItem_OnRename"
+                                               DeletePaletteCommand="{Binding DeletePaletteCommand, ElementName=palettesBrowser}"
                                                ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=palettesBrowser}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

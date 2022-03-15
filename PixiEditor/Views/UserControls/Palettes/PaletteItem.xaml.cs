@@ -31,6 +31,18 @@ namespace PixiEditor.Views.UserControls.Palettes
         public static readonly DependencyProperty ImportPaletteCommandProperty =
             DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PaletteItem));
 
+        public ICommand DeletePaletteCommand
+        {
+            get { return (ICommand)GetValue(DeletePaletteCommandProperty); }
+            set { SetValue(DeletePaletteCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for DeletePaletteCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DeletePaletteCommandProperty =
+            DependencyProperty.Register("DeletePaletteCommand", typeof(ICommand), typeof(PaletteItem));
+
+
+
 
         public event EventHandler<EditableTextBlock.TextChangedEventArgs> OnRename;
 
@@ -42,6 +54,11 @@ namespace PixiEditor.Views.UserControls.Palettes
         private void EditableTextBlock_OnSubmit(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             OnRename?.Invoke(this, e);
+        }
+
+        private void RenameButton_Click(object sender, RoutedEventArgs e)
+        {
+            titleTextBlock.IsEditing = true;
         }
     }
 }

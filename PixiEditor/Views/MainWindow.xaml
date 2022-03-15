@@ -348,7 +348,7 @@
                                                               SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
                                                                 DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
                                                                 FileParsers="{Binding ColorsSubViewModel.PaletteParsers}"
-                                                                    ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
+                                                                ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
                                     </avalondock:LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
