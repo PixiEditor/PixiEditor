@@ -259,6 +259,10 @@
 		<Resource Include="Images\Plus-square.png" />
 		<None Remove="Images\Save.png" />
 		<Resource Include="Images\Save.png" />
+		<None Remove="Images\Star.png" />
+		<Resource Include="Images\Star.png" />
+		<None Remove="Images\Star-filled.png" />
+		<Resource Include="Images\Star-filled.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

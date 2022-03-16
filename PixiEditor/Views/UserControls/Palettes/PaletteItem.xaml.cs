@@ -41,8 +41,14 @@ namespace PixiEditor.Views.UserControls.Palettes
         public static readonly DependencyProperty DeletePaletteCommandProperty =
             DependencyProperty.Register("DeletePaletteCommand", typeof(ICommand), typeof(PaletteItem));
 
+        public static readonly DependencyProperty ToggleFavouriteCommandProperty = DependencyProperty.Register(
+            "ToggleFavouriteCommand", typeof(ICommand), typeof(PaletteItem), new PropertyMetadata(default(ICommand)));
 
-
+        public ICommand ToggleFavouriteCommand
+        {
+            get { return (ICommand)GetValue(ToggleFavouriteCommandProperty); }
+            set { SetValue(ToggleFavouriteCommandProperty, value); }
+        }
 
         public event EventHandler<EditableTextBlock.TextChangedEventArgs> OnRename;
 

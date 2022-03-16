@@ -4,6 +4,7 @@ using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,7 @@ using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Views.Dialogs
 {
@@ -119,14 +121,25 @@ namespace PixiEditor.Views.Dialogs
             set { SetValue(NameFilterProperty, value); }
         }
 
-        public RelayCommand AddFromPaletteCommand;
+        public static readonly DependencyProperty ShowOnlyFavouritesProperty = DependencyProperty.Register(
+            "ShowOnlyFavourites", typeof(bool), typeof(PalettesBrowser),
+            new PropertyMetadata(false, OnShowOnlyFavouritesChanged));
+
+        public bool ShowOnlyFavourites
+        {
+            get { return (bool)GetValue(ShowOnlyFavouritesProperty); }
+            set { SetValue(ShowOnlyFavouritesProperty, value); }
+        }
+
+        public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
 
         public string SortingType { get; set; } = "Default";
         public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
 
         private FilteringSettings _filteringSettings;
 
-        public FilteringSettings Filtering => _filteringSettings ??= new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter);
+        public FilteringSettings Filtering => _filteringSettings ??=
+            new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites);
 
         private char[] _separators = new char[] { ' ', ',' };
 
@@ -138,12 +151,30 @@ namespace PixiEditor.Views.Dialogs
         {
             InitializeComponent();
             Instance = this;
-            DeletePaletteCommand = new RelayCommand<Palette>(DeletePalettte);
-            AddFromPaletteCommand = new RelayCommand(AddFromPalette);
+            DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
+            ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite);
             Closed += (s, e) => Instance = null;
         }
 
-        private async void DeletePalettte(Palette palette)
+        private async void ToggleFavourite(Palette palette)
+        {
+            palette.IsFavourite = !palette.IsFavourite;
+            var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
+
+            if (palette.IsFavourite)
+            {
+                favouritePalettes.Add(palette.Title);
+            }
+            else
+            {
+                favouritePalettes.Remove(palette.Title);
+            }
+
+            IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
+            await UpdatePaletteList();
+        }
+
+        private async void DeletePalette(Palette palette)
         {
             if (palette == null) return;
 
@@ -153,6 +184,7 @@ namespace PixiEditor.Views.Dialogs
                 if (ConfirmationDialog.Show("Are you sure you want to delete this palette? This cannot be undone.", "Warning!") == ConfirmationType.Yes)
                 {
                     File.Delete(filePath);
+                    RemoveFavouritePalette(palette);
 
                     LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
                     await paletteListDataSource.RefreshCache();
@@ -161,14 +193,27 @@ namespace PixiEditor.Views.Dialogs
             }
         }
 
+        private static void RemoveFavouritePalette(Palette palette)
+        {
+            var favouritePalettes =
+                IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
+            if (favouritePalettes != null && favouritePalettes.Contains(palette.Title))
+            {
+                favouritePalettes.Remove(palette.Title);
+                IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
+            }
+        }
+
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
 
-        private void AddFromPalette(object obj)
+        private async static void OnShowOnlyFavouritesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            
+            PalettesBrowser browser = (PalettesBrowser)d;
+            browser.Filtering.ShowOnlyFavourites = (bool)e.NewValue;
+            await browser.UpdatePaletteList();
         }
 
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
@@ -292,7 +337,7 @@ namespace PixiEditor.Views.Dialogs
                 switch (_sortingType)
                 {
                     case Models.DataHolders.Palettes.SortingType.Default:
-                        sorted = PaletteList.Palettes.OrderBy(x => PaletteList.Palettes.IndexOf(x));
+                        sorted = PaletteList.Palettes.OrderByDescending(x => x.IsFavourite).ThenBy(x => PaletteList.Palettes.IndexOf(x));
                         break;
                     case Models.DataHolders.Palettes.SortingType.Alphabetical:
                         sorted = PaletteList.Palettes.OrderBy(x => x.Title);

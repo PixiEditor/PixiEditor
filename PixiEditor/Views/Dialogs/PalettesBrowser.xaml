@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-             Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="825" WindowStyle="None"
+             Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="850" WindowStyle="None"
              Name="palettesBrowser">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -72,7 +72,7 @@
                                        Text="{Binding ElementName=palettesBrowser, Path=NameFilter,
                                        Delay=100, UpdateSourceTrigger=PropertyChanged}"
                                        VerticalAlignment="Center"
-                                       Style="{StaticResource DarkTextBoxStyle}" Width="200" />
+                                       Style="{StaticResource DarkTextBoxStyle}" Width="150" />
 
                 <Label Margin="10 0 0 0" Content="Colors:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
                 <ComboBox Name="colorsComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
@@ -84,6 +84,8 @@
                 <views:NumberInput Width="50" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0"
                                    FocusNext="True"
                                    Value="{Binding ElementName=palettesBrowser, Path=ColorsNumber, Mode=TwoWay}"/>
+                <CheckBox Margin="10 0 0 0" VerticalAlignment="Center" FontSize="16"
+                          IsChecked="{Binding ElementName=palettesBrowser, Path=ShowOnlyFavourites}">Favourites</CheckBox>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
                 <Button ToolTip="Add from current palette" Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
@@ -106,6 +108,7 @@
                         <DataTemplate>
                             <local:PaletteItem Palette="{Binding}"
                                                OnRename="PaletteItem_OnRename"
+                                               ToggleFavouriteCommand="{Binding ElementName=palettesBrowser, Path=ToggleFavouriteCommand}"
                                                DeletePaletteCommand="{Binding DeletePaletteCommand, ElementName=palettesBrowser}"
                                                ImportPaletteCommand="{Binding ImportPaletteCommand, ElementName=palettesBrowser}"/>
                         </DataTemplate>

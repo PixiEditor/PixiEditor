@@ -11,6 +11,8 @@ namespace PixiEditor.Models.DataHolders.Palettes
         public List<string> Colors { get; set; }
         public string FileName { get; set; }
 
+        public bool IsFavourite { get; set; }
+
         public Palette(string title, List<string> colors, string fileName)
         {
             Title = title;

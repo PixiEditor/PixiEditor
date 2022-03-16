@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Models.DataProviders
 {
@@ -60,11 +61,17 @@ namespace PixiEditor.Models.DataProviders
                 var foundParser = AvailableParsers.First(x => x.SupportedFileExtensions.Contains(extension));
                 {
                     PaletteFileData fileData = await foundParser.Parse(file);
-                    result.Add(
-                        new Palette(
-                            fileData.Title,
-                            new List<string>(fileData.GetHexColors()),
-                            Path.GetFileName(file)));
+                    var palette = new Palette(
+                        fileData.Title,
+                        new List<string>(fileData.GetHexColors()),
+                        Path.GetFileName(file));
+                    List<string> favouritePalettes = IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
+                    if (favouritePalettes != null)
+                    {
+                        palette.IsFavourite = favouritePalettes.Contains(palette.Title);
+                    }
+
+                    result.Add(palette);
                 }
             }
 

@@ -12,7 +12,7 @@
     <Grid Background="{StaticResource AccentColor}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100*"/>
-            <ColumnDefinition Width="75"/>
+            <ColumnDefinition Width="95"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
@@ -27,7 +27,6 @@
                 </Button>
             </StackPanel>
             <TextBlock Margin="0 5 0 0">
-            <!--<controls:PrependTextBlock PrependColor="Gray" Prepend="Author: " Text="{Binding Palette.User.Name, ElementName=paletteItem}" Foreground="White"/>-->
             </TextBlock>
         </StackPanel>
         <ItemsControl Margin="0 -20 0 10" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
@@ -51,6 +50,30 @@
                 <Button.Background>
                     <ImageBrush ImageSource="/Images/Download.png"/>
                 </Button.Background>
+            </Button>
+            <Button Margin="2 0 -2 0" Width="24" Height="24" HorizontalAlignment="Right"
+                    Command="{Binding ElementName=paletteItem, Path=ToggleFavouriteCommand}"
+                    CommandParameter="{Binding ElementName=paletteItem, Path=Palette}">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ImageButtonStyle}" TargetType="Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=paletteItem, Path=Palette.IsFavourite}" Value="False">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <ImageBrush ImageSource="/Images/Star.png"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=paletteItem, Path=Palette.IsFavourite}" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <ImageBrush ImageSource="/Images/Star-filled.png"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
             </Button>
             <Border Width="28" Height="28" CornerRadius="2.5"
                     Margin="5 0 0 0" Padding="2">

@@ -10,17 +10,22 @@ namespace PixiEditor.Models.DataHolders.Palettes
         public int ColorsCount { get; set; }
         public string Name { get; set; }
 
-        public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string name)
+        public bool ShowOnlyFavourites { get; set; }
+
+        public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string name, bool showOnlyFavourites)
         {
             ColorsNumberMode = colorsNumberMode;
             ColorsCount = colorsCount;
             Name = name;
+            ShowOnlyFavourites = showOnlyFavourites;
         }
 
         public bool Filter(Palette palette)
         {
             // Lexical comparison
             bool result = string.IsNullOrWhiteSpace(Name) || palette.Title.Contains(Name, StringComparison.OrdinalIgnoreCase);
+
+            result = (ShowOnlyFavourites && palette.IsFavourite) || !ShowOnlyFavourites;
 
             switch (ColorsNumberMode)
             {
