@@ -3,7 +3,7 @@ using ChangeableDocument.Changes.Drawing;
 
 namespace ChangeableDocument.Actions.Drawing.Selection
 {
-    public record struct EndSelectRectangle_Action : IEndChangeAction
+    public record class EndSelectRectangle_Action : IEndChangeAction
     {
         bool IEndChangeAction.IsChangeTypeMatching(IChange change)
         {

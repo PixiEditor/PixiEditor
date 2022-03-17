@@ -1,5 +1,5 @@
 ﻿namespace ChangeableDocument.Actions.Undo;
 
-public record struct UndoAction : IAction
+public record class Redo_Action : IAction
 {
 }

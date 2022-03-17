@@ -54,6 +54,7 @@ namespace StructureRenderer
                     case CreateStructureMember_ChangeInfo:
                     case DeleteStructureMember_ChangeInfo:
                     case MoveStructureMember_ChangeInfo:
+                    case Size_ChangeInfo:
                         return null;
                     case StructureMemberOpacity_ChangeInfo opacityChangeInfo:
                         var memberWithOpacity = tracker.Document.FindMemberOrThrow(opacityChangeInfo.GuidValue);
@@ -179,7 +180,7 @@ namespace StructureRenderer
             surface?.SkiaSurface.Canvas.Clear();
             foreach (var child in folder.ReadOnlyChildren)
             {
-                if (!child.ReadOnlyIsVisible)
+                if (!child.IsVisible)
                     continue;
                 if (child is IReadOnlyLayer layer)
                 {
@@ -188,7 +189,7 @@ namespace StructureRenderer
                         continue;
                     if (surface == null)
                         throw new Exception("Not enough surfaces have been allocated to draw the entire layer tree");
-                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.ReadOnlyOpacity * 255));
+                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
                     chunk.DrawOnSurface(surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
                 }
                 else if (child is IReadOnlyFolder innerFolder)
@@ -198,7 +199,7 @@ namespace StructureRenderer
                         continue;
                     if (surface == null)
                         throw new Exception("Not enough surfaces have been allocated to draw the entire layer tree");
-                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.ReadOnlyOpacity * 255));
+                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
                     surface.SkiaSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, 0, 0, PaintToDrawChunksWith);
                 }
             }

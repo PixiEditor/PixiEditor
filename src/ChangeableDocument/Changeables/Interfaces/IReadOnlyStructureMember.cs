@@ -2,9 +2,9 @@
 {
     public interface IReadOnlyStructureMember
     {
-        bool ReadOnlyIsVisible { get; }
-        string ReadOnlyName { get; }
-        Guid ReadOnlyGuidValue { get; }
-        float ReadOnlyOpacity { get; }
+        bool IsVisible { get; }
+        string Name { get; }
+        Guid GuidValue { get; }
+        float Opacity { get; }
     }
 }

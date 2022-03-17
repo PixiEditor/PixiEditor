@@ -45,5 +45,10 @@ namespace ChangeableDocument.Changes.Drawing
 
             return new Selection_ChangeInfo() { Chunks = affChunks };
         }
+
+        public void Dispose()
+        {
+            savedSelection?.Dispose();
+        }
     }
 }

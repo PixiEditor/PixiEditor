@@ -2,7 +2,7 @@
 
 namespace ChangeableDocument.Actions.Properties
 {
-    public record struct OpacityChange_Action : IStartOrUpdateChangeAction
+    public record class OpacityChange_Action : IStartOrUpdateChangeAction
     {
         public OpacityChange_Action(Guid memberGuid, float opacity)
         {

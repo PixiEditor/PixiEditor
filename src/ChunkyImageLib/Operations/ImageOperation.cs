@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace ChunkyImageLib.Operations
 {
-    internal record class ImageOperation : IChunkOperation
+    internal record class ImageOperation : IDrawOperation
     {
         private Vector2i pos;
         private Surface toPaint;

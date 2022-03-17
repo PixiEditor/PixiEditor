@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace ChunkyImageLib.Operations
 {
-    internal record class RectangleOperation : IChunkOperation
+    internal record class RectangleOperation : IDrawOperation
     {
         public RectangleOperation(ShapeData rect)
         {

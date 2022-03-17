@@ -1,22 +1,37 @@
 ﻿using ChangeableDocument.Changeables.Interfaces;
 using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Changeables
 {
     internal class Layer : StructureMember, IReadOnlyLayer
     {
-        public ChunkyImage LayerImage { get; set; } = new();
+        public ChunkyImage LayerImage { get; set; }
         IReadOnlyChunkyImage IReadOnlyLayer.ReadOnlyLayerImage => LayerImage;
+
+        public Layer(Vector2i size)
+        {
+            LayerImage = new(size);
+        }
+
+        public Layer(ChunkyImage image)
+        {
+            LayerImage = image;
+        }
+
+        public override void Dispose()
+        {
+            LayerImage.Dispose();
+        }
 
         internal override Layer Clone()
         {
-            return new Layer()
+            return new Layer(LayerImage.CloneFromLatest())
             {
-                ReadOnlyGuidValue = ReadOnlyGuidValue,
-                ReadOnlyIsVisible = ReadOnlyIsVisible,
-                ReadOnlyName = ReadOnlyName,
-                ReadOnlyOpacity = ReadOnlyOpacity,
-                LayerImage = LayerImage.CloneFromLatest()
+                GuidValue = GuidValue,
+                IsVisible = IsVisible,
+                Name = Name,
+                Opacity = Opacity
             };
         }
     }

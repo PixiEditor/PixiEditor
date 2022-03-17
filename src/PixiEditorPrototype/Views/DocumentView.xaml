@@ -69,11 +69,18 @@
             </DockPanel>
         </Border>
         <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Top" Margin="5">
-            <StackPanel Orientation="Horizontal" Background="White">
-                <Button Width="50" Margin="5" Command="{Binding UndoCommand}">Undo</Button>
-                <Button Width="50" Margin="5" Command="{Binding RedoCommand}">Redo</Button>
-                <Button Width="100" Margin="5" Command="{Binding ClearSelectionCommand}">Clear selection</Button>
-            </StackPanel>
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" Background="White">
+                    <Button Width="50" Margin="5" Command="{Binding UndoCommand}">Undo</Button>
+                    <Button Width="50" Margin="5" Command="{Binding RedoCommand}">Redo</Button>
+                    <Button Width="100" Margin="5" Command="{Binding ClearSelectionCommand}">Clear selection</Button>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBox Width="30" Margin="5" Text="{Binding ResizeWidth}"/>
+                    <TextBox Width="30" Margin="5" Text="{Binding ResizeHeight}"/>
+                    <Button Width="50" Margin="5" Command="{Binding ResizeCanvasCommand}">Resize</Button>
+                </StackPanel>
+            </DockPanel>
         </Border>
         <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Left" Margin="5">
             <StackPanel Orientation="Vertical" Background="White">

@@ -17,7 +17,7 @@ namespace ChunkyImageLib
         {
             if (width < 1 || height < 1)
                 throw new ArgumentException("Width and height must be >1");
-            if (width > 10000 || height > 1000)
+            if (width > 10000 || height > 10000)
                 throw new ArgumentException("Width and height must be <=10000");
 
             Width = width;

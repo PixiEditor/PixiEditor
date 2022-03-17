@@ -23,7 +23,7 @@ namespace ChangeableDocument.Changes
         public void Initialize(Document document)
         {
             var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
-            originalFolderGuid = curFolder.ReadOnlyGuidValue;
+            originalFolderGuid = curFolder.GuidValue;
             originalFolderIndex = curFolder.Children.IndexOf(member);
         }
 
@@ -47,5 +47,7 @@ namespace ChangeableDocument.Changes
             Move(target, memberGuid, originalFolderGuid, originalFolderIndex);
             return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
+
+        public void Dispose() { }
     }
 }

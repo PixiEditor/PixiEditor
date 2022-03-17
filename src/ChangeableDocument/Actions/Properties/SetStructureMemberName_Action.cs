@@ -2,7 +2,7 @@
 
 namespace ChangeableDocument.Actions.Properties;
 
-public record struct SetStructureMemberName_Action : IMakeChangeAction
+public record class SetStructureMemberName_Action : IMakeChangeAction
 {
     public SetStructureMemberName_Action(string name, Guid guidValue)
     {

@@ -16,7 +16,7 @@ namespace ChunkyImageLib
                     savedChunks.Add((chunkPos, null));
                     continue;
                 }
-                Chunk copy = ChunkPool.Instance.BorrowChunk();
+                Chunk copy = ChunkPool.Instance.BorrowChunk(this);
                 chunk.Surface.CopyTo(copy.Surface);
                 savedChunks.Add((chunkPos, copy));
             }

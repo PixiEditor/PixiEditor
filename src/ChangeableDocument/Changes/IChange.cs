@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal interface IChange
+    internal interface IChange : IDisposable
     {
         void Initialize(Document target);
         IChangeInfo? Apply(Document target);

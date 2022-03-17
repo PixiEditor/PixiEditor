@@ -2,7 +2,7 @@
 
 namespace ChangeableDocument.Actions.Properties;
 
-public record struct SetStructureMemberVisibility_Action : IMakeChangeAction
+public record class SetStructureMemberVisibility_Action : IMakeChangeAction
 {
     public SetStructureMemberVisibility_Action(bool isVisible, Guid guidValue)
     {

@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.Operations
 {
-    internal interface IChunkOperation : IOperation
+    internal interface IDrawOperation : IOperation
     {
         void DrawOnChunk(Chunk chunk, Vector2i chunkPos);
         HashSet<Vector2i> FindAffectedChunks(IReadOnlyChunkyImage image);

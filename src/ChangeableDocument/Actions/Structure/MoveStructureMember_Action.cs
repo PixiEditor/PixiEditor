@@ -2,7 +2,7 @@
 
 namespace ChangeableDocument.Actions.Structure;
 
-public record struct MoveStructureMember_Action : IMakeChangeAction
+public record class MoveStructureMember_Action : IMakeChangeAction
 {
     public MoveStructureMember_Action(Guid member, Guid targetFolder, int index)
     {

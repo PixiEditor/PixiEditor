@@ -29,8 +29,8 @@ namespace ChangeableDocument.Changes
 
             StructureMember member = type switch
             {
-                StructureMemberType.Layer => new Layer() { ReadOnlyGuidValue = newMemberGuid },
-                StructureMemberType.Folder => new Folder() { ReadOnlyGuidValue = newMemberGuid },
+                StructureMemberType.Layer => new Layer(document.Size) { GuidValue = newMemberGuid },
+                StructureMemberType.Folder => new Folder() { GuidValue = newMemberGuid },
                 _ => throw new Exception("Cannon create member of type " + type.ToString())
             };
 
@@ -42,9 +42,13 @@ namespace ChangeableDocument.Changes
         public IChangeInfo Revert(Document document)
         {
             var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
-            folder.Children.RemoveAt(folder.Children.FindIndex(child => child.ReadOnlyGuidValue == newMemberGuid));
+            var child = document.FindMemberOrThrow(newMemberGuid);
+            child.Dispose();
+            folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
 
             return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
         }
+
+        public void Dispose() { }
     }
 }

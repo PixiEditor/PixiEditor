@@ -1,4 +1,5 @@
 ﻿using ChangeableDocument.Changeables.Interfaces;
+using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Changeables
 {
@@ -11,9 +12,10 @@ namespace ChangeableDocument.Changeables
         IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
         (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
-        internal Folder StructureRoot { get; } = new() { ReadOnlyGuidValue = Guid.Empty };
+        public static Vector2i DefaultSize { get; } = new Vector2i(64, 64);
+        internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
         internal Selection Selection { get; } = new();
-
+        public Vector2i Size { get; set; } = DefaultSize;
         public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new Exception("Could not find member with guid " + guid.ToString());
         public StructureMember? FindMember(Guid guid)
         {
@@ -39,13 +41,13 @@ namespace ChangeableDocument.Changeables
 
         private bool FillMemberPath(Folder folder, Guid guid, List<StructureMember> toFill)
         {
-            if (folder.ReadOnlyGuidValue == guid)
+            if (folder.GuidValue == guid)
             {
                 return true;
             }
             foreach (var member in folder.Children)
             {
-                if (member is Layer childLayer && childLayer.ReadOnlyGuidValue == guid)
+                if (member is Layer childLayer && childLayer.GuidValue == guid)
                 {
                     toFill.Add(member);
                     return true;

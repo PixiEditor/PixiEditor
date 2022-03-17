@@ -4,7 +4,7 @@ using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Actions.Drawing.Selection
 {
-    public record struct SelectRectangle_Action : IStartOrUpdateChangeAction
+    public record class SelectRectangle_Action : IStartOrUpdateChangeAction
     {
         public Vector2i Pos { get; }
         public Vector2i Size { get; }

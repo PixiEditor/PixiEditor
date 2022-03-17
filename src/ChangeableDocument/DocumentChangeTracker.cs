@@ -25,6 +25,8 @@ namespace ChangeableDocument
         private void AddToUndo(IChange change)
         {
             undoStack.Push(change);
+            foreach (var changeToDispose in redoStack)
+                changeToDispose.Dispose();
             redoStack.Clear();
         }
 
@@ -83,10 +85,10 @@ namespace ChangeableDocument
                             AddToUndo(activeChange);
                             activeChange = null;
                             break;
-                        case UndoAction act:
+                        case Undo_Action act:
                             changeInfos.Add(Undo());
                             break;
-                        case RedoAction act:
+                        case Redo_Action act:
                             changeInfos.Add(Redo());
                             break;
                         default:

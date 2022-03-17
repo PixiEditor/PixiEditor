@@ -65,5 +65,10 @@ namespace ChangeableDocument.Changes.Drawing
             layer.LayerImage.CommitChanges();
             return changes;
         }
+
+        public void Dispose()
+        {
+            storedChunks?.Dispose();
+        }
     }
 }

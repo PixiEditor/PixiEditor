@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.Operations
 {
-    internal record class ClearOperation : IChunkOperation
+    internal record class ClearOperation : IDrawOperation
     {
         public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
         {

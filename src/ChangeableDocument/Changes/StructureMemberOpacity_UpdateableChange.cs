@@ -24,7 +24,7 @@ namespace ChangeableDocument.Changes
         public void Initialize(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
-            originalOpacity = member.ReadOnlyOpacity;
+            originalOpacity = member.Opacity;
         }
 
         public IChangeInfo? ApplyTemporarily(Document target) => Apply(target);
@@ -32,7 +32,7 @@ namespace ChangeableDocument.Changes
         public IChangeInfo? Apply(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
-            member.ReadOnlyOpacity = NewOpacity;
+            member.Opacity = NewOpacity;
 
             return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
         }
@@ -40,11 +40,11 @@ namespace ChangeableDocument.Changes
         public IChangeInfo? Revert(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
-            member.ReadOnlyOpacity = originalOpacity;
+            member.Opacity = originalOpacity;
 
             return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
         }
 
-
+        public void Dispose() { }
     }
 }

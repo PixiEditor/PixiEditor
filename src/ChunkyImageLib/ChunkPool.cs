@@ -15,7 +15,7 @@ namespace ChunkyImageLib
 
         public Chunk TransparentChunk { get; } = new Chunk();
 
-        public Chunk BorrowChunk()
+        public Chunk BorrowChunk(object borrowee)
         {
             Chunk chunk;
             if (freeChunks.Count > 0)
@@ -35,7 +35,11 @@ namespace ChunkyImageLib
         public void ReturnChunk(Chunk chunk)
         {
             if (!usedChunks.Contains(chunk))
-                throw new Exception("This chunk wasn't borrowed");
+            {
+                if (freeChunks.Contains(chunk))
+                    throw new Exception("This chunk has already been returned");
+                throw new Exception("This chunk wasn't borrowed or was already returned and disposed");
+            }
             usedChunks.Remove(chunk);
             freeChunks.Add(chunk);
 
@@ -44,7 +48,7 @@ namespace ChunkyImageLib
 
         private void MaybeDisposeChunks()
         {
-            for (int i = freeChunks.Count - 1; i >= 100; i++)
+            for (int i = freeChunks.Count - 1; i > 200; i--)
             {
                 freeChunks[i].Dispose();
                 freeChunks.RemoveAt(i);

@@ -19,7 +19,7 @@ namespace ChangeableDocument.Changes
             var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
 
             originalIndex = parent.Children.IndexOf(member);
-            parentGuid = parent.ReadOnlyGuidValue;
+            parentGuid = parent.GuidValue;
             savedCopy = member.Clone();
         }
 
@@ -27,6 +27,7 @@ namespace ChangeableDocument.Changes
         {
             var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
             parent.Children.Remove(member);
+            member.Dispose();
             return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 
@@ -36,6 +37,11 @@ namespace ChangeableDocument.Changes
 
             parent.Children.Insert(originalIndex, savedCopy!.Clone());
             return new CreateStructureMember_ChangeInfo() { GuidValue = memberGuid };
+        }
+
+        public void Dispose()
+        {
+            savedCopy!.Dispose();
         }
     }
 }

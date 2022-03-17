@@ -60,5 +60,10 @@ namespace ChangeableDocument.Changes.Drawing
             target.Selection.SelectionImage.CommitChanges();
             return changes;
         }
+
+        public void Dispose()
+        {
+            originalSelectionState?.Dispose();
+        }
     }
 }

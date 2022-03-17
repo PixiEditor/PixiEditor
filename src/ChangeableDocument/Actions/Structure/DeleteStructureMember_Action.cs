@@ -2,7 +2,7 @@
 
 namespace ChangeableDocument.Actions.Structure;
 
-public record struct DeleteStructureMember_Action : IMakeChangeAction
+public record class DeleteStructureMember_Action : IMakeChangeAction
 {
     public DeleteStructureMember_Action(Guid guidValue)
     {

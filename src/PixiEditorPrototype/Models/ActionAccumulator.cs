@@ -2,6 +2,7 @@
 using ChangeableDocument.Actions;
 using ChangeableDocument.ChangeInfos;
 using PixiEditorPrototype.ViewModels;
+using SkiaSharp;
 using StructureRenderer;
 using StructureRenderer.RenderInfos;
 using System.Collections.Generic;
@@ -53,11 +54,14 @@ namespace PixiEditorPrototype.Models
                 document.FinalBitmap.Lock();
                 var renderResult = await renderer.ProcessChanges(result!, document.FinalBitmapSurface, new(document.FinalBitmap.PixelWidth, document.FinalBitmap.PixelHeight));
 
+                SKRectI finalRect = SKRectI.Create(0, 0, document.FinalBitmap.PixelWidth, document.FinalBitmap.PixelHeight);
                 foreach (IRenderInfo info in renderResult)
                 {
-                    if (info is DirtyRect_RenderInfo dirtyRect)
+                    if (info is DirtyRect_RenderInfo dirtyRectInfo)
                     {
-                        document.FinalBitmap.AddDirtyRect(new(dirtyRect.Pos.X, dirtyRect.Pos.Y, dirtyRect.Size.X, dirtyRect.Size.Y));
+                        SKRectI dirtyRect = SKRectI.Create(dirtyRectInfo.Pos, dirtyRectInfo.Size);
+                        dirtyRect.Intersect(finalRect);
+                        document.FinalBitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
                     }
                 }
                 document.FinalBitmap.Unlock();

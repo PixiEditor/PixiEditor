@@ -1,4 +1,5 @@
 ﻿using ChangeableDocument;
+using ChangeableDocument.Actions.Document;
 using ChangeableDocument.Actions.Drawing.Rectangle;
 using ChangeableDocument.Actions.Drawing.Selection;
 using ChangeableDocument.Actions.Structure;
@@ -46,6 +47,7 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? DeleteStructureMemberCommand { get; }
         public RelayCommand? ChangeSelectedItemCommand { get; }
         public RelayCommand? ChangeActiveToolCommand { get; }
+        public RelayCommand? ResizeCanvasCommand { get; }
 
         public RelayCommand? MouseDownCommand { get; }
         public RelayCommand? MouseMoveCommand { get; }
@@ -64,6 +66,8 @@ namespace PixiEditorPrototype.ViewModels
         public SKSurface FinalBitmapSurface { get; set; }
 
         public Color SelectedColor { get; set; } = Colors.Black;
+        public int ResizeWidth { get; set; }
+        public int ResizeHeight { get; set; }
 
         public DocumentViewModel()
         {
@@ -81,6 +85,7 @@ namespace PixiEditorPrototype.ViewModels
             DeleteStructureMemberCommand = new RelayCommand(DeleteStructureMember);
             ChangeSelectedItemCommand = new RelayCommand(ChangeSelectedItem);
             ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
+            ResizeCanvasCommand = new RelayCommand(ResizeCanvas);
 
             MouseDownCommand = new RelayCommand(MouseDown);
             MouseMoveCommand = new RelayCommand(MouseMove);
@@ -184,14 +189,18 @@ namespace PixiEditorPrototype.ViewModels
 
         public void Undo(object? param)
         {
-            ActionAccumulator.AddAction(new UndoAction());
+            ActionAccumulator.AddAction(new Undo_Action());
         }
 
         public void Redo(object? param)
         {
-            ActionAccumulator.AddAction(new RedoAction());
+            ActionAccumulator.AddAction(new Redo_Action());
         }
 
+        public void ResizeCanvas(object? param)
+        {
+            ActionAccumulator.AddAction(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight)));
+        }
         private void ChangeSelectedItem(object? param)
         {
             SelectedStructureMember = (StructureMemberViewModel?)((RoutedPropertyChangedEventArgs<object>?)param)?.NewValue;

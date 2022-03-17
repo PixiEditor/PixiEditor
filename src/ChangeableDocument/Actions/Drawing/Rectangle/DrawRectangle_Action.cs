@@ -4,7 +4,7 @@ using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Actions.Drawing.Rectangle
 {
-    public record struct DrawRectangle_Action : IStartOrUpdateChangeAction
+    public record class DrawRectangle_Action : IStartOrUpdateChangeAction
     {
         public DrawRectangle_Action(Guid layerGuid, ShapeData rectangle)
         {

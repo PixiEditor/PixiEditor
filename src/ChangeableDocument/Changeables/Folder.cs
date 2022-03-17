@@ -17,12 +17,20 @@ namespace ChangeableDocument.Changeables
 
             return new Folder()
             {
-                ReadOnlyGuidValue = ReadOnlyGuidValue,
-                ReadOnlyIsVisible = ReadOnlyIsVisible,
-                ReadOnlyName = ReadOnlyName,
-                ReadOnlyOpacity = ReadOnlyOpacity,
+                GuidValue = GuidValue,
+                IsVisible = IsVisible,
+                Name = Name,
+                Opacity = Opacity,
                 Children = clonedChildren
             };
+        }
+
+        public override void Dispose()
+        {
+            foreach (var child in Children)
+            {
+                child.Dispose();
+            }
         }
     }
 }

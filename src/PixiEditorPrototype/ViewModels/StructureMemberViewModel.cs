@@ -13,24 +13,24 @@ namespace PixiEditorPrototype.ViewModels
 
         public string Name
         {
-            get => member.ReadOnlyName;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.ReadOnlyGuidValue));
+            get => member.Name;
+            set => Document.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.GuidValue));
         }
 
         public bool IsVisible
         {
-            get => member.ReadOnlyIsVisible;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.ReadOnlyGuidValue));
+            get => member.IsVisible;
+            set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
         }
 
         public float Opacity
         {
-            get => member.ReadOnlyOpacity;
+            get => member.Opacity;
         }
 
         public Guid GuidValue
         {
-            get => member.ReadOnlyGuidValue;
+            get => member.GuidValue;
         }
 
         public RelayCommand MoveUpCommand { get; }

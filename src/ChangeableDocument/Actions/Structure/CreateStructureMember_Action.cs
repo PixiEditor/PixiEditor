@@ -2,7 +2,7 @@
 
 namespace ChangeableDocument.Actions.Structure;
 
-public record struct CreateStructureMember_Action : IMakeChangeAction
+public record class CreateStructureMember_Action : IMakeChangeAction
 {
     public CreateStructureMember_Action(Guid parentGuid, int index, StructureMemberType type)
     {
