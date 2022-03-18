@@ -16,7 +16,7 @@
     <Style TargetType="ToggleButton">
         <Setter Property="Focusable" Value="False"/>
     </Style>
-    
+
     <Style TargetType="Button" x:Key="BaseDarkButton">
         <Setter Property="Background" Value="#404040" />
         <Setter Property="Foreground" Value="White" />
@@ -267,7 +267,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
-                    <Border Background="#202020" BorderBrush="Black" BorderThickness="1" Opacity="0.96">
+                    <Border Background="{StaticResource AccentColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
                         <StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" />
                     </Border>
                 </ControlTemplate>

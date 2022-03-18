@@ -3,15 +3,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              mc:Ignorable="d"
              d:DesignHeight="45" d:DesignWidth="45" Name="uc">
     <UserControl.Resources>
         <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
-    <Grid Width="45" Height="45">
-        <Border CornerRadius="5.5" Width="44" Height="44" RenderOptions.BitmapScalingMode="NearestNeighbor">
+    <UserControl.Style>
+        <Style TargetType="{x:Type palettes:PaletteColor}">
+            <Setter Property="Width" Value="45"/>
+            <Setter Property="Height" Value="45"/>
+        </Style>
+    </UserControl.Style>
+    <Grid Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}">
+        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}" RenderOptions.BitmapScalingMode="NearestNeighbor">
             <Border.Background>
                 <VisualBrush>
                     <VisualBrush.Visual>
@@ -20,7 +27,7 @@
                 </VisualBrush>
             </Border.Background>
         </Border>
-        <Border CornerRadius="5.5" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
+        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
             <Border.Background>
                 <SolidColorBrush Color="{Binding Color, Converter={StaticResource SKColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>
