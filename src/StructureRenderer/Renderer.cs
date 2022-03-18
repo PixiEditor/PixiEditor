@@ -15,8 +15,13 @@ namespace StructureRenderer
         private Surface? backSurface;
         private static SKPaint PaintToDrawChunksWith = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
         private static SKPaint BlendingPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+        private static SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
         private static SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
         private static SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
+
+        private bool highlightUpdatedChunks = false;
+        private SKPaint highlightPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0x30FF0000) };
+
         public Renderer(DocumentChangeTracker tracker)
         {
             this.tracker = tracker;
@@ -99,15 +104,20 @@ namespace StructureRenderer
             // draw to back surface
             if (redrawEverything)
             {
-                RenderScreen(screenSize, screenSurface, tracker.Document.ReadOnlyStructureRoot);
+                RenderScreen(screenSize, backSurface.SkiaSurface, tracker.Document.ReadOnlyStructureRoot);
                 infos.Add(new DirtyRect_RenderInfo(new Vector2i(0, 0), screenSize));
             }
             else
             {
+                if (highlightUpdatedChunks)
+                {
+                    backSurface.SkiaSurface.Canvas.Clear();
+                    infos.Add(new DirtyRect_RenderInfo(new(0, 0), screenSize));
+                }
                 foreach (var chunkPos in chunks!)
                 {
-                    screenSurface.Canvas.DrawRect(SKRect.Create(chunkPos * ChunkyImage.ChunkSize, new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)), ClearPaint);
-                    RenderChunk(chunkPos, screenSurface);
+                    backSurface.SkiaSurface.Canvas.DrawRect(SKRect.Create(chunkPos * ChunkyImage.ChunkSize, new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)), ClearPaint);
+                    RenderChunk(chunkPos, backSurface.SkiaSurface);
                     infos.Add(new DirtyRect_RenderInfo(
                         chunkPos * ChunkyImage.ChunkSize,
                         new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)
@@ -116,7 +126,17 @@ namespace StructureRenderer
             }
 
             // transfer the back surface to the screen surface
-            screenSurface.Canvas.DrawSurface(backSurface.SkiaSurface, 0, 0);
+
+            foreach (var info in infos)
+            {
+                if (info is DirtyRect_RenderInfo dirtyRect)
+                {
+                    screenSurface.Canvas.Save();
+                    screenSurface.Canvas.ClipRect(SKRect.Create(dirtyRect.Pos, dirtyRect.Size));
+                    screenSurface.Canvas.DrawSurface(backSurface.SkiaSurface, 0, 0, ReplacingPaint);
+                    screenSurface.Canvas.Restore();
+                }
+            }
 
             return infos;
         }
@@ -165,13 +185,18 @@ namespace StructureRenderer
         {
             var renderedSurface = RenderChunkRecursively(chunkPos, 0, tracker.Document.ReadOnlyStructureRoot);
             if (renderedSurface != null)
+            {
+                if (highlightUpdatedChunks)
+                    renderedSurface.SkiaSurface.Canvas.DrawPaint(highlightPaint);
                 screenSurface.Canvas.DrawSurface(renderedSurface.SkiaSurface, chunkPos * ChunkyImage.ChunkSize, BlendingPaint);
+            }
 
             if (tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
                 return;
             var selectionChunk = tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.GetLatestChunk(chunkPos);
             if (selectionChunk != null)
                 selectionChunk.DrawOnSurface(screenSurface, chunkPos * ChunkyImage.ChunkSize, SelectionPaint);
+
         }
 
         private Surface? RenderChunkRecursively(Vector2i chunkPos, int depth, IReadOnlyFolder folder)

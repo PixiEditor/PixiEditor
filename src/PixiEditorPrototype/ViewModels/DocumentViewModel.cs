@@ -139,7 +139,7 @@ namespace PixiEditorPrototype.ViewModels
                         new ShapeData(
                             new(mouseDownCanvasX, mouseDownCanvasY),
                             new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY),
-                            1,
+                            90,
                             new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
                             SKColors.Transparent)
                     ));

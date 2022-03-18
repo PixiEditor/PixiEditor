@@ -195,8 +195,8 @@ namespace ChunkyImageLib
 
         private void ProcessQueueForChunk(Vector2i chunkPos)
         {
-            Chunk targetChunk = GetOrCreateLatestChunk(chunkPos);
-            if (!latestChunksData.TryGetValue(chunkPos, out LatestChunkData chunkData))
+            Chunk? targetChunk = null;
+            if (latestChunksData.TryGetValue(chunkPos, out LatestChunkData chunkData))
                 chunkData = new() { QueueProgress = 0, IsDeleted = !commitedChunks.ContainsKey(chunkPos) };
 
             if (chunkData.QueueProgress == queuedOperations.Count)
@@ -204,6 +204,7 @@ namespace ChunkyImageLib
 
             List<Chunk> activeClips = new();
             bool isFullyMaskedOut = false;
+            bool somethingWasApplied = false;
             for (int i = 0; i < queuedOperations.Count; i++)
             {
                 var (operation, operChunks) = queuedOperations[i];
@@ -218,12 +219,21 @@ namespace ChunkyImageLib
 
                 if (!operChunks.Contains(chunkPos))
                     continue;
+                if (!somethingWasApplied)
+                {
+                    somethingWasApplied = true;
+                    targetChunk = GetOrCreateLatestChunk(chunkPos);
+                }
+
                 if (chunkData.QueueProgress <= i)
-                    chunkData.IsDeleted = ApplyOperationToChunk(operation, activeClips, isFullyMaskedOut, targetChunk, chunkPos, chunkData);
+                    chunkData.IsDeleted = ApplyOperationToChunk(operation, activeClips, isFullyMaskedOut, targetChunk!, chunkPos, chunkData);
             }
 
-            chunkData.QueueProgress = queuedOperations.Count;
-            latestChunksData[chunkPos] = chunkData;
+            if (somethingWasApplied)
+            {
+                chunkData.QueueProgress = queuedOperations.Count;
+                latestChunksData[chunkPos] = chunkData;
+            }
         }
 
         private bool ApplyOperationToChunk(
