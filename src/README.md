@@ -14,11 +14,12 @@ Decouples the state of a document from the UI.
     - [x] Dispose that returns borrowed chunks
     - [ ] Finalizers that return borrowed chunks
     - [ ] GetLatestChunk resolution parameter
-        - [ ] Support for chunks of different sizes?
-        - [ ] Disposable ChunkView class?
+        - [x] Support for different chunk sizes in chunkpool
+        - [ ] Preview rendering for different chunk sizes
+        - [x] Read only interface for Chunk
     - [x] CommitedChunkStorage (used to store chunks for undo)
         - [ ] Write chunks to the hard drive?
-    - [ ] Linear color space for blending
+    - [x] Linear color space for blending
     - [ ] Tests for everything related to the operation queueing
     - Operations
         - [ ] Support for paints with different blending (replace vs. overlay)
@@ -62,24 +63,22 @@ Decouples the state of a document from the UI.
         - [ ] Layer mask support
         - [ ] Low-res rendering
         - [ ] Don't render chunks outside viewport
-        - [ ] Vector layers (primarily reference layer) rendering
-        - [ ] Support for rendering a subset of the structure (for merging selected layers, referring to selected layer, etc.)
+        - [x] Support for rendering a subset of the structure (for merging selected layers, referring to selected layer, etc.)
         - [ ] Caching for folders
         - [ ] Caching for everything below current layer
         - [ ] Caching for sequences of layers with a normal blending mode
         - Rendering images for changes (tools requiring final image, merge layers, etc.)
-            - [ ] Action packeting with a pre-rendering step for each packet
-            - or
-            - [ ] StructureRenderer as a part of Document
+            - [x] ChunkRenderer as a part of Document
         - [ ] Rendering of layer previews
         - [ ] Rendering of canvas previews
         - [ ] Rendering of the navigator image
     - Changes
         - [x] Layer structure changes
-        - [ ] Merge layers
-        - [ ] Vector layers manipulation (or at least reference layer)
+        - [x] Combine layers onto a single layer
+        - [ ] Reference layer manipulation?
         - [ ] Resize canvas (basic done, anchors left)
         - [ ] Resize image
+        - [ ] Draw image (for pasting/loading from file)
         - [ ] Rectangle (basic done, rotation left)
         - [ ] Ellipse
         - [ ] Line
