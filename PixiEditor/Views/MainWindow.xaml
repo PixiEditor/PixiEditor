@@ -382,12 +382,23 @@
                                     <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
+                                        <Grid>
+                                            <palettes:CompactPaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
+                                        Converter={converters:NotNullToBoolConverter}}"
+                                                                           SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
+                                                                           Colors="{Binding BitmapManager.ActiveDocument.Palette}" 
+                                                                           Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, 
+                                                Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
+                                            <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
                                         Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
                                                               SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
                                                                 DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
                                                                 FileParsers="{Binding ColorsSubViewModel.PaletteParsers}"
+                                                                    Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, 
+                                                Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter},
+                                                ConverterParameter=Hidden}"
                                                                 ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
+                                        </Grid>
                                     </avalondock:LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False"

@@ -59,13 +59,14 @@
                </d:ItemsControl.ItemsSource>
                <ItemsControl.ItemsPanel>
                    <ItemsPanelTemplate>
-                       <WrapPanel Margin="10,10,0,10" Orientation="Horizontal"
+                       <WrapPanel Margin="10" Orientation="Horizontal"
                                   HorizontalAlignment="Left" VerticalAlignment="Top"/>
                    </ItemsPanelTemplate>
                </ItemsControl.ItemsPanel>
                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <palettes:PaletteColor ToolTip="Click to select as main color. Drag and drop onto another pallete color to swap them." AllowDrop="True" Color="{Binding}" Margin="0 5 5 5" MouseMove="PaletteColor_MouseMove"
+                        <palettes:PaletteColor ToolTip="Click to select as main color. Drag and drop onto another palette color to swap them." AllowDrop="True" Color="{Binding}" 
+                                               Margin="2.5" MouseMove="PaletteColor_MouseMove"
                                             Drop="PaletteColor_Drop"
                                             AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 
                 RelativeSource={RelativeSource TemplatedParent}, Converter={converters:IndexToAssociatedKeyConverter}}">
