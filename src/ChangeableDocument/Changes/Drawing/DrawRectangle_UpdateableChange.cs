@@ -9,7 +9,7 @@ namespace ChangeableDocument.Changes.Drawing
     {
         private Guid layerGuid;
         private ShapeData rect;
-        private CommitedChunkStorage? storedChunks;
+        private CommittedChunkStorage? storedChunks;
         public DrawRectangle_UpdateableChange(Guid layerGuid, ShapeData rectangle)
         {
             this.layerGuid = layerGuid;
@@ -44,7 +44,7 @@ namespace ChangeableDocument.Changes.Drawing
         {
             Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
             var changes = ApplyTemporarily(target);
-            storedChunks = new CommitedChunkStorage(layer.LayerImage, ((LayerImageChunks_ChangeInfo)changes!).Chunks!);
+            storedChunks = new CommittedChunkStorage(layer.LayerImage, ((LayerImageChunks_ChangeInfo)changes!).Chunks!);
             layer.LayerImage.CommitChanges();
             return changes;
         }

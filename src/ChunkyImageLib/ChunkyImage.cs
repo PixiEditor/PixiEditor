@@ -19,18 +19,18 @@ namespace ChunkyImageLib
         private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
         private Chunk tempChunk;
 
-        public Vector2i CommitedSize { get; private set; }
+        public Vector2i CommittedSize { get; private set; }
         public Vector2i LatestSize { get; private set; }
 
         private List<(IOperation operation, HashSet<Vector2i> affectedChunks)> queuedOperations = new();
 
-        private Dictionary<Vector2i, Chunk> commitedChunks = new();
+        private Dictionary<Vector2i, Chunk> committedChunks = new();
         private Dictionary<Vector2i, Chunk> latestChunks = new();
         private Dictionary<Vector2i, LatestChunkData> latestChunksData = new();
 
         public ChunkyImage(Vector2i size)
         {
-            CommitedSize = size;
+            CommittedSize = size;
             LatestSize = size;
             tempChunk = Chunk.Create();
         }
@@ -50,22 +50,22 @@ namespace ChunkyImageLib
         }
 
         /// <summary>
-        /// Returns the latest version of the chunk, with uncommited changes applied if they exist
+        /// Returns the latest version of the chunk, with uncommitted changes applied if they exist
         /// </summary>
         public Chunk? GetLatestChunk(Vector2i pos)
         {
             if (queuedOperations.Count == 0)
-                return MaybeGetChunk(pos, commitedChunks);
+                return MaybeGetChunk(pos, committedChunks);
             ProcessQueueForChunk(pos);
-            return MaybeGetChunk(pos, latestChunks) ?? MaybeGetChunk(pos, commitedChunks);
+            return MaybeGetChunk(pos, latestChunks) ?? MaybeGetChunk(pos, committedChunks);
         }
 
         /// <summary>
-        /// Returns the commited version of the chunk ignoring any uncommited changes
+        /// Returns the committed version of the chunk ignoring any uncommitted changes
         /// </summary>
-        internal Chunk? GetCommitedChunk(Vector2i pos)
+        internal Chunk? GetCommittedChunk(Vector2i pos)
         {
-            return MaybeGetChunk(pos, commitedChunks);
+            return MaybeGetChunk(pos, committedChunks);
         }
 
         private Chunk? MaybeGetChunk(Vector2i pos, Dictionary<Vector2i, Chunk> from) => from.ContainsKey(pos) ? from[pos] : null;
@@ -129,7 +129,7 @@ namespace ChunkyImageLib
             {
                 chunk.Dispose();
             }
-            LatestSize = CommitedSize;
+            LatestSize = CommittedSize;
             latestChunks.Clear();
             latestChunksData.Clear();
         }
@@ -146,16 +146,16 @@ namespace ChunkyImageLib
                 operation.Dispose();
             }
             CommitLatestChunks();
-            CommitedSize = LatestSize;
+            CommittedSize = LatestSize;
             queuedOperations.Clear();
         }
 
         /// <summary>
-        /// Returns all chunks that have something in them, including latest (uncommited) ones
+        /// Returns all chunks that have something in them, including latest (uncommitted) ones
         /// </summary>
         public HashSet<Vector2i> FindAllChunks()
         {
-            var allChunks = commitedChunks.Select(chunk => chunk.Key).ToHashSet();
+            var allChunks = committedChunks.Select(chunk => chunk.Key).ToHashSet();
             allChunks.UnionWith(latestChunks.Select(chunk => chunk.Key).ToHashSet());
             foreach (var (operation, opChunks) in queuedOperations)
             {
@@ -165,7 +165,7 @@ namespace ChunkyImageLib
         }
 
         /// <summary>
-        /// Returns chunks affected by operations that haven't been commited yet
+        /// Returns chunks affected by operations that haven't been committed yet
         /// </summary>
         public HashSet<Vector2i> FindAffectedChunks()
         {
@@ -185,14 +185,14 @@ namespace ChunkyImageLib
                 if (data.QueueProgress != queuedOperations.Count)
                     throw new Exception("Trying to commit chunk that wasn't fully processed");
 
-                if (commitedChunks.ContainsKey(pos))
+                if (committedChunks.ContainsKey(pos))
                 {
-                    var oldChunk = commitedChunks[pos];
-                    commitedChunks.Remove(pos);
+                    var oldChunk = committedChunks[pos];
+                    committedChunks.Remove(pos);
                     oldChunk.Dispose();
                 }
                 if (!data.IsDeleted)
-                    commitedChunks.Add(pos, chunk);
+                    committedChunks.Add(pos, chunk);
                 else
                     chunk.Dispose();
             }
@@ -205,7 +205,7 @@ namespace ChunkyImageLib
         {
             Chunk? targetChunk = null;
             if (latestChunksData.TryGetValue(chunkPos, out LatestChunkData chunkData))
-                chunkData = new() { QueueProgress = 0, IsDeleted = !commitedChunks.ContainsKey(chunkPos) };
+                chunkData = new() { QueueProgress = 0, IsDeleted = !committedChunks.ContainsKey(chunkPos) };
 
             if (chunkData.QueueProgress == queuedOperations.Count)
                 return;
@@ -218,7 +218,7 @@ namespace ChunkyImageLib
                 var (operation, operChunks) = queuedOperations[i];
                 if (operation is RasterClipOperation clipOperation)
                 {
-                    var chunk = clipOperation.ClippingMask.GetCommitedChunk(chunkPos);
+                    var chunk = clipOperation.ClippingMask.GetCommittedChunk(chunkPos);
                     if (chunk != null)
                         activeClips.Add(chunk);
                     else
@@ -285,10 +285,10 @@ namespace ChunkyImageLib
             return chunkData.IsDeleted;
         }
 
-        public bool CheckIfCommitedIsEmpty()
+        public bool CheckIfCommittedIsEmpty()
         {
-            FindAndDeleteEmptyCommitedChunks();
-            return commitedChunks.Count == 0;
+            FindAndDeleteEmptyCommittedChunks();
+            return committedChunks.Count == 0;
         }
 
         private HashSet<Vector2i> FindAllChunksOutsideBounds(Vector2i size)
@@ -303,12 +303,12 @@ namespace ChunkyImageLib
             return chunkPos.X < 0 || chunkPos.Y < 0 || chunkPos.X * ChunkSize >= imageSize.X || chunkPos.Y * ChunkSize >= imageSize.Y;
         }
 
-        private void FindAndDeleteEmptyCommitedChunks()
+        private void FindAndDeleteEmptyCommittedChunks()
         {
             if (queuedOperations.Count != 0)
                 throw new Exception("This method cannot be used while any operations are queued");
             HashSet<Vector2i> toRemove = new();
-            foreach (var (pos, chunk) in commitedChunks)
+            foreach (var (pos, chunk) in committedChunks)
             {
                 if (IsChunkEmpty(chunk))
                 {
@@ -317,7 +317,7 @@ namespace ChunkyImageLib
                 }
             }
             foreach (var pos in toRemove)
-                commitedChunks.Remove(pos);
+                committedChunks.Remove(pos);
         }
 
         private unsafe bool IsChunkEmpty(Chunk chunk)
@@ -340,10 +340,10 @@ namespace ChunkyImageLib
             if (targetChunk == null)
             {
                 targetChunk = Chunk.Create();
-                var maybeCommitedChunk = MaybeGetChunk(chunkPos, commitedChunks);
+                var maybeCommittedChunk = MaybeGetChunk(chunkPos, committedChunks);
 
-                if (maybeCommitedChunk != null)
-                    maybeCommitedChunk.Surface.CopyTo(targetChunk.Surface);
+                if (maybeCommittedChunk != null)
+                    maybeCommittedChunk.Surface.CopyTo(targetChunk.Surface);
                 else
                     targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
@@ -358,7 +358,7 @@ namespace ChunkyImageLib
                 return;
             CancelChanges();
             tempChunk.Dispose();
-            foreach (var chunk in commitedChunks)
+            foreach (var chunk in committedChunks)
                 chunk.Value.Dispose();
             disposed = true;
         }

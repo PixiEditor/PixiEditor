@@ -2,15 +2,15 @@
 
 namespace ChunkyImageLib
 {
-    public class CommitedChunkStorage : IDisposable
+    public class CommittedChunkStorage : IDisposable
     {
         private bool disposed = false;
         private List<(Vector2i, Chunk?)> savedChunks = new();
-        public CommitedChunkStorage(ChunkyImage image, HashSet<Vector2i> commitedChunksToSave)
+        public CommittedChunkStorage(ChunkyImage image, HashSet<Vector2i> committedChunksToSave)
         {
-            foreach (var chunkPos in commitedChunksToSave)
+            foreach (var chunkPos in committedChunksToSave)
             {
-                Chunk? chunk = image.GetCommitedChunk(chunkPos);
+                Chunk? chunk = image.GetCommittedChunk(chunkPos);
                 if (chunk == null)
                 {
                     savedChunks.Add((chunkPos, null));

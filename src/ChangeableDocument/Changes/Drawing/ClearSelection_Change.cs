@@ -8,7 +8,7 @@ namespace ChangeableDocument.Changes.Drawing
     internal class ClearSelection_Change : IChange
     {
         private bool originalIsEmpty;
-        private CommitedChunkStorage? savedSelection;
+        private CommittedChunkStorage? savedSelection;
         public void Initialize(Document target)
         {
             originalIsEmpty = target.Selection.IsEmptyAndInactive;

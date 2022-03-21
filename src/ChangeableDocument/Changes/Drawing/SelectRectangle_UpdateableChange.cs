@@ -11,7 +11,7 @@ namespace ChangeableDocument.Changes.Drawing
         private bool originalIsEmpty;
         private Vector2i pos;
         private Vector2i size;
-        private CommitedChunkStorage? originalSelectionState;
+        private CommittedChunkStorage? originalSelectionState;
         public SelectRectangle_UpdateableChange(Vector2i pos, Vector2i size)
         {
             Update(pos, size);
@@ -41,9 +41,9 @@ namespace ChangeableDocument.Changes.Drawing
         public IChangeInfo? Apply(Document target)
         {
             var changes = ApplyTemporarily(target);
-            originalSelectionState = new CommitedChunkStorage(target.Selection.SelectionImage, ((Selection_ChangeInfo)changes!).Chunks!);
+            originalSelectionState = new CommittedChunkStorage(target.Selection.SelectionImage, ((Selection_ChangeInfo)changes!).Chunks!);
             target.Selection.SelectionImage.CommitChanges();
-            target.Selection.IsEmptyAndInactive = target.Selection.SelectionImage.CheckIfCommitedIsEmpty();
+            target.Selection.IsEmptyAndInactive = target.Selection.SelectionImage.CheckIfCommittedIsEmpty();
             return changes;
         }
 

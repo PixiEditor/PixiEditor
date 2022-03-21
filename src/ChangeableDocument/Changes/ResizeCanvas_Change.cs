@@ -8,8 +8,8 @@ namespace ChangeableDocument.Changes
     internal class ResizeCanvas_Change : IChange
     {
         private Vector2i originalSize;
-        private Dictionary<Guid, CommitedChunkStorage> deletedChunks = new();
-        private CommitedChunkStorage? selectionChunkStorage;
+        private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
+        private CommittedChunkStorage? selectionChunkStorage;
         private Vector2i newSize;
         public ResizeCanvas_Change(Vector2i size)
         {
@@ -40,7 +40,7 @@ namespace ChangeableDocument.Changes
             ForEachLayer(target.StructureRoot, (layer) =>
             {
                 layer.LayerImage.Resize(newSize);
-                deletedChunks.Add(layer.GuidValue, new CommitedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedChunks()));
+                deletedChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedChunks()));
                 layer.LayerImage.CommitChanges();
             });
 
