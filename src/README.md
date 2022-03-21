@@ -10,7 +10,7 @@ Decouples the state of a document from the UI.
     - [x] Size constraining
     - [x] Cloning
     - [ ] Periodic cleaning of empty chunks
-    - [ ] ChunkPool multithreading support
+    - [x] ChunkPool multithreading support
     - [x] Dispose that returns borrowed chunks
     - [ ] Finalizers that return borrowed chunks
     - [ ] GetLatestChunk resolution parameter
@@ -30,6 +30,7 @@ Decouples the state of a document from the UI.
         - [ ] Draw pixels
         - [ ] Translate everything
         - [x] Clear operation
+        - [x] Clear region operation
         - [x] Resize canvas operation
         - [ ] Resize image operation?
         - [x] Raster clip operation
