@@ -16,7 +16,7 @@ namespace ChunkyImageLib
                     savedChunks.Add((chunkPos, null));
                     continue;
                 }
-                Chunk copy = ChunkPool.Instance.BorrowChunk(this);
+                Chunk copy = Chunk.Create();
                 chunk.Surface.CopyTo(copy.Surface);
                 savedChunks.Add((chunkPos, copy));
             }
@@ -29,9 +29,9 @@ namespace ChunkyImageLib
             foreach (var (pos, chunk) in savedChunks)
             {
                 if (chunk == null)
-                    image.DrawImage(pos * ChunkPool.ChunkSize, ChunkPool.Instance.TransparentChunk.Surface);
+                    image.ClearRegion(pos * ChunkPool.FullChunkSize, new(ChunkPool.FullChunkSize, ChunkPool.FullChunkSize));
                 else
-                    image.DrawImage(pos * ChunkPool.ChunkSize, chunk.Surface);
+                    image.DrawImage(pos * ChunkPool.FullChunkSize, chunk.Surface);
             }
         }
 
@@ -39,10 +39,10 @@ namespace ChunkyImageLib
         {
             if (disposed)
                 return;
-            foreach (var (pos, chunk) in savedChunks)
+            foreach (var (_, chunk) in savedChunks)
             {
                 if (chunk != null)
-                    ChunkPool.Instance.ReturnChunk(chunk);
+                    chunk.Dispose();
             }
         }
     }

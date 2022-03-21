@@ -4,7 +4,8 @@ namespace ChunkyImageLib.Operations
 {
     internal interface IDrawOperation : IOperation
     {
+        bool IgnoreEmptyChunks { get; }
         void DrawOnChunk(Chunk chunk, Vector2i chunkPos);
-        HashSet<Vector2i> FindAffectedChunks(IReadOnlyChunkyImage image);
+        HashSet<Vector2i> FindAffectedChunks();
     }
 }

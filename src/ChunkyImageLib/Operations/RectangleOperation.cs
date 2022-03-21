@@ -12,12 +12,14 @@ namespace ChunkyImageLib.Operations
 
         public ShapeData Data { get; }
 
+        public bool IgnoreEmptyChunks => false;
+
         public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
         {
             var skiaSurf = chunk.Surface.SkiaSurface;
             // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
             skiaSurf.Canvas.Save();
-            var rect = SKRect.Create(Data.Pos - chunkPos * ChunkPool.ChunkSize, Data.Size);
+            var rect = SKRect.Create(Data.Pos - chunkPos * ChunkPool.FullChunkSize, Data.Size);
             skiaSurf.Canvas.ClipRect(rect);
 
             // draw fill
@@ -41,13 +43,13 @@ namespace ChunkyImageLib.Operations
             skiaSurf.Canvas.Restore();
         }
 
-        public HashSet<Vector2i> FindAffectedChunks(IReadOnlyChunkyImage image)
+        public HashSet<Vector2i> FindAffectedChunks()
         {
             if (Data.Size.X < 1 || Data.Size.Y < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
                 return new();
             if (Data.FillColor.Alpha != 0 || Data.Size.X == 1 || Data.Size.Y == 1)
-                return GetChunksForFilled(ChunkPool.ChunkSize);
-            return GetChunksForStroke(ChunkPool.ChunkSize);
+                return GetChunksForFilled(ChunkPool.FullChunkSize);
+            return GetChunksForStroke(ChunkPool.FullChunkSize);
         }
 
         private static (int, int)? Inset(int min, int max, int inset)

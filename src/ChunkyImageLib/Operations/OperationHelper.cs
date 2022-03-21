@@ -61,6 +61,21 @@ namespace ChunkyImageLib.Operations
             return output;
         }
 
+        public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2i pos, Vector2i size)
+        {
+            Vector2i startChunk = GetChunkPos(pos, ChunkPool.FullChunkSize);
+            Vector2i endChunk = GetChunkPosBiased(pos + size, false, false, ChunkPool.FullChunkSize);
+            HashSet<Vector2i> output = new();
+            for (int x = startChunk.X; x <= endChunk.X; x++)
+            {
+                for (int y = startChunk.Y; y <= endChunk.Y; y++)
+                {
+                    output.Add(new Vector2i(x, y));
+                }
+            }
+            return output;
+        }
+
         public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2d center, Vector2d size, double angle, int chunkSize)
         {
             if (size.X < chunkSize || size.Y < chunkSize)

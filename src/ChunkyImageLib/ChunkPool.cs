@@ -1,58 +1,56 @@
 ﻿using ChunkyImageLib.DataHolders;
+using System.Collections.Concurrent;
 
 namespace ChunkyImageLib
 {
     internal class ChunkPool
     {
-        public const int ChunkSize = 256;
-        public static Vector2i ChunkSizeVec => new(ChunkSize, ChunkSize);
-        // not thread-safe!
+        public const int FullChunkSize = 256;
+
+        private static object lockObj = new();
         private static ChunkPool? instance;
-        public static ChunkPool Instance => instance ??= new ChunkPool();
-
-        private List<Chunk> freeChunks = new();
-        private HashSet<Chunk> usedChunks = new();
-
-        public Chunk TransparentChunk { get; } = new Chunk();
-
-        public Chunk BorrowChunk(object borrowee)
+        public static ChunkPool Instance
         {
-            Chunk chunk;
-            if (freeChunks.Count > 0)
+            get
             {
-                chunk = freeChunks[^1];
-                freeChunks.RemoveAt(freeChunks.Count - 1);
+                if (instance == null)
+                {
+                    lock (lockObj)
+                    {
+                        if (instance == null)
+                            instance = new ChunkPool();
+                    }
+                }
+                return instance;
             }
+        }
+
+        private readonly ConcurrentBag<Chunk> fullChunks = new();
+        private readonly ConcurrentBag<Chunk> halfChunks = new();
+        private readonly ConcurrentBag<Chunk> quarterChunks = new();
+        private readonly ConcurrentBag<Chunk> eighthChunks = new();
+        internal Chunk? Get(ChunkResolution resolution) => GetBag(resolution).TryTake(out Chunk? item) ? item : null;
+
+        private ConcurrentBag<Chunk> GetBag(ChunkResolution resolution)
+        {
+            return resolution switch
+            {
+                ChunkResolution.Full => fullChunks,
+                ChunkResolution.Half => halfChunks,
+                ChunkResolution.Quarter => quarterChunks,
+                ChunkResolution.Eighth => eighthChunks,
+                _ => fullChunks
+            };
+        }
+
+        internal void Push(Chunk chunk)
+        {
+            var chunks = GetBag(chunk.Resolution);
+            //a race condition can cause the count to go above 200, but likely not by much
+            if (chunks.Count < 200)
+                chunks.Add(chunk);
             else
-            {
-                chunk = new Chunk();
-            }
-            usedChunks.Add(chunk);
-
-            return chunk;
-        }
-
-        public void ReturnChunk(Chunk chunk)
-        {
-            if (!usedChunks.Contains(chunk))
-            {
-                if (freeChunks.Contains(chunk))
-                    throw new Exception("This chunk has already been returned");
-                throw new Exception("This chunk wasn't borrowed or was already returned and disposed");
-            }
-            usedChunks.Remove(chunk);
-            freeChunks.Add(chunk);
-
-            MaybeDisposeChunks();
-        }
-
-        private void MaybeDisposeChunks()
-        {
-            for (int i = freeChunks.Count - 1; i > 200; i--)
-            {
-                freeChunks[i].Dispose();
-                freeChunks.RemoveAt(i);
-            }
+                chunk.Surface.Dispose();
         }
     }
 }

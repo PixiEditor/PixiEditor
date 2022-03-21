@@ -9,7 +9,7 @@ namespace ChunkyImageLibTest
 {
     public class RectangleOperationTests
     {
-        const int chunkSize = ChunkPool.ChunkSize;
+        const int chunkSize = ChunkPool.FullChunkSize;
 // to keep expected rectangles aligned
 #pragma warning disable format
         [Fact]
@@ -91,7 +91,7 @@ namespace ChunkyImageLibTest
         public void FindAffectedChunks_ThickPositiveStroke_FindsCorrectChunks()
         {
             var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, chunkSize * 4, chunkSize * 4);
-            RectangleOperation operation = new(new(new(x, y), new(w, h), 32, SKColors.Black, SKColors.Transparent));
+            RectangleOperation operation = new(new(new(x, y), new(w, h), chunkSize, SKColors.Black, SKColors.Transparent));
 
             HashSet<Vector2i> expected = new()
             {

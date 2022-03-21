@@ -8,6 +8,9 @@ namespace ChunkyImageLib.Operations
         private Vector2i pos;
         private Surface toPaint;
         private static SKPaint ReplacingPaint = new() { BlendMode = SKBlendMode.Src };
+
+        public bool IgnoreEmptyChunks => false;
+
         public ImageOperation(Vector2i pos, Surface image)
         {
             this.pos = pos;
@@ -16,13 +19,13 @@ namespace ChunkyImageLib.Operations
 
         public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
         {
-            chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.ChunkSize, ReplacingPaint);
+            chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
         }
 
-        public HashSet<Vector2i> FindAffectedChunks(IReadOnlyChunkyImage image)
+        public HashSet<Vector2i> FindAffectedChunks()
         {
-            Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.ChunkSize);
-            Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Width - 1, pos.Y + toPaint.Height - 1), ChunkPool.ChunkSize);
+            Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.FullChunkSize);
+            Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Width - 1, pos.Y + toPaint.Height - 1), ChunkPool.FullChunkSize);
             HashSet<Vector2i> output = new();
             for (int cx = start.X; cx <= end.X; cx++)
             {
