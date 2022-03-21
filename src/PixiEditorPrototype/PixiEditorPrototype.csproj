@@ -15,7 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ChangeableDocument\ChangeableDocument.csproj" />
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
-    <ProjectReference Include="..\StructureRenderer\StructureRenderer.csproj" />
   </ItemGroup>
 
 </Project>

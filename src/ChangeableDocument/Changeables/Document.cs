@@ -16,6 +16,7 @@ namespace ChangeableDocument.Changeables
         internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
         internal Selection Selection { get; } = new();
         public Vector2i Size { get; set; } = DefaultSize;
+
         public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new Exception("Could not find member with guid " + guid.ToString());
         public StructureMember? FindMember(Guid guid)
         {

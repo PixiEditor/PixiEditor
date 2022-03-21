@@ -1,10 +1,10 @@
 ﻿using ChangeableDocument;
 using ChangeableDocument.Actions;
 using ChangeableDocument.ChangeInfos;
+using PixiEditorPrototype.Models.Rendering;
+using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
-using StructureRenderer;
-using StructureRenderer.RenderInfos;
 using System.Collections.Generic;
 
 namespace PixiEditorPrototype.Models
@@ -17,7 +17,7 @@ namespace PixiEditorPrototype.Models
         private DocumentChangeTracker tracker;
         private DocumentViewModel document;
         private DocumentUpdater documentUpdater;
-        private Renderer renderer;
+        private WriteableBitmapUpdater renderer;
 
         public ActionAccumulator(DocumentChangeTracker tracker, DocumentUpdater updater, DocumentViewModel document)
         {

@@ -40,6 +40,17 @@
                             <pe:ReversedOrderStackPanel/>
                         </ItemsPanelTemplate>
                     </TreeView.ItemsPanel>
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="ItemsPanel">
+                                <Setter.Value>
+                                    <ItemsPanelTemplate>
+                                        <pe:ReversedOrderStackPanel/>
+                                    </ItemsPanelTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectedItemChanged">
                             <i:InvokeCommandAction Command="{Binding ChangeSelectedItemCommand}" PassEventArgsToCommand="True"/>

@@ -10,7 +10,7 @@ namespace ChunkyImageLib
         {
             foreach (var chunkPos in committedChunksToSave)
             {
-                Chunk? chunk = image.GetCommittedChunk(chunkPos);
+                Chunk? chunk = (Chunk?)image.GetCommittedChunk(chunkPos);
                 if (chunk == null)
                 {
                     savedChunks.Add((chunkPos, null));

@@ -3,10 +3,10 @@ using SkiaSharp;
 
 namespace ChunkyImageLib
 {
-    public class Chunk : IDisposable
+    public class Chunk : IDisposable, IReadOnlyChunk
     {
         private bool returned = false;
-        internal Surface Surface { get; }
+        public Surface Surface { get; }
         public Vector2i PixelSize { get; }
         public ChunkResolution Resolution { get; }
         private Chunk(ChunkResolution resolution)

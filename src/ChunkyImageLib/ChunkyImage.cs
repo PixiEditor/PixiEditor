@@ -41,7 +41,7 @@ namespace ChunkyImageLib
             var chunks = FindAllChunks();
             foreach (var chunk in chunks)
             {
-                var image = GetLatestChunk(chunk);
+                var image = (Chunk?)GetLatestChunk(chunk);
                 if (image != null)
                     output.DrawImage(chunk * ChunkSize, image.Surface);
             }
@@ -52,7 +52,7 @@ namespace ChunkyImageLib
         /// <summary>
         /// Returns the latest version of the chunk, with uncommitted changes applied if they exist
         /// </summary>
-        public Chunk? GetLatestChunk(Vector2i pos)
+        public IReadOnlyChunk? GetLatestChunk(Vector2i pos)
         {
             if (queuedOperations.Count == 0)
                 return MaybeGetChunk(pos, committedChunks);
@@ -63,7 +63,7 @@ namespace ChunkyImageLib
         /// <summary>
         /// Returns the committed version of the chunk ignoring any uncommitted changes
         /// </summary>
-        internal Chunk? GetCommittedChunk(Vector2i pos)
+        internal IReadOnlyChunk? GetCommittedChunk(Vector2i pos)
         {
             return MaybeGetChunk(pos, committedChunks);
         }
@@ -210,7 +210,7 @@ namespace ChunkyImageLib
             if (chunkData.QueueProgress == queuedOperations.Count)
                 return;
 
-            List<Chunk> activeClips = new();
+            List<IReadOnlyChunk> activeClips = new();
             bool isFullyMaskedOut = false;
             bool somethingWasApplied = false;
             for (int i = 0; i < queuedOperations.Count; i++)
@@ -246,7 +246,7 @@ namespace ChunkyImageLib
 
         private bool ApplyOperationToChunk(
             IOperation operation,
-            List<Chunk> activeClips,
+            List<IReadOnlyChunk> activeClips,
             bool isFullyMaskedOut,
             Chunk targetChunk,
             Vector2i chunkPos,
@@ -272,7 +272,7 @@ namespace ChunkyImageLib
                 chunkOperation.DrawOnChunk(tempChunk, chunkPos);
                 foreach (var mask in activeClips)
                 {
-                    tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(mask.Surface.SkiaSurface, 0, 0, ClippingPaint);
+                    mask.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
                 }
                 tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0));
                 return false;
