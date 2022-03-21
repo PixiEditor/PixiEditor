@@ -49,8 +49,8 @@ namespace PixiEditorPrototype.ViewModels
         {
             this.member = member;
             Document = doc;
-            MoveUpCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, true));
-            MoveDownCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, false));
+            MoveUpCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, false));
+            MoveDownCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, true));
             UpdateOpacityCommand = new(UpdateOpacity);
             EndOpacityUpdateCommand = new(EndOpacityUpdate);
         }

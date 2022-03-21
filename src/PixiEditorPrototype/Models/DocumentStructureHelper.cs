@@ -88,7 +88,7 @@ namespace PixiEditorPrototype.Models
             return false;
         }
 
-        public void MoveStructureMember(Guid guid, bool up)
+        public void MoveStructureMember(Guid guid, bool toSmallerIndex)
         {
             var path = FindPath(guid);
             if (path.Count < 2)
@@ -96,21 +96,21 @@ namespace PixiEditorPrototype.Models
             if (path.Count == 2)
             {
                 int curIndex = doc.StructureRoot.Children.IndexOf(path[0]);
-                if (curIndex == 0 && up || curIndex == doc.StructureRoot.Children.Count - 1 && !up)
+                if (curIndex == 0 && toSmallerIndex || curIndex == doc.StructureRoot.Children.Count - 1 && !toSmallerIndex)
                     return;
-                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, doc.StructureRoot.GuidValue, up ? curIndex - 1 : curIndex + 1));
+                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, doc.StructureRoot.GuidValue, toSmallerIndex ? curIndex - 1 : curIndex + 1));
                 return;
             }
             var folder = (FolderViewModel)path[1];
             int index = folder.Children.IndexOf(path[0]);
-            if (up && index > 0 || !up && index < folder.Children.Count - 1)
+            if (toSmallerIndex && index > 0 || !toSmallerIndex && index < folder.Children.Count - 1)
             {
-                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[1].GuidValue, up ? index - 1 : index + 1));
+                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[1].GuidValue, toSmallerIndex ? index - 1 : index + 1));
             }
             else
             {
                 int parentIndex = ((FolderViewModel)path[2]).Children.IndexOf(folder);
-                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[2].GuidValue, up ? parentIndex : parentIndex + 1));
+                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[2].GuidValue, toSmallerIndex ? parentIndex : parentIndex + 1));
             }
         }
     }

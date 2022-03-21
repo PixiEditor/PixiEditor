@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditorPrototype.Views"
+             xmlns:pe="clr-namespace:PixiEditorPrototype"
              xmlns:models="clr-namespace:PixiEditorPrototype.Models"
              xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:behaviors="clr-namespace:PixiEditorPrototype.Behaviors"
@@ -34,6 +35,11 @@
                     <TextBlock Text="{Binding SelectedStructureMember.Opacity, StringFormat=N2}" TextAlignment="Center" d:Text="1.00" Width="30"></TextBlock>
                 </StackPanel>
                 <TreeView ItemsSource="{Binding StructureRoot.Children}">
+                    <TreeView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <pe:ReversedOrderStackPanel/>
+                        </ItemsPanelTemplate>
+                    </TreeView.ItemsPanel>
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="SelectedItemChanged">
                             <i:InvokeCommandAction Command="{Binding ChangeSelectedItemCommand}" PassEventArgsToCommand="True"/>
