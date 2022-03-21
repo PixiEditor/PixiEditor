@@ -50,15 +50,19 @@ namespace ChunkyImageLib
 
         public void SaveToDesktop(string filename = "savedSurface.png")
         {
-            using var snapshot = SkiaSurface.Snapshot();
-            using var stream = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), filename));
-            using var png = snapshot.Encode();
-            png.SaveTo(stream);
+            using var final = SKSurface.Create(new SKImageInfo(Width, Height, SKColorType.Rgba8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
+            final.Canvas.DrawSurface(SkiaSurface, 0, 0);
+            using (var snapshot = final.Snapshot())
+            {
+                using var stream = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), filename));
+                using var png = snapshot.Encode();
+                png.SaveTo(stream);
+            }
         }
 
         private SKSurface CreateSKSurface()
         {
-            var surface = SKSurface.Create(new SKImageInfo(Width, Height, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()), PixelBuffer);
+            var surface = SKSurface.Create(new SKImageInfo(Width, Height, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgbLinear()), PixelBuffer);
             if (surface == null)
                 throw new Exception("Could not create surface");
             return surface;

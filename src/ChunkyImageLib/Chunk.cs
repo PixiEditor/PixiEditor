@@ -5,6 +5,7 @@ namespace ChunkyImageLib
 {
     public class Chunk : IDisposable
     {
+        private bool returned = false;
         internal Surface Surface { get; }
         public Vector2i PixelSize { get; }
         public ChunkResolution Resolution { get; }
@@ -26,7 +27,9 @@ namespace ChunkyImageLib
 
         public static Chunk Create(ChunkResolution resolution = ChunkResolution.Full)
         {
-            return ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution);
+            var chunk = ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution);
+            chunk.returned = false;
+            return chunk;
         }
 
         public void DrawOnSurface(SKSurface surface, Vector2i pos, SKPaint? paint = null)
@@ -36,6 +39,9 @@ namespace ChunkyImageLib
 
         public void Dispose()
         {
+            if (returned)
+                return;
+            returned = true;
             ChunkPool.Instance.Push(this);
         }
     }

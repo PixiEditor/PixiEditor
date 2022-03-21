@@ -92,7 +92,7 @@ namespace PixiEditorPrototype.ViewModels
             MouseUpCommand = new RelayCommand(MouseUp);
 
             FinalBitmapSurface = SKSurface.Create(
-                new SKImageInfo(FinalBitmap.PixelWidth, FinalBitmap.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul),
+                new SKImageInfo(FinalBitmap.PixelWidth, FinalBitmap.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
                 FinalBitmap.BackBuffer,
                 FinalBitmap.BackBufferStride);
         }

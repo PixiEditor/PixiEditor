@@ -5,6 +5,7 @@ namespace ChunkyImageLib
 {
     internal class ChunkPool
     {
+        //must be divisible by 8
         public const int FullChunkSize = 256;
 
         private static object lockObj = new();

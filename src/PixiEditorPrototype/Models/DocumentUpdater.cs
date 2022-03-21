@@ -50,7 +50,7 @@ namespace PixiEditorPrototype.Models
 
             doc.FinalBitmap = new WriteableBitmap(doc.Tracker.Document.Size.X, doc.Tracker.Document.Size.Y, 96, 96, PixelFormats.Pbgra32, null);
             doc.FinalBitmapSurface = SKSurface.Create(
-                new SKImageInfo(doc.FinalBitmap.PixelWidth, doc.FinalBitmap.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul),
+                new SKImageInfo(doc.FinalBitmap.PixelWidth, doc.FinalBitmap.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
                 doc.FinalBitmap.BackBuffer,
                 doc.FinalBitmap.BackBufferStride);
         }
