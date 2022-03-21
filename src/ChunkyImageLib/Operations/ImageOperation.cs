@@ -25,7 +25,7 @@ namespace ChunkyImageLib.Operations
         public HashSet<Vector2i> FindAffectedChunks()
         {
             Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.FullChunkSize);
-            Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Width - 1, pos.Y + toPaint.Height - 1), ChunkPool.FullChunkSize);
+            Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Size.X - 1, pos.Y + toPaint.Size.Y - 1), ChunkPool.FullChunkSize);
             HashSet<Vector2i> output = new();
             for (int cx = start.X; cx <= end.X; cx++)
             {

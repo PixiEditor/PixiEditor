@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using ChunkyImageLib.DataHolders;
+using SkiaSharp;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -10,47 +11,45 @@ namespace ChunkyImageLib
         private int bytesPerPixel;
         public IntPtr PixelBuffer { get; }
         public SKSurface SkiaSurface { get; }
-        public int Width { get; }
-        public int Height { get; }
+        public Vector2i Size { get; }
 
-        public Surface(int width, int height)
+        public Surface(Vector2i size)
         {
-            if (width < 1 || height < 1)
+            if (size.X < 1 || size.Y < 1)
                 throw new ArgumentException("Width and height must be >1");
-            if (width > 10000 || height > 10000)
+            if (size.X > 10000 || size.Y > 10000)
                 throw new ArgumentException("Width and height must be <=10000");
 
-            Width = width;
-            Height = height;
+            Size = size;
 
             bytesPerPixel = 8;
-            PixelBuffer = CreateBuffer(width, height, bytesPerPixel);
+            PixelBuffer = CreateBuffer(size.X, size.Y, bytesPerPixel);
             SkiaSurface = CreateSKSurface();
         }
 
-        public Surface(Surface original) : this(original.Width, original.Height)
+        public Surface(Surface original) : this(original.Size)
         {
             SkiaSurface.Canvas.DrawSurface(original.SkiaSurface, 0, 0);
         }
 
         public unsafe void CopyTo(Surface other)
         {
-            if (other.Width != Width || other.Height != Height)
+            if (other.Size != Size)
                 throw new ArgumentException("Target Surface must have the same dimensions");
-            int bytesC = Width * Height * bytesPerPixel;
+            int bytesC = Size.X * Size.Y * bytesPerPixel;
             Buffer.MemoryCopy((void*)PixelBuffer, (void*)other.PixelBuffer, bytesC, bytesC);
         }
 
         public unsafe SKColor GetSRGBPixel(int x, int y)
         {
-            Half* ptr = (Half*)(PixelBuffer + (x + y * Width) * bytesPerPixel);
+            Half* ptr = (Half*)(PixelBuffer + (x + y * Size.X) * bytesPerPixel);
             float a = (float)ptr[3];
             return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
         }
 
         public void SaveToDesktop(string filename = "savedSurface.png")
         {
-            using var final = SKSurface.Create(new SKImageInfo(Width, Height, SKColorType.Rgba8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
+            using var final = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.Rgba8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
             final.Canvas.DrawSurface(SkiaSurface, 0, 0);
             using (var snapshot = final.Snapshot())
             {
@@ -62,7 +61,7 @@ namespace ChunkyImageLib
 
         private SKSurface CreateSKSurface()
         {
-            var surface = SKSurface.Create(new SKImageInfo(Width, Height, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgbLinear()), PixelBuffer);
+            var surface = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgbLinear()), PixelBuffer);
             if (surface == null)
                 throw new Exception("Could not create surface");
             return surface;

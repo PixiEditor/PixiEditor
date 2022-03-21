@@ -85,10 +85,10 @@ namespace StructureRenderer
         private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, Vector2i screenSize)
         {
             bool redrawEverything = false;
-            if (backSurface == null || backSurface.Width != screenSize.X || backSurface.Height != screenSize.Y)
+            if (backSurface == null || backSurface.Size != screenSize)
             {
                 backSurface?.Dispose();
-                backSurface = new(screenSize.X, screenSize.Y);
+                backSurface = new(screenSize);
                 redrawEverything = true;
             }
             HashSet<Vector2i>? chunks = null;
@@ -160,7 +160,7 @@ namespace StructureRenderer
             int depth = FindDeepestLayerDepth(structureRoot, 0);
             while (temporarySurfaces.Count < depth)
             {
-                temporarySurfaces.Add(new Surface(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize));
+                temporarySurfaces.Add(new Surface(new Vector2i(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)));
             }
         }
 

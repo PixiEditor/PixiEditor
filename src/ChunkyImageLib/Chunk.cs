@@ -21,8 +21,8 @@ namespace ChunkyImageLib
             };
 
             Resolution = resolution;
-            Surface = new Surface(size, size);
             PixelSize = new(size, size);
+            Surface = new Surface(PixelSize);
         }
 
         public static Chunk Create(ChunkResolution resolution = ChunkResolution.Full)
