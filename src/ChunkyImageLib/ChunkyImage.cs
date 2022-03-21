@@ -76,13 +76,13 @@ namespace ChunkyImageLib
             EnqueueOperation(operation);
         }
 
-        internal void DrawImage(Vector2i pos, Surface image)
+        public void DrawImage(Vector2i pos, Surface image)
         {
             ImageOperation operation = new(pos, image);
             EnqueueOperation(operation);
         }
 
-        internal void ClearRegion(Vector2i pos, Vector2i size)
+        public void ClearRegion(Vector2i pos, Vector2i size)
         {
             ClearRegionOperation operation = new(pos, size);
             EnqueueOperation(operation);

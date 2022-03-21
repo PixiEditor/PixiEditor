@@ -19,13 +19,13 @@ namespace PixiEditorPrototype.Models
             if (doc.SelectedStructureMember == null)
             {
                 //put member on top
-                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, 0, type));
+                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, doc.StructureRoot.Children.Count, type));
                 return;
             }
             if (doc.SelectedStructureMember is FolderViewModel folder)
             {
                 //put member inside folder on top
-                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(folder.GuidValue, 0, type));
+                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(folder.GuidValue, folder.Children.Count, type));
                 return;
             }
             if (doc.SelectedStructureMember is LayerViewModel layer)
@@ -35,7 +35,7 @@ namespace PixiEditorPrototype.Models
                 if (path.Count < 2)
                     throw new Exception("Couldn't find a path to the selected member");
                 var parent = (FolderViewModel)path[1];
-                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(parent.GuidValue, parent.Children.IndexOf(layer), type));
+                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(parent.GuidValue, parent.Children.IndexOf(layer) + 1, type));
                 return;
             }
             throw new Exception("Unknown member type: " + type.ToString());

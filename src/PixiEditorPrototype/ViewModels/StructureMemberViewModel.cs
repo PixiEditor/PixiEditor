@@ -23,6 +23,8 @@ namespace PixiEditorPrototype.ViewModels
             set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
         }
 
+        public bool IsSelected { get; set; }
+
         public float Opacity
         {
             get => member.Opacity;

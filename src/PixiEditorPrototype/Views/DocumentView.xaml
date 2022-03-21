@@ -22,8 +22,10 @@
                     <Button Margin="5" Command="{Binding CreateNewFolderCommand}" Width="80">New Folder</Button>
                     <Button Margin="5" Command="{Binding DeleteStructureMemberCommand}" Width="80">Delete</Button>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                    <Button Width="80" Margin="5,0" Command="{Binding CombineCommand}">Combine</Button>
                     <Slider Width="100" Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.01" x:Name="opacitySlider"
+                            VerticalAlignment="Center"
                             Value="{Binding SelectedStructureMember.Opacity, Mode=OneWay}">
                         <i:Interaction.Behaviors>
                             <behaviors:SliderUpdateBehavior
@@ -32,7 +34,7 @@
                                 ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}"/>
                         </i:Interaction.Behaviors>
                     </Slider>
-                    <TextBlock Text="{Binding SelectedStructureMember.Opacity, StringFormat=N2}" TextAlignment="Center" d:Text="1.00" Width="30"></TextBlock>
+                    <TextBlock Text="{Binding SelectedStructureMember.Opacity, StringFormat=N2}" VerticalAlignment="Center" TextAlignment="Center" d:Text="1.00" Width="30"></TextBlock>
                 </StackPanel>
                 <TreeView ItemsSource="{Binding StructureRoot.Children}">
                     <TreeView.ItemsPanel>
@@ -59,6 +61,7 @@
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
                             <StackPanel Orientation="Horizontal" Width="150">
+                                <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
                                 <StackPanel>
                                     <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="18" Command="{Binding MoveDownCommand}">v</Button>
@@ -71,6 +74,7 @@
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type vm:LayerViewModel}">
                             <StackPanel Orientation="Horizontal" Width="150">
+                                <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
                                 <StackPanel>
                                     <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="18" Command="{Binding MoveDownCommand}">v</Button>

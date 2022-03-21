@@ -1,5 +1,6 @@
 ﻿using ChangeableDocument;
 using ChangeableDocument.Actions.Document;
+using ChangeableDocument.Actions.Drawing;
 using ChangeableDocument.Actions.Drawing.Rectangle;
 using ChangeableDocument.Actions.Drawing.Selection;
 using ChangeableDocument.Actions.Structure;
@@ -7,6 +8,8 @@ using ChangeableDocument.Actions.Undo;
 using ChunkyImageLib.DataHolders;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -48,6 +51,7 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? ChangeSelectedItemCommand { get; }
         public RelayCommand? ChangeActiveToolCommand { get; }
         public RelayCommand? ResizeCanvasCommand { get; }
+        public RelayCommand? CombineCommand { get; }
 
         public RelayCommand? MouseDownCommand { get; }
         public RelayCommand? MouseMoveCommand { get; }
@@ -86,6 +90,7 @@ namespace PixiEditorPrototype.ViewModels
             ChangeSelectedItemCommand = new RelayCommand(ChangeSelectedItem);
             ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
             ResizeCanvasCommand = new RelayCommand(ResizeCanvas);
+            CombineCommand = new RelayCommand(Combine);
 
             MouseDownCommand = new RelayCommand(MouseDown);
             MouseMoveCommand = new RelayCommand(MouseMove);
@@ -201,9 +206,30 @@ namespace PixiEditorPrototype.ViewModels
         {
             ActionAccumulator.AddAction(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight)));
         }
+
         private void ChangeSelectedItem(object? param)
         {
             SelectedStructureMember = (StructureMemberViewModel?)((RoutedPropertyChangedEventArgs<object>?)param)?.NewValue;
+        }
+
+        private void Combine(object? param)
+        {
+            if (SelectedStructureMember == null)
+                return;
+            HashSet<Guid> selected = new();
+            AddSelectedMembers(StructureRoot, selected);
+            ActionAccumulator.AddAction(new CombineStructureMembersOnto_Action(SelectedStructureMember.GuidValue, selected));
+        }
+
+        private void AddSelectedMembers(FolderViewModel folder, HashSet<Guid> collection)
+        {
+            foreach (var child in folder.Children)
+            {
+                if (child.IsSelected)
+                    collection.Add(child.GuidValue);
+                if (child is FolderViewModel innerFolder)
+                    AddSelectedMembers(innerFolder, collection);
+            }
         }
 
         private void ChangeActiveTool(object? param)
