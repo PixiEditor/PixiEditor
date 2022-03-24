@@ -111,7 +111,7 @@
             </StackPanel>
         </Border>
         <Border BorderThickness="1" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-            <Image Margin="5" Source="{Binding FinalBitmap}" Width="400" Height="400" RenderOptions.BitmapScalingMode="NearestNeighbor">
+            <Image Margin="5" Source="{Binding FinalBitmap}" Width="400" Height="400" RenderOptions.BitmapScalingMode="NearestNeighbor" x:Name="mainImage">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">
                         <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>

@@ -7,6 +7,7 @@ using ChangeableDocument.Actions.Structure;
 using ChangeableDocument.Actions.Undo;
 using ChunkyImageLib.DataHolders;
 using PixiEditorPrototype.Models;
+using PixiEditorPrototype.Views;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,7 @@ namespace PixiEditorPrototype.ViewModels
         public ActionAccumulator ActionAccumulator { get; }
         public DocumentChangeTracker Tracker { get; }
         public DocumentStructureHelper StructureHelper { get; }
+        public IDocumentView? View { get; set; }
         private DocumentUpdater Updater { get; }
 
 

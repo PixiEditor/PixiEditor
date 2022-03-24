@@ -66,6 +66,7 @@ namespace PixiEditorPrototype.Models
                 }
                 document.FinalBitmap.Unlock();
             }
+            document.View?.ForceRefreshFinalImage();
 
             executing = false;
         }
