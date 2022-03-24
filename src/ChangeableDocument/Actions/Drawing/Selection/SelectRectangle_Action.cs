@@ -14,12 +14,12 @@ namespace ChangeableDocument.Actions.Drawing.Selection
             Size = size;
         }
 
-        IUpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
+        UpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
         {
             return new SelectRectangle_UpdateableChange(Pos, Size);
         }
 
-        void IStartOrUpdateChangeAction.UpdateCorrespodingChange(IUpdateableChange change)
+        void IStartOrUpdateChangeAction.UpdateCorrespodingChange(UpdateableChange change)
         {
             ((SelectRectangle_UpdateableChange)change).Update(Pos, Size);
         }

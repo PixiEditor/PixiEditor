@@ -5,7 +5,7 @@ namespace ChangeableDocument.Actions.Drawing.Selection
 {
     public record class ClearSelection_Action : IMakeChangeAction
     {
-        IChange IMakeChangeAction.CreateCorrespondingChange()
+        Change IMakeChangeAction.CreateCorrespondingChange()
         {
             return new ClearSelection_Change();
         }

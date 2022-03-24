@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class StructureMemberOpacity_UpdateableChange : IUpdateableChange
+    internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
     {
         private Guid memberGuid;
 
@@ -21,15 +21,15 @@ namespace ChangeableDocument.Changes
             newOpacity = updatedOpacity;
         }
 
-        public void Initialize(Document document)
+        public override void Initialize(Document document)
         {
             var member = document.FindMemberOrThrow(memberGuid);
             originalOpacity = member.Opacity;
         }
 
-        public IChangeInfo? ApplyTemporarily(Document target) => Apply(target, out _);
+        public override IChangeInfo? ApplyTemporarily(Document target) => Apply(target, out _);
 
-        public IChangeInfo? Apply(Document document, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document document, out bool ignoreInUndo)
         {
             if (originalOpacity == newOpacity)
             {
@@ -44,7 +44,7 @@ namespace ChangeableDocument.Changes
             return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
         }
 
-        public IChangeInfo? Revert(Document document)
+        public override IChangeInfo? Revert(Document document)
         {
             if (originalOpacity == newOpacity)
                 return null;
@@ -55,6 +55,11 @@ namespace ChangeableDocument.Changes
             return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
         }
 
-        public void Dispose() { }
+        public override bool IsMergeableWith(Change other)
+        {
+            if (other is not StructureMemberOpacity_UpdateableChange same)
+                return false;
+            return same.memberGuid == memberGuid;
+        }
     }
 }

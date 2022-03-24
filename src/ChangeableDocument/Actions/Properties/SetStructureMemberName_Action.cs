@@ -13,7 +13,7 @@ public record class SetStructureMemberName_Action : IMakeChangeAction
     public string Name { get; init; }
     public Guid GuidValue { get; init; }
 
-    IChange IMakeChangeAction.CreateCorrespondingChange()
+    Change IMakeChangeAction.CreateCorrespondingChange()
     {
         return new StructureMemberName_Change(GuidValue, Name);
     }

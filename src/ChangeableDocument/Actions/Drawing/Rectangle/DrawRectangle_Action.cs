@@ -15,12 +15,12 @@ namespace ChangeableDocument.Actions.Drawing.Rectangle
         public Guid LayerGuid { get; }
         public ShapeData Rectangle { get; }
 
-        void IStartOrUpdateChangeAction.UpdateCorrespodingChange(IUpdateableChange change)
+        void IStartOrUpdateChangeAction.UpdateCorrespodingChange(UpdateableChange change)
         {
             ((DrawRectangle_UpdateableChange)change).Update(Rectangle);
         }
 
-        IUpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
+        UpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
         {
             return new DrawRectangle_UpdateableChange(LayerGuid, Rectangle);
         }

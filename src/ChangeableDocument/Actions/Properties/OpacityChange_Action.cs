@@ -13,12 +13,12 @@ namespace ChangeableDocument.Actions.Properties
         public Guid MemberGuid { get; }
         public float Opacity { get; }
 
-        IUpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
+        UpdateableChange IStartOrUpdateChangeAction.CreateCorrespondingChange()
         {
             return new StructureMemberOpacity_UpdateableChange(MemberGuid, Opacity);
         }
 
-        void IStartOrUpdateChangeAction.UpdateCorrespodingChange(IUpdateableChange change)
+        void IStartOrUpdateChangeAction.UpdateCorrespodingChange(UpdateableChange change)
         {
             ((StructureMemberOpacity_UpdateableChange)change).Update(Opacity);
         }

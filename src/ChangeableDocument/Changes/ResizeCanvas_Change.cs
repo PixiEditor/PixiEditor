@@ -5,7 +5,7 @@ using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Changes
 {
-    internal class ResizeCanvas_Change : IChange
+    internal class ResizeCanvas_Change : Change
     {
         private Vector2i originalSize;
         private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
@@ -15,7 +15,7 @@ namespace ChangeableDocument.Changes
         {
             newSize = size;
         }
-        public void Initialize(Document target)
+        public override void Initialize(Document target)
         {
             originalSize = target.Size;
         }
@@ -33,7 +33,7 @@ namespace ChangeableDocument.Changes
             }
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             if (originalSize == newSize)
             {
@@ -58,7 +58,7 @@ namespace ChangeableDocument.Changes
             return new Size_ChangeInfo();
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             if (originalSize == newSize)
                 return null;
@@ -84,7 +84,7 @@ namespace ChangeableDocument.Changes
             return new Size_ChangeInfo();
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             foreach (var layer in deletedChunks)
                 layer.Value.Dispose();

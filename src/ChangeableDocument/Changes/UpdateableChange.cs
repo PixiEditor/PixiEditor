@@ -3,8 +3,8 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal interface IUpdateableChange : IChange
+    internal abstract class UpdateableChange : Change
     {
-        IChangeInfo? ApplyTemporarily(Document target);
+        public abstract IChangeInfo? ApplyTemporarily(Document target);
     }
 }

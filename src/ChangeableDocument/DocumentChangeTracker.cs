@@ -12,42 +12,62 @@ namespace ChangeableDocument
         private Document document;
         public IReadOnlyDocument Document => document;
 
-        private IUpdateableChange? activeChange = null;
+        private UpdateableChange? activeChange = null;
 
-        private Stack<IChange> undoStack = new();
-        private Stack<IChange> redoStack = new();
+        private Stack<List<Change>> undoStack = new();
+        private Stack<List<Change>> redoStack = new();
 
         public DocumentChangeTracker()
         {
             document = new Document();
         }
 
-        private void AddToUndo(IChange change)
+        private void AddToUndo(Change change)
         {
-            undoStack.Push(change);
-            foreach (var changeToDispose in redoStack)
-                changeToDispose.Dispose();
+            List<Change> targetPacket = GetOrCreatePacket(change);
+            targetPacket.Add(change);
+
+            foreach (var changesToDispose in redoStack)
+                foreach (var changeToDispose in changesToDispose)
+                    changeToDispose.Dispose();
             redoStack.Clear();
         }
 
-        private IChangeInfo? Undo()
+        private List<Change> GetOrCreatePacket(Change change)
         {
-            if (undoStack.Count == 0)
-                return null;
-            IChange change = undoStack.Pop();
-            var info = change.Revert(document);
-            redoStack.Push(change);
-            return info;
+            if (undoStack.Count != 0 && change.IsMergeableWith(undoStack.Peek()[^1]))
+                return undoStack.Peek();
+            var newPacket = new List<Change>();
+            undoStack.Push(newPacket);
+            return newPacket;
         }
 
-        private IChangeInfo? Redo()
+        private List<IChangeInfo?> Undo()
+        {
+            if (undoStack.Count == 0)
+                return new List<IChangeInfo?>();
+            List<IChangeInfo?> changeInfos = new();
+            List<Change> changePacket = undoStack.Pop();
+
+            for (int i = changePacket.Count - 1; i >= 0; i--)
+                changeInfos.Add(changePacket[i].Revert(document));
+
+            redoStack.Push(changePacket);
+            return changeInfos;
+        }
+
+        private List<IChangeInfo?> Redo()
         {
             if (redoStack.Count == 0)
-                return null;
-            IChange change = redoStack.Pop();
-            var info = change.Apply(document, out bool _);
-            undoStack.Push(change);
-            return info;
+                return new List<IChangeInfo?>();
+            List<IChangeInfo?> changeInfos = new();
+            List<Change> changePacket = redoStack.Pop();
+
+            for (int i = 0; i < changePacket.Count; i++)
+                changeInfos.Add(changePacket[i].Apply(document, out _));
+
+            undoStack.Push(changePacket);
+            return changeInfos;
         }
 
         private IChangeInfo? ProcessMakeChangeAction(IMakeChangeAction act)
@@ -108,10 +128,10 @@ namespace ChangeableDocument
                         changeInfos.Add(ProcessEndChangeAction(act));
                         break;
                     case Undo_Action act:
-                        changeInfos.Add(Undo());
+                        changeInfos.AddRange(Undo());
                         break;
                     case Redo_Action act:
-                        changeInfos.Add(Redo());
+                        changeInfos.AddRange(Redo());
                         break;
                     default:
                         throw new Exception("Unknown action type");

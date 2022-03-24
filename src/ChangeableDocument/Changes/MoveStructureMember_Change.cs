@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class MoveStructureMember_Change : IChange
+    internal class MoveStructureMember_Change : Change
     {
         private Guid memberGuid;
 
@@ -20,7 +20,7 @@ namespace ChangeableDocument.Changes
             this.targetFolderIndex = targetFolderIndex;
         }
 
-        public void Initialize(Document document)
+        public override void Initialize(Document document)
         {
             var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
             originalFolderGuid = curFolder.GuidValue;
@@ -36,19 +36,17 @@ namespace ChangeableDocument.Changes
             targetFolder.Children.Insert(targetIndex, member);
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             Move(target, memberGuid, targetFolderGuid, targetFolderIndex);
             ignoreInUndo = false;
             return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             Move(target, memberGuid, originalFolderGuid, originalFolderIndex);
             return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
-
-        public void Dispose() { }
     }
 }

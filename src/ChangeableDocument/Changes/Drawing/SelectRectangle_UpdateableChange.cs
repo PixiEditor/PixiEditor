@@ -6,7 +6,7 @@ using SkiaSharp;
 
 namespace ChangeableDocument.Changes.Drawing
 {
-    internal class SelectRectangle_UpdateableChange : IUpdateableChange
+    internal class SelectRectangle_UpdateableChange : UpdateableChange
     {
         private bool originalIsEmpty;
         private Vector2i pos;
@@ -16,7 +16,7 @@ namespace ChangeableDocument.Changes.Drawing
         {
             Update(pos, size);
         }
-        public void Initialize(Document target)
+        public override void Initialize(Document target)
         {
             originalIsEmpty = target.Selection.IsEmptyAndInactive;
         }
@@ -27,7 +27,7 @@ namespace ChangeableDocument.Changes.Drawing
             this.size = size;
         }
 
-        public IChangeInfo? ApplyTemporarily(Document target)
+        public override IChangeInfo? ApplyTemporarily(Document target)
         {
             var oldChunks = target.Selection.SelectionImage.FindAffectedChunks();
             target.Selection.SelectionImage.CancelChanges();
@@ -38,7 +38,7 @@ namespace ChangeableDocument.Changes.Drawing
             return new Selection_ChangeInfo() { Chunks = oldChunks };
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             var changes = ApplyTemporarily(target);
             originalSelectionState = new CommittedChunkStorage(target.Selection.SelectionImage, ((Selection_ChangeInfo)changes!).Chunks!);
@@ -48,7 +48,7 @@ namespace ChangeableDocument.Changes.Drawing
             return changes;
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             if (originalSelectionState == null)
                 throw new Exception("No stored chunks to revert to");
@@ -62,7 +62,7 @@ namespace ChangeableDocument.Changes.Drawing
             return changes;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             originalSelectionState?.Dispose();
         }

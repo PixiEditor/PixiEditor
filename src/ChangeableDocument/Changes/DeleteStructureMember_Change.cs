@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class DeleteStructureMember_Change : IChange
+    internal class DeleteStructureMember_Change : Change
     {
         private Guid memberGuid;
         private Guid parentGuid;
@@ -14,7 +14,7 @@ namespace ChangeableDocument.Changes
             this.memberGuid = memberGuid;
         }
 
-        public void Initialize(Document document)
+        public override void Initialize(Document document)
         {
             var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
 
@@ -23,7 +23,7 @@ namespace ChangeableDocument.Changes
             savedCopy = member.Clone();
         }
 
-        public IChangeInfo Apply(Document document, out bool ignoreInUndo)
+        public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
         {
             var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
             parent.Children.Remove(member);
@@ -32,7 +32,7 @@ namespace ChangeableDocument.Changes
             return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 
-        public IChangeInfo Revert(Document doc)
+        public override IChangeInfo Revert(Document doc)
         {
             var parent = (Folder)doc.FindMemberOrThrow(parentGuid);
 
@@ -40,7 +40,7 @@ namespace ChangeableDocument.Changes
             return new CreateStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             savedCopy!.Dispose();
         }

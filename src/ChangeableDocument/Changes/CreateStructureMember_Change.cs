@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class CreateStructureMember_Change : IChange
+    internal class CreateStructureMember_Change : Change
     {
         private Guid newMemberGuid;
 
@@ -18,12 +18,12 @@ namespace ChangeableDocument.Changes
             this.type = type;
         }
 
-        public void Initialize(Document target)
+        public override void Initialize(Document target)
         {
             newMemberGuid = Guid.NewGuid();
         }
 
-        public IChangeInfo Apply(Document document, out bool ignoreInUndo)
+        public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
         {
             var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
 
@@ -40,7 +40,7 @@ namespace ChangeableDocument.Changes
             return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
         }
 
-        public IChangeInfo Revert(Document document)
+        public override IChangeInfo Revert(Document document)
         {
             var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
             var child = document.FindMemberOrThrow(newMemberGuid);
@@ -49,7 +49,5 @@ namespace ChangeableDocument.Changes
 
             return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
         }
-
-        public void Dispose() { }
     }
 }

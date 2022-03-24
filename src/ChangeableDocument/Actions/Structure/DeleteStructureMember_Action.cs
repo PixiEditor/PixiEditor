@@ -11,7 +11,7 @@ public record class DeleteStructureMember_Action : IMakeChangeAction
 
     public Guid GuidValue { get; }
 
-    IChange IMakeChangeAction.CreateCorrespondingChange()
+    Change IMakeChangeAction.CreateCorrespondingChange()
     {
         return new DeleteStructureMember_Change(GuidValue);
     }

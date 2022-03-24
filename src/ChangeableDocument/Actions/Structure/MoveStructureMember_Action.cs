@@ -15,7 +15,7 @@ public record class MoveStructureMember_Action : IMakeChangeAction
     public Guid TargetFolder { get; init; }
     public int Index { get; init; }
 
-    IChange IMakeChangeAction.CreateCorrespondingChange()
+    Change IMakeChangeAction.CreateCorrespondingChange()
     {
         return new MoveStructureMember_Change(Member, TargetFolder, Index);
     }

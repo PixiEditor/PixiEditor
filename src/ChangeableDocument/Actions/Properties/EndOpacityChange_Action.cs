@@ -4,6 +4,6 @@ namespace ChangeableDocument.Actions.Properties
 {
     public record class EndOpacityChange_Action : IEndChangeAction
     {
-        bool IEndChangeAction.IsChangeTypeMatching(IChange change) => change is StructureMemberOpacity_UpdateableChange;
+        bool IEndChangeAction.IsChangeTypeMatching(Change change) => change is StructureMemberOpacity_UpdateableChange;
     }
 }

@@ -5,7 +5,7 @@ using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Changes.Drawing
 {
-    internal class DrawRectangle_UpdateableChange : IUpdateableChange
+    internal class DrawRectangle_UpdateableChange : UpdateableChange
     {
         private Guid layerGuid;
         private ShapeData rect;
@@ -16,14 +16,14 @@ namespace ChangeableDocument.Changes.Drawing
             this.rect = rectangle;
         }
 
-        public void Initialize(Document target) { }
+        public override void Initialize(Document target) { }
 
         public void Update(ShapeData updatedRectangle)
         {
             rect = updatedRectangle;
         }
 
-        public IChangeInfo? ApplyTemporarily(Document target)
+        public override IChangeInfo? ApplyTemporarily(Document target)
         {
             Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
             var oldChunks = layer.LayerImage.FindAffectedChunks();
@@ -40,7 +40,7 @@ namespace ChangeableDocument.Changes.Drawing
             };
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
             var changes = ApplyTemporarily(target);
@@ -51,7 +51,7 @@ namespace ChangeableDocument.Changes.Drawing
             return changes;
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             if (storedChunks == null)
                 throw new Exception("No stored chunks to revert to");
@@ -68,7 +68,7 @@ namespace ChangeableDocument.Changes.Drawing
             return changes;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             storedChunks?.Dispose();
         }

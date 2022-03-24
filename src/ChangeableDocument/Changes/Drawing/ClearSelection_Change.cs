@@ -5,18 +5,18 @@ using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Changes.Drawing
 {
-    internal class ClearSelection_Change : IChange
+    internal class ClearSelection_Change : Change
     {
         private bool originalIsEmpty;
         private CommittedChunkStorage? savedSelection;
-        public void Initialize(Document target)
+        public override void Initialize(Document target)
         {
             originalIsEmpty = target.Selection.IsEmptyAndInactive;
             if (!originalIsEmpty)
                 savedSelection = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAllChunks());
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             if (originalIsEmpty)
             {
@@ -34,7 +34,7 @@ namespace ChangeableDocument.Changes.Drawing
             return new Selection_ChangeInfo() { Chunks = affChunks };
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             if (originalIsEmpty)
                 return new Selection_ChangeInfo() { Chunks = new() };
@@ -50,7 +50,7 @@ namespace ChangeableDocument.Changes.Drawing
             return new Selection_ChangeInfo() { Chunks = affChunks };
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             savedSelection?.Dispose();
         }

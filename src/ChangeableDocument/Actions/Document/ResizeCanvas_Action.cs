@@ -10,7 +10,7 @@ namespace ChangeableDocument.Actions.Document
         {
             Size = size;
         }
-        IChange IMakeChangeAction.CreateCorrespondingChange()
+        Change IMakeChangeAction.CreateCorrespondingChange()
         {
             return new ResizeCanvas_Change(Size);
         }

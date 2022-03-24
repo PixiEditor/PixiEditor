@@ -3,7 +3,7 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class StructureMemberName_Change : IChange
+    internal class StructureMemberName_Change : Change
     {
         private string? originalName;
         private string newName;
@@ -14,13 +14,13 @@ namespace ChangeableDocument.Changes
             this.newName = newName;
         }
 
-        public void Initialize(Document target)
+        public override void Initialize(Document target)
         {
             var member = target.FindMemberOrThrow(targetMember);
             originalName = member.Name;
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             if (originalName == newName)
             {
@@ -33,7 +33,7 @@ namespace ChangeableDocument.Changes
             return new StructureMemberName_ChangeInfo() { GuidValue = targetMember };
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             if (originalName == null)
                 throw new Exception("No name to revert to");
@@ -41,6 +41,11 @@ namespace ChangeableDocument.Changes
             return new StructureMemberName_ChangeInfo() { GuidValue = targetMember };
         }
 
-        public void Dispose() { }
+        public override bool IsMergeableWith(Change other)
+        {
+            if (other is not StructureMemberName_Change same)
+                return false;
+            return same.targetMember == targetMember;
+        }
     }
 }

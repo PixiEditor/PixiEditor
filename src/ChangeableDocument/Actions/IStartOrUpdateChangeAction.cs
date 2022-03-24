@@ -4,7 +4,7 @@ namespace ChangeableDocument.Actions
 {
     internal interface IStartOrUpdateChangeAction : IAction
     {
-        void UpdateCorrespodingChange(IUpdateableChange change);
-        IUpdateableChange CreateCorrespondingChange();
+        void UpdateCorrespodingChange(UpdateableChange change);
+        UpdateableChange CreateCorrespondingChange();
     }
 }

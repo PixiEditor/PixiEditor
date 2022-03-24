@@ -3,24 +3,24 @@ using ChangeableDocument.ChangeInfos;
 
 namespace ChangeableDocument.Changes
 {
-    internal class StructureMemberVisibility_Change : IChange
+    internal class StructureMemberIsVisible_Change : Change
     {
         private bool? originalIsVisible;
         private bool newIsVisible;
         private Guid targetMember;
-        public StructureMemberVisibility_Change(Guid targetMember, bool newIsVisible)
+        public StructureMemberIsVisible_Change(Guid targetMember, bool newIsVisible)
         {
             this.targetMember = targetMember;
             this.newIsVisible = newIsVisible;
         }
 
-        public void Initialize(Document target)
+        public override void Initialize(Document target)
         {
             var member = target.FindMemberOrThrow(targetMember);
             originalIsVisible = member.IsVisible;
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             // don't record layer/folder visibility changes - it's just more convenient this way
             ignoreInUndo = true;
@@ -31,14 +31,12 @@ namespace ChangeableDocument.Changes
             return new StructureMemberIsVisible_ChangeInfo() { GuidValue = targetMember };
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             if (originalIsVisible == null)
                 throw new Exception("No name to revert to");
             target.FindMemberOrThrow(targetMember).IsVisible = originalIsVisible.Value;
             return new StructureMemberIsVisible_ChangeInfo() { GuidValue = targetMember };
         }
-
-        public void Dispose() { }
     }
 }

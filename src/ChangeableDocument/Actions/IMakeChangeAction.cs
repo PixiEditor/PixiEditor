@@ -4,6 +4,6 @@ namespace ChangeableDocument.Actions
 {
     internal interface IMakeChangeAction : IAction
     {
-        IChange CreateCorrespondingChange();
+        Change CreateCorrespondingChange();
     }
 }

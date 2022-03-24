@@ -13,8 +13,8 @@ public record class SetStructureMemberVisibility_Action : IMakeChangeAction
     public bool isVisible { get; init; }
     public Guid GuidValue { get; init; }
 
-    IChange IMakeChangeAction.CreateCorrespondingChange()
+    Change IMakeChangeAction.CreateCorrespondingChange()
     {
-        return new StructureMemberVisibility_Change(GuidValue, isVisible);
+        return new StructureMemberIsVisible_Change(GuidValue, isVisible);
     }
 }

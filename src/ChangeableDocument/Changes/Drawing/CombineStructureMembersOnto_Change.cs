@@ -6,7 +6,7 @@ using ChunkyImageLib.DataHolders;
 
 namespace ChangeableDocument.Changes.Drawing
 {
-    internal class CombineStructureMembersOnto_Change : IChange
+    internal class CombineStructureMembersOnto_Change : Change
     {
         private HashSet<Guid> membersToMerge;
 
@@ -21,7 +21,7 @@ namespace ChangeableDocument.Changes.Drawing
             this.targetLayer = targetLayer;
         }
 
-        public void Initialize(Document target)
+        public override void Initialize(Document target)
         {
             foreach (Guid guid in membersToMerge)
             {
@@ -44,7 +44,7 @@ namespace ChangeableDocument.Changes.Drawing
             }
         }
 
-        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+        public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
 
@@ -73,7 +73,7 @@ namespace ChangeableDocument.Changes.Drawing
             };
         }
 
-        public IChangeInfo? Revert(Document target)
+        public override IChangeInfo? Revert(Document target)
         {
             Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
             if (originalChunks == null)
@@ -93,7 +93,7 @@ namespace ChangeableDocument.Changes.Drawing
             };
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             originalChunks?.Dispose();
         }

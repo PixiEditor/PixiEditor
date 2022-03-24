@@ -13,7 +13,7 @@ namespace ChangeableDocument.Actions.Drawing
 
         public Guid TargetLayer { get; }
         public HashSet<Guid> MembersToCombine { get; }
-        IChange IMakeChangeAction.CreateCorrespondingChange()
+        Change IMakeChangeAction.CreateCorrespondingChange()
         {
             return new CombineStructureMembersOnto_Change(MembersToCombine, TargetLayer);
         }

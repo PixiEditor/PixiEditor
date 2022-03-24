@@ -15,7 +15,7 @@ public record class CreateStructureMember_Action : IMakeChangeAction
     public int Index { get; init; }
     public StructureMemberType Type { get; init; }
 
-    IChange IMakeChangeAction.CreateCorrespondingChange()
+    Change IMakeChangeAction.CreateCorrespondingChange()
     {
         return new CreateStructureMember_Change(ParentGuid, Index, Type);
     }

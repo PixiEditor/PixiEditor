@@ -4,6 +4,6 @@ namespace ChangeableDocument.Actions
 {
     internal interface IEndChangeAction : IAction
     {
-        bool IsChangeTypeMatching(IChange change);
+        bool IsChangeTypeMatching(Change change);
     }
 }
