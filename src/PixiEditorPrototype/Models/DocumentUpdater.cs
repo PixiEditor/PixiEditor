@@ -29,8 +29,11 @@ namespace PixiEditorPrototype.Models
                 case DeleteStructureMember_ChangeInfo info:
                     ProcessDeleteStructureMember(info);
                     break;
-                case StructureMemberProperties_ChangeInfo info:
-                    ProcessUpdateStructureMemberProperties(info);
+                case StructureMemberName_ChangeInfo info:
+                    ProcessUpdateStructureMemberName(info);
+                    break;
+                case StructureMemberIsVisible_ChangeInfo info:
+                    ProcessUpdateStructureMemberIsVisible(info);
                     break;
                 case StructureMemberOpacity_ChangeInfo info:
                     ProcessUpdateStructureMemberOpacity(info);
@@ -86,11 +89,16 @@ namespace PixiEditorPrototype.Models
             folderVM.Children.Remove(memberVM);
         }
 
-        private void ProcessUpdateStructureMemberProperties(StructureMemberProperties_ChangeInfo info)
+        private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
         {
             var memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
-            if (info.NameChanged) memberVM.RaisePropertyChanged(nameof(memberVM.Name));
-            if (info.IsVisibleChanged) memberVM.RaisePropertyChanged(nameof(memberVM.IsVisible));
+            memberVM.RaisePropertyChanged(nameof(memberVM.IsVisible));
+        }
+
+        private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
+        {
+            var memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
+            memberVM.RaisePropertyChanged(nameof(memberVM.Name));
         }
 
         private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)

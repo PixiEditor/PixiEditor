@@ -23,11 +23,12 @@ namespace ChangeableDocument.Changes
             savedCopy = member.Clone();
         }
 
-        public IChangeInfo Apply(Document document)
+        public IChangeInfo Apply(Document document, out bool ignoreInUndo)
         {
             var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
             parent.Children.Remove(member);
             member.Dispose();
+            ignoreInUndo = false;
             return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 

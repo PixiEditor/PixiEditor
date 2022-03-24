@@ -33,8 +33,14 @@ namespace ChangeableDocument.Changes
             }
         }
 
-        public IChangeInfo? Apply(Document target)
+        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
+            if (originalSize == newSize)
+            {
+                ignoreInUndo = true;
+                return null;
+            }
+
             target.Size = newSize;
 
             ForEachLayer(target.StructureRoot, (layer) =>
@@ -48,11 +54,15 @@ namespace ChangeableDocument.Changes
             selectionChunkStorage = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAffectedChunks());
             target.Selection.SelectionImage.CommitChanges();
 
+            ignoreInUndo = false;
             return new Size_ChangeInfo();
         }
 
         public IChangeInfo? Revert(Document target)
         {
+            if (originalSize == newSize)
+                return null;
+
             target.Size = originalSize;
             ForEachLayer(target.StructureRoot, (layer) =>
             {

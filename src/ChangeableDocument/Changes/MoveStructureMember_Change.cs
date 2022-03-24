@@ -36,9 +36,10 @@ namespace ChangeableDocument.Changes
             targetFolder.Children.Insert(targetIndex, member);
         }
 
-        public IChangeInfo? Apply(Document target)
+        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             Move(target, memberGuid, targetFolderGuid, targetFolderIndex);
+            ignoreInUndo = false;
             return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid };
         }
 

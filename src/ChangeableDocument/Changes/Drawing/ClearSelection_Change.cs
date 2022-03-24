@@ -16,10 +16,13 @@ namespace ChangeableDocument.Changes.Drawing
                 savedSelection = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAllChunks());
         }
 
-        public IChangeInfo? Apply(Document target)
+        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             if (originalIsEmpty)
-                return new Selection_ChangeInfo() { Chunks = new() };
+            {
+                ignoreInUndo = true;
+                return null;
+            }
             target.Selection.IsEmptyAndInactive = true;
 
             target.Selection.SelectionImage.CancelChanges();
@@ -27,6 +30,7 @@ namespace ChangeableDocument.Changes.Drawing
             HashSet<Vector2i> affChunks = target.Selection.SelectionImage.FindAffectedChunks();
             target.Selection.SelectionImage.CommitChanges();
 
+            ignoreInUndo = false;
             return new Selection_ChangeInfo() { Chunks = affChunks };
         }
 

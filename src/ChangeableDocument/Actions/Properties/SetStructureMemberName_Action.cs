@@ -15,6 +15,6 @@ public record class SetStructureMemberName_Action : IMakeChangeAction
 
     IChange IMakeChangeAction.CreateCorrespondingChange()
     {
-        return new StructureMemberProperties_Change(GuidValue) { NewName = Name };
+        return new StructureMemberName_Change(GuidValue, Name);
     }
 }

@@ -44,7 +44,7 @@ namespace ChangeableDocument.Changes.Drawing
             }
         }
 
-        public IChangeInfo? Apply(Document target)
+        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
 
@@ -65,6 +65,7 @@ namespace ChangeableDocument.Changes.Drawing
             originalChunks = new CommittedChunkStorage(toDrawOn.LayerImage, affectedChunks);
             toDrawOn.LayerImage.CommitChanges();
 
+            ignoreInUndo = false;
             return new LayerImageChunks_ChangeInfo()
             {
                 LayerGuid = targetLayer,

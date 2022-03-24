@@ -45,8 +45,49 @@ namespace ChangeableDocument
             if (redoStack.Count == 0)
                 return null;
             IChange change = redoStack.Pop();
-            var info = change.Apply(document);
+            var info = change.Apply(document, out bool _);
             undoStack.Push(change);
+            return info;
+        }
+
+        private IChangeInfo? ProcessMakeChangeAction(IMakeChangeAction act)
+        {
+            if (activeChange != null)
+                throw new Exception("Can't make a change while another change is active");
+            var change = act.CreateCorrespondingChange();
+            change.Initialize(document);
+            var info = change.Apply(document, out bool ignoreInUndo);
+            if (!ignoreInUndo)
+                AddToUndo(change);
+            else
+                change.Dispose();
+            return info;
+        }
+
+        private IChangeInfo? ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act)
+        {
+            if (activeChange == null)
+            {
+                activeChange = act.CreateCorrespondingChange();
+                activeChange.Initialize(document);
+            }
+            act.UpdateCorrespodingChange(activeChange);
+            return activeChange.ApplyTemporarily(document);
+        }
+
+        private IChangeInfo? ProcessEndChangeAction(IEndChangeAction act)
+        {
+            if (activeChange == null)
+                throw new Exception("Can't end a change: no changes are active");
+            if (!act.IsChangeTypeMatching(activeChange))
+                throw new Exception($"Trying to end a change via action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
+
+            var info = activeChange.Apply(document, out bool ignoreInUndo);
+            if (!ignoreInUndo)
+                AddToUndo(activeChange);
+            else
+                activeChange.Dispose();
+            activeChange = null;
             return info;
         }
 
@@ -60,30 +101,13 @@ namespace ChangeableDocument
                     switch (action)
                     {
                         case IMakeChangeAction act:
-                            if (activeChange != null)
-                                throw new Exception("Can't make a change while another change is active");
-                            var change = act.CreateCorrespondingChange();
-                            change.Initialize(document);
-                            changeInfos.Add(change.Apply(document));
-                            AddToUndo(change);
+                            changeInfos.Add(ProcessMakeChangeAction(act));
                             break;
                         case IStartOrUpdateChangeAction act:
-                            if (activeChange == null)
-                            {
-                                activeChange = act.CreateCorrespondingChange();
-                                activeChange.Initialize(document);
-                            }
-                            act.UpdateCorrespodingChange(activeChange);
-                            changeInfos.Add(activeChange.ApplyTemporarily(document));
+                            changeInfos.Add(ProcessStartOrUpdateChangeAction(act));
                             break;
                         case IEndChangeAction act:
-                            if (activeChange == null)
-                                throw new Exception("Can't end a change: no changes are active");
-                            if (!act.IsChangeTypeMatching(activeChange))
-                                throw new Exception($"Trying to end a change via action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
-                            changeInfos.Add(activeChange.Apply(document));
-                            AddToUndo(activeChange);
-                            activeChange = null;
+                            changeInfos.Add(ProcessEndChangeAction(act));
                             break;
                         case Undo_Action act:
                             changeInfos.Add(Undo());

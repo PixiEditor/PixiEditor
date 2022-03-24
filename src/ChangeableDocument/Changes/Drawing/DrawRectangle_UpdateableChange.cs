@@ -40,12 +40,14 @@ namespace ChangeableDocument.Changes.Drawing
             };
         }
 
-        public IChangeInfo? Apply(Document target)
+        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
             var changes = ApplyTemporarily(target);
             storedChunks = new CommittedChunkStorage(layer.LayerImage, ((LayerImageChunks_ChangeInfo)changes!).Chunks!);
             layer.LayerImage.CommitChanges();
+
+            ignoreInUndo = false;
             return changes;
         }
 

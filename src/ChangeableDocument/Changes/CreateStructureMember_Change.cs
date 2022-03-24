@@ -23,7 +23,7 @@ namespace ChangeableDocument.Changes
             newMemberGuid = Guid.NewGuid();
         }
 
-        public IChangeInfo Apply(Document document)
+        public IChangeInfo Apply(Document document, out bool ignoreInUndo)
         {
             var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
 
@@ -36,6 +36,7 @@ namespace ChangeableDocument.Changes
 
             folder.Children.Insert(parentFolderIndex, member);
 
+            ignoreInUndo = false;
             return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
         }
 

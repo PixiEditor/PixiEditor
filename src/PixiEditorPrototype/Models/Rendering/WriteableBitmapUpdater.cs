@@ -67,10 +67,8 @@ namespace PixiEditorPrototype.Models.Rendering
                         else
                             return null;
                         break;
-                    case StructureMemberProperties_ChangeInfo propertiesChangeInfo:
-                        if (!propertiesChangeInfo.IsVisibleChanged)
-                            break;
-                        var memberWithVisibility = tracker.Document.FindMemberOrThrow(propertiesChangeInfo.GuidValue);
+                    case StructureMemberIsVisible_ChangeInfo visibilityChangeInfo:
+                        var memberWithVisibility = tracker.Document.FindMemberOrThrow(visibilityChangeInfo.GuidValue);
                         if (memberWithVisibility is IReadOnlyLayer layerWithVisibility)
                             chunks.UnionWith(layerWithVisibility.ReadOnlyLayerImage.FindAllChunks());
                         else

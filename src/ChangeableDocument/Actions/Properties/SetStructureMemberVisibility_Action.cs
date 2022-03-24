@@ -15,6 +15,6 @@ public record class SetStructureMemberVisibility_Action : IMakeChangeAction
 
     IChange IMakeChangeAction.CreateCorrespondingChange()
     {
-        return new StructureMemberProperties_Change(GuidValue) { NewIsVisible = isVisible };
+        return new StructureMemberVisibility_Change(GuidValue, isVisible);
     }
 }

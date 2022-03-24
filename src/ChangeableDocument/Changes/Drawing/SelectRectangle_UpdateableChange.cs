@@ -38,12 +38,13 @@ namespace ChangeableDocument.Changes.Drawing
             return new Selection_ChangeInfo() { Chunks = oldChunks };
         }
 
-        public IChangeInfo? Apply(Document target)
+        public IChangeInfo? Apply(Document target, out bool ignoreInUndo)
         {
             var changes = ApplyTemporarily(target);
             originalSelectionState = new CommittedChunkStorage(target.Selection.SelectionImage, ((Selection_ChangeInfo)changes!).Chunks!);
             target.Selection.SelectionImage.CommitChanges();
             target.Selection.IsEmptyAndInactive = target.Selection.SelectionImage.CheckIfCommittedIsEmpty();
+            ignoreInUndo = false;
             return changes;
         }
 
