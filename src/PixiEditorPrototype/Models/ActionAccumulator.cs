@@ -39,12 +39,14 @@ namespace PixiEditorPrototype.Models
             if (executing || queuedActions.Count == 0)
                 return;
             executing = true;
+
             while (queuedActions.Count > 0)
             {
                 var toExecute = queuedActions;
                 queuedActions = new List<IAction>();
 
                 var result = await tracker.ProcessActions(toExecute);
+                //var result = tracker.ProcessActionsSync(toExecute);
 
                 foreach (IChangeInfo? info in result)
                 {
@@ -53,6 +55,8 @@ namespace PixiEditorPrototype.Models
 
                 document.FinalBitmap.Lock();
                 var renderResult = await renderer.ProcessChanges(result!, document.FinalBitmapSurface, new(document.FinalBitmap.PixelWidth, document.FinalBitmap.PixelHeight));
+                //var renderResult = renderer.ProcessChangesSync(result!, document.FinalBitmapSurface, new(document.FinalBitmap.PixelWidth, document.FinalBitmap.PixelHeight));
+
 
                 SKRectI finalRect = SKRectI.Create(0, 0, document.FinalBitmap.PixelWidth, document.FinalBitmap.PixelHeight);
                 foreach (IRenderInfo info in renderResult)
@@ -65,8 +69,9 @@ namespace PixiEditorPrototype.Models
                     }
                 }
                 document.FinalBitmap.Unlock();
+
+                document.View?.ForceRefreshFinalImage();
             }
-            document.View?.ForceRefreshFinalImage();
 
             executing = false;
         }

@@ -91,37 +91,43 @@ namespace ChangeableDocument
             return info;
         }
 
+        private List<IChangeInfo?> ProcessActionList(List<IAction> actions)
+        {
+            List<IChangeInfo?> changeInfos = new();
+            foreach (var action in actions)
+            {
+                switch (action)
+                {
+                    case IMakeChangeAction act:
+                        changeInfos.Add(ProcessMakeChangeAction(act));
+                        break;
+                    case IStartOrUpdateChangeAction act:
+                        changeInfos.Add(ProcessStartOrUpdateChangeAction(act));
+                        break;
+                    case IEndChangeAction act:
+                        changeInfos.Add(ProcessEndChangeAction(act));
+                        break;
+                    case Undo_Action act:
+                        changeInfos.Add(Undo());
+                        break;
+                    case Redo_Action act:
+                        changeInfos.Add(Redo());
+                        break;
+                    default:
+                        throw new Exception("Unknown action type");
+                }
+            }
+            return changeInfos;
+        }
+
         public async Task<List<IChangeInfo?>> ProcessActions(List<IAction> actions)
         {
-            List<IChangeInfo?> result = await Task.Run(() =>
-            {
-                List<IChangeInfo?> changeInfos = new();
-                foreach (var action in actions)
-                {
-                    switch (action)
-                    {
-                        case IMakeChangeAction act:
-                            changeInfos.Add(ProcessMakeChangeAction(act));
-                            break;
-                        case IStartOrUpdateChangeAction act:
-                            changeInfos.Add(ProcessStartOrUpdateChangeAction(act));
-                            break;
-                        case IEndChangeAction act:
-                            changeInfos.Add(ProcessEndChangeAction(act));
-                            break;
-                        case Undo_Action act:
-                            changeInfos.Add(Undo());
-                            break;
-                        case Redo_Action act:
-                            changeInfos.Add(Redo());
-                            break;
-                        default:
-                            throw new Exception("Unknown action type");
-                    }
-                }
-                return changeInfos;
-            }).ConfigureAwait(true);
-            return result;
+            return await Task.Run(() => ProcessActionList(actions)).ConfigureAwait(true);
+        }
+
+        public List<IChangeInfo?> ProcessActionsSync(List<IAction> actions)
+        {
+            return ProcessActionList(actions);
         }
     }
 }

@@ -31,6 +31,11 @@ namespace PixiEditorPrototype.Models.Rendering
             return await Task.Run(() => Render(changes, screenSurface, screenSize)).ConfigureAwait(true);
         }
 
+        public List<IRenderInfo> ProcessChangesSync(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, Vector2i screenSize)
+        {
+            return Render(changes, screenSurface, screenSize);
+        }
+
         private HashSet<Vector2i>? FindChunksToRerender(IReadOnlyList<IChangeInfo> changes)
         {
             HashSet<Vector2i> chunks = new();
