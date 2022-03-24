@@ -3,6 +3,7 @@ using ChangeableDocument.Actions.Document;
 using ChangeableDocument.Actions.Drawing;
 using ChangeableDocument.Actions.Drawing.Rectangle;
 using ChangeableDocument.Actions.Drawing.Selection;
+using ChangeableDocument.Actions.Properties;
 using ChangeableDocument.Actions.Structure;
 using ChangeableDocument.Actions.Undo;
 using ChunkyImageLib.DataHolders;
@@ -12,6 +13,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -54,6 +56,7 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? ChangeActiveToolCommand { get; }
         public RelayCommand? ResizeCanvasCommand { get; }
         public RelayCommand? CombineCommand { get; }
+        public RelayCommand? ClearHistoryCommand { get; }
 
         public RelayCommand? MouseDownCommand { get; }
         public RelayCommand? MouseMoveCommand { get; }
@@ -93,6 +96,7 @@ namespace PixiEditorPrototype.ViewModels
             ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
             ResizeCanvasCommand = new RelayCommand(ResizeCanvas);
             CombineCommand = new RelayCommand(Combine);
+            ClearHistoryCommand = new RelayCommand(ClearHistory);
 
             MouseDownCommand = new RelayCommand(MouseDown);
             MouseMoveCommand = new RelayCommand(MouseMove);
@@ -153,6 +157,8 @@ namespace PixiEditorPrototype.ViewModels
             }
             else if (activeTool == Tool.Select)
             {
+                if (!startedSelectingRect)
+                    ActionAccumulator.AddAction(new ClearSelection_Action());
                 startedSelectingRect = true;
                 ActionAccumulator.AddAction(new SelectRectangle_Action(
                         new(mouseDownCanvasX, mouseDownCanvasY),
@@ -180,6 +186,7 @@ namespace PixiEditorPrototype.ViewModels
             {
                 startedSelectingRect = false;
                 ActionAccumulator.AddAction(new EndSelectRectangle_Action());
+                ActionAccumulator.AddAction(new MergeLatestChanges_Action(2));
             }
         }
 
@@ -218,12 +225,30 @@ namespace PixiEditorPrototype.ViewModels
         {
             if (SelectedStructureMember == null)
                 return;
-            HashSet<Guid> selected = new();
+            List<Guid> selected = new();
             AddSelectedMembers(StructureRoot, selected);
-            ActionAccumulator.AddAction(new CombineStructureMembersOnto_Action(SelectedStructureMember.GuidValue, selected));
+            if (selected.Count < 2)
+                return;
+
+            var (child, parent) = StructureHelper.FindChildAndParentOrThrow(selected[0]);
+            int index = parent.Children.IndexOf(child);
+            Guid newGuid = Guid.NewGuid();
+
+            //make a new layer, put combined image onto it, delete layers that were merged
+            ActionAccumulator.AddAction(new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer));
+            ActionAccumulator.AddAction(new SetStructureMemberName_Action(child.Name + "-comb", newGuid));
+            ActionAccumulator.AddAction(new CombineStructureMembersOnto_Action(newGuid, selected.ToHashSet()));
+            foreach (var member in selected)
+                ActionAccumulator.AddAction(new DeleteStructureMember_Action(member));
+            ActionAccumulator.AddAction(new MergeLatestChanges_Action(3 + selected.Count));
         }
 
-        private void AddSelectedMembers(FolderViewModel folder, HashSet<Guid> collection)
+        private void ClearHistory(object? param)
+        {
+            ActionAccumulator.AddAction(new DeleteRecordedChanges_Action());
+        }
+
+        private void AddSelectedMembers(FolderViewModel folder, List<Guid> collection)
         {
             foreach (var child in folder.Children)
             {

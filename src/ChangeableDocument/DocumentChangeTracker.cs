@@ -70,6 +70,48 @@ namespace ChangeableDocument
             return changeInfos;
         }
 
+        private List<Change> PopLatestChanges(int count)
+        {
+            if (redoStack.Count > 0)
+                throw new Exception("There are changes in the redo stack");
+            List<Change> popped = new();
+            while (count > 0)
+            {
+                if (undoStack.Count == 0)
+                    return popped;
+                var packet = undoStack.Peek();
+                var change = packet[^1];
+                packet.RemoveAt(packet.Count - 1);
+                popped.Add(change);
+                if (packet.Count == 0)
+                    undoStack.Pop();
+                count--;
+            }
+            popped.Reverse();
+            return popped;
+        }
+
+        private void MergeLatestChanges(int count)
+        {
+            if (redoStack.Count > 0)
+                throw new Exception("There are changes in the redo stack");
+            var packet = PopLatestChanges(count);
+            if (packet.Count > 0)
+                undoStack.Push(packet);
+        }
+
+        private void DeleteAllChanges()
+        {
+            foreach (var changesToDispose in redoStack)
+                foreach (var changeToDispose in changesToDispose)
+                    changeToDispose.Dispose();
+            foreach (var changesToDispose in undoStack)
+                foreach (var changeToDispose in changesToDispose)
+                    changeToDispose.Dispose();
+            redoStack.Clear();
+            undoStack.Clear();
+        }
+
         private IChangeInfo? ProcessMakeChangeAction(IMakeChangeAction act)
         {
             if (activeChange != null)
@@ -132,6 +174,12 @@ namespace ChangeableDocument
                         break;
                     case Redo_Action act:
                         changeInfos.AddRange(Redo());
+                        break;
+                    case MergeLatestChanges_Action act:
+                        MergeLatestChanges(act.Count);
+                        break;
+                    case DeleteRecordedChanges_Action:
+                        DeleteAllChanges();
                         break;
                     default:
                         throw new Exception("Unknown action type");

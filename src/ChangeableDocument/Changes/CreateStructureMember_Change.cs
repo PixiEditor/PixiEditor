@@ -11,17 +11,15 @@ namespace ChangeableDocument.Changes
         private int parentFolderIndex;
         private StructureMemberType type;
 
-        public CreateStructureMember_Change(Guid parentFolder, int parentFolderIndex, StructureMemberType type)
+        public CreateStructureMember_Change(Guid parentFolder, Guid newGuid, int parentFolderIndex, StructureMemberType type)
         {
             this.parentFolderGuid = parentFolder;
             this.parentFolderIndex = parentFolderIndex;
             this.type = type;
+            newMemberGuid = newGuid;
         }
 
-        public override void Initialize(Document target)
-        {
-            newMemberGuid = Guid.NewGuid();
-        }
+        public override void Initialize(Document target) { }
 
         public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
         {
