@@ -44,11 +44,11 @@ Decouples the state of a document from the UI.
     - [x] Basic Action->Change->ChangeInfo pipeline
     - Undo handling
         - [x] UpdateableChange class for changes requiring preview
-        - [ ] Handling for changes that don't change anything
+        - [x] Handling for changes that don't change anything
         - [x] Dispose changes
         - [ ] Dispose the entire document
         - [x] Basic undo stack infrastructure
-        - [ ] Ignored changes (changes that don't get recorded in undo)
+        - [x] Ignored changes (changes that don't get recorded in undo)
         - [ ] Manually ignore specific changes
         - [ ] Manual squashing
         - [ ] Auto-squashing
