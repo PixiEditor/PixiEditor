@@ -49,9 +49,9 @@ Decouples the state of a document from the UI.
         - [ ] Dispose the entire document
         - [x] Basic undo stack infrastructure
         - [x] Ignored changes (changes that don't get recorded in undo)
-        - [ ] Manually ignore specific changes
-        - [ ] Manual squashing
-        - [ ] Auto-squashing
+        - [x] Clear undo/redo history
+        - [x] Manually merge changes
+        - [x] Auto-merge similar successive changes
         - [ ] Limit undo stack size (discard old changes)
     - [x] Basic Collect Actions -> Apply actions -> Render changes pipeline
     - Rendering
