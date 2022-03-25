@@ -16,6 +16,8 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.Commands.Attributes;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -51,7 +53,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             : base(owner)
         {
             OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
-            SaveDocumentCommand = new RelayCommand(SaveDocument, Owner.DocumentIsNotNull);
+            //SaveDocumentCommand = new RelayCommand(SaveDocument, Owner.DocumentIsNotNull);
             OpenFileCommand = new RelayCommand(Open);
             ExportFileCommand = new RelayCommand(ExportFile, CanSave);
             OpenRecentCommand = new RelayCommand(OpenRecent);
@@ -152,11 +154,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public void SaveDocument(bool asNew)
-        {
-            SaveDocument(parameter: asNew ? "asnew" : null);
-        }
-
         public void OpenAny()
         {
             Open((object)null);
@@ -243,11 +240,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void SaveDocument(object parameter)
+        [Command.Basic("PixiEditor.File.Save", false, "Save", "Save image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control)]
+        public void SaveDocument(bool asNew)
         {
-            bool paramIsAsNew = parameter != null && parameter.ToString()?.ToLower() == "asnew";
-            if (paramIsAsNew ||
-                string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath)) 
+            if (asNew || string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath)) 
             {
                 Owner.BitmapManager.ActiveDocument.SaveWithDialog();
             }

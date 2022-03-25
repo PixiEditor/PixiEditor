@@ -17,6 +17,7 @@
 		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+        <ImplicitUsings>true</ImplicitUsings>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">

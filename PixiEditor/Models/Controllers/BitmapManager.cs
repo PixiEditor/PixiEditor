@@ -11,6 +11,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
+using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.Models.Controllers
 {
@@ -109,6 +110,9 @@ namespace PixiEditor.Models.Controllers
             };
             _highlightColor = new SKColor(0, 0, 0, 77);
         }
+
+        [Evaluator.CanExecute("PixiEditor.HasDocument")]
+        public bool DocumentNotNull() => ActiveDocument != null;
 
         public void CloseDocument(Document document)
         {

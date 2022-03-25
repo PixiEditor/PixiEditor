@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataHolders;
@@ -69,6 +70,8 @@ namespace PixiEditor.ViewModels
         public DebugViewModel DebugSubViewModel { get; set; }
 
         public BitmapManager BitmapManager { get; set; }
+
+        public CommandController CommandController { get; set; }
 
         public ShortcutController ShortcutController { get; set; }
 
@@ -223,6 +226,8 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
 
             ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
+
+            CommandController = services.GetService<CommandController>();
         }
 
         /// <summary>

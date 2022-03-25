@@ -107,6 +107,29 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
+
+            //public void KeyPressed(Key key, ModifierKeys modifiers)
+            //{
+            //    if (!ShortcutExecutionBlocked)
+            //    {
+            //        Shortcut[] shortcuts = ShortcutGroups.SelectMany(x => x.Shortcuts).ToList().FindAll(x => x.ShortcutKey == key).ToArray();
+            //        if (shortcuts.Length < 1)
+            //        {
+            //            return;
+            //        }
+
+            //        shortcuts = shortcuts.OrderByDescending(x => x.Modifier).ToArray();
+            //        for (int i = 0; i < shortcuts.Length; i++)
+            //        {
+            //            if (modifiers.HasFlag(shortcuts[i].Modifier))
+            //            {
+            //                shortcuts[i].Execute();
+            //                LastShortcut = shortcuts[i];
+            //                break;
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private void OnKeyUp(KeyEventArgs args)

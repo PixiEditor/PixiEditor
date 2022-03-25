@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.Services;
@@ -42,6 +43,7 @@ namespace PixiEditor.Helpers.Extensions
                 .AddSingleton<DebugViewModel>()
                 // Controllers
                 .AddSingleton<ShortcutController>()
+                .AddSingleton<CommandController>()
                 .AddSingleton<BitmapManager>()
                 // Tools
                 .AddSingleton<Tool, MoveViewportTool>()

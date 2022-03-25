@@ -1,43 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PixiEditor.Helpers
 {
     public static class InputKeyHelpers
     {
-        public static string GetCharFromKey(Key key)
+        /// <summary>
+        /// Returns the charcter of the <paramref name="key"/> mapped to the users keyboard layout
+        /// </summary>
+        public static string GetKeyboardKey(Key key) => GetKeyboardKey(key, CultureInfo.CurrentCulture);
+
+        public static string GetKeyboardKey(Key key, CultureInfo culture) => key switch
+        {
+            Key.NumPad0 => "Num0",
+            Key.NumPad1 => "Num1",
+            Key.NumPad2 => "Num2",
+            Key.NumPad3 => "Num3",
+            Key.NumPad4 => "Num4",
+            Key.NumPad5 => "Num5",
+            Key.NumPad6 => "Num6",
+            Key.NumPad7 => "Num7",
+            Key.NumPad8 => "Num8",
+            Key.NumPad9 => "Num9",
+            Key.Space => nameof(Key.Space),
+            Key.Tab => nameof(Key.Tab),
+            Key.Back => nameof(Key.Back),
+            Key.Escape => "Esc",
+            _ => GetMappedKey(key, culture),
+        };
+
+        private static string GetMappedKey(Key key, CultureInfo culture)
         {
             int virtualKey = KeyInterop.VirtualKeyFromKey(key);
             byte[] keyboardState = new byte[256];
-            GetKeyboardState(keyboardState);
 
-            uint scanCode = MapVirtualKeyW((uint)virtualKey, MapType.MAPVK_VK_TO_VSC);
-            StringBuilder stringBuilder = new (3);
+            uint scanCode = MapVirtualKeyExW((uint)virtualKey, MapType.MAPVK_VK_TO_VSC, culture.KeyboardLayoutId);
+            StringBuilder stringBuilder = new(3);
 
             int result = ToUnicode((uint)virtualKey, scanCode, keyboardState, stringBuilder, stringBuilder.Capacity, 0);
 
-            switch (result)
+            string stringResult;
+
+            stringResult = result switch
             {
-                case 0:
-                    {
-                        return key.ToString();
-                    }
+                0 => key.ToString(),
+                -1 => stringBuilder.ToString().ToUpper(),
+                _ => stringBuilder[result - 1].ToString().ToUpper()
+            };
 
-                case -1:
-                    {
-                        return stringBuilder.ToString().ToUpper();
-                    }
-
-                default:
-                    {
-                        return stringBuilder[result - 1].ToString().ToUpper();
-                    }
-            }
+            return stringResult;
         }
 
         private enum MapType : uint
@@ -77,6 +90,6 @@ namespace PixiEditor.Helpers
         private static extern bool GetKeyboardState(byte[] lpKeyState);
 
         [DllImport("user32.dll")]
-        private static extern uint MapVirtualKeyW(uint uCode, MapType uMapType);
+        private static extern uint MapVirtualKeyExW(uint uCode, MapType uMapType, int hkl);
     }
 }
