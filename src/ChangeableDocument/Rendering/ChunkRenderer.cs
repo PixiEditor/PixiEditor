@@ -26,10 +26,10 @@ namespace ChangeableDocument.Rendering
             {
                 if (!child.IsVisible)
                     continue;
-                if (child is IReadOnlyLayer layer && (visibleLayers == null || visibleLayers.Contains(layer.GuidValue)))
+                if (child is IReadOnlyLayer layer && (visibleLayers is null || visibleLayers.Contains(layer.GuidValue)))
                 {
                     IReadOnlyChunk? chunk = layer.ReadOnlyLayerImage.GetLatestChunk(chunkPos);
-                    if (chunk == null)
+                    if (chunk is null)
                         continue;
                     PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
                     chunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);

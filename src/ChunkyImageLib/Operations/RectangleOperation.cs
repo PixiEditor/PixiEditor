@@ -68,7 +68,7 @@ namespace ChunkyImageLib.Operations
             //find inner stroke boudaries in pixel coords
             var xInset = Inset(Data.Pos.X, Data.MaxPos.X, Data.StrokeWidth);
             var yInset = Inset(Data.Pos.Y, Data.MaxPos.Y, Data.StrokeWidth);
-            if (xInset == null || yInset == null)
+            if (xInset is null || yInset is null)
                 return GetChunksForFilled(chunkSize);
 
             //find two chunk rectanges, outer and inner

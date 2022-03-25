@@ -35,8 +35,8 @@ namespace ChangeableDocument.Changes
 
         public override IChangeInfo? Revert(Document target)
         {
-            if (originalName == null)
-                throw new Exception("No name to revert to");
+            if (originalName is null)
+                throw new InvalidOperationException("No name to revert to");
             target.FindMemberOrThrow(targetMember).Name = originalName;
             return new StructureMemberName_ChangeInfo() { GuidValue = targetMember };
         }

@@ -44,8 +44,8 @@ namespace PixiEditorPrototype.Models.Rendering
                 switch (change)
                 {
                     case LayerImageChunks_ChangeInfo layerImageChunks:
-                        if (layerImageChunks.Chunks == null)
-                            throw new Exception("Chunks must not be null");
+                        if (layerImageChunks.Chunks is null)
+                            throw new InvalidOperationException("Chunks must not be null");
                         chunks.UnionWith(layerImageChunks.Chunks);
                         break;
                     case Selection_ChangeInfo selection:
@@ -55,8 +55,8 @@ namespace PixiEditorPrototype.Models.Rendering
                         }
                         else
                         {
-                            if (selection.Chunks == null)
-                                throw new Exception("Chunks must not be null");
+                            if (selection.Chunks is null)
+                                throw new InvalidOperationException("Chunks must not be null");
                             chunks.UnionWith(selection.Chunks);
                         }
                         break;
@@ -95,7 +95,7 @@ namespace PixiEditorPrototype.Models.Rendering
             HashSet<Vector2i>? chunks = null;
             if (!redrawEverything)
                 chunks = FindChunksToRerender(changes);
-            if (chunks == null)
+            if (chunks is null)
                 redrawEverything = true;
 
 
@@ -144,7 +144,7 @@ namespace PixiEditorPrototype.Models.Rendering
             if (tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
                 return;
             IReadOnlyChunk? selectionChunk = tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.GetLatestChunk(chunkPos);
-            if (selectionChunk != null)
+            if (selectionChunk is not null)
                 selectionChunk.DrawOnSurface(screenSurface, chunkPos * ChunkyImage.ChunkSize, SelectionPaint);
         }
     }

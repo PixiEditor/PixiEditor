@@ -50,11 +50,8 @@ namespace ChangeableDocument.Changes.Drawing
 
         public override IChangeInfo? Revert(Document target)
         {
-            if (originalSelectionState == null)
-                throw new Exception("No stored chunks to revert to");
-
             target.Selection.IsEmptyAndInactive = originalIsEmpty;
-            originalSelectionState.ApplyChunksToImage(target.Selection.SelectionImage);
+            originalSelectionState!.ApplyChunksToImage(target.Selection.SelectionImage);
             originalSelectionState.Dispose();
             originalSelectionState = null;
             var changes = new Selection_ChangeInfo() { Chunks = target.Selection.SelectionImage.FindAffectedChunks() };

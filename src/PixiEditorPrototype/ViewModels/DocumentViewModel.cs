@@ -142,7 +142,7 @@ namespace PixiEditorPrototype.ViewModels
         {
             if (activeTool == Tool.Rectangle)
             {
-                if (SelectedStructureMember == null)
+                if (SelectedStructureMember is null)
                     return;
                 startedDrawingRect = true;
                 ActionAccumulator.AddAction(new DrawRectangle_Action(
@@ -197,7 +197,7 @@ namespace PixiEditorPrototype.ViewModels
 
         public void DeleteStructureMember(object? param)
         {
-            if (SelectedStructureMember != null)
+            if (SelectedStructureMember is not null)
                 ActionAccumulator.AddAction(new DeleteStructureMember_Action(SelectedStructureMember.GuidValue));
         }
 
@@ -223,7 +223,7 @@ namespace PixiEditorPrototype.ViewModels
 
         private void Combine(object? param)
         {
-            if (SelectedStructureMember == null)
+            if (SelectedStructureMember is null)
                 return;
             List<Guid> selected = new();
             AddSelectedMembers(StructureRoot, selected);
@@ -261,7 +261,7 @@ namespace PixiEditorPrototype.ViewModels
 
         private void ChangeActiveTool(object? param)
         {
-            if (param == null)
+            if (param is null)
                 return;
             activeTool = (Tool)param;
         }

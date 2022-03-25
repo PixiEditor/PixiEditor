@@ -64,8 +64,8 @@ namespace PixiEditorPrototype.ViewModels
 
         private void UpdateOpacity(object? opacity)
         {
-            if (opacity == null || opacity is not double value)
-                throw new Exception("Can't update opacity");
+            if (opacity is not double value)
+                throw new ArgumentException("The passed value isn't a double");
             Document.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, (float)value));
         }
     }

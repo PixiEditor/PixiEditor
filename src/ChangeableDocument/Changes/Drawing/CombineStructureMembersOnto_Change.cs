@@ -76,10 +76,8 @@ namespace ChangeableDocument.Changes.Drawing
         public override IChangeInfo? Revert(Document target)
         {
             Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
-            if (originalChunks == null)
-                throw new Exception("No saved chunks to restore");
 
-            originalChunks.ApplyChunksToImage(toDrawOn.LayerImage);
+            originalChunks!.ApplyChunksToImage(toDrawOn.LayerImage);
             var affectedChunks = toDrawOn.LayerImage.FindAffectedChunks();
             toDrawOn.LayerImage.CommitChanges();
 

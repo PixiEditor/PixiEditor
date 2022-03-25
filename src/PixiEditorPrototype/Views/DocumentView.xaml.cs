@@ -13,7 +13,7 @@ namespace PixiEditorPrototype.Views
             InitializeComponent();
             DataContextChanged += (_, e) =>
             {
-                if (e.NewValue != null)
+                if (e.NewValue is not null)
                     ((DocumentViewModel)e.NewValue).View = this;
             };
         }

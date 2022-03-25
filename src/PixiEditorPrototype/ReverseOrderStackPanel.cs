@@ -16,10 +16,8 @@ namespace PixiEditorPrototype
             System.Collections.Generic.IEnumerable<UIElement> children = InternalChildren.Cast<UIElement>().Reverse();
             foreach (UIElement child in children)
             {
-                if (child == null)
-                {
+                if (child is null)
                     continue;
-                }
 
                 if (fHorizontal)
                 {

@@ -16,7 +16,7 @@ namespace PixiEditorPrototype.Models
 
         public void CreateNewStructureMember(StructureMemberType type)
         {
-            if (doc.SelectedStructureMember == null)
+            if (doc.SelectedStructureMember is null)
             {
                 //put member on top
                 doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, Guid.NewGuid(), doc.StructureRoot.Children.Count, type));
@@ -33,15 +33,15 @@ namespace PixiEditorPrototype.Models
                 //put member above the layer
                 var path = FindPath(layer.GuidValue);
                 if (path.Count < 2)
-                    throw new Exception("Couldn't find a path to the selected member");
+                    throw new InvalidOperationException("Couldn't find a path to the selected member");
                 var parent = (FolderViewModel)path[1];
                 doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(parent.GuidValue, Guid.NewGuid(), parent.Children.IndexOf(layer) + 1, type));
                 return;
             }
-            throw new Exception("Unknown member type: " + type.ToString());
+            throw new ArgumentException("Unknown member type: " + type.ToString());
         }
 
-        public StructureMemberViewModel FindOrThrow(Guid guid) => Find(guid) ?? throw new Exception("Could not find member with guid " + guid.ToString());
+        public StructureMemberViewModel FindOrThrow(Guid guid) => Find(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
         public StructureMemberViewModel? Find(Guid guid)
         {
             var list = FindPath(guid);
@@ -52,7 +52,7 @@ namespace PixiEditorPrototype.Models
         {
             var path = FindPath(childGuid);
             if (path.Count < 2)
-                throw new Exception("Couldn't find child and parent");
+                throw new ArgumentException("Couldn't find child and parent");
             return (path[0], (FolderViewModel)path[1]);
         }
         public List<StructureMemberViewModel> FindPath(Guid guid)
@@ -92,7 +92,7 @@ namespace PixiEditorPrototype.Models
         {
             var path = FindPath(guid);
             if (path.Count < 2)
-                throw new Exception("Couldn't find the member to be moved");
+                throw new ArgumentException("Couldn't find the member to be moved");
             if (path.Count == 2)
             {
                 int curIndex = doc.StructureRoot.Children.IndexOf(path[0]);

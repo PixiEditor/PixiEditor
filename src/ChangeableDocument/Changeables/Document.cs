@@ -17,7 +17,7 @@ namespace ChangeableDocument.Changeables
         internal Selection Selection { get; } = new();
         public Vector2i Size { get; set; } = DefaultSize;
 
-        public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new Exception("Could not find member with guid " + guid.ToString());
+        public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
         public StructureMember? FindMember(Guid guid)
         {
             var list = FindMemberPath(guid);
@@ -28,7 +28,7 @@ namespace ChangeableDocument.Changeables
         {
             var path = FindMemberPath(childGuid);
             if (path.Count < 2)
-                throw new Exception("Couldn't find child and parent");
+                throw new ArgumentException("Couldn't find child and parent");
             return (path[0], (Folder)path[1]);
         }
 

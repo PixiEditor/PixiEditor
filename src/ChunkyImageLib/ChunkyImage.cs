@@ -42,7 +42,7 @@ namespace ChunkyImageLib
             foreach (var chunk in chunks)
             {
                 var image = (Chunk?)GetLatestChunk(chunk);
-                if (image != null)
+                if (image is not null)
                     output.DrawImage(chunk * ChunkSize, image.Surface);
             }
             output.CommitChanges();
@@ -183,7 +183,7 @@ namespace ChunkyImageLib
             {
                 LatestChunkData data = latestChunksData[pos];
                 if (data.QueueProgress != queuedOperations.Count)
-                    throw new Exception("Trying to commit chunk that wasn't fully processed");
+                    throw new InvalidOperationException("Trying to commit a chunk that wasn't fully processed");
 
                 if (committedChunks.ContainsKey(pos))
                 {
@@ -219,7 +219,7 @@ namespace ChunkyImageLib
                 if (operation is RasterClipOperation clipOperation)
                 {
                     var chunk = clipOperation.ClippingMask.GetCommittedChunk(chunkPos);
-                    if (chunk != null)
+                    if (chunk is not null)
                         activeClips.Add(chunk);
                     else
                         isFullyMaskedOut = true;
@@ -306,7 +306,7 @@ namespace ChunkyImageLib
         private void FindAndDeleteEmptyCommittedChunks()
         {
             if (queuedOperations.Count != 0)
-                throw new Exception("This method cannot be used while any operations are queued");
+                throw new InvalidOperationException("This method cannot be used while any operations are queued");
             HashSet<Vector2i> toRemove = new();
             foreach (var (pos, chunk) in committedChunks)
             {
@@ -337,12 +337,12 @@ namespace ChunkyImageLib
         {
             Chunk? targetChunk;
             targetChunk = MaybeGetChunk(chunkPos, latestChunks);
-            if (targetChunk == null)
+            if (targetChunk is null)
             {
                 targetChunk = Chunk.Create();
                 var maybeCommittedChunk = MaybeGetChunk(chunkPos, committedChunks);
 
-                if (maybeCommittedChunk != null)
+                if (maybeCommittedChunk is not null)
                     maybeCommittedChunk.Surface.CopyTo(targetChunk.Surface);
                 else
                     targetChunk.Surface.SkiaSurface.Canvas.Clear();

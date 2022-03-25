@@ -18,7 +18,7 @@ namespace PixiEditorPrototype.Models
 
         public void ApplyChangeFromChangeInfo(IChangeInfo? arbitraryInfo)
         {
-            if (arbitraryInfo == null)
+            if (arbitraryInfo is null)
                 return;
 
             switch (arbitraryInfo)
@@ -69,7 +69,7 @@ namespace PixiEditorPrototype.Models
             {
                 IReadOnlyLayer layer => new LayerViewModel(doc, layer),
                 IReadOnlyFolder folder => new FolderViewModel(doc, folder),
-                _ => throw new Exception("Unsupposed member type")
+                _ => throw new InvalidOperationException("Unsupposed member type")
             };
 
             parentFolderVM.Children.Insert(index, memberVM);

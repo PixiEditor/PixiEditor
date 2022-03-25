@@ -138,7 +138,7 @@ namespace ChunkyImageLib.DataHolders
         public override bool Equals(object? obj)
         {
             var item = obj as Vector2d?;
-            if (item == null)
+            if (item is null)
                 return false;
             return this == item;
         }

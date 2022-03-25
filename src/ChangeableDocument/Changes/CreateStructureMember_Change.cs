@@ -29,7 +29,7 @@ namespace ChangeableDocument.Changes
             {
                 StructureMemberType.Layer => new Layer(document.Size) { GuidValue = newMemberGuid },
                 StructureMemberType.Folder => new Folder() { GuidValue = newMemberGuid },
-                _ => throw new Exception("Cannon create member of type " + type.ToString())
+                _ => throw new InvalidOperationException("Cannon create member of type " + type.ToString())
             };
 
             folder.Children.Insert(parentFolderIndex, member);

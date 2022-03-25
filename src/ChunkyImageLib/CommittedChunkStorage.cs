@@ -11,7 +11,7 @@ namespace ChunkyImageLib
             foreach (var chunkPos in committedChunksToSave)
             {
                 Chunk? chunk = (Chunk?)image.GetCommittedChunk(chunkPos);
-                if (chunk == null)
+                if (chunk is null)
                 {
                     savedChunks.Add((chunkPos, null));
                     continue;
@@ -25,10 +25,10 @@ namespace ChunkyImageLib
         public void ApplyChunksToImage(ChunkyImage image)
         {
             if (disposed)
-                throw new Exception("This instance has been disposed");
+                throw new ObjectDisposedException(nameof(CommittedChunkStorage));
             foreach (var (pos, chunk) in savedChunks)
             {
-                if (chunk == null)
+                if (chunk is null)
                     image.ClearRegion(pos * ChunkPool.FullChunkSize, new(ChunkPool.FullChunkSize, ChunkPool.FullChunkSize));
                 else
                     image.DrawImage(pos * ChunkPool.FullChunkSize, chunk.Surface);
@@ -41,7 +41,7 @@ namespace ChunkyImageLib
                 return;
             foreach (var (_, chunk) in savedChunks)
             {
-                if (chunk != null)
+                if (chunk is not null)
                     chunk.Dispose();
             }
         }

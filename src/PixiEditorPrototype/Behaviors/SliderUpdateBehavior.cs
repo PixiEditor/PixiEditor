@@ -53,7 +53,7 @@ namespace PixiEditorPrototype.Behaviors
                 return;
             attached = true;
             var thumb = GetThumb(AssociatedObject);
-            if (thumb == null)
+            if (thumb is null)
                 return;
 
             thumb.DragStarted += Thumb_DragStarted;
@@ -66,7 +66,7 @@ namespace PixiEditorPrototype.Behaviors
             if (!attached)
                 return;
             var thumb = GetThumb(AssociatedObject);
-            if (thumb == null)
+            if (thumb is null)
                 return;
 
             thumb.DragStarted -= Thumb_DragStarted;
@@ -78,7 +78,7 @@ namespace PixiEditorPrototype.Behaviors
             var obj = (SliderUpdateBehavior)slider;
             if (obj.dragging)
             {
-                if (obj.DragValueChanged != null && obj.DragValueChanged.CanExecute(e.NewValue))
+                if (obj.DragValueChanged is not null && obj.DragValueChanged.CanExecute(e.NewValue))
                     obj.DragValueChanged.Execute(e.NewValue);
                 obj.valueChangedWhileDragging = true;
             }
@@ -87,7 +87,7 @@ namespace PixiEditorPrototype.Behaviors
         private void Thumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             dragging = false;
-            if (valueChangedWhileDragging == true && DragEnded != null && DragEnded.CanExecute(null))
+            if (valueChangedWhileDragging == true && DragEnded is not null && DragEnded.CanExecute(null))
                 DragEnded.Execute(null);
             valueChangedWhileDragging = false;
         }
@@ -100,7 +100,7 @@ namespace PixiEditorPrototype.Behaviors
         private static Thumb? GetThumb(Slider slider)
         {
             var track = slider.Template.FindName("PART_Track", slider) as Track;
-            return track == null ? null : track.Thumb;
+            return track is null ? null : track.Thumb;
         }
 
 

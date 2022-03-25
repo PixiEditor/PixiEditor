@@ -73,7 +73,7 @@ namespace ChangeableDocument
         private List<Change> PopLatestChanges(int count)
         {
             if (redoStack.Count > 0)
-                throw new Exception("There are changes in the redo stack");
+                throw new InvalidOperationException("There are changes in the redo stack");
             List<Change> popped = new();
             while (count > 0)
             {
@@ -94,7 +94,7 @@ namespace ChangeableDocument
         private void MergeLatestChanges(int count)
         {
             if (redoStack.Count > 0)
-                throw new Exception("There are changes in the redo stack");
+                throw new InvalidOperationException("There are changes in the redo stack");
             var packet = PopLatestChanges(count);
             if (packet.Count > 0)
                 undoStack.Push(packet);
@@ -114,8 +114,8 @@ namespace ChangeableDocument
 
         private IChangeInfo? ProcessMakeChangeAction(IMakeChangeAction act)
         {
-            if (activeChange != null)
-                throw new Exception("Can't make a change while another change is active");
+            if (activeChange is not null)
+                throw new InvalidOperationException("Can't make a change while another change is active");
             var change = act.CreateCorrespondingChange();
             change.Initialize(document);
             var info = change.Apply(document, out bool ignoreInUndo);
@@ -128,7 +128,7 @@ namespace ChangeableDocument
 
         private IChangeInfo? ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act)
         {
-            if (activeChange == null)
+            if (activeChange is null)
             {
                 activeChange = act.CreateCorrespondingChange();
                 activeChange.Initialize(document);
@@ -139,10 +139,10 @@ namespace ChangeableDocument
 
         private IChangeInfo? ProcessEndChangeAction(IEndChangeAction act)
         {
-            if (activeChange == null)
-                throw new Exception("Can't end a change: no changes are active");
+            if (activeChange is null)
+                throw new InvalidOperationException("Can't end a change: no changes are active");
             if (!act.IsChangeTypeMatching(activeChange))
-                throw new Exception($"Trying to end a change via action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
+                throw new InvalidOperationException($"Trying to end a change via action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
 
             var info = activeChange.Apply(document, out bool ignoreInUndo);
             if (!ignoreInUndo)
@@ -182,7 +182,7 @@ namespace ChangeableDocument
                         DeleteAllChanges();
                         break;
                     default:
-                        throw new Exception("Unknown action type");
+                        throw new InvalidOperationException("Unknown action type");
                 }
             }
             return changeInfos;

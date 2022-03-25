@@ -38,12 +38,10 @@ namespace ChangeableDocument.Changes.Drawing
         {
             if (originalIsEmpty)
                 return new Selection_ChangeInfo() { Chunks = new() };
-            if (savedSelection == null)
-                throw new Exception("No saved selection to restore");
             target.Selection.IsEmptyAndInactive = false;
 
             target.Selection.SelectionImage.CancelChanges();
-            savedSelection.ApplyChunksToImage(target.Selection.SelectionImage);
+            savedSelection!.ApplyChunksToImage(target.Selection.SelectionImage);
             HashSet<Vector2i> affChunks = target.Selection.SelectionImage.FindAffectedChunks();
             target.Selection.SelectionImage.CommitChanges();
 

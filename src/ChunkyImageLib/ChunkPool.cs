@@ -14,11 +14,11 @@ namespace ChunkyImageLib
         {
             get
             {
-                if (instance == null)
+                if (instance is null)
                 {
                     lock (lockObj)
                     {
-                        if (instance == null)
+                        if (instance is null)
                             instance = new ChunkPool();
                     }
                 }

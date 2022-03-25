@@ -53,10 +53,8 @@ namespace ChangeableDocument.Changes.Drawing
 
         public override IChangeInfo? Revert(Document target)
         {
-            if (storedChunks == null)
-                throw new Exception("No stored chunks to revert to");
             Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
-            storedChunks.ApplyChunksToImage(layer.LayerImage);
+            storedChunks!.ApplyChunksToImage(layer.LayerImage);
             storedChunks.Dispose();
             storedChunks = null;
             var changes = new LayerImageChunks_ChangeInfo()

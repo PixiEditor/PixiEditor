@@ -33,9 +33,7 @@ namespace ChangeableDocument.Changes
 
         public override IChangeInfo? Revert(Document target)
         {
-            if (originalIsVisible == null)
-                throw new Exception("No name to revert to");
-            target.FindMemberOrThrow(targetMember).IsVisible = originalIsVisible.Value;
+            target.FindMemberOrThrow(targetMember).IsVisible = originalIsVisible!.Value;
             return new StructureMemberIsVisible_ChangeInfo() { GuidValue = targetMember };
         }
     }
