@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Views.UserControls.Layers;
@@ -201,6 +202,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             return Owner.BitmapManager.ActiveDocument?.Layers.Count(x => x.IsActive) > 0;
         }
 
+        [Command.Basic("PixiEditor.Layer.New", "New Layer", "Create new layer", CanExecute = "PixiEditor.HasDocument", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
         public void NewLayer(object parameter)
         {
             GuidStructureItem control = GetGroupFromParameter(parameter);

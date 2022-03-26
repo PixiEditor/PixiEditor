@@ -1,9 +1,9 @@
-﻿using PixiEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels;
+using System.ComponentModel;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using ActualCommand = PixiEditor.Models.Commands.Command;
@@ -22,6 +22,12 @@ namespace PixiEditor.Models.Commands.XAML
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
+            if (DesignerProperties.GetIsInDesignMode(serviceProvider.GetService<IProvideValueTarget>().TargetObject as DependencyObject))
+            {
+                var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
+                return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
+            }
+
             if (commandController == null)
             {
                 commandController = ViewModelMain.Current.CommandController;

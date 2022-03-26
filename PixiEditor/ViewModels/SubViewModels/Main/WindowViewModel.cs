@@ -1,11 +1,11 @@
 ﻿using AvalonDock.Layout;
 using GalaSoft.MvvmLight.CommandWpf;
-using System.Collections.Generic;
-using System.Linq;
+using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
-    public class WindowViewModel : SubViewModel<ViewModelMain>, ISettableOwner<ViewModelMain>
+    public class WindowViewModel : SubViewModel<ViewModelMain>
     {
         public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
 
@@ -20,12 +20,21 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ShowAvalonDockWindowCommand = new(ShowAvalonDockWindow);
         }
 
-        public void SetOwner(ViewModelMain owner)
+        [Command.Basic("PixiEditor.Settings.Open", "Open Settings", "Open Settings Window")]
+        public static void OpenSettingsWindow()
         {
-            Owner = owner;
+            SettingsWindow settings = new SettingsWindow();
+            settings.Show();
         }
 
-        private void ShowAvalonDockWindow(string id)
+        [Command.Basic("PixiEditor.Window.OpenStartupWindow", "Open Settings", "Open Settings Window")]
+        public void OpenHelloThereWindow()
+        {
+            new HelloTherePopup(Owner.FileSubViewModel).Show();
+        }
+
+        [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "Open Navigation Window", "Open Navigation Window")]
+        public static void ShowAvalonDockWindow(string id)
         {
             if (MainWindow.Current?.LayoutRoot?.Manager?.Layout == null) return;
             var anchorables = new List<LayoutAnchorable>(MainWindow.Current.LayoutRoot.Manager.Layout

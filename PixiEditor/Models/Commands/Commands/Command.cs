@@ -10,6 +10,8 @@ namespace PixiEditor.Models.Commands
     {
         private KeyCombination _shortcut;
 
+        public bool IsDebug { get; init; }
+
         public string Name { get; init; }
 
         public string Display { get; init; }
@@ -31,38 +33,5 @@ namespace PixiEditor.Models.Commands
         public void Execute() => Methods.Execute(GetParameter());
 
         public bool CanExecute() => Methods.CanExecute(GetParameter());
-
-        public ICommand GetICommand(bool useProvidedParameter) => new ProvidedICommand()
-        {
-            Command = this,
-            UseProvidedParameter = useProvidedParameter,
-        };
-
-        class ProvidedICommand : ICommand
-        {
-            public event EventHandler CanExecuteChanged
-            {
-                add => CommandManager.RequerySuggested += value;
-                remove => CommandManager.RequerySuggested -= value;
-            }
-
-            public Command Command { get; init; }
-
-            public bool UseProvidedParameter { get; init; }
-
-            public bool CanExecute(object parameter) => UseProvidedParameter ? Command.Methods.CanExecute(parameter) : Command.CanExecute();
-
-            public void Execute(object parameter)
-            {
-                if (UseProvidedParameter)
-                {
-                    Command.Methods.Execute(parameter);
-                }
-                else
-                {
-                    Command.Execute();
-                }
-            }
-        }
     }
 }

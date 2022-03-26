@@ -1,8 +1,8 @@
-﻿using PixiEditor.Helpers;
+﻿using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
-using System.Linq;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -11,26 +11,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public const string ConfirmationDialogTitle = "Unsaved changes";
         public const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
 
-        public RelayCommand CenterContentCommand { get; set; }
-
-        public RelayCommand ClipCanvasCommand { get; set; }
-
-        public RelayCommand DeletePixelsCommand { get; set; }
-
-        public RelayCommand OpenResizePopupCommand { get; set; }
-
-        public RelayCommand RotateToRightCommand { get; set; }
-        public RelayCommand FlipCommand { get; set; }
-
         public DocumentViewModel(ViewModelMain owner)
             : base(owner)
         {
-            CenterContentCommand = new RelayCommand(CenterContent, Owner.DocumentIsNotNull);
-            ClipCanvasCommand = new RelayCommand(ClipCanvas, Owner.DocumentIsNotNull);
-            DeletePixelsCommand = new RelayCommand(DeletePixels, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
-            OpenResizePopupCommand = new RelayCommand(OpenResizePopup, Owner.DocumentIsNotNull);
-            RotateToRightCommand = new RelayCommand(RotateDocument, Owner.DocumentIsNotNull);
-            FlipCommand = new RelayCommand(FlipDocument, Owner.DocumentIsNotNull);
         }
 
         public void FlipDocument(object parameter)
@@ -53,7 +36,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public void ClipCanvas(object parameter)
+        [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
+        public void ClipCanvas()
         {
             Owner.BitmapManager.ActiveDocument?.ClipCanvas();
         }
@@ -78,7 +62,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.CloseDocument(document);
         }
 
-        private void DeletePixels(object parameter)
+        [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete)]
+        public void DeletePixels()
         {
             var doc = Owner.BitmapManager.ActiveDocument;
             Owner.BitmapManager.BitmapOperations.DeletePixels(
@@ -86,16 +71,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 doc.ActiveSelection.SelectedPoints.ToArray());
         }
 
-        private void OpenResizePopup(object parameter)
+        [Command.Basic("PixiEditor.Document.ResizeDocument", false, "Resize Document", "Resize Document", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+        [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "Resize Canvas", "Resize Canvas", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+        public void OpenResizePopup(bool canvas)
         {
-            bool isCanvasDialog = (string)parameter == "canvas";
             ResizeDocumentDialog dialog = new ResizeDocumentDialog(
                 Owner.BitmapManager.ActiveDocument.Width,
                 Owner.BitmapManager.ActiveDocument.Height,
-                isCanvasDialog);
+                canvas);
             if (dialog.ShowDialog())
             {
-                if (isCanvasDialog)
+                if (canvas)
                 {
                     Owner.BitmapManager.ActiveDocument.ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
                 }
@@ -106,7 +92,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void CenterContent(object property)
+        [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
+        public void CenterContent()
         {
             Owner.BitmapManager.ActiveDocument.CenterContent();
         }

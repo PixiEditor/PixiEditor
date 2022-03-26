@@ -7,6 +7,8 @@ namespace PixiEditor.Models.Commands
 {
     public class CommandController
     {
+        public static CommandController Current { get; private set; }
+
         public CommandCollection Commands { get; set; }
 
         public Dictionary<string, FactoryEvaluator> FactoryEvaluators { get; set; }
@@ -20,6 +22,8 @@ namespace PixiEditor.Models.Commands
             CanExecuteEvaluators = new();
 
             Init(services);
+
+            Current ??= this;
         }
 
         public void Init(IServiceProvider services)
@@ -64,9 +68,10 @@ namespace PixiEditor.Models.Commands
 
                     foreach (var attribute in commandAttrs)
                     {
-                        AddCommand(method, instanceType, attribute, (x, xCan) => new Command.BasicCommand
+                        AddCommand(method, instanceType, attribute, (isDebug, name, x, xCan) => new Command.BasicCommand
                         {
-                            Name = attribute.Name,
+                            Name = name,
+                            IsDebug = isDebug,
                             Display = attribute.Display,
                             Description = attribute.Description,
                             Methods = new(x, xCan),
@@ -117,7 +122,7 @@ namespace PixiEditor.Models.Commands
                 evaluators.Add(evaluator.Name, evaluator);
             }
 
-            void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<Action<object>, Predicate<object>, TCommand> commandFactory)
+            void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, Predicate<object>, TCommand> commandFactory)
                 where TAttr : CommandAttribute.CommandAttribute
                 where TCommand : Command
             {if (method.GetParameters().Length > 1)
@@ -142,7 +147,15 @@ namespace PixiEditor.Models.Commands
                     action = x => method.Invoke(instance, null);
                 }
 
-                Commands.Add(commandFactory(action, x => CanExecuteEvaluators[attribute.CanExecute].Evaluate(x)));
+                string name = attribute.Name;
+                bool isDebug = attribute.Name.StartsWith("#DEBUG#");
+
+                if (attribute.Name.StartsWith("#DEBUG#"))
+                {
+                    name = name["#DEBUG#".Length..];
+                }
+
+                Commands.Add(commandFactory(isDebug, name, action, x => attribute.CanExecute == null || CanExecuteEvaluators[attribute.CanExecute].Evaluate(x)));
             }
         }
     }

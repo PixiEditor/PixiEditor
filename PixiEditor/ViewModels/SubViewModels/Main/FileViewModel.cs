@@ -2,40 +2,23 @@
 using Newtonsoft.Json.Linq;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
-using PixiEditor.Models;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Parser;
 using PixiEditor.Views.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Windows;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.Commands.Attributes;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class FileViewModel : SubViewModel<ViewModelMain>
     {
         private bool hasRecent;
-
-        public RelayCommand OpenNewFilePopupCommand { get; set; }
-
-        public RelayCommand SaveDocumentCommand { get; set; }
-
-        public RelayCommand OpenFileCommand { get; set; }
-
-        public RelayCommand ExportFileCommand { get; set; } // Command that is used to save file
-
-        public RelayCommand OpenRecentCommand { get; set; }
-
-        public RelayCommand RemoveRecentlyOpenedCommand { get; set; }
 
         public bool HasRecent
         {
@@ -52,12 +35,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public FileViewModel(ViewModelMain owner)
             : base(owner)
         {
-            OpenNewFilePopupCommand = new RelayCommand(OpenNewFilePopup);
-            //SaveDocumentCommand = new RelayCommand(SaveDocument, Owner.DocumentIsNotNull);
-            OpenFileCommand = new RelayCommand(Open);
-            ExportFileCommand = new RelayCommand(ExportFile, CanSave);
-            OpenRecentCommand = new RelayCommand(OpenRecent);
-            RemoveRecentlyOpenedCommand = new RelayCommand(RemoveRecentlyOpened);
             Owner.OnStartupEvent += Owner_OnStartupEvent;
             RecentlyOpened = new RecentlyOpenedCollection(GetRecentlyOpenedDocuments());
 
@@ -67,29 +44,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
 
             IPreferences.Current.AddCallback("MaxOpenedRecently", UpdateMaxRecentlyOpened);
-        }
-
-        public void OpenRecent(object parameter)
-        {
-            string path = (string)parameter;
-
-            foreach (Document document in Owner.BitmapManager.Documents)
-            {
-                if (document.DocumentFilePath == path)
-                {
-                    Owner.BitmapManager.ActiveDocument = document;
-                    return;
-                }
-            }
-
-            if (!File.Exists(path))
-            {
-                NoticeDialog.Show("The file does not exist", "Failed to open the file");
-                RecentlyOpened.Remove(path);
-                return;
-            }
-
-            Open((string)parameter);
         }
 
         public void RemoveRecentlyOpened(object parameter)
@@ -104,7 +58,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         ///     Generates new Layer and sets it as active one.
         /// </summary>
         /// <param name="parameter">CommandParameter.</param>
-        public void OpenNewFilePopup(object parameter)
+        [Command.Basic("PixiEditor.File.New", "New image", "Create new image", Key = Key.N, Modifiers = ModifierKeys.Control)]
+        public void OpenNewFilePopup()
         {
             NewFileDialog newFile = new NewFileDialog();
             if (newFile.ShowDialog())
@@ -154,13 +109,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public void OpenAny()
-        {
-            Open((object)null);
-        }
-
+        [Command.Basic("PixiEditor.File.Open", "Open", "Open image", Key = Key.O, Modifiers = ModifierKeys.Control)]
         public void Open(string path)
         {
+            if (path == null)
+            {
+                Open();
+                return;
+            }
+
             try
             {
                 if (path.EndsWith(".pixi"))
@@ -200,8 +157,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
             }
         }
-                
-        private void Open(object property)
+
+        public void Open()
         {
             var filter = SupportedFilesHelper.BuildOpenFilter();
 
@@ -241,6 +198,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         }
 
         [Command.Basic("PixiEditor.File.Save", false, "Save", "Save image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control)]
+        [Command.Basic("PixiEditor.File.SaveAsNew", true, "Save as...", "Save image as new", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
         public void SaveDocument(bool asNew)
         {
             if (asNew || string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath)) 
@@ -257,21 +215,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         ///     Generates export dialog or saves directly if save data is known.
         /// </summary>
         /// <param name="parameter">CommandProperty.</param>
-        private void ExportFile(object parameter)
+        [Command.Basic("PixiEditor.File.Export", "Export", "Export image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
+        public void ExportFile()
         {
             ViewModelMain.Current.ActionDisplay = "";
             WriteableBitmap bitmap = Owner.BitmapManager.ActiveDocument.Renderer.FinalBitmap;
             Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
-        }
-
-        /// <summary>
-        ///     Returns true if file save is possible.
-        /// </summary>
-        /// <param name="property">CommandProperty.</param>
-        /// <returns>True if active document is not null.</returns>
-        private bool CanSave(object property)
-        {
-            return Owner.BitmapManager.ActiveDocument != null;
         }
 
         private void UpdateMaxRecentlyOpened(object parameter)

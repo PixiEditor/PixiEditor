@@ -78,18 +78,18 @@
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource MainColor}">
             <Image DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top"
                    Source="/Images/PixiEditorLogo.png" Width="20" Height="20" Margin="5,5,0,0" />
-            <Menu WindowChrome.IsHitTestVisibleInChrome="True" Margin="10, 4, 0, 0" DockPanel.Dock="Left"
+            <cmds:Menu WindowChrome.IsHitTestVisibleInChrome="True" Margin="10, 4, 0, 0" DockPanel.Dock="Left"
                   HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" IsMainMenu="True">
                 <Menu.Resources>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}" />
                 </Menu.Resources>
                 <MenuItem Header="_File">
-                    <MenuItem InputGestureText="CTRL+N" Header="_New" Command="{Binding FileSubViewModel.OpenNewFilePopupCommand}" />
-                    <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="{Binding FileSubViewModel.OpenFileCommand}" />
+                    <MenuItem Header="_New" cmds:Menu.Command="PixiEditor.File.New" />
+                    <MenuItem Header="_Open" cmds:Menu.Command="PixiEditor.File.Open" />
                     <MenuItem Header="_Recent" ItemsSource="{Binding FileSubViewModel.RecentlyOpened}" x:Name="recentItemMenu" IsEnabled="{Binding FileSubViewModel.HasRecent}">
                         <MenuItem.ItemContainerStyle>
-                            <Style TargetType="MenuItem">
-                                <Setter Property="Command" Value="{Binding ElementName=recentItemMenu, Path=DataContext.FileSubViewModel.OpenRecentCommand}"/>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource PixiEditorDockThemeMenuItemStyle}">
+                                <Setter Property="Command" Value="{cmds:Command PixiEditor.File.Open, UseProvided=True}"/>
                                 <Setter Property="CommandParameter" Value="{Binding FilePath}"/>
                             </Style>
                         </MenuItem.ItemContainerStyle>
@@ -99,39 +99,35 @@
                             </DataTemplate>
                         </MenuItem.ItemTemplate>
                     </MenuItem>
-                    <MenuItem Header="_Save" InputGestureText="{cmds:ShortcutBinding PixiEditor.File.Save}" Command="{cmds:Command PixiEditor.File.Save}" />
-                    <MenuItem Header="_Save As..." InputGestureText="Ctrl+Shift+S"
-                              Command="{Binding FileSubViewModel.SaveDocumentCommand}" CommandParameter="AsNew" />
-                    <MenuItem Header="_Export" InputGestureText="Ctrl+Shift+Alt+S" Command="{Binding FileSubViewModel.ExportFileCommand}" />
+                    <MenuItem Header="_Save" cmds:Menu.Command="PixiEditor.File.Save" />
+                    <MenuItem Header="_Save As..." cmds:Menu.Command="PixiEditor.File.SaveAsNew" />
+                    <MenuItem Header="_Export" cmds:Menu.Command="PixiEditor.File.Export" />
                     <Separator />
                     <MenuItem Header="_Exit" Command="{x:Static SystemCommands.CloseWindowCommand}" />
                 </MenuItem>
                 <MenuItem Header="_Edit">
-                    <MenuItem Header="_Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoSubViewModel.UndoCommand}" />
-                    <MenuItem Header="_Redo" InputGestureText="Ctrl+Y" Command="{Binding UndoSubViewModel.RedoCommand}" />
+                    <MenuItem Header="_Undo" cmds:Menu.Command="PixiEditor.Undo.Undo" />
+                    <MenuItem Header="_Redo" cmds:Menu.Command="PixiEditor.Undo.Redo" />
                     <Separator />
-                    <MenuItem Header="_Cut" Command="{Binding ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
-                    <MenuItem Header="_Copy" Command="{Binding ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
-                    <MenuItem Header="_Paste" Command="{Binding ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
-                    <MenuItem Header="_Duplicate" Command="{Binding ClipboardSubViewModel.DuplicateCommand}" InputGestureText="Ctrl+J" />
+                    <MenuItem Header="_Cut" cmds:Menu.Command="PixiEditor.Clipboard.Cut" />
+                    <MenuItem Header="_Copy" cmds:Menu.Command="PixiEditor.Clipboard.Copy" />
+                    <MenuItem Header="_Paste" cmds:Menu.Command="PixiEditor.Clipboard.Paste" />
+                    <MenuItem Header="_Duplicate" cmds:Menu.Command="PixiEditor.Clipboard.Duplicate" />
                     <Separator />
-                    <MenuItem Header="_Delete Selected" Command="{Binding DocumentSubViewModel.DeletePixelsCommand}"
-                              InputGestureText="Delete" />
+                    <MenuItem Header="_Delete Selected" cmds:Menu.Command="PixiEditor.Document.DeletePixels" />
                     <Separator />
-                    <MenuItem Header="_Settings" Command="{Binding MiscSubViewModel.OpenSettingsWindowCommand}" />
+                    <MenuItem Header="_Settings" cmds:Menu.Command="PixiEditor.Settings.Open" />
                 </MenuItem>
                 <MenuItem Header="_Select">
-                    <MenuItem Header="_Select All" Command="{Binding SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
-                    <MenuItem Header="_Deselect" Command="{Binding SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
+                    <MenuItem Header="_Select All" cmds:Menu.Command="PixiEditor.Selection.SelectAll" />
+                    <MenuItem Header="_Deselect" cmds:Menu.Command="PixiEditor.Selection.Clear" />
                 </MenuItem>
                 <MenuItem Header="_Image">
-                    <MenuItem Header="Resize _Image..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
-                              InputGestureText="Ctrl+Shift+I" />
-                    <MenuItem Header="_Resize Canvas..." Command="{Binding DocumentSubViewModel.OpenResizePopupCommand}"
-                              CommandParameter="canvas" InputGestureText="Ctrl+Shift+C" />
-                    <MenuItem Header="_Clip Canvas" Command="{Binding DocumentSubViewModel.ClipCanvasCommand}" />
+                    <MenuItem Header="Resize _Image..." cmds:Menu.Command="PixiEditor.Document.ResizeDocument" />
+                    <MenuItem Header="_Resize Canvas..." cmds:Menu.Command="PixiEditor.Document.ResizeCanvas" />
+                    <MenuItem Header="_Clip Canvas" cmds:Menu.Command="PixiEditor.Document.ClipCanvas" />
                     <Separator/>
-                    <MenuItem Header="_Center Content" Command="{Binding DocumentSubViewModel.CenterContentCommand}" />
+                    <MenuItem Header="_Center Content" cmds:Menu.Command="PixiEditor.Document.CenterContent" />
                     <!--<Separator/>
                     <MenuItem Header="_Rotate to right 90&#186;" Command="{Binding DocumentSubViewModel.RotateToRightCommand}">
                         <MenuItem.CommandParameter>
@@ -150,35 +146,31 @@
                 </MenuItem>
                 <MenuItem Header="_View">
                     <MenuItem Header="_Show Grid Lines" IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
-                              IsCheckable="True" InputGestureText="Ctrl+`"/>
-                    <MenuItem Header="Open _Startup Window" ToolTip="Hello there!"
-                              Command="{Binding MiscSubViewModel.OpenHelloThereWindowCommand}"/>
-                    <MenuItem Header="Open _Navigation Window"
-                              Command="{Binding WindowSubViewModel.ShowAvalonDockWindowCommand}" CommandParameter="navigation"/>
+                              IsCheckable="True" InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}"/>
+                    <MenuItem Header="Open _Startup Window" ToolTip="Hello there!" cmds:Menu.Command="PixiEditor.Window.OpenStartupWindow"/>
+                    <MenuItem Header="Open _Navigation Window" cmds:Menu.Command="PixiEditor.Window.OpenNavigationWindow"/>
                 </MenuItem>
                 <MenuItem Header="_Help">
-                    <MenuItem Header="_Documentation" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://pixieditor.net/docs/introduction"/>
-                    <MenuItem Header="_Website" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://pixieditor.net"/>
-                    <MenuItem Header="_Repository" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/PixiEditor/PixiEditor"/>
-                    <MenuItem Header="_Shortcuts" Command="{Binding MiscSubViewModel.OpenShortcutWindowCommand}"/>
+                    <MenuItem Header="_Documentation" cmds:Menu.Command="PixiEditor.Links.OpenDocumentation" />
+                    <MenuItem Header="_Website" cmds:Menu.Command="PixiEditor.Links.OpenWebsite" />
+                    <MenuItem Header="_Repository" cmds:Menu.Command="PixiEditor.Links.OpenRepository" />
                     <Separator/>
-                    <MenuItem Header="_License" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE"/>
-                    <MenuItem Header="_Third Party Licenses" Command="{Binding MiscSubViewModel.OpenHyperlinkCommand}"
-                              CommandParameter="https://pixieditor.net/docs/Third-party-licenses"/>
+                    <MenuItem Header="_License" cmds:Menu.Command="PixiEditor.Links.OpenLicense" />
+                    <MenuItem Header="_Third Party Licenses" cmds:Menu.Command="PixiEditor.Links.OpenOtherLicenses" />
                 </MenuItem>
-                <MenuItem Header="_Debug" Visibility="{Binding IsDebug, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <MenuItem Header="Open _Local App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
-                              CommandParameter="%LocalAppData%/PixiEditor"/>
-                    <MenuItem Header="Open _Roaming App Data" Command="{Binding DebugSubViewModel.OpenFolderCommand}"
-                              CommandParameter="%AppData%/PixiEditor"/>
-                    <MenuItem Header="Open _Install Location"  Command="{Binding DebugSubViewModel.OpenInstallLocationCommand}"/>
-                    <MenuItem Header="_Crash"  Command="{Binding DebugSubViewModel.CrashCommand}"/>
+                <MenuItem Header="_Debug" Visibility="{Binding DebugSubViewModel.UseDebug, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <MenuItem Header="Open _Local App Data" cmds:Menu.Command="PixiEditor.Debug.OpenLocalAppDataDirectory" />
+                    <MenuItem Header="Open _Roaming App Data" cmds:Menu.Command="PixiEditor.Debug.OpenRoamingAppDataDirectory" />
+                    <MenuItem Header="Open _Temp App Data" cmds:Menu.Command="PixiEditor.Debug.OpenTempDirectory" />
+                    <MenuItem Header="Open _Install Location" cmds:Menu.Command="PixiEditor.Debug.OpenInstallDirectory" />
+                    <Separator/>
+                    <MenuItem Header="_Crash" cmds:Menu.Command="PixiEditor.Debug.Crash" />
+                    <MenuItem Header="Delete">
+                        <MenuItem Header="User Preferences (Roaming)" cmds:Menu.Command="PixiEditor.Debug.DeleteUserPreferences" />
+                        <MenuItem Header="Editor Data (Local)" cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
+                    </MenuItem>
                 </MenuItem>
-            </Menu>
+            </cmds:Menu>
             <StackPanel DockPanel.Dock="Right" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,-5,-5,0"
                         HorizontalAlignment="Right" WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True"
@@ -197,10 +189,9 @@
         </DockPanel>
         <StackPanel Background="{StaticResource MainColor}" Orientation="Horizontal" Grid.ColumnSpan="3" Grid.Column="0"
                      Grid.Row="1">
-            <Button Margin="1,0,0,0" Command="{Binding UndoSubViewModel.UndoCommand}"
-                    ToolTip="Undo"
+            <Button Margin="1,0,0,0" Command="{cmds:Command PixiEditor.Undo.Undo}" ToolTip="Undo"
                     Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A7;"/>
-            <Button Command="{Binding UndoSubViewModel.RedoCommand}" ToolTip="Redo"
+            <Button Command="{cmds:Command PixiEditor.Undo.Redo}" ToolTip="Redo"
                     Style="{StaticResource ToolSettingsGlyphButton}" Content="&#xE7A6;"/>
             <ToggleButton Width="30" BorderThickness="0"
                           ToolTip="Pen Mode" Focusable="False"
@@ -302,14 +293,14 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <usercontrols:DrawingViewPort.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="_Select All" Command="{Binding XamlAccesibleViewModel.SelectionSubViewModel.SelectAllCommand}" InputGestureText="Ctrl+A" />
-                                                <MenuItem Header="_Deselect" Command="{Binding XamlAccesibleViewModel.SelectionSubViewModel.DeselectCommand}" InputGestureText="Ctrl+D" />
+                                            <cmds:ContextMenu>
+                                                <MenuItem Header="_Select All" cmds:ContextMenu.Command="PixiEditor.Selection.SelectAll" />
+                                                <MenuItem Header="_Deselect" cmds:ContextMenu.Command="PixiEditor.Selection.Clear" />
                                                 <Separator/>
-                                                <MenuItem Header="_Cut" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.CutCommand}" InputGestureText="Ctrl+X" />
-                                                <MenuItem Header="_Copy" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.CopyCommand}" InputGestureText="Ctrl+C" />
-                                                <MenuItem Header="_Paste" Command="{Binding XamlAccesibleViewModel.ClipboardSubViewModel.PasteCommand}" InputGestureText="Ctrl+V" />
-                                            </ContextMenu>
+                                                <MenuItem Header="_Cut" cmds:ContextMenu.Command="PixiEditor.Clipboard.Cut" />
+                                                <MenuItem Header="_Copy" cmds:ContextMenu.Command="PixiEditor.Clipboard.Copy" />
+                                                <MenuItem Header="_Paste" cmds:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
+                                            </cmds:ContextMenu>
                                         </usercontrols:DrawingViewPort.ContextMenu>
                                     </usercontrols:DrawingViewPort>
                                 </DataTemplate>
@@ -347,7 +338,7 @@
                                                                  CanClose="False" CanAutoHide="False"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
                                         <usercontrols:SwatchesView
-                                            SelectSwatchCommand="{Binding ColorsSubViewModel.SelectColorCommand}" RemoveSwatchCommand="{Binding ColorsSubViewModel.RemoveSwatchCommand}"
+                                            SelectSwatchCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}" RemoveSwatchCommand="{cmds:Command PixiEditor.Colors.RemoveSwatch, UseProvided=True}"
                                             Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"/>
                                     </avalondock:LayoutAnchorable>
                                 </LayoutAnchorablePane>
@@ -434,7 +425,7 @@
                        Grid.Column="3" Orientation="Horizontal">
                 <Button Style="{StaticResource BaseDarkButton}" 
                     Visibility="{Binding UpdateSubViewModel.UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Hidden}" FontSize="14" Height="20" 
-                    Command="{Binding UpdateSubViewModel.RestartApplicationCommand}">Restart</Button>
+                    Command="{cmds:Command PixiEditor.Restart}">Restart</Button>
                 <TextBlock VerticalAlignment="Center" Padding="10" HorizontalAlignment="Right"
                        Foreground="White" FontSize="14"  Text="{Binding UpdateSubViewModel.VersionText}" />
             </StackPanel>
