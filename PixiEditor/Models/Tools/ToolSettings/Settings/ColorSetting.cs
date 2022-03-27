@@ -29,13 +29,14 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 Style = (Style)resourceDictionary["DefaultColorPickerStyle"]
             };
 
-            Binding binding = new Binding("Value")
+            Binding selectedColorBinding = new Binding("Value")
             {
                 Mode = BindingMode.TwoWay
             };
-            GlobalShortcutFocusBehavior behavor = new GlobalShortcutFocusBehavior();
-            Interaction.GetBehaviors(picker).Add(behavor);
-            picker.SetBinding(ToolSettingColorPicker.SelectedColorProperty, binding);
+
+            GlobalShortcutFocusBehavior behavior = new GlobalShortcutFocusBehavior();
+            Interaction.GetBehaviors(picker).Add(behavior);
+            picker.SetBinding(ToolSettingColorPicker.SelectedColorProperty, selectedColorBinding);
             return picker;
         }
     }

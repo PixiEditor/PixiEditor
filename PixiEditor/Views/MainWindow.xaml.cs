@@ -55,14 +55,7 @@ namespace PixiEditor
             DataContext.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
             preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
             {
-                if (x)
-                {
-                    UpdateTaskbarIcon(DataContext.BitmapManager.ActiveDocument);
-                }
-                else
-                {
-                    UpdateTaskbarIcon(null);
-                }
+                UpdateTaskbarIcon(x ? DataContext.BitmapManager.ActiveDocument : null);
             });
 
             Current = this;

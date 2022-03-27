@@ -10,7 +10,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using PixiEditor.Models.ExternalServices;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -63,12 +68,48 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public ColorsViewModel(ViewModelMain owner)
             : base(owner)
         {
-
             SelectColorCommand = new RelayCommand(SelectColor);
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SwapColorsCommand = new RelayCommand(SwapColors);
             SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
-            ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette);
+            ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette, Owner.DocumentIsNotNull);
+            Owner.OnStartupEvent += OwnerOnStartupEvent;
+        }
+
+        private async void OwnerOnStartupEvent(object? sender, EventArgs e)
+        {
+            await ImportLospecPalette();
+        }
+
+        private async Task ImportLospecPalette()
+        {
+            var args = Environment.GetCommandLineArgs();
+            var lospecPaletteArg = args.FirstOrDefault(x => x.StartsWith("lospec-palette://"));
+
+            if (lospecPaletteArg != null)
+            {
+                var browser = PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand,
+                    new WpfObservableRangeCollection<SKColor>());
+
+                browser.IsFetching = true;
+                var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));
+                if (palette != null)
+                {
+                    await LocalPalettesFetcher.SavePalette(
+                        palette.Name,
+                        palette.Colors.Select(SKColor.Parse).ToArray());
+
+                    palette.FileName = $"{palette.Name}.pal";
+
+                    await browser.UpdatePaletteList();
+                    int indexOfImported = browser.SortedResults.IndexOf(browser.SortedResults.First(x => x.FileName == palette.FileName));
+                    browser.SortedResults.Move(indexOfImported, 0);
+                }
+                else
+                {
+                    await browser.UpdatePaletteList();
+                }
+            }
         }
 
         public void ImportPalette(List<string> palette)

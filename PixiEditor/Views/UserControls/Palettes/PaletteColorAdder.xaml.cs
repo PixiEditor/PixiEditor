@@ -29,6 +29,18 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(ColorsProperty, value); }
         }
 
+        public Color HintColor
+        {
+            get { return (Color)GetValue(HintColorProperty); }
+            set { SetValue(HintColorProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for HintColor.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HintColorProperty =
+            DependencyProperty.Register("HintColor", typeof(Color), typeof(PaletteColorAdder), new PropertyMetadata(System.Windows.Media.Colors.Transparent));
+
+
+
         public Color SelectedColor
         {
             get { return (Color)GetValue(SelectedColorProperty); }

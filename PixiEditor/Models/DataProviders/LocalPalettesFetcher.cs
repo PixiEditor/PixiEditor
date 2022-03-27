@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Models.UserPreferences;
+using SkiaSharp;
 
 namespace PixiEditor.Models.DataProviders
 {
@@ -68,7 +70,7 @@ namespace PixiEditor.Models.DataProviders
                     List<string> favouritePalettes = IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
                     if (favouritePalettes != null)
                     {
-                        palette.IsFavourite = favouritePalettes.Contains(palette.Title);
+                        palette.IsFavourite = favouritePalettes.Contains(palette.Name);
                     }
 
                     result.Add(palette);
@@ -78,9 +80,30 @@ namespace PixiEditor.Models.DataProviders
             return result;
         }
 
+        public static async Task SavePalette(string name, SKColor[] colors)
+        {
+            string path = Path.Join(PathToPalettesFolder, name + ".pal");
+            InitDir();
+            await JascFileParser.SaveFile(path, new PaletteFileData(colors));
+        }
+
+        public static void DeletePalette(string name)
+        {
+            if (!Directory.Exists(PathToPalettesFolder)) return;
+            string path = Path.Join(PathToPalettesFolder, name);
+            if (!File.Exists(path)) return;
+
+            File.Delete(path);
+        }
+
         public override void Initialize()
         {
-            if(!Directory.Exists(PathToPalettesFolder))
+            InitDir();
+        }
+
+        private static void InitDir()
+        {
+            if (!Directory.Exists(PathToPalettesFolder))
             {
                 Directory.CreateDirectory(PathToPalettesFolder);
             }

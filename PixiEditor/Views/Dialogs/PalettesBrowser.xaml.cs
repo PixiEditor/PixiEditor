@@ -147,6 +147,8 @@ namespace PixiEditor.Views.Dialogs
         public WpfObservableRangeCollection<SKColor> CurrentEditingPalette { get; set; }
         public static PalettesBrowser Instance { get; internal set; }
 
+        private static PaletteList _cachedPaletteList;
+
         public PalettesBrowser()
         {
             InitializeComponent();
@@ -156,6 +158,32 @@ namespace PixiEditor.Views.Dialogs
             Closed += (s, e) => Instance = null;
         }
 
+        public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<SKColor> currentEditingPalette)
+        {
+            if (Instance != null) return Instance;
+            PalettesBrowser browser = new PalettesBrowser
+            {
+                Owner = Application.Current.MainWindow,
+                ImportPaletteCommand = importPaletteCommand,
+                PaletteListDataSources = dataSources
+            };
+
+            if (_cachedPaletteList != null)
+            {
+                browser.PaletteList = _cachedPaletteList;
+            }
+
+            browser.OnListFetched += list =>
+            {
+                _cachedPaletteList = list;
+            };
+
+            browser.CurrentEditingPalette = currentEditingPalette;
+
+            browser.Show();
+            return browser;
+        }
+
         private async void ToggleFavourite(Palette palette)
         {
             palette.IsFavourite = !palette.IsFavourite;
@@ -163,11 +191,11 @@ namespace PixiEditor.Views.Dialogs
 
             if (palette.IsFavourite)
             {
-                favouritePalettes.Add(palette.Title);
+                favouritePalettes.Add(palette.Name);
             }
             else
             {
-                favouritePalettes.Remove(palette.Title);
+                favouritePalettes.Remove(palette.Name);
             }
 
             IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
@@ -183,7 +211,7 @@ namespace PixiEditor.Views.Dialogs
             {
                 if (ConfirmationDialog.Show("Are you sure you want to delete this palette? This cannot be undone.", "Warning!") == ConfirmationType.Yes)
                 {
-                    File.Delete(filePath);
+                    LocalPalettesFetcher.DeletePalette(palette.FileName);
                     RemoveFavouritePalette(palette);
 
                     LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
@@ -197,9 +225,9 @@ namespace PixiEditor.Views.Dialogs
         {
             var favouritePalettes =
                 IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
-            if (favouritePalettes != null && favouritePalettes.Contains(palette.Title))
+            if (favouritePalettes != null && favouritePalettes.Contains(palette.Name))
             {
-                favouritePalettes.Remove(palette.Title);
+                favouritePalettes.Remove(palette.Name);
                 IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
             }
         }
@@ -340,7 +368,7 @@ namespace PixiEditor.Views.Dialogs
                         sorted = PaletteList.Palettes.OrderByDescending(x => x.IsFavourite).ThenBy(x => PaletteList.Palettes.IndexOf(x));
                         break;
                     case Models.DataHolders.Palettes.SortingType.Alphabetical:
-                        sorted = PaletteList.Palettes.OrderBy(x => x.Title);
+                        sorted = PaletteList.Palettes.OrderBy(x => x.Name);
                         break;
                     case Models.DataHolders.Palettes.SortingType.ColorCount:
                         sorted = PaletteList.Palettes.OrderBy(x => x.Colors.Count);
@@ -355,7 +383,7 @@ namespace PixiEditor.Views.Dialogs
                         sorted = PaletteList.Palettes.OrderByDescending(x => PaletteList.Palettes.IndexOf(x));
                         break;
                     case Models.DataHolders.Palettes.SortingType.Alphabetical:
-                        sorted = PaletteList.Palettes.OrderByDescending(x => x.Title);
+                        sorted = PaletteList.Palettes.OrderByDescending(x => x.Name);
                         break;
                     case Models.DataHolders.Palettes.SortingType.ColorCount:
                         sorted = PaletteList.Palettes.OrderByDescending(x => x.Colors.Count);
@@ -397,7 +425,7 @@ namespace PixiEditor.Views.Dialogs
                 i++;
             }
 
-            await JascFileParser.SaveFile(path, new PaletteFileData(CurrentEditingPalette.ToArray()));
+            await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
             LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
             await paletteListDataSource.RefreshCache();
             await UpdatePaletteList();
@@ -419,7 +447,7 @@ namespace PixiEditor.Views.Dialogs
         private async void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             PaletteItem item = (PaletteItem)sender;
-            if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || e.NewText == item.Palette.Title)
+            if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || e.NewText == item.Palette.Name)
             {
                 return;
             }

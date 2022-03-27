@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
@@ -30,6 +31,18 @@ namespace PixiEditor.Views.UserControls.Palettes
             get { return (WpfObservableRangeCollection<SKColor>)GetValue(ColorsProperty); }
             set { SetValue(ColorsProperty, value); }
         }
+
+        public Color HintColor
+        {
+            get { return (Color)GetValue(HintColorProperty); }
+            set { SetValue(HintColorProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for HintColor.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HintColorProperty =
+            DependencyProperty.Register("HintColor", typeof(Color), typeof(PaletteViewer), new PropertyMetadata(System.Windows.Media.Colors.Transparent));
+
+
 
         public ICommand SelectColorCommand
         {
@@ -217,27 +230,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)
         {
-            if (PalettesBrowser.Instance != null) return;
-            PalettesBrowser browser = new PalettesBrowser
-            {
-                Owner = Application.Current.MainWindow,
-                ImportPaletteCommand = ImportPaletteCommand,
-                PaletteListDataSources = DataSources
-            };
-
-            if(_cachedPaletteList != null)
-            {
-                browser.PaletteList = _cachedPaletteList;
-            }
-
-            browser.OnListFetched += list =>
-            {
-                _cachedPaletteList = list;
-            };
-
-            browser.CurrentEditingPalette = Colors;
-
-            browser.Show();
+            var browser = PalettesBrowser.Open(DataSources, ImportPaletteCommand, Colors);
             await browser.UpdatePaletteList();
         }
     }

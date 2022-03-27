@@ -7,15 +7,15 @@ namespace PixiEditor.Models.DataHolders.Palettes
 {
     public class Palette
     {
-        public string Title { get; set; }
+        public string Name { get; set; }
         public List<string> Colors { get; set; }
         public string FileName { get; set; }
 
         public bool IsFavourite { get; set; }
 
-        public Palette(string title, List<string> colors, string fileName)
+        public Palette(string name, List<string> colors, string fileName)
         {
-            Title = title;
+            Name = name;
             Colors = colors;
             FileName = fileName;
         }

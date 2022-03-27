@@ -12,47 +12,31 @@ namespace PixiEditor.Models.ExternalServices
     public static class LospecPaletteFetcher
     {
         public const string LospecApiUrl = "https://lospec.com/palette-list";
-        public static async Task<PaletteList> FetchPage(int page, string sortingType = "default", string[] tags = null, 
-            ColorsNumberMode colorsNumberMode = ColorsNumberMode.Any, int colorNumber = 8)
+
+        public static async Task<Palette> FetchPalette(string slug)
         {
             try
             {
-                using (HttpClient client = new HttpClient())
+                using HttpClient client = new HttpClient();
+                string url = @$"{LospecApiUrl}/{slug}.json";
+
+                HttpResponseMessage response = await client.GetAsync(url);
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    string url = @$"{LospecApiUrl}/load?colorNumberFilterType={colorsNumberMode.ToString().ToLower()}&page={page}&sortingType={sortingType}&tag=";
-                    
-                    if(tags != null && tags.Length > 0)
+                    string content = await response.Content.ReadAsStringAsync();
+                    var obj = JsonConvert.DeserializeObject<Palette>(content);
+
+                    if (obj is { Colors: { } })
                     {
-                        url += $"{string.Join(',', tags)}";
+                        ReadjustColors(obj.Colors);
                     }
 
-                    if(colorsNumberMode != ColorsNumberMode.Any)
-                    {
-                        url += $"&colorNumber={colorNumber}";
-                    }
-
-                    HttpResponseMessage response = await client.GetAsync(url);
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        string content = await response.Content.ReadAsStringAsync();
-                        var obj = JsonConvert.DeserializeObject<PaletteList>(content);
-
-                        obj.FetchedCorrectly = obj.Palettes != null;
-                        if (obj.Palettes != null)
-                        {
-                            foreach (var palette in obj.Palettes)
-                            {
-                                ReadjustColors(palette.Colors);
-                            }
-                        }
-
-                        return obj;
-                    }
+                    return obj;
                 }
             }
             catch(HttpRequestException)
             {
-                return new PaletteList() { FetchedCorrectly = false };
+                return null;
             }
 
             return null;

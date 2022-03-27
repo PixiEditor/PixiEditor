@@ -190,8 +190,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         private void Owner_OnStartupEvent(object sender, System.EventArgs e)
         {
             var args = Environment.GetCommandLineArgs();
-            var file = args.Last();
-            if (Importer.IsSupportedFile(file) && File.Exists(file))
+            var file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+            if (file != null)
             {
                 Open(file);
             }

@@ -23,7 +23,7 @@ namespace PixiEditor.Models.DataHolders.Palettes
         public bool Filter(Palette palette)
         {
             // Lexical comparison
-            bool result = string.IsNullOrWhiteSpace(Name) || palette.Title.Contains(Name, StringComparison.OrdinalIgnoreCase);
+            bool result = string.IsNullOrWhiteSpace(Name) || palette.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
 
             result = (ShowOnlyFavourites && palette.IsFavourite) || !ShowOnlyFavourites;
 

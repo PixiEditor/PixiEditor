@@ -7,7 +7,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         public BasicShapeToolbar()
         {
             Settings.Add(new BoolSetting("Fill", "Fill shape: "));
-            Settings.Add(new ColorSetting("FillColor", "Fill color"));
+            Settings.Add(new ColorSetting("FillColor",  "Fill color"));
         }
     }
 }
