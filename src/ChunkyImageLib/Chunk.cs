@@ -11,14 +11,7 @@ namespace ChunkyImageLib
         public ChunkResolution Resolution { get; }
         private Chunk(ChunkResolution resolution)
         {
-            int size = resolution switch
-            {
-                ChunkResolution.Full => ChunkPool.FullChunkSize,
-                ChunkResolution.Half => ChunkPool.FullChunkSize / 2,
-                ChunkResolution.Quarter => ChunkPool.FullChunkSize / 4,
-                ChunkResolution.Eighth => ChunkPool.FullChunkSize / 8,
-                _ => ChunkPool.FullChunkSize
-            };
+            int size = resolution.PixelSize();
 
             Resolution = resolution;
             PixelSize = new(size, size);

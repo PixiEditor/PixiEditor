@@ -38,12 +38,16 @@ namespace PixiEditorPrototype.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        public void RaisePropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
         public ActionAccumulator ActionAccumulator { get; }
         public DocumentChangeTracker Tracker { get; }
         public DocumentStructureHelper StructureHelper { get; }
         public IDocumentView? View { get; set; }
         private DocumentUpdater Updater { get; }
-
 
         public FolderViewModel StructureRoot { get; }
         public RelayCommand? UndoCommand { get; }
@@ -62,17 +66,51 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? MouseMoveCommand { get; }
         public RelayCommand? MouseUpCommand { get; }
 
-        private WriteableBitmap finalBitmap = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null);
-        public WriteableBitmap FinalBitmap
+
+        public SKSurface SurfaceFull { get; set; }
+        public WriteableBitmap BitmapFull { get; set; } = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null);
+        public SKSurface? SurfaceHalf { get; set; } = null;
+        public WriteableBitmap? BitmapHalf { get; set; } = null;
+        public SKSurface? SurfaceQuarter { get; set; } = null;
+        public WriteableBitmap? BitmapQuarter { get; set; } = null;
+        public SKSurface? SurfaceEighth { get; set; } = null;
+        public WriteableBitmap? BitmapEighth { get; set; } = null;
+
+        public WriteableBitmap RenderBitmap
         {
-            get => finalBitmap;
-            set
+            get => GetCorrespondingBitmap(RenderResolution)!;
+        }
+
+        public ChunkResolution RenderResolution
+        {
+            get
             {
-                finalBitmap = value;
-                PropertyChanged?.Invoke(this, new(nameof(FinalBitmap)));
+                if (GetCorrespondingBitmap(ChosenResolution) is not null)
+                    return ChosenResolution;
+                return ChunkResolution.Full;
             }
         }
-        public SKSurface FinalBitmapSurface { get; set; }
+        public ChunkResolution ChosenResolution { get; set; }
+        public ChunkResolution ResolutionFromView
+        {
+            set
+            {
+                ActionAccumulator.AddAction(new MoveViewport_PassthroughAction(SKRect.Create(0, 0, BitmapFull.PixelWidth, BitmapFull.PixelHeight), value));
+            }
+        }
+
+        public WriteableBitmap? GetCorrespondingBitmap(ChunkResolution resolution)
+        {
+            return resolution switch
+            {
+                ChunkResolution.Full => BitmapFull,
+                ChunkResolution.Half => BitmapHalf,
+                ChunkResolution.Quarter => BitmapQuarter,
+                ChunkResolution.Eighth => BitmapEighth,
+                _ => BitmapFull,
+            };
+        }
+
 
         public Color SelectedColor { get; set; } = Colors.Black;
         public int ResizeWidth { get; set; }
@@ -102,10 +140,10 @@ namespace PixiEditorPrototype.ViewModels
             MouseMoveCommand = new RelayCommand(MouseMove);
             MouseUpCommand = new RelayCommand(MouseUp);
 
-            FinalBitmapSurface = SKSurface.Create(
-                new SKImageInfo(FinalBitmap.PixelWidth, FinalBitmap.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
-                FinalBitmap.BackBuffer,
-                FinalBitmap.BackBufferStride);
+            SurfaceFull = SKSurface.Create(
+                new SKImageInfo(BitmapFull.PixelWidth, BitmapFull.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
+                BitmapFull.BackBuffer,
+                BitmapFull.BackBufferStride);
         }
 
         private bool mouseIsDown = false;
@@ -121,8 +159,8 @@ namespace PixiEditorPrototype.ViewModels
             var args = (MouseButtonEventArgs)(param!);
             var source = (System.Windows.Controls.Image)args.Source;
             var pos = args.GetPosition(source);
-            mouseDownCanvasX = (int)(pos.X / source.Width * FinalBitmap.PixelHeight);
-            mouseDownCanvasY = (int)(pos.Y / source.Height * FinalBitmap.PixelHeight);
+            mouseDownCanvasX = (int)(pos.X / source.Width * BitmapFull.PixelHeight);
+            mouseDownCanvasY = (int)(pos.Y / source.Height * BitmapFull.PixelHeight);
         }
 
         public void MouseMove(object? param)
@@ -132,8 +170,8 @@ namespace PixiEditorPrototype.ViewModels
             var args = (MouseEventArgs)(param!);
             var source = (System.Windows.Controls.Image)args.Source;
             var pos = args.GetPosition(source);
-            int curX = (int)(pos.X / source.Width * FinalBitmap.PixelHeight);
-            int curY = (int)(pos.Y / source.Height * FinalBitmap.PixelHeight);
+            int curX = (int)(pos.X / source.Width * BitmapFull.PixelHeight);
+            int curY = (int)(pos.Y / source.Height * BitmapFull.PixelHeight);
 
             ProcessToolMouseMove(curX, curY);
         }

@@ -19,7 +19,15 @@ namespace ChunkyImageLib.Operations
 
         public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
         {
+            if (chunk.Resolution == ChunkResolution.Full)
+            {
+                chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
+                return;
+            }
+            chunk.Surface.SkiaSurface.Canvas.Save();
+            chunk.Surface.SkiaSurface.Canvas.Scale((float)chunk.Resolution.Multiplier());
             chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
+            chunk.Surface.SkiaSurface.Canvas.Restore();
         }
 
         public HashSet<Vector2i> FindAffectedChunks()

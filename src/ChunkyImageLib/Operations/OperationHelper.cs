@@ -4,6 +4,12 @@ namespace ChunkyImageLib.Operations
 {
     public static class OperationHelper
     {
+        public static Vector2i ConvertForResolution(Vector2i pixelPos, ChunkResolution resolution)
+        {
+            var mult = resolution.Multiplier();
+            return new((int)Math.Round(pixelPos.X * mult), (int)Math.Round(pixelPos.Y * mult));
+        }
+
         public static Vector2i GetChunkPos(Vector2i pixelPos, int chunkSize)
         {
             return new Vector2i()

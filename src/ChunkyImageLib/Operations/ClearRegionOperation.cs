@@ -18,8 +18,11 @@ namespace ChunkyImageLib.Operations
 
         public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
         {
+            Vector2i convPos = OperationHelper.ConvertForResolution(pos, chunk.Resolution);
+            Vector2i convSize = OperationHelper.ConvertForResolution(size, chunk.Resolution);
+
             chunk.Surface.SkiaSurface.Canvas.Save();
-            chunk.Surface.SkiaSurface.Canvas.ClipRect(SKRect.Create(pos - chunkPos * ChunkPool.FullChunkSize, size));
+            chunk.Surface.SkiaSurface.Canvas.ClipRect(SKRect.Create(convPos - chunkPos.Multiply(chunk.PixelSize), convSize));
             chunk.Surface.SkiaSurface.Canvas.Clear();
             chunk.Surface.SkiaSurface.Canvas.Restore();
         }

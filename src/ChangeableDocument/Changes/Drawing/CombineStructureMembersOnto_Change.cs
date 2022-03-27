@@ -58,7 +58,7 @@ namespace ChangeableDocument.Changes.Drawing
             toDrawOn.LayerImage.Clear();
             foreach (var chunk in chunksToCombine)
             {
-                using var combined = ChunkRenderer.RenderSpecificLayers(chunk, target.StructureRoot, layersToCombine);
+                using var combined = ChunkRenderer.RenderSpecificLayers(chunk, ChunkResolution.Full, target.StructureRoot, layersToCombine);
                 toDrawOn.LayerImage.DrawImage(chunk * ChunkyImage.ChunkSize, combined.Surface);
             }
             var affectedChunks = toDrawOn.LayerImage.FindAffectedChunks();

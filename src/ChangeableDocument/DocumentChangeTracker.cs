@@ -181,8 +181,10 @@ namespace ChangeableDocument
                     case DeleteRecordedChanges_Action:
                         DeleteAllChanges();
                         break;
-                    default:
-                        throw new InvalidOperationException("Unknown action type");
+                    //used for "passthrough" actions (move viewport)
+                    case IChangeInfo act:
+                        changeInfos.Add(act);
+                        break;
                 }
             }
             return changeInfos;

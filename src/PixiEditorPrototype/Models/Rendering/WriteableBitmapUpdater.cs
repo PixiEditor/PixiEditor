@@ -8,6 +8,7 @@ using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PixiEditorPrototype.Models.Rendering
@@ -19,26 +20,35 @@ namespace PixiEditorPrototype.Models.Rendering
         private static SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
         private static SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
         private static SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
-        private Vector2i oldSize = new(0, 0);
+
+        private SKRect lastViewport = SKRect.Create(0, 0, 64, 64);
+
+        private Dictionary<ChunkResolution, HashSet<Vector2i>> postponedChunks = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new()
+        };
 
         public WriteableBitmapUpdater(DocumentChangeTracker tracker)
         {
             this.tracker = tracker;
         }
 
-        public async Task<List<IRenderInfo>> ProcessChanges(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, Vector2i screenSize)
+        public async Task<List<IRenderInfo>> ProcessChanges(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, ChunkResolution resolution)
         {
-            return await Task.Run(() => Render(changes, screenSurface, screenSize)).ConfigureAwait(true);
+            return await Task.Run(() => Render(changes, screenSurface, resolution)).ConfigureAwait(true);
         }
 
-        public List<IRenderInfo> ProcessChangesSync(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, Vector2i screenSize)
+        public List<IRenderInfo> ProcessChangesSync(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, ChunkResolution resolution)
         {
-            return Render(changes, screenSurface, screenSize);
+            return Render(changes, screenSurface, resolution);
         }
 
-        private HashSet<Vector2i>? FindChunksToRerender(IReadOnlyList<IChangeInfo> changes)
+        private HashSet<Vector2i> FindChunksToRerender(IReadOnlyList<IChangeInfo> changes, ChunkResolution resolution)
         {
-            HashSet<Vector2i> chunks = new();
+            HashSet<Vector2i> affectedChunks = new();
             foreach (var change in changes)
             {
                 switch (change)
@@ -46,106 +56,105 @@ namespace PixiEditorPrototype.Models.Rendering
                     case LayerImageChunks_ChangeInfo layerImageChunks:
                         if (layerImageChunks.Chunks is null)
                             throw new InvalidOperationException("Chunks must not be null");
-                        chunks.UnionWith(layerImageChunks.Chunks);
+                        affectedChunks.UnionWith(layerImageChunks.Chunks);
                         break;
                     case Selection_ChangeInfo selection:
                         if (tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
                         {
-                            return null;
+                            AddAllChunks(affectedChunks);
                         }
                         else
                         {
                             if (selection.Chunks is null)
                                 throw new InvalidOperationException("Chunks must not be null");
-                            chunks.UnionWith(selection.Chunks);
+                            affectedChunks.UnionWith(selection.Chunks);
                         }
                         break;
                     case CreateStructureMember_ChangeInfo:
                     case DeleteStructureMember_ChangeInfo:
                     case MoveStructureMember_ChangeInfo:
                     case Size_ChangeInfo:
-                        return null;
+                        AddAllChunks(affectedChunks);
+                        break;
                     case StructureMemberOpacity_ChangeInfo opacityChangeInfo:
                         var memberWithOpacity = tracker.Document.FindMemberOrThrow(opacityChangeInfo.GuidValue);
                         if (memberWithOpacity is IReadOnlyLayer layerWithOpacity)
-                            chunks.UnionWith(layerWithOpacity.ReadOnlyLayerImage.FindAllChunks());
+                            affectedChunks.UnionWith(layerWithOpacity.ReadOnlyLayerImage.FindAllChunks());
                         else
-                            return null;
+                            AddAllChunks(affectedChunks);
                         break;
                     case StructureMemberIsVisible_ChangeInfo visibilityChangeInfo:
                         var memberWithVisibility = tracker.Document.FindMemberOrThrow(visibilityChangeInfo.GuidValue);
                         if (memberWithVisibility is IReadOnlyLayer layerWithVisibility)
-                            chunks.UnionWith(layerWithVisibility.ReadOnlyLayerImage.FindAllChunks());
+                            affectedChunks.UnionWith(layerWithVisibility.ReadOnlyLayerImage.FindAllChunks());
                         else
-                            return null;
+                            AddAllChunks(affectedChunks);
+                        break;
+                    case MoveViewport_PassthroughAction moveViewportInfo:
+                        lastViewport = moveViewportInfo.Viewport;
                         break;
                 }
             }
-            return chunks;
+
+            postponedChunks[ChunkResolution.Full].UnionWith(affectedChunks);
+            postponedChunks[ChunkResolution.Half].UnionWith(affectedChunks);
+            postponedChunks[ChunkResolution.Quarter].UnionWith(affectedChunks);
+            postponedChunks[ChunkResolution.Eighth].UnionWith(affectedChunks);
+
+            HashSet<Vector2i> visibleChunks = postponedChunks[resolution].Where(pos =>
+            {
+                var rect = SKRect.Create(pos, new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize));
+                return rect.IntersectsWith(lastViewport);
+            }).ToHashSet();
+            postponedChunks[resolution].ExceptWith(visibleChunks);
+
+            return visibleChunks;
         }
 
-        private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, Vector2i screenSize)
+        private void AddAllChunks(HashSet<Vector2i> chunks)
         {
-            bool redrawEverything = false;
-            if (oldSize != screenSize)
+            Vector2i size = new(
+                (int)Math.Ceiling(tracker.Document.Size.X / (float)ChunkyImage.ChunkSize),
+                (int)Math.Ceiling(tracker.Document.Size.Y / (float)ChunkyImage.ChunkSize));
+            for (int i = 0; i < size.X; i++)
             {
-                oldSize = screenSize;
-                redrawEverything = true;
+                for (int j = 0; j < size.Y; j++)
+                {
+                    chunks.Add(new(i, j));
+                }
             }
-            HashSet<Vector2i>? chunks = null;
-            if (!redrawEverything)
-                chunks = FindChunksToRerender(changes);
-            if (chunks is null)
-                redrawEverything = true;
+        }
 
+        private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, ChunkResolution resolution)
+        {
+            HashSet<Vector2i> chunks = FindChunksToRerender(changes, resolution);
 
             List<IRenderInfo> infos = new();
 
-            // draw to back surface
-            if (redrawEverything)
+            int chunkSize = resolution.PixelSize();
+            foreach (var chunkPos in chunks!)
             {
-                RenderScreen(screenSize, screenSurface);
-                infos.Add(new DirtyRect_RenderInfo(new Vector2i(0, 0), screenSize));
-            }
-            else
-            {
-                foreach (var chunkPos in chunks!)
-                {
-                    RenderChunk(chunkPos, screenSurface);
-                    infos.Add(new DirtyRect_RenderInfo(
-                        chunkPos * ChunkyImage.ChunkSize,
-                        new(ChunkyImage.ChunkSize, ChunkyImage.ChunkSize)
-                        ));
-                }
+                RenderChunk(chunkPos, screenSurface, resolution);
+                infos.Add(new DirtyRect_RenderInfo(
+                    chunkPos * chunkSize,
+                    new(chunkSize, chunkSize)
+                    ));
             }
 
             return infos;
         }
 
-        private void RenderScreen(Vector2i screenSize, SKSurface screenSurface)
+        private void RenderChunk(Vector2i chunkPos, SKSurface screenSurface, ChunkResolution resolution)
         {
-            int chunksWidth = (int)Math.Ceiling(screenSize.X / (float)ChunkyImage.ChunkSize);
-            int chunksHeight = (int)Math.Ceiling(screenSize.Y / (float)ChunkyImage.ChunkSize);
-            screenSurface.Canvas.Clear();
-            for (int x = 0; x < chunksWidth; x++)
-            {
-                for (int y = 0; y < chunksHeight; y++)
-                {
-                    RenderChunk(new(x, y), screenSurface);
-                }
-            }
-        }
+            using Chunk renderedChunk = ChunkRenderer.RenderWholeStructure(chunkPos, resolution, tracker.Document.ReadOnlyStructureRoot);
 
-        private void RenderChunk(Vector2i chunkPos, SKSurface screenSurface)
-        {
-            using Chunk renderedChunk = ChunkRenderer.RenderWholeStructure(chunkPos, tracker.Document.ReadOnlyStructureRoot);
-            screenSurface.Canvas.DrawSurface(renderedChunk.Surface.SkiaSurface, chunkPos * ChunkyImage.ChunkSize, ReplacingPaint);
+            screenSurface.Canvas.DrawSurface(renderedChunk.Surface.SkiaSurface, chunkPos.Multiply(renderedChunk.PixelSize), ReplacingPaint);
 
             if (tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
                 return;
-            IReadOnlyChunk? selectionChunk = tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.GetLatestChunk(chunkPos);
+            IReadOnlyChunk? selectionChunk = tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.GetLatestChunk(chunkPos, resolution);
             if (selectionChunk is not null)
-                selectionChunk.DrawOnSurface(screenSurface, chunkPos * ChunkyImage.ChunkSize, SelectionPaint);
+                selectionChunk.DrawOnSurface(screenSurface, chunkPos.Multiply(selectionChunk.PixelSize), SelectionPaint);
         }
     }
 }

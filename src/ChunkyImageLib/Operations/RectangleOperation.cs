@@ -19,7 +19,12 @@ namespace ChunkyImageLib.Operations
             var skiaSurf = chunk.Surface.SkiaSurface;
             // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
             skiaSurf.Canvas.Save();
-            var rect = SKRect.Create(Data.Pos - chunkPos * ChunkPool.FullChunkSize, Data.Size);
+
+            var convertedPos = OperationHelper.ConvertForResolution(Data.Pos, chunk.Resolution);
+            var convertedSize = OperationHelper.ConvertForResolution(Data.Size, chunk.Resolution);
+            int convertedStroke = (int)Math.Round(chunk.Resolution.Multiplier() * Data.StrokeWidth);
+
+            var rect = SKRect.Create(convertedPos - chunkPos.Multiply(chunk.PixelSize), convertedSize);
             skiaSurf.Canvas.ClipRect(rect);
 
             // draw fill
@@ -35,7 +40,7 @@ namespace ChunkyImageLib.Operations
             // draw stroke
             paint.Color = Data.StrokeColor;
             paint.Style = SKPaintStyle.Stroke;
-            paint.StrokeWidth = Data.StrokeWidth * 2;
+            paint.StrokeWidth = convertedStroke * 2;
 
             skiaSurf.Canvas.DrawRect(rect, paint);
 

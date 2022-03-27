@@ -8,12 +8,16 @@
              xmlns:models="clr-namespace:PixiEditorPrototype.Models"
              xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:behaviors="clr-namespace:PixiEditorPrototype.Behaviors"
+             xmlns:converters="clr-namespace:PixiEditorPrototype.Converters"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:cmd="mvvm"
              xmlns:vm="clr-namespace:PixiEditorPrototype.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:DocumentViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="576" d:DesignWidth="1024">
+    <UserControl.Resources>
+        <converters:IndexToChunkResolutionConverter x:Key="IndexToChunkResolutionConverter"/>
+    </UserControl.Resources>
     <DockPanel Background="Gray">
         <Border BorderThickness="1" Background="White" BorderBrush="Black" Width="280" DockPanel.Dock="Right" Margin="5">
             <DockPanel>
@@ -96,6 +100,12 @@
                     <Button Width="50" Margin="5" Command="{Binding RedoCommand}">Redo</Button>
                     <Button Width="100" Margin="5" Command="{Binding ClearSelectionCommand}">Clear selection</Button>
                     <Button Width="120" Margin="5" Command="{Binding ClearHistoryCommand}">Clear undo history</Button>
+                    <ComboBox SelectedIndex="{Binding ResolutionFromView, Converter={StaticResource IndexToChunkResolutionConverter}, Mode=OneWayToSource}" Width="70" Margin="5">
+                        <ComboBoxItem>Full</ComboBoxItem>
+                        <ComboBoxItem>Half</ComboBoxItem>
+                        <ComboBoxItem>Quarter</ComboBoxItem>
+                        <ComboBoxItem>Eighth</ComboBoxItem>
+                    </ComboBox>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBox Width="30" Margin="5" Text="{Binding ResizeWidth}"/>
@@ -112,7 +122,7 @@
             </StackPanel>
         </Border>
         <Border BorderThickness="1" Background="Transparent" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-            <Image Margin="5" Source="{Binding FinalBitmap}" Width="400" Height="400" RenderOptions.BitmapScalingMode="NearestNeighbor" x:Name="mainImage">
+            <Image Margin="5" Source="{Binding RenderBitmap}" Width="400" Height="400" RenderOptions.BitmapScalingMode="NearestNeighbor" x:Name="mainImage">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDown">
                         <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>

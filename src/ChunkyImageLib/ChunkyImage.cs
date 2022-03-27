@@ -6,6 +6,24 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
 namespace ChunkyImageLib
 {
+    /// <summary>
+    /// ChunkyImage can be in two general states: 
+    /// 1. a state with all chunks committed and no queued operations
+    ///     - latestChunks and latestChunksData are empty
+    ///     - queuedOperations are empty
+    ///     - committedChunks[ChunkResolution.Full] contains the current versions of all stored chunks
+    ///     - committedChunks[*any other resolution*] may contain the current low res versions of some of the chunks (or all of them, or none)
+    ///     - LatestSize == CommittedSize == current image size (px)
+    /// 2. and a state with some queued operations
+    ///     - queuedOperations contains all requested operations (drawing, raster clips, clear, etc.)
+    ///     - committedChunks[ChunkResolution.Full] contains the last versions before any operations of all stored chunks
+    ///     - committedChunks[*any other resolution*] may contain the last low res versions before any operations of some of the chunks (or all of them, or none)
+    ///     - latestChunks stores chunks with some (or none, or all) queued operations applied
+    ///     - latestChunksData stores the data for some or all of the latest chunks (not necessarily synced with latestChunks).
+    ///         The data includes how many operations from the queue have already been applied to the chunk, as well as chunk deleted state (the clear operation deletes chunks)
+    ///     - LatestSize contains new size if any resize operations were requested, otherwise commited size
+    /// You can check the current state via queuedOperations.Count == 0
+    /// </summary>
     public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         private struct LatestChunkData
@@ -17,22 +35,51 @@ namespace ChunkyImageLib
 
         public static int ChunkSize => ChunkPool.FullChunkSize;
         private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
-        private Chunk tempChunk;
+        private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+
+        private Dictionary<ChunkResolution, Chunk> tempRasterClipChunks;
 
         public Vector2i CommittedSize { get; private set; }
         public Vector2i LatestSize { get; private set; }
 
         private List<(IOperation operation, HashSet<Vector2i> affectedChunks)> queuedOperations = new();
 
-        private Dictionary<Vector2i, Chunk> committedChunks = new();
-        private Dictionary<Vector2i, Chunk> latestChunks = new();
-        private Dictionary<Vector2i, LatestChunkData> latestChunksData = new();
+        private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> committedChunks;
+        private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> latestChunks;
+        private Dictionary<ChunkResolution, Dictionary<Vector2i, LatestChunkData>> latestChunksData = new();
 
         public ChunkyImage(Vector2i size)
         {
             CommittedSize = size;
             LatestSize = size;
-            tempChunk = Chunk.Create();
+            tempRasterClipChunks = new Dictionary<ChunkResolution, Chunk>()
+            {
+                [ChunkResolution.Full] = Chunk.Create(ChunkResolution.Full),
+                [ChunkResolution.Half] = Chunk.Create(ChunkResolution.Half),
+                [ChunkResolution.Quarter] = Chunk.Create(ChunkResolution.Quarter),
+                [ChunkResolution.Eighth] = Chunk.Create(ChunkResolution.Eighth),
+            };
+            committedChunks = new()
+            {
+                [ChunkResolution.Full] = new(),
+                [ChunkResolution.Half] = new(),
+                [ChunkResolution.Quarter] = new(),
+                [ChunkResolution.Eighth] = new(),
+            };
+            latestChunks = new()
+            {
+                [ChunkResolution.Full] = new(),
+                [ChunkResolution.Half] = new(),
+                [ChunkResolution.Quarter] = new(),
+                [ChunkResolution.Eighth] = new(),
+            };
+            latestChunksData = new()
+            {
+                [ChunkResolution.Full] = new(),
+                [ChunkResolution.Half] = new(),
+                [ChunkResolution.Quarter] = new(),
+                [ChunkResolution.Eighth] = new(),
+            };
         }
 
         public ChunkyImage CloneFromLatest()
@@ -41,7 +88,7 @@ namespace ChunkyImageLib
             var chunks = FindAllChunks();
             foreach (var chunk in chunks)
             {
-                var image = (Chunk?)GetLatestChunk(chunk);
+                var image = (Chunk?)GetLatestChunk(chunk, ChunkResolution.Full);
                 if (image is not null)
                     output.DrawImage(chunk * ChunkSize, image.Surface);
             }
@@ -52,23 +99,58 @@ namespace ChunkyImageLib
         /// <summary>
         /// Returns the latest version of the chunk, with uncommitted changes applied if they exist
         /// </summary>
-        public IReadOnlyChunk? GetLatestChunk(Vector2i pos)
+        public IReadOnlyChunk? GetLatestChunk(Vector2i pos, ChunkResolution resolution)
         {
+            //no queued operations
             if (queuedOperations.Count == 0)
-                return MaybeGetChunk(pos, committedChunks);
-            ProcessQueueForChunk(pos);
-            return MaybeGetChunk(pos, latestChunks) ?? MaybeGetChunk(pos, committedChunks);
+            {
+                var sameResChunk = MaybeGetCommittedChunk(pos, resolution);
+                if (sameResChunk is not null)
+                    return sameResChunk;
+
+                var fullResChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
+                if (fullResChunk is not null)
+                    return GetOrCreateCommittedChunk(pos, resolution);
+
+                return null;
+            }
+
+            // there are queued operations, target chunk is affected
+            MaybeCreateAndProcessQueueForChunk(pos, resolution);
+            var maybeNewlyProcessedChunk = MaybeGetLatestChunk(pos, resolution);
+            if (maybeNewlyProcessedChunk is not null)
+                return maybeNewlyProcessedChunk;
+
+            // there are queued operations, target chunk is unaffected
+            var maybeSameResCommitedChunk = MaybeGetCommittedChunk(pos, resolution);
+            if (maybeSameResCommitedChunk is not null)
+                return maybeSameResCommitedChunk;
+
+            var maybeFullResCommitedChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
+            if (maybeFullResCommitedChunk is not null)
+                return GetOrCreateCommittedChunk(pos, resolution);
+
+            return null;
         }
 
         /// <summary>
         /// Returns the committed version of the chunk ignoring any uncommitted changes
         /// </summary>
-        internal IReadOnlyChunk? GetCommittedChunk(Vector2i pos)
+        internal IReadOnlyChunk? GetCommittedChunk(Vector2i pos, ChunkResolution resolution)
         {
-            return MaybeGetChunk(pos, committedChunks);
+            var maybeSameRes = MaybeGetCommittedChunk(pos, resolution);
+            if (maybeSameRes is not null)
+                return maybeSameRes;
+
+            var maybeFullRes = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
+            if (maybeFullRes is not null)
+                return GetOrCreateCommittedChunk(pos, resolution);
+
+            return null;
         }
 
-        private Chunk? MaybeGetChunk(Vector2i pos, Dictionary<Vector2i, Chunk> from) => from.ContainsKey(pos) ? from[pos] : null;
+        private Chunk? MaybeGetLatestChunk(Vector2i pos, ChunkResolution resolution) => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+        private Chunk? MaybeGetCommittedChunk(Vector2i pos, ChunkResolution resolution) => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
 
         public void DrawRectangle(ShapeData rect)
         {
@@ -122,16 +204,25 @@ namespace ChunkyImageLib
 
         public void CancelChanges()
         {
+            //clear queued operations
             foreach (var operation in queuedOperations)
                 operation.Item1.Dispose();
             queuedOperations.Clear();
-            foreach (var (_, chunk) in latestChunks)
+
+            //clear latest chunks
+            foreach (var (_, chunksOfRes) in latestChunks)
             {
-                chunk.Dispose();
+                foreach (var (_, chunk) in chunksOfRes)
+                {
+                    chunk.Dispose();
+                }
             }
             LatestSize = CommittedSize;
-            latestChunks.Clear();
-            latestChunksData.Clear();
+            foreach (var (res, chunks) in latestChunks)
+            {
+                chunks.Clear();
+                latestChunksData[res].Clear();
+            }
         }
 
         public void CommitChanges()
@@ -139,7 +230,7 @@ namespace ChunkyImageLib
             var affectedChunks = FindAffectedChunks();
             foreach (var chunk in affectedChunks)
             {
-                ProcessQueueForChunk(chunk);
+                MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);
             }
             foreach (var (operation, _) in queuedOperations)
             {
@@ -150,13 +241,73 @@ namespace ChunkyImageLib
             queuedOperations.Clear();
         }
 
+        private void CommitLatestChunks()
+        {
+            // move fully processed latest chunks to committed
+            foreach (var (resolution, chunks) in latestChunks)
+            {
+                foreach (var (pos, chunk) in chunks)
+                {
+                    if (committedChunks[resolution].ContainsKey(pos))
+                    {
+                        var oldChunk = committedChunks[resolution][pos];
+                        committedChunks[resolution].Remove(pos);
+                        oldChunk.Dispose();
+                    }
+
+                    LatestChunkData data = latestChunksData[resolution][pos];
+                    if (data.QueueProgress != queuedOperations.Count)
+                    {
+                        if (resolution == ChunkResolution.Full)
+                        {
+                            throw new InvalidOperationException("Trying to commit a full res chunk that wasn't fully processed");
+                        }
+                        else
+                        {
+                            chunk.Dispose();
+                            continue;
+                        }
+                    }
+
+                    if (!data.IsDeleted)
+                        committedChunks[resolution].Add(pos, chunk);
+                    else
+                        chunk.Dispose();
+                }
+            }
+
+            // delete committed low res chunks that weren't updated
+            foreach (var (pos, chunk) in latestChunks[ChunkResolution.Full])
+            {
+                foreach (var (resolution, _) in latestChunks)
+                {
+                    if (resolution == ChunkResolution.Full)
+                        continue;
+                    if (!latestChunksData[resolution].TryGetValue(pos, out var halfChunk) || halfChunk.QueueProgress != queuedOperations.Count)
+                    {
+                        if (committedChunks[resolution].TryGetValue(pos, out var commitedLowResChunk))
+                        {
+                            committedChunks[resolution].Remove(pos);
+                            commitedLowResChunk.Dispose();
+                        }
+                    }
+                }
+            }
+
+            // clear latest chunks
+            foreach (var (resolution, chunks) in latestChunks)
+            {
+                chunks.Clear();
+                latestChunksData[resolution].Clear();
+            }
+        }
+
         /// <summary>
         /// Returns all chunks that have something in them, including latest (uncommitted) ones
         /// </summary>
         public HashSet<Vector2i> FindAllChunks()
         {
-            var allChunks = committedChunks.Select(chunk => chunk.Key).ToHashSet();
-            allChunks.UnionWith(latestChunks.Select(chunk => chunk.Key).ToHashSet());
+            var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
             foreach (var (operation, opChunks) in queuedOperations)
             {
                 allChunks.UnionWith(opChunks);
@@ -169,47 +320,22 @@ namespace ChunkyImageLib
         /// </summary>
         public HashSet<Vector2i> FindAffectedChunks()
         {
-            var chunks = latestChunks.Select(chunk => chunk.Key).ToHashSet();
-            foreach (var (operation, opChunks) in queuedOperations)
+            var chunks = new HashSet<Vector2i>();
+            foreach (var (_, opChunks) in queuedOperations)
             {
                 chunks.UnionWith(opChunks);
             }
             return chunks;
         }
 
-        private void CommitLatestChunks()
+        private void MaybeCreateAndProcessQueueForChunk(Vector2i chunkPos, ChunkResolution resolution)
         {
-            foreach (var (pos, chunk) in latestChunks)
-            {
-                LatestChunkData data = latestChunksData[pos];
-                if (data.QueueProgress != queuedOperations.Count)
-                    throw new InvalidOperationException("Trying to commit a chunk that wasn't fully processed");
-
-                if (committedChunks.ContainsKey(pos))
-                {
-                    var oldChunk = committedChunks[pos];
-                    committedChunks.Remove(pos);
-                    oldChunk.Dispose();
-                }
-                if (!data.IsDeleted)
-                    committedChunks.Add(pos, chunk);
-                else
-                    chunk.Dispose();
-            }
-
-            latestChunks.Clear();
-            latestChunksData.Clear();
-        }
-
-        private void ProcessQueueForChunk(Vector2i chunkPos)
-        {
-            Chunk? targetChunk = null;
-            if (latestChunksData.TryGetValue(chunkPos, out LatestChunkData chunkData))
-                chunkData = new() { QueueProgress = 0, IsDeleted = !committedChunks.ContainsKey(chunkPos) };
-
+            if (latestChunksData[resolution].TryGetValue(chunkPos, out LatestChunkData chunkData))
+                chunkData = new() { QueueProgress = 0, IsDeleted = !committedChunks[ChunkResolution.Full].ContainsKey(chunkPos) };
             if (chunkData.QueueProgress == queuedOperations.Count)
                 return;
 
+            Chunk? targetChunk = null;
             List<IReadOnlyChunk> activeClips = new();
             bool isFullyMaskedOut = false;
             bool somethingWasApplied = false;
@@ -218,7 +344,7 @@ namespace ChunkyImageLib
                 var (operation, operChunks) = queuedOperations[i];
                 if (operation is RasterClipOperation clipOperation)
                 {
-                    var chunk = clipOperation.ClippingMask.GetCommittedChunk(chunkPos);
+                    var chunk = clipOperation.ClippingMask.GetCommittedChunk(chunkPos, resolution);
                     if (chunk is not null)
                         activeClips.Add(chunk);
                     else
@@ -230,7 +356,7 @@ namespace ChunkyImageLib
                 if (!somethingWasApplied)
                 {
                     somethingWasApplied = true;
-                    targetChunk = GetOrCreateLatestChunk(chunkPos);
+                    targetChunk = GetOrCreateLatestChunk(chunkPos, resolution);
                 }
 
                 if (chunkData.QueueProgress <= i)
@@ -240,7 +366,7 @@ namespace ChunkyImageLib
             if (somethingWasApplied)
             {
                 chunkData.QueueProgress = queuedOperations.Count;
-                latestChunksData[chunkPos] = chunkData;
+                latestChunksData[resolution][chunkPos] = chunkData;
             }
         }
 
@@ -268,6 +394,7 @@ namespace ChunkyImageLib
                     return false;
                 }
 
+                var tempChunk = tempRasterClipChunks[targetChunk.Resolution];
                 tempChunk.Surface.SkiaSurface.Canvas.Clear();
                 chunkOperation.DrawOnChunk(tempChunk, chunkPos);
                 foreach (var mask in activeClips)
@@ -308,7 +435,7 @@ namespace ChunkyImageLib
             if (queuedOperations.Count != 0)
                 throw new InvalidOperationException("This method cannot be used while any operations are queued");
             HashSet<Vector2i> toRemove = new();
-            foreach (var (pos, chunk) in committedChunks)
+            foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
             {
                 if (IsChunkEmpty(chunk))
                 {
@@ -317,7 +444,12 @@ namespace ChunkyImageLib
                 }
             }
             foreach (var pos in toRemove)
-                committedChunks.Remove(pos);
+            {
+                committedChunks[ChunkResolution.Full].Remove(pos);
+                committedChunks[ChunkResolution.Half].Remove(pos);
+                committedChunks[ChunkResolution.Quarter].Remove(pos);
+                committedChunks[ChunkResolution.Eighth].Remove(pos);
+            }
         }
 
         private unsafe bool IsChunkEmpty(Chunk chunk)
@@ -333,23 +465,80 @@ namespace ChunkyImageLib
             return true;
         }
 
-        private Chunk GetOrCreateLatestChunk(Vector2i chunkPos)
+        private Chunk GetOrCreateCommittedChunk(Vector2i chunkPos, ChunkResolution resolution)
         {
-            Chunk? targetChunk;
-            targetChunk = MaybeGetChunk(chunkPos, latestChunks);
-            if (targetChunk is null)
+            // commited chunk of the same resolution exists
+            Chunk? targetChunk = MaybeGetCommittedChunk(chunkPos, resolution);
+            if (targetChunk is not null)
+                return targetChunk;
+
+            // for full res chunks: nothing exists, create brand new chunk
+            if (resolution == ChunkResolution.Full)
             {
-                targetChunk = Chunk.Create();
-                var maybeCommittedChunk = MaybeGetChunk(chunkPos, committedChunks);
-
-                if (maybeCommittedChunk is not null)
-                    maybeCommittedChunk.Surface.CopyTo(targetChunk.Surface);
-                else
-                    targetChunk.Surface.SkiaSurface.Canvas.Clear();
-
-                latestChunks[chunkPos] = targetChunk;
+                var newChunk = Chunk.Create(resolution);
+                committedChunks[resolution][chunkPos] = newChunk;
+                return newChunk;
             }
-            return targetChunk;
+
+            // for low res chunks: full res version exists
+            Chunk? existingFullResChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
+            if (resolution != ChunkResolution.Full && existingFullResChunk is not null)
+            {
+                var newChunk = Chunk.Create(resolution);
+                newChunk.Surface.SkiaSurface.Canvas.Save();
+                newChunk.Surface.SkiaSurface.Canvas.Scale((float)resolution.Multiplier());
+
+                newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
+                newChunk.Surface.SkiaSurface.Canvas.Restore();
+                committedChunks[resolution][chunkPos] = newChunk;
+                return newChunk;
+            }
+
+            // for low res chunks: full res version doesn't exist
+            {
+                GetOrCreateCommittedChunk(chunkPos, ChunkResolution.Full);
+                var newChunk = Chunk.Create(resolution);
+                committedChunks[resolution][chunkPos] = newChunk;
+                return newChunk;
+            }
+        }
+
+        private Chunk GetOrCreateLatestChunk(Vector2i chunkPos, ChunkResolution resolution)
+        {
+            // latest chunk exists
+            Chunk? targetChunk;
+            targetChunk = MaybeGetLatestChunk(chunkPos, resolution);
+            if (targetChunk is not null)
+                return targetChunk;
+
+            // committed chunk of the same resolution exists
+            var maybeCommittedAnyRes = MaybeGetCommittedChunk(chunkPos, resolution);
+            if (maybeCommittedAnyRes is not null)
+            {
+                Chunk newChunk = Chunk.Create(resolution);
+                maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
+                latestChunks[resolution][chunkPos] = newChunk;
+                return newChunk;
+            }
+
+            // committed chunk of full resolution exists
+            var maybeCommittedFullRes = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
+            if (maybeCommittedFullRes is not null)
+            {
+                //create low res committed chunk
+                var committedChunkLowRes = GetOrCreateCommittedChunk(chunkPos, resolution);
+                //create latest based on it
+                Chunk newChunk = Chunk.Create(resolution);
+                committedChunkLowRes.Surface.CopyTo(newChunk.Surface);
+                latestChunks[resolution][chunkPos] = newChunk;
+                return newChunk;
+            }
+
+            // no previous chunks exist
+            var newLatestChunk = Chunk.Create(resolution);
+            newLatestChunk.Surface.SkiaSurface.Canvas.Clear();
+            latestChunks[resolution][chunkPos] = newLatestChunk;
+            return newLatestChunk;
         }
 
         public void Dispose()
@@ -357,9 +546,15 @@ namespace ChunkyImageLib
             if (disposed)
                 return;
             CancelChanges();
-            tempChunk.Dispose();
-            foreach (var chunk in committedChunks)
-                chunk.Value.Dispose();
+            foreach (var (_, chunk) in tempRasterClipChunks)
+                chunk.Dispose();
+            foreach (var (_, chunks) in committedChunks)
+            {
+                foreach (var (_, chunk) in chunks)
+                {
+                    chunk.Dispose();
+                }
+            }
             disposed = true;
         }
     }

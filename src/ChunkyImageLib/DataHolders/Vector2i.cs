@@ -49,6 +49,18 @@ namespace ChunkyImageLib.DataHolders
         {
             return new Vector2i(a.X * b, a.Y * b);
         }
+        public static Vector2d operator *(Vector2i a, double b)
+        {
+            return new Vector2d(a.X * b, a.Y * b);
+        }
+        public static Vector2i operator /(Vector2i a, int b)
+        {
+            return new Vector2i(a.X / b, a.Y / b);
+        }
+        public static Vector2d operator /(Vector2i a, double b)
+        {
+            return new Vector2d(a.X / b, a.Y / b);
+        }
         public static bool operator ==(Vector2i a, Vector2i b)
         {
             return a.X == b.X && a.Y == b.Y;
