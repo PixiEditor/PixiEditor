@@ -13,9 +13,9 @@ Decouples the state of a document from the UI.
     - [x] ChunkPool multithreading support
     - [x] Dispose that returns borrowed chunks
     - [ ] Finalizers that return borrowed chunks
-    - [ ] GetLatestChunk resolution parameter
+    - [x] GetLatestChunk resolution parameter
         - [x] Support for different chunk sizes in chunkpool
-        - [ ] Preview rendering for different chunk sizes
+        - [x] Rendering for different chunk sizes
         - [x] Read only interface for Chunk
     - [x] CommitedChunkStorage (used to store chunks for undo)
         - [ ] Write chunks to the hard drive?
@@ -62,7 +62,7 @@ Decouples the state of a document from the UI.
         - [ ] Clip to layer below support
         - [ ] Layer mask support
         - [ ] Low-res rendering
-        - [ ] Don't render chunks outside viewport
+        - [ ] Don't render chunks outside viewport (done, no ui)
         - [x] Support for rendering a subset of the structure (for merging selected layers, referring to selected layer, etc.)
         - [ ] Caching for folders
         - [ ] Caching for everything below current layer
@@ -99,7 +99,7 @@ Decouples the state of a document from the UI.
         - [ ] Layer mask manipulation
 - ViewModel
     - [ ] Action filtering
-    - [ ] Viewport movement as an action
+    - [x] Viewport movement as an action
 - Not sure
     - [ ] Pipette tool
 
