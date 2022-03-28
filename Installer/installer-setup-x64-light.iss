@@ -392,7 +392,7 @@ Root: HKCR; Subkey: "{#MyAppName}\shell\open\command";  ValueData: """{app}\{#My
 
 // lospec-palette URL protocol association
 Root: HKCR; Subkey: "lospec-palette";                   ValueData: "{#MyAppName}";  Flags: uninsdeletevalue; ValueType: string;  ValueName: ""
-Root: HKCR; Subkey: "lospec-palette";                   ValueData: "URL Protocol";  Flags: uninsdeletekey;   ValueType: string;  ValueName: ""
+Root: HKCR; Subkey: "lospec-palette";                   ValueData: "";  Flags: uninsdeletekey;   ValueType: string;  ValueName: "URL Protocol"
 Root: HKCR; Subkey: "lospec-palette\shell\open\command";  ValueData: """{app}\{#MyAppExeName}"" ""%1""";  ValueType: string;  ValueName: ""
 
 [Code]

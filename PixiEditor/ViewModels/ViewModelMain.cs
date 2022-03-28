@@ -76,6 +76,8 @@ namespace PixiEditor.ViewModels
 
         public WindowViewModel WindowSubViewModel { get; set; }
 
+        public RegistryViewModel RegistrySubViewModel { get; set; }
+
         public IPreferences Preferences { get; set; }
 
         public string ActionDisplay
@@ -158,6 +160,7 @@ namespace PixiEditor.ViewModels
 
             WindowSubViewModel = services.GetService<WindowViewModel>();
             StylusSubViewModel = services.GetService<StylusViewModel>();
+            RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
             AddDebugOnlyViewModels();
             AddReleaseOnlyViewModels();
