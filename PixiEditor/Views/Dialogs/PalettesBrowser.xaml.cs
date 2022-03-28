@@ -2,7 +2,6 @@
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,8 +11,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
 using PixiEditor.Helpers;
@@ -149,6 +146,8 @@ namespace PixiEditor.Views.Dialogs
 
         private static PaletteList _cachedPaletteList;
 
+        private LocalPalettesFetcher _localPalettesFetcher;
+
         public PalettesBrowser()
         {
             InitializeComponent();
@@ -214,8 +213,7 @@ namespace PixiEditor.Views.Dialogs
                     LocalPalettesFetcher.DeletePalette(palette.FileName);
                     RemoveFavouritePalette(palette);
 
-                    LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
-                    await paletteListDataSource.RefreshCache();
+                    await RefreshLocalCache();
                     await UpdatePaletteList();
                 }
             }
@@ -260,6 +258,17 @@ namespace PixiEditor.Views.Dialogs
         {
             PalettesBrowser browser = (PalettesBrowser)d;
             browser.Sort();
+        }
+
+        public async Task RefreshLocalCache()
+        {
+            if (_localPalettesFetcher == null)
+            {
+                _localPalettesFetcher = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+
+            }
+
+            await _localPalettesFetcher.RefreshCache();
         }
 
 
@@ -426,11 +435,10 @@ namespace PixiEditor.Views.Dialogs
             }
 
             await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
-            LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
-            await paletteListDataSource.RefreshCache();
+            await RefreshLocalCache();
             await UpdatePaletteList();
 
-            var palette = paletteListDataSource.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
+            var palette = _localPalettesFetcher.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
             if (palette != null)
             {
                 if (SortedResults.Contains(palette))
@@ -447,7 +455,7 @@ namespace PixiEditor.Views.Dialogs
         private async void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             PaletteItem item = (PaletteItem)sender;
-            if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || e.NewText == item.Palette.Name)
+            if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name)
             {
                 return;
             }
@@ -459,8 +467,7 @@ namespace PixiEditor.Views.Dialogs
                 Path.Join(LocalPalettesFetcher.PathToPalettesFolder, item.Palette.FileName));
 
 
-            LocalPalettesFetcher paletteListDataSource = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
-            await paletteListDataSource.RefreshCache();
+            await RefreshLocalCache();
             await UpdatePaletteList();
         }
     }

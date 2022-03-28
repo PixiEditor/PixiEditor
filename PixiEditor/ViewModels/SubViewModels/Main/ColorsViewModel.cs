@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Views.Dialogs;
 
@@ -83,7 +84,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private async Task ImportLospecPalette()
         {
-            var args = Environment.GetCommandLineArgs();
+            var args = StartupArgs.Args;
             var lospecPaletteArg = args.FirstOrDefault(x => x.StartsWith("lospec-palette://"));
 
             if (lospecPaletteArg != null)
@@ -95,15 +96,23 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));
                 if (palette != null)
                 {
-                    await LocalPalettesFetcher.SavePalette(
-                        palette.Name,
-                        palette.Colors.Select(SKColor.Parse).ToArray());
-
                     palette.FileName = $"{palette.Name}.pal";
 
+                    await LocalPalettesFetcher.SavePalette(
+                        palette.FileName,
+                        palette.Colors.Select(SKColor.Parse).ToArray());
+
+                    await browser.RefreshLocalCache();
                     await browser.UpdatePaletteList();
-                    int indexOfImported = browser.SortedResults.IndexOf(browser.SortedResults.First(x => x.FileName == palette.FileName));
-                    browser.SortedResults.Move(indexOfImported, 0);
+                    if(browser.SortedResults.Any(x => x.FileName == palette.FileName))
+                    {
+                        int indexOfImported = browser.SortedResults.IndexOf(browser.SortedResults.First(x => x.FileName == palette.FileName));
+                        browser.SortedResults.Move(indexOfImported, 0);
+                    }
+                    else
+                    {
+                        browser.SortedResults.Insert(0, palette);
+                    }
                 }
                 else
                 {

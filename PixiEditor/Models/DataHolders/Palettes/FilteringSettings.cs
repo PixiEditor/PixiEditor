@@ -25,7 +25,17 @@ namespace PixiEditor.Models.DataHolders.Palettes
             // Lexical comparison
             bool result = string.IsNullOrWhiteSpace(Name) || palette.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
 
+            if(!result)
+            {
+                return false;
+            }
+
             result = (ShowOnlyFavourites && palette.IsFavourite) || !ShowOnlyFavourites;
+
+            if(!result)
+            {
+                return false;
+            }
 
             switch (ColorsNumberMode)
             {

@@ -80,9 +80,9 @@ namespace PixiEditor.Models.DataProviders
             return result;
         }
 
-        public static async Task SavePalette(string name, SKColor[] colors)
+        public static async Task SavePalette(string fileName, SKColor[] colors)
         {
-            string path = Path.Join(PathToPalettesFolder, name + ".pal");
+            string path = Path.Join(PathToPalettesFolder, fileName);
             InitDir();
             await JascFileParser.SaveFile(path, new PaletteFileData(colors));
         }

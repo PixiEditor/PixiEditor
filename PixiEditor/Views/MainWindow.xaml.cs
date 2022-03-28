@@ -66,7 +66,6 @@ namespace PixiEditor
         public static MainWindow CreateWithDocuments(IEnumerable<Document> documents)
         {
             MainWindow window = new();
-
             BitmapManager bitmapManager = window.services.GetRequiredService<BitmapManager>();
 
             foreach (Document document in documents)
@@ -77,6 +76,21 @@ namespace PixiEditor
             bitmapManager.ActiveDocument = bitmapManager.Documents.FirstOrDefault();
 
             return window;
+        }
+
+        /// <summary>Brings main window to foreground.</summary>
+        public void BringToForeground()
+        {
+            if (WindowState == WindowState.Minimized || this.Visibility == Visibility.Hidden)
+            {
+                Show();
+                WindowState = WindowState.Normal;
+            }
+
+            Activate();
+            Topmost = true;
+            Topmost = false;
+            Focus();
         }
 
         protected override void OnClosing(CancelEventArgs e)

@@ -4,10 +4,15 @@ using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.Dialogs;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor
 {
@@ -16,21 +21,87 @@ namespace PixiEditor
     /// </summary>
     public partial class App : Application
     {
+        /// <summary>The event mutex name.</summary>
+        private const string UniqueEventName = "33f1410b-2ad7-412a-a468-34fe0a85747c";
+
+        /// <summary>The unique mutex name.</summary>
+        private const string UniqueMutexName = "ab2afe27-b9ee-4f03-a1e4-c18da16a349c";
+
+        /// <summary>The event wait handle.</summary>
+        private EventWaitHandle _eventWaitHandle;
+
+        private string passedArgsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixiEditor", ".passedArgs");
+
+        /// <summary>The mutex.</summary>
+        private Mutex _mutex;
+
         protected override void OnStartup(StartupEventArgs e)
         {
-            string arguments = string.Join(' ', e.Args);
-
-            if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
+            if (HandleNewInstance())
             {
-                CrashReport report = CrashReport.Parse(groups[2].Value);
-                MainWindow = new CrashReportDialog(report);
+                StartupArgs.Args = e.Args.ToList();
+                string arguments = string.Join(' ', e.Args);
+
+                if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
+                {
+                    CrashReport report = CrashReport.Parse(groups[2].Value);
+                    MainWindow = new CrashReportDialog(report);
+                }
+                else
+                {
+                    MainWindow = new MainWindow();
+                }
+
+                MainWindow.Show();
             }
-            else
+        }
+
+        private bool HandleNewInstance()
+        {
+            bool isOwned;
+            _mutex = new Mutex(true, UniqueMutexName, out isOwned);
+            _eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, UniqueEventName);
+
+            GC.KeepAlive(_mutex);
+
+            if (isOwned)
             {
-                MainWindow = new MainWindow();
+                var thread = new Thread(
+                    () =>
+                    {
+                        while (_eventWaitHandle.WaitOne())
+                        {
+                            Current.Dispatcher.BeginInvoke(
+                                (Action)(() =>
+                                {
+                                    MainWindow mainWindow = ((MainWindow)Current.MainWindow);
+                                    if (mainWindow != null)
+                                    {
+                                        mainWindow.BringToForeground();
+                                        StartupArgs.Args = File.ReadAllText(passedArgsFile).Split(' ').ToList();
+                                        File.Delete(passedArgsFile);
+                                        StartupArgs.Args.Add("--openedInExisting");
+                                        mainWindow.DataContext.OnStartupCommand.Execute(null);
+                                    }
+                                }));
+                        }
+                    })
+                {
+                    // It is important mark it as background otherwise it will prevent app from exiting.
+                    IsBackground = true
+                };
+
+                thread.Start();
+                return true;
             }
 
-            MainWindow.Show();
+            // Notify other instance so it could bring itself to foreground.
+            File.WriteAllText(passedArgsFile, string.Join(' ', Environment.GetCommandLineArgs()));
+            _eventWaitHandle.Set();
+
+            // Terminate this instance.
+            Shutdown();
+            return false;
         }
 
         protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
