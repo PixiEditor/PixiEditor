@@ -144,7 +144,6 @@ namespace PixiEditor.ViewModels
             FileSubViewModel = services.GetService<FileViewModel>();
             ToolsSubViewModel = services.GetService<ToolsViewModel>();
             ToolsSubViewModel.SelectedToolChanged += BitmapManager_SelectedToolChanged;
-            ToolsSubViewModel?.SetupTools(services);
 
             IoSubViewModel = services.GetService<IoViewModel>();
             LayersSubViewModel = services.GetService<LayersViewModel>();
@@ -153,6 +152,8 @@ namespace PixiEditor.ViewModels
             ViewportSubViewModel = services.GetService<ViewportViewModel>();
             ColorsSubViewModel = services.GetService<ColorsViewModel>();
             ColorsSubViewModel?.SetupPaletteParsers(services);
+
+            ToolsSubViewModel?.SetupTools(services);
 
             DocumentSubViewModel = services.GetService<DocumentViewModel>();
             DiscordViewModel = services.GetService<DiscordViewModel>();

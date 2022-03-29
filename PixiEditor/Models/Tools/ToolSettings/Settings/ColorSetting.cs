@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interactivity;
 using System.Windows.Media;
@@ -14,7 +15,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             : base(name)
         {
             Label = label;
-            SettingControl = GenerateColorPicker();
             Value = Color.FromArgb(255, 255, 255, 255);
         }
 
@@ -38,6 +38,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Interaction.GetBehaviors(picker).Add(behavior);
             picker.SetBinding(ToolSettingColorPicker.SelectedColorProperty, selectedColorBinding);
             return picker;
+        }
+
+        public override Control GenerateControl()
+        {
+            return GenerateColorPicker();
         }
     }
 }

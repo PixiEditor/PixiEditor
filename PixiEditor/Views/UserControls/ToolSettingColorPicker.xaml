@@ -12,7 +12,7 @@
              d:Background="{StaticResource AccentColor}">
     <colorpicker:PortableColorPicker Width="40" Height="20" x:Name="ColorPicker" UseHintColor="True"
                                      HintColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor, 
-        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type PixiEditor:MainWindow}, AncestorLevel=0}, 
+        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type PixiEditor:MainWindow}, AncestorLevel=1},
         Converter={converters:SKColorToMediaColorConverter}}"
                                      SelectedColor="{Binding SelectedColor, ElementName=uc, Mode=TwoWay}"/>
 </UserControl>

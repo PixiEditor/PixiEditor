@@ -32,8 +32,12 @@ namespace PixiEditor
 
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
+        public event Action OnDataContextInitialized;
+
         public MainWindow()
         {
+            Current = this;
+
             services = new ServiceCollection()
                 .AddPixiEditor()
                 .BuildServiceProvider();
@@ -44,6 +48,7 @@ namespace PixiEditor
 
             InitializeComponent();
 
+            OnDataContextInitialized?.Invoke();
             pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
             UpdateWindowChromeBorderThickness();
@@ -57,8 +62,6 @@ namespace PixiEditor
             {
                 UpdateTaskbarIcon(x ? DataContext.BitmapManager.ActiveDocument : null);
             });
-
-            Current = this;
 
             OnReleaseBuild();
         }
