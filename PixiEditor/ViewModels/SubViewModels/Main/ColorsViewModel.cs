@@ -148,9 +148,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void SwapColors(object parameter)
         {
-            var tmp = PrimaryColor;
-            PrimaryColor = SecondaryColor;
-            SecondaryColor = tmp;
+            (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);
         }
 
         public void AddSwatch(SKColor color)

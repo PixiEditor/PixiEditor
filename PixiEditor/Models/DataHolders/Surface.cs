@@ -129,6 +129,18 @@ namespace PixiEditor.Models.DataHolders
             SkiaSurface.Canvas.DrawPoint(x, y, drawingPaint);
         }
 
+        public unsafe void SetSRGBPixelUnmanaged(int x, int y, SKColor color)
+        {
+            Half* ptr = (Half*)(surfaceBuffer + (x + y * Width) * 8);
+
+            float normalizedAlpha = color.Alpha / 255.0f;
+
+            ptr[0] = (Half)(color.Red * normalizedAlpha);
+            ptr[1] = (Half)(color.Green * normalizedAlpha);
+            ptr[2] = (Half)(color.Blue * normalizedAlpha);
+            ptr[3] = (Half)(normalizedAlpha);
+        }
+
         public unsafe byte[] ToByteArray(SKColorType colorType = SKColorType.Bgra8888, SKAlphaType alphaType = SKAlphaType.Premul)
         {
             var imageInfo = new SKImageInfo(Width, Height, colorType, alphaType, SKColorSpace.CreateSrgb());

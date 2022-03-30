@@ -7,12 +7,21 @@ using SkiaSharp;
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.DataHolders
 {
     public partial class Document
     {
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
+
+        public void ReplaceColor(SKColor oldColor, SKColor newColor)
+        {
+            foreach (var layer in Layers)
+            {
+                layer.ReplaceColor(oldColor, newColor);
+            }
+        }
 
         /// <summary>
         ///     Resizes canvas to specified width and height to selected anchor.
