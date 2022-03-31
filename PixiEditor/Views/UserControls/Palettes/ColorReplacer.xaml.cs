@@ -1,6 +1,7 @@
 ﻿using SkiaSharp;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace PixiEditor.Views.UserControls.Palettes
@@ -29,9 +30,19 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         public Color NewColor
         {
-            get { return (Color)GetValue(NewColorProperty); }
+            get { return (Color) GetValue(NewColorProperty); }
             set { SetValue(NewColorProperty, value); }
         }
+
+        public static readonly DependencyProperty ReplaceColorsCommandProperty = DependencyProperty.Register(
+            "ReplaceColorsCommand", typeof(ICommand), typeof(ColorReplacer), new PropertyMetadata(default(ICommand)));
+
+        public ICommand ReplaceColorsCommand
+        {
+            get { return (ICommand) GetValue(ReplaceColorsCommandProperty); }
+            set { SetValue(ReplaceColorsCommandProperty, value); }
+        }
+
 
         // Using a DependencyProperty as the backing store for NewColor.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty NewColorProperty =

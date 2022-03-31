@@ -20,6 +20,7 @@ using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using PixiEditor.Views.Dialogs;
+using SkiaSharp;
 
 namespace PixiEditor.ViewModels
 {
@@ -257,6 +258,12 @@ namespace PixiEditor.ViewModels
         {
             return BitmapManager.ActiveDocument != null;
         }
+
+        public bool DocumentIsNotNull((SKColor oldColor, SKColor newColor) obj)
+        {
+            return DocumentIsNotNull(null);
+        }
+
         public void CloseWindow(object property)
         {
             if (!(property is CancelEventArgs))

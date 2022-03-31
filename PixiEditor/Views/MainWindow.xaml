@@ -399,7 +399,8 @@
                                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, 
                                                 Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter},
                                                 ConverterParameter=Hidden}"
-                                                                ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"/>
+                                                                ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"
+                                                                           ReplaceColorsCommand="{Binding ColorsSubViewModel.ReplaceColorsCommand}"/>
                                         </Grid>
                                     </avalondock:LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="swatches" Title="Swatches" CanHide="False"

@@ -92,6 +92,8 @@
                </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <palettes:ColorReplacer Grid.Row="3" VerticalAlignment="Bottom" HintColor="{Binding ElementName=paletteControl, Path=HintColor}"/>
+        <palettes:ColorReplacer Grid.Row="3" VerticalAlignment="Bottom" 
+                                ReplaceColorsCommand="{Binding ElementName=paletteControl, Path=ReplaceColorsCommand}"
+                                HintColor="{Binding ElementName=paletteControl, Path=HintColor}"/>
     </Grid>
 </UserControl>

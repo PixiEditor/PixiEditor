@@ -42,7 +42,14 @@ namespace PixiEditor.Views.UserControls.Palettes
         public static readonly DependencyProperty HintColorProperty =
             DependencyProperty.Register("HintColor", typeof(Color), typeof(PaletteViewer), new PropertyMetadata(System.Windows.Media.Colors.Transparent));
 
+        public static readonly DependencyProperty ReplaceColorsCommandProperty = DependencyProperty.Register(
+            "ReplaceColorsCommand", typeof(ICommand), typeof(PaletteViewer), new PropertyMetadata(default(ICommand)));
 
+        public ICommand ReplaceColorsCommand
+        {
+            get { return (ICommand) GetValue(ReplaceColorsCommandProperty); }
+            set { SetValue(ReplaceColorsCommandProperty, value); }
+        }
 
         public ICommand SelectColorCommand
         {

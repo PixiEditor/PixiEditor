@@ -22,6 +22,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class ColorsViewModel : SubViewModel<ViewModelMain>
     {
+        public RelayCommand<(SKColor, SKColor)> ReplaceColorsCommand { get; set; }
+
         public RelayCommand SwapColorsCommand { get; set; }
 
         public RelayCommand SelectColorCommand { get; set; }
@@ -74,7 +76,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SwapColorsCommand = new RelayCommand(SwapColors);
             SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
             ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette, Owner.DocumentIsNotNull);
+            ReplaceColorsCommand = new RelayCommand<(SKColor oldColor, SKColor newColor)>(ReplaceColors, Owner.DocumentIsNotNull);
             Owner.OnStartupEvent += OwnerOnStartupEvent;
+        }
+
+        private void ReplaceColors((SKColor oldColor, SKColor newColor) colors)
+        {
+            Owner.BitmapManager?.ActiveDocument?.ReplaceColor(colors.oldColor, colors.newColor);
         }
 
         private async void OwnerOnStartupEvent(object? sender, EventArgs e)
