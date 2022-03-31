@@ -26,7 +26,7 @@
                         <Grid Visibility="{Binding ElementName=VisibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}"  Background="Transparent"/>
                     </Grid>
                     <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <local:PaletteColor Height="35" Width="35"/>
+                        <local:PaletteColor Height="35" Width="35" AllowDrop="True" Drop="UIElement_OnDrop"/>
                     <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0"/>
                     <colorPicker:PortableColorPicker 
                         UseHintColor="True"
