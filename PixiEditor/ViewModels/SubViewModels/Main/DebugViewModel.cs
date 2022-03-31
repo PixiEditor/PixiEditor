@@ -26,7 +26,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void OpenFolder(object parameter)
         {
             ProcessHelpers.ShellExecuteEV(parameter as string);
-            Owner.BitmapManager.ActiveDocument.ReplaceColor(SKColors.White, SKColors.Blue);
         }
 
         public static void OpenInstallLocation(object parameter)

@@ -27,7 +27,7 @@
                 </VisualBrush>
             </Border.Background>
         </Border>
-        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" BorderThickness="0 0 0 0.1" BorderBrush="White" Cursor="Hand">
+        <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" BorderThickness="0 0 0 0.1" BorderBrush="White">
             <Border.Background>
                 <SolidColorBrush Color="{Binding Color, Converter={StaticResource SKColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>

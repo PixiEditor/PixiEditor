@@ -134,6 +134,7 @@
 
 	<ItemGroup>
 		<None Remove="Images\AnchorDot.png" />
+		<None Remove="Images\Arrow-right.png" />
 		<None Remove="Images\CheckerTile.png" />
 		<None Remove="Images\ChevronDown.png" />
 		<None Remove="Images\ChevronsDown.png" />
@@ -214,6 +215,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Resource Include="Images\AnchorDot.png" />
+		<Resource Include="Images\Arrow-right.png" />
 		<Resource Include="Images\CheckerTile.png" />
 		<Resource Include="Images\ChevronDown.png" />
 		<Resource Include="Images\ChevronsDown.png" />

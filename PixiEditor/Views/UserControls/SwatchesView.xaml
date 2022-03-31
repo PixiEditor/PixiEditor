@@ -34,7 +34,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <palettes:PaletteColor Color="{Binding}" Margin="0 5 5 5">
+                    <palettes:PaletteColor Cursor="Hand" Color="{Binding}" Margin="0 5 5 5">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonUp">
                                 <i:InvokeCommandAction
