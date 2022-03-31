@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using SkiaSharp;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -9,6 +10,16 @@ namespace PixiEditor.Views.UserControls.Palettes
     /// </summary>
     public partial class ColorReplacer : UserControl
     {
+        public SKColor ColorToReplace
+        {
+            get { return (SKColor)GetValue(ColorToReplaceProperty); }
+            set { SetValue(ColorToReplaceProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ColorToReplace.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ColorToReplaceProperty =
+            DependencyProperty.Register("ColorToReplace", typeof(SKColor), typeof(ColorReplacer), new PropertyMetadata(SKColors.Transparent));
+
 
         public Color HintColor
         {
@@ -16,13 +27,28 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(HintColorProperty, value); }
         }
 
+        public Color NewColor
+        {
+            get { return (Color)GetValue(NewColorProperty); }
+            set { SetValue(NewColorProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for NewColor.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NewColorProperty =
+            DependencyProperty.Register("NewColor", typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
+
+
         // Using a DependencyProperty as the backing store for HintColor.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty HintColorProperty =
             DependencyProperty.Register("HintColor", typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Transparent));
 
         private void UIElement_OnDrop(object sender, DragEventArgs e)
         {
-            throw new System.NotImplementedException();
+            if (e.Data.GetDataPresent(PaletteViewer.PaletteColorDaoFormat))
+            {
+                string hex = (string)e.Data.GetData(PaletteViewer.PaletteColorDaoFormat);
+                ColorToReplace = SKColor.Parse(hex);
+            }
         }
 
         public ColorReplacer()

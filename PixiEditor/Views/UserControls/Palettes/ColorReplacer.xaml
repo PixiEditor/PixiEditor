@@ -26,16 +26,18 @@
                         <Grid Visibility="{Binding ElementName=VisibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}"  Background="Transparent"/>
                     </Grid>
                     <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <local:PaletteColor Height="35" Width="35" AllowDrop="True" Drop="UIElement_OnDrop"/>
+                        <local:PaletteColor Color="{Binding ElementName=uc, Path=ColorToReplace}"
+                            Height="35" Width="35" AllowDrop="True" Drop="UIElement_OnDrop"/>
                     <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0"/>
                     <colorPicker:PortableColorPicker 
                         UseHintColor="True"
+                        Color="{Binding ElementName=uc, Path=ColorToReplace, Mode=TwoWay}"
                         HintColor="{Binding ElementName=uc, Path=HintColor}"
                         Height="20"
                         Style="{StaticResource DefaultColorPickerStyle}"
                         Width="50" Focusable="False" Margin="0 0 10 0"
                         ShowAlpha="False"/>
-                    <Button Content="Replace" Style="{StaticResource AccentDarkRoundButton}"/>
+                    <Button Content="Replace" Style="{StaticResource AccentDarkRoundButton}" Height="30" Width="60"/>
                         </StackPanel>
                     <CheckBox Focusable="False" Panel.ZIndex="10" Name="VisibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
                         <CheckBox.Triggers>
