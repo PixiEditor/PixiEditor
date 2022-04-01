@@ -23,6 +23,8 @@ namespace PixiEditor.Models.DataHolders
 
             ReplaceColorProcess(args);
 
+            ChangesSaved = false;
+
             UndoManager.AddUndoChange(change.ToChange(
                 StorageBasedChange.BasicUndoProcess,
                 new object[] { this },

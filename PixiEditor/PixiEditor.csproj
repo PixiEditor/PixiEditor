@@ -265,6 +265,8 @@
 		<Resource Include="Images\Star.png" />
 		<None Remove="Images\Star-filled.png" />
 		<Resource Include="Images\Star-filled.png" />
+		<None Remove="Images\Shuffle.png" />
+		<Resource Include="Images\Shuffle.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

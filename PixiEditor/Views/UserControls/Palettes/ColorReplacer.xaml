@@ -37,8 +37,12 @@
                         Style="{StaticResource DefaultColorPickerStyle}"
                         Width="50" Focusable="False" Margin="0 0 10 0"
                         ShowAlpha="False"/>
-                    <Button Content="Replace" Click="ReplaceButton_OnClick"
-                            Style="{StaticResource AccentDarkRoundButton}" Height="30" Width="60"/>
+                    <Button Click="ReplaceButton_OnClick" ToolTip="Replace color"
+                            Style="{StaticResource ToolButtonStyle}" Cursor="Hand" Height="20" Width="20">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Images/Shuffle.png"/>
+                        </Button.Background>
+                    </Button>
                     </StackPanel>
                     <CheckBox Focusable="False" Panel.ZIndex="10" Name="VisibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
                         <CheckBox.Triggers>
