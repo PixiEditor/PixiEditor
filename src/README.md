@@ -61,8 +61,8 @@ Decouples the state of a document from the UI.
         - [ ] Blending modes support
         - [ ] Clip to layer below support
         - [ ] Layer mask support
-        - [ ] Low-res rendering
-        - [ ] Don't render chunks outside viewport (done, no ui)
+        - [x] Low-res rendering
+        - [x] Don't render chunks outside viewport
         - [x] Support for rendering a subset of the structure (for merging selected layers, referring to selected layer, etc.)
         - [ ] Caching for folders
         - [ ] Caching for everything below current layer
@@ -100,6 +100,9 @@ Decouples the state of a document from the UI.
 - ViewModel
     - [ ] Action filtering
     - [x] Viewport movement as an action
+    - [x] Integrate viewport from PixiEditor
+    - [ ] Rotate viewport
+    - [ ] Flip viewport
 - Not sure
     - [ ] Pipette tool
 
