@@ -82,7 +82,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void ReplaceColors((SKColor oldColor, SKColor newColor) colors)
         {
-            Owner.BitmapManager?.ActiveDocument?.ReplaceColor(colors.oldColor, colors.newColor);
+            Document activeDocument = Owner.BitmapManager?.ActiveDocument;
+            if (activeDocument != null)
+            {
+                activeDocument.ReplaceColor(colors.oldColor, colors.newColor);
+                int oldIndex = activeDocument.Palette.IndexOf(colors.oldColor);
+                if (oldIndex != -1)
+                {
+                    activeDocument.Palette[oldIndex] = colors.newColor;
+                }
+            }
+
         }
 
         private async void OwnerOnStartupEvent(object? sender, EventArgs e)

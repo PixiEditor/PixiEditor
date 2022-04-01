@@ -37,16 +37,9 @@
                         Style="{StaticResource DefaultColorPickerStyle}"
                         Width="50" Focusable="False" Margin="0 0 10 0"
                         ShowAlpha="False"/>
-                    <Button Content="Replace" Command="{Binding ElementName=uc, Path=ReplaceColorsCommand}"
-                            Style="{StaticResource AccentDarkRoundButton}" Height="30" Width="60">
-                        <Button.CommandParameter>
-                            <MultiBinding Converter="{converters:ReplaceColorsPackConverter}">
-                                <Binding ElementName="uc" Path="ColorToReplace"/>
-                                <Binding ElementName="uc" Path="NewColor"/>
-                            </MultiBinding>
-                        </Button.CommandParameter>
-                    </Button>
-                </StackPanel>
+                    <Button Content="Replace" Click="ReplaceButton_OnClick"
+                            Style="{StaticResource AccentDarkRoundButton}" Height="30" Width="60"/>
+                    </StackPanel>
                     <CheckBox Focusable="False" Panel.ZIndex="10" Name="VisibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
                         <CheckBox.Triggers>
                             <EventTrigger RoutedEvent="CheckBox.Checked">

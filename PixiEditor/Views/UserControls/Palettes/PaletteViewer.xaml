@@ -69,7 +69,7 @@
                <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <palettes:PaletteColor Cursor="Hand" ToolTip="Click to select as main color. Drag and drop onto another palette color to swap them." AllowDrop="True" Color="{Binding}" 
-                                               Margin="2.5" MouseMove="PaletteColor_MouseMove"
+                                               Margin="2.5"
                                             Drop="PaletteColor_Drop"
                                             AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 
                 RelativeSource={RelativeSource TemplatedParent}, Converter={converters:IndexToAssociatedKeyConverter}}">
@@ -85,6 +85,9 @@
                                             <MenuItem Header="Remove" Foreground="White"
                                               Click="RemoveColorMenuItem_OnClick"
                                               CommandParameter="{Binding}" />
+                                            <MenuItem Header="Replace" Foreground="White"
+                                                      CommandParameter="{Binding}"
+                                                      Click="ReplaceColor_OnClick"/>
                                         </ContextMenu>
                                     </palettes:PaletteColor.ContextMenu>
                                 </palettes:PaletteColor>
@@ -92,7 +95,7 @@
                </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <palettes:ColorReplacer Grid.Row="3" VerticalAlignment="Bottom" 
+        <palettes:ColorReplacer Grid.Row="3" VerticalAlignment="Bottom" x:Name="Replacer"
                                 ReplaceColorsCommand="{Binding ElementName=paletteControl, Path=ReplaceColorsCommand}"
                                 HintColor="{Binding ElementName=paletteControl, Path=HintColor}"/>
     </Grid>

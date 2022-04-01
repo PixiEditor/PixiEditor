@@ -6,7 +6,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              mc:Ignorable="d"
-             d:DesignHeight="45" d:DesignWidth="45" Name="uc">
+             d:DesignHeight="45" d:DesignWidth="45" Name="uc" MouseMove="PaletteColor_OnMouseMove">
     <UserControl.Resources>
         <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />

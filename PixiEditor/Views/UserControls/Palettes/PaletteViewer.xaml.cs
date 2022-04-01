@@ -21,8 +21,6 @@ namespace PixiEditor.Views.UserControls.Palettes
     /// </summary>
     public partial class PaletteViewer : UserControl
     {
-        public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
-
         public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(
             "Colors", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer));
 
@@ -206,23 +204,11 @@ namespace PixiEditor.Views.UserControls.Palettes
             return false;
         }
 
-        private void PaletteColor_MouseMove(object sender, MouseEventArgs e)
-        {
-            PaletteColor color = sender as PaletteColor;
-            if (color != null && e.LeftButton == MouseButtonState.Pressed) 
-            {
-                DataObject data = new DataObject();
-                data.SetData(PaletteColorDaoFormat, color.Color.ToString());
-                DragDrop.DoDragDrop(color, data, DragDropEffects.Move);
-                e.Handled = true;
-            }
-        }
-
         private void PaletteColor_Drop(object sender, DragEventArgs e)
         {
-            if(e.Data.GetDataPresent(PaletteColorDaoFormat))
+            if(e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
             {
-                string data = (string)e.Data.GetData(PaletteColorDaoFormat);
+                string data = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
                 SKColor color = SKColor.Parse(data);
                 if(Colors.Contains(color))
                 {
@@ -239,6 +225,14 @@ namespace PixiEditor.Views.UserControls.Palettes
         {
             var browser = PalettesBrowser.Open(DataSources, ImportPaletteCommand, Colors);
             await browser.UpdatePaletteList();
+        }
+
+        private void ReplaceColor_OnClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = (MenuItem)sender;
+            SKColor color = (SKColor)menuItem.CommandParameter;
+            Replacer.ColorToReplace = color;
+            Replacer.VisibilityCheckbox.IsChecked = false;
         }
     }
 }

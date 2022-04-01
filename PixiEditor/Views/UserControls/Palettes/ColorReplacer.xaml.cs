@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Helpers.Converters;
 
 namespace PixiEditor.Views.UserControls.Palettes
 {
@@ -55,9 +56,9 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private void UIElement_OnDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(PaletteViewer.PaletteColorDaoFormat))
+            if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
             {
-                string hex = (string)e.Data.GetData(PaletteViewer.PaletteColorDaoFormat);
+                string hex = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
                 ColorToReplace = SKColor.Parse(hex);
             }
         }
@@ -65,6 +66,22 @@ namespace PixiEditor.Views.UserControls.Palettes
         public ColorReplacer()
         {
             InitializeComponent();
+        }
+
+        private void ReplaceButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            SKColor first = ColorToReplace;
+            Color rawSecond = NewColor;
+
+            SKColor second = new SKColor(rawSecond.R, rawSecond.G, rawSecond.B, rawSecond.A);
+
+            var pack = (first, second);
+            if (ReplaceColorsCommand.CanExecute(pack))
+            {
+                ReplaceColorsCommand.Execute(pack);
+            }
+
+            ColorToReplace = SKColor.Empty;
         }
     }
 }

@@ -708,10 +708,6 @@ namespace PixiEditor.Models.Layers
                 return;
             }
 
-            Stopwatch sw = new Stopwatch();
-
-            sw.Start();
-
             int maxThreads = Environment.ProcessorCount;
             int rowsPerThread = Height / maxThreads;
 
@@ -745,8 +741,6 @@ namespace PixiEditor.Models.Layers
             }
 
             threads.ToList().ForEach(x => x.Join());
-
-            sw.Stop();
 
             layerBitmap.SkiaSurface.Canvas.DrawSurface(layerBitmap.SkiaSurface, 0, 0, new SKPaint { BlendMode = SKBlendMode.Dst });
 

@@ -1,11 +1,14 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
 public partial class PaletteColor : UserControl
 {
+    public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
+
     public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
         "Color", typeof(SKColor), typeof(PaletteColor), new PropertyMetadata(default(SKColor)));
 
@@ -41,5 +44,17 @@ public partial class PaletteColor : UserControl
     public PaletteColor()
     {
         InitializeComponent();
+    }
+
+    private void PaletteColor_OnMouseMove(object sender, MouseEventArgs e)
+    {
+        PaletteColor color = sender as PaletteColor;
+        if (color != null && e.LeftButton == MouseButtonState.Pressed)
+        {
+            DataObject data = new DataObject();
+            data.SetData(PaletteColor.PaletteColorDaoFormat, color.Color.ToString());
+            DragDrop.DoDragDrop(color, data, DragDropEffects.Move);
+            e.Handled = true;
+        }
     }
 }
