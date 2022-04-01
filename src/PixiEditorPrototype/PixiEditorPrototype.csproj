@@ -13,8 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChangeableDocument\ChangeableDocument.csproj" />
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
+    <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
+    <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
   </ItemGroup>
 
 </Project>

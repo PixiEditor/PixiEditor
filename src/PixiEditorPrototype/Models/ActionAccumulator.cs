@@ -1,7 +1,6 @@
-﻿using ChangeableDocument;
-using ChangeableDocument.Actions;
-using ChangeableDocument.ChangeInfos;
-using ChunkyImageLib.DataHolders;
+﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditorPrototype.Models.Rendering;
 using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using PixiEditorPrototype.ViewModels;
@@ -17,18 +16,17 @@ namespace PixiEditorPrototype.Models
         private bool executing = false;
 
         private List<IAction> queuedActions = new();
-        private DocumentChangeTracker tracker;
         private DocumentViewModel document;
-        private DocumentUpdater documentUpdater;
+        private DocumentHelpers helpers;
+
         private WriteableBitmapUpdater renderer;
 
-        public ActionAccumulator(DocumentChangeTracker tracker, DocumentUpdater updater, DocumentViewModel document)
+        public ActionAccumulator(DocumentViewModel doc, DocumentHelpers helpers)
         {
-            this.tracker = tracker;
-            this.documentUpdater = updater;
-            this.document = document;
+            this.document = doc;
+            this.helpers = helpers;
 
-            renderer = new(tracker);
+            renderer = new(helpers);
         }
 
         public void AddAction(IAction action)
@@ -48,10 +46,10 @@ namespace PixiEditorPrototype.Models
                 var toExecute = queuedActions;
                 queuedActions = new List<IAction>();
 
-                var result = await tracker.ProcessActions(toExecute);
+                var result = await helpers.Tracker.ProcessActions(toExecute);
                 foreach (IChangeInfo? info in result)
                 {
-                    documentUpdater.ApplyChangeFromChangeInfo(info);
+                    helpers.Updater.ApplyChangeFromChangeInfo(info);
                 }
 
                 var (bitmap, surface) = GetCorrespondingBitmap(document.RenderResolution);
@@ -64,7 +62,7 @@ namespace PixiEditorPrototype.Models
                 AddDirtyRects(bitmap, renderResult);
 
                 bitmap.Unlock();
-                document.View?.ForceRefreshFinalImage();
+                document.ForceRefreshView();
             }
 
             executing = false;

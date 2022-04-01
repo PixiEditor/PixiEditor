@@ -1,5 +1,6 @@
-﻿using ChangeableDocument.Actions.Properties;
-using ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Actions.Properties;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditorPrototype.Models;
 using System;
 using System.ComponentModel;
 
@@ -10,17 +11,18 @@ namespace PixiEditorPrototype.ViewModels
         private IReadOnlyStructureMember member;
         public event PropertyChangedEventHandler? PropertyChanged;
         public DocumentViewModel Document { get; }
+        private DocumentHelpers Helpers { get; }
 
         public string Name
         {
             get => member.Name;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.GuidValue));
+            set => Helpers.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.GuidValue));
         }
 
         public bool IsVisible
         {
             get => member.IsVisible;
-            set => Document.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
+            set => Helpers.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
         }
 
         public bool IsSelected { get; set; }
@@ -47,26 +49,27 @@ namespace PixiEditorPrototype.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public StructureMemberViewModel(DocumentViewModel doc, IReadOnlyStructureMember member)
+        public StructureMemberViewModel(DocumentViewModel doc, DocumentHelpers helpers, IReadOnlyStructureMember member)
         {
             this.member = member;
             Document = doc;
-            MoveUpCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, false));
-            MoveDownCommand = new(_ => Document.StructureHelper.MoveStructureMember(GuidValue, true));
+            Helpers = helpers;
+            MoveUpCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, false));
+            MoveDownCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, true));
             UpdateOpacityCommand = new(UpdateOpacity);
             EndOpacityUpdateCommand = new(EndOpacityUpdate);
         }
 
         private void EndOpacityUpdate(object? opacity)
         {
-            Document.ActionAccumulator.AddAction(new EndOpacityChange_Action());
+            Helpers.ActionAccumulator.AddAction(new EndOpacityChange_Action());
         }
 
         private void UpdateOpacity(object? opacity)
         {
             if (opacity is not double value)
                 throw new ArgumentException("The passed value isn't a double");
-            Document.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, (float)value));
+            Helpers.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, (float)value));
         }
     }
 }

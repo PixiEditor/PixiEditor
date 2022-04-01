@@ -1,5 +1,5 @@
-﻿using ChangeableDocument;
-using ChangeableDocument.Actions.Structure;
+﻿using PixiEditor.ChangeableDocument;
+using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditorPrototype.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -9,9 +9,11 @@ namespace PixiEditorPrototype.Models
     internal class DocumentStructureHelper
     {
         private DocumentViewModel doc;
-        public DocumentStructureHelper(DocumentViewModel doc)
+        private DocumentHelpers helpers;
+        public DocumentStructureHelper(DocumentViewModel doc, DocumentHelpers helpers)
         {
             this.doc = doc;
+            this.helpers = helpers;
         }
 
         public void CreateNewStructureMember(StructureMemberType type)
@@ -19,13 +21,13 @@ namespace PixiEditorPrototype.Models
             if (doc.SelectedStructureMember is null)
             {
                 //put member on top
-                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, Guid.NewGuid(), doc.StructureRoot.Children.Count, type));
+                helpers.ActionAccumulator.AddAction(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, Guid.NewGuid(), doc.StructureRoot.Children.Count, type));
                 return;
             }
             if (doc.SelectedStructureMember is FolderViewModel folder)
             {
                 //put member inside folder on top
-                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(folder.GuidValue, Guid.NewGuid(), folder.Children.Count, type));
+                helpers.ActionAccumulator.AddAction(new CreateStructureMember_Action(folder.GuidValue, Guid.NewGuid(), folder.Children.Count, type));
                 return;
             }
             if (doc.SelectedStructureMember is LayerViewModel layer)
@@ -35,7 +37,7 @@ namespace PixiEditorPrototype.Models
                 if (path.Count < 2)
                     throw new InvalidOperationException("Couldn't find a path to the selected member");
                 var parent = (FolderViewModel)path[1];
-                doc.ActionAccumulator.AddAction(new CreateStructureMember_Action(parent.GuidValue, Guid.NewGuid(), parent.Children.IndexOf(layer) + 1, type));
+                helpers.ActionAccumulator.AddAction(new CreateStructureMember_Action(parent.GuidValue, Guid.NewGuid(), parent.Children.IndexOf(layer) + 1, type));
                 return;
             }
             throw new ArgumentException("Unknown member type: " + type.ToString());
@@ -98,19 +100,19 @@ namespace PixiEditorPrototype.Models
                 int curIndex = doc.StructureRoot.Children.IndexOf(path[0]);
                 if (curIndex == 0 && toSmallerIndex || curIndex == doc.StructureRoot.Children.Count - 1 && !toSmallerIndex)
                     return;
-                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, doc.StructureRoot.GuidValue, toSmallerIndex ? curIndex - 1 : curIndex + 1));
+                helpers.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, doc.StructureRoot.GuidValue, toSmallerIndex ? curIndex - 1 : curIndex + 1));
                 return;
             }
             var folder = (FolderViewModel)path[1];
             int index = folder.Children.IndexOf(path[0]);
             if (toSmallerIndex && index > 0 || !toSmallerIndex && index < folder.Children.Count - 1)
             {
-                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[1].GuidValue, toSmallerIndex ? index - 1 : index + 1));
+                helpers.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[1].GuidValue, toSmallerIndex ? index - 1 : index + 1));
             }
             else
             {
                 int parentIndex = ((FolderViewModel)path[2]).Children.IndexOf(folder);
-                doc.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[2].GuidValue, toSmallerIndex ? parentIndex : parentIndex + 1));
+                helpers.ActionAccumulator.AddAction(new MoveStructureMember_Action(guid, path[2].GuidValue, toSmallerIndex ? parentIndex : parentIndex + 1));
             }
         }
     }

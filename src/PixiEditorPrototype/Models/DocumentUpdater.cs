@@ -1,6 +1,6 @@
-﻿using ChangeableDocument.Changeables.Interfaces;
-using ChangeableDocument.ChangeInfos;
-using ChunkyImageLib.DataHolders;
+﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
 using System;
@@ -12,9 +12,11 @@ namespace PixiEditorPrototype.Models
     internal class DocumentUpdater
     {
         private DocumentViewModel doc;
-        public DocumentUpdater(DocumentViewModel doc)
+        private DocumentHelpers helper;
+        public DocumentUpdater(DocumentViewModel doc, DocumentHelpers helper)
         {
             this.doc = doc;
+            this.helper = helper;
         }
 
         public void ApplyChangeFromChangeInfo(IChangeInfo? arbitraryInfo)
@@ -53,8 +55,17 @@ namespace PixiEditorPrototype.Models
 
         private void ProcessMoveViewport(MoveViewport_PassthroughAction info)
         {
-            doc.ChosenResolution = info.Resolution;
-            doc.RaisePropertyChanged(nameof(doc.RenderBitmap));
+            var oldResolution = doc.RenderResolution;
+
+            helper.State.ViewportCenter = info.Center;
+            helper.State.ViewportSize = info.Size;
+            helper.State.ViewportAngle = info.Angle;
+            helper.State.ViewportRealSize = info.RealSize;
+
+            var newResolution = doc.RenderResolution;
+
+            if (oldResolution != newResolution)
+                doc.RaisePropertyChanged(nameof(doc.RenderBitmap));
         }
 
         private void ProcessSize(Size_ChangeInfo info)
@@ -72,26 +83,31 @@ namespace PixiEditorPrototype.Models
             doc.BitmapQuarter = null;
             doc.BitmapEighth = null;
 
-            doc.BitmapFull = CreateBitmap(doc.Tracker.Document.Size);
+            doc.BitmapFull = CreateBitmap(helper.Tracker.Document.Size);
             doc.SurfaceFull = CreateSKSurface(doc.BitmapFull);
 
-            if (doc.Tracker.Document.Size.X > 512 && doc.Tracker.Document.Size.Y > 512)
+            if (helper.Tracker.Document.Size.X > 512 && helper.Tracker.Document.Size.Y > 512)
             {
-                doc.BitmapHalf = CreateBitmap(doc.Tracker.Document.Size / 2);
+                doc.BitmapHalf = CreateBitmap(helper.Tracker.Document.Size / 2);
                 doc.SurfaceHalf = CreateSKSurface(doc.BitmapHalf);
             }
 
-            if (doc.Tracker.Document.Size.X > 1024 && doc.Tracker.Document.Size.Y > 1024)
+            if (helper.Tracker.Document.Size.X > 1024 && helper.Tracker.Document.Size.Y > 1024)
             {
-                doc.BitmapQuarter = CreateBitmap(doc.Tracker.Document.Size / 4);
+                doc.BitmapQuarter = CreateBitmap(helper.Tracker.Document.Size / 4);
                 doc.SurfaceQuarter = CreateSKSurface(doc.BitmapQuarter);
             }
 
-            if (doc.Tracker.Document.Size.X > 2048 && doc.Tracker.Document.Size.Y > 2048)
+            if (helper.Tracker.Document.Size.X > 2048 && helper.Tracker.Document.Size.Y > 2048)
             {
-                doc.BitmapEighth = CreateBitmap(doc.Tracker.Document.Size / 8);
+                doc.BitmapEighth = CreateBitmap(helper.Tracker.Document.Size / 8);
                 doc.SurfaceEighth = CreateSKSurface(doc.BitmapEighth);
             }
+
+            doc.RaisePropertyChanged(nameof(doc.BitmapFull));
+            doc.RaisePropertyChanged(nameof(doc.BitmapHalf));
+            doc.RaisePropertyChanged(nameof(doc.BitmapQuarter));
+            doc.RaisePropertyChanged(nameof(doc.BitmapEighth));
 
             doc.RaisePropertyChanged(nameof(doc.RenderBitmap));
         }
@@ -111,15 +127,15 @@ namespace PixiEditorPrototype.Models
 
         private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
         {
-            var (member, parentFolder) = doc.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
-            var parentFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(parentFolder.GuidValue);
+            var (member, parentFolder) = helper.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
+            var parentFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(parentFolder.GuidValue);
 
             int index = parentFolder.ReadOnlyChildren.IndexOf(member);
 
             StructureMemberViewModel memberVM = member switch
             {
-                IReadOnlyLayer layer => new LayerViewModel(doc, layer),
-                IReadOnlyFolder folder => new FolderViewModel(doc, folder),
+                IReadOnlyLayer layer => new LayerViewModel(doc, helper, layer),
+                IReadOnlyFolder folder => new FolderViewModel(doc, helper, folder),
                 _ => throw new InvalidOperationException("Unsupposed member type")
             };
 
@@ -136,35 +152,35 @@ namespace PixiEditorPrototype.Models
 
         private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
         {
-            var (memberVM, folderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+            var (memberVM, folderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
             folderVM.Children.Remove(memberVM);
         }
 
         private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
         {
-            var memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
+            var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
             memberVM.RaisePropertyChanged(nameof(memberVM.IsVisible));
         }
 
         private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
         {
-            var memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
+            var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
             memberVM.RaisePropertyChanged(nameof(memberVM.Name));
         }
 
         private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
         {
-            var memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
+            var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
             memberVM.RaisePropertyChanged(nameof(memberVM.Opacity));
         }
 
         private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
         {
-            var (memberVM, curFolderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
-            var (member, targetFolder) = doc.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
+            var (memberVM, curFolderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+            var (member, targetFolder) = helper.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
 
             int index = targetFolder.ReadOnlyChildren.IndexOf(member);
-            var targetFolderVM = (FolderViewModel)doc.StructureHelper.FindOrThrow(targetFolder.GuidValue);
+            var targetFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(targetFolder.GuidValue);
 
             curFolderVM.Children.Remove(memberVM);
             targetFolderVM.Children.Insert(index, memberVM);

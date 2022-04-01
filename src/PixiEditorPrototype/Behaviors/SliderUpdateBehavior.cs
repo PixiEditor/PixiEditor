@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace PixiEditorPrototype.Behaviors
 {
-    class SliderUpdateBehavior : Behavior<Slider>
+    internal class SliderUpdateBehavior : Behavior<Slider>
     {
         public static DependencyProperty DragValueChangedProperty = DependencyProperty.Register(nameof(DragValueChanged), typeof(ICommand), typeof(SliderUpdateBehavior));
         public ICommand? DragValueChanged

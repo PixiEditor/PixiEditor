@@ -1,0 +1,162 @@
+﻿<Window x:Class="PixiEditorPrototype.Views.MainWindow" x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:PixiEditorPrototype.ViewModels"
+        xmlns:conv="clr-namespace:PixiEditorPrototype.Converters" 
+        xmlns:beh="clr-namespace:PixiEditorPrototype.Behaviors"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:pe="clr-namespace:PixiEditorPrototype"
+        xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
+        xmlns:models="clr-namespace:PixiEditorPrototype.Models"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="576" Width="1024">
+    <Window.DataContext>
+        <vm:ViewModelMain/>
+    </Window.DataContext>
+    <Window.Resources>
+        <conv:IndexToChunkResolutionConverter x:Key="IndexToChunkResolutionConverter"/>
+    </Window.Resources>
+    <DockPanel Background="Gray">
+        <Border BorderThickness="1" Background="White" BorderBrush="Black" Width="280" DockPanel.Dock="Right" Margin="5">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <Button Margin="5" Command="{Binding ActiveDocument.CreateNewLayerCommand}" Width="80">New Layer</Button>
+                    <Button Margin="5" Command="{Binding ActiveDocument.CreateNewFolderCommand}" Width="80">New Folder</Button>
+                    <Button Margin="5" Command="{Binding ActiveDocument.DeleteStructureMemberCommand}" Width="80">Delete</Button>
+                </StackPanel>
+                <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                    <Button Width="80" Margin="5,0" Command="{Binding ActiveDocument.CombineCommand}">Merge</Button>
+                    <TextBlock Text="{Binding ActiveDocument.SelectedStructureMember.Opacity, StringFormat=N2}" 
+                           Margin="5,0" DockPanel.Dock="Right" VerticalAlignment="Center" TextAlignment="Center" d:Text="1.00" Width="30"/>
+                    <Slider Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.01" x:Name="opacitySlider"
+                            VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                            Value="{Binding ActiveDocument.SelectedStructureMember.Opacity, Mode=OneWay}">
+                        <i:Interaction.Behaviors>
+                            <beh:SliderUpdateBehavior
+                                DragValueChanged="{Binding ActiveDocument.SelectedStructureMember.UpdateOpacityCommand}"
+                                DragEnded="{Binding ActiveDocument.SelectedStructureMember.EndOpacityUpdateCommand}"
+                                ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}"/>
+                        </i:Interaction.Behaviors>
+                    </Slider>
+                </DockPanel>
+                <TreeView ItemsSource="{Binding ActiveDocument.StructureRoot.Children}">
+                    <TreeView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <pe:ReversedOrderStackPanel/>
+                        </ItemsPanelTemplate>
+                    </TreeView.ItemsPanel>
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="ItemsPanel">
+                                <Setter.Value>
+                                    <ItemsPanelTemplate>
+                                        <pe:ReversedOrderStackPanel/>
+                                    </ItemsPanelTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectedItemChanged">
+                            <i:InvokeCommandAction Command="{Binding ActiveDocument.ChangeSelectedItemCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Width="150">
+                                <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
+                                <StackPanel>
+                                    <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
+                                    <Button Width="18" Command="{Binding MoveDownCommand}">v</Button>
+                                </StackPanel>
+                                <Border BorderBrush="Black" BorderThickness="1" Background="Yellow" Margin="5">
+                                    <CheckBox VerticalAlignment="Center" Margin="5" IsChecked="{Binding IsVisible}"/>
+                                </Border>
+                                <TextBox Text="{Binding Name}" Margin="5" Height="20"/>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                        <DataTemplate DataType="{x:Type vm:LayerViewModel}">
+                            <StackPanel Orientation="Horizontal" Width="150">
+                                <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
+                                <StackPanel>
+                                    <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
+                                    <Button Width="18" Command="{Binding MoveDownCommand}">v</Button>
+                                </StackPanel>
+                                <Border BorderBrush="Black" BorderThickness="1" Margin="5">
+                                    <CheckBox VerticalAlignment="Center" Margin="5" IsChecked="{Binding IsVisible}"/>
+                                </Border>
+                                <TextBox Text="{Binding Name}" Margin="5" Height="20"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+            </DockPanel>
+        </Border>
+        <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Top" Margin="5">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" Background="White">
+                    <Button Width="50" Margin="5" Command="{Binding ActiveDocument.UndoCommand}">Undo</Button>
+                    <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
+                    <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
+                    <Button Width="120" Margin="5" Command="{Binding ActiveDocument.ClearHistoryCommand}">Clear undo history</Button>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBox Width="30" Margin="5" Text="{Binding ActiveDocument.ResizeWidth}"/>
+                    <TextBox Width="30" Margin="5" Text="{Binding ActiveDocument.ResizeHeight}"/>
+                    <Button Width="50" Margin="5" Command="{Binding ActiveDocument.ResizeCanvasCommand}">Resize</Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Left" Margin="5">
+            <StackPanel Orientation="Vertical" Background="White">
+                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
+                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
+                <colorpicker:PortableColorPicker Margin="5" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="30" Height="30"/>
+                <CheckBox Margin="5" x:Name="viewportMoveCheckbox" IsChecked="{Binding EnableViewportDragging}">Move</CheckBox>
+            </StackPanel>
+        </Border>
+
+        <Grid>
+            <zoombox:Zoombox x:Name="zoombox" ZoomMode="{Binding ZoomboxMode}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ViewportMoved">
+                        <i:InvokeCommandAction Command="{Binding ActiveDocument.MoveViewportCommand}" PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <Border BorderThickness="1" Background="White" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image Source="{Binding ActiveDocument.RenderBitmap}" Focusable="True"
+                       Width="{Binding ActiveDocument.BitmapFull.PixelWidth}" Height="{Binding ActiveDocument.BitmapFull.PixelHeight}"
+                       RenderOptions.BitmapScalingMode="NearestNeighbor">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseMove">
+                                <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="MouseUp">
+                                <i:InvokeCommandAction Command="{Binding MouseUpCommand}" PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Image>
+                </Border>
+            </zoombox:Zoombox>
+            <Grid Focusable="False">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Border BorderBrush="Red" Grid.Row="1" Grid.Column="1" BorderThickness="1"/>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>

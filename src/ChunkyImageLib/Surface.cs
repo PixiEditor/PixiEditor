@@ -42,9 +42,11 @@ namespace ChunkyImageLib
 
         public unsafe SKColor GetSRGBPixel(int x, int y)
         {
+            throw new NotImplementedException("This function needs to be changed to account for linear -> srgb conversion");
+            /*
             Half* ptr = (Half*)(PixelBuffer + (x + y * Size.X) * bytesPerPixel);
             float a = (float)ptr[3];
-            return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
+            return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);*/
         }
 
         public void SaveToDesktop(string filename = "savedSurface.png")
