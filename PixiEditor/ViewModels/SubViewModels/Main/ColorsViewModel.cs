@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.ExternalServices;
+using PixiEditor.Models.Undo;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -86,13 +87,32 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (activeDocument != null)
             {
                 activeDocument.ReplaceColor(colors.oldColor, colors.newColor);
-                int oldIndex = activeDocument.Palette.IndexOf(colors.oldColor);
-                if (oldIndex != -1)
-                {
-                    activeDocument.Palette[oldIndex] = colors.newColor;
-                }
+                ReplacePaletteColor(colors, activeDocument);
+                activeDocument.UndoManager.AddUndoChange(new Change(
+                    ReplacePaletteColorProcess,
+                    new object[] { (colors.newColor, colors.oldColor), activeDocument },
+                    ReplacePaletteColorProcess,
+                    new object[] { colors, activeDocument }));
+                activeDocument.UndoManager.SquashUndoChanges(2, $"Replace color {colors.oldColor} with {colors.newColor}");
             }
 
+        }
+
+        private static void ReplacePaletteColorProcess(object[] args)
+        {
+            (SKColor oldColor, SKColor newColor) colors = ((SKColor, SKColor))args[0];
+            Document activeDocument = (Document)args[1];
+
+            ReplacePaletteColor(colors, activeDocument);
+        }
+
+        private static void ReplacePaletteColor((SKColor oldColor, SKColor newColor) colors, Document activeDocument)
+        {
+            int oldIndex = activeDocument.Palette.IndexOf(colors.oldColor);
+            if (oldIndex != -1)
+            {
+                activeDocument.Palette[oldIndex] = colors.newColor;
+            }
         }
 
         private async void OwnerOnStartupEvent(object? sender, EventArgs e)

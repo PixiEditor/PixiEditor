@@ -116,23 +116,21 @@ namespace PixiEditor.Models.Controllers
                 Int32Rect layerRect = new Int32Rect(layer.OffsetX, layer.OffsetY, layer.Width, layer.Height);
                 Int32Rect layerPortion = layerRect.Intersect(dirtyRectangle);
 
-                using (var snapshot = layer.LayerBitmap.SkiaSurface.Snapshot())
-                {
-                    finalSurface.SkiaSurface.Canvas.DrawImage(
-                        snapshot,
-                        new SKRect(
-                            layerPortion.X - layer.OffsetX,
-                            layerPortion.Y - layer.OffsetY,
-                            layerPortion.X - layer.OffsetX + layerPortion.Width,
-                            layerPortion.Y - layer.OffsetY + layerPortion.Height),
-                        new SKRect(
-                            layerPortion.X,
-                            layerPortion.Y,
-                            layerPortion.X + layerPortion.Width,
-                            layerPortion.Y + layerPortion.Height
-                        ),
-                        BlendingPaint);
-                }
+                using var snapshot = layer.LayerBitmap.SkiaSurface.Snapshot();
+                finalSurface.SkiaSurface.Canvas.DrawImage(
+                    snapshot,
+                    new SKRect(
+                        layerPortion.X - layer.OffsetX,
+                        layerPortion.Y - layer.OffsetY,
+                        layerPortion.X - layer.OffsetX + layerPortion.Width,
+                        layerPortion.Y - layer.OffsetY + layerPortion.Height),
+                    new SKRect(
+                        layerPortion.X,
+                        layerPortion.Y,
+                        layerPortion.X + layerPortion.Width,
+                        layerPortion.Y + layerPortion.Height
+                    ),
+                    BlendingPaint);
             }
             finalBitmap.Lock();
             using (var snapshot = finalSurface.SkiaSurface.Snapshot())

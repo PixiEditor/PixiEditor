@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Models.Layers
 {
@@ -711,38 +712,28 @@ namespace PixiEditor.Models.Layers
             int maxThreads = Environment.ProcessorCount;
             int rowsPerThread = Height / maxThreads;
 
-            Thread[] threads = new Thread[maxThreads];
-
-            for (int i = 0; i < maxThreads; i++)
+            Parallel.For(0, maxThreads, i =>
             {
-                var i1 = i;
-                threads[i] = new Thread(() =>
+                int startRow = i * rowsPerThread;
+                int endRow = (i + 1) * rowsPerThread;
+                if (i == maxThreads - 1)
                 {
-                    int startRow = i1 * rowsPerThread;
-                    int endRow = (i1 + 1) * rowsPerThread;
-                    if (i1 == maxThreads - 1)
-                    {
-                        endRow = Height;
-                    }
+                    endRow = Height;
+                }
 
-                    for (int y = startRow; y < endRow; y++)
+                for (int y = startRow; y < endRow; y++)
+                {
+                    for (int x = 0; x < Width; x++)
                     {
-                        for (int x = 0; x < Width; x++)
+                        if (LayerBitmap.GetSRGBPixel(x, y) == oldColor)
                         {
-                            if (LayerBitmap.GetSRGBPixel(x, y) == oldColor)
-                            {
-                                LayerBitmap.SetSRGBPixelUnmanaged(x, y, newColor);
-                            }
+                            LayerBitmap.SetSRGBPixelUnmanaged(x, y, newColor);
                         }
                     }
-                });
+                }
+            });
 
-                threads[i].Start();
-            }
-
-            threads.ToList().ForEach(x => x.Join());
-
-            layerBitmap.SkiaSurface.Canvas.DrawSurface(layerBitmap.SkiaSurface, 0, 0, new SKPaint { BlendMode = SKBlendMode.Dst });
+            layerBitmap.SkiaSurface.Canvas.DrawPaint(new SKPaint { BlendMode = SKBlendMode.Dst });
 
             InvokeLayerBitmapChange();
         }
