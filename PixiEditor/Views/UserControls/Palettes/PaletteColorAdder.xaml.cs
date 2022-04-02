@@ -113,7 +113,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private void UpdateAddSwatchesButton()
         {
-            AddFromSwatches.IsEnabled = Swatches != null && Swatches.Any(x => !Colors.Contains(x));
+            AddFromSwatches.IsEnabled = Swatches != null && Swatches.Where(x => x.Alpha == 255).Any(x => !Colors.Contains(x));
         }
 
         public PaletteColorAdder()
@@ -142,6 +142,8 @@ namespace PixiEditor.Views.UserControls.Palettes
 
             foreach (var color in Swatches)
             {
+                if(color.Alpha < 255) continue; // No alpha support for now, palette colors shouldn't be transparent
+                
                 if (!Colors.Contains(color))
                 {
                     Colors.Add(color);
