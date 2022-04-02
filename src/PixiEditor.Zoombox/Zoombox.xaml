@@ -7,13 +7,29 @@
              mc:Ignorable="d"
              x:Name="uc"
              d:DesignHeight="450" d:DesignWidth="800">
+    <ContentControl.Resources>
+        <ResourceDictionary>
+            <local:BoolToIntConverter x:Key="BoolToIntConverter"/>
+        </ResourceDictionary>
+    </ContentControl.Resources>
     <Canvas MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnScroll" ClipToBounds="True"
             IsManipulationEnabled="{Binding UseTouchGestures, ElementName=uc}" ManipulationDelta="OnManipulationDelta"
-            x:Name="mainCanvas" Background="Transparent">
-        <Grid x:Name="mainGrid" SizeChanged="RecalculateMinZoomLevel">
-            <Grid.LayoutTransform>
-                <ScaleTransform x:Name="scaleTransform"/>
-            </Grid.LayoutTransform>
+            x:Name="mainCanvas" Background="Transparent" SizeChanged="OnMainCanvasSizeChanged">
+        <Grid x:Name="mainGrid" SizeChanged="OnGridSizeChanged"
+              Canvas.Left="{Binding ElementName=uc, Path=CanvasX}"
+              Canvas.Top="{Binding ElementName=uc, Path=CanvasY}">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="scaleTransform" 
+                                    ScaleX="{Binding ElementName=uc, Path=ScaleTransformXY}"
+                                    ScaleY="{Binding ElementName=uc, Path=ScaleTransformXY}"/>
+                    <RotateTransform x:Name="rotateTransform"
+                                     Angle="{Binding ElementName=uc, Path=RotateTransformAngle}"/>
+                    <ScaleTransform x:Name="flipTransform"
+                                    ScaleX="{Binding ElementName=uc, Path=FlipTransformX}"
+                                    ScaleY="{Binding ElementName=uc, Path=FlipTransformY}"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
             <ContentPresenter Content="{Binding AdditionalContent, ElementName=uc}"/>
         </Grid>
     </Canvas>

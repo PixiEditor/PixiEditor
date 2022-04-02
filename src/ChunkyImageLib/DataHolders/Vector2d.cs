@@ -64,6 +64,10 @@ namespace ChunkyImageLib.DataHolders
         {
             return new Vector2d(X / Length, Y / Length);
         }
+        public Vector2d Abs()
+        {
+            return new Vector2d(Math.Abs(X), Math.Abs(Y));
+        }
         public Vector2d Signs()
         {
             return new Vector2d(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);
@@ -132,6 +136,11 @@ namespace ChunkyImageLib.DataHolders
         public static explicit operator SKSize(Vector2d vec)
         {
             return new SKSize((float)vec.X, (float)vec.Y);
+        }
+
+        public bool IsNaNOrInfinity()
+        {
+            return double.IsNaN(X) || double.IsNaN(Y) || double.IsInfinity(X) || double.IsInfinity(Y);
         }
 
         public override string ToString()

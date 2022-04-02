@@ -115,12 +115,19 @@
                 <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
                 <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
                 <colorpicker:PortableColorPicker Margin="5" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="30" Height="30"/>
-                <CheckBox Margin="5" x:Name="viewportMoveCheckbox" IsChecked="{Binding EnableViewportDragging}">Move</CheckBox>
+                <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding NormalZoombox, Mode=OneWayToSource}">Normal</RadioButton>
+                <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding MoveZoombox, Mode=OneWayToSource}">Move</RadioButton>
+                <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding RotateZoombox, Mode=OneWayToSource}">Rotate</RadioButton>
+                <CheckBox x:Name="flipXCheckbox" Margin="5, 0">Flip X</CheckBox>
+                <CheckBox x:Name="flipYCheckbox" Margin="5, 0">Flip Y</CheckBox>
             </StackPanel>
         </Border>
 
         <Grid>
-            <zoombox:Zoombox x:Name="zoombox" ZoomMode="{Binding ZoomboxMode}">
+            <zoombox:Zoombox x:Name="zoombox" UseTouchGestures="True"
+                             ZoomMode="{Binding ZoomboxMode}" 
+                             FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
+                             FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="ViewportMoved">
                         <i:InvokeCommandAction Command="{Binding ActiveDocument.MoveViewportCommand}" PassEventArgsToCommand="True"/>

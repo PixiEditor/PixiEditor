@@ -32,19 +32,40 @@ namespace PixiEditorPrototype.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private bool enableViewportDragging;
-        public bool EnableViewportDragging
+        public bool NormalZoombox
         {
-            get => enableViewportDragging;
             set
             {
-                enableViewportDragging = value;
-                PropertyChanged?.Invoke(this, new(nameof(EnableViewportDragging)));
+                if (!value)
+                    return;
+                ZoomboxMode = ZoomboxMode.Normal;
                 PropertyChanged?.Invoke(this, new(nameof(ZoomboxMode)));
             }
         }
 
-        public ZoomboxMode ZoomboxMode => enableViewportDragging ? ZoomboxMode.Move : ZoomboxMode.Normal;
+        public bool MoveZoombox
+        {
+            set
+            {
+                if (!value)
+                    return;
+                ZoomboxMode = ZoomboxMode.Move;
+                PropertyChanged?.Invoke(this, new(nameof(ZoomboxMode)));
+            }
+        }
+
+        public bool RotateZoombox
+        {
+            set
+            {
+                if (!value)
+                    return;
+                ZoomboxMode = ZoomboxMode.Rotate;
+                PropertyChanged?.Invoke(this, new(nameof(ZoomboxMode)));
+            }
+        }
+
+        public ZoomboxMode ZoomboxMode { get; set; }
 
         public ViewModelMain()
         {
@@ -58,7 +79,7 @@ namespace PixiEditorPrototype.ViewModels
 
         private void MouseDown(object? param)
         {
-            if (ActiveDocument is null || EnableViewportDragging)
+            if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal)
                 return;
             mouseIsDown = true;
             var args = (MouseButtonEventArgs)(param!);
@@ -70,7 +91,7 @@ namespace PixiEditorPrototype.ViewModels
 
         private void MouseMove(object? param)
         {
-            if (ActiveDocument is null || !mouseIsDown || EnableViewportDragging)
+            if (ActiveDocument is null || !mouseIsDown || ZoomboxMode != ZoomboxMode.Normal)
                 return;
             var args = (MouseEventArgs)(param!);
             var source = (System.Windows.Controls.Image)args.Source;
@@ -104,7 +125,7 @@ namespace PixiEditorPrototype.ViewModels
 
         private void MouseUp(object? param)
         {
-            if (ActiveDocument is null || !mouseIsDown || EnableViewportDragging)
+            if (ActiveDocument is null || !mouseIsDown || ZoomboxMode != ZoomboxMode.Normal)
                 return;
             mouseIsDown = false;
             ProcessToolMouseUp();

@@ -35,6 +35,9 @@ namespace ChunkyImageLib.Operations
                 FindChunksAlongLine(corners.Item1, corners.Item4, chunkSize)
             };
 
+            if (lines[0].Count == 0 || lines[1].Count == 0 || lines[2].Count == 0 || lines[3].Count == 0)
+                return new HashSet<Vector2i>();
+
             //find min and max X for each Y in lines
             var ySel = (Vector2i vec) => vec.Y;
             int minY = Math.Min(lines[0].Min(ySel), lines[2].Min(ySel));
@@ -84,7 +87,7 @@ namespace ChunkyImageLib.Operations
 
         public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2d center, Vector2d size, double angle, int chunkSize)
         {
-            if (size.X < chunkSize || size.Y < chunkSize)
+            if (size.X < chunkSize || size.Y < chunkSize || center.IsNaNOrInfinity() || size.IsNaNOrInfinity() || double.IsNaN(angle) || double.IsInfinity(angle))
                 return new HashSet<Vector2i>();
             // draw a line on the inside of each side
             var corners = FindRectangleCorners(center, size, angle);
@@ -157,7 +160,7 @@ namespace ChunkyImageLib.Operations
         /// </summary>
         public static List<Vector2i> FindChunksAlongLine(Vector2d p1, Vector2d p2, int chunkSize)
         {
-            if (p1 == p2)
+            if (p1 == p2 || p1.IsNaNOrInfinity() || p2.IsNaNOrInfinity())
                 return new List<Vector2i>();
 
             //rotate the line into the first quadrant of the coordinate plane

@@ -415,7 +415,7 @@ namespace ChunkyImageLib
         public bool CheckIfCommittedIsEmpty()
         {
             FindAndDeleteEmptyCommittedChunks();
-            return committedChunks.Count == 0;
+            return committedChunks[ChunkResolution.Full].Count == 0;
         }
 
         private HashSet<Vector2i> FindAllChunksOutsideBounds(Vector2i size)

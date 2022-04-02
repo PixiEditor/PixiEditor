@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using ChunkyImageLib.DataHolders;
+using System;
 using System.Windows.Input;
 
 namespace PixiEditor.Zoombox
@@ -7,11 +8,10 @@ namespace PixiEditor.Zoombox
     {
         private Zoombox parent;
 
-        private double initZoomPower;
-        private Point initSpaceOriginPos;
+        private double initScale;
 
-        private Point zoomOrigin;
-        private Point screenZoomOrigin;
+        private Vector2d scaleOrigin;
+        private Vector2d screenScaleOrigin;
 
         public ZoomDragOperation(Zoombox zoomBox)
         {
@@ -19,24 +19,22 @@ namespace PixiEditor.Zoombox
         }
         public void Start(MouseButtonEventArgs e)
         {
-            screenZoomOrigin = e.GetPosition(parent.mainCanvas);
-            zoomOrigin = parent.ToZoomboxSpace(screenZoomOrigin);
-            initZoomPower = parent.ZoomPowerClamped;
-            initSpaceOriginPos = parent.SpaceOriginPos;
+            screenScaleOrigin = parent.ToZoomboxSpace(Zoombox.ToVector2d(e.GetPosition(parent.mainCanvas)));
+            scaleOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
+            initScale = parent.Scale;
             parent.mainCanvas.CaptureMouse();
         }
 
         public void Update(MouseEventArgs e)
         {
             var curScreenPos = e.GetPosition(parent.mainCanvas);
-            double deltaX = screenZoomOrigin.X - curScreenPos.X;
+            double deltaX = screenScaleOrigin.X - curScreenPos.X;
             double deltaPower = deltaX / 10.0;
-            parent.ZoomPowerClamped = initZoomPower - deltaPower;
 
-            parent.SpaceOriginPos = initSpaceOriginPos;
-            var shiftedOriginPos = parent.ToScreenSpace(zoomOrigin);
-            var deltaOriginPos = shiftedOriginPos - screenZoomOrigin;
-            parent.SpaceOriginPos = initSpaceOriginPos - deltaOriginPos;
+            parent.Scale *= Math.Pow(Zoombox.ScaleFactor, deltaPower);
+
+            var shiftedOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
+            parent.Center += scaleOrigin - shiftedOrigin;
         }
 
         public void Terminate()

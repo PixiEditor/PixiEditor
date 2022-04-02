@@ -102,7 +102,7 @@ namespace PixiEditorPrototype.Models.Rendering
             var chunksOnScreen = OperationHelper.FindChunksTouchingRectangle(
                 helpers.State.ViewportCenter,
                 helpers.State.ViewportSize,
-                helpers.State.ViewportAngle,
+                -helpers.State.ViewportAngle,
                 ChunkResolution.Full.PixelSize());
 
             chunksOnScreen.IntersectWith(postponedChunks[resolution]);

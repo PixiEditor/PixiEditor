@@ -83,11 +83,11 @@ namespace PixiEditorPrototype.ViewModels
         {
             Vector2d densityVec = size.Divide(realSize);
             double density = Math.Min(densityVec.X, densityVec.Y);
-            if (density > 8)
+            if (density > 8.01)
                 return ChunkResolution.Eighth;
-            else if (density > 4)
+            else if (density > 4.01)
                 return ChunkResolution.Quarter;
-            else if (density > 2)
+            else if (density > 2.01)
                 return ChunkResolution.Half;
             return ChunkResolution.Full;
         }
@@ -108,7 +108,6 @@ namespace PixiEditorPrototype.ViewModels
         public int ResizeHeight { get; set; }
 
         private DocumentHelpers Helpers { get; }
-        public object MoveViewportEventArgs { get; private set; }
 
         private ViewModelMain owner;
 

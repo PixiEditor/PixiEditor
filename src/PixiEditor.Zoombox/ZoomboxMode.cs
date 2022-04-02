@@ -4,6 +4,7 @@
     {
         Normal,
         Move,
+        Rotate,
         Zoom
     }
 }
