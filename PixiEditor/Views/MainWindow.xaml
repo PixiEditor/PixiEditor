@@ -328,7 +328,7 @@
                                                                         </ItemsControl.ItemsPanel>
                                                                         <ItemsControl.ItemTemplate>
                                                                             <DataTemplate>
-                                                                                <palettes:PaletteColor CornerRadius="0" ToolTip="Click to select as main color." Width="22" Height="22" Color="{Binding}">
+                                                                                <palettes:PaletteColor Cursor="Hand" CornerRadius="0" ToolTip="Click to select as main color." Width="22" Height="22" Color="{Binding}">
                                                                                     <b:Interaction.Triggers>
                                                                                         <b:EventTrigger EventName="MouseLeftButtonUp">
                                                                                             <b:InvokeCommandAction
