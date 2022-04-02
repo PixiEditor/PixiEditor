@@ -2,6 +2,7 @@
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,7 +40,14 @@ namespace PixiEditor.Views.UserControls.Palettes
         public static readonly DependencyProperty HintColorProperty =
             DependencyProperty.Register("HintColor", typeof(Color), typeof(PaletteColorAdder), new PropertyMetadata(System.Windows.Media.Colors.Transparent));
 
+        public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(
+            "Swatches", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnSwatchesChanged));
 
+        public WpfObservableRangeCollection<SKColor> Swatches
+        {
+            get { return (WpfObservableRangeCollection<SKColor>) GetValue(SwatchesProperty); }
+            set { SetValue(SwatchesProperty, value); }
+        }
 
         public Color SelectedColor
         {
@@ -63,6 +71,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             if (adder == null || adder.Colors == null) return;
             if (e.NewValue != null)
             {
+                adder.UpdateAddButton();
                 adder.Colors.CollectionChanged += adder.Colors_CollectionChanged;
             }
             else if(e.OldValue != null)
@@ -73,7 +82,38 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private void Colors_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            UpdateAddSwatchesButton();
+            UpdateAddButton();
+        }
+
+        private void UpdateAddButton()
+        {
             AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor));
+        }
+
+        private static void OnSwatchesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            PaletteColorAdder adder = (PaletteColorAdder)d;
+            if (adder == null || adder.Swatches == null) return;
+            if (e.NewValue != null)
+            {
+                adder.UpdateAddSwatchesButton();
+                adder.Swatches.CollectionChanged += adder.Swatches_CollectionChanged;
+            }
+            else if (e.OldValue != null)
+            {
+                adder.Swatches.CollectionChanged -= adder.Swatches_CollectionChanged;
+            }
+        }
+
+        private void Swatches_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            UpdateAddSwatchesButton();
+        }
+
+        private void UpdateAddSwatchesButton()
+        {
+            AddFromSwatches.IsEnabled = Swatches != null && Swatches.Any(x => !Colors.Contains(x));
         }
 
         public PaletteColorAdder()
@@ -95,5 +135,20 @@ namespace PixiEditor.Views.UserControls.Palettes
             AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor));
 
         private static SKColor ToSKColor(Color color) => new SKColor(color.R, color.G, color.B, color.A);
+
+        private void AddFromSwatches_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (Swatches == null) return;
+
+            foreach (var color in Swatches)
+            {
+                if (!Colors.Contains(color))
+                {
+                    Colors.Add(color);
+                }
+            }
+
+            AddFromSwatches.IsEnabled = false;
+        }
     }
 }

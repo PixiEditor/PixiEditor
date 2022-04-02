@@ -10,7 +10,6 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Views.Dialogs;
 using SkiaSharp;
 
@@ -21,6 +20,14 @@ namespace PixiEditor.Views.UserControls.Palettes
     /// </summary>
     public partial class PaletteViewer : UserControl
     {
+        public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(
+            "Swatches", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>)));
+
+        public WpfObservableRangeCollection<SKColor> Swatches
+        {
+            get { return (WpfObservableRangeCollection<SKColor>) GetValue(SwatchesProperty); }
+            set { SetValue(SwatchesProperty, value); }
+        }
         public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(
             "Colors", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer));
 

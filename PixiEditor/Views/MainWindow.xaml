@@ -391,7 +391,8 @@
                                                 Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
                                             <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
                                         Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
-                                                              SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
+                                                              Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"
+                                                                    SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
                                                               HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,
                                                 Converter={converters:SKColorToMediaColorConverter}}"
                                                                 DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
