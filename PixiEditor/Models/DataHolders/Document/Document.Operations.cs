@@ -7,7 +7,6 @@ using SkiaSharp;
 using System;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.DataHolders
 {

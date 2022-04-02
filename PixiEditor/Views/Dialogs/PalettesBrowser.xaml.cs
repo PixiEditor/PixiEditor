@@ -470,5 +470,13 @@ namespace PixiEditor.Views.Dialogs
             await RefreshLocalCache();
             await UpdatePaletteList();
         }
+
+        private void BrowseOnLospec_OnClick(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            string url = (string)button.CommandParameter;
+
+            ProcessHelpers.ShellExecute(url);
+        }
     }
 }
