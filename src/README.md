@@ -101,8 +101,8 @@ Decouples the state of a document from the UI.
     - [ ] Action filtering
     - [x] Viewport movement as an action
     - [x] Integrate viewport from PixiEditor
-    - [ ] Rotate viewport
-    - [ ] Flip viewport
+    - [x] Rotate viewport
+    - [x] Flip viewport
 - Not sure
     - [ ] Pipette tool
 
@@ -146,5 +146,7 @@ During the implementation process StructureRenderer will most likely become a pa
 A mockup UI with viewmodels used for testing
 
 ## How it all integrates together
+
+Solid lines denote control flow (A -> B means A calls B); Dashed lines denote data flow (A -> B means B accesses data stored in A)
 
 ![Diagram](/diagram.svg?raw=true&sanitize=true)
