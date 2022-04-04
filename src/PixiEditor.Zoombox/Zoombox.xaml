@@ -7,11 +7,6 @@
              mc:Ignorable="d"
              x:Name="uc"
              d:DesignHeight="450" d:DesignWidth="800">
-    <ContentControl.Resources>
-        <ResourceDictionary>
-            <local:BoolToIntConverter x:Key="BoolToIntConverter"/>
-        </ResourceDictionary>
-    </ContentControl.Resources>
     <Canvas MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnScroll" ClipToBounds="True"
             IsManipulationEnabled="{Binding UseTouchGestures, ElementName=uc}" ManipulationDelta="OnManipulationDelta"
             x:Name="mainCanvas" Background="Transparent" SizeChanged="OnMainCanvasSizeChanged">

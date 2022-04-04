@@ -176,6 +176,7 @@ namespace PixiEditor.Zoombox
         public Zoombox()
         {
             InitializeComponent();
+            Loaded += (_, _) => OnPropertyChange(this, new DependencyPropertyChangedEventArgs());
         }
 
         private void RaiseViewportEvent()
@@ -314,24 +315,28 @@ namespace PixiEditor.Zoombox
 
         private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
         {
-            if (UseTouchGestures)
-            {
-                e.Handled = true;
-                double newScale = Math.Clamp(Scale * e.DeltaManipulation.Scale.X, MinScale, MaxScale);
-                double newAngle = Angle + e.DeltaManipulation.Rotation;
-                Vector2d screenTranslation = new(e.DeltaManipulation.Translation.X, e.DeltaManipulation.Translation.Y);
-                Vector2d screenOrigin = new(e.ManipulationOrigin.X, e.ManipulationOrigin.Y);
+            if (!UseTouchGestures)
+                return;
+            e.Handled = true;
+            Vector2d screenTranslation = new(e.DeltaManipulation.Translation.X, e.DeltaManipulation.Translation.Y);
+            Vector2d screenOrigin = new(e.ManipulationOrigin.X, e.ManipulationOrigin.Y);
+            Manipulate(e.DeltaManipulation.Scale.X, screenTranslation, screenOrigin, e.DeltaManipulation.Rotation / 180 * Math.PI);
+        }
 
-                Vector2d originalPos = ToZoomboxSpace(screenOrigin);
-                Angle = newAngle;
-                Scale = newScale;
-                Vector2d newPos = ToZoomboxSpace(screenOrigin);
-                Vector2d centerTranslation = originalPos - newPos;
-                Center += centerTranslation;
+        private void Manipulate(double deltaScale, Vector2d screenTranslation, Vector2d screenOrigin, double rotation)
+        {
+            double newScale = Math.Clamp(Scale * deltaScale, MinScale, MaxScale);
+            double newAngle = Angle + rotation;
 
-                Vector2d translatedZoomboxPos = ToZoomboxSpace(screenOrigin + screenTranslation);
-                Center -= translatedZoomboxPos - originalPos;
-            }
+            Vector2d originalPos = ToZoomboxSpace(screenOrigin);
+            Angle = newAngle;
+            Scale = newScale;
+            Vector2d newPos = ToZoomboxSpace(screenOrigin);
+            Vector2d centerTranslation = originalPos - newPos;
+            Center += centerTranslation;
+
+            Vector2d translatedZoomboxPos = ToZoomboxSpace(screenOrigin + screenTranslation);
+            Center -= translatedZoomboxPos - originalPos;
         }
 
         internal static Vector2d ToVector2d(Point point) => new Vector2d(point.X, point.Y);

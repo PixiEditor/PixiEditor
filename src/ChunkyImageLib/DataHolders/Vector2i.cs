@@ -93,7 +93,7 @@ namespace ChunkyImageLib.DataHolders
 
         public override string ToString()
         {
-            return $"({X},{Y})";
+            return $"({X}; {Y})";
         }
 
         public override bool Equals(object? obj)
