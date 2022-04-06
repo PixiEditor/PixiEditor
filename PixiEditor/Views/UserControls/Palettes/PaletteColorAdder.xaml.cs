@@ -88,7 +88,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private void UpdateAddButton()
         {
-            AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor));
+            AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor)) && SelectedColor.A == 255;
         }
 
         private static void OnSwatchesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -126,7 +126,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             SKColor color = ToSKColor(SelectedColor);
             if (!Colors.Contains(color))
             {
-                Colors.Add(color);
+                Colors.Add(color.WithAlpha(255));
                 AddButton.IsEnabled = false;
             }
         }
