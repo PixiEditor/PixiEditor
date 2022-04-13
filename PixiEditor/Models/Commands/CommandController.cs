@@ -1,6 +1,9 @@
-﻿using PixiEditor.Models.Commands.Attributes;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Evaluators;
+using PixiEditor.Models.Tools;
 using System.Reflection;
+using System.Windows.Media;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
 
 namespace PixiEditor.Models.Commands
@@ -15,15 +18,18 @@ namespace PixiEditor.Models.Commands
 
         public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; set; }
 
+        public Dictionary<string, IconEvaluator> IconEvaluators { get; set; }
+
         public CommandController(IServiceProvider services)
         {
+            Current ??= this;
+
             Commands = new();
             FactoryEvaluators = new();
             CanExecuteEvaluators = new();
+            IconEvaluators = new();
 
             Init(services);
-
-            Current ??= this;
         }
 
         public void Init(IServiceProvider services)
@@ -54,12 +60,23 @@ namespace PixiEditor.Models.Commands
                         {
                             AddEvaluator<Evaluator.FactoryAttribute, FactoryEvaluator, object>(method, instanceType, factory, FactoryEvaluators);
                         }
+                        else if (attribute is Evaluator.IconAttribute icon)
+                        {
+                            AddEvaluator<Evaluator.IconAttribute, IconEvaluator, ImageSource>(method, instanceType, icon, IconEvaluators);
+                        }
                     }
                 }
 
+            }
+
+            foreach (var type in types)
+            {
+                object instanceType = null;
+                var methods = type.GetMethods();
+
                 foreach (var method in methods)
                 {
-                    var commandAttrs = method.GetCustomAttributes<CommandAttribute.BasicAttribute>();
+                    var commandAttrs = method.GetCustomAttributes<CommandAttribute.CommandAttribute>();
 
                     if (instanceType is null && commandAttrs.Any())
                     {
@@ -68,16 +85,42 @@ namespace PixiEditor.Models.Commands
 
                     foreach (var attribute in commandAttrs)
                     {
-                        AddCommand(method, instanceType, attribute, (isDebug, name, x, xCan) => new Command.BasicCommand
+                        if (attribute is CommandAttribute.BasicAttribute basic)
                         {
-                            Name = name,
-                            IsDebug = isDebug,
-                            Display = attribute.Display,
-                            Description = attribute.Description,
-                            Methods = new(x, xCan),
-                            DefaultShortcut = attribute.GetShortcut(),
-                            Parameter = attribute.Parameter,
-                            Shortcut = attribute.GetShortcut(),
+                            AddCommand(method, instanceType, attribute, (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
+                            {
+                                Name = name,
+                                IsDebug = isDebug,
+                                Display = attribute.Display,
+                                Description = attribute.Description,
+                                IconPath = attribute.Icon,
+                                IconEvaluator = xIcon,
+                                DefaultShortcut = attribute.GetShortcut(),
+                                Parameter = basic.Parameter,
+                                Shortcut = attribute.GetShortcut(),
+                            });
+                        }
+                    }
+                }
+
+                if (type.IsAssignableTo(typeof(Tool)))
+                {
+                    var toolAttr = type.GetCustomAttribute<CommandAttribute.ToolAttribute>();
+
+                    if (toolAttr != null)
+                    {
+                        var tool = services.GetServices<Tool>().First(x => x.GetType() == type);
+
+                        Commands.Add(new Command.ToolCommand()
+                        {
+                            Name = $"PixiEditor.Tools.Select.{type.Name}",
+                            Display = $"Select {tool.DisplayName} Tool",
+                            Description = $"Select {tool.DisplayName} Tool",
+                            IconPath = $"@{tool.ImagePath}",
+                            IconEvaluator = IconEvaluator.Default,
+                            DefaultShortcut = toolAttr.GetShortcut(),
+                            ToolType = type,
+                            Shortcut = toolAttr.GetShortcut(),
                         });
                     }
                 }
@@ -122,29 +165,33 @@ namespace PixiEditor.Models.Commands
                 evaluators.Add(evaluator.Name, evaluator);
             }
 
-            void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, Predicate<object>, TCommand> commandFactory)
+            void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
                 where TAttr : CommandAttribute.CommandAttribute
                 where TCommand : Command
-            {if (method.GetParameters().Length > 1)
+            {
+                if (method != null)
                 {
-                    throw new Exception($"Too many parameters for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}");
-                }
-                else if (!method.IsStatic && instance is null)
-                {
-                    throw new Exception($"No type instance for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name} found");
+                    if (method.GetParameters().Length > 1)
+                    {
+                        throw new Exception($"Too many parameters for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}");
+                    }
+                    else if (!method.IsStatic && instance is null)
+                    {
+                        throw new Exception($"No type instance for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name} found");
+                    }
                 }
 
-                var parameters = method.GetParameters();
+                var parameters = method?.GetParameters();
 
                 Action<object> action;
 
-                if (parameters.Length == 1)
+                if (parameters == null || parameters.Length != 1)
                 {
-                    action = x => method.Invoke(instance, new[] { x });
+                    action = x => method.Invoke(instance, null);
                 }
                 else
                 {
-                    action = x => method.Invoke(instance, null);
+                    action = x => method.Invoke(instance, new[] { x });
                 }
 
                 string name = attribute.Name;
@@ -155,7 +202,13 @@ namespace PixiEditor.Models.Commands
                     name = name["#DEBUG#".Length..];
                 }
 
-                Commands.Add(commandFactory(isDebug, name, action, x => attribute.CanExecute == null || CanExecuteEvaluators[attribute.CanExecute].Evaluate(x)));
+                Commands.Add(
+                    commandFactory(
+                        isDebug,
+                        name,
+                        action,
+                        attribute.CanExecute != null ? CanExecuteEvaluators[attribute.CanExecute] : CanExecuteEvaluator.AlwaysTrue,
+                        attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default));
             }
         }
     }

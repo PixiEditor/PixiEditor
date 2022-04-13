@@ -137,6 +137,13 @@
 		<None Remove="Images\AnchorDot.png" />
 		<None Remove="Images\CheckerTile.png" />
 		<None Remove="Images\ChevronDown.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\Copy.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\Cut.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\Paste.png" />
+		<None Remove="Images\Commands\PixiEditor\Colors\Swap.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\CenterContent.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
 		<None Remove="Images\DiagonalRed.png" />
 		<None Remove="Images\Eye-off.png" />
 		<None Remove="Images\Eye.png" />
@@ -210,6 +217,13 @@
 		<Resource Include="Images\AnchorDot.png" />
 		<Resource Include="Images\CheckerTile.png" />
 		<Resource Include="Images\ChevronDown.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\Copy.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\Cut.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\Paste.png" />
+		<Resource Include="Images\Commands\PixiEditor\Colors\Swap.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\CenterContent.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
 		<Resource Include="Images\DiagonalRed.png" />
 		<Resource Include="Images\Eye-off.png" />
 		<Resource Include="Images\Eye.png" />

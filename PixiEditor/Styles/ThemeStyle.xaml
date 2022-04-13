@@ -172,7 +172,8 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
                         <ScrollViewer Name="PART_ContentHost"/>
                     </Border>
                 </ControlTemplate>

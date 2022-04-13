@@ -16,9 +16,25 @@ public partial class Command
 
         public string CanExecute { get; set; }
 
+        /// <summary>
+        /// Gets or sets the default shortcut key for this command
+        /// </summary>
         public Key Key { get; set; }
 
+        /// <summary>
+        /// Gets or sets the default shortcut modfiers keys for this command
+        /// </summary>
         public ModifierKeys Modifiers { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the icon evaluator for this command
+        /// </summary>
+        public string IconEvaluator { get; set; }
+
+        /// <summary>
+        /// Gets or sets path to the icon. Must be bitmap image
+        /// </summary>
+        public string Icon { get; set; }
 
         protected CommandAttribute(string name, string display, string description)
         {

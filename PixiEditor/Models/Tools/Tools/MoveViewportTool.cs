@@ -1,9 +1,11 @@
-﻿using PixiEditor.Models.Position;
+﻿using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Position;
 using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.H)]
     public class MoveViewportTool : ReadonlyTool
     {
         public MoveViewportTool()

@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
@@ -7,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.C)]
     public class CircleTool : ShapeTool
     {
         private string defaultActionDisplay = "Click and move mouse to draw a circle. Hold Shift to draw an even one.";

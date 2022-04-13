@@ -22,27 +22,23 @@ namespace PixiEditor.Models.Commands.XAML
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            try
-            {
-                if (DesignerProperties.GetIsInDesignMode(serviceProvider.GetService<IProvideValueTarget>().TargetObject as DependencyObject))
-                {
-                    var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
-                    return GetICommand(
-                        new Commands.Command.BasicCommand()
-                        {
-                            Name = Name,
-                            Display = attribute.Display,
-                            Description = attribute.Description,
-                            DefaultShortcut = attribute.GetShortcut(),
-                            Shortcut = attribute.GetShortcut()
-                        }, false);
-                }
-            }
-            catch { }
-
             if (commandController == null)
             {
                 commandController = ViewModelMain.Current.CommandController;
+            }
+
+            if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
+                return GetICommand(
+                    new Commands.Command.BasicCommand(null, null)
+                    {
+                        Name = Name,
+                        Display = attribute.Display,
+                        Description = attribute.Description,
+                        DefaultShortcut = attribute.GetShortcut(),
+                        Shortcut = attribute.GetShortcut()
+                    }, false);
             }
 
             return GetICommand(commandController.Commands[Name], UseProvided);

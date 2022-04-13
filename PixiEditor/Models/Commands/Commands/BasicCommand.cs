@@ -1,4 +1,4 @@
-﻿using PixiEditor.Models.DataHolders;
+﻿using PixiEditor.Models.Commands.Evaluators;
 
 namespace PixiEditor.Models.Commands
 {
@@ -9,6 +9,8 @@ namespace PixiEditor.Models.Commands
             public object Parameter { get; init; }
 
             protected override object GetParameter() => Parameter;
+
+            public BasicCommand(Action<object> onExecute, CanExecuteEvaluator canExecute) : base(onExecute, canExecute) { }
         }
     }
 }

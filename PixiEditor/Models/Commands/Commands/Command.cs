@@ -1,7 +1,8 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
 using System.Diagnostics;
-using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.Commands
 {
@@ -13,6 +14,10 @@ namespace PixiEditor.Models.Commands
         public bool IsDebug { get; init; }
 
         public string Name { get; init; }
+
+        public string IconPath { get; init; }
+
+        public IconEvaluator IconEvaluator { get; init; }
 
         public string Display { get; init; }
 
@@ -30,8 +35,13 @@ namespace PixiEditor.Models.Commands
 
         protected abstract object GetParameter();
 
+        protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute) =>
+            Methods = new(this, onExecute, canExecute);
+
         public void Execute() => Methods.Execute(GetParameter());
 
         public bool CanExecute() => Methods.CanExecute(GetParameter());
+
+        public ImageSource GetIcon() => IconEvaluator.EvaluateEvaluator(this, GetParameter());
     }
 }

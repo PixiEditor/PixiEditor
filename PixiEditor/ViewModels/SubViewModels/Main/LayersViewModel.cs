@@ -202,7 +202,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             return Owner.BitmapManager.ActiveDocument?.Layers.Count(x => x.IsActive) > 0;
         }
 
-        [Command.Basic("PixiEditor.Layer.New", "New Layer", "Create new layer", CanExecute = "PixiEditor.HasDocument", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+        [Command.Basic("PixiEditor.Layer.New", "New Layer", "Create new layer", CanExecute = "PixiEditor.HasDocument", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, Icon = "Layer-add.png")]
         public void NewLayer(object parameter)
         {
             GuidStructureItem control = GetGroupFromParameter(parameter);

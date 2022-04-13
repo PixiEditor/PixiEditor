@@ -1,14 +1,18 @@
-﻿namespace PixiEditor.Models.Commands;
+﻿using PixiEditor.Models.Commands.Evaluators;
+
+namespace PixiEditor.Models.Commands;
 
 public class CommandMethods
 {
+    private readonly Command _command;
     private readonly Action<object> _execute;
-    private readonly Predicate<object> _canExecute;
+    private readonly CanExecuteEvaluator _canExecute;
 
-    public CommandMethods(Action<object> execute, Predicate<object> canExecute)
+    public CommandMethods(Command command, Action<object> execute, CanExecuteEvaluator canExecute)
     {
         _execute = execute;
         _canExecute = canExecute;
+        _command = command;
     }
 
     public void Execute(object parameter)
@@ -19,5 +23,5 @@ public class CommandMethods
         }
     }
 
-    public bool CanExecute(object parameter) => _canExecute(parameter);
+    public bool CanExecute(object parameter) => _canExecute.EvaluateEvaluator(_command, parameter);
 }

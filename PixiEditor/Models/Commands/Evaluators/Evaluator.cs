@@ -7,6 +7,8 @@ namespace PixiEditor.Models.Commands.Evaluators
     {
         public string Name { get; init; }
 
-        public Func<object, T> Evaluate { get; init; }
+        public Func<object, T> Evaluate { private get; init; }
+
+        public virtual T EvaluateEvaluator(Command command, object parameter) => Evaluate(parameter);
     }
 }

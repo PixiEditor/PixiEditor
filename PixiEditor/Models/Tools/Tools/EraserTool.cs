@@ -1,13 +1,15 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
-using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.E)]
     internal class EraserTool : BitmapOperationTool
     {
         private readonly PenTool pen;

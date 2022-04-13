@@ -22,15 +22,15 @@ namespace PixiEditor.Models.Commands.XAML
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            if (DesignerProperties.GetIsInDesignMode(serviceProvider.GetService<IProvideValueTarget>().TargetObject as DependencyObject))
-            {
-                var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
-                return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
-            }
-
             if (commandController == null)
             {
                 commandController = ViewModelMain.Current.CommandController;
+            }
+
+            if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
+                return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
             }
 
             return GetBinding(commandController.Commands[Name]).ProvideValue(serviceProvider);

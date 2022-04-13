@@ -1,18 +1,17 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.Brushes;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.B)]
     internal class PenTool : ShapeTool
     {
         public Brush Brush { get; set; }

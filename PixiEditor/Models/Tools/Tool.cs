@@ -52,7 +52,6 @@ namespace PixiEditor.Models.Tools
         private bool isActive;
         private string actionDisplay = string.Empty;
 
-
         public virtual void OnKeyDown(Key key) { }
 
         public virtual void OnKeyUp(Key key) { }

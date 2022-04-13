@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -9,12 +10,13 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
 using SkiaSharp;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.W)]
     internal class MagicWandTool : ReadonlyTool, ICachedDocumentTool
     {
         private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }

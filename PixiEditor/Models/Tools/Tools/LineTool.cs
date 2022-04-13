@@ -1,15 +1,16 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.L)]
     public class LineTool : ShapeTool
     {
         private List<Coordinates> linePoints = new List<Coordinates>();

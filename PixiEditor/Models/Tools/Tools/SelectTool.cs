@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -7,13 +8,13 @@ using PixiEditor.Models.ImageManipulation;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using PixiEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using SkiaSharp;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.M)]
     internal class SelectTool : ReadonlyTool
     {
         private readonly RectangleTool rectangleTool;
