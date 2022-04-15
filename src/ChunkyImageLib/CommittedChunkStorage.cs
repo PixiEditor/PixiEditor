@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using SkiaSharp;
 
 namespace ChunkyImageLib
 {
@@ -6,18 +7,19 @@ namespace ChunkyImageLib
     {
         private bool disposed = false;
         private List<(Vector2i, Chunk?)> savedChunks = new();
+        private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+
         public CommittedChunkStorage(ChunkyImage image, HashSet<Vector2i> committedChunksToSave)
         {
             foreach (var chunkPos in committedChunksToSave)
             {
-                Chunk? chunk = (Chunk?)image.GetCommittedChunk(chunkPos, ChunkResolution.Full);
-                if (chunk is null)
+                Chunk copy = Chunk.Create();
+                if (!image.DrawCommittedChunkOn(chunkPos, ChunkResolution.Full, copy.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
                 {
+                    copy.Dispose();
                     savedChunks.Add((chunkPos, null));
                     continue;
                 }
-                Chunk copy = Chunk.Create();
-                chunk.Surface.CopyTo(copy.Surface);
                 savedChunks.Add((chunkPos, copy));
             }
         }

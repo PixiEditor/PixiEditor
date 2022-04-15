@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 namespace ChunkyImageLib
 {
     /// <summary>
+    /// This class is thread-safe only for reading! Only the functions from IReadOnlyChunkyImage can be called from any thread.
     /// ChunkyImage can be in two general states: 
     /// 1. a state with all chunks committed and no queued operations
     ///     - latestChunks and latestChunksData are empty
@@ -28,10 +29,17 @@ namespace ChunkyImageLib
     {
         private struct LatestChunkData
         {
-            public int QueueProgress { get; set; } = 0;
-            public bool IsDeleted { get; set; } = false;
+            public LatestChunkData()
+            {
+                QueueProgress = 0;
+                IsDeleted = false;
+            }
+
+            public int QueueProgress { get; set; }
+            public bool IsDeleted { get; set; }
         }
         private bool disposed = false;
+        private object lockObject = new();
 
         public static int ChunkSize => ChunkPool.FullChunkSize;
         private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
@@ -84,22 +92,49 @@ namespace ChunkyImageLib
 
         public ChunkyImage CloneFromLatest()
         {
-            ChunkyImage output = new(LatestSize);
-            var chunks = FindAllChunks();
-            foreach (var chunk in chunks)
+            lock (lockObject)
             {
-                var image = (Chunk?)GetLatestChunk(chunk, ChunkResolution.Full);
-                if (image is not null)
-                    output.DrawImage(chunk * ChunkSize, image.Surface);
+                ChunkyImage output = new(LatestSize);
+                var chunks = FindAllChunks();
+                foreach (var chunk in chunks)
+                {
+                    var image = (Chunk?)GetLatestChunk(chunk, ChunkResolution.Full);
+                    if (image is not null)
+                        output.DrawImage(chunk * ChunkSize, image.Surface);
+                }
+                output.CommitChanges();
+                return output;
             }
-            output.CommitChanges();
-            return output;
+        }
+
+        public bool DrawLatestChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
+        {
+            lock (lockObject)
+            {
+                var chunk = GetLatestChunk(chunkPos, resolution);
+                if (chunk is null)
+                    return false;
+                chunk.DrawOnSurface(surface, pos, paint);
+                return true;
+            }
+        }
+
+        internal bool DrawCommittedChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
+        {
+            lock (lockObject)
+            {
+                var chunk = GetCommittedChunk(chunkPos, resolution);
+                if (chunk is null)
+                    return false;
+                chunk.DrawOnSurface(surface, pos, paint);
+                return true;
+            }
         }
 
         /// <summary>
         /// Returns the latest version of the chunk, with uncommitted changes applied if they exist
         /// </summary>
-        public IReadOnlyChunk? GetLatestChunk(Vector2i pos, ChunkResolution resolution)
+        private Chunk? GetLatestChunk(Vector2i pos, ChunkResolution resolution)
         {
             //no queued operations
             if (queuedOperations.Count == 0)
@@ -136,7 +171,7 @@ namespace ChunkyImageLib
         /// <summary>
         /// Returns the committed version of the chunk ignoring any uncommitted changes
         /// </summary>
-        internal IReadOnlyChunk? GetCommittedChunk(Vector2i pos, ChunkResolution resolution)
+        private Chunk? GetCommittedChunk(Vector2i pos, ChunkResolution resolution)
         {
             var maybeSameRes = MaybeGetCommittedChunk(pos, resolution);
             if (maybeSameRes is not null)
@@ -154,39 +189,57 @@ namespace ChunkyImageLib
 
         public void DrawRectangle(ShapeData rect)
         {
-            RectangleOperation operation = new(rect);
-            EnqueueOperation(operation);
+            lock (lockObject)
+            {
+                RectangleOperation operation = new(rect);
+                EnqueueOperation(operation);
+            }
         }
 
         public void DrawImage(Vector2i pos, Surface image)
         {
-            ImageOperation operation = new(pos, image);
-            EnqueueOperation(operation);
+            lock (lockObject)
+            {
+                ImageOperation operation = new(pos, image);
+                EnqueueOperation(operation);
+            }
         }
 
         public void ClearRegion(Vector2i pos, Vector2i size)
         {
-            ClearRegionOperation operation = new(pos, size);
-            EnqueueOperation(operation);
+            lock (lockObject)
+            {
+                ClearRegionOperation operation = new(pos, size);
+                EnqueueOperation(operation);
+            }
         }
 
         public void Clear()
         {
-            ClearOperation operation = new();
-            EnqueueOperation(operation, FindAllChunks());
+            lock (lockObject)
+            {
+                ClearOperation operation = new();
+                EnqueueOperation(operation, FindAllChunks());
+            }
         }
 
         public void ApplyRasterClip(ChunkyImage clippingMask)
         {
-            RasterClipOperation operation = new(clippingMask);
-            EnqueueOperation(operation, new());
+            lock (lockObject)
+            {
+                RasterClipOperation operation = new(clippingMask);
+                EnqueueOperation(operation, new());
+            }
         }
 
         public void Resize(Vector2i newSize)
         {
-            ResizeOperation operation = new(newSize);
-            LatestSize = newSize;
-            EnqueueOperation(operation, FindAllChunksOutsideBounds(newSize));
+            lock (lockObject)
+            {
+                ResizeOperation operation = new(newSize);
+                LatestSize = newSize;
+                EnqueueOperation(operation, FindAllChunksOutsideBounds(newSize));
+            }
         }
 
         private void EnqueueOperation(IDrawOperation operation)
@@ -204,41 +257,47 @@ namespace ChunkyImageLib
 
         public void CancelChanges()
         {
-            //clear queued operations
-            foreach (var operation in queuedOperations)
-                operation.Item1.Dispose();
-            queuedOperations.Clear();
+            lock (lockObject)
+            {
+                //clear queued operations
+                foreach (var operation in queuedOperations)
+                    operation.Item1.Dispose();
+                queuedOperations.Clear();
 
-            //clear latest chunks
-            foreach (var (_, chunksOfRes) in latestChunks)
-            {
-                foreach (var (_, chunk) in chunksOfRes)
+                //clear latest chunks
+                foreach (var (_, chunksOfRes) in latestChunks)
                 {
-                    chunk.Dispose();
+                    foreach (var (_, chunk) in chunksOfRes)
+                    {
+                        chunk.Dispose();
+                    }
                 }
-            }
-            LatestSize = CommittedSize;
-            foreach (var (res, chunks) in latestChunks)
-            {
-                chunks.Clear();
-                latestChunksData[res].Clear();
+                LatestSize = CommittedSize;
+                foreach (var (res, chunks) in latestChunks)
+                {
+                    chunks.Clear();
+                    latestChunksData[res].Clear();
+                }
             }
         }
 
         public void CommitChanges()
         {
-            var affectedChunks = FindAffectedChunks();
-            foreach (var chunk in affectedChunks)
+            lock (lockObject)
             {
-                MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);
+                var affectedChunks = FindAffectedChunks();
+                foreach (var chunk in affectedChunks)
+                {
+                    MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);
+                }
+                foreach (var (operation, _) in queuedOperations)
+                {
+                    operation.Dispose();
+                }
+                CommitLatestChunks();
+                CommittedSize = LatestSize;
+                queuedOperations.Clear();
             }
-            foreach (var (operation, _) in queuedOperations)
-            {
-                operation.Dispose();
-            }
-            CommitLatestChunks();
-            CommittedSize = LatestSize;
-            queuedOperations.Clear();
         }
 
         private void CommitLatestChunks()
@@ -307,12 +366,15 @@ namespace ChunkyImageLib
         /// </summary>
         public HashSet<Vector2i> FindAllChunks()
         {
-            var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
-            foreach (var (operation, opChunks) in queuedOperations)
+            lock (lockObject)
             {
-                allChunks.UnionWith(opChunks);
+                var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
+                foreach (var (operation, opChunks) in queuedOperations)
+                {
+                    allChunks.UnionWith(opChunks);
+                }
+                return allChunks;
             }
-            return allChunks;
         }
 
         /// <summary>
@@ -320,12 +382,15 @@ namespace ChunkyImageLib
         /// </summary>
         public HashSet<Vector2i> FindAffectedChunks()
         {
-            var chunks = new HashSet<Vector2i>();
-            foreach (var (_, opChunks) in queuedOperations)
+            lock (lockObject)
             {
-                chunks.UnionWith(opChunks);
+                var chunks = new HashSet<Vector2i>();
+                foreach (var (_, opChunks) in queuedOperations)
+                {
+                    chunks.UnionWith(opChunks);
+                }
+                return chunks;
             }
-            return chunks;
         }
 
         private void MaybeCreateAndProcessQueueForChunk(Vector2i chunkPos, ChunkResolution resolution)
@@ -336,7 +401,7 @@ namespace ChunkyImageLib
                 return;
 
             Chunk? targetChunk = null;
-            List<IReadOnlyChunk> activeClips = new();
+            List<Chunk> activeClips = new();
             bool isFullyMaskedOut = false;
             bool somethingWasApplied = false;
             for (int i = 0; i < queuedOperations.Count; i++)
@@ -372,7 +437,7 @@ namespace ChunkyImageLib
 
         private bool ApplyOperationToChunk(
             IOperation operation,
-            List<IReadOnlyChunk> activeClips,
+            List<Chunk> activeClips,
             bool isFullyMaskedOut,
             Chunk targetChunk,
             Vector2i chunkPos,
@@ -412,10 +477,16 @@ namespace ChunkyImageLib
             return chunkData.IsDeleted;
         }
 
+        /// <summary>
+        /// Note: this function modifies the internal state, it is not thread safe! (same as all other functions that change the image in some way)
+        /// </summary>
         public bool CheckIfCommittedIsEmpty()
         {
-            FindAndDeleteEmptyCommittedChunks();
-            return committedChunks[ChunkResolution.Full].Count == 0;
+            lock (lockObject)
+            {
+                FindAndDeleteEmptyCommittedChunks();
+                return committedChunks[ChunkResolution.Full].Count == 0;
+            }
         }
 
         private HashSet<Vector2i> FindAllChunksOutsideBounds(Vector2i size)
@@ -543,19 +614,22 @@ namespace ChunkyImageLib
 
         public void Dispose()
         {
-            if (disposed)
-                return;
-            CancelChanges();
-            foreach (var (_, chunk) in tempRasterClipChunks)
-                chunk.Dispose();
-            foreach (var (_, chunks) in committedChunks)
+            lock (lockObject)
             {
-                foreach (var (_, chunk) in chunks)
-                {
+                if (disposed)
+                    return;
+                CancelChanges();
+                foreach (var (_, chunk) in tempRasterClipChunks)
                     chunk.Dispose();
+                foreach (var (_, chunks) in committedChunks)
+                {
+                    foreach (var (_, chunk) in chunks)
+                    {
+                        chunk.Dispose();
+                    }
                 }
+                disposed = true;
             }
-            disposed = true;
         }
     }
 }

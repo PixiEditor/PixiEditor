@@ -28,11 +28,8 @@ namespace PixiEditor.ChangeableDocument.Rendering
                     continue;
                 if (child is IReadOnlyLayer layer && (visibleLayers is null || visibleLayers.Contains(layer.GuidValue)))
                 {
-                    IReadOnlyChunk? chunk = layer.ReadOnlyLayerImage.GetLatestChunk(chunkPos, resolution);
-                    if (chunk is null)
-                        continue;
                     PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
-                    chunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
+                    layer.ReadOnlyLayerImage.DrawLatestChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
                 }
                 else if (child is IReadOnlyFolder innerFolder)
                 {

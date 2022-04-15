@@ -152,9 +152,8 @@ namespace PixiEditorPrototype.Models.Rendering
 
             if (helpers.Tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
                 return;
-            IReadOnlyChunk? selectionChunk = helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.GetLatestChunk(chunkPos, resolution);
-            if (selectionChunk is not null)
-                selectionChunk.DrawOnSurface(screenSurface, chunkPos.Multiply(selectionChunk.PixelSize), SelectionPaint);
+
+            helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.DrawLatestChunkOn(chunkPos, resolution, screenSurface, chunkPos * resolution.PixelSize(), SelectionPaint);
         }
     }
 }

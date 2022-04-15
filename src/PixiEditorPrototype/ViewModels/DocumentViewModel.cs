@@ -169,7 +169,6 @@ namespace PixiEditorPrototype.ViewModels
                 return;
             startedSelection = false;
             Helpers.ActionAccumulator.AddAction(new EndSelectRectangle_Action());
-            Helpers.ActionAccumulator.AddAction(new MergeLatestChanges_Action(2));
         }
 
         public void ForceRefreshView()

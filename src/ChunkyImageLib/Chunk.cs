@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace ChunkyImageLib
 {
-    public class Chunk : IDisposable, IReadOnlyChunk
+    public class Chunk : IDisposable
     {
         private bool returned = false;
         public Surface Surface { get; }

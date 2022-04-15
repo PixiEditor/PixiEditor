@@ -31,7 +31,7 @@ Console.ReadKey();
     {
         for (int j = 0; j < 4; j++)
         {
-            image.GetLatestChunk(new(i, j), ChunkyImageLib.DataHolders.ChunkResolution.Full);
+            //image.GetLatestChunk(new(i, j), ChunkyImageLib.DataHolders.ChunkResolution.Full);
         }
     }
     sw.Stop();
@@ -42,7 +42,7 @@ Console.ReadKey();
     {
         for (int j = 0; j < 4; j++)
         {
-            image.GetLatestChunk(new(i, j), ChunkyImageLib.DataHolders.ChunkResolution.Full);
+            //image.GetLatestChunk(new(i, j), ChunkyImageLib.DataHolders.ChunkResolution.Full);
         }
     }
     sw.Stop();
