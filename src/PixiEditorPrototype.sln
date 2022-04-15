@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLibTest", "Chunk
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLibVis", "ChunkyImageLibVis\ChunkyImageLibVis.csproj", "{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Zoombox", "PixiEditor.Zoombox\PixiEditor.Zoombox.csproj", "{232E58B6-8080-4725-8541-98BFCFE23A1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Zoombox", "PixiEditor.Zoombox\PixiEditor.Zoombox.csproj", "{232E58B6-8080-4725-8541-98BFCFE23A1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLibBenchmark", "ChunkyImageLibBenchmark\ChunkyImageLibBenchmark.csproj", "{3998B3EB-F11F-4637-A135-FBC3CCA24299}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{232E58B6-8080-4725-8541-98BFCFE23A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{232E58B6-8080-4725-8541-98BFCFE23A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{232E58B6-8080-4725-8541-98BFCFE23A1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3998B3EB-F11F-4637-A135-FBC3CCA24299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3998B3EB-F11F-4637-A135-FBC3CCA24299}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3998B3EB-F11F-4637-A135-FBC3CCA24299}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3998B3EB-F11F-4637-A135-FBC3CCA24299}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -330,7 +330,7 @@ namespace ChunkyImageLib
 
         private void MaybeCreateAndProcessQueueForChunk(Vector2i chunkPos, ChunkResolution resolution)
         {
-            if (latestChunksData[resolution].TryGetValue(chunkPos, out LatestChunkData chunkData))
+            if (!latestChunksData[resolution].TryGetValue(chunkPos, out LatestChunkData chunkData))
                 chunkData = new() { QueueProgress = 0, IsDeleted = !committedChunks[ChunkResolution.Full].ContainsKey(chunkPos) };
             if (chunkData.QueueProgress == queuedOperations.Count)
                 return;
