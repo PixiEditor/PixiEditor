@@ -48,7 +48,7 @@
                     Command="{Binding ImportPaletteCommand, ElementName=paletteItem}"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}">
                 <Button.Background>
-                    <ImageBrush ImageSource="/Images/Download.png"/>
+                    <ImageBrush ImageSource="/Images/Check-square.png"/>
                 </Button.Background>
             </Button>
             <Button Margin="2 0 -2 0" Width="24" Height="24" HorizontalAlignment="Right"

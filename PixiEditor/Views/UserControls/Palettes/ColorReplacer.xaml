@@ -40,7 +40,7 @@
                     <Button Click="ReplaceButton_OnClick" ToolTip="Replace color"
                             Style="{StaticResource ToolButtonStyle}" Cursor="Hand" Height="20" Width="20">
                         <Button.Background>
-                            <ImageBrush ImageSource="/Images/Shuffle.png"/>
+                            <ImageBrush ImageSource="/Images/Replace.png"/>
                         </Button.Background>
                     </Button>
                     </StackPanel>

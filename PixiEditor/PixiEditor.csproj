@@ -135,6 +135,7 @@
 	<ItemGroup>
 		<None Remove="Images\AnchorDot.png" />
 		<None Remove="Images\Arrow-right.png" />
+		<None Remove="Images\Check-square.png" />
 		<None Remove="Images\CheckerTile.png" />
 		<None Remove="Images\ChevronDown.png" />
 		<None Remove="Images\ChevronsDown.png" />
@@ -157,6 +158,8 @@
 		<None Remove="Images\PixiParserLogo.png" />
 		<None Remove="Images\Placeholder.png" />
 		<None Remove="Images\Processing.gif" />
+		<None Remove="Images\Replace.png" />
+		<None Remove="Images\Search.png" />
 		<None Remove="Images\SelectImage.png" />
 		<None Remove="Images\SocialMedia\DiscordIcon.png" />
 		<None Remove="Images\SocialMedia\DonateIcon.png" />
@@ -217,6 +220,7 @@
 	<ItemGroup>
 		<Resource Include="Images\AnchorDot.png" />
 		<Resource Include="Images\Arrow-right.png" />
+		<Resource Include="Images\Check-square.png" />
 		<Resource Include="Images\CheckerTile.png" />
 		<Resource Include="Images\ChevronDown.png" />
 		<Resource Include="Images\ChevronsDown.png" />
@@ -237,6 +241,8 @@
 		<Resource Include="Images\PixiParserLogo.png" />
 		<Resource Include="Images\Placeholder.png" />
 		<Resource Include="Images\Processing.gif" />
+		<Resource Include="Images\Replace.png" />
+		<Resource Include="Images\Search.png" />
 		<Resource Include="Images\SocialMedia\DiscordIcon.png" />
 		<Resource Include="Images\SocialMedia\DonateIcon.png" />
 		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
