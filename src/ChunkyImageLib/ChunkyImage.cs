@@ -22,7 +22,7 @@ namespace ChunkyImageLib
     ///     - latestChunks stores chunks with some (or none, or all) queued operations applied
     ///     - latestChunksData stores the data for some or all of the latest chunks (not necessarily synced with latestChunks).
     ///         The data includes how many operations from the queue have already been applied to the chunk, as well as chunk deleted state (the clear operation deletes chunks)
-    ///     - LatestSize contains new size if any resize operations were requested, otherwise commited size
+    ///     - LatestSize contains the new size if any resize operations were requested, otherwise the commited size
     /// You can check the current state via queuedOperations.Count == 0
     /// </summary>
     public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
@@ -128,6 +128,14 @@ namespace ChunkyImageLib
                     return false;
                 chunk.DrawOnSurface(surface, pos, paint);
                 return true;
+            }
+        }
+
+        internal bool CommitedChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+        {
+            lock (lockObject)
+            {
+                return GetCommittedChunk(chunkPos, resolution) is not null;
             }
         }
 
@@ -401,7 +409,7 @@ namespace ChunkyImageLib
                 return;
 
             Chunk? targetChunk = null;
-            List<Chunk> activeClips = new();
+            List<ChunkyImage> activeClips = new();
             bool isFullyMaskedOut = false;
             bool somethingWasApplied = false;
             for (int i = 0; i < queuedOperations.Count; i++)
@@ -409,9 +417,8 @@ namespace ChunkyImageLib
                 var (operation, operChunks) = queuedOperations[i];
                 if (operation is RasterClipOperation clipOperation)
                 {
-                    var chunk = clipOperation.ClippingMask.GetCommittedChunk(chunkPos, resolution);
-                    if (chunk is not null)
-                        activeClips.Add(chunk);
+                    if (clipOperation.ClippingMask.CommitedChunkExists(chunkPos, resolution))
+                        activeClips.Add(clipOperation.ClippingMask);
                     else
                         isFullyMaskedOut = true;
                 }
@@ -425,7 +432,7 @@ namespace ChunkyImageLib
                 }
 
                 if (chunkData.QueueProgress <= i)
-                    chunkData.IsDeleted = ApplyOperationToChunk(operation, activeClips, isFullyMaskedOut, targetChunk!, chunkPos, chunkData);
+                    chunkData.IsDeleted = ApplyOperationToChunk(operation, activeClips, isFullyMaskedOut, targetChunk!, chunkPos, resolution, chunkData);
             }
 
             if (somethingWasApplied)
@@ -437,10 +444,11 @@ namespace ChunkyImageLib
 
         private bool ApplyOperationToChunk(
             IOperation operation,
-            List<Chunk> activeClips,
+            List<ChunkyImage> activeClips,
             bool isFullyMaskedOut,
             Chunk targetChunk,
             Vector2i chunkPos,
+            ChunkResolution resolution,
             LatestChunkData chunkData)
         {
             if (operation is ClearOperation)
@@ -464,7 +472,7 @@ namespace ChunkyImageLib
                 chunkOperation.DrawOnChunk(tempChunk, chunkPos);
                 foreach (var mask in activeClips)
                 {
-                    mask.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+                    mask.DrawCommittedChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
                 }
                 tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0));
                 return false;
@@ -508,7 +516,7 @@ namespace ChunkyImageLib
             HashSet<Vector2i> toRemove = new();
             foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
             {
-                if (IsChunkEmpty(chunk))
+                if (chunk.Surface.IsFullyTransparent())
                 {
                     toRemove.Add(pos);
                     chunk.Dispose();
@@ -521,19 +529,6 @@ namespace ChunkyImageLib
                 committedChunks[ChunkResolution.Quarter].Remove(pos);
                 committedChunks[ChunkResolution.Eighth].Remove(pos);
             }
-        }
-
-        private unsafe bool IsChunkEmpty(Chunk chunk)
-        {
-            ulong* ptr = (ulong*)chunk.Surface.PixelBuffer;
-            for (int i = 0; i < ChunkSize * ChunkSize; i++)
-            {
-                // ptr[i] actually contains 4 16-bit floats. We only care about the first one which is alpha.
-                // An empty pixel can have alpha of 0 or -0 (not sure if -0 actually ever comes up). 0 in hex is 0x0, -0 in hex is 0x8000
-                if ((ptr[i] & 0x1111_0000_0000_0000) != 0 && (ptr[i] & 0x1111_0000_0000_0000) != 0x8000_0000_0000_0000)
-                    return false;
-            }
-            return true;
         }
 
         private Chunk GetOrCreateCommittedChunk(Vector2i chunkPos, ChunkResolution resolution)

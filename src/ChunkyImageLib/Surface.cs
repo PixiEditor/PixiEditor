@@ -49,6 +49,19 @@ namespace ChunkyImageLib
             return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);*/
         }
 
+        public unsafe bool IsFullyTransparent()
+        {
+            ulong* ptr = (ulong*)PixelBuffer;
+            for (int i = 0; i < Size.X * Size.Y; i++)
+            {
+                // ptr[i] actually contains 4 16-bit floats. We only care about the first one which is alpha.
+                // An empty pixel can have alpha of 0 or -0 (not sure if -0 actually ever comes up). 0 in hex is 0x0, -0 in hex is 0x8000
+                if ((ptr[i] & 0x1111_0000_0000_0000) != 0 && (ptr[i] & 0x1111_0000_0000_0000) != 0x8000_0000_0000_0000)
+                    return false;
+            }
+            return true;
+        }
+
         public void SaveToDesktop(string filename = "savedSurface.png")
         {
             using var final = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.Rgba8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
