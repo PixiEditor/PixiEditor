@@ -26,6 +26,7 @@ namespace PixiEditorPrototype.ViewModels
         }
 
         public bool IsSelected { get; set; }
+        public bool ShouldDrawOnMask { get; set; }
 
         public float Opacity
         {
@@ -35,6 +36,11 @@ namespace PixiEditorPrototype.ViewModels
         public Guid GuidValue
         {
             get => member.GuidValue;
+        }
+
+        public bool HasMask
+        {
+            get => member.ReadOnlyMask is not null;
         }
 
         public RelayCommand MoveUpCommand { get; }

@@ -1,10 +1,10 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;
-using PixiEditor.ChangeableDocument.Actions.Document;
 using PixiEditor.ChangeableDocument.Actions.Drawing;
 using PixiEditor.ChangeableDocument.Actions.Drawing.Rectangle;
 using PixiEditor.ChangeableDocument.Actions.Drawing.Selection;
 using PixiEditor.ChangeableDocument.Actions.Properties;
+using PixiEditor.ChangeableDocument.Actions.Root;
 using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.Zoombox;
@@ -52,6 +52,9 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? CombineCommand { get; }
         public RelayCommand? ClearHistoryCommand { get; }
         public RelayCommand? MoveViewportCommand { get; }
+        public RelayCommand? CreateMaskCommand { get; }
+        public RelayCommand? DeleteMaskCommand { get; }
+
 
 
         public SKSurface SurfaceFull { get; set; }
@@ -130,6 +133,8 @@ namespace PixiEditorPrototype.ViewModels
             CombineCommand = new RelayCommand(Combine);
             ClearHistoryCommand = new RelayCommand(ClearHistory);
             MoveViewportCommand = new RelayCommand(MoveViewport);
+            CreateMaskCommand = new RelayCommand(CreateMask);
+            DeleteMaskCommand = new RelayCommand(DeleteMask);
 
             SurfaceFull = SKSurface.Create(
                 new SKImageInfo(BitmapFull.PixelWidth, BitmapFull.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
@@ -142,8 +147,11 @@ namespace PixiEditorPrototype.ViewModels
         {
             if (SelectedStructureMember is null)
                 return;
+            bool drawOnMask = SelectedStructureMember.HasMask && SelectedStructureMember.ShouldDrawOnMask;
+            if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
+                return;
             startedRectangle = true;
-            Helpers.ActionAccumulator.AddAction(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data));
+            Helpers.ActionAccumulator.AddAction(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data, drawOnMask));
         }
 
         public void EndRectangle()
@@ -205,6 +213,20 @@ namespace PixiEditorPrototype.ViewModels
         private void ChangeSelectedItem(object? param)
         {
             SelectedStructureMember = (StructureMemberViewModel?)((RoutedPropertyChangedEventArgs<object>?)param)?.NewValue;
+        }
+
+        private void CreateMask(object? param)
+        {
+            if (SelectedStructureMember is null || SelectedStructureMember.HasMask)
+                return;
+            Helpers.ActionAccumulator.AddAction(new CreateStructureMemberMask_Action(SelectedStructureMember.GuidValue));
+        }
+
+        private void DeleteMask(object? param)
+        {
+            if (SelectedStructureMember is null || !SelectedStructureMember.HasMask)
+                return;
+            Helpers.ActionAccumulator.AddAction(new DeleteStructureMemberMask_Action(SelectedStructureMember.GuidValue));
         }
 
         private void Combine(object? param)

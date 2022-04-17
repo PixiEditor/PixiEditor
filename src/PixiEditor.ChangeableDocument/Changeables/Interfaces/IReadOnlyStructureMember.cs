@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces
+﻿using ChunkyImageLib;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Interfaces
 {
     public interface IReadOnlyStructureMember
     {
@@ -6,5 +8,6 @@
         string Name { get; }
         Guid GuidValue { get; }
         float Opacity { get; }
+        IReadOnlyChunkyImage? ReadOnlyMask { get; }
     }
 }

@@ -50,7 +50,16 @@ namespace PixiEditorPrototype.Models
                 case MoveViewport_PassthroughAction info:
                     ProcessMoveViewport(info);
                     break;
+                case StructureMemberMask_ChangeInfo info:
+                    ProcessStructureMemberMask(info);
+                    break;
             }
+        }
+
+        private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
+        {
+            var memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
+            memberVm.RaisePropertyChanged(nameof(memberVm.HasMask));
         }
 
         private void ProcessMoveViewport(MoveViewport_PassthroughAction info)

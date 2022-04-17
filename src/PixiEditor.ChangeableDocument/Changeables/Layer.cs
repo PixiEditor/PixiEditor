@@ -22,6 +22,7 @@ namespace PixiEditor.ChangeableDocument.Changeables
         public override void Dispose()
         {
             LayerImage.Dispose();
+            Mask?.Dispose();
         }
 
         internal override Layer Clone()
@@ -31,7 +32,8 @@ namespace PixiEditor.ChangeableDocument.Changeables
                 GuidValue = GuidValue,
                 IsVisible = IsVisible,
                 Name = Name,
-                Opacity = Opacity
+                Opacity = Opacity,
+                Mask = Mask?.CloneFromLatest(),
             };
         }
     }

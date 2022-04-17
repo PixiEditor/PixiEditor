@@ -3,12 +3,13 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 
-namespace PixiEditor.ChangeableDocument.Changes
+namespace PixiEditor.ChangeableDocument.Changes.Root
 {
     internal class ResizeCanvas_Change : Change
     {
         private Vector2i originalSize;
         private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
+        private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
         private CommittedChunkStorage? selectionChunkStorage;
         private Vector2i newSize;
         public ResizeCanvas_Change(Vector2i size)
@@ -48,6 +49,13 @@ namespace PixiEditor.ChangeableDocument.Changes
                 layer.LayerImage.Resize(newSize);
                 deletedChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedChunks()));
                 layer.LayerImage.CommitChanges();
+
+                if (layer.Mask is null)
+                    return;
+
+                layer.Mask.Resize(newSize);
+                deletedMaskChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.Mask, layer.Mask.FindAffectedChunks()));
+                layer.Mask.CommitChanges();
             });
 
             target.Selection.SelectionImage.Resize(newSize);
@@ -69,6 +77,13 @@ namespace PixiEditor.ChangeableDocument.Changes
                 layer.LayerImage.Resize(originalSize);
                 deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
                 layer.LayerImage.CommitChanges();
+
+                if (layer.Mask is null)
+                    return;
+
+                layer.Mask.Resize(originalSize);
+                deletedMaskChunks[layer.GuidValue].ApplyChunksToImage(layer.Mask);
+                layer.Mask.CommitChanges();
             });
 
             target.Selection.SelectionImage.Resize(originalSize);
@@ -88,6 +103,8 @@ namespace PixiEditor.ChangeableDocument.Changes
         {
             foreach (var layer in deletedChunks)
                 layer.Value.Dispose();
+            foreach (var mask in deletedMaskChunks)
+                mask.Value.Dispose();
             selectionChunkStorage?.Dispose();
         }
     }

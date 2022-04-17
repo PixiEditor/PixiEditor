@@ -51,6 +51,11 @@ namespace PixiEditorPrototype.Models.Rendering
             {
                 switch (change)
                 {
+                    case MaskChunks_ChangeInfo maskChunks:
+                        if (maskChunks.Chunks is null)
+                            throw new InvalidOperationException("Chunks must not be null");
+                        affectedChunks.UnionWith(maskChunks.Chunks);
+                        break;
                     case LayerImageChunks_ChangeInfo layerImageChunks:
                         if (layerImageChunks.Chunks is null)
                             throw new InvalidOperationException("Chunks must not be null");
@@ -72,6 +77,7 @@ namespace PixiEditorPrototype.Models.Rendering
                     case DeleteStructureMember_ChangeInfo:
                     case MoveStructureMember_ChangeInfo:
                     case Size_ChangeInfo:
+                    case StructureMemberMask_ChangeInfo:
                         AddAllChunks(affectedChunks);
                         break;
                     case StructureMemberOpacity_ChangeInfo opacityChangeInfo:

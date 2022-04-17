@@ -18,16 +18,21 @@
     </Window.DataContext>
     <Window.Resources>
         <conv:IndexToChunkResolutionConverter x:Key="IndexToChunkResolutionConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
     <DockPanel Background="Gray">
         <Border BorderThickness="1" Background="White" BorderBrush="Black" Width="280" DockPanel.Dock="Right" Margin="5">
             <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                    <Button Margin="5" Command="{Binding ActiveDocument.CreateNewLayerCommand}" Width="80">New Layer</Button>
-                    <Button Margin="5" Command="{Binding ActiveDocument.CreateNewFolderCommand}" Width="80">New Folder</Button>
-                    <Button Margin="5" Command="{Binding ActiveDocument.DeleteStructureMemberCommand}" Width="80">Delete</Button>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.CreateNewLayerCommand}" Width="80">New Layer</Button>
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.CreateNewFolderCommand}" Width="80">New Folder</Button>
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteStructureMemberCommand}" Width="80">Delete</Button>
                 </StackPanel>
-                <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,0,0,5">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.CreateMaskCommand}" Width="80">Create Mask</Button>
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteMaskCommand}" Width="80">Delete Mask</Button>
+                </StackPanel>
+                <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,5,0,5">
                     <Button Width="80" Margin="5,0" Command="{Binding ActiveDocument.CombineCommand}">Merge</Button>
                     <TextBlock Text="{Binding ActiveDocument.SelectedStructureMember.Opacity, StringFormat=N2}" 
                            Margin="5,0" DockPanel.Dock="Right" VerticalAlignment="Center" TextAlignment="Center" d:Text="1.00" Width="30"/>
@@ -66,7 +71,7 @@
                     </i:Interaction.Triggers>
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
-                            <StackPanel Orientation="Horizontal" Width="150">
+                            <StackPanel Orientation="Horizontal" Width="200">
                                 <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
                                 <StackPanel>
                                     <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
@@ -76,10 +81,13 @@
                                     <CheckBox VerticalAlignment="Center" Margin="5" IsChecked="{Binding IsVisible}"/>
                                 </Border>
                                 <TextBox Text="{Binding Name}" Margin="5" Height="20"/>
+                                <CheckBox VerticalAlignment="Center" 
+                                          Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                          IsChecked="{Binding ShouldDrawOnMask}">Mask</CheckBox>
                             </StackPanel>
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type vm:LayerViewModel}">
-                            <StackPanel Orientation="Horizontal" Width="150">
+                            <StackPanel Orientation="Horizontal" Width="200">
                                 <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
                                 <StackPanel>
                                     <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
@@ -89,6 +97,9 @@
                                     <CheckBox VerticalAlignment="Center" Margin="5" IsChecked="{Binding IsVisible}"/>
                                 </Border>
                                 <TextBox Text="{Binding Name}" Margin="5" Height="20"/>
+                                <CheckBox VerticalAlignment="Center" 
+                                          Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                          IsChecked="{Binding ShouldDrawOnMask}">Mask</CheckBox>
                             </StackPanel>
                         </DataTemplate>
                     </TreeView.Resources>

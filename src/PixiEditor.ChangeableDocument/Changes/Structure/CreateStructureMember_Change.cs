@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 
-namespace PixiEditor.ChangeableDocument.Changes
+namespace PixiEditor.ChangeableDocument.Changes.Structure
 {
     internal class CreateStructureMember_Change : Change
     {

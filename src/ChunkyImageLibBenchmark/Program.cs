@@ -1,5 +1,4 @@
 ﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using SkiaSharp;
 using System.Diagnostics;
 
@@ -24,7 +23,7 @@ Console.ReadKey();
 
 (double first, double second) Benchmark()
 {
-    using ChunkyImage image = new(new(1024, 1024), ColorType.RgbaF16);
+    using ChunkyImage image = new(new(1024, 1024));
     image.DrawRectangle(new(new(0, 0), new(1024, 1024), 10, SKColors.Black, SKColors.Bisque));
 
     Stopwatch sw = Stopwatch.StartNew();

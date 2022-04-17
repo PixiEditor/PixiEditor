@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changes;
+using PixiEditor.ChangeableDocument.Changes.Properties;
 
 namespace PixiEditor.ChangeableDocument.Actions.Properties
 {

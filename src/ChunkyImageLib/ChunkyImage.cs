@@ -119,6 +119,14 @@ namespace ChunkyImageLib
             }
         }
 
+        public bool LatestChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+        {
+            lock (lockObject)
+            {
+                return GetLatestChunk(chunkPos, resolution) is not null;
+            }
+        }
+
         internal bool DrawCommittedChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
         {
             lock (lockObject)
@@ -486,7 +494,7 @@ namespace ChunkyImageLib
         }
 
         /// <summary>
-        /// Note: this function modifies the internal state, it is not thread safe! (same as all other functions that change the image in some way)
+        /// Note: this function modifies the internal state, it is not thread safe! (same as all the other functions that change the image in some way)
         /// </summary>
         public bool CheckIfCommittedIsEmpty()
         {

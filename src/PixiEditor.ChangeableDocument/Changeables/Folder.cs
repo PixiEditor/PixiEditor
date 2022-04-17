@@ -21,7 +21,8 @@ namespace PixiEditor.ChangeableDocument.Changeables
                 IsVisible = IsVisible,
                 Name = Name,
                 Opacity = Opacity,
-                Children = clonedChildren
+                Children = clonedChildren,
+                Mask = Mask?.CloneFromLatest()
             };
         }
 
@@ -31,6 +32,7 @@ namespace PixiEditor.ChangeableDocument.Changeables
             {
                 child.Dispose();
             }
+            Mask?.Dispose();
         }
     }
 }
