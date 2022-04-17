@@ -151,7 +151,7 @@ namespace PixiEditorPrototype.ViewModels
             if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
                 return;
             startedRectangle = true;
-            Helpers.ActionAccumulator.AddAction(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data, drawOnMask));
+            Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data, drawOnMask));
         }
 
         public void EndRectangle()
@@ -159,16 +159,16 @@ namespace PixiEditorPrototype.ViewModels
             if (!startedRectangle)
                 return;
             startedRectangle = false;
-            Helpers.ActionAccumulator.AddAction(new EndDrawRectangle_Action());
+            Helpers.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
         }
 
         bool startedSelection = false;
         public void StartUpdateSelection(Vector2i pos, Vector2i size)
         {
             if (!startedSelection)
-                Helpers.ActionAccumulator.AddAction(new ClearSelection_Action());
+                Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
             startedSelection = true;
-            Helpers.ActionAccumulator.AddAction(new SelectRectangle_Action(pos, size));
+            Helpers.ActionAccumulator.AddActions(new SelectRectangle_Action(pos, size));
         }
 
         public void EndSelection()
@@ -176,7 +176,7 @@ namespace PixiEditorPrototype.ViewModels
             if (!startedSelection)
                 return;
             startedSelection = false;
-            Helpers.ActionAccumulator.AddAction(new EndSelectRectangle_Action());
+            Helpers.ActionAccumulator.AddFinishedActions(new EndSelectRectangle_Action());
         }
 
         public void ForceRefreshView()
@@ -186,28 +186,28 @@ namespace PixiEditorPrototype.ViewModels
 
         private void ClearSelection(object? param)
         {
-            Helpers.ActionAccumulator.AddAction(new ClearSelection_Action());
+            Helpers.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
         }
 
         private void DeleteStructureMember(object? param)
         {
             if (SelectedStructureMember is not null)
-                Helpers.ActionAccumulator.AddAction(new DeleteStructureMember_Action(SelectedStructureMember.GuidValue));
+                Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(SelectedStructureMember.GuidValue));
         }
 
         private void Undo(object? param)
         {
-            Helpers.ActionAccumulator.AddAction(new Undo_Action());
+            Helpers.ActionAccumulator.AddActions(new Undo_Action());
         }
 
         private void Redo(object? param)
         {
-            Helpers.ActionAccumulator.AddAction(new Redo_Action());
+            Helpers.ActionAccumulator.AddActions(new Redo_Action());
         }
 
         private void ResizeCanvas(object? param)
         {
-            Helpers.ActionAccumulator.AddAction(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight)));
+            Helpers.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight)));
         }
 
         private void ChangeSelectedItem(object? param)
@@ -219,14 +219,14 @@ namespace PixiEditorPrototype.ViewModels
         {
             if (SelectedStructureMember is null || SelectedStructureMember.HasMask)
                 return;
-            Helpers.ActionAccumulator.AddAction(new CreateStructureMemberMask_Action(SelectedStructureMember.GuidValue));
+            Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(SelectedStructureMember.GuidValue));
         }
 
         private void DeleteMask(object? param)
         {
             if (SelectedStructureMember is null || !SelectedStructureMember.HasMask)
                 return;
-            Helpers.ActionAccumulator.AddAction(new DeleteStructureMemberMask_Action(SelectedStructureMember.GuidValue));
+            Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(SelectedStructureMember.GuidValue));
         }
 
         private void Combine(object? param)
@@ -243,12 +243,13 @@ namespace PixiEditorPrototype.ViewModels
             Guid newGuid = Guid.NewGuid();
 
             //make a new layer, put combined image onto it, delete layers that were merged
-            Helpers.ActionAccumulator.AddAction(new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer));
-            Helpers.ActionAccumulator.AddAction(new SetStructureMemberName_Action(child.Name + "-comb", newGuid));
-            Helpers.ActionAccumulator.AddAction(new CombineStructureMembersOnto_Action(newGuid, selected.ToHashSet()));
+            Helpers.ActionAccumulator.AddActions(
+                new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer),
+                new SetStructureMemberName_Action(child.Name + "-comb", newGuid),
+                new CombineStructureMembersOnto_Action(newGuid, selected.ToHashSet()));
             foreach (var member in selected)
-                Helpers.ActionAccumulator.AddAction(new DeleteStructureMember_Action(member));
-            Helpers.ActionAccumulator.AddAction(new MergeLatestChanges_Action(3 + selected.Count));
+                Helpers.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
+            Helpers.ActionAccumulator.AddActions(new ChangeBoundary_Action());
         }
 
         private void MoveViewport(object? param)
@@ -256,12 +257,12 @@ namespace PixiEditorPrototype.ViewModels
             if (param is null)
                 throw new ArgumentNullException(nameof(param));
             var args = (ViewportRoutedEventArgs)param;
-            Helpers.ActionAccumulator.AddAction(new MoveViewport_PassthroughAction(args.Center, args.Size / 2, args.Angle, args.RealSize / 2));
+            Helpers.ActionAccumulator.AddActions(new MoveViewport_PassthroughAction(args.Center, args.Size / 2, args.Angle, args.RealSize / 2));
         }
 
         private void ClearHistory(object? param)
         {
-            Helpers.ActionAccumulator.AddAction(new DeleteRecordedChanges_Action());
+            Helpers.ActionAccumulator.AddActions(new DeleteRecordedChanges_Action());
         }
 
         private void AddSelectedMembers(FolderViewModel folder, List<Guid> collection)

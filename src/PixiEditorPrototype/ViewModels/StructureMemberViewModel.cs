@@ -16,13 +16,13 @@ namespace PixiEditorPrototype.ViewModels
         public string Name
         {
             get => member.Name;
-            set => Helpers.ActionAccumulator.AddAction(new SetStructureMemberName_Action(value, member.GuidValue));
+            set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberName_Action(value, member.GuidValue));
         }
 
         public bool IsVisible
         {
             get => member.IsVisible;
-            set => Helpers.ActionAccumulator.AddAction(new SetStructureMemberVisibility_Action(value, member.GuidValue));
+            set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberVisibility_Action(value, member.GuidValue));
         }
 
         public bool IsSelected { get; set; }
@@ -68,14 +68,14 @@ namespace PixiEditorPrototype.ViewModels
 
         private void EndOpacityUpdate(object? opacity)
         {
-            Helpers.ActionAccumulator.AddAction(new EndOpacityChange_Action());
+            Helpers.ActionAccumulator.AddFinishedActions(new EndOpacityChange_Action());
         }
 
         private void UpdateOpacity(object? opacity)
         {
             if (opacity is not double value)
                 throw new ArgumentException("The passed value isn't a double");
-            Helpers.ActionAccumulator.AddAction(new OpacityChange_Action(GuidValue, (float)value));
+            Helpers.ActionAccumulator.AddActions(new OpacityChange_Action(GuidValue, (float)value));
         }
     }
 }

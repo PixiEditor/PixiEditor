@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditorPrototype.Models.Rendering;
 using PixiEditorPrototype.Models.Rendering.RenderInfos;
@@ -7,6 +8,7 @@ using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Media.Imaging;
 
 namespace PixiEditorPrototype.Models
@@ -29,9 +31,16 @@ namespace PixiEditorPrototype.Models
             renderer = new(helpers);
         }
 
-        public void AddAction(IAction action)
+        public void AddFinishedActions(params IAction[] actions)
         {
-            queuedActions.Add(action);
+            queuedActions.AddRange(actions);
+            queuedActions.Add(new ChangeBoundary_Action());
+            TryExecuteAccumulatedActions();
+        }
+
+        public void AddActions(params IAction[] actions)
+        {
+            queuedActions.AddRange(actions);
             TryExecuteAccumulatedActions();
         }
 
@@ -46,7 +55,10 @@ namespace PixiEditorPrototype.Models
                 var toExecute = queuedActions;
                 queuedActions = new List<IAction>();
 
-                var result = await helpers.Tracker.ProcessActions(toExecute);
+                List<IChangeInfo?> result = AreAllPassthrough(toExecute) ?
+                    toExecute.Select(a => (IChangeInfo?)a).ToList() :
+                    await helpers.Tracker.ProcessActions(toExecute);
+
                 foreach (IChangeInfo? info in result)
                 {
                     helpers.Updater.ApplyChangeFromChangeInfo(info);
@@ -66,6 +78,16 @@ namespace PixiEditorPrototype.Models
             }
 
             executing = false;
+        }
+
+        private bool AreAllPassthrough(List<IAction> actions)
+        {
+            foreach (var action in actions)
+            {
+                if (action is not IChangeInfo)
+                    return false;
+            }
+            return true;
         }
 
         private (WriteableBitmap, SKSurface) GetCorrespondingBitmap(ChunkResolution res)

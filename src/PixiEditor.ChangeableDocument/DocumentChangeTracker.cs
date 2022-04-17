@@ -13,6 +13,7 @@ namespace ChangeableDocument
         public IReadOnlyDocument Document => document;
 
         private UpdateableChange? activeChange = null;
+        private List<Change>? activePacket = null;
 
         private Stack<List<Change>> undoStack = new();
         private Stack<List<Change>> redoStack = new();
@@ -24,8 +25,9 @@ namespace ChangeableDocument
 
         private void AddToUndo(Change change)
         {
-            List<Change> targetPacket = GetOrCreatePacket(change);
-            targetPacket.Add(change);
+            if (activePacket is null)
+                activePacket = new();
+            activePacket.Add(change);
 
             foreach (var changesToDispose in redoStack)
                 foreach (var changeToDispose in changesToDispose)
@@ -33,19 +35,43 @@ namespace ChangeableDocument
             redoStack.Clear();
         }
 
-        private List<Change> GetOrCreatePacket(Change change)
+        private void CompletePacket()
         {
-            if (undoStack.Count != 0 && change.IsMergeableWith(undoStack.Peek()[^1]))
-                return undoStack.Peek();
-            var newPacket = new List<Change>();
-            undoStack.Push(newPacket);
-            return newPacket;
+            if (activePacket is null)
+                return;
+
+            // maybe merge with previous
+            if (activePacket.Count == 1 &&
+                undoStack.Count > 0 &&
+                IsHomologous(undoStack.Peek()) &&
+                undoStack.Peek()[^1].IsMergeableWith(activePacket[0]))
+            {
+                undoStack.Peek().Add(activePacket[0]);
+            }
+            else
+            {
+                undoStack.Push(activePacket);
+            }
+
+            activePacket = null;
+        }
+
+        private bool IsHomologous(List<Change> changes)
+        {
+            for (int i = 1; i < changes.Count; i++)
+            {
+                if (!changes[i].IsMergeableWith(changes[i - 1]))
+                    return false;
+            }
+            return true;
         }
 
         private List<IChangeInfo?> Undo()
         {
             if (undoStack.Count == 0)
                 return new List<IChangeInfo?>();
+            if (activePacket is not null || activeChange is not null)
+                throw new InvalidOperationException("Cannot undo while there is an active updateable change or an unfinished undo packet");
             List<IChangeInfo?> changeInfos = new();
             List<Change> changePacket = undoStack.Pop();
 
@@ -60,6 +86,8 @@ namespace ChangeableDocument
         {
             if (redoStack.Count == 0)
                 return new List<IChangeInfo?>();
+            if (activePacket is not null || activeChange is not null)
+                throw new InvalidOperationException("Cannot redo while there is an active updateable change or an unfinished undo packet");
             List<IChangeInfo?> changeInfos = new();
             List<Change> changePacket = redoStack.Pop();
 
@@ -70,38 +98,10 @@ namespace ChangeableDocument
             return changeInfos;
         }
 
-        private List<Change> PopLatestChanges(int count)
-        {
-            if (redoStack.Count > 0)
-                throw new InvalidOperationException("There are changes in the redo stack");
-            List<Change> popped = new();
-            while (count > 0)
-            {
-                if (undoStack.Count == 0)
-                    return popped;
-                var packet = undoStack.Peek();
-                var change = packet[^1];
-                packet.RemoveAt(packet.Count - 1);
-                popped.Add(change);
-                if (packet.Count == 0)
-                    undoStack.Pop();
-                count--;
-            }
-            popped.Reverse();
-            return popped;
-        }
-
-        private void MergeLatestChanges(int count)
-        {
-            if (redoStack.Count > 0)
-                throw new InvalidOperationException("There are changes in the redo stack");
-            var packet = PopLatestChanges(count);
-            if (packet.Count > 0)
-                undoStack.Push(packet);
-        }
-
         private void DeleteAllChanges()
         {
+            if (activeChange is not null || activePacket is not null)
+                throw new InvalidOperationException("Cannot delete all changes while there is an active updateable change or an unfinished undo packet");
             foreach (var changesToDispose in redoStack)
                 foreach (var changeToDispose in changesToDispose)
                     changeToDispose.Dispose();
@@ -142,7 +142,7 @@ namespace ChangeableDocument
             if (activeChange is null)
                 throw new InvalidOperationException("Can't end a change: no changes are active");
             if (!act.IsChangeTypeMatching(activeChange))
-                throw new InvalidOperationException($"Trying to end a change via action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
+                throw new InvalidOperationException($"Trying to end a change with an action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
 
             var info = activeChange.Apply(document, out bool ignoreInUndo);
             if (!ignoreInUndo)
@@ -175,8 +175,8 @@ namespace ChangeableDocument
                     case Redo_Action act:
                         changeInfos.AddRange(Redo());
                         break;
-                    case MergeLatestChanges_Action act:
-                        MergeLatestChanges(act.Count);
+                    case ChangeBoundary_Action:
+                        CompletePacket();
                         break;
                     case DeleteRecordedChanges_Action:
                         DeleteAllChanges();
