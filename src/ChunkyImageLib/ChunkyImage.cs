@@ -40,6 +40,7 @@ namespace ChunkyImageLib
         }
         private bool disposed = false;
         private object lockObject = new();
+        private int commitCounter = 0;
 
         public static int ChunkSize => ChunkPool.FullChunkSize;
         private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
@@ -313,6 +314,10 @@ namespace ChunkyImageLib
                 CommitLatestChunks();
                 CommittedSize = LatestSize;
                 queuedOperations.Clear();
+
+                commitCounter++;
+                if (commitCounter % 30 == 0)
+                    FindAndDeleteEmptyCommittedChunks();
             }
         }
 

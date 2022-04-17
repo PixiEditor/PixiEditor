@@ -9,7 +9,7 @@ Decouples the state of a document from the UI.
     - [x] Affected chunk infrastructure
     - [x] Size constraining
     - [x] Cloning
-    - [ ] Periodic cleaning of empty chunks
+    - [x] Periodic cleaning of empty chunks
     - [x] ChunkPool multithreading support
     - [x] Dispose that returns borrowed chunks
     - [ ] Finalizers that return borrowed chunks
@@ -19,6 +19,7 @@ Decouples the state of a document from the UI.
         - [x] Read only interface for Chunk
     - [x] CommitedChunkStorage (used to store chunks for undo)
         - [ ] Write chunks to the hard drive?
+        - [ ] Compress chunks?
     - [x] Linear color space for blending
     - [ ] Tests for everything related to the operation queueing
     - Operations
@@ -60,18 +61,17 @@ Decouples the state of a document from the UI.
         - [x] Recursive rendering of folders
         - [ ] Blending modes support
         - [ ] Clip to layer below support
-        - [ ] Layer mask support
+        - [x] Layer mask support
         - [x] Low-res rendering
         - [x] Don't render chunks outside viewport
         - [x] Support for rendering a subset of the structure (for merging selected layers, referring to selected layer, etc.)
         - [ ] Caching for folders
         - [ ] Caching for everything below current layer
-        - [ ] Caching for sequences of layers with a normal blending mode
         - Rendering images for changes (tools requiring final image, merge layers, etc.)
             - [x] ChunkRenderer as a part of Document
         - [ ] Rendering of layer previews
         - [ ] Rendering of canvas previews
-        - [ ] Rendering of the navigator image
+        - [ ] Support for multiple viewports
     - Changes
         - [x] Layer structure changes
         - [x] Combine layers onto a single layer
@@ -96,14 +96,13 @@ Decouples the state of a document from the UI.
         - [ ] Transform selection
         - [x] Clip to selection
         - [ ] Clip to itself (preserve transparency)
-        - [ ] Layer mask manipulation
+        - [x] Layer mask manipulation
 - ViewModel
     - [ ] Action filtering
     - [x] Viewport movement as an action
     - [x] Integrate viewport from PixiEditor
     - [x] Rotate viewport
     - [x] Flip viewport
-- Not sure
     - [ ] Pipette tool
 
 ## Included cs projects (all wip, most features not implemented yet):
@@ -164,13 +163,15 @@ The compression should happen on a separate thread. The general idea is to make 
 
 Right now Chunk.Surface is a public property, and anyone can directly do stuff with the surface. This property will need to become private, and all canvas drawing functions will need to be wrapped. The wrappers will reset the MarkedForCompression flag, decompress the surface if it's currently compressed, and enable thread safety. Thread safety is required because Chunk.Compress() is called from a separate thread. Also, thread safety will allow the any thread to access the chunks at any time, which is required for the pipette tool and for the renderer cache.
 
-Since the compression thread needs to loop over all chunks the chunks need to be stored somewhere. A naive solution would be to add all chunks into a static ConcurrentBag<Chunk> and remove them on dispose. This will hovewer require all chunks to be disposed, so instead I propose using a static ConcurrentBag<WeakReference> where the weak reference points to the chunks. This will allow the chunks to be garbage collected. Any chunks that have been garbage collected can be removed from the list by the compression thread.
+Since the compression thread needs to loop over all chunks the chunks need to be stored somewhere. A naive solution would be to add all chunks into a static ConcurrentBag<Chunk> and remove them on dispose. This will hovewer require all chunks to be explicitly disposed, so instead I propose using a static ConcurrentBag<WeakReference> where the weak reference points to the chunks. This will allow the chunks to be garbage collected. Any chunks that have been garbage collected can be removed from the list by the compression thread.
 
 ### Making ChunkyImage thread-safe
 
-For the pipette tool and the renderer cache to work, they need to be able to access the Layers' ChunkyImages directly at any time, even if they are currently being edited in a separate thread. Therefore, ChunkyImage must become thread-safe. For the most part it's just a matter of adding a lock statement to all public functions, but there is a catch. ChunkyImage.GetLatestChunk and ChunkyImage.GetCommitedChunk return the chunks that are used internally by the ChunkyImage. The chunks are hidden behind the IReadOnlyChunk interface which protects them from being messed with, but that's it. If any changes are made to the ChunkyImage all chunks previously returned by GetLatest/CommitedChunk become effectively invalid (they can be modified in any way or even returned into the pool). At the moment it isn't a problem because the ChunkyImages are only ever accessed by a single thread at once, and no one holds onto the chunks returned by the aforementioned functions.
+For the pipette tool and the renderer cache to work they need to be able to access the Layers' ChunkyImages directly at any time, even if they are currently being edited in a separate thread. Therefore, ChunkyImage must become thread-safe. For the most part it's just a matter of adding a lock statement to all public functions, but there is a catch. ChunkyImage.GetLatestChunk and ChunkyImage.GetCommitedChunk return the chunks that are used internally by the ChunkyImage. The chunks are hidden behind the IReadOnlyChunk interface which protects them from being messed with, but that's it. If any changes are made to the ChunkyImage all chunks previously returned by GetLatest/CommitedChunk become effectively invalid (they can be modified in any way or even returned into the pool). At the moment it isn't a problem because the ChunkyImages are only ever accessed by a single thread at once, and no one holds onto the chunks returned by the aforementioned functions.
 
-Obviously, we'd need a different system to make ChunkyImage truly thread safe. A simple solution would be to make a copy of the chunks in GetLatest/CommitedChunk, but that would noticeably affect rendering performance. Instead, I propose a ChunkView class. A ChunkView can be created by calling Chunk.CreateView(). Internally, the Chunk will store a weak reference to the created ChunkView. ChunkView will have methods that let you read the surface of it's corresponding chunk and a Detach() method. The Detach() method will make the ChunkView copy the surface of it's chunk, store the copy internally, and get rid of the reference to the original chunk. Whenever a Chunk gets modified or disposed, it will call detach on all the ChunkViews it has a weak reference to, if they haven't been disposed or garbage collected already, and once it's done the Chunk will get rid of the reference. ChunkView will need to be thread safe. This mechanism will allow us to avoid the copying overhead most of the time while also ensuring that the chunkviews we get from ChunkyImage.GetLatest/CommitedChunk are always valid, even after the ChunkyImage is modified.
+~~Obviously, we'd need a different system to make ChunkyImage truly thread safe. A simple solution would be to make a copy of the chunks in GetLatest/CommitedChunk, but that would noticeably affect rendering performance. Instead, I propose a ChunkView class. A ChunkView can be created by calling Chunk.CreateView(). Internally, the Chunk will store a weak reference to the created ChunkView. ChunkView will have methods that let you read the surface of it's corresponding chunk and a Detach() method. The Detach() method will make the ChunkView copy the surface of it's chunk, store the copy internally, and get rid of the reference to the original chunk. Whenever a Chunk gets modified or disposed, it will call detach on all the ChunkViews it has a weak reference to, if they haven't been disposed or garbage collected already, and once it's done the Chunk will get rid of the reference. ChunkView will need to be thread safe. This mechanism will allow us to avoid the copying overhead most of the time while also ensuring that the chunkviews we get from ChunkyImage.GetLatest/CommitedChunk are always valid, even after the ChunkyImage is modified.~~
+
+Edit: I decided that it would be much simpler to not return any chunks at all and instead add a couple of wrappers for `Chunk.Surface.SkiaSurface.Canvas.DrawSurface` into `ChunkyImage`.
 
 ### Implementing a cache for the WriteableBitmapUpdater
 
