@@ -36,11 +36,13 @@ Decouples the state of a document from the UI.
         - [x] Resize canvas operation
         - [ ] Resize image operation?
         - [x] Raster clip operation
+        - [ ] Symmetry operation
         - Filters
             - [ ] Hue/Saturation/Value
             - [ ] Brightness/Contrast
             - [ ] Curves
             - [ ] Gradient mapping
+            - [ ] Replace color
 - ChangeableDocument/Renderer
     - [x] Basic Action->Change->ChangeInfo pipeline
     - Undo handling
