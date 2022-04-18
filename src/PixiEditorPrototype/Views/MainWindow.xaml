@@ -8,6 +8,7 @@
         xmlns:beh="clr-namespace:PixiEditorPrototype.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:pe="clr-namespace:PixiEditorPrototype"
+        xmlns:controls="clr-namespace:PixiEditorPrototype.CustomControls"
         xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
         xmlns:models="clr-namespace:PixiEditorPrototype.Models"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
@@ -31,6 +32,7 @@
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
                     <Button Margin="5,0" Command="{Binding ActiveDocument.CreateMaskCommand}" Width="80">Create Mask</Button>
                     <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteMaskCommand}" Width="80">Delete Mask</Button>
+                    <controls:BlendModeComboBox Margin="5,0" Width="80" SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendMode, Mode=TwoWay}"/>
                 </StackPanel>
                 <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,5,0,5">
                     <Button Width="80" Margin="5,0" Command="{Binding ActiveDocument.CombineCommand}">Merge</Button>

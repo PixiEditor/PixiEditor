@@ -1,11 +1,11 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
-using System;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditorPrototype.Models
 {
@@ -53,7 +53,16 @@ namespace PixiEditorPrototype.Models
                 case StructureMemberMask_ChangeInfo info:
                     ProcessStructureMemberMask(info);
                     break;
+                case StructureMemberBlendMode_ChangeInfo info:
+                    ProcessStructureMemberBlendMode(info);
+                    break;
             }
+        }
+
+        private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
+        {
+            var memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
+            memberVm.RaisePropertyChanged(nameof(memberVm.BlendMode));
         }
 
         private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)

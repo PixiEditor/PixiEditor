@@ -1,14 +1,16 @@
-﻿using PixiEditor.ChangeableDocument.Actions.Properties;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditorPrototype.Models;
-using System;
+﻿using System;
 using System.ComponentModel;
+using PixiEditor.ChangeableDocument.Actions.Properties;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditorPrototype.Models;
 
 namespace PixiEditorPrototype.ViewModels
 {
     internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     {
         private IReadOnlyStructureMember member;
+
         public event PropertyChangedEventHandler? PropertyChanged;
         public DocumentViewModel Document { get; }
         private DocumentHelpers Helpers { get; }
@@ -23,6 +25,12 @@ namespace PixiEditorPrototype.ViewModels
         {
             get => member.IsVisible;
             set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberVisibility_Action(value, member.GuidValue));
+        }
+
+        public BlendMode BlendMode
+        {
+            get => member.BlendMode;
+            set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberBlendMode_Action(value, member.GuidValue));
         }
 
         public bool IsSelected { get; set; }

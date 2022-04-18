@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changes;
 using PixiEditor.ChangeableDocument.Changes.Structure;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Actions.Structure;
 

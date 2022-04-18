@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces
 {
@@ -8,6 +9,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Interfaces
         string Name { get; }
         Guid GuidValue { get; }
         float Opacity { get; }
+        BlendMode BlendMode { get; }
         IReadOnlyChunkyImage? ReadOnlyMask { get; }
     }
 }

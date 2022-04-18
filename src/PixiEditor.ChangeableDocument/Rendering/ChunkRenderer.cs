@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Enums;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Rendering
@@ -18,6 +19,31 @@ namespace PixiEditor.ChangeableDocument.Rendering
         public static Chunk RenderSpecificLayers(Vector2i pos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> layers)
         {
             return RenderChunkRecursively(pos, resolution, 0, root, layers);
+        }
+
+        private static SKBlendMode GetSKBlendMode(BlendMode blendMode)
+        {
+            return blendMode switch
+            {
+                BlendMode.Normal => SKBlendMode.SrcOver,
+                BlendMode.Darken => SKBlendMode.Darken,
+                BlendMode.Multiply => SKBlendMode.Multiply,
+                BlendMode.ColorBurn => SKBlendMode.ColorBurn,
+                BlendMode.Lighten => SKBlendMode.Lighten,
+                BlendMode.Screen => SKBlendMode.Screen,
+                BlendMode.ColorDodge => SKBlendMode.ColorDodge,
+                BlendMode.LinearDodge => SKBlendMode.Plus,
+                BlendMode.Overlay => SKBlendMode.Overlay,
+                BlendMode.SoftLight => SKBlendMode.SoftLight,
+                BlendMode.HardLight => SKBlendMode.HardLight,
+                BlendMode.Difference => SKBlendMode.Difference,
+                BlendMode.Exclusion => SKBlendMode.Exclusion,
+                BlendMode.Hue => SKBlendMode.Hue,
+                BlendMode.Saturation => SKBlendMode.Saturation,
+                BlendMode.Luminosity => SKBlendMode.Luminosity,
+                BlendMode.Color => SKBlendMode.Color,
+                _ => SKBlendMode.SrcOver,
+            };
         }
 
         private static Chunk RenderChunkRecursively(Vector2i chunkPos, ChunkResolution resolution, int depth, IReadOnlyFolder folder, HashSet<Guid>? visibleLayers)
@@ -39,6 +65,7 @@ namespace PixiEditor.ChangeableDocument.Rendering
                     if (layer.ReadOnlyMask is null)
                     {
                         PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
+                        PaintToDrawChunksWith.BlendMode = GetSKBlendMode(layer.BlendMode);
                         layer.ReadOnlyLayerImage.DrawLatestChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
                     }
                     else
@@ -50,6 +77,7 @@ namespace PixiEditor.ChangeableDocument.Rendering
                             layer.ReadOnlyMask.DrawLatestChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
 
                             PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
+                            PaintToDrawChunksWith.BlendMode = GetSKBlendMode(layer.BlendMode);
                             targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(tempChunk.Surface.SkiaSurface, 0, 0, PaintToDrawChunksWith);
                         }
                     }
@@ -64,6 +92,7 @@ namespace PixiEditor.ChangeableDocument.Rendering
                         innerFolder.ReadOnlyMask.DrawLatestChunkOn(chunkPos, resolution, renderedChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
 
                     PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
+                    PaintToDrawChunksWith.BlendMode = GetSKBlendMode(innerFolder.BlendMode);
                     renderedChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
                     continue;
                 }

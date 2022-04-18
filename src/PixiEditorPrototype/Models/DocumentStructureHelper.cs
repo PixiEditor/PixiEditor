@@ -1,8 +1,8 @@
-﻿using PixiEditor.ChangeableDocument;
-using PixiEditor.ChangeableDocument.Actions.Structure;
-using PixiEditorPrototype.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using PixiEditor.ChangeableDocument.Actions.Structure;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditorPrototype.ViewModels;
 
 namespace PixiEditorPrototype.Models
 {

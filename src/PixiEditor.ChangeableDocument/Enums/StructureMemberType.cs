@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.ChangeableDocument
+﻿namespace PixiEditor.ChangeableDocument.Enums
 {
     public enum StructureMemberType
     {

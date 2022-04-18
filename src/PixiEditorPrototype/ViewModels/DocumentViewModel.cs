@@ -1,5 +1,11 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Drawing;
 using PixiEditor.ChangeableDocument.Actions.Drawing.Rectangle;
 using PixiEditor.ChangeableDocument.Actions.Drawing.Selection;
@@ -7,16 +13,10 @@ using PixiEditor.ChangeableDocument.Actions.Properties;
 using PixiEditor.ChangeableDocument.Actions.Root;
 using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditorPrototype.ViewModels
 {

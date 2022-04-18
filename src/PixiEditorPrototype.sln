@@ -15,7 +15,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLibVis", "Chunky
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Zoombox", "PixiEditor.Zoombox\PixiEditor.Zoombox.csproj", "{232E58B6-8080-4725-8541-98BFCFE23A1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChunkyImageLibBenchmark", "ChunkyImageLibBenchmark\ChunkyImageLibBenchmark.csproj", "{3998B3EB-F11F-4637-A135-FBC3CCA24299}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLibBenchmark", "ChunkyImageLibBenchmark\ChunkyImageLibBenchmark.csproj", "{3998B3EB-F11F-4637-A135-FBC3CCA24299}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2AF84829-B00E-4B10-B010-C9306C6DF278}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

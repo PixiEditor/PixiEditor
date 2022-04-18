@@ -1,4 +1,7 @@
-﻿using ChunkyImageLib;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -6,9 +9,6 @@ using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PixiEditorPrototype.Models.Rendering
 {
@@ -78,6 +78,7 @@ namespace PixiEditorPrototype.Models.Rendering
                     case MoveStructureMember_ChangeInfo:
                     case Size_ChangeInfo:
                     case StructureMemberMask_ChangeInfo:
+                    case StructureMemberBlendMode_ChangeInfo:
                         AddAllChunks(affectedChunks);
                         break;
                     case StructureMemberOpacity_ChangeInfo opacityChangeInfo:
