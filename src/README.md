@@ -23,7 +23,7 @@ Decouples the state of a document from the UI.
     - [x] Linear color space for blending
     - [ ] Tests for everything related to the operation queueing
     - Operations
-        - [ ] Support for paints with different blending (replace vs. overlay)
+        - [ ] Support for paints with different blending (replace vs. alpha compose)
         - [ ] Image (basic done, needs rotation, scale, skew, perspective, etc.)
         - [ ] Rectangle (basic done, needs rotation support)
         - [ ] Ellipse
@@ -61,7 +61,7 @@ Decouples the state of a document from the UI.
         - [x] Basic layer stack rendering
         - [x] Opacity/Visibility support
         - [x] Recursive rendering of folders
-        - [ ] Blending modes support
+        - [x] Blending modes support
         - [ ] Clip to layer below support
         - [x] Layer mask support
         - [x] Low-res rendering
