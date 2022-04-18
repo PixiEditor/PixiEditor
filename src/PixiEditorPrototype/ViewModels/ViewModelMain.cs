@@ -1,11 +1,11 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.ComponentModel;
+using System.Windows.Input;
+using System.Windows.Media;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
 using PixiEditorPrototype.Views;
 using SkiaSharp;
-using System.ComponentModel;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditorPrototype.ViewModels
 {

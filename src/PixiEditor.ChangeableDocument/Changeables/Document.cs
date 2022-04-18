@@ -3,7 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables
 {
-    internal class Document : IChangeable, IReadOnlyDocument
+    internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     {
         public IReadOnlyFolder ReadOnlyStructureRoot => StructureRoot;
         public IReadOnlySelection ReadOnlySelection => Selection;
@@ -16,6 +16,12 @@ namespace PixiEditor.ChangeableDocument.Changeables
         internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
         internal Selection Selection { get; } = new();
         public Vector2i Size { get; set; } = DefaultSize;
+
+        public void Dispose()
+        {
+            StructureRoot.Dispose();
+            Selection.Dispose();
+        }
 
         public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
         public StructureMember? FindMember(Guid guid)

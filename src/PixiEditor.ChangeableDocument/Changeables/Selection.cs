@@ -4,7 +4,7 @@ using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changeables
 {
-    internal class Selection : IReadOnlySelection
+    internal class Selection : IReadOnlySelection, IDisposable
     {
         public static SKColor SelectionColor { get; } = SKColors.CornflowerBlue;
         public bool IsEmptyAndInactive { get; set; } = true;
@@ -12,5 +12,10 @@ namespace PixiEditor.ChangeableDocument.Changeables
 
         public IReadOnlyChunkyImage ReadOnlySelectionImage => SelectionImage;
         public bool ReadOnlyIsEmptyAndInactive => IsEmptyAndInactive;
+
+        public void Dispose()
+        {
+            SelectionImage.Dispose();
+        }
     }
 }

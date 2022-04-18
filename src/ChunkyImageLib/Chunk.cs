@@ -5,6 +5,14 @@ namespace ChunkyImageLib
 {
     public class Chunk : IDisposable
     {
+        private static volatile int chunkCounter = 0;
+        /// <summary>
+        /// The number of chunks that haven't yet been returned (includes garbage collected chunks).
+        /// Used in tests to make sure that all chunks are disposed.
+        /// </summary>
+        public static int ChunkCounter => chunkCounter;
+
+
         private bool returned = false;
         public Surface Surface { get; }
         public Vector2i PixelSize { get; }
@@ -22,6 +30,7 @@ namespace ChunkyImageLib
         {
             var chunk = ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution);
             chunk.returned = false;
+            Interlocked.Increment(ref chunkCounter);
             return chunk;
         }
 
@@ -35,6 +44,7 @@ namespace ChunkyImageLib
             if (returned)
                 return;
             returned = true;
+            Interlocked.Decrement(ref chunkCounter);
             ChunkPool.Instance.Push(this);
         }
     }

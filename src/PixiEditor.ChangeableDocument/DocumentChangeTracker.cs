@@ -7,9 +7,11 @@ using PixiEditor.ChangeableDocument.Changes;
 
 namespace ChangeableDocument
 {
-    public class DocumentChangeTracker
+    public class DocumentChangeTracker : IDisposable
     {
         private Document document;
+        private bool disposed = false;
+        private bool running = false;
         public IReadOnlyDocument Document => document;
 
         private UpdateableChange? activeChange = null;
@@ -17,6 +19,31 @@ namespace ChangeableDocument
 
         private Stack<List<Change>> undoStack = new();
         private Stack<List<Change>> redoStack = new();
+
+        public void Dispose()
+        {
+            if (running)
+                throw new InvalidOperationException("Something is currently being processed");
+            if (disposed)
+                return;
+            disposed = true;
+
+            document.Dispose();
+
+            activeChange?.Dispose();
+
+            if (activePacket != null)
+                foreach (var change in activePacket)
+                    change.Dispose();
+
+            foreach (var list in undoStack)
+                foreach (var change in list)
+                    change.Dispose();
+
+            foreach (var list in redoStack)
+                foreach (var change in list)
+                    change.Dispose();
+        }
 
         public DocumentChangeTracker()
         {
@@ -192,12 +219,26 @@ namespace ChangeableDocument
 
         public async Task<List<IChangeInfo?>> ProcessActions(List<IAction> actions)
         {
-            return await Task.Run(() => ProcessActionList(actions)).ConfigureAwait(true);
+            if (disposed)
+                throw new ObjectDisposedException(nameof(DocumentChangeTracker));
+            if (running)
+                throw new InvalidOperationException("Already currently processing");
+            running = true;
+            var result = await Task.Run(() => ProcessActionList(actions)).ConfigureAwait(true);
+            running = false;
+            return result;
         }
 
         public List<IChangeInfo?> ProcessActionsSync(List<IAction> actions)
         {
-            return ProcessActionList(actions);
+            if (disposed)
+                throw new ObjectDisposedException(nameof(DocumentChangeTracker));
+            if (running)
+                throw new InvalidOperationException("Already currently processing");
+            running = true;
+            var result = ProcessActionList(actions);
+            running = false;
+            return result;
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Runtime.CompilerServices;
+using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using SkiaSharp;
-using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
 namespace ChunkyImageLib
@@ -627,17 +627,34 @@ namespace ChunkyImageLib
                 if (disposed)
                     return;
                 CancelChanges();
-                foreach (var (_, chunk) in tempRasterClipChunks)
-                    chunk.Dispose();
-                foreach (var (_, chunks) in committedChunks)
-                {
-                    foreach (var (_, chunk) in chunks)
-                    {
-                        chunk.Dispose();
-                    }
-                }
-                disposed = true;
+                DisposeAll();
+                GC.SuppressFinalize(this);
             }
+        }
+
+        private void DisposeAll()
+        {
+            foreach (var (_, chunk) in tempRasterClipChunks)
+                chunk.Dispose();
+            foreach (var (_, chunks) in committedChunks)
+            {
+                foreach (var (_, chunk) in chunks)
+                {
+                    chunk.Dispose();
+                }
+            }
+            foreach (var (_, chunks) in latestChunks)
+            {
+                foreach (var (_, chunk) in chunks)
+                {
+                    chunk.Dispose();
+                }
+            }
+            disposed = true;
+        }
+        ~ChunkyImage()
+        {
+            DisposeAll();
         }
     }
 }
