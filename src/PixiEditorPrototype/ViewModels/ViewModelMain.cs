@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
@@ -12,7 +14,8 @@ namespace PixiEditorPrototype.ViewModels
     internal class ViewModelMain : INotifyPropertyChanged
     {
         public IMainView? View { get; set; }
-        public DocumentViewModel? ActiveDocument { get; }
+
+        public DocumentViewModel? ActiveDocument => GetDocumentByGuid(activeDocumentGuid);
 
         public RelayCommand? MouseDownCommand { get; }
         public RelayCommand? MouseMoveCommand { get; }
@@ -20,15 +23,6 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? ChangeActiveToolCommand { get; }
 
         public Color SelectedColor { get; set; } = Colors.Black;
-
-        private bool mouseIsDown = false;
-        private int mouseDownCanvasX = 0;
-        private int mouseDownCanvasY = 0;
-
-        private bool startedDrawingRect = false;
-        private bool startedSelectingRect = false;
-
-        private Tool activeTool = Tool.Rectangle;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -67,6 +61,20 @@ namespace PixiEditorPrototype.ViewModels
 
         public ZoomboxMode ZoomboxMode { get; set; }
 
+        public ViewportViewModel MainViewport { get; }
+
+        private Dictionary<Guid, DocumentViewModel> documents = new();
+        private Guid activeDocumentGuid;
+
+        private bool mouseIsDown = false;
+        private int mouseDownCanvasX = 0;
+        private int mouseDownCanvasY = 0;
+
+        private bool startedDrawingRect = false;
+        private bool startedSelectingRect = false;
+
+        private Tool activeTool = Tool.Rectangle;
+
         public ViewModelMain()
         {
             MouseDownCommand = new RelayCommand(MouseDown);
@@ -74,7 +82,31 @@ namespace PixiEditorPrototype.ViewModels
             MouseUpCommand = new RelayCommand(MouseUp);
             ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
 
-            ActiveDocument = new DocumentViewModel(this);
+            var doc = new DocumentViewModel(this);
+            documents[doc.GuidValue] = doc;
+            activeDocumentGuid = doc.GuidValue;
+
+            MainViewport = new(this, activeDocumentGuid);
+            doc.RefreshViewport(MainViewport.GuidValue);
+        }
+
+        public ViewportLocation? GetViewport(Guid viewportGuid)
+        {
+            if (MainViewport.GuidValue != viewportGuid)
+                return null;
+            return new ViewportLocation(MainViewport.Angle, MainViewport.Center, MainViewport.RealDimensions, MainViewport.Dimensions, Guid.Empty);
+        }
+
+        public DocumentViewModel? GetDocumentByGuid(Guid guid)
+        {
+            return documents.TryGetValue(guid, out DocumentViewModel? value) ? value : null;
+        }
+
+        public void UpdateViewportResolution(Guid viewportGuid, ChunkResolution resolution)
+        {
+            if (viewportGuid != MainViewport.GuidValue)
+                return;
+            MainViewport.Resolution = resolution;
         }
 
         private void MouseDown(object? param)
@@ -85,8 +117,8 @@ namespace PixiEditorPrototype.ViewModels
             var args = (MouseButtonEventArgs)(param!);
             var source = (System.Windows.Controls.Image)args.Source;
             var pos = args.GetPosition(source);
-            mouseDownCanvasX = (int)(pos.X / source.Width * ActiveDocument.BitmapFull.PixelHeight);
-            mouseDownCanvasY = (int)(pos.Y / source.Height * ActiveDocument.BitmapFull.PixelHeight);
+            mouseDownCanvasX = (int)(pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth);
+            mouseDownCanvasY = (int)(pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight);
         }
 
         private void MouseMove(object? param)
@@ -96,8 +128,8 @@ namespace PixiEditorPrototype.ViewModels
             var args = (MouseEventArgs)(param!);
             var source = (System.Windows.Controls.Image)args.Source;
             var pos = args.GetPosition(source);
-            int curX = (int)(pos.X / source.Width * ActiveDocument.BitmapFull.PixelHeight);
-            int curY = (int)(pos.Y / source.Height * ActiveDocument.BitmapFull.PixelHeight);
+            int curX = (int)(pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth);
+            int curY = (int)(pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight);
 
             ProcessToolMouseMove(curX, curY);
         }

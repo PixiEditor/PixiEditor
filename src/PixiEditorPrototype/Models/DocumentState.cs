@@ -1,12 +1,10 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PixiEditorPrototype.Models
 {
     internal class DocumentState
     {
-        public Vector2d ViewportCenter { get; set; } = new(32, 32);
-        public Vector2d ViewportSize { get; set; } = new(64, 64);
-        public Vector2d ViewportRealSize { get; set; } = new(double.MaxValue, double.MaxValue);
-        public double ViewportAngle { get; set; } = 0;
+        public Dictionary<Guid, ViewportLocation> Viewports { get; set; } = new();
     }
 }

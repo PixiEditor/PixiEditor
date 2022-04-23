@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Collections.Generic;
+using System.Linq;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
@@ -6,10 +7,6 @@ using PixiEditorPrototype.Models.Rendering;
 using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditorPrototype.Models
 {
@@ -28,7 +25,7 @@ namespace PixiEditorPrototype.Models
             this.document = doc;
             this.helpers = helpers;
 
-            renderer = new(helpers);
+            renderer = new(doc, helpers);
         }
 
         public void AddFinishedActions(params IAction[] actions)
@@ -64,16 +61,19 @@ namespace PixiEditorPrototype.Models
                     helpers.Updater.ApplyChangeFromChangeInfo(info);
                 }
 
-                var (bitmap, surface) = GetCorrespondingBitmap(document.RenderResolution);
-                bitmap.Lock();
+                foreach (var (_, bitmap) in document.Bitmaps)
+                {
+                    bitmap.Lock();
+                }
 
-                var renderResult = await renderer.ProcessChanges(
-                    result!,
-                    surface,
-                    document.RenderResolution);
-                AddDirtyRects(bitmap, renderResult);
+                var renderResult = await renderer.ProcessChanges(result);
+                AddDirtyRects(renderResult);
 
-                bitmap.Unlock();
+                foreach (var (_, bitmap) in document.Bitmaps)
+                {
+                    bitmap.Unlock();
+                }
+
                 document.ForceRefreshView();
             }
 
@@ -90,32 +90,18 @@ namespace PixiEditorPrototype.Models
             return true;
         }
 
-        private (WriteableBitmap, SKSurface) GetCorrespondingBitmap(ChunkResolution res)
+        private void AddDirtyRects(List<IRenderInfo> changes)
         {
-            var result = res switch
-            {
-                ChunkResolution.Full => (document.BitmapFull, document.SurfaceFull),
-                ChunkResolution.Half => (document.BitmapHalf, document.SurfaceHalf),
-                ChunkResolution.Quarter => (document.BitmapQuarter, document.SurfaceQuarter),
-                ChunkResolution.Eighth => (document.BitmapEighth, document.SurfaceEighth),
-                _ => (document.BitmapFull, document.SurfaceFull),
-            };
-            if (result.Item1 is null || result.Item2 is null)
-                throw new InvalidOperationException("Trying to get a bitmap of a non existing resolution");
-            return result!;
-        }
-
-        private static void AddDirtyRects(WriteableBitmap bitmap, List<IRenderInfo> changes)
-        {
-            SKRectI finalRect = SKRectI.Create(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
             foreach (IRenderInfo info in changes)
             {
-                if (info is DirtyRect_RenderInfo dirtyRectInfo)
-                {
-                    SKRectI dirtyRect = SKRectI.Create(dirtyRectInfo.Pos, dirtyRectInfo.Size);
-                    dirtyRect.Intersect(finalRect);
-                    bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
-                }
+                if (info is not DirtyRect_RenderInfo dirtyRectInfo)
+                    continue;
+                var bitmap = document.Bitmaps[dirtyRectInfo.Resolution];
+                SKRectI finalRect = SKRectI.Create(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
+
+                SKRectI dirtyRect = SKRectI.Create(dirtyRectInfo.Pos, dirtyRectInfo.Size);
+                dirtyRect.Intersect(finalRect);
+                bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
             }
         }
     }

@@ -12,7 +12,7 @@ Decouples the state of a document from the UI.
     - [x] Periodic cleaning of empty chunks
     - [x] ChunkPool multithreading support
     - [x] Dispose that returns borrowed chunks
-    - [ ] Finalizers that return borrowed chunks
+    - [x] ChunkyImage finalizer that returns borrowed chunks
     - [x] GetLatestChunk resolution parameter
         - [x] Support for different chunk sizes in chunkpool
         - [x] Rendering for different chunk sizes
@@ -49,7 +49,7 @@ Decouples the state of a document from the UI.
         - [x] UpdateableChange class for changes requiring preview
         - [x] Handling for changes that don't change anything
         - [x] Dispose changes
-        - [ ] Dispose the entire document
+        - [x] Dispose the entire document
         - [x] Basic undo stack infrastructure
         - [x] Ignored changes (changes that don't get recorded in undo)
         - [x] Clear undo/redo history

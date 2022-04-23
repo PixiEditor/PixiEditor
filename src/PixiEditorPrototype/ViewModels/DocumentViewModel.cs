@@ -14,7 +14,6 @@ using PixiEditor.ChangeableDocument.Actions.Root;
 using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
 
@@ -55,57 +54,19 @@ namespace PixiEditorPrototype.ViewModels
         public RelayCommand? CreateMaskCommand { get; }
         public RelayCommand? DeleteMaskCommand { get; }
 
+        public int Width => Helpers.Tracker.Document.Size.X;
+        public int Height => Helpers.Tracker.Document.Size.Y;
+        public Guid GuidValue { get; } = Guid.NewGuid();
 
-
-        public SKSurface SurfaceFull { get; set; }
-        public WriteableBitmap BitmapFull { get; set; } = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null);
-        public SKSurface? SurfaceHalf { get; set; } = null;
-        public WriteableBitmap? BitmapHalf { get; set; } = null;
-        public SKSurface? SurfaceQuarter { get; set; } = null;
-        public WriteableBitmap? BitmapQuarter { get; set; } = null;
-        public SKSurface? SurfaceEighth { get; set; } = null;
-        public WriteableBitmap? BitmapEighth { get; set; } = null;
-
-        public WriteableBitmap RenderBitmap
+        public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
         {
-            get => GetCorrespondingBitmap(RenderResolution)!;
-        }
+            [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
+            [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
+            [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
+            [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
+        };
 
-        public ChunkResolution RenderResolution
-        {
-            get
-            {
-                var targetRes = GetResolutionForViewport(Helpers.State.ViewportSize, Helpers.State.ViewportRealSize);
-                if (GetCorrespondingBitmap(targetRes) is not null)
-                    return targetRes;
-                return ChunkResolution.Full;
-            }
-        }
-
-        public ChunkResolution GetResolutionForViewport(Vector2d size, Vector2d realSize)
-        {
-            Vector2d densityVec = size.Divide(realSize);
-            double density = Math.Min(densityVec.X, densityVec.Y);
-            if (density > 8.01)
-                return ChunkResolution.Eighth;
-            else if (density > 4.01)
-                return ChunkResolution.Quarter;
-            else if (density > 2.01)
-                return ChunkResolution.Half;
-            return ChunkResolution.Full;
-        }
-
-        public WriteableBitmap? GetCorrespondingBitmap(ChunkResolution resolution)
-        {
-            return resolution switch
-            {
-                ChunkResolution.Full => BitmapFull,
-                ChunkResolution.Half => BitmapHalf,
-                ChunkResolution.Quarter => BitmapQuarter,
-                ChunkResolution.Eighth => BitmapEighth,
-                _ => BitmapFull,
-            };
-        }
+        public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
 
         public int ResizeWidth { get; set; }
         public int ResizeHeight { get; set; }
@@ -136,10 +97,13 @@ namespace PixiEditorPrototype.ViewModels
             CreateMaskCommand = new RelayCommand(CreateMask);
             DeleteMaskCommand = new RelayCommand(DeleteMask);
 
-            SurfaceFull = SKSurface.Create(
-                new SKImageInfo(BitmapFull.PixelWidth, BitmapFull.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
-                BitmapFull.BackBuffer,
-                BitmapFull.BackBufferStride);
+            foreach (var bitmap in Bitmaps)
+            {
+                var surface = SKSurface.Create(
+                    new SKImageInfo(bitmap.Value.PixelWidth, bitmap.Value.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
+                    bitmap.Value.BackBuffer, bitmap.Value.BackBufferStride);
+                Surfaces[bitmap.Key] = surface;
+            }
         }
 
         bool startedRectangle = false;
@@ -182,6 +146,21 @@ namespace PixiEditorPrototype.ViewModels
         public void ForceRefreshView()
         {
             owner.View?.ForceRefreshFinalImage();
+        }
+
+        public void UpdateViewportResolution(Guid viewportGuid, ChunkResolution resolution)
+        {
+            owner.UpdateViewportResolution(viewportGuid, resolution);
+        }
+
+        public ViewportLocation? GetViewport(Guid viewportGuid)
+        {
+            return owner.GetViewport(viewportGuid);
+        }
+
+        public void RefreshViewport(Guid viewportGuid)
+        {
+            Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(viewportGuid));
         }
 
         private void ClearSelection(object? param)
@@ -254,10 +233,7 @@ namespace PixiEditorPrototype.ViewModels
 
         private void MoveViewport(object? param)
         {
-            if (param is null)
-                throw new ArgumentNullException(nameof(param));
-            var args = (ViewportRoutedEventArgs)param;
-            Helpers.ActionAccumulator.AddActions(new MoveViewport_PassthroughAction(args.Center, args.Size / 2, args.Angle, args.RealSize / 2));
+            Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(Guid.Empty));
         }
 
         private void ClearHistory(object? param)

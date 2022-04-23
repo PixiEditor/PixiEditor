@@ -1,6 +1,6 @@
-﻿using PixiEditorPrototype.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using PixiEditorPrototype.ViewModels;
 
 namespace PixiEditorPrototype.Views
 {
@@ -11,9 +11,12 @@ namespace PixiEditorPrototype.Views
             InitializeComponent();
             ((ViewModelMain)DataContext).View = this;
         }
+
+        private Image? GetImage() => (Image?)((Border?)zoombox.AdditionalContent)?.Child;
+
         public void ForceRefreshFinalImage()
         {
-            ((Image?)((Border?)zoombox.AdditionalContent)?.Child)?.InvalidateVisual();
+            GetImage()?.InvalidateVisual();
         }
     }
 }

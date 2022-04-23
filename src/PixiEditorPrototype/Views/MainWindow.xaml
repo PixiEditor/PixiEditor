@@ -138,7 +138,11 @@
 
         <Grid>
             <zoombox:Zoombox x:Name="zoombox" UseTouchGestures="True"
-                             ZoomMode="{Binding ZoomboxMode}" 
+                             Center="{Binding MainViewport.Center, Mode=OneWayToSource}"
+                             Angle="{Binding MainViewport.Angle, Mode=OneWayToSource}"
+                             RealDimensions="{Binding MainViewport.RealDimensions, Mode=OneWayToSource}"
+                             Dimensions="{Binding MainViewport.Dimensions, Mode=OneWayToSource}"
+                             ZoomMode="{Binding ZoomboxMode, Mode=TwoWay}" 
                              FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
                              FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}">
                 <i:Interaction.Triggers>
@@ -147,9 +151,10 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
                 <Border BorderThickness="1" Background="White" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Image Source="{Binding ActiveDocument.RenderBitmap}" Focusable="True"
-                       Width="{Binding ActiveDocument.BitmapFull.PixelWidth}" Height="{Binding ActiveDocument.BitmapFull.PixelHeight}"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor">
+                    <Image Focusable="True"
+                           Width="{Binding ActiveDocument.Width}" Height="{Binding ActiveDocument.Height}"
+                           Source="{Binding MainViewport.TargetBitmap}"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown">
                                 <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>

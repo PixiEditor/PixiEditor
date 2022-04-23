@@ -1,10 +1,10 @@
-using ChunkyImageLib.DataHolders;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
+using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Zoombox
 {
@@ -35,6 +35,9 @@ namespace PixiEditor.Zoombox
 
         public static readonly DependencyProperty DimensionsProperty =
             DependencyProperty.Register(nameof(Dimensions), typeof(Vector2d), typeof(Zoombox));
+
+        public static readonly DependencyProperty RealDimensionsProperty =
+            DependencyProperty.Register(nameof(RealDimensions), typeof(Vector2d), typeof(Zoombox));
 
         public static readonly DependencyProperty AngleProperty =
             DependencyProperty.Register(nameof(Angle), typeof(double), typeof(Zoombox), new(0.0, OnPropertyChange));
@@ -105,6 +108,12 @@ namespace PixiEditor.Zoombox
         {
             get => (Vector2d)GetValue(DimensionsProperty);
             set => SetValue(DimensionsProperty, value);
+        }
+
+        public Vector2d RealDimensions
+        {
+            get => (Vector2d)GetValue(RealDimensionsProperty);
+            set => SetValue(RealDimensionsProperty, value);
         }
 
         public event EventHandler<ViewportRoutedEventArgs> ViewportMoved
@@ -181,11 +190,13 @@ namespace PixiEditor.Zoombox
 
         private void RaiseViewportEvent()
         {
+            var realDim = new Vector2d(mainCanvas.ActualWidth, mainCanvas.ActualHeight);
+            RealDimensions = realDim;
             RaiseEvent(new ViewportRoutedEventArgs(
                 ViewportMovedEvent,
                 Center,
                 Dimensions,
-                new(mainCanvas.ActualWidth, mainCanvas.ActualHeight),
+                realDim,
                 Angle));
         }
 

@@ -47,8 +47,8 @@ namespace PixiEditorPrototype.Models
                 case Size_ChangeInfo info:
                     ProcessSize(info);
                     break;
-                case MoveViewport_PassthroughAction info:
-                    ProcessMoveViewport(info);
+                case RefreshViewport_PassthroughAction info:
+                    ProcessRefreshViewport(info);
                     break;
                 case StructureMemberMask_ChangeInfo info:
                     ProcessStructureMemberMask(info);
@@ -71,68 +71,35 @@ namespace PixiEditorPrototype.Models
             memberVm.RaisePropertyChanged(nameof(memberVm.HasMask));
         }
 
-        private void ProcessMoveViewport(MoveViewport_PassthroughAction info)
+        private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
         {
-            var oldResolution = doc.RenderResolution;
-
-            helper.State.ViewportCenter = info.Center;
-            helper.State.ViewportSize = info.Size;
-            helper.State.ViewportAngle = info.Angle;
-            helper.State.ViewportRealSize = info.RealSize;
-
-            var newResolution = doc.RenderResolution;
-
-            if (oldResolution != newResolution)
-                doc.RaisePropertyChanged(nameof(doc.RenderBitmap));
+            var viewport = doc.GetViewport(info.GuidValue);
+            if (viewport is null)
+            {
+                helper.State.Viewports.Remove(info.GuidValue);
+                return;
+            }
+            helper.State.Viewports[info.GuidValue] = viewport.Value with { Dimensions = viewport.Value.Dimensions / 2, RealDimensions = viewport.Value.RealDimensions / 2 };
+            doc.UpdateViewportResolution(info.GuidValue, viewport.Value.Resolution);
         }
 
         private void ProcessSize(Size_ChangeInfo info)
         {
-            doc.SurfaceFull.Dispose();
-            doc.SurfaceHalf?.Dispose();
-            doc.SurfaceQuarter?.Dispose();
-            doc.SurfaceEighth?.Dispose();
-
-            doc.SurfaceHalf = null;
-            doc.SurfaceQuarter = null;
-            doc.SurfaceEighth = null;
-
-            doc.BitmapHalf = null;
-            doc.BitmapQuarter = null;
-            doc.BitmapEighth = null;
-
-            doc.BitmapFull = CreateBitmap(helper.Tracker.Document.Size);
-            doc.SurfaceFull = CreateSKSurface(doc.BitmapFull);
-
-            if (helper.Tracker.Document.Size.X > 512 && helper.Tracker.Document.Size.Y > 512)
+            var size = helper.Tracker.Document.Size;
+            foreach (var (res, surf) in doc.Surfaces)
             {
-                doc.BitmapHalf = CreateBitmap(helper.Tracker.Document.Size / 2);
-                doc.SurfaceHalf = CreateSKSurface(doc.BitmapHalf);
+                surf.Dispose();
+                doc.Bitmaps[res] = CreateBitmap((Vector2i)(size * res.Multiplier()));
+                doc.Surfaces[res] = CreateSKSurface(doc.Bitmaps[res]);
             }
 
-            if (helper.Tracker.Document.Size.X > 1024 && helper.Tracker.Document.Size.Y > 1024)
-            {
-                doc.BitmapQuarter = CreateBitmap(helper.Tracker.Document.Size / 4);
-                doc.SurfaceQuarter = CreateSKSurface(doc.BitmapQuarter);
-            }
-
-            if (helper.Tracker.Document.Size.X > 2048 && helper.Tracker.Document.Size.Y > 2048)
-            {
-                doc.BitmapEighth = CreateBitmap(helper.Tracker.Document.Size / 8);
-                doc.SurfaceEighth = CreateSKSurface(doc.BitmapEighth);
-            }
-
-            doc.RaisePropertyChanged(nameof(doc.BitmapFull));
-            doc.RaisePropertyChanged(nameof(doc.BitmapHalf));
-            doc.RaisePropertyChanged(nameof(doc.BitmapQuarter));
-            doc.RaisePropertyChanged(nameof(doc.BitmapEighth));
-
-            doc.RaisePropertyChanged(nameof(doc.RenderBitmap));
+            doc.RaisePropertyChanged(nameof(doc.Width));
+            doc.RaisePropertyChanged(nameof(doc.Height));
         }
 
         private WriteableBitmap CreateBitmap(Vector2i size)
         {
-            return new WriteableBitmap(size.X, size.Y, 96, 96, PixelFormats.Pbgra32, null);
+            return new WriteableBitmap(Math.Max(size.X, 1), Math.Max(size.Y, 1), 96, 96, PixelFormats.Pbgra32, null);
         }
 
         private SKSurface CreateSKSurface(WriteableBitmap bitmap)

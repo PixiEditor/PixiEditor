@@ -8,20 +8,22 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditorPrototype.Models.Rendering.RenderInfos;
+using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
 
 namespace PixiEditorPrototype.Models.Rendering
 {
     internal class WriteableBitmapUpdater
     {
-        private DocumentHelpers helpers;
+        private readonly DocumentViewModel doc;
+        private readonly DocumentHelpers helpers;
 
-        private static SKPaint BlendingPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
-        private static SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
-        private static SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
-        private static SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
+        private static readonly SKPaint BlendingPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+        private static readonly SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+        private static readonly SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
+        private static readonly SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
-        private Dictionary<ChunkResolution, HashSet<Vector2i>> postponedChunks = new()
+        private readonly Dictionary<ChunkResolution, HashSet<Vector2i>> postponedChunks = new()
         {
             [ChunkResolution.Full] = new(),
             [ChunkResolution.Half] = new(),
@@ -29,22 +31,23 @@ namespace PixiEditorPrototype.Models.Rendering
             [ChunkResolution.Eighth] = new()
         };
 
-        public WriteableBitmapUpdater(DocumentHelpers helpers)
+        public WriteableBitmapUpdater(DocumentViewModel doc, DocumentHelpers helpers)
         {
+            this.doc = doc;
             this.helpers = helpers;
         }
 
-        public async Task<List<IRenderInfo>> ProcessChanges(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, ChunkResolution resolution)
+        public async Task<List<IRenderInfo>> ProcessChanges(IReadOnlyList<IChangeInfo?> changes)
         {
-            return await Task.Run(() => Render(changes, screenSurface, resolution)).ConfigureAwait(true);
+            return await Task.Run(() => Render(changes)).ConfigureAwait(true);
         }
 
-        public List<IRenderInfo> ProcessChangesSync(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, ChunkResolution resolution)
+        public List<IRenderInfo> ProcessChangesSync(IReadOnlyList<IChangeInfo?> changes)
         {
-            return Render(changes, screenSurface, resolution);
+            return Render(changes);
         }
 
-        private HashSet<Vector2i> FindChunksToRerender(IReadOnlyList<IChangeInfo> changes, ChunkResolution resolution)
+        private Dictionary<ChunkResolution, HashSet<Vector2i>> FindChunksToRerender(IReadOnlyList<IChangeInfo?> changes)
         {
             HashSet<Vector2i> affectedChunks = new();
             foreach (var change in changes)
@@ -95,25 +98,39 @@ namespace PixiEditorPrototype.Models.Rendering
                         else
                             AddAllChunks(affectedChunks);
                         break;
-                    case MoveViewport_PassthroughAction moveViewportInfo:
-
+                    case RefreshViewport_PassthroughAction moveViewportInfo:
                         break;
                 }
             }
 
-            postponedChunks[ChunkResolution.Full].UnionWith(affectedChunks);
-            postponedChunks[ChunkResolution.Half].UnionWith(affectedChunks);
-            postponedChunks[ChunkResolution.Quarter].UnionWith(affectedChunks);
-            postponedChunks[ChunkResolution.Eighth].UnionWith(affectedChunks);
+            foreach (var (_, postponed) in postponedChunks)
+            {
+                postponed.UnionWith(affectedChunks);
+            }
 
-            var chunksOnScreen = OperationHelper.FindChunksTouchingRectangle(
-                helpers.State.ViewportCenter,
-                helpers.State.ViewportSize,
-                -helpers.State.ViewportAngle,
-                ChunkResolution.Full.PixelSize());
+            var chunksOnScreen = new Dictionary<ChunkResolution, HashSet<Vector2i>>()
+            {
+                [ChunkResolution.Full] = new(),
+                [ChunkResolution.Half] = new(),
+                [ChunkResolution.Quarter] = new(),
+                [ChunkResolution.Eighth] = new()
+            };
 
-            chunksOnScreen.IntersectWith(postponedChunks[resolution]);
-            postponedChunks[resolution].ExceptWith(chunksOnScreen);
+            foreach (var (_, viewport) in helpers.State.Viewports)
+            {
+                var viewportChunks = OperationHelper.FindChunksTouchingRectangle(
+                    viewport.Center,
+                    viewport.Dimensions,
+                    -viewport.Angle,
+                    ChunkResolution.Full.PixelSize());
+                chunksOnScreen[viewport.Resolution].UnionWith(viewportChunks);
+            }
+
+            foreach (var (res, postponed) in postponedChunks)
+            {
+                chunksOnScreen[res].IntersectWith(postponed);
+                postponed.ExceptWith(chunksOnScreen[res]);
+            }
 
             return chunksOnScreen;
         }
@@ -132,20 +149,25 @@ namespace PixiEditorPrototype.Models.Rendering
             }
         }
 
-        private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo> changes, SKSurface screenSurface, ChunkResolution resolution)
+        private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo?> changes)
         {
-            HashSet<Vector2i> chunks = FindChunksToRerender(changes, resolution);
+            Dictionary<ChunkResolution, HashSet<Vector2i>> chunksToRerender = FindChunksToRerender(changes);
 
             List<IRenderInfo> infos = new();
 
-            int chunkSize = resolution.PixelSize();
-            foreach (var chunkPos in chunks!)
+            foreach (var (resolution, chunks) in chunksToRerender)
             {
-                RenderChunk(chunkPos, screenSurface, resolution);
-                infos.Add(new DirtyRect_RenderInfo(
-                    chunkPos * chunkSize,
-                    new(chunkSize, chunkSize)
-                    ));
+                int chunkSize = resolution.PixelSize();
+                SKSurface screenSurface = doc.Surfaces[resolution];
+                foreach (var chunkPos in chunks)
+                {
+                    RenderChunk(chunkPos, screenSurface, resolution);
+                    infos.Add(new DirtyRect_RenderInfo(
+                        chunkPos * chunkSize,
+                        new(chunkSize, chunkSize),
+                        resolution
+                        ));
+                }
             }
 
             return infos;
