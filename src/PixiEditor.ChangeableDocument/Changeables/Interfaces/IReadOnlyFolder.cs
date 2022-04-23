@@ -1,7 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces
+﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+
+public interface IReadOnlyFolder : IReadOnlyStructureMember
 {
-    public interface IReadOnlyFolder : IReadOnlyStructureMember
-    {
-        IReadOnlyList<IReadOnlyStructureMember> ReadOnlyChildren { get; }
-    }
+    IReadOnlyList<IReadOnlyStructureMember> ReadOnlyChildren { get; }
 }

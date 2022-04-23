@@ -1,53 +1,52 @@
 ﻿using ChunkyImageLib.DataHolders;
 using SkiaSharp;
 
-namespace ChunkyImageLib.Operations
+namespace ChunkyImageLib.Operations;
+
+internal record class ImageOperation : IDrawOperation
 {
-    internal record class ImageOperation : IDrawOperation
+    private Vector2i pos;
+    private Surface toPaint;
+    private static SKPaint ReplacingPaint = new() { BlendMode = SKBlendMode.Src };
+
+    public bool IgnoreEmptyChunks => false;
+
+    public ImageOperation(Vector2i pos, Surface image)
     {
-        private Vector2i pos;
-        private Surface toPaint;
-        private static SKPaint ReplacingPaint = new() { BlendMode = SKBlendMode.Src };
+        this.pos = pos;
+        toPaint = new Surface(image);
+    }
 
-        public bool IgnoreEmptyChunks => false;
-
-        public ImageOperation(Vector2i pos, Surface image)
+    public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
+    {
+        if (chunk.Resolution == ChunkResolution.Full)
         {
-            this.pos = pos;
-            toPaint = new Surface(image);
-        }
-
-        public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
-        {
-            if (chunk.Resolution == ChunkResolution.Full)
-            {
-                chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
-                return;
-            }
-            chunk.Surface.SkiaSurface.Canvas.Save();
-            chunk.Surface.SkiaSurface.Canvas.Scale((float)chunk.Resolution.Multiplier());
             chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
-            chunk.Surface.SkiaSurface.Canvas.Restore();
+            return;
         }
+        chunk.Surface.SkiaSurface.Canvas.Save();
+        chunk.Surface.SkiaSurface.Canvas.Scale((float)chunk.Resolution.Multiplier());
+        chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
+        chunk.Surface.SkiaSurface.Canvas.Restore();
+    }
 
-        public HashSet<Vector2i> FindAffectedChunks()
+    public HashSet<Vector2i> FindAffectedChunks()
+    {
+        Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.FullChunkSize);
+        Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Size.X - 1, pos.Y + toPaint.Size.Y - 1), ChunkPool.FullChunkSize);
+        HashSet<Vector2i> output = new();
+        for (int cx = start.X; cx <= end.X; cx++)
         {
-            Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.FullChunkSize);
-            Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Size.X - 1, pos.Y + toPaint.Size.Y - 1), ChunkPool.FullChunkSize);
-            HashSet<Vector2i> output = new();
-            for (int cx = start.X; cx <= end.X; cx++)
+            for (int cy = start.Y; cy <= end.Y; cy++)
             {
-                for (int cy = start.Y; cy <= end.Y; cy++)
-                {
-                    output.Add(new(cx, cy));
-                }
+                output.Add(new(cx, cy));
             }
-            return output;
         }
+        return output;
+    }
 
-        public void Dispose()
-        {
-            toPaint.Dispose();
-        }
+    public void Dispose()
+    {
+        toPaint.Dispose();
     }
 }

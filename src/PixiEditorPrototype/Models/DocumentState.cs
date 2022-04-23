@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PixiEditorPrototype.Models
+namespace PixiEditorPrototype.Models;
+
+internal class DocumentState
 {
-    internal class DocumentState
-    {
-        public Dictionary<Guid, ViewportLocation> Viewports { get; set; } = new();
-    }
+    public Dictionary<Guid, ViewportLocation> Viewports { get; set; } = new();
 }

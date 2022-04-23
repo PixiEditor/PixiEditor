@@ -1,6 +1,5 @@
-﻿namespace PixiEditor.ChangeableDocument.ChangeInfos
+﻿namespace PixiEditor.ChangeableDocument.ChangeInfos;
+
+public record class Size_ChangeInfo : IChangeInfo
 {
-    public record class Size_ChangeInfo : IChangeInfo
-    {
-    }
 }

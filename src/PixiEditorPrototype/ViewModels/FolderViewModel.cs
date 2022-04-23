@@ -1,16 +1,15 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using System.Collections.ObjectModel;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditorPrototype.Models;
-using System.Collections.ObjectModel;
 
-namespace PixiEditorPrototype.ViewModels
+namespace PixiEditorPrototype.ViewModels;
+
+internal class FolderViewModel : StructureMemberViewModel
 {
-    internal class FolderViewModel : StructureMemberViewModel
+    public ObservableCollection<StructureMemberViewModel> Children { get; } = new();
+    public FolderViewModel(DocumentViewModel doc, DocumentHelpers helpers, IReadOnlyFolder member) : base(doc, helpers, member)
     {
-        public ObservableCollection<StructureMemberViewModel> Children { get; } = new();
-        public FolderViewModel(DocumentViewModel doc, DocumentHelpers helpers, IReadOnlyFolder member) : base(doc, helpers, member)
-        {
-        }
-
-
     }
+
+
 }

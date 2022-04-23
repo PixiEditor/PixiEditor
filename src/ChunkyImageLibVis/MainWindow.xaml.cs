@@ -9,198 +9,197 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace ChunkyImageLibVis
+namespace ChunkyImageLibVis;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window, INotifyPropertyChanged
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    private double x1;
+    private double y1;
+    private double x2;
+    private double y2;
+
+    public double X1
     {
-        private double x1;
-        private double y1;
-        private double x2;
-        private double y2;
-
-        public double X1
+        get => x1;
+        set
         {
-            get => x1;
-            set
-            {
-                x1 = value;
-                PropertyChanged?.Invoke(this, new(nameof(X1)));
-                PropertyChanged?.Invoke(this, new(nameof(RectWidth)));
-                PropertyChanged?.Invoke(this, new(nameof(HalfRectWidth)));
-            }
+            x1 = value;
+            PropertyChanged?.Invoke(this, new(nameof(X1)));
+            PropertyChanged?.Invoke(this, new(nameof(RectWidth)));
+            PropertyChanged?.Invoke(this, new(nameof(HalfRectWidth)));
         }
-        public double X2
+    }
+    public double X2
+    {
+        get => x2;
+        set
         {
-            get => x2;
-            set
-            {
-                x2 = value;
-                PropertyChanged?.Invoke(this, new(nameof(X2)));
-                PropertyChanged?.Invoke(this, new(nameof(RectWidth)));
-                PropertyChanged?.Invoke(this, new(nameof(HalfRectWidth)));
-            }
+            x2 = value;
+            PropertyChanged?.Invoke(this, new(nameof(X2)));
+            PropertyChanged?.Invoke(this, new(nameof(RectWidth)));
+            PropertyChanged?.Invoke(this, new(nameof(HalfRectWidth)));
         }
-        public double Y1
+    }
+    public double Y1
+    {
+        get => y1;
+        set
         {
-            get => y1;
-            set
-            {
-                y1 = value;
-                PropertyChanged?.Invoke(this, new(nameof(Y1)));
-                PropertyChanged?.Invoke(this, new(nameof(RectHeight)));
-                PropertyChanged?.Invoke(this, new(nameof(HalfRectHeight)));
-            }
+            y1 = value;
+            PropertyChanged?.Invoke(this, new(nameof(Y1)));
+            PropertyChanged?.Invoke(this, new(nameof(RectHeight)));
+            PropertyChanged?.Invoke(this, new(nameof(HalfRectHeight)));
         }
-        public double Y2
+    }
+    public double Y2
+    {
+        get => y2;
+        set
         {
-            get => y2;
-            set
-            {
-                y2 = value;
-                PropertyChanged?.Invoke(this, new(nameof(Y2)));
-                PropertyChanged?.Invoke(this, new(nameof(RectHeight)));
-                PropertyChanged?.Invoke(this, new(nameof(HalfRectHeight)));
-            }
+            y2 = value;
+            PropertyChanged?.Invoke(this, new(nameof(Y2)));
+            PropertyChanged?.Invoke(this, new(nameof(RectHeight)));
+            PropertyChanged?.Invoke(this, new(nameof(HalfRectHeight)));
         }
+    }
 
-        public double RectWidth { get => Math.Abs(X2 - X1); }
-        public double RectHeight { get => Math.Abs(Y2 - Y1); }
+    public double RectWidth { get => Math.Abs(X2 - X1); }
+    public double RectHeight { get => Math.Abs(Y2 - Y1); }
 
-        public double HalfRectWidth { get => Math.Abs(X2 - X1) / 2; }
-        public double HalfRectHeight { get => Math.Abs(Y2 - Y1) / 2; }
+    public double HalfRectWidth { get => Math.Abs(X2 - X1) / 2; }
+    public double HalfRectHeight { get => Math.Abs(Y2 - Y1) / 2; }
 
 
-        private double angle;
-        public double Angle
+    private double angle;
+    public double Angle
+    {
+        get => angle;
+        set
         {
-            get => angle;
-            set
-            {
-                angle = value;
-                PropertyChanged?.Invoke(this, new(nameof(Angle)));
-            }
+            angle = value;
+            PropertyChanged?.Invoke(this, new(nameof(Angle)));
         }
+    }
 
-        public MainWindow()
+    public MainWindow()
+    {
+        InitializeComponent();
+        DataContext = this;
+        CreateGrid();
+    }
+
+    public void CreateGrid()
+    {
+        for (int i = 0; i < 20; i++)
         {
-            InitializeComponent();
-            DataContext = this;
-            CreateGrid();
+            Line ver = new()
+            {
+                X1 = i * 32,
+                X2 = i * 32,
+                Y1 = 0,
+                Y2 = 1000,
+                Stroke = Brushes.Gray,
+                StrokeThickness = 1,
+            };
+            Line hor = new()
+            {
+                X1 = 0,
+                X2 = 1000,
+                Y1 = i * 32,
+                Y2 = i * 32,
+                Stroke = Brushes.Gray,
+                StrokeThickness = 1,
+            };
+            canvas.Children.Add(ver);
+            canvas.Children.Add(hor);
         }
+    }
 
-        public void CreateGrid()
+    public List<Rectangle> rectangles = new();
+    private void UpdateChunks()
+    {
+        foreach (var rect in rectangles)
         {
-            for (int i = 0; i < 20; i++)
-            {
-                Line ver = new()
-                {
-                    X1 = i * 32,
-                    X2 = i * 32,
-                    Y1 = 0,
-                    Y2 = 1000,
-                    Stroke = Brushes.Gray,
-                    StrokeThickness = 1,
-                };
-                Line hor = new()
-                {
-                    X1 = 0,
-                    X2 = 1000,
-                    Y1 = i * 32,
-                    Y2 = i * 32,
-                    Stroke = Brushes.Gray,
-                    StrokeThickness = 1,
-                };
-                canvas.Children.Add(ver);
-                canvas.Children.Add(hor);
-            }
+            canvas.Children.Remove(rect);
         }
-
-        public List<Rectangle> rectangles = new();
-        private void UpdateChunks()
+        rectangles.Clear();
+        var chunks = OperationHelper.FindChunksTouchingRectangle(new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
+        var innerChunks = OperationHelper.FindChunksFullyInsideRectangle(new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
+        chunks.ExceptWith(innerChunks);
+        foreach (var chunk in chunks)
         {
-            foreach (var rect in rectangles)
+            Rectangle rectangle = new()
             {
-                canvas.Children.Remove(rect);
-            }
-            rectangles.Clear();
-            var chunks = OperationHelper.FindChunksTouchingRectangle(new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
-            var innerChunks = OperationHelper.FindChunksFullyInsideRectangle(new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
-            chunks.ExceptWith(innerChunks);
-            foreach (var chunk in chunks)
-            {
-                Rectangle rectangle = new()
-                {
-                    Fill = Brushes.Green,
-                    Width = 32,
-                    Height = 32,
-                };
-                Canvas.SetLeft(rectangle, chunk.X * 32);
-                Canvas.SetTop(rectangle, chunk.Y * 32);
-                canvas.Children.Add(rectangle);
-                rectangles.Add(rectangle);
-            }
+                Fill = Brushes.Green,
+                Width = 32,
+                Height = 32,
+            };
+            Canvas.SetLeft(rectangle, chunk.X * 32);
+            Canvas.SetTop(rectangle, chunk.Y * 32);
+            canvas.Children.Add(rectangle);
+            rectangles.Add(rectangle);
         }
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        private bool drawing = false;
-        private bool rotating = false;
-        private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+    private bool drawing = false;
+    private bool rotating = false;
+    private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (rotating)
         {
-            if (rotating)
-            {
-                rotating = false;
-                return;
-            }
-            drawing = true;
-            Angle = 0;
-            var pos = e.GetPosition(canvas);
+            rotating = false;
+            return;
+        }
+        drawing = true;
+        Angle = 0;
+        var pos = e.GetPosition(canvas);
+        if (e.LeftButton == MouseButtonState.Pressed)
+        {
+            X1 = pos.X;
+            Y1 = pos.Y;
+        }
+        else
+        {
+            X1 = Math.Floor(pos.X / 32) * 32;
+            Y1 = Math.Floor(pos.Y / 32) * 32;
+        }
+    }
+
+    private void Canvas_MouseMove(object sender, MouseEventArgs e)
+    {
+        var pos = e.GetPosition(canvas);
+        if (drawing)
+        {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                X1 = pos.X;
-                Y1 = pos.Y;
+                X2 = pos.X;
+                Y2 = pos.Y;
             }
             else
             {
-                X1 = Math.Floor(pos.X / 32) * 32;
-                Y1 = Math.Floor(pos.Y / 32) * 32;
+                X2 = Math.Floor(pos.X / 32) * 32;
+                Y2 = Math.Floor(pos.Y / 32) * 32;
             }
         }
-
-        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        else if (rotating)
         {
-            var pos = e.GetPosition(canvas);
-            if (drawing)
-            {
-                if (e.LeftButton == MouseButtonState.Pressed)
-                {
-                    X2 = pos.X;
-                    Y2 = pos.Y;
-                }
-                else
-                {
-                    X2 = Math.Floor(pos.X / 32) * 32;
-                    Y2 = Math.Floor(pos.Y / 32) * 32;
-                }
-            }
-            else if (rotating)
-            {
-                Vector2d center = new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight);
-                Angle = new Vector2d(pos.X - center.X, pos.Y - center.Y).CCWAngleTo(new Vector2d(X2 - center.X, Y2 - center.Y)) * -180 / Math.PI;
-            }
-            UpdateChunks();
+            Vector2d center = new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight);
+            Angle = new Vector2d(pos.X - center.X, pos.Y - center.Y).CCWAngleTo(new Vector2d(X2 - center.X, Y2 - center.Y)) * -180 / Math.PI;
         }
+        UpdateChunks();
+    }
 
-        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+    private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (drawing)
         {
-            if (drawing)
-            {
-                drawing = false;
-                rotating = true;
-            }
+            drawing = false;
+            rotating = true;
         }
     }
 }

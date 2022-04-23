@@ -2,18 +2,17 @@
 using PixiEditor.ChangeableDocument.Changes;
 using PixiEditor.ChangeableDocument.Changes.Root;
 
-namespace PixiEditor.ChangeableDocument.Actions.Root
+namespace PixiEditor.ChangeableDocument.Actions.Root;
+
+public record class ResizeCanvas_Action : IMakeChangeAction
 {
-    public record class ResizeCanvas_Action : IMakeChangeAction
+    public Vector2i Size { get; }
+    public ResizeCanvas_Action(Vector2i size)
     {
-        public Vector2i Size { get; }
-        public ResizeCanvas_Action(Vector2i size)
-        {
-            Size = size;
-        }
-        Change IMakeChangeAction.CreateCorrespondingChange()
-        {
-            return new ResizeCanvas_Change(Size);
-        }
+        Size = size;
+    }
+    Change IMakeChangeAction.CreateCorrespondingChange()
+    {
+        return new ResizeCanvas_Change(Size);
     }
 }

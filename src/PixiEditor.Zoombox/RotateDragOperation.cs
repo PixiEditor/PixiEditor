@@ -2,49 +2,48 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace PixiEditor.Zoombox
+namespace PixiEditor.Zoombox;
+
+internal class RotateDragOperation : IDragOperation
 {
-    internal class RotateDragOperation : IDragOperation
+    private Zoombox parent;
+    private double prevAngle;
+
+
+    public RotateDragOperation(Zoombox zoomBox)
     {
-        private Zoombox parent;
-        private double prevAngle;
+        parent = zoomBox;
+    }
+    public void Start(MouseButtonEventArgs e)
+    {
+        Point pointCur = e.GetPosition(parent.mainCanvas);
+        prevAngle = GetAngle(new(pointCur.X, pointCur.Y));
 
+        parent.mainCanvas.CaptureMouse();
+    }
 
-        public RotateDragOperation(Zoombox zoomBox)
-        {
-            parent = zoomBox;
-        }
-        public void Start(MouseButtonEventArgs e)
-        {
-            Point pointCur = e.GetPosition(parent.mainCanvas);
-            prevAngle = GetAngle(new(pointCur.X, pointCur.Y));
+    private double GetAngle(Vector2d point)
+    {
+        Vector2d center = new(parent.mainCanvas.ActualWidth / 2, parent.mainCanvas.ActualHeight / 2);
+        double angle = (point - center).Angle;
+        if (double.IsNaN(angle) || double.IsInfinity(angle))
+            return 0;
+        return angle;
+    }
 
-            parent.mainCanvas.CaptureMouse();
-        }
+    public void Update(MouseEventArgs e)
+    {
+        Point pointCur = e.GetPosition(parent.mainCanvas);
+        double curAngle = GetAngle(new(pointCur.X, pointCur.Y));
+        double delta = curAngle - prevAngle;
+        if (parent.FlipX ^ parent.FlipY)
+            delta = -delta;
+        prevAngle = curAngle;
+        parent.Angle += delta;
+    }
 
-        private double GetAngle(Vector2d point)
-        {
-            Vector2d center = new(parent.mainCanvas.ActualWidth / 2, parent.mainCanvas.ActualHeight / 2);
-            double angle = (point - center).Angle;
-            if (double.IsNaN(angle) || double.IsInfinity(angle))
-                return 0;
-            return angle;
-        }
-
-        public void Update(MouseEventArgs e)
-        {
-            Point pointCur = e.GetPosition(parent.mainCanvas);
-            double curAngle = GetAngle(new(pointCur.X, pointCur.Y));
-            double delta = curAngle - prevAngle;
-            if (parent.FlipX ^ parent.FlipY)
-                delta = -delta;
-            prevAngle = curAngle;
-            parent.Angle += delta;
-        }
-
-        public void Terminate()
-        {
-            parent.mainCanvas.ReleaseMouseCapture();
-        }
+    public void Terminate()
+    {
+        parent.mainCanvas.ReleaseMouseCapture();
     }
 }

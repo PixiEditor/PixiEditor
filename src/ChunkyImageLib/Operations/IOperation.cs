@@ -1,6 +1,5 @@
-﻿namespace ChunkyImageLib.Operations
+﻿namespace ChunkyImageLib.Operations;
+
+internal interface IOperation : IDisposable
 {
-    internal interface IOperation : IDisposable
-    {
-    }
 }

@@ -1,8 +1,7 @@
-﻿namespace PixiEditor.ChangeableDocument.Enums
+﻿namespace PixiEditor.ChangeableDocument.Enums;
+
+public enum StructureMemberType
 {
-    public enum StructureMemberType
-    {
-        Layer,
-        Folder
-    }
+    Layer,
+    Folder
 }

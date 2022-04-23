@@ -1,14 +1,13 @@
 ﻿using ChunkyImageLib.DataHolders;
 
-namespace ChunkyImageLib.Operations
+namespace ChunkyImageLib.Operations;
+
+internal record class ResizeOperation : IOperation
 {
-    internal record class ResizeOperation : IOperation
+    public Vector2i Size { get; }
+    public ResizeOperation(Vector2i size)
     {
-        public Vector2i Size { get; }
-        public ResizeOperation(Vector2i size)
-        {
-            Size = size;
-        }
-        public void Dispose() { }
+        Size = size;
     }
+    public void Dispose() { }
 }

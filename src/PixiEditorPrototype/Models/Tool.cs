@@ -1,8 +1,7 @@
-﻿namespace PixiEditorPrototype.Models
+﻿namespace PixiEditorPrototype.Models;
+
+internal enum Tool
 {
-    internal enum Tool
-    {
-        Rectangle,
-        Select
-    }
+    Rectangle,
+    Select
 }

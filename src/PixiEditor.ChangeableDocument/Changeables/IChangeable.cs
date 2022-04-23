@@ -1,8 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables
+﻿namespace PixiEditor.ChangeableDocument.Changeables;
+
+internal interface IChangeable
 {
 
-    internal interface IChangeable
-    {
-
-    };
-}
+};

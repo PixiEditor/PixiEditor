@@ -1,6 +1,5 @@
-﻿namespace PixiEditor.ChangeableDocument.ChangeInfos
+﻿namespace PixiEditor.ChangeableDocument.ChangeInfos;
+
+public interface IChangeInfo
 {
-    public interface IChangeInfo
-    {
-    }
 }

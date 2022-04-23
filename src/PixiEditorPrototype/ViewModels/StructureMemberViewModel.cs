@@ -5,85 +5,84 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditorPrototype.Models;
 
-namespace PixiEditorPrototype.ViewModels
+namespace PixiEditorPrototype.ViewModels;
+
+internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 {
-    internal abstract class StructureMemberViewModel : INotifyPropertyChanged
+    private IReadOnlyStructureMember member;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public DocumentViewModel Document { get; }
+    private DocumentHelpers Helpers { get; }
+
+    public string Name
     {
-        private IReadOnlyStructureMember member;
+        get => member.Name;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberName_Action(value, member.GuidValue));
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public DocumentViewModel Document { get; }
-        private DocumentHelpers Helpers { get; }
+    public bool IsVisible
+    {
+        get => member.IsVisible;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberVisibility_Action(value, member.GuidValue));
+    }
 
-        public string Name
-        {
-            get => member.Name;
-            set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberName_Action(value, member.GuidValue));
-        }
+    public BlendMode BlendMode
+    {
+        get => member.BlendMode;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberBlendMode_Action(value, member.GuidValue));
+    }
 
-        public bool IsVisible
-        {
-            get => member.IsVisible;
-            set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberVisibility_Action(value, member.GuidValue));
-        }
+    public bool IsSelected { get; set; }
+    public bool ShouldDrawOnMask { get; set; }
 
-        public BlendMode BlendMode
-        {
-            get => member.BlendMode;
-            set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberBlendMode_Action(value, member.GuidValue));
-        }
+    public float Opacity
+    {
+        get => member.Opacity;
+    }
 
-        public bool IsSelected { get; set; }
-        public bool ShouldDrawOnMask { get; set; }
+    public Guid GuidValue
+    {
+        get => member.GuidValue;
+    }
 
-        public float Opacity
-        {
-            get => member.Opacity;
-        }
+    public bool HasMask
+    {
+        get => member.ReadOnlyMask is not null;
+    }
 
-        public Guid GuidValue
-        {
-            get => member.GuidValue;
-        }
+    public RelayCommand MoveUpCommand { get; }
+    public RelayCommand MoveDownCommand { get; }
 
-        public bool HasMask
-        {
-            get => member.ReadOnlyMask is not null;
-        }
+    public RelayCommand UpdateOpacityCommand { get; }
 
-        public RelayCommand MoveUpCommand { get; }
-        public RelayCommand MoveDownCommand { get; }
+    public RelayCommand EndOpacityUpdateCommand { get; }
 
-        public RelayCommand UpdateOpacityCommand { get; }
+    public void RaisePropertyChanged(string name)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
 
-        public RelayCommand EndOpacityUpdateCommand { get; }
+    public StructureMemberViewModel(DocumentViewModel doc, DocumentHelpers helpers, IReadOnlyStructureMember member)
+    {
+        this.member = member;
+        Document = doc;
+        Helpers = helpers;
+        MoveUpCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, false));
+        MoveDownCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, true));
+        UpdateOpacityCommand = new(UpdateOpacity);
+        EndOpacityUpdateCommand = new(EndOpacityUpdate);
+    }
 
-        public void RaisePropertyChanged(string name)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+    private void EndOpacityUpdate(object? opacity)
+    {
+        Helpers.ActionAccumulator.AddFinishedActions(new EndOpacityChange_Action());
+    }
 
-        public StructureMemberViewModel(DocumentViewModel doc, DocumentHelpers helpers, IReadOnlyStructureMember member)
-        {
-            this.member = member;
-            Document = doc;
-            Helpers = helpers;
-            MoveUpCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, false));
-            MoveDownCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, true));
-            UpdateOpacityCommand = new(UpdateOpacity);
-            EndOpacityUpdateCommand = new(EndOpacityUpdate);
-        }
-
-        private void EndOpacityUpdate(object? opacity)
-        {
-            Helpers.ActionAccumulator.AddFinishedActions(new EndOpacityChange_Action());
-        }
-
-        private void UpdateOpacity(object? opacity)
-        {
-            if (opacity is not double value)
-                throw new ArgumentException("The passed value isn't a double");
-            Helpers.ActionAccumulator.AddActions(new OpacityChange_Action(GuidValue, (float)value));
-        }
+    private void UpdateOpacity(object? opacity)
+    {
+        if (opacity is not double value)
+            throw new ArgumentException("The passed value isn't a double");
+        Helpers.ActionAccumulator.AddActions(new OpacityChange_Action(GuidValue, (float)value));
     }
 }

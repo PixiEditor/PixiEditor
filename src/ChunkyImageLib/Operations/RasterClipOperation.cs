@@ -1,13 +1,12 @@
-﻿namespace ChunkyImageLib.Operations
-{
-    internal class RasterClipOperation : IOperation
-    {
-        public ChunkyImage ClippingMask { get; }
-        public RasterClipOperation(ChunkyImage clippingMask)
-        {
-            ClippingMask = clippingMask;
-        }
+﻿namespace ChunkyImageLib.Operations;
 
-        public void Dispose() { }
+internal class RasterClipOperation : IOperation
+{
+    public ChunkyImage ClippingMask { get; }
+    public RasterClipOperation(ChunkyImage clippingMask)
+    {
+        ClippingMask = clippingMask;
     }
+
+    public void Dispose() { }
 }

@@ -1,7 +1,6 @@
-﻿namespace PixiEditorPrototype.Views
+﻿namespace PixiEditorPrototype.Views;
+
+internal interface IMainView
 {
-    internal interface IMainView
-    {
-        void ForceRefreshFinalImage();
-    }
+    void ForceRefreshFinalImage();
 }

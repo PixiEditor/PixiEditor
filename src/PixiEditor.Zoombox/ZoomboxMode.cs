@@ -1,10 +1,9 @@
-﻿namespace PixiEditor.Zoombox
+﻿namespace PixiEditor.Zoombox;
+
+public enum ZoomboxMode
 {
-    public enum ZoomboxMode
-    {
-        Normal,
-        Move,
-        Rotate,
-        Zoom
-    }
+    Normal,
+    Move,
+    Rotate,
+    Zoom
 }

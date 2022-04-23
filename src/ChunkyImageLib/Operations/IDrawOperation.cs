@@ -1,11 +1,10 @@
 ﻿using ChunkyImageLib.DataHolders;
 
-namespace ChunkyImageLib.Operations
+namespace ChunkyImageLib.Operations;
+
+internal interface IDrawOperation : IOperation
 {
-    internal interface IDrawOperation : IOperation
-    {
-        bool IgnoreEmptyChunks { get; }
-        void DrawOnChunk(Chunk chunk, Vector2i chunkPos);
-        HashSet<Vector2i> FindAffectedChunks();
-    }
+    bool IgnoreEmptyChunks { get; }
+    void DrawOnChunk(Chunk chunk, Vector2i chunkPos);
+    HashSet<Vector2i> FindAffectedChunks();
 }

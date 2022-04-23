@@ -1,6 +1,5 @@
-﻿namespace PixiEditorPrototype.Models.Rendering.RenderInfos
+﻿namespace PixiEditorPrototype.Models.Rendering.RenderInfos;
+
+public interface IRenderInfo
 {
-    public interface IRenderInfo
-    {
-    }
 }

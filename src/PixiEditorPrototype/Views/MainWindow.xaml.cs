@@ -2,21 +2,20 @@
 using System.Windows.Controls;
 using PixiEditorPrototype.ViewModels;
 
-namespace PixiEditorPrototype.Views
+namespace PixiEditorPrototype.Views;
+
+internal partial class MainWindow : Window, IMainView
 {
-    internal partial class MainWindow : Window, IMainView
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-            ((ViewModelMain)DataContext).View = this;
-        }
+        InitializeComponent();
+        ((ViewModelMain)DataContext).View = this;
+    }
 
-        private Image? GetImage() => (Image?)((Border?)zoombox.AdditionalContent)?.Child;
+    private Image? GetImage() => (Image?)((Border?)zoombox.AdditionalContent)?.Child;
 
-        public void ForceRefreshFinalImage()
-        {
-            GetImage()?.InvalidateVisual();
-        }
+    public void ForceRefreshFinalImage()
+    {
+        GetImage()?.InvalidateVisual();
     }
 }

@@ -4,657 +4,656 @@ using ChunkyImageLib.Operations;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
-namespace ChunkyImageLib
+namespace ChunkyImageLib;
+
+/// <summary>
+/// This class is thread-safe only for reading! Only the functions from IReadOnlyChunkyImage can be called from any thread.
+/// ChunkyImage can be in two general states: 
+/// 1. a state with all chunks committed and no queued operations
+///     - latestChunks and latestChunksData are empty
+///     - queuedOperations are empty
+///     - committedChunks[ChunkResolution.Full] contains the current versions of all stored chunks
+///     - committedChunks[*any other resolution*] may contain the current low res versions of some of the chunks (or all of them, or none)
+///     - LatestSize == CommittedSize == current image size (px)
+/// 2. and a state with some queued operations
+///     - queuedOperations contains all requested operations (drawing, raster clips, clear, etc.)
+///     - committedChunks[ChunkResolution.Full] contains the last versions before any operations of all stored chunks
+///     - committedChunks[*any other resolution*] may contain the last low res versions before any operations of some of the chunks (or all of them, or none)
+///     - latestChunks stores chunks with some (or none, or all) queued operations applied
+///     - latestChunksData stores the data for some or all of the latest chunks (not necessarily synced with latestChunks).
+///         The data includes how many operations from the queue have already been applied to the chunk, as well as chunk deleted state (the clear operation deletes chunks)
+///     - LatestSize contains the new size if any resize operations were requested, otherwise the commited size
+/// You can check the current state via queuedOperations.Count == 0
+/// </summary>
+public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 {
-    /// <summary>
-    /// This class is thread-safe only for reading! Only the functions from IReadOnlyChunkyImage can be called from any thread.
-    /// ChunkyImage can be in two general states: 
-    /// 1. a state with all chunks committed and no queued operations
-    ///     - latestChunks and latestChunksData are empty
-    ///     - queuedOperations are empty
-    ///     - committedChunks[ChunkResolution.Full] contains the current versions of all stored chunks
-    ///     - committedChunks[*any other resolution*] may contain the current low res versions of some of the chunks (or all of them, or none)
-    ///     - LatestSize == CommittedSize == current image size (px)
-    /// 2. and a state with some queued operations
-    ///     - queuedOperations contains all requested operations (drawing, raster clips, clear, etc.)
-    ///     - committedChunks[ChunkResolution.Full] contains the last versions before any operations of all stored chunks
-    ///     - committedChunks[*any other resolution*] may contain the last low res versions before any operations of some of the chunks (or all of them, or none)
-    ///     - latestChunks stores chunks with some (or none, or all) queued operations applied
-    ///     - latestChunksData stores the data for some or all of the latest chunks (not necessarily synced with latestChunks).
-    ///         The data includes how many operations from the queue have already been applied to the chunk, as well as chunk deleted state (the clear operation deletes chunks)
-    ///     - LatestSize contains the new size if any resize operations were requested, otherwise the commited size
-    /// You can check the current state via queuedOperations.Count == 0
-    /// </summary>
-    public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
+    private struct LatestChunkData
     {
-        private struct LatestChunkData
+        public LatestChunkData()
         {
-            public LatestChunkData()
-            {
-                QueueProgress = 0;
-                IsDeleted = false;
-            }
-
-            public int QueueProgress { get; set; }
-            public bool IsDeleted { get; set; }
-        }
-        private bool disposed = false;
-        private object lockObject = new();
-        private int commitCounter = 0;
-
-        public static int ChunkSize => ChunkPool.FullChunkSize;
-        private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
-        private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
-
-        private Dictionary<ChunkResolution, Chunk> tempRasterClipChunks;
-
-        public Vector2i CommittedSize { get; private set; }
-        public Vector2i LatestSize { get; private set; }
-
-        private List<(IOperation operation, HashSet<Vector2i> affectedChunks)> queuedOperations = new();
-
-        private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> committedChunks;
-        private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> latestChunks;
-        private Dictionary<ChunkResolution, Dictionary<Vector2i, LatestChunkData>> latestChunksData = new();
-
-        public ChunkyImage(Vector2i size)
-        {
-            CommittedSize = size;
-            LatestSize = size;
-            tempRasterClipChunks = new Dictionary<ChunkResolution, Chunk>()
-            {
-                [ChunkResolution.Full] = Chunk.Create(ChunkResolution.Full),
-                [ChunkResolution.Half] = Chunk.Create(ChunkResolution.Half),
-                [ChunkResolution.Quarter] = Chunk.Create(ChunkResolution.Quarter),
-                [ChunkResolution.Eighth] = Chunk.Create(ChunkResolution.Eighth),
-            };
-            committedChunks = new()
-            {
-                [ChunkResolution.Full] = new(),
-                [ChunkResolution.Half] = new(),
-                [ChunkResolution.Quarter] = new(),
-                [ChunkResolution.Eighth] = new(),
-            };
-            latestChunks = new()
-            {
-                [ChunkResolution.Full] = new(),
-                [ChunkResolution.Half] = new(),
-                [ChunkResolution.Quarter] = new(),
-                [ChunkResolution.Eighth] = new(),
-            };
-            latestChunksData = new()
-            {
-                [ChunkResolution.Full] = new(),
-                [ChunkResolution.Half] = new(),
-                [ChunkResolution.Quarter] = new(),
-                [ChunkResolution.Eighth] = new(),
-            };
+            QueueProgress = 0;
+            IsDeleted = false;
         }
 
-        public ChunkyImage CloneFromLatest()
+        public int QueueProgress { get; set; }
+        public bool IsDeleted { get; set; }
+    }
+    private bool disposed = false;
+    private object lockObject = new();
+    private int commitCounter = 0;
+
+    public static int ChunkSize => ChunkPool.FullChunkSize;
+    private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
+    private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+
+    private Dictionary<ChunkResolution, Chunk> tempRasterClipChunks;
+
+    public Vector2i CommittedSize { get; private set; }
+    public Vector2i LatestSize { get; private set; }
+
+    private List<(IOperation operation, HashSet<Vector2i> affectedChunks)> queuedOperations = new();
+
+    private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> committedChunks;
+    private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> latestChunks;
+    private Dictionary<ChunkResolution, Dictionary<Vector2i, LatestChunkData>> latestChunksData = new();
+
+    public ChunkyImage(Vector2i size)
+    {
+        CommittedSize = size;
+        LatestSize = size;
+        tempRasterClipChunks = new Dictionary<ChunkResolution, Chunk>()
         {
-            lock (lockObject)
+            [ChunkResolution.Full] = Chunk.Create(ChunkResolution.Full),
+            [ChunkResolution.Half] = Chunk.Create(ChunkResolution.Half),
+            [ChunkResolution.Quarter] = Chunk.Create(ChunkResolution.Quarter),
+            [ChunkResolution.Eighth] = Chunk.Create(ChunkResolution.Eighth),
+        };
+        committedChunks = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
+        };
+        latestChunks = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
+        };
+        latestChunksData = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
+        };
+    }
+
+    public ChunkyImage CloneFromLatest()
+    {
+        lock (lockObject)
+        {
+            ChunkyImage output = new(LatestSize);
+            var chunks = FindAllChunks();
+            foreach (var chunk in chunks)
             {
-                ChunkyImage output = new(LatestSize);
-                var chunks = FindAllChunks();
-                foreach (var chunk in chunks)
-                {
-                    var image = (Chunk?)GetLatestChunk(chunk, ChunkResolution.Full);
-                    if (image is not null)
-                        output.DrawImage(chunk * ChunkSize, image.Surface);
-                }
-                output.CommitChanges();
-                return output;
+                var image = (Chunk?)GetLatestChunk(chunk, ChunkResolution.Full);
+                if (image is not null)
+                    output.DrawImage(chunk * ChunkSize, image.Surface);
             }
+            output.CommitChanges();
+            return output;
         }
+    }
 
-        public bool DrawLatestChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
+    public bool DrawLatestChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
+    {
+        lock (lockObject)
         {
-            lock (lockObject)
-            {
-                var chunk = GetLatestChunk(chunkPos, resolution);
-                if (chunk is null)
-                    return false;
-                chunk.DrawOnSurface(surface, pos, paint);
-                return true;
-            }
+            var chunk = GetLatestChunk(chunkPos, resolution);
+            if (chunk is null)
+                return false;
+            chunk.DrawOnSurface(surface, pos, paint);
+            return true;
         }
+    }
 
-        public bool LatestChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+    public bool LatestChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+    {
+        lock (lockObject)
         {
-            lock (lockObject)
-            {
-                return GetLatestChunk(chunkPos, resolution) is not null;
-            }
+            return GetLatestChunk(chunkPos, resolution) is not null;
         }
+    }
 
-        internal bool DrawCommittedChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
+    internal bool DrawCommittedChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
+    {
+        lock (lockObject)
         {
-            lock (lockObject)
-            {
-                var chunk = GetCommittedChunk(chunkPos, resolution);
-                if (chunk is null)
-                    return false;
-                chunk.DrawOnSurface(surface, pos, paint);
-                return true;
-            }
+            var chunk = GetCommittedChunk(chunkPos, resolution);
+            if (chunk is null)
+                return false;
+            chunk.DrawOnSurface(surface, pos, paint);
+            return true;
         }
+    }
 
-        internal bool CommitedChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+    internal bool CommitedChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+    {
+        lock (lockObject)
         {
-            lock (lockObject)
-            {
-                return GetCommittedChunk(chunkPos, resolution) is not null;
-            }
+            return GetCommittedChunk(chunkPos, resolution) is not null;
         }
+    }
 
-        /// <summary>
-        /// Returns the latest version of the chunk, with uncommitted changes applied if they exist
-        /// </summary>
-        private Chunk? GetLatestChunk(Vector2i pos, ChunkResolution resolution)
+    /// <summary>
+    /// Returns the latest version of the chunk, with uncommitted changes applied if they exist
+    /// </summary>
+    private Chunk? GetLatestChunk(Vector2i pos, ChunkResolution resolution)
+    {
+        //no queued operations
+        if (queuedOperations.Count == 0)
         {
-            //no queued operations
-            if (queuedOperations.Count == 0)
-            {
-                var sameResChunk = MaybeGetCommittedChunk(pos, resolution);
-                if (sameResChunk is not null)
-                    return sameResChunk;
+            var sameResChunk = MaybeGetCommittedChunk(pos, resolution);
+            if (sameResChunk is not null)
+                return sameResChunk;
 
-                var fullResChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
-                if (fullResChunk is not null)
-                    return GetOrCreateCommittedChunk(pos, resolution);
-
-                return null;
-            }
-
-            // there are queued operations, target chunk is affected
-            MaybeCreateAndProcessQueueForChunk(pos, resolution);
-            var maybeNewlyProcessedChunk = MaybeGetLatestChunk(pos, resolution);
-            if (maybeNewlyProcessedChunk is not null)
-                return maybeNewlyProcessedChunk;
-
-            // there are queued operations, target chunk is unaffected
-            var maybeSameResCommitedChunk = MaybeGetCommittedChunk(pos, resolution);
-            if (maybeSameResCommitedChunk is not null)
-                return maybeSameResCommitedChunk;
-
-            var maybeFullResCommitedChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
-            if (maybeFullResCommitedChunk is not null)
+            var fullResChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
+            if (fullResChunk is not null)
                 return GetOrCreateCommittedChunk(pos, resolution);
 
             return null;
         }
 
-        /// <summary>
-        /// Returns the committed version of the chunk ignoring any uncommitted changes
-        /// </summary>
-        private Chunk? GetCommittedChunk(Vector2i pos, ChunkResolution resolution)
+        // there are queued operations, target chunk is affected
+        MaybeCreateAndProcessQueueForChunk(pos, resolution);
+        var maybeNewlyProcessedChunk = MaybeGetLatestChunk(pos, resolution);
+        if (maybeNewlyProcessedChunk is not null)
+            return maybeNewlyProcessedChunk;
+
+        // there are queued operations, target chunk is unaffected
+        var maybeSameResCommitedChunk = MaybeGetCommittedChunk(pos, resolution);
+        if (maybeSameResCommitedChunk is not null)
+            return maybeSameResCommitedChunk;
+
+        var maybeFullResCommitedChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
+        if (maybeFullResCommitedChunk is not null)
+            return GetOrCreateCommittedChunk(pos, resolution);
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the committed version of the chunk ignoring any uncommitted changes
+    /// </summary>
+    private Chunk? GetCommittedChunk(Vector2i pos, ChunkResolution resolution)
+    {
+        var maybeSameRes = MaybeGetCommittedChunk(pos, resolution);
+        if (maybeSameRes is not null)
+            return maybeSameRes;
+
+        var maybeFullRes = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
+        if (maybeFullRes is not null)
+            return GetOrCreateCommittedChunk(pos, resolution);
+
+        return null;
+    }
+
+    private Chunk? MaybeGetLatestChunk(Vector2i pos, ChunkResolution resolution) => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+    private Chunk? MaybeGetCommittedChunk(Vector2i pos, ChunkResolution resolution) => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+
+    public void DrawRectangle(ShapeData rect)
+    {
+        lock (lockObject)
         {
-            var maybeSameRes = MaybeGetCommittedChunk(pos, resolution);
-            if (maybeSameRes is not null)
-                return maybeSameRes;
-
-            var maybeFullRes = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
-            if (maybeFullRes is not null)
-                return GetOrCreateCommittedChunk(pos, resolution);
-
-            return null;
+            RectangleOperation operation = new(rect);
+            EnqueueOperation(operation);
         }
+    }
 
-        private Chunk? MaybeGetLatestChunk(Vector2i pos, ChunkResolution resolution) => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
-        private Chunk? MaybeGetCommittedChunk(Vector2i pos, ChunkResolution resolution) => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
-
-        public void DrawRectangle(ShapeData rect)
+    public void DrawImage(Vector2i pos, Surface image)
+    {
+        lock (lockObject)
         {
-            lock (lockObject)
+            ImageOperation operation = new(pos, image);
+            EnqueueOperation(operation);
+        }
+    }
+
+    public void ClearRegion(Vector2i pos, Vector2i size)
+    {
+        lock (lockObject)
+        {
+            ClearRegionOperation operation = new(pos, size);
+            EnqueueOperation(operation);
+        }
+    }
+
+    public void Clear()
+    {
+        lock (lockObject)
+        {
+            ClearOperation operation = new();
+            EnqueueOperation(operation, FindAllChunks());
+        }
+    }
+
+    public void ApplyRasterClip(ChunkyImage clippingMask)
+    {
+        lock (lockObject)
+        {
+            RasterClipOperation operation = new(clippingMask);
+            EnqueueOperation(operation, new());
+        }
+    }
+
+    public void Resize(Vector2i newSize)
+    {
+        lock (lockObject)
+        {
+            ResizeOperation operation = new(newSize);
+            LatestSize = newSize;
+            EnqueueOperation(operation, FindAllChunksOutsideBounds(newSize));
+        }
+    }
+
+    private void EnqueueOperation(IDrawOperation operation)
+    {
+        var chunks = operation.FindAffectedChunks();
+        chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
+        if (operation.IgnoreEmptyChunks)
+            chunks.IntersectWith(FindAllChunks());
+        EnqueueOperation(operation, chunks);
+    }
+    private void EnqueueOperation(IOperation operation, HashSet<Vector2i> chunks)
+    {
+        queuedOperations.Add((operation, chunks));
+    }
+
+    public void CancelChanges()
+    {
+        lock (lockObject)
+        {
+            //clear queued operations
+            foreach (var operation in queuedOperations)
+                operation.Item1.Dispose();
+            queuedOperations.Clear();
+
+            //clear latest chunks
+            foreach (var (_, chunksOfRes) in latestChunks)
             {
-                RectangleOperation operation = new(rect);
-                EnqueueOperation(operation);
-            }
-        }
-
-        public void DrawImage(Vector2i pos, Surface image)
-        {
-            lock (lockObject)
-            {
-                ImageOperation operation = new(pos, image);
-                EnqueueOperation(operation);
-            }
-        }
-
-        public void ClearRegion(Vector2i pos, Vector2i size)
-        {
-            lock (lockObject)
-            {
-                ClearRegionOperation operation = new(pos, size);
-                EnqueueOperation(operation);
-            }
-        }
-
-        public void Clear()
-        {
-            lock (lockObject)
-            {
-                ClearOperation operation = new();
-                EnqueueOperation(operation, FindAllChunks());
-            }
-        }
-
-        public void ApplyRasterClip(ChunkyImage clippingMask)
-        {
-            lock (lockObject)
-            {
-                RasterClipOperation operation = new(clippingMask);
-                EnqueueOperation(operation, new());
-            }
-        }
-
-        public void Resize(Vector2i newSize)
-        {
-            lock (lockObject)
-            {
-                ResizeOperation operation = new(newSize);
-                LatestSize = newSize;
-                EnqueueOperation(operation, FindAllChunksOutsideBounds(newSize));
-            }
-        }
-
-        private void EnqueueOperation(IDrawOperation operation)
-        {
-            var chunks = operation.FindAffectedChunks();
-            chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
-            if (operation.IgnoreEmptyChunks)
-                chunks.IntersectWith(FindAllChunks());
-            EnqueueOperation(operation, chunks);
-        }
-        private void EnqueueOperation(IOperation operation, HashSet<Vector2i> chunks)
-        {
-            queuedOperations.Add((operation, chunks));
-        }
-
-        public void CancelChanges()
-        {
-            lock (lockObject)
-            {
-                //clear queued operations
-                foreach (var operation in queuedOperations)
-                    operation.Item1.Dispose();
-                queuedOperations.Clear();
-
-                //clear latest chunks
-                foreach (var (_, chunksOfRes) in latestChunks)
+                foreach (var (_, chunk) in chunksOfRes)
                 {
-                    foreach (var (_, chunk) in chunksOfRes)
-                    {
-                        chunk.Dispose();
-                    }
-                }
-                LatestSize = CommittedSize;
-                foreach (var (res, chunks) in latestChunks)
-                {
-                    chunks.Clear();
-                    latestChunksData[res].Clear();
-                }
-            }
-        }
-
-        public void CommitChanges()
-        {
-            lock (lockObject)
-            {
-                var affectedChunks = FindAffectedChunks();
-                foreach (var chunk in affectedChunks)
-                {
-                    MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);
-                }
-                foreach (var (operation, _) in queuedOperations)
-                {
-                    operation.Dispose();
-                }
-                CommitLatestChunks();
-                CommittedSize = LatestSize;
-                queuedOperations.Clear();
-
-                commitCounter++;
-                if (commitCounter % 30 == 0)
-                    FindAndDeleteEmptyCommittedChunks();
-            }
-        }
-
-        private void CommitLatestChunks()
-        {
-            // move fully processed latest chunks to committed
-            foreach (var (resolution, chunks) in latestChunks)
-            {
-                foreach (var (pos, chunk) in chunks)
-                {
-                    if (committedChunks[resolution].ContainsKey(pos))
-                    {
-                        var oldChunk = committedChunks[resolution][pos];
-                        committedChunks[resolution].Remove(pos);
-                        oldChunk.Dispose();
-                    }
-
-                    LatestChunkData data = latestChunksData[resolution][pos];
-                    if (data.QueueProgress != queuedOperations.Count)
-                    {
-                        if (resolution == ChunkResolution.Full)
-                        {
-                            throw new InvalidOperationException("Trying to commit a full res chunk that wasn't fully processed");
-                        }
-                        else
-                        {
-                            chunk.Dispose();
-                            continue;
-                        }
-                    }
-
-                    if (!data.IsDeleted)
-                        committedChunks[resolution].Add(pos, chunk);
-                    else
-                        chunk.Dispose();
+                    chunk.Dispose();
                 }
             }
-
-            // delete committed low res chunks that weren't updated
-            foreach (var (pos, chunk) in latestChunks[ChunkResolution.Full])
-            {
-                foreach (var (resolution, _) in latestChunks)
-                {
-                    if (resolution == ChunkResolution.Full)
-                        continue;
-                    if (!latestChunksData[resolution].TryGetValue(pos, out var halfChunk) || halfChunk.QueueProgress != queuedOperations.Count)
-                    {
-                        if (committedChunks[resolution].TryGetValue(pos, out var commitedLowResChunk))
-                        {
-                            committedChunks[resolution].Remove(pos);
-                            commitedLowResChunk.Dispose();
-                        }
-                    }
-                }
-            }
-
-            // clear latest chunks
-            foreach (var (resolution, chunks) in latestChunks)
+            LatestSize = CommittedSize;
+            foreach (var (res, chunks) in latestChunks)
             {
                 chunks.Clear();
-                latestChunksData[resolution].Clear();
+                latestChunksData[res].Clear();
             }
         }
+    }
 
-        /// <summary>
-        /// Returns all chunks that have something in them, including latest (uncommitted) ones
-        /// </summary>
-        public HashSet<Vector2i> FindAllChunks()
+    public void CommitChanges()
+    {
+        lock (lockObject)
         {
-            lock (lockObject)
+            var affectedChunks = FindAffectedChunks();
+            foreach (var chunk in affectedChunks)
             {
-                var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
-                foreach (var (operation, opChunks) in queuedOperations)
+                MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);
+            }
+            foreach (var (operation, _) in queuedOperations)
+            {
+                operation.Dispose();
+            }
+            CommitLatestChunks();
+            CommittedSize = LatestSize;
+            queuedOperations.Clear();
+
+            commitCounter++;
+            if (commitCounter % 30 == 0)
+                FindAndDeleteEmptyCommittedChunks();
+        }
+    }
+
+    private void CommitLatestChunks()
+    {
+        // move fully processed latest chunks to committed
+        foreach (var (resolution, chunks) in latestChunks)
+        {
+            foreach (var (pos, chunk) in chunks)
+            {
+                if (committedChunks[resolution].ContainsKey(pos))
                 {
-                    allChunks.UnionWith(opChunks);
+                    var oldChunk = committedChunks[resolution][pos];
+                    committedChunks[resolution].Remove(pos);
+                    oldChunk.Dispose();
                 }
-                return allChunks;
-            }
-        }
 
-        /// <summary>
-        /// Returns chunks affected by operations that haven't been committed yet
-        /// </summary>
-        public HashSet<Vector2i> FindAffectedChunks()
-        {
-            lock (lockObject)
-            {
-                var chunks = new HashSet<Vector2i>();
-                foreach (var (_, opChunks) in queuedOperations)
+                LatestChunkData data = latestChunksData[resolution][pos];
+                if (data.QueueProgress != queuedOperations.Count)
                 {
-                    chunks.UnionWith(opChunks);
-                }
-                return chunks;
-            }
-        }
-
-        private void MaybeCreateAndProcessQueueForChunk(Vector2i chunkPos, ChunkResolution resolution)
-        {
-            if (!latestChunksData[resolution].TryGetValue(chunkPos, out LatestChunkData chunkData))
-                chunkData = new() { QueueProgress = 0, IsDeleted = !committedChunks[ChunkResolution.Full].ContainsKey(chunkPos) };
-            if (chunkData.QueueProgress == queuedOperations.Count)
-                return;
-
-            Chunk? targetChunk = null;
-            List<ChunkyImage> activeClips = new();
-            bool isFullyMaskedOut = false;
-            bool somethingWasApplied = false;
-            for (int i = 0; i < queuedOperations.Count; i++)
-            {
-                var (operation, operChunks) = queuedOperations[i];
-                if (operation is RasterClipOperation clipOperation)
-                {
-                    if (clipOperation.ClippingMask.CommitedChunkExists(chunkPos, resolution))
-                        activeClips.Add(clipOperation.ClippingMask);
+                    if (resolution == ChunkResolution.Full)
+                    {
+                        throw new InvalidOperationException("Trying to commit a full res chunk that wasn't fully processed");
+                    }
                     else
-                        isFullyMaskedOut = true;
+                    {
+                        chunk.Dispose();
+                        continue;
+                    }
                 }
 
-                if (!operChunks.Contains(chunkPos))
-                    continue;
-                if (!somethingWasApplied)
-                {
-                    somethingWasApplied = true;
-                    targetChunk = GetOrCreateLatestChunk(chunkPos, resolution);
-                }
-
-                if (chunkData.QueueProgress <= i)
-                    chunkData.IsDeleted = ApplyOperationToChunk(operation, activeClips, isFullyMaskedOut, targetChunk!, chunkPos, resolution, chunkData);
-            }
-
-            if (somethingWasApplied)
-            {
-                chunkData.QueueProgress = queuedOperations.Count;
-                latestChunksData[resolution][chunkPos] = chunkData;
+                if (!data.IsDeleted)
+                    committedChunks[resolution].Add(pos, chunk);
+                else
+                    chunk.Dispose();
             }
         }
 
-        private bool ApplyOperationToChunk(
-            IOperation operation,
-            List<ChunkyImage> activeClips,
-            bool isFullyMaskedOut,
-            Chunk targetChunk,
-            Vector2i chunkPos,
-            ChunkResolution resolution,
-            LatestChunkData chunkData)
+        // delete committed low res chunks that weren't updated
+        foreach (var (pos, chunk) in latestChunks[ChunkResolution.Full])
         {
-            if (operation is ClearOperation)
-                return true;
-
-            if (operation is IDrawOperation chunkOperation)
+            foreach (var (resolution, _) in latestChunks)
             {
-                if (isFullyMaskedOut)
-                    return chunkData.IsDeleted;
-
-                if (chunkData.IsDeleted)
-                    targetChunk.Surface.SkiaSurface.Canvas.Clear();
-                if (activeClips.Count == 0)
+                if (resolution == ChunkResolution.Full)
+                    continue;
+                if (!latestChunksData[resolution].TryGetValue(pos, out var halfChunk) || halfChunk.QueueProgress != queuedOperations.Count)
                 {
-                    chunkOperation.DrawOnChunk(targetChunk, chunkPos);
-                    return false;
+                    if (committedChunks[resolution].TryGetValue(pos, out var commitedLowResChunk))
+                    {
+                        committedChunks[resolution].Remove(pos);
+                        commitedLowResChunk.Dispose();
+                    }
                 }
+            }
+        }
 
-                var tempChunk = tempRasterClipChunks[targetChunk.Resolution];
-                tempChunk.Surface.SkiaSurface.Canvas.Clear();
-                chunkOperation.DrawOnChunk(tempChunk, chunkPos);
-                foreach (var mask in activeClips)
-                {
-                    mask.DrawCommittedChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                }
-                tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0));
+        // clear latest chunks
+        foreach (var (resolution, chunks) in latestChunks)
+        {
+            chunks.Clear();
+            latestChunksData[resolution].Clear();
+        }
+    }
+
+    /// <summary>
+    /// Returns all chunks that have something in them, including latest (uncommitted) ones
+    /// </summary>
+    public HashSet<Vector2i> FindAllChunks()
+    {
+        lock (lockObject)
+        {
+            var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
+            foreach (var (operation, opChunks) in queuedOperations)
+            {
+                allChunks.UnionWith(opChunks);
+            }
+            return allChunks;
+        }
+    }
+
+    /// <summary>
+    /// Returns chunks affected by operations that haven't been committed yet
+    /// </summary>
+    public HashSet<Vector2i> FindAffectedChunks()
+    {
+        lock (lockObject)
+        {
+            var chunks = new HashSet<Vector2i>();
+            foreach (var (_, opChunks) in queuedOperations)
+            {
+                chunks.UnionWith(opChunks);
+            }
+            return chunks;
+        }
+    }
+
+    private void MaybeCreateAndProcessQueueForChunk(Vector2i chunkPos, ChunkResolution resolution)
+    {
+        if (!latestChunksData[resolution].TryGetValue(chunkPos, out LatestChunkData chunkData))
+            chunkData = new() { QueueProgress = 0, IsDeleted = !committedChunks[ChunkResolution.Full].ContainsKey(chunkPos) };
+        if (chunkData.QueueProgress == queuedOperations.Count)
+            return;
+
+        Chunk? targetChunk = null;
+        List<ChunkyImage> activeClips = new();
+        bool isFullyMaskedOut = false;
+        bool somethingWasApplied = false;
+        for (int i = 0; i < queuedOperations.Count; i++)
+        {
+            var (operation, operChunks) = queuedOperations[i];
+            if (operation is RasterClipOperation clipOperation)
+            {
+                if (clipOperation.ClippingMask.CommitedChunkExists(chunkPos, resolution))
+                    activeClips.Add(clipOperation.ClippingMask);
+                else
+                    isFullyMaskedOut = true;
+            }
+
+            if (!operChunks.Contains(chunkPos))
+                continue;
+            if (!somethingWasApplied)
+            {
+                somethingWasApplied = true;
+                targetChunk = GetOrCreateLatestChunk(chunkPos, resolution);
+            }
+
+            if (chunkData.QueueProgress <= i)
+                chunkData.IsDeleted = ApplyOperationToChunk(operation, activeClips, isFullyMaskedOut, targetChunk!, chunkPos, resolution, chunkData);
+        }
+
+        if (somethingWasApplied)
+        {
+            chunkData.QueueProgress = queuedOperations.Count;
+            latestChunksData[resolution][chunkPos] = chunkData;
+        }
+    }
+
+    private bool ApplyOperationToChunk(
+        IOperation operation,
+        List<ChunkyImage> activeClips,
+        bool isFullyMaskedOut,
+        Chunk targetChunk,
+        Vector2i chunkPos,
+        ChunkResolution resolution,
+        LatestChunkData chunkData)
+    {
+        if (operation is ClearOperation)
+            return true;
+
+        if (operation is IDrawOperation chunkOperation)
+        {
+            if (isFullyMaskedOut)
+                return chunkData.IsDeleted;
+
+            if (chunkData.IsDeleted)
+                targetChunk.Surface.SkiaSurface.Canvas.Clear();
+            if (activeClips.Count == 0)
+            {
+                chunkOperation.DrawOnChunk(targetChunk, chunkPos);
                 return false;
             }
 
-            if (operation is ResizeOperation resizeOperation)
+            var tempChunk = tempRasterClipChunks[targetChunk.Resolution];
+            tempChunk.Surface.SkiaSurface.Canvas.Clear();
+            chunkOperation.DrawOnChunk(tempChunk, chunkPos);
+            foreach (var mask in activeClips)
             {
-                return IsOutsideBounds(chunkPos, resizeOperation.Size);
+                mask.DrawCommittedChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
             }
-            return chunkData.IsDeleted;
+            tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0));
+            return false;
         }
 
-        /// <summary>
-        /// Note: this function modifies the internal state, it is not thread safe! (same as all the other functions that change the image in some way)
-        /// </summary>
-        public bool CheckIfCommittedIsEmpty()
+        if (operation is ResizeOperation resizeOperation)
         {
-            lock (lockObject)
-            {
-                FindAndDeleteEmptyCommittedChunks();
-                return committedChunks[ChunkResolution.Full].Count == 0;
-            }
+            return IsOutsideBounds(chunkPos, resizeOperation.Size);
         }
+        return chunkData.IsDeleted;
+    }
 
-        private HashSet<Vector2i> FindAllChunksOutsideBounds(Vector2i size)
+    /// <summary>
+    /// Note: this function modifies the internal state, it is not thread safe! (same as all the other functions that change the image in some way)
+    /// </summary>
+    public bool CheckIfCommittedIsEmpty()
+    {
+        lock (lockObject)
         {
-            var chunks = FindAllChunks();
-            chunks.RemoveWhere(pos => !IsOutsideBounds(pos, size));
-            return chunks;
+            FindAndDeleteEmptyCommittedChunks();
+            return committedChunks[ChunkResolution.Full].Count == 0;
         }
+    }
 
-        private static bool IsOutsideBounds(Vector2i chunkPos, Vector2i imageSize)
+    private HashSet<Vector2i> FindAllChunksOutsideBounds(Vector2i size)
+    {
+        var chunks = FindAllChunks();
+        chunks.RemoveWhere(pos => !IsOutsideBounds(pos, size));
+        return chunks;
+    }
+
+    private static bool IsOutsideBounds(Vector2i chunkPos, Vector2i imageSize)
+    {
+        return chunkPos.X < 0 || chunkPos.Y < 0 || chunkPos.X * ChunkSize >= imageSize.X || chunkPos.Y * ChunkSize >= imageSize.Y;
+    }
+
+    private void FindAndDeleteEmptyCommittedChunks()
+    {
+        if (queuedOperations.Count != 0)
+            throw new InvalidOperationException("This method cannot be used while any operations are queued");
+        HashSet<Vector2i> toRemove = new();
+        foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
         {
-            return chunkPos.X < 0 || chunkPos.Y < 0 || chunkPos.X * ChunkSize >= imageSize.X || chunkPos.Y * ChunkSize >= imageSize.Y;
-        }
-
-        private void FindAndDeleteEmptyCommittedChunks()
-        {
-            if (queuedOperations.Count != 0)
-                throw new InvalidOperationException("This method cannot be used while any operations are queued");
-            HashSet<Vector2i> toRemove = new();
-            foreach (var (pos, chunk) in committedChunks[ChunkResolution.Full])
+            if (chunk.Surface.IsFullyTransparent())
             {
-                if (chunk.Surface.IsFullyTransparent())
-                {
-                    toRemove.Add(pos);
-                    chunk.Dispose();
-                }
-            }
-            foreach (var pos in toRemove)
-            {
-                committedChunks[ChunkResolution.Full].Remove(pos);
-                committedChunks[ChunkResolution.Half].Remove(pos);
-                committedChunks[ChunkResolution.Quarter].Remove(pos);
-                committedChunks[ChunkResolution.Eighth].Remove(pos);
-            }
-        }
-
-        private Chunk GetOrCreateCommittedChunk(Vector2i chunkPos, ChunkResolution resolution)
-        {
-            // commited chunk of the same resolution exists
-            Chunk? targetChunk = MaybeGetCommittedChunk(chunkPos, resolution);
-            if (targetChunk is not null)
-                return targetChunk;
-
-            // for full res chunks: nothing exists, create brand new chunk
-            if (resolution == ChunkResolution.Full)
-            {
-                var newChunk = Chunk.Create(resolution);
-                committedChunks[resolution][chunkPos] = newChunk;
-                return newChunk;
-            }
-
-            // for low res chunks: full res version exists
-            Chunk? existingFullResChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
-            if (resolution != ChunkResolution.Full && existingFullResChunk is not null)
-            {
-                var newChunk = Chunk.Create(resolution);
-                newChunk.Surface.SkiaSurface.Canvas.Save();
-                newChunk.Surface.SkiaSurface.Canvas.Scale((float)resolution.Multiplier());
-
-                newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
-                newChunk.Surface.SkiaSurface.Canvas.Restore();
-                committedChunks[resolution][chunkPos] = newChunk;
-                return newChunk;
-            }
-
-            // for low res chunks: full res version doesn't exist
-            {
-                GetOrCreateCommittedChunk(chunkPos, ChunkResolution.Full);
-                var newChunk = Chunk.Create(resolution);
-                committedChunks[resolution][chunkPos] = newChunk;
-                return newChunk;
-            }
-        }
-
-        private Chunk GetOrCreateLatestChunk(Vector2i chunkPos, ChunkResolution resolution)
-        {
-            // latest chunk exists
-            Chunk? targetChunk;
-            targetChunk = MaybeGetLatestChunk(chunkPos, resolution);
-            if (targetChunk is not null)
-                return targetChunk;
-
-            // committed chunk of the same resolution exists
-            var maybeCommittedAnyRes = MaybeGetCommittedChunk(chunkPos, resolution);
-            if (maybeCommittedAnyRes is not null)
-            {
-                Chunk newChunk = Chunk.Create(resolution);
-                maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
-                latestChunks[resolution][chunkPos] = newChunk;
-                return newChunk;
-            }
-
-            // committed chunk of full resolution exists
-            var maybeCommittedFullRes = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
-            if (maybeCommittedFullRes is not null)
-            {
-                //create low res committed chunk
-                var committedChunkLowRes = GetOrCreateCommittedChunk(chunkPos, resolution);
-                //create latest based on it
-                Chunk newChunk = Chunk.Create(resolution);
-                committedChunkLowRes.Surface.CopyTo(newChunk.Surface);
-                latestChunks[resolution][chunkPos] = newChunk;
-                return newChunk;
-            }
-
-            // no previous chunks exist
-            var newLatestChunk = Chunk.Create(resolution);
-            newLatestChunk.Surface.SkiaSurface.Canvas.Clear();
-            latestChunks[resolution][chunkPos] = newLatestChunk;
-            return newLatestChunk;
-        }
-
-        public void Dispose()
-        {
-            lock (lockObject)
-            {
-                if (disposed)
-                    return;
-                CancelChanges();
-                DisposeAll();
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        private void DisposeAll()
-        {
-            foreach (var (_, chunk) in tempRasterClipChunks)
+                toRemove.Add(pos);
                 chunk.Dispose();
-            foreach (var (_, chunks) in committedChunks)
-            {
-                foreach (var (_, chunk) in chunks)
-                {
-                    chunk.Dispose();
-                }
             }
-            foreach (var (_, chunks) in latestChunks)
-            {
-                foreach (var (_, chunk) in chunks)
-                {
-                    chunk.Dispose();
-                }
-            }
-            disposed = true;
         }
-        ~ChunkyImage()
+        foreach (var pos in toRemove)
         {
-            DisposeAll();
+            committedChunks[ChunkResolution.Full].Remove(pos);
+            committedChunks[ChunkResolution.Half].Remove(pos);
+            committedChunks[ChunkResolution.Quarter].Remove(pos);
+            committedChunks[ChunkResolution.Eighth].Remove(pos);
         }
+    }
+
+    private Chunk GetOrCreateCommittedChunk(Vector2i chunkPos, ChunkResolution resolution)
+    {
+        // commited chunk of the same resolution exists
+        Chunk? targetChunk = MaybeGetCommittedChunk(chunkPos, resolution);
+        if (targetChunk is not null)
+            return targetChunk;
+
+        // for full res chunks: nothing exists, create brand new chunk
+        if (resolution == ChunkResolution.Full)
+        {
+            var newChunk = Chunk.Create(resolution);
+            committedChunks[resolution][chunkPos] = newChunk;
+            return newChunk;
+        }
+
+        // for low res chunks: full res version exists
+        Chunk? existingFullResChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
+        if (resolution != ChunkResolution.Full && existingFullResChunk is not null)
+        {
+            var newChunk = Chunk.Create(resolution);
+            newChunk.Surface.SkiaSurface.Canvas.Save();
+            newChunk.Surface.SkiaSurface.Canvas.Scale((float)resolution.Multiplier());
+
+            newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
+            newChunk.Surface.SkiaSurface.Canvas.Restore();
+            committedChunks[resolution][chunkPos] = newChunk;
+            return newChunk;
+        }
+
+        // for low res chunks: full res version doesn't exist
+        {
+            GetOrCreateCommittedChunk(chunkPos, ChunkResolution.Full);
+            var newChunk = Chunk.Create(resolution);
+            committedChunks[resolution][chunkPos] = newChunk;
+            return newChunk;
+        }
+    }
+
+    private Chunk GetOrCreateLatestChunk(Vector2i chunkPos, ChunkResolution resolution)
+    {
+        // latest chunk exists
+        Chunk? targetChunk;
+        targetChunk = MaybeGetLatestChunk(chunkPos, resolution);
+        if (targetChunk is not null)
+            return targetChunk;
+
+        // committed chunk of the same resolution exists
+        var maybeCommittedAnyRes = MaybeGetCommittedChunk(chunkPos, resolution);
+        if (maybeCommittedAnyRes is not null)
+        {
+            Chunk newChunk = Chunk.Create(resolution);
+            maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
+            latestChunks[resolution][chunkPos] = newChunk;
+            return newChunk;
+        }
+
+        // committed chunk of full resolution exists
+        var maybeCommittedFullRes = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
+        if (maybeCommittedFullRes is not null)
+        {
+            //create low res committed chunk
+            var committedChunkLowRes = GetOrCreateCommittedChunk(chunkPos, resolution);
+            //create latest based on it
+            Chunk newChunk = Chunk.Create(resolution);
+            committedChunkLowRes.Surface.CopyTo(newChunk.Surface);
+            latestChunks[resolution][chunkPos] = newChunk;
+            return newChunk;
+        }
+
+        // no previous chunks exist
+        var newLatestChunk = Chunk.Create(resolution);
+        newLatestChunk.Surface.SkiaSurface.Canvas.Clear();
+        latestChunks[resolution][chunkPos] = newLatestChunk;
+        return newLatestChunk;
+    }
+
+    public void Dispose()
+    {
+        lock (lockObject)
+        {
+            if (disposed)
+                return;
+            CancelChanges();
+            DisposeAll();
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    private void DisposeAll()
+    {
+        foreach (var (_, chunk) in tempRasterClipChunks)
+            chunk.Dispose();
+        foreach (var (_, chunks) in committedChunks)
+        {
+            foreach (var (_, chunk) in chunks)
+            {
+                chunk.Dispose();
+            }
+        }
+        foreach (var (_, chunks) in latestChunks)
+        {
+            foreach (var (_, chunk) in chunks)
+            {
+                chunk.Dispose();
+            }
+        }
+        disposed = true;
+    }
+    ~ChunkyImage()
+    {
+        DisposeAll();
     }
 }

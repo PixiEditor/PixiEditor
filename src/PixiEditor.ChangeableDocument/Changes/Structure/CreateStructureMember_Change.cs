@@ -2,51 +2,50 @@
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Enums;
 
-namespace PixiEditor.ChangeableDocument.Changes.Structure
+namespace PixiEditor.ChangeableDocument.Changes.Structure;
+
+internal class CreateStructureMember_Change : Change
 {
-    internal class CreateStructureMember_Change : Change
+    private Guid newMemberGuid;
+
+    private Guid parentFolderGuid;
+    private int parentFolderIndex;
+    private StructureMemberType type;
+
+    public CreateStructureMember_Change(Guid parentFolder, Guid newGuid, int parentFolderIndex, StructureMemberType type)
     {
-        private Guid newMemberGuid;
+        this.parentFolderGuid = parentFolder;
+        this.parentFolderIndex = parentFolderIndex;
+        this.type = type;
+        newMemberGuid = newGuid;
+    }
 
-        private Guid parentFolderGuid;
-        private int parentFolderIndex;
-        private StructureMemberType type;
+    public override void Initialize(Document target) { }
 
-        public CreateStructureMember_Change(Guid parentFolder, Guid newGuid, int parentFolderIndex, StructureMemberType type)
+    public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
+    {
+        var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
+
+        StructureMember member = type switch
         {
-            this.parentFolderGuid = parentFolder;
-            this.parentFolderIndex = parentFolderIndex;
-            this.type = type;
-            newMemberGuid = newGuid;
-        }
+            StructureMemberType.Layer => new Layer(document.Size) { GuidValue = newMemberGuid },
+            StructureMemberType.Folder => new Folder() { GuidValue = newMemberGuid },
+            _ => throw new InvalidOperationException("Cannon create member of type " + type.ToString())
+        };
 
-        public override void Initialize(Document target) { }
+        folder.Children.Insert(parentFolderIndex, member);
 
-        public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
-        {
-            var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
+        ignoreInUndo = false;
+        return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
+    }
 
-            StructureMember member = type switch
-            {
-                StructureMemberType.Layer => new Layer(document.Size) { GuidValue = newMemberGuid },
-                StructureMemberType.Folder => new Folder() { GuidValue = newMemberGuid },
-                _ => throw new InvalidOperationException("Cannon create member of type " + type.ToString())
-            };
+    public override IChangeInfo Revert(Document document)
+    {
+        var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
+        var child = document.FindMemberOrThrow(newMemberGuid);
+        child.Dispose();
+        folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
 
-            folder.Children.Insert(parentFolderIndex, member);
-
-            ignoreInUndo = false;
-            return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
-        }
-
-        public override IChangeInfo Revert(Document document)
-        {
-            var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
-            var child = document.FindMemberOrThrow(newMemberGuid);
-            child.Dispose();
-            folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
-
-            return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
-        }
+        return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
     }
 }

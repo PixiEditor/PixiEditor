@@ -1,65 +1,64 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 
-namespace PixiEditor.ChangeableDocument.Changes.Properties
+namespace PixiEditor.ChangeableDocument.Changes.Properties;
+
+internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
 {
-    internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
+    private Guid memberGuid;
+
+    private float originalOpacity;
+    private float newOpacity;
+
+    public StructureMemberOpacity_UpdateableChange(Guid memberGuid, float opacity)
     {
-        private Guid memberGuid;
+        this.memberGuid = memberGuid;
+        newOpacity = opacity;
+    }
 
-        private float originalOpacity;
-        private float newOpacity;
+    public void Update(float updatedOpacity)
+    {
+        newOpacity = updatedOpacity;
+    }
 
-        public StructureMemberOpacity_UpdateableChange(Guid memberGuid, float opacity)
+    public override void Initialize(Document document)
+    {
+        var member = document.FindMemberOrThrow(memberGuid);
+        originalOpacity = member.Opacity;
+    }
+
+    public override IChangeInfo? ApplyTemporarily(Document target) => Apply(target, out _);
+
+    public override IChangeInfo? Apply(Document document, out bool ignoreInUndo)
+    {
+        if (originalOpacity == newOpacity)
         {
-            this.memberGuid = memberGuid;
-            newOpacity = opacity;
+            ignoreInUndo = true;
+            return null;
         }
 
-        public void Update(float updatedOpacity)
-        {
-            newOpacity = updatedOpacity;
-        }
+        var member = document.FindMemberOrThrow(memberGuid);
+        member.Opacity = newOpacity;
 
-        public override void Initialize(Document document)
-        {
-            var member = document.FindMemberOrThrow(memberGuid);
-            originalOpacity = member.Opacity;
-        }
+        ignoreInUndo = false;
+        return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
+    }
 
-        public override IChangeInfo? ApplyTemporarily(Document target) => Apply(target, out _);
+    public override IChangeInfo? Revert(Document document)
+    {
+        if (originalOpacity == newOpacity)
+            return null;
 
-        public override IChangeInfo? Apply(Document document, out bool ignoreInUndo)
-        {
-            if (originalOpacity == newOpacity)
-            {
-                ignoreInUndo = true;
-                return null;
-            }
+        var member = document.FindMemberOrThrow(memberGuid);
+        member.Opacity = originalOpacity;
 
-            var member = document.FindMemberOrThrow(memberGuid);
-            member.Opacity = newOpacity;
+        return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
+    }
 
-            ignoreInUndo = false;
-            return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
-        }
-
-        public override IChangeInfo? Revert(Document document)
-        {
-            if (originalOpacity == newOpacity)
-                return null;
-
-            var member = document.FindMemberOrThrow(memberGuid);
-            member.Opacity = originalOpacity;
-
-            return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
-        }
-
-        public override bool IsMergeableWith(Change other)
-        {
-            if (other is not StructureMemberOpacity_UpdateableChange same)
-                return false;
-            return same.memberGuid == memberGuid;
-        }
+    public override bool IsMergeableWith(Change other)
+    {
+        if (other is not StructureMemberOpacity_UpdateableChange same)
+            return false;
+        return same.memberGuid == memberGuid;
     }
 }

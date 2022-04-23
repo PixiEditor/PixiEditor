@@ -73,7 +73,7 @@ Decouples the state of a document from the UI.
             - [x] ChunkRenderer as a part of Document
         - [ ] Rendering of layer previews
         - [ ] Rendering of canvas previews
-        - [ ] Support for multiple viewports
+        - [x] Support for multiple viewports
     - Changes
         - [x] Layer structure changes
         - [x] Combine layers onto a single layer

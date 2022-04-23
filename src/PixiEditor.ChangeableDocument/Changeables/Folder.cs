@@ -1,38 +1,37 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-namespace PixiEditor.ChangeableDocument.Changeables
+namespace PixiEditor.ChangeableDocument.Changeables;
+
+internal class Folder : StructureMember, IReadOnlyFolder
 {
-    internal class Folder : StructureMember, IReadOnlyFolder
+    internal List<StructureMember> Children { get; set; } = new();
+    public IReadOnlyList<IReadOnlyStructureMember> ReadOnlyChildren => Children;
+
+    internal override Folder Clone()
     {
-        internal List<StructureMember> Children { get; set; } = new();
-        public IReadOnlyList<IReadOnlyStructureMember> ReadOnlyChildren => Children;
-
-        internal override Folder Clone()
+        List<StructureMember> clonedChildren = new();
+        foreach (var child in Children)
         {
-            List<StructureMember> clonedChildren = new();
-            foreach (var child in Children)
-            {
-                clonedChildren.Add(child.Clone());
-            }
-
-            return new Folder()
-            {
-                GuidValue = GuidValue,
-                IsVisible = IsVisible,
-                Name = Name,
-                Opacity = Opacity,
-                Children = clonedChildren,
-                Mask = Mask?.CloneFromLatest()
-            };
+            clonedChildren.Add(child.Clone());
         }
 
-        public override void Dispose()
+        return new Folder()
         {
-            foreach (var child in Children)
-            {
-                child.Dispose();
-            }
-            Mask?.Dispose();
+            GuidValue = GuidValue,
+            IsVisible = IsVisible,
+            Name = Name,
+            Opacity = Opacity,
+            Children = clonedChildren,
+            Mask = Mask?.CloneFromLatest()
+        };
+    }
+
+    public override void Dispose()
+    {
+        foreach (var child in Children)
+        {
+            child.Dispose();
         }
+        Mask?.Dispose();
     }
 }

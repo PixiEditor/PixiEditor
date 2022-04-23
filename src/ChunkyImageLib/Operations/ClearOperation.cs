@@ -1,7 +1,6 @@
-﻿namespace ChunkyImageLib.Operations
+﻿namespace ChunkyImageLib.Operations;
+
+internal record class ClearOperation : IOperation
 {
-    internal record class ClearOperation : IOperation
-    {
-        public void Dispose() { }
-    }
+    public void Dispose() { }
 }

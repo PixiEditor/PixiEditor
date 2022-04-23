@@ -8,101 +8,100 @@ using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
 
-namespace PixiEditorPrototype.Models
+namespace PixiEditorPrototype.Models;
+
+internal class ActionAccumulator
 {
-    internal class ActionAccumulator
+    private bool executing = false;
+
+    private List<IAction> queuedActions = new();
+    private DocumentViewModel document;
+    private DocumentHelpers helpers;
+
+    private WriteableBitmapUpdater renderer;
+
+    public ActionAccumulator(DocumentViewModel doc, DocumentHelpers helpers)
     {
-        private bool executing = false;
+        this.document = doc;
+        this.helpers = helpers;
 
-        private List<IAction> queuedActions = new();
-        private DocumentViewModel document;
-        private DocumentHelpers helpers;
+        renderer = new(doc, helpers);
+    }
 
-        private WriteableBitmapUpdater renderer;
+    public void AddFinishedActions(params IAction[] actions)
+    {
+        queuedActions.AddRange(actions);
+        queuedActions.Add(new ChangeBoundary_Action());
+        TryExecuteAccumulatedActions();
+    }
 
-        public ActionAccumulator(DocumentViewModel doc, DocumentHelpers helpers)
+    public void AddActions(params IAction[] actions)
+    {
+        queuedActions.AddRange(actions);
+        TryExecuteAccumulatedActions();
+    }
+
+    private async void TryExecuteAccumulatedActions()
+    {
+        if (executing || queuedActions.Count == 0)
+            return;
+        executing = true;
+
+        while (queuedActions.Count > 0)
         {
-            this.document = doc;
-            this.helpers = helpers;
+            var toExecute = queuedActions;
+            queuedActions = new List<IAction>();
 
-            renderer = new(doc, helpers);
-        }
+            List<IChangeInfo?> result = AreAllPassthrough(toExecute) ?
+                toExecute.Select(a => (IChangeInfo?)a).ToList() :
+                await helpers.Tracker.ProcessActions(toExecute);
 
-        public void AddFinishedActions(params IAction[] actions)
-        {
-            queuedActions.AddRange(actions);
-            queuedActions.Add(new ChangeBoundary_Action());
-            TryExecuteAccumulatedActions();
-        }
-
-        public void AddActions(params IAction[] actions)
-        {
-            queuedActions.AddRange(actions);
-            TryExecuteAccumulatedActions();
-        }
-
-        private async void TryExecuteAccumulatedActions()
-        {
-            if (executing || queuedActions.Count == 0)
-                return;
-            executing = true;
-
-            while (queuedActions.Count > 0)
+            foreach (IChangeInfo? info in result)
             {
-                var toExecute = queuedActions;
-                queuedActions = new List<IAction>();
-
-                List<IChangeInfo?> result = AreAllPassthrough(toExecute) ?
-                    toExecute.Select(a => (IChangeInfo?)a).ToList() :
-                    await helpers.Tracker.ProcessActions(toExecute);
-
-                foreach (IChangeInfo? info in result)
-                {
-                    helpers.Updater.ApplyChangeFromChangeInfo(info);
-                }
-
-                foreach (var (_, bitmap) in document.Bitmaps)
-                {
-                    bitmap.Lock();
-                }
-
-                var renderResult = await renderer.ProcessChanges(result);
-                AddDirtyRects(renderResult);
-
-                foreach (var (_, bitmap) in document.Bitmaps)
-                {
-                    bitmap.Unlock();
-                }
-
-                document.ForceRefreshView();
+                helpers.Updater.ApplyChangeFromChangeInfo(info);
             }
 
-            executing = false;
+            foreach (var (_, bitmap) in document.Bitmaps)
+            {
+                bitmap.Lock();
+            }
+
+            var renderResult = await renderer.ProcessChanges(result);
+            AddDirtyRects(renderResult);
+
+            foreach (var (_, bitmap) in document.Bitmaps)
+            {
+                bitmap.Unlock();
+            }
+
+            document.ForceRefreshView();
         }
 
-        private bool AreAllPassthrough(List<IAction> actions)
+        executing = false;
+    }
+
+    private bool AreAllPassthrough(List<IAction> actions)
+    {
+        foreach (var action in actions)
         {
-            foreach (var action in actions)
-            {
-                if (action is not IChangeInfo)
-                    return false;
-            }
-            return true;
+            if (action is not IChangeInfo)
+                return false;
         }
+        return true;
+    }
 
-        private void AddDirtyRects(List<IRenderInfo> changes)
+    private void AddDirtyRects(List<IRenderInfo> changes)
+    {
+        foreach (IRenderInfo info in changes)
         {
-            foreach (IRenderInfo info in changes)
-            {
-                if (info is not DirtyRect_RenderInfo dirtyRectInfo)
-                    continue;
-                var bitmap = document.Bitmaps[dirtyRectInfo.Resolution];
-                SKRectI finalRect = SKRectI.Create(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
+            if (info is not DirtyRect_RenderInfo dirtyRectInfo)
+                continue;
+            var bitmap = document.Bitmaps[dirtyRectInfo.Resolution];
+            SKRectI finalRect = SKRectI.Create(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
 
-                SKRectI dirtyRect = SKRectI.Create(dirtyRectInfo.Pos, dirtyRectInfo.Size);
-                dirtyRect.Intersect(finalRect);
-                bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
-            }
+            SKRectI dirtyRect = SKRectI.Create(dirtyRectInfo.Pos, dirtyRectInfo.Size);
+            dirtyRect.Intersect(finalRect);
+            bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
         }
     }
 }

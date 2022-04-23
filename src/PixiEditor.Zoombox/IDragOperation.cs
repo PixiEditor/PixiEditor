@@ -1,13 +1,12 @@
 ﻿using System.Windows.Input;
 
-namespace PixiEditor.Zoombox
+namespace PixiEditor.Zoombox;
+
+internal interface IDragOperation
 {
-    internal interface IDragOperation
-    {
-        void Start(MouseButtonEventArgs e);
+    void Start(MouseButtonEventArgs e);
 
-        void Update(MouseEventArgs e);
+    void Update(MouseEventArgs e);
 
-        void Terminate();
-    }
+    void Terminate();
 }

@@ -1,9 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
 
-namespace PixiEditor.ChangeableDocument.ChangeInfos
+namespace PixiEditor.ChangeableDocument.ChangeInfos;
+
+public record class Selection_ChangeInfo : IChangeInfo
 {
-    public record class Selection_ChangeInfo : IChangeInfo
-    {
-        public HashSet<Vector2i>? Chunks { get; init; }
-    }
+    public HashSet<Vector2i>? Chunks { get; init; }
 }

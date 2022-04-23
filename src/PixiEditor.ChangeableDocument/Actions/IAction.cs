@@ -1,6 +1,5 @@
-﻿namespace PixiEditor.ChangeableDocument.Actions
+﻿namespace PixiEditor.ChangeableDocument.Actions;
+
+public interface IAction
 {
-    public interface IAction
-    {
-    }
 }
