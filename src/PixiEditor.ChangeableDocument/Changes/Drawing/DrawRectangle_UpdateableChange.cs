@@ -18,94 +18,53 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         this.drawOnMask = drawOnMask;
     }
 
-    public override void Initialize(Document target) { }
-
     public void Update(ShapeData updatedRectangle)
     {
         rect = updatedRectangle;
     }
 
-    private ChunkyImage GetTargetImage(Document target)
+    private HashSet<Vector2i> UpdateRectangle(Document target, ChunkyImage targetImage)
     {
-        var member = target.FindMemberOrThrow(memberGuid);
-        if (drawOnMask)
-        {
-            if (member.Mask is null)
-                throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
-            return member.Mask;
-        }
-        else if (member is Folder)
-        {
-            throw new InvalidOperationException("Trying to draw on a folder");
-        }
-        return ((Layer)member).LayerImage;
+        var oldAffectedChunks = targetImage.FindAffectedChunks();
+        targetImage.CancelChanges();
+
+        if (!target.Selection.IsEmptyAndInactive)
+            targetImage.ApplyRasterClip(target.Selection.SelectionImage);
+
+        targetImage.DrawRectangle(rect);
+
+        var affectedChunks = targetImage.FindAffectedChunks();
+        affectedChunks.UnionWith(oldAffectedChunks);
+
+        return affectedChunks;
     }
 
     public override IChangeInfo? ApplyTemporarily(Document target)
     {
-        ChunkyImage targetImage = GetTargetImage(target);
-
-        var oldChunks = targetImage.FindAffectedChunks();
-        targetImage.CancelChanges();
-        if (!target.Selection.IsEmptyAndInactive)
-            targetImage.ApplyRasterClip(target.Selection.SelectionImage);
-        targetImage.DrawRectangle(rect);
-        var newChunks = targetImage.FindAffectedChunks();
-        newChunks.UnionWith(oldChunks);
-
-        return drawOnMask switch
-        {
-            false => new LayerImageChunks_ChangeInfo()
-            {
-                Chunks = newChunks,
-                LayerGuid = memberGuid
-            },
-            true => new MaskChunks_ChangeInfo()
-            {
-                Chunks = newChunks,
-                MemberGuid = memberGuid
-            },
-        };
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        var chunks = UpdateRectangle(target, targetImage);
+        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage = GetTargetImage(target);
-        var changes = ApplyTemporarily(target);
-
-        var changedChunks = changes! switch
-        {
-            LayerImageChunks_ChangeInfo info => info.Chunks,
-            MaskChunks_ChangeInfo info => info.Chunks,
-            _ => throw new InvalidOperationException("Unknown chunk type"),
-        };
-
-        storedChunks = new CommittedChunkStorage(targetImage, changedChunks!);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        var affectedChunks = UpdateRectangle(target, targetImage);
+        storedChunks = new CommittedChunkStorage(targetImage, affectedChunks!);
         targetImage.CommitChanges();
 
         ignoreInUndo = false;
-        return changes;
+        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
     }
 
     public override IChangeInfo? Revert(Document target)
     {
-        ChunkyImage targetImage = GetTargetImage(target);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
         storedChunks!.ApplyChunksToImage(targetImage);
         storedChunks.Dispose();
         storedChunks = null;
-        IChangeInfo changes = drawOnMask switch
-        {
-            false => new LayerImageChunks_ChangeInfo()
-            {
-                Chunks = targetImage.FindAffectedChunks(),
-                LayerGuid = memberGuid,
-            },
-            true => new MaskChunks_ChangeInfo()
-            {
-                Chunks = targetImage.FindAffectedChunks(),
-                MemberGuid = memberGuid,
-            },
-        };
+
+        IChangeInfo changes = DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, targetImage.FindAffectedChunks(), drawOnMask);
         targetImage.CommitChanges();
         return changes;
     }

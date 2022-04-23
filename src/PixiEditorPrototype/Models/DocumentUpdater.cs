@@ -4,6 +4,9 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
 

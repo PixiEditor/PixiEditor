@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.ChangeableDocument.ChangeInfos;
+﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 public record class CreateStructureMember_ChangeInfo : IChangeInfo
 {

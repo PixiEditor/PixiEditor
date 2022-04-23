@@ -1,6 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 
-namespace PixiEditor.ChangeableDocument.ChangeInfos;
+namespace PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 
 public record class LayerImageChunks_ChangeInfo : IChangeInfo
 {

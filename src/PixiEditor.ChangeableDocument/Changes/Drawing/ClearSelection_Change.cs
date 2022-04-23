@@ -2,6 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 

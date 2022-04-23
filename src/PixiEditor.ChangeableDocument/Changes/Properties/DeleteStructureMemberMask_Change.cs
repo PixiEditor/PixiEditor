@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 
