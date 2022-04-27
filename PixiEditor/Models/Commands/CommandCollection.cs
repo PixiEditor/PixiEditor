@@ -38,7 +38,7 @@ namespace PixiEditor.Models.Commands
 
         public bool Contains(Command item) => _commandNames.ContainsKey(item.Name);
 
-        public void CopyTo(Command[] array, int arrayIndex) => throw new NotImplementedException();
+        public void CopyTo(Command[] array, int arrayIndex) => _commandNames.Values.CopyTo(array, arrayIndex);
 
         public IEnumerator<Command> GetEnumerator() => _commandNames.Values.GetEnumerator();
 
@@ -51,6 +51,13 @@ namespace PixiEditor.Models.Commands
 
             return anyRemoved;
         }
+
+        public void AddShortcut(Command command, KeyCombination shortcut) => _commandShortcuts.Add(shortcut, command);
+
+        public void RemoveShortcut(Command command, KeyCombination shortcut) => _commandShortcuts.Remove(shortcut, command);
+
+        public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<Command>>> GetShortcuts() =>
+            _commandShortcuts;
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

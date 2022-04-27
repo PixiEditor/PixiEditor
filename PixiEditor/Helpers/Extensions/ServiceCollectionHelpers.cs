@@ -8,11 +8,6 @@ using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Helpers.Extensions
 {
@@ -41,6 +36,7 @@ namespace PixiEditor.Helpers.Extensions
                 .AddSingleton<MiscViewModel>()
                 .AddSingleton(x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
                 .AddSingleton<DebugViewModel>()
+                .AddSingleton<SearchViewModel>()
                 // Controllers
                 .AddSingleton<ShortcutController>()
                 .AddSingleton<CommandController>()

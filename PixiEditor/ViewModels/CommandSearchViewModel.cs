@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Search;
+using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
@@ -26,10 +27,23 @@ namespace PixiEditor.ViewModels
         public SearchResult SelectedResult
         {
             get => selectedCommand;
-            set => SetProperty(ref selectedCommand, value);
+            set
+            {
+                if (SetProperty(ref selectedCommand, value, out var oldValue))
+                {
+                    if (oldValue != null)
+                    {
+                        oldValue.IsSelected = false;
+                    }
+                    if (value != null)
+                    {
+                        value.IsSelected = true;
+                    }
+                }
+            }
         }
 
-        public ObservableCollection<SearchResult> Commands { get; } = new();
+        public ObservableCollection<SearchResult> Results { get; } = new();
 
         public CommandSearchViewModel()
         {
@@ -39,20 +53,26 @@ namespace PixiEditor.ViewModels
         private void UpdateSearchResults()
         {
             CommandController controller = CommandController.Current;
-            Commands.Clear();
+            Results.Clear();
 
             if (string.IsNullOrWhiteSpace(SearchTerm))
             {
                 foreach (var file in ViewModelMain.Current.FileSubViewModel.RecentlyOpened)
                 {
-                    Commands.Add(
+                    Results.Add(
                         new FileSearchResult(file.FilePath)
                         {
                             SearchTerm = searchTerm
                         });
                 }
 
+                SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
                 return;
+            }
+
+            if (SearchTerm.StartsWith('#'))
+            {
+                Results.Add(new ColorSearchResult(SKColor.Parse(SearchTerm)));
             }
 
             foreach (var command in controller.Commands
@@ -60,7 +80,7 @@ namespace PixiEditor.ViewModels
                 .OrderByDescending(x => x.Description.Contains($" {SearchTerm} ", StringComparison.OrdinalIgnoreCase))
                 .Take(12))
             {
-                Commands.Add(
+                Results.Add(
                     new CommandSearchResult(command)
                     {
                         SearchTerm = searchTerm,
@@ -70,7 +90,7 @@ namespace PixiEditor.ViewModels
 
             foreach (var file in ViewModelMain.Current.FileSubViewModel.RecentlyOpened.Where(x => x.FilePath.Contains(searchTerm)))
             {
-                Commands.Add(
+                Results.Add(
                     new FileSearchResult(file.FilePath)
                     {
                         SearchTerm = searchTerm,
@@ -79,6 +99,8 @@ namespace PixiEditor.ViewModels
             }
 
             Match Match(string text) => Regex.Match(text, $"(.*)({Regex.Escape(SearchTerm)})(.*)", RegexOptions.IgnoreCase);
+
+            SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
         }
     }
 }

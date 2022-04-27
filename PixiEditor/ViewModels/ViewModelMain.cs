@@ -79,6 +79,8 @@ namespace PixiEditor.ViewModels
 
         public WindowViewModel WindowSubViewModel { get; set; }
 
+        public SearchViewModel SearchSubViewModel { get; set; }
+
         public IPreferences Preferences { get; set; }
 
         public string ActionDisplay
@@ -151,18 +153,16 @@ namespace PixiEditor.ViewModels
             WindowSubViewModel = services.GetService<WindowViewModel>();
             StylusSubViewModel = services.GetService<StylusViewModel>();
 
-            ShortcutController = new ShortcutController();
-
             MiscSubViewModel = services.GetService<MiscViewModel>();
-
-            ShortcutController.TransientShortcuts[Key.Space] = ToolsSubViewModel.ToolSet.First(x => x is MoveViewportTool);
-            ShortcutController.TransientShortcuts[Key.LeftAlt] = ToolsSubViewModel.ToolSet.First(x => x is ColorPickerTool);
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
 
+            CommandController = services.GetService<CommandController>();
+            ShortcutController = new ShortcutController();
+
             ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
-            CommandController = services.GetService<CommandController>();
+            SearchSubViewModel = services.GetService<SearchViewModel>();
         }
 
         /// <summary>

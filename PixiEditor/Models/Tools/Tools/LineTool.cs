@@ -26,7 +26,7 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
         }
 
-        public override string Tooltip => $"Draws line on canvas ({ShortcutKey}). Hold Shift to draw even line.";
+        public override string Tooltip => $"Draws line on canvas ({Shortcut}). Hold Shift to draw even line.";
 
         public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {

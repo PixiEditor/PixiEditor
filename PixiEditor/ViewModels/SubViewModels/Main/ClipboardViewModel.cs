@@ -1,6 +1,12 @@
-﻿using PixiEditor.Models.Commands.Attributes;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
+using SkiaSharp;
+using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -34,6 +40,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ClipboardController.PasteFromClipboard(Owner.BitmapManager.ActiveDocument);
         }
 
+        [Command.Basic("PixiEditor.Clipboard.PasteColor", "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
+        public void PasteColor()
+        {
+            Owner.ColorsSubViewModel.PrimaryColor = SKColor.Parse(Clipboard.GetText().Trim());
+        }
+
         [Command.Basic("PixiEditor.Clipboard.Copy", "Copy", "Copy to clipboard", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control)]
         public void Copy()
         {
@@ -44,6 +56,26 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public bool CanPaste()
         {
             return Owner.DocumentIsNotNull(null) && ClipboardController.IsImageInClipboard();
+        }
+
+        [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
+        public static bool CanPasteColor() => Regex.IsMatch(Clipboard.GetText().Trim(), "^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$");
+
+        [Evaluator.Icon("PixiEditor.Clipboard.PasteColorIcon")]
+        public static ImageSource GetPasteColorIcon()
+        {
+            Color color;
+
+            if (CanPasteColor())
+            {
+                color = SKColor.Parse(Clipboard.GetText().Trim()).ToColor();
+            }
+            else
+            {
+                color = Colors.Transparent;
+            }
+
+            return ColorSearchResult.GetIcon(color.ToSKColor());
         }
     }
 }

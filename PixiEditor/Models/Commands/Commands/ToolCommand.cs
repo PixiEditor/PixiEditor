@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ViewModels;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Commands
 {
@@ -7,6 +8,8 @@ namespace PixiEditor.Models.Commands
         public class ToolCommand : Command
         {
             public Type ToolType { get; init; }
+
+            public Key TransientKey { get; init; }
 
             protected override object GetParameter() => ToolType;
 

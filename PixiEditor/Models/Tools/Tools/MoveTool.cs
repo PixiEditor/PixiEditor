@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Tools.Tools
             BitmapManager = bitmapManager;
         }
 
-        public override string Tooltip => $"Moves selected pixels ({ShortcutKey}). Hold Ctrl to move all layers.";
+        public override string Tooltip => $"Moves selected pixels ({Shortcut}). Hold Ctrl to move all layers.";
 
         public override bool HideHighlight => true;
 

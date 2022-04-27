@@ -1,30 +1,19 @@
-﻿using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows.Documents;
+﻿using PixiEditor.Models.Commands;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Tools;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Controllers.Shortcuts
 {
     public class ShortcutController
     {
-        public ShortcutController(params ShortcutGroup[] shortcutGroups)
-        {
-            ShortcutGroups = new ObservableCollection<ShortcutGroup>(shortcutGroups);
-        }
-
         public static bool ShortcutExecutionBlocked => _shortcutExecutionBlockers.Count > 0;
 
-        private static List<string> _shortcutExecutionBlockers = new List<string>();
+        private static readonly List<string> _shortcutExecutionBlockers = new List<string>();
 
-        public ObservableCollection<ShortcutGroup> ShortcutGroups { get; init; }
+        public IEnumerable<Command> LastCommands { get; private set; }
 
-        public Shortcut LastShortcut { get; private set; }
-
-        public Dictionary<Key, Tool> TransientShortcuts { get; set; } = new Dictionary<Key, Tool>();
+        public Dictionary<KeyCombination, Tool> TransientShortcuts { get; set; } = new();
 
         public static void BlockShortcutExection(string blocker)
         {
@@ -43,46 +32,34 @@ namespace PixiEditor.Models.Controllers.Shortcuts
             _shortcutExecutionBlockers.Clear();
         }
 
-        public Shortcut GetToolShortcut<T>()
+        public KeyCombination GetToolShortcut<T>()
         {
             return GetToolShortcut(typeof(T));
         }
 
-        public Shortcut GetToolShortcut(Type type)
+        public KeyCombination GetToolShortcut(Type type)
         {
-            return ShortcutGroups.SelectMany(x => x.Shortcuts).ToList().Where(i => i.CommandParameter is Type nextType && nextType == type).SingleOrDefault();
-        }
-
-        public Key GetToolShortcutKey<T>()
-        {
-            return GetToolShortcutKey(typeof(T));
-        }
-
-        public Key GetToolShortcutKey(Type type)
-        {
-            var sh = GetToolShortcut(type);
-            return sh != null ? sh.ShortcutKey : Key.None;
+            return CommandController.Current.Commands.First(x => x is Command.ToolCommand tool && tool.ToolType == type).Shortcut;
         }
 
         public void KeyPressed(Key key, ModifierKeys modifiers)
         {
+            KeyCombination shortcut = new(key, modifiers);
+
             if (!ShortcutExecutionBlocked)
             {
-                Shortcut[] shortcuts = ShortcutGroups.SelectMany(x => x.Shortcuts).ToList().FindAll(x => x.ShortcutKey == key).ToArray();
-                if (shortcuts.Length < 1)
+                var commands = CommandController.Current.Commands[shortcut];
+
+                if (!commands.Any())
                 {
                     return;
                 }
 
-                shortcuts = shortcuts.OrderByDescending(x => x.Modifier).ToArray();
-                for (int i = 0; i < shortcuts.Length; i++)
+                LastCommands = commands;
+
+                foreach (var command in CommandController.Current.Commands[shortcut])
                 {
-                    if (modifiers.HasFlag(shortcuts[i].Modifier))
-                    {
-                        shortcuts[i].Execute();
-                        LastShortcut = shortcuts[i];
-                        break;
-                    }
+                    command.Execute();
                 }
             }
         }

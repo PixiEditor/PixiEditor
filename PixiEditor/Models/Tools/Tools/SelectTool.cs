@@ -37,7 +37,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public SelectionType SelectionType { get; set; } = SelectionType.Add;
 
-        public override string Tooltip => $"Selects area. ({ShortcutKey})";
+        public override string Tooltip => $"Selects area. ({Shortcut})";
 
         public override void BeforeUse()
         {

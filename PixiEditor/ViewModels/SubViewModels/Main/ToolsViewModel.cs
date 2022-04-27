@@ -81,7 +81,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             foreach (var tool in ToolSet)
             {
-                tool.ShortcutKey = Owner.ShortcutController.GetToolShortcutKey(tool.GetType());
+                tool.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
             }
         }
 

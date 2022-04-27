@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Evaluators;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
+using System.IO;
 using System.Reflection;
 using System.Windows.Media;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
@@ -10,6 +12,8 @@ namespace PixiEditor.Models.Commands
 {
     public class CommandController
     {
+        private readonly ShortcutFile shortcutFile;
+
         public static CommandController Current { get; private set; }
 
         public CommandCollection Commands { get; set; }
@@ -24,6 +28,13 @@ namespace PixiEditor.Models.Commands
         {
             Current ??= this;
 
+            shortcutFile =
+                new(Path.Join(
+                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                        "PixiEditor",
+                        "shortcuts.json"),
+                    this);
+
             Commands = new();
             FactoryEvaluators = new();
             CanExecuteEvaluators = new();
@@ -34,6 +45,9 @@ namespace PixiEditor.Models.Commands
 
         public void Init(IServiceProvider services)
         {
+            KeyValuePair<KeyCombination, IEnumerable<string>>[] shortcuts = shortcutFile.GetShortcuts()?.ToArray()
+                ?? Array.Empty<KeyValuePair<KeyCombination, IEnumerable<string>>>();
+
             var types = typeof(CommandController).Assembly.GetTypes();
 
             foreach (var type in types)
@@ -96,8 +110,8 @@ namespace PixiEditor.Models.Commands
                                 IconPath = attribute.Icon,
                                 IconEvaluator = xIcon,
                                 DefaultShortcut = attribute.GetShortcut(),
+                                Shortcut = GetShortcut(name, attribute.GetShortcut()),
                                 Parameter = basic.Parameter,
-                                Shortcut = attribute.GetShortcut(),
                             });
                         }
                     }
@@ -110,21 +124,25 @@ namespace PixiEditor.Models.Commands
                     if (toolAttr != null)
                     {
                         var tool = services.GetServices<Tool>().First(x => x.GetType() == type);
+                        string name = $"PixiEditor.Tools.Select.{type.Name}";
 
                         Commands.Add(new Command.ToolCommand()
                         {
-                            Name = $"PixiEditor.Tools.Select.{type.Name}",
+                            Name = name,
                             Display = $"Select {tool.DisplayName} Tool",
                             Description = $"Select {tool.DisplayName} Tool",
                             IconPath = $"@{tool.ImagePath}",
                             IconEvaluator = IconEvaluator.Default,
+                            TransientKey = toolAttr.Transient,
                             DefaultShortcut = toolAttr.GetShortcut(),
+                            Shortcut = GetShortcut(name, toolAttr.GetShortcut()),
                             ToolType = type,
-                            Shortcut = toolAttr.GetShortcut(),
                         });
                     }
                 }
             }
+
+            KeyCombination GetShortcut(string name, KeyCombination defaultShortcut) => shortcuts.FirstOrDefault(x => x.Value.Contains(name), new(defaultShortcut, null)).Key;
 
             void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute, IDictionary<string, T> evaluators)
                 where T : Evaluator<TParameter>, new()
@@ -210,6 +228,14 @@ namespace PixiEditor.Models.Commands
                         attribute.CanExecute != null ? CanExecuteEvaluators[attribute.CanExecute] : CanExecuteEvaluator.AlwaysTrue,
                         attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default));
             }
+        }
+
+        public void UpdateShortcut(Command command, KeyCombination newShortcut)
+        {
+            Commands.RemoveShortcut(command, command.Shortcut);
+            Commands.AddShortcut(command, newShortcut);
+            command.Shortcut = newShortcut;
+            shortcutFile.SaveShortcuts();
         }
     }
 }

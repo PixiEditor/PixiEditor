@@ -141,6 +141,10 @@ namespace PixiEditor.Models.DataHolders
             return anyRemoved;
         }
 
+        public bool Remove(TKey key, T item) => _dictionary[key].Remove(item);
+
+        public bool Remove(TKey key) => _dictionary.Remove(key);
+
         IEnumerator IEnumerable.GetEnumerator() => _dictionary.GetEnumerator();
     }
 }

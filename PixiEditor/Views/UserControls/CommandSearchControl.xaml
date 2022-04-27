@@ -7,9 +7,12 @@
              xmlns:vm="clr-namespace:PixiEditor.ViewModels"
              xmlns:behaves="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:cmdssearch="clr-namespace:PixiEditor.Models.Commands.Search"
+             xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d"
              Foreground="White"
-             d:DesignHeight="450" d:DesignWidth="600">
+             d:DesignHeight="450" d:DesignWidth="600"
+             x:Name="uc">
     <Grid DataContext="{DynamicResource viewModel}" x:Name="mainGrid">
         <Grid.Resources>
             <ResourceDictionary>
@@ -22,7 +25,12 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" FontSize="18" Padding="5">
+        <TextBox Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="18" Padding="5"
+                 x:Name="textBox">
+            <i:Interaction.Behaviors>
+                <behaves:TextBoxFocusBehavior SelectOnMouseClick="True" />
+                <behaves:GlobalShortcutFocusBehavior/>
+            </i:Interaction.Behaviors>
             <TextBox.Style>
                 <Style TargetType="TextBox" BasedOn="{StaticResource DarkTextBoxStyle}">
                     <Style.Resources>
@@ -35,72 +43,74 @@
         </TextBox>
         <Border Grid.Row="1" BorderThickness="1,0,1,0" BorderBrush="{StaticResource BrighterAccentColor}"
                 Background="{StaticResource AccentColor}">
-            <ItemsControl ItemsSource="{Binding Commands}" MinWidth="400">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="cmdssearch:SearchTerm">
-                        <Button Padding="5" Height="40" BorderThickness="0" Background="Transparent"
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Results}" MinWidth="400">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="cmdssearch:SearchTerm">
+                            <Button Padding="5" Height="40" BorderThickness="0" Background="Transparent"
                                 Command="{Binding ExecuteCommand}"
                                 CommandParameter="{Binding}"
                                 MouseMove="Button_MouseMove">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border>
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <Style.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="False">
-                                                                    <Setter Property="Background" Value="Transparent"/>
-                                                                </Trigger>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Background" Value="{StaticResource BrighterAccentColor}"/>
-                                                                </Trigger>
-                                                                <DataTrigger Binding="{Binding CanExecute}" Value="False">
-                                                                    <Setter Property="Background" Value="Transparent"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <ContentPresenter/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Button.Style>
-                            <Button.Resources>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="FontSize" Value="16"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CanExecute}" Value="True">
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CanExecute}" Value="False">
-                                            <Setter Property="Foreground" Value="Gray"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Resources>
-                            <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Horizontal">
-                                    <Border Width="25" Margin="0,0,5,0" Padding="1">
-                                        <Image HorizontalAlignment="Center" Source="{Binding Icon}"/>
-                                    </Border>
-                                    <TextBlock VerticalAlignment="Center"
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border>
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsSelected, Mode=TwoWay}" Value="False">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsSelected, Mode=TwoWay}" Value="True">
+                                                                        <Setter Property="Background" Value="{StaticResource BrighterAccentColor}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding CanExecute}" Value="False">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <Button.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CanExecute}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CanExecute}" Value="False">
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Resources>
+                                <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="25" Margin="0,0,5,0" Padding="1">
+                                            <Image HorizontalAlignment="Center" Source="{Binding Icon}"/>
+                                        </Border>
+                                        <TextBlock VerticalAlignment="Center"
                                                behaves:TextBlockExtensions.BindableInlines="{Binding TextBlockContent}"/>
-                                </StackPanel>
-                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding Shortcut}"/>
-                            </Grid>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding Shortcut}"/>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
         </Border>
         <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource BrighterAccentColor}"
                 CornerRadius="0,0,5,5" Background="{StaticResource AccentColor}">

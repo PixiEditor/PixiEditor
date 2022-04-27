@@ -22,7 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
             UseDocumentRectForUndo = true;
         }
 
-        public override string Tooltip => $"Fills area with color. ({ShortcutKey})";
+        public override string Tooltip => $"Fills area with color. ({Shortcut})";
 
         public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {

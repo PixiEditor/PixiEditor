@@ -1,5 +1,4 @@
-﻿using GalaSoft.MvvmLight;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using System.Text.RegularExpressions;
 using System.Windows.Documents;
@@ -7,8 +6,10 @@ using System.Windows.Media;
 
 namespace PixiEditor.Models.Commands.Search
 {
-    public abstract class SearchResult : ObservableObject
+    public abstract class SearchResult : NotifyableObject
     {
+        private bool isSelected;
+
         public string SearchTerm { get; init; }
 
         public virtual Inline[] TextBlockContent => GetInlines().ToArray();
@@ -22,6 +23,12 @@ namespace PixiEditor.Models.Commands.Search
         public abstract bool CanExecute { get; }
 
         public abstract ImageSource Icon { get; }
+
+        public bool IsSelected
+        {
+            get => isSelected;
+            set => SetProperty(ref isSelected, value);
+        }
 
         public abstract void Execute();
 

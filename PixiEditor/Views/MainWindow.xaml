@@ -432,6 +432,8 @@
                 </StackPanel>
             </Grid>
         </Grid>
-        <usercontrols:CommandSearchControl HorizontalAlignment="Center" Height="700"/>
+        <usercontrols:CommandSearchControl Visibility="{Binding SearchSubViewModel.SearchWindowOpen, Converter={BoolToVisibilityConverter}, Mode=TwoWay}"
+                                           SearchTerm="{Binding SearchSubViewModel.SearchTerm, Mode=TwoWay}"
+                                           HorizontalAlignment="Center" Height="700"/>
     </Grid>
 </Window>

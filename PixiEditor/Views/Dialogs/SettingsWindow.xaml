@@ -53,6 +53,7 @@
                 <x:Array Type="{x:Type sys:String}">
                     <sys:String>General</sys:String>
                     <sys:String>Discord</sys:String>
+                    <sys:String>Keybinds</sys:String>
                 </x:Array>
             </ListBox.ItemsSource>
         </ListBox>
@@ -112,7 +113,7 @@
 
                 <CheckBox Grid.Row="8" Grid.Column="1" VerticalAlignment="Center"
                     IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}">Enable shared toolbar</CheckBox>
-                
+
                 <Label Grid.Row="9" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Automatic updates</Label>
 
                 <CheckBox Grid.Row="10" Grid.Column="1" VerticalAlignment="Center"
@@ -161,6 +162,22 @@
                     Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}" 
                     IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>
             </StackPanel>
+
+            <Grid Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter}, ConverterParameter='Keybinds'}"
+                        Margin="10">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Commands}" Foreground="White">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,5,5,0">
+                                    <TextBlock Text="{Binding Display}" ToolTip="{Binding Description}"/>
+                                    <usercontrols:ShortcutBox Width="120" Command="{Binding}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>

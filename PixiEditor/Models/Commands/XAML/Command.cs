@@ -16,6 +16,8 @@ namespace PixiEditor.Models.Commands.XAML
 
         public bool UseProvided { get; set; }
 
+        public bool GetPixiCommand { get; set; }
+
         public Command() { }
 
         public Command(string name) => Name = name;
@@ -41,7 +43,8 @@ namespace PixiEditor.Models.Commands.XAML
                     }, false);
             }
 
-            return GetICommand(commandController.Commands[Name], UseProvided);
+            var command = commandController.Commands[Name];
+            return GetPixiCommand ? command : GetICommand(command, UseProvided);
         }
 
         public static ICommand GetICommand(Commands.Command command, bool useProvidedParameter) => new ProvidedICommand()

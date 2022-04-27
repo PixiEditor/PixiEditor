@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Models.Commands;
 using PixiEditor.ViewModels.SubViewModels.UserPreferences;
+using System.Collections.ObjectModel;
 
 namespace PixiEditor.ViewModels
 {
@@ -24,8 +20,11 @@ namespace PixiEditor.ViewModels
 
         public SettingsViewModel SettingsSubViewModel { get; set; }
 
+        public ObservableCollection<Command> Commands { get; }
+
         public SettingsWindowViewModel()
         {
+            Commands = new(CommandController.Current.Commands.Where(x => !string.IsNullOrWhiteSpace(x.Display)));
             SettingsSubViewModel = new SettingsViewModel(this);
         }
     }

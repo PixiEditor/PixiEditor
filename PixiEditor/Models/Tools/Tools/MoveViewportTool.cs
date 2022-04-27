@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
-    [Command.Tool(Key = Key.H)]
+    [Command.Tool(Key = Key.H, Transient = Key.Space)]
     public class MoveViewportTool : ReadonlyTool
     {
         public MoveViewportTool()
@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Tools.Tools
         }
 
         public override bool HideHighlight => true;
-        public override string Tooltip => $"Move viewport. ({ShortcutKey})"; 
+        public override string Tooltip => $"Move viewport. ({Shortcut})"; 
 
         public override void Use(IReadOnlyList<Coordinates> pixels)
         {

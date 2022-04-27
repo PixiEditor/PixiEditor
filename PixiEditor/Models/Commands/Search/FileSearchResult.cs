@@ -22,7 +22,6 @@ namespace PixiEditor.Models.Commands.Search
         public FileSearchResult(string path)
         {
             FilePath = path;
-            icon = new();
             var drawing = new GeometryDrawing() { Brush = FileExtensionToColorConverter.GetBrush(FilePath) };
             var geometry = new RectangleGeometry(new(0, 0, 10, 10), 3, 3) { };
             drawing.Geometry = geometry;

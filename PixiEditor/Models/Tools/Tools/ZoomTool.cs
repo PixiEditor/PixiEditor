@@ -19,7 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override bool HideHighlight => true;
 
-        public override string Tooltip => $"Zooms viewport ({ShortcutKey}). Click to zoom in, hold alt and click to zoom out.";
+        public override string Tooltip => $"Zooms viewport ({Shortcut}). Click to zoom in, hold alt and click to zoom out.";
 
         public override void OnKeyDown(Key key)
         {

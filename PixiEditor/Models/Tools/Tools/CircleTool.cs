@@ -23,7 +23,7 @@ namespace PixiEditor.Models.Tools.Tools
             ActionDisplay = defaultActionDisplay;
         }
 
-        public override string Tooltip => $"Draws circle on canvas ({ShortcutKey}). Hold Shift to draw even circle.";
+        public override string Tooltip => $"Draws circle on canvas ({Shortcut}). Hold Shift to draw even circle.";
 
         public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {

@@ -20,7 +20,7 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
             pen = new PenTool(bitmapManager);
         }
-        public override string Tooltip => $"Erasers color from pixel. ({ShortcutKey})";
+        public override string Tooltip => $"Erasers color from pixel. ({Shortcut})";
 
         public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {
