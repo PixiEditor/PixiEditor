@@ -7,11 +7,9 @@ using PixiEditor.Models.Enums;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -30,11 +28,14 @@ namespace PixiEditor.Models.IO
             SaveFileDialog dialog = new SaveFileDialog
             {
                 Filter = SupportedFilesHelper.BuildSaveFilter(true),
-                FilterIndex = 0
+                FilterIndex = 0,
+                DefaultExt = "pixi"
+
             };
             if ((bool)dialog.ShowDialog())
             {
-                path = SaveAsEditableFile(document, dialog.FileName);
+                FileType filetype = SupportedFilesHelper.GetSaveFileTypeFromFilterIndex(true, dialog.FilterIndex);
+                path = SaveAsEditableFile(document, dialog.FileName, filetype);
                 return true;
             }
 
@@ -48,15 +49,28 @@ namespace PixiEditor.Models.IO
         /// <param name="document">Document to be saved.</param>
         /// <param name="path">Path where to save file.</param>
         /// <returns>Path.</returns>
-        public static string SaveAsEditableFile(Document document, string path)
+        public static string SaveAsEditableFile(Document document, string path, FileType requestedType = FileType.Unset)
         {
-            if (Path.GetExtension(path) != Constants.NativeExtension)
+            var typeFromPath = ParseImageFormat(Path.GetExtension(path));
+            FileType finalType = (typeFromPath, requestedType) switch
             {
-                var chosenFormat = ParseImageFormat(Path.GetExtension(path));
-                var bitmap = document.Renderer.FinalBitmap;
-                SaveAs(encodersFactory[chosenFormat](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
+                (FileType.Unset, FileType.Unset) => FileType.Pixi,
+                (var first, FileType.Unset) => first,
+                (FileType.Unset, var second) => second,
+                _ => typeFromPath,
+            };
+
+            if (typeFromPath == FileType.Unset)
+            {
+                path = AppendExtension(path, SupportedFilesHelper.GetFileTypeDialogData(finalType));
             }
-            else if(Directory.Exists(Path.GetDirectoryName(path)))
+
+            if (finalType != FileType.Pixi)
+            {
+                var bitmap = document.Renderer.FinalBitmap;
+                SaveAs(encodersFactory[finalType](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
+            }
+            else if (Directory.Exists(Path.GetDirectoryName(path)))
             {
                 Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
             }
@@ -66,6 +80,16 @@ namespace PixiEditor.Models.IO
             }
 
             return path;
+        }
+
+        private static string AppendExtension(string path, FileTypeDialogData data)
+        {
+            string ext = data.Extensions.First();
+            string filename = Path.GetFileName(path);
+            if (filename.Length + ext.Length > 255)
+                filename = filename.Substring(0, 255 - ext.Length);
+            filename += ext;
+            return Path.Combine(Path.GetDirectoryName(path), filename);
         }
 
         public static FileType ParseImageFormat(string extension)
@@ -79,7 +103,7 @@ namespace PixiEditor.Models.IO
         {
             encodersFactory[FileType.Png] = () => new PngBitmapEncoder();
             encodersFactory[FileType.Jpeg] = () => new JpegBitmapEncoder();
-            encodersFactory[FileType.Bmp] = () => new BmpBitmapEncoder(); 
+            encodersFactory[FileType.Bmp] = () => new BmpBitmapEncoder();
             encodersFactory[FileType.Gif] = () => new GifBitmapEncoder();
         }
 
@@ -90,14 +114,14 @@ namespace PixiEditor.Models.IO
         /// <param name="fileDimensions">Size of file.</param>
         public static void Export(WriteableBitmap bitmap, Size fileDimensions)
         {
-          ExportFileDialog info = new ExportFileDialog(fileDimensions);
+            ExportFileDialog info = new ExportFileDialog(fileDimensions);
 
-          // If OK on dialog has been clicked
-          if (info.ShowDialog())
-          {
-            if(encodersFactory.ContainsKey(info.ChosenFormat))
-              SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
-          }
+            // If OK on dialog has been clicked
+            if (info.ShowDialog())
+            {
+                if (encodersFactory.ContainsKey(info.ChosenFormat))
+                    SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+            }
         }
         public static void SaveAsGZippedBytes(string path, Surface surface)
         {
