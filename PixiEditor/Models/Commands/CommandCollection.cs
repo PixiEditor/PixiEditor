@@ -56,6 +56,8 @@ namespace PixiEditor.Models.Commands
 
         public void RemoveShortcut(Command command, KeyCombination shortcut) => _commandShortcuts.Remove(shortcut, command);
 
+        public void ClearShortcut(KeyCombination shortcut) => _commandShortcuts.Clear(shortcut);
+
         public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<Command>>> GetShortcuts() =>
             _commandShortcuts;
 

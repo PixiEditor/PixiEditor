@@ -230,8 +230,28 @@ namespace PixiEditor.Models.Commands
             }
         }
 
+        /// <summary>
+        /// Removes the old shortcut to this command and adds the new one
+        /// </summary>
         public void UpdateShortcut(Command command, KeyCombination newShortcut)
         {
+            Commands.RemoveShortcut(command, command.Shortcut);
+            Commands.AddShortcut(command, newShortcut);
+            command.Shortcut = newShortcut;
+            shortcutFile.SaveShortcuts();
+        }
+
+        /// <summary>
+        /// Delets all shortcuts of <paramref name="newShortcut"/> and adds <paramref name="command"/>
+        /// </summary>
+        public void ReplaceShortcut(Command command, KeyCombination newShortcut)
+        {
+            foreach (Command other in Commands[newShortcut])
+            {
+                other.Shortcut = KeyCombination.None;
+            }
+
+            Commands.ClearShortcut(newShortcut);
             Commands.RemoveShortcut(command, command.Shortcut);
             Commands.AddShortcut(command, newShortcut);
             command.Shortcut = newShortcut;

@@ -1,4 +1,6 @@
 ﻿using PixiEditor.Models.Commands;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -32,12 +34,50 @@ namespace PixiEditor.Views.UserControls
             }
         }
 
-        private void Box_KeyCombinationChanged(object sender, Models.DataHolders.KeyCombination e)
+        private void Box_KeyCombinationChanged(object sender, KeyCombination e)
         {
-            if (!changingCombination)
+            if (changingCombination)
             {
-                CommandController.Current.UpdateShortcut(Command, e);
+                return;
             }
+
+            changingCombination = true;
+            var controller = CommandController.Current;
+
+            if (e != KeyCombination.None)
+            {
+                if (controller.Commands[e].Any())
+                {
+                    OptionsDialog<string> dialog = new("Already assigned", $"This shortcut is already asigned to '{controller.Commands[e].First().Display}'\nDo you want to replace the shortcut or switch shortcuts?")
+                    {
+                        {
+                            "Replace", x => controller.ReplaceShortcut(Command, e) 
+                        },
+                        {
+                            "Switch", x =>
+                            {
+                                var oldCommand = controller.Commands[e].First();
+                                var oldShortcut = Command.Shortcut;
+                                controller.ReplaceShortcut(Command, e);
+                                controller.ReplaceShortcut(oldCommand, oldShortcut);
+                            }
+                        },
+                        {
+                            "Abort", x =>
+                            {
+                                box.KeyCombination = Command.Shortcut;
+                            }
+                        }
+                    };
+
+                    dialog.ShowDialog();
+                    changingCombination = false;
+                    return;
+                }
+            }
+
+            changingCombination = false;
+            controller.UpdateShortcut(Command, e);
         }
 
         private void UpdateBoxCombination()
