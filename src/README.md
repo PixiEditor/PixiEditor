@@ -36,6 +36,7 @@ Decouples the state of a document from the UI.
         - [x] Resize canvas operation
         - [ ] Resize image operation?
         - [x] Raster clip operation
+        - [ ] Lock tranparency operation
         - [ ] Symmetry operation
         - Filters
             - [ ] Hue/Saturation/Value
@@ -75,8 +76,13 @@ Decouples the state of a document from the UI.
         - [ ] Rendering of canvas previews
         - [x] Support for multiple viewports
     - Changes
-        - [x] Layer structure changes
+        - [x] Create/Delete/Move structure members
         - [x] Combine layers onto a single layer
+        - [x] Layer/Folder Visibility
+        - [x] Layer/Folder Opacity
+        - [x] Layer/Folder Name
+        - [x] Layer/Folder Blend Modes
+        - [ ] Layer/Folder locking
         - [ ] Reference layer manipulation?
         - [ ] Resize canvas (basic done, anchors left)
         - [ ] Resize image
@@ -96,9 +102,11 @@ Decouples the state of a document from the UI.
         - [ ] Lasso
         - [ ] Move/Rotate selection
         - [ ] Transform selection
+        - [ ] Fill selection (fill with tranparent = delete)
         - [x] Clip to selection
-        - [ ] Clip to itself (preserve transparency)
-        - [x] Layer mask manipulation
+        - [ ] Lock transparency
+        - [x] Create/Delete mask
+        - [ ] Apply mask
 - ViewModel
     - [ ] Action filtering
     - [x] Viewport movement as an action

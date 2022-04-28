@@ -9,11 +9,11 @@ namespace PixiEditorPrototype.ViewModels;
 
 internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 {
-    private IReadOnlyStructureMember member;
+    protected IReadOnlyStructureMember member;
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    public DocumentViewModel Document { get; }
-    private DocumentHelpers Helpers { get; }
+    protected DocumentViewModel Document { get; }
+    protected DocumentHelpers Helpers { get; }
 
     public string Name
     {

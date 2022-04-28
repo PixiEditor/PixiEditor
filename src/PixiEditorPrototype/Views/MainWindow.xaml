@@ -20,6 +20,7 @@
     <Window.Resources>
         <conv:IndexToChunkResolutionConverter x:Key="IndexToChunkResolutionConverter"/>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <conv:BlendModeToStringConverter x:Key="BlendModeToStringConverter"/>
     </Window.Resources>
     <DockPanel Background="Gray">
         <Border BorderThickness="1" Background="White" BorderBrush="Black" Width="280" DockPanel.Dock="Right" Margin="5">
@@ -33,6 +34,10 @@
                     <Button Margin="5,0" Command="{Binding ActiveDocument.CreateMaskCommand}" Width="80">Create Mask</Button>
                     <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteMaskCommand}" Width="80">Delete Mask</Button>
                     <controls:BlendModeComboBox Margin="5,0" Width="80" SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendMode, Mode=TwoWay}"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.ToggleLockTransparencyCommand}" Width="80">Lock Alpha</Button>
+                    <Button Margin="5,0" IsEnabled="False" Width="80">Lock</Button>
                 </StackPanel>
                 <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,5,0,5">
                     <Button Width="80" Margin="5,0" Command="{Binding ActiveDocument.CombineCommand}">Merge</Button>
@@ -73,35 +78,58 @@
                     </i:Interaction.Triggers>
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
-                            <StackPanel Orientation="Horizontal" Width="200">
-                                <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
+                            <StackPanel Orientation="Horizontal" MinWidth="200">
                                 <StackPanel>
-                                    <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
-                                    <Button Width="18" Command="{Binding MoveDownCommand}">v</Button>
+                                    <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
+                                    <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
                                 </StackPanel>
-                                <Border BorderBrush="Black" BorderThickness="1" Background="Yellow" Margin="5">
-                                    <CheckBox VerticalAlignment="Center" Margin="5" IsChecked="{Binding IsVisible}"/>
+                                <Border BorderBrush="Black" BorderThickness="1" Background="Yellow" Width="25" Height="25" Margin="3,0,0,0">
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
                                 </Border>
-                                <TextBox Text="{Binding Name}" Margin="5" Height="20"/>
-                                <CheckBox VerticalAlignment="Center" 
+                                <StackPanel VerticalAlignment="Center">
+                                    <DockPanel Margin="3, 0, 0, 0">
+                                        <TextBlock Text="{Binding Opacity}" Width="25"/>
+                                        <TextBlock Text="{Binding BlendMode, Converter={StaticResource BlendModeToStringConverter}}"/>
+                                    </DockPanel>
+                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding Name}" Margin="3, 0, 0, 0" Height="20"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Center" Margin="3, 0, 0, 0">
+                                    <CheckBox VerticalAlignment="Center"
                                           Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
-                                          IsChecked="{Binding ShouldDrawOnMask}">Mask</CheckBox>
+                                          IsChecked="{Binding ShouldDrawOnMask}">Edit Mask</CheckBox>
+                                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}">Select</CheckBox>
+                                </StackPanel>
+                                <StackPanel Margin="3">
+                                    <TextBlock Visibility="Collapsed">🔒</TextBlock>
+                                </StackPanel>
                             </StackPanel>
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type vm:LayerViewModel}">
-                            <StackPanel Orientation="Horizontal" Width="200">
-                                <CheckBox VerticalAlignment="Center" Margin="3" IsChecked="{Binding IsSelected}"/>
+                            <StackPanel Orientation="Horizontal">
                                 <StackPanel>
-                                    <Button Width="18" Command="{Binding MoveUpCommand}">^</Button>
-                                    <Button Width="18" Command="{Binding MoveDownCommand}">v</Button>
+                                    <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
+                                    <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
                                 </StackPanel>
-                                <Border BorderBrush="Black" BorderThickness="1" Margin="5">
-                                    <CheckBox VerticalAlignment="Center" Margin="5" IsChecked="{Binding IsVisible}"/>
+                                <Border BorderBrush="Black" BorderThickness="1" Background="White" Width="25" Height="25" Margin="3,0,0,0">
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
                                 </Border>
-                                <TextBox Text="{Binding Name}" Margin="5" Height="20"/>
-                                <CheckBox VerticalAlignment="Center" 
+                                <StackPanel VerticalAlignment="Center">
+                                    <DockPanel Margin="3, 0, 0, 0">
+                                        <TextBlock Text="{Binding Opacity}" Width="25"/>
+                                        <TextBlock Text="{Binding BlendMode, Converter={StaticResource BlendModeToStringConverter}}"/>
+                                    </DockPanel>
+                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding Name}" Margin="3, 0, 0, 0" Height="20"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Center" Margin="3, 0, 0, 0">
+                                    <CheckBox VerticalAlignment="Center"
                                           Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
-                                          IsChecked="{Binding ShouldDrawOnMask}">Mask</CheckBox>
+                                          IsChecked="{Binding ShouldDrawOnMask}">Edit Mask</CheckBox>
+                                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}">Select</CheckBox>
+                                </StackPanel>
+                                <StackPanel Margin="3">
+                                    <TextBlock Visibility="{Binding LockTransparency, Converter={StaticResource BoolToVisibilityConverter}}">🙾</TextBlock>
+                                    <TextBlock Visibility="Collapsed">🔒</TextBlock>
+                                </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </TreeView.Resources>

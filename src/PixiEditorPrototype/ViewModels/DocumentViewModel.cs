@@ -53,6 +53,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? MoveViewportCommand { get; }
     public RelayCommand? CreateMaskCommand { get; }
     public RelayCommand? DeleteMaskCommand { get; }
+    public RelayCommand? ToggleLockTransparencyCommand { get; }
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
@@ -96,6 +97,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         MoveViewportCommand = new RelayCommand(MoveViewport);
         CreateMaskCommand = new RelayCommand(CreateMask);
         DeleteMaskCommand = new RelayCommand(DeleteMask);
+        ToggleLockTransparencyCommand = new RelayCommand(ToggleLockTransparency);
 
         foreach (var bitmap in Bitmaps)
         {
@@ -182,6 +184,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private void Redo(object? param)
     {
         Helpers.ActionAccumulator.AddActions(new Redo_Action());
+    }
+
+    private void ToggleLockTransparency(object? param)
+    {
+        if (SelectedStructureMember is not LayerViewModel layer)
+            return;
+        layer.LockTransparency = !layer.LockTransparency;
     }
 
     private void ResizeCanvas(object? param)

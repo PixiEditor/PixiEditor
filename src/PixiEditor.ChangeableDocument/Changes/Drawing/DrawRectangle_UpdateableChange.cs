@@ -30,6 +30,9 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
 
         if (!target.Selection.IsEmptyAndInactive)
             targetImage.ApplyRasterClip(target.Selection.SelectionImage);
+        var targetMember = target.FindMemberOrThrow(memberGuid);
+        if (targetMember is Layer layer && layer.LockTransparency)
+            targetImage.ApplyRasterClip(targetImage);
 
         targetImage.DrawRectangle(rect);
 

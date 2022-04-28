@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditorPrototype.Models;
 
 namespace PixiEditorPrototype.CustomControls;
 internal class BlendModeComboBox : ComboBox
@@ -56,28 +57,28 @@ internal class BlendModeComboBox : ComboBox
     private void AddItems()
     {
         var items = new List<UIElement>() {
-            new ComboBoxItem() { Content = "Normal", Tag = BlendMode.Normal },
+            new ComboBoxItem() { Content = BlendMode.Normal.EnglishName(), Tag = BlendMode.Normal },
             new Separator(),
-            new ComboBoxItem() { Content = "Darken", Tag = BlendMode.Darken },
-            new ComboBoxItem() { Content = "Multiply", Tag = BlendMode.Multiply },
-            new ComboBoxItem() { Content = "Color Burn", Tag = BlendMode.ColorBurn },
+            new ComboBoxItem() { Content = BlendMode.Darken.EnglishName(), Tag = BlendMode.Darken },
+            new ComboBoxItem() { Content = BlendMode.Multiply.EnglishName(), Tag = BlendMode.Multiply },
+            new ComboBoxItem() { Content = BlendMode.ColorBurn.EnglishName(), Tag = BlendMode.ColorBurn },
             new Separator(),
-            new ComboBoxItem() { Content = "Lighten", Tag = BlendMode.Lighten },
-            new ComboBoxItem() { Content = "Screen", Tag = BlendMode.Screen },
-            new ComboBoxItem() { Content = "Color Dodge", Tag = BlendMode.ColorDodge },
-            new ComboBoxItem() { Content = "Linear Dodge (Add)", Tag = BlendMode.LinearDodge },
+            new ComboBoxItem() { Content = BlendMode.Lighten.EnglishName(), Tag = BlendMode.Lighten },
+            new ComboBoxItem() { Content = BlendMode.Screen.EnglishName(), Tag = BlendMode.Screen },
+            new ComboBoxItem() { Content = BlendMode.ColorDodge.EnglishName(), Tag = BlendMode.ColorDodge },
+            new ComboBoxItem() { Content = BlendMode.LinearDodge.EnglishName(), Tag = BlendMode.LinearDodge },
             new Separator(),
-            new ComboBoxItem() { Content = "Overlay", Tag = BlendMode.Overlay },
-            new ComboBoxItem() { Content = "Soft Light", Tag = BlendMode.SoftLight },
-            new ComboBoxItem() { Content = "Hard Light", Tag = BlendMode.HardLight },
+            new ComboBoxItem() { Content = BlendMode.Overlay.EnglishName(), Tag = BlendMode.Overlay },
+            new ComboBoxItem() { Content = BlendMode.SoftLight.EnglishName(), Tag = BlendMode.SoftLight },
+            new ComboBoxItem() { Content = BlendMode.HardLight.EnglishName(), Tag = BlendMode.HardLight },
             new Separator(),
-            new ComboBoxItem() { Content = "Difference", Tag = BlendMode.Difference },
-            new ComboBoxItem() { Content = "Exclusion", Tag = BlendMode.Exclusion },
+            new ComboBoxItem() { Content = BlendMode.Difference.EnglishName(), Tag = BlendMode.Difference },
+            new ComboBoxItem() { Content = BlendMode.Exclusion.EnglishName(), Tag = BlendMode.Exclusion },
             new Separator(),
-            new ComboBoxItem() { Content = "Hue", Tag = BlendMode.Hue },
-            new ComboBoxItem() { Content = "Saturation", Tag = BlendMode.Saturation },
-            new ComboBoxItem() { Content = "Luminosity", Tag = BlendMode.Luminosity },
-            new ComboBoxItem() { Content = "Color", Tag = BlendMode.Color }
+            new ComboBoxItem() { Content = BlendMode.Hue.EnglishName(), Tag = BlendMode.Hue },
+            new ComboBoxItem() { Content = BlendMode.Saturation.EnglishName(), Tag = BlendMode.Saturation },
+            new ComboBoxItem() { Content = BlendMode.Luminosity.EnglishName(), Tag = BlendMode.Luminosity },
+            new ComboBoxItem() { Content = BlendMode.Color.EnglishName(), Tag = BlendMode.Color }
         };
         foreach (var item in items)
         {

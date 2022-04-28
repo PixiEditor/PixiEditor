@@ -59,7 +59,16 @@ internal class DocumentUpdater
             case StructureMemberBlendMode_ChangeInfo info:
                 ProcessStructureMemberBlendMode(info);
                 break;
+            case LayerLockTransparency_ChangeInfo info:
+                ProcessLayerLockTransparency(info);
+                break;
         }
+    }
+
+    private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)
+    {
+        var layer = (LayerViewModel)helper.StructureHelper.FindOrThrow(info.GuidValue);
+        layer.RaisePropertyChanged(nameof(layer.LockTransparency));
     }
 
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)

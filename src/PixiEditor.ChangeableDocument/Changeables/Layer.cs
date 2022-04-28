@@ -6,6 +6,7 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Layer : StructureMember, IReadOnlyLayer
 {
+    public bool LockTransparency { get; set; } = false;
     public ChunkyImage LayerImage { get; set; }
     IReadOnlyChunkyImage IReadOnlyLayer.ReadOnlyLayerImage => LayerImage;
 
