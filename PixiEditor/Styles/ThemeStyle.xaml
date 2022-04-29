@@ -16,7 +16,7 @@
     <Style TargetType="ToggleButton">
         <Setter Property="Focusable" Value="False"/>
     </Style>
-    
+
     <Style TargetType="Button" x:Key="BaseDarkButton">
         <Setter Property="Background" Value="#404040" />
         <Setter Property="Foreground" Value="White" />
@@ -54,12 +54,15 @@
     <Style TargetType="Button" x:Key="DarkRoundButton" BasedOn="{StaticResource BaseDarkButton}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Background" Value="#303030" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Width" Value="70"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border CornerRadius="4" Background="{TemplateBinding Background}">
                         <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
+                                          VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
@@ -169,8 +172,7 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Padding="{TemplateBinding Padding}">
+                            BorderThickness="{TemplateBinding BorderThickness}">
                         <ScrollViewer Name="PART_ContentHost"/>
                     </Border>
                 </ControlTemplate>

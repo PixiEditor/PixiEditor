@@ -11,7 +11,7 @@
             /// A command that is not shown in the UI
             /// </summary>
             public InternalAttribute(string name)
-                : base(name, null, null)
+                : base(name, string.Empty, string.Empty)
             {
             }
 
@@ -19,7 +19,7 @@
             /// A command that is not shown in the UI
             /// </summary>
             public InternalAttribute(string name, object parameter)
-                : base(name, parameter, null, null)
+                : base(name, parameter, string.Empty, string.Empty)
             {
             }
         }

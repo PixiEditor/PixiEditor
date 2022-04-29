@@ -168,6 +168,7 @@
                         <MenuItem Header="_Crash" cmds:Menu.Command="PixiEditor.Debug.Crash" />
                         <MenuItem Header="Delete">
                             <MenuItem Header="User Preferences (Roaming)" cmds:Menu.Command="PixiEditor.Debug.DeleteUserPreferences" />
+                            <MenuItem Header="Shortcut File (Roaming)" cmds:Menu.Command="PixiEditor.Debug.DeleteShortcutFile" />
                             <MenuItem Header="Editor Data (Local)" cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
                         </MenuItem>
                     </MenuItem>
@@ -433,6 +434,6 @@
         </Grid>
         <usercontrols:CommandSearchControl Visibility="{Binding SearchSubViewModel.SearchWindowOpen, Converter={BoolToVisibilityConverter}, Mode=TwoWay}"
                                            SearchTerm="{Binding SearchSubViewModel.SearchTerm, Mode=TwoWay}"
-                                           HorizontalAlignment="Center" Height="700"/>
+                                           HorizontalAlignment="Center" Height="700" MaxWidth="920"/>
     </Grid>
 </Window>

@@ -305,6 +305,14 @@ namespace PixiEditor.Models.Commands
         public void ResetShortcuts()
         {
             Commands.ClearShortcuts();
+
+            foreach (var command in Commands)
+            {
+                Commands.AddShortcut(command, command.DefaultShortcut);
+                command.Shortcut = command.DefaultShortcut;
+            }
+
+            shortcutFile.SaveShortcuts();
         }
     }
 }

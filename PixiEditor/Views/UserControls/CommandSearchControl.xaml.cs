@@ -93,8 +93,9 @@ namespace PixiEditor.Views.UserControls
                 _viewModel.SelectedResult = _viewModel.Results.IndexOrPrevious(x => x.CanExecute, newIndex);
             }
             else if (CommandController.Current.Commands["PixiEditor.Search.Toggle"].Shortcut
-                == new KeyCombination(e.Key, Keyboard.Modifiers))
+                == new KeyCombination(e.Key, Keyboard.Modifiers) || e.Key == Key.Escape)
             {
+                FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null);
                 Keyboard.ClearFocus();
             }
             else

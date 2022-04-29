@@ -18,7 +18,7 @@ namespace PixiEditor.Models.DataHolders
         {
             StringBuilder builder = new();
 
-            foreach (ModifierKeys modifier in Modifiers.GetFlags())
+            foreach (ModifierKeys modifier in Modifiers.GetFlags().OrderByDescending(x => x != ModifierKeys.Alt))
             {
                 if (modifier == ModifierKeys.None) continue;
 

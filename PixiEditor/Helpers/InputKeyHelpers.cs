@@ -26,7 +26,7 @@ namespace PixiEditor.Helpers
             Key.NumPad9 => "Num9",
             Key.Space => nameof(Key.Space),
             Key.Tab => nameof(Key.Tab),
-            Key.Back => nameof(Key.Back),
+            Key.Back => "Backspace",
             Key.Escape => "Esc",
             _ => GetMappedKey(key, culture),
         };

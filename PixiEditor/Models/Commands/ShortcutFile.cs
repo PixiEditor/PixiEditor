@@ -18,7 +18,7 @@ namespace PixiEditor.Models.Commands
             if (!File.Exists(path))
             {
                 Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-                File.Create(Path);
+                File.Create(Path).Dispose();
             }
         }
 

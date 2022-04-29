@@ -12,7 +12,8 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
         xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
-        xmlns:cmds="clr-namespace:PixiEditor.Models.Commands"
+        xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
+        xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
         Height="500" Width="640"
@@ -171,24 +172,27 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Grid>
+                <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
                     <TextBox Style="{StaticResource DarkTextBoxStyle}"/>
                     <Button Grid.Column="1" Style="{StaticResource DarkRoundButton}"
-                            Content="Reset all" Margin="5,0"/>
+                            Content="Reset all" Height="Auto" Margin="5,0"
+                            FontSize="14" Padding="1"
+                            Command="{cmds:Command PixiEditor.Shortcuts.Reset}"/>
                 </Grid>
-                <ScrollViewer Grid.Row="1">
+
+                <ScrollViewer Grid.Row="1" x:Name="commandScroll">
                     <ItemsControl ItemsSource="{Binding Commands}" Foreground="White">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="cmds:CommandGroup">
+                            <DataTemplate DataType="commands:CommandGroup">
                                 <StackPanel Margin="0,0,0,20">
                                     <TextBlock Text="{Binding Display}" FontSize="22" FontWeight="SemiBold"/>
                                     <ItemsControl ItemsSource="{Binding VisibleCommands}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="cmds:Command">
+                                            <DataTemplate DataType="commands:Command">
                                                 <Grid Margin="0,5,5,0">
                                                     <TextBlock Text="{Binding Display}" ToolTip="{Binding Description}"/>
                                                     <usercontrols:ShortcutBox Width="120" Command="{Binding}" HorizontalAlignment="Right"/>
@@ -201,6 +205,15 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                
+                <Grid Grid.Row="1" Height="10" VerticalAlignment="Top" Visibility="{Binding VerticalOffset, ElementName=commandScroll, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}, ConverterParameter=0}">
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                            <GradientStop Color="#22000000" Offset="0"/>
+                            <GradientStop Color="#00000000" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                </Grid>
             </Grid>
         </Grid>
     </DockPanel>

@@ -43,6 +43,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public static void Crash() => throw new InvalidOperationException("User requested to crash :c");
 
         [Command.Basic("#DEBUG#PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "Delete User Preferences (Roaming)", "Delete User Preferences (Roaming AppData)")]
+        [Command.Basic("#DEBUG#PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "Delete Shortcut File (Roaming)", "Delete Shortcut File (Roaming AppData)")]
         [Command.Basic("#DEBUG#PixiEditor.Debug.DeleteEditorData", @"%localappdata%\PixiEditor\editor_data.json", "Delete Editor Data (Local)", "Delete Editor Data (Local AppData)")]
         public static void DeleteFile(string path)
         {
@@ -53,10 +54,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 return;
             }
 
-            if (ConfirmationDialog.Show($"Are you sure you want to delete {path}?\nThis data will be lost for all installations.\n(Full Path: {file})", "Are you sure?") == Models.Enums.ConfirmationType.Yes)
+            OptionsDialog<string> dialog = new("Are you sure?", $"Are you sure you want to delete {path}?\nThis data will be lost for all installations.\n(Full Path: {file})")
             {
-                File.Delete(file);
-            }
+                { "Yes", x => File.Delete(file) },
+                "Cancel"
+            };
+
+            dialog.ShowDialog();
         }
 
         [Conditional("DEBUG")]
