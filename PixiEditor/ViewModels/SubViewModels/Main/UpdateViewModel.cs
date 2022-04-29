@@ -152,7 +152,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Application.Current.Shutdown();
         }
 
-        [Command.Basic("PixiEditor.Restart", "", "")]
+        [Command.Internal("PixiEditor.Restart")]
         public static void RestartApplication()
         {
             try

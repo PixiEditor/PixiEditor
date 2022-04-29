@@ -58,7 +58,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        [Command.Basic("PixiEditor.Colors.RemoveSwatch", "", "")]
+        [Command.Internal("PixiEditor.Colors.RemoveSwatch")]
         public void RemoveSwatch(SKColor color)
         {
             if (Owner.BitmapManager.ActiveDocument.Swatches.Contains(color))
@@ -67,7 +67,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        [Command.Basic("PixiEditor.Colors.SelectColor", "", "")]
+        [Command.Internal("PixiEditor.Colors.SelectColor")]
         public void SelectColor(SKColor color)
         {
             PrimaryColor = color;
