@@ -455,17 +455,40 @@ namespace PixiEditor.Views.Dialogs
         private async void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             PaletteItem item = (PaletteItem)sender;
+
+            string oldFileName = $"{e.OldText}.pal";
+
             if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name)
             {
+                item.Palette.FileName = oldFileName;
                 return;
             }
 
-            string oldFileName = item.Palette.FileName;
-            item.Palette.FileName = $"{e.NewText}.pal";
-            File.Move(
-                Path.Join(LocalPalettesFetcher.PathToPalettesFolder, oldFileName),
-                Path.Join(LocalPalettesFetcher.PathToPalettesFolder, item.Palette.FileName));
+            string oldPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, oldFileName);
 
+            if (!File.Exists(oldPath))
+            {
+                item.Palette.FileName = oldFileName;
+                return;
+            }
+
+            string finalNewName = $"{e.NewText}.pal";
+            string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
+
+            while (File.Exists(newPath))
+            {
+                finalNewName = Path.GetFileNameWithoutExtension(finalNewName) + "(1).pal";
+                if (finalNewName == oldFileName)
+                {
+                    item.Palette.FileName = oldFileName;
+                    return;
+                }
+                newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
+            }
+
+            File.Move(oldPath, newPath);
+
+            item.Palette.FileName = finalNewName;
 
             await RefreshLocalCache();
             await UpdatePaletteList();
