@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.File", "File")]
     public class FileViewModel : SubViewModel<ViewModelMain>
     {
         private bool hasRecent;

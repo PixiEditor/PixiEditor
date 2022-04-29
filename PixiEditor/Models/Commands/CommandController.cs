@@ -16,13 +16,15 @@ namespace PixiEditor.Models.Commands
 
         public static CommandController Current { get; private set; }
 
-        public CommandCollection Commands { get; set; }
+        public CommandCollection Commands { get; }
 
-        public Dictionary<string, FactoryEvaluator> FactoryEvaluators { get; set; }
+        public List<CommandGroup> CommandGroups { get; }
 
-        public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; set; }
+        public Dictionary<string, FactoryEvaluator> FactoryEvaluators { get; }
 
-        public Dictionary<string, IconEvaluator> IconEvaluators { get; set; }
+        public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; }
+
+        public Dictionary<string, IconEvaluator> IconEvaluators { get; }
 
         public CommandController(IServiceProvider services)
         {
@@ -36,6 +38,7 @@ namespace PixiEditor.Models.Commands
                     this);
 
             Commands = new();
+            CommandGroups = new();
             FactoryEvaluators = new();
             CanExecuteEvaluators = new();
             IconEvaluators = new();
@@ -50,9 +53,18 @@ namespace PixiEditor.Models.Commands
 
             var types = typeof(CommandController).Assembly.GetTypes();
 
+            EnumerableDictionary<string, string> groups = new();
+            EnumerableDictionary<string, Command> commandGroups = new();
+
             foreach (var type in types)
             {
                 object instanceType = null;
+
+                foreach (var group in type.GetCustomAttributes<CommandAttribute.GroupAttribute>())
+                {
+                    groups.Add(group.Display, group.Name);
+                }
+
                 var methods = type.GetMethods();
 
                 foreach (var method in methods)
@@ -68,7 +80,17 @@ namespace PixiEditor.Models.Commands
                     {
                         if (attribute is Evaluator.CanExecuteAttribute canExecute)
                         {
-                            AddEvaluator<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(method, instanceType, canExecute, CanExecuteEvaluators);
+                            var required = (CommandController controller) => canExecute.Requires.Select(x => controller.CanExecuteEvaluators[x]);
+                            AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
+                                method,
+                                instanceType,
+                                canExecute,
+                                CanExecuteEvaluators,
+                                x => new CanExecuteEvaluator()
+                                {
+                                    Name = attribute.Name, 
+                                    Evaluate = y => x.Invoke(y) && required.Invoke(this).All(z => z.EvaluateEvaluator(null, y))
+                                });
                         }
                         else if (attribute is Evaluator.FactoryAttribute factory)
                         {
@@ -80,7 +102,6 @@ namespace PixiEditor.Models.Commands
                         }
                     }
                 }
-
             }
 
             foreach (var type in types)
@@ -126,7 +147,7 @@ namespace PixiEditor.Models.Commands
                         var tool = services.GetServices<Tool>().First(x => x.GetType() == type);
                         string name = $"PixiEditor.Tools.Select.{type.Name}";
 
-                        Commands.Add(new Command.ToolCommand()
+                        var command = new Command.ToolCommand()
                         {
                             Name = name,
                             Display = $"Select {tool.DisplayName} Tool",
@@ -137,14 +158,37 @@ namespace PixiEditor.Models.Commands
                             DefaultShortcut = toolAttr.GetShortcut(),
                             Shortcut = GetShortcut(name, toolAttr.GetShortcut()),
                             ToolType = type,
-                        });
+                        };
+
+                        Commands.Add(command);
+                        AddCommandToGroup(command);
                     }
                 }
             }
 
+            foreach (var commands in commandGroups)
+            {
+                CommandGroups.Add(new(commands.Key, commands.Value));
+            }
+
             KeyCombination GetShortcut(string name, KeyCombination defaultShortcut) => shortcuts.FirstOrDefault(x => x.Value.Contains(name), new(defaultShortcut, null)).Key;
 
+            void AddCommandToGroup(Command command)
+            {
+                var display = groups.FirstOrDefault(x => x.Value.Any(x => command.Name.StartsWith(x))).Key;
+                if (display == null)
+                {
+                    display = "Misc";
+                }
+                commandGroups.Add(display, command);
+            }
+
             void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute, IDictionary<string, T> evaluators)
+                where T : Evaluator<TParameter>, new()
+                where TAttr : Evaluator.EvaluatorAttribute
+                => AddEvaluatorFactory<TAttr, T, TParameter>(method, instance, attribute, evaluators, x => new T() { Name = attribute.Name, Evaluate = x });
+
+            void AddEvaluatorFactory<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute, IDictionary<string, T> evaluators, Func<Func<object, TParameter>, T> factory)
                 where T : Evaluator<TParameter>, new()
                 where TAttr : Evaluator.EvaluatorAttribute
             {
@@ -174,16 +218,12 @@ namespace PixiEditor.Models.Commands
                     func = x => (TParameter)method.Invoke(instance, null);
                 }
 
-                T evaluator = new()
-                {
-                    Name = attribute.Name,
-                    Evaluate = func
-                };
+                T evaluator = factory(func);
 
                 evaluators.Add(evaluator.Name, evaluator);
             }
 
-            void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
+            TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
                 where TAttr : CommandAttribute.CommandAttribute
                 where TCommand : Command
             {
@@ -220,13 +260,17 @@ namespace PixiEditor.Models.Commands
                     name = name["#DEBUG#".Length..];
                 }
 
-                Commands.Add(
-                    commandFactory(
+                var command = commandFactory(
                         isDebug,
                         name,
                         action,
                         attribute.CanExecute != null ? CanExecuteEvaluators[attribute.CanExecute] : CanExecuteEvaluator.AlwaysTrue,
-                        attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default));
+                        attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default);
+
+                Commands.Add(command);
+                AddCommandToGroup(command);
+
+                return command;
             }
         }
 
@@ -256,6 +300,11 @@ namespace PixiEditor.Models.Commands
             Commands.AddShortcut(command, newShortcut);
             command.Shortcut = newShortcut;
             shortcutFile.SaveShortcuts();
+        }
+
+        public void ResetShortcuts()
+        {
+            Commands.ClearShortcuts();
         }
     }
 }

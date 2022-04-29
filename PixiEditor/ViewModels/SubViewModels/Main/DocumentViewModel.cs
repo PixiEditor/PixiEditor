@@ -6,6 +6,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Document", "Image")]
     public class DocumentViewModel : SubViewModel<ViewModelMain>
     {
         public const string ConfirmationDialogTitle = "Unsaved changes";

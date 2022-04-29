@@ -36,6 +36,8 @@ namespace PixiEditor.Models.Commands
             _commandShortcuts.Clear();
         }
 
+        public void ClearShortcuts() => _commandShortcuts.Clear();
+
         public bool Contains(Command item) => _commandNames.ContainsKey(item.Name);
 
         public void CopyTo(Command[] array, int arrayIndex) => _commandNames.Values.CopyTo(array, arrayIndex);

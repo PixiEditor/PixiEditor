@@ -5,6 +5,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Window", "Windows")]
     public class WindowViewModel : SubViewModel<ViewModelMain>
     {
         public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
@@ -20,14 +21,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ShowAvalonDockWindowCommand = new(ShowAvalonDockWindow);
         }
 
-        [Command.Basic("PixiEditor.Settings.Open", "Open Settings", "Open Settings Window")]
+        [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window")]
         public static void OpenSettingsWindow()
         {
             SettingsWindow settings = new SettingsWindow();
             settings.Show();
         }
 
-        [Command.Basic("PixiEditor.Window.OpenStartupWindow", "Open Settings", "Open Settings Window")]
+        [Command.Basic("PixiEditor.Window.OpenStartupWindow", "Open Startup Window", "Open Startup Window")]
         public void OpenHelloThereWindow()
         {
             new HelloTherePopup(Owner.FileSubViewModel).Show();

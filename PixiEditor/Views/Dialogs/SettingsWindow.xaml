@@ -12,13 +12,15 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
         xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:cmds="clr-namespace:PixiEditor.Models.Commands"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
         Height="500" Width="640"
         MinHeight="500" MinWidth="640"
         WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
         WindowStartupLocation="CenterScreen"
-        BorderBrush="Black" BorderThickness="1">
+        BorderBrush="Black" BorderThickness="1"
+        Background="{StaticResource AccentColor}">
     <Window.Resources>
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -165,14 +167,36 @@
 
             <Grid Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter}, ConverterParameter='Keybinds'}"
                         Margin="10">
-                <ScrollViewer>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Style="{StaticResource DarkTextBoxStyle}"/>
+                    <Button Grid.Column="1" Style="{StaticResource DarkRoundButton}"
+                            Content="Reset all" Margin="5,0"/>
+                </Grid>
+                <ScrollViewer Grid.Row="1">
                     <ItemsControl ItemsSource="{Binding Commands}" Foreground="White">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,5,5,0">
-                                    <TextBlock Text="{Binding Display}" ToolTip="{Binding Description}"/>
-                                    <usercontrols:ShortcutBox Width="120" Command="{Binding}" HorizontalAlignment="Right"/>
-                                </Grid>
+                            <DataTemplate DataType="cmds:CommandGroup">
+                                <StackPanel Margin="0,0,0,20">
+                                    <TextBlock Text="{Binding Display}" FontSize="22" FontWeight="SemiBold"/>
+                                    <ItemsControl ItemsSource="{Binding VisibleCommands}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="cmds:Command">
+                                                <Grid Margin="0,5,5,0">
+                                                    <TextBlock Text="{Binding Display}" ToolTip="{Binding Description}"/>
+                                                    <usercontrols:ShortcutBox Width="120" Command="{Binding}" HorizontalAlignment="Right"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

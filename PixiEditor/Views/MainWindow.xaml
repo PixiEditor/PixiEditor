@@ -117,7 +117,7 @@
                         <Separator />
                         <MenuItem Header="_Delete Selected" cmds:Menu.Command="PixiEditor.Document.DeletePixels" />
                         <Separator />
-                        <MenuItem Header="_Settings" cmds:Menu.Command="PixiEditor.Settings.Open" />
+                        <MenuItem Header="_Settings" cmds:Menu.Command="PixiEditor.Window.OpenSettingsWindow" />
                     </MenuItem>
                     <MenuItem Header="_Select">
                         <MenuItem Header="_Select All" cmds:Menu.Command="PixiEditor.Selection.SelectAll" />
@@ -387,12 +387,11 @@
                     <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button BorderBrush="White"                                
-                                BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
-                                Style="{StaticResource ToolButtonStyle}"
-                                Command="{Binding Path=DataContext.ToolsSubViewModel.SelectToolCommand,
-                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                CommandParameter="{Binding}" ToolTip="{Binding Tooltip}">
+                                <Button BorderBrush="White"
+                                        BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
+                                        Style="{StaticResource ToolButtonStyle}"
+                                        Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
+                                        CommandParameter="{Binding}" ToolTip="{Binding Tooltip}">
                                     <Button.Background>
                                         <ImageBrush ImageSource="{Binding ImagePath}" Stretch="Uniform" />
                                     </Button.Background>

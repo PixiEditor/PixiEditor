@@ -10,6 +10,7 @@ using System.Windows.Media;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Clipboard", "Clipboard")]
     public class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         public ClipboardViewModel(ViewModelMain owner)

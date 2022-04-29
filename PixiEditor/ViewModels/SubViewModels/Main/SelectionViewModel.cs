@@ -7,6 +7,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Selection", "Selection")]
     public class SelectionViewModel : SubViewModel<ViewModelMain>
     {
         private readonly SelectTool selectTool;

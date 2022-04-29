@@ -3,6 +3,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Search", "Search")]
     public class SearchViewModel : SubViewModel<ViewModelMain>
     {
         private bool searchWindowOpen;

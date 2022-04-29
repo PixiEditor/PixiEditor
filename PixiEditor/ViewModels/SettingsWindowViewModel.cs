@@ -20,11 +20,11 @@ namespace PixiEditor.ViewModels
 
         public SettingsViewModel SettingsSubViewModel { get; set; }
 
-        public ObservableCollection<Command> Commands { get; }
+        public ObservableCollection<CommandGroup> Commands { get; }
 
         public SettingsWindowViewModel()
         {
-            Commands = new(CommandController.Current.Commands.Where(x => !string.IsNullOrWhiteSpace(x.Display)));
+            Commands = new(CommandController.Current.CommandGroups);
             SettingsSubViewModel = new SettingsViewModel(this);
         }
     }

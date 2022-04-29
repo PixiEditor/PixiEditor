@@ -3,6 +3,7 @@ using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Links", "Misc")]
     public class MiscViewModel : SubViewModel<ViewModelMain>
     {
         public MiscViewModel(ViewModelMain owner)

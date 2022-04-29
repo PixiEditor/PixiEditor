@@ -2,13 +2,13 @@
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
-using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Debug", "Debug")]
     public class DebugViewModel : SubViewModel<ViewModelMain>
     {
         public bool IsDebugBuild { get; set; }
