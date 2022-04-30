@@ -16,7 +16,7 @@
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
-        Height="500" Width="640"
+        Height="688" Width="766"
         MinHeight="500" MinWidth="640"
         WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
         WindowStartupLocation="CenterScreen"
@@ -167,7 +167,7 @@
             </StackPanel>
 
             <Grid Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter}, ConverterParameter='Keybinds'}"
-                        Margin="10">
+                        Margin="10,10,10,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition/>
@@ -175,38 +175,64 @@
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Style="{StaticResource DarkTextBoxStyle}"/>
+                    <TextBox Style="{StaticResource DarkTextBoxStyle}"
+                             Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <Button Grid.Column="1" Style="{StaticResource DarkRoundButton}"
                             Content="Reset all" Height="Auto" Margin="5,0"
-                            FontSize="14" Padding="1"
+                            FontSize="12" Padding="1"
                             Command="{cmds:Command PixiEditor.Shortcuts.Reset}"/>
                 </Grid>
 
                 <ScrollViewer Grid.Row="1" x:Name="commandScroll">
-                    <ItemsControl ItemsSource="{Binding Commands}" Foreground="White">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="commands:CommandGroup">
-                                <StackPanel Margin="0,0,0,20">
-                                    <TextBlock Text="{Binding Display}" FontSize="22" FontWeight="SemiBold"/>
-                                    <ItemsControl ItemsSource="{Binding VisibleCommands}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="commands:Command">
-                                                <Grid Margin="0,5,5,0">
-                                                    <TextBlock Text="{Binding Display}" ToolTip="{Binding Description}"/>
-                                                    <usercontrols:ShortcutBox Width="120" Command="{Binding}" HorizontalAlignment="Right"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <ScrollViewer.Template>
+                        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                            <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
+                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" CanVerticallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Grid.Column="0" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
+                                <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Margin="0,5,0,20"/>
+                                <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </ScrollViewer.Template>
+                    <Grid>
+                        <TextBlock Foreground="LightGray" HorizontalAlignment="Center" TextAlignment="Center"
+                                   Visibility="{Binding VisibleGroups, ConverterParameter=0, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter}}"
+                                   Text="Nothing found"/>
+                        <ItemsControl ItemsSource="{Binding Commands}" Foreground="White">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,20" Visibility="{Binding Visibility}">
+                                        <TextBlock Text="{Binding Display}" FontSize="22" FontWeight="SemiBold"/>
+                                        <ItemsControl ItemsSource="{Binding Commands}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,5,5,0" Visibility="{Binding Visibility}">
+                                                        <TextBlock Text="{Binding Command.Display}" ToolTip="{Binding Command.Description}"/>
+                                                        <usercontrols:ShortcutBox Width="120" Command="{Binding Command}" HorizontalAlignment="Right"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
                 </ScrollViewer>
-                
-                <Grid Grid.Row="1" Height="10" VerticalAlignment="Top" Visibility="{Binding VerticalOffset, ElementName=commandScroll, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}, ConverterParameter=0}">
+
+                <Grid Grid.Row="1" Height="10" VerticalAlignment="Top"
+                      Visibility="{Binding VerticalOffset, ElementName=commandScroll, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}, ConverterParameter=0}"
+                      Margin="-10,0">
                     <Grid.Background>
                         <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
                             <GradientStop Color="#22000000" Offset="0"/>
