@@ -25,26 +25,26 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             UpdateDebugMode(preferences.GetPreference<bool>("IsDebugModeEnabled"));
         }
 
-        [Command.Basic("#DEBUG#PixiEditor.Debug.OpenTempDirectory", "%Temp%/PixiEditor", "Open Temp Directory", "Open Temp Directory")]
-        [Command.Basic("#DEBUG#PixiEditor.Debug.OpenLocalAppDataDirectory", "%LocalAppData%/PixiEditor", "Open Local AppData Directory", "Open Local AppData Directory")]
-        [Command.Basic("#DEBUG#PixiEditor.Debug.OpenRoamingAppDataDirectory", "%AppData%/PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenTempDirectory", "%Temp%/PixiEditor", "Open Temp Directory", "Open Temp Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", "%LocalAppData%/PixiEditor", "Open Local AppData Directory", "Open Local AppData Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", "%AppData%/PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory")]
         public static void OpenFolder(string path)
         {
             ProcessHelpers.ShellExecuteEV(path);
         }
 
-        [Command.Basic("#DEBUG#PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory")]
         public static void OpenInstallLocation()
         {
             ProcessHelpers.ShellExecuteEV(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
         }
 
-        [Command.Basic("#DEBUG#PixiEditor.Debug.Crash", "Crash", "Crash Application")]
+        [Command.Debug("PixiEditor.Debug.Crash", "Crash", "Crash Application")]
         public static void Crash() => throw new InvalidOperationException("User requested to crash :c");
 
-        [Command.Basic("#DEBUG#PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "Delete User Preferences (Roaming)", "Delete User Preferences (Roaming AppData)")]
-        [Command.Basic("#DEBUG#PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "Delete Shortcut File (Roaming)", "Delete Shortcut File (Roaming AppData)")]
-        [Command.Basic("#DEBUG#PixiEditor.Debug.DeleteEditorData", @"%localappdata%\PixiEditor\editor_data.json", "Delete Editor Data (Local)", "Delete Editor Data (Local AppData)")]
+        [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "Delete User Preferences (Roaming)", "Delete User Preferences (Roaming AppData)")]
+        [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "Delete Shortcut File (Roaming)", "Delete Shortcut File (Roaming AppData)")]
+        [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%\PixiEditor\editor_data.json", "Delete Editor Data (Local)", "Delete Editor Data (Local AppData)")]
         public static void DeleteFile(string path)
         {
             string file = Environment.ExpandEnvironmentVariables(path);
