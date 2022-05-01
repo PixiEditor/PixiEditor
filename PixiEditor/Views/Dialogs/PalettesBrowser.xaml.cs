@@ -461,6 +461,7 @@ namespace PixiEditor.Views.Dialogs
             if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name)
             {
                 item.Palette.FileName = oldFileName;
+                item.Palette.Name = e.OldText;
                 return;
             }
 
@@ -469,6 +470,7 @@ namespace PixiEditor.Views.Dialogs
             if (!File.Exists(oldPath))
             {
                 item.Palette.FileName = oldFileName;
+                item.Palette.Name = e.OldText;
                 return;
             }
 
@@ -481,6 +483,7 @@ namespace PixiEditor.Views.Dialogs
                 if (finalNewName == oldFileName)
                 {
                     item.Palette.FileName = oldFileName;
+                    item.Palette.Name = e.OldText;
                     return;
                 }
                 newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);

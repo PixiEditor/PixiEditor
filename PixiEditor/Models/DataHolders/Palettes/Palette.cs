@@ -7,9 +7,15 @@ using System.Text.RegularExpressions;
 
 namespace PixiEditor.Models.DataHolders.Palettes
 {
-    public class Palette
+    public class Palette : NotifyableObject
     {
-        public string Name { get; set; }
+        private string _name;
+
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
         public List<string> Colors { get; set; }
 
         private string? fileName;
@@ -17,7 +23,11 @@ namespace PixiEditor.Models.DataHolders.Palettes
         public string? FileName
         {
             get => fileName;
-            set => fileName = ReplaceInvalidChars(value);
+            set
+            {
+                fileName = ReplaceInvalidChars(value);
+                RaisePropertyChanged(nameof(FileName));
+            }
         }
 
         public bool IsFavourite { get; set; }

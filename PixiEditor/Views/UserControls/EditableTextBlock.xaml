@@ -10,10 +10,10 @@
         <TextBlock Foreground="Snow" MouseLeftButtonDown="TextBlock_MouseDown"
                    TextTrimming="CharacterEllipsis" Name="textBlock"
                    Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
-                   Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" />
+                   Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" />
         <TextBox Style="{StaticResource DarkTextBoxStyle}"
                  LostFocus="TextBox_LostFocus"
-                 Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                 Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}"
                  KeyDown="TextBox_KeyDown"
                  LostKeyboardFocus="TextBox_LostKeyboardFocus"
                  Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, 
