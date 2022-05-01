@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using PixiEditor.Models.DataHolders;
+using System.Collections;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Commands
 {
@@ -9,6 +11,8 @@ namespace PixiEditor.Models.Commands
 
         public string Display { get; set; }
 
+        public bool HasAssignedShortcuts { get; set; }
+
         public IEnumerable<Command> Commands => commands;
 
         public IEnumerable<Command> VisibleCommands => visibleCommands;
@@ -18,6 +22,30 @@ namespace PixiEditor.Models.Commands
             Display = display;
             this.commands = commands.ToArray();
             visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.Display)).ToArray();
+
+            foreach (var command in commands)
+            {
+                HasAssignedShortcuts |= command.Shortcut.Key != Key.None;
+                command.ShortcutChanged += Command_ShortcutChanged;
+            }
+        }
+
+        private void Command_ShortcutChanged(Command _, ShortcutChangedEventArgs args)
+        {
+            if ((args.NewShortcut != KeyCombination.None && HasAssignedShortcuts) ||
+                (args.NewShortcut == KeyCombination.None && !HasAssignedShortcuts))
+            {
+                // If a shortcut is already assigned and the new shortcut is not none nothing can change
+                // If no shortcut is already assigned and the new shortcut is none nothing can change
+                return;
+            }
+
+            HasAssignedShortcuts = false;
+
+            foreach (var command in commands)
+            {
+                HasAssignedShortcuts |= command.Shortcut.Key != Key.None;
+            }
         }
 
         public IEnumerator<Command> GetEnumerator() => Commands.GetEnumerator();

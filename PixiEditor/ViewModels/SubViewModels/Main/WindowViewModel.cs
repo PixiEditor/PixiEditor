@@ -1,24 +1,26 @@
-﻿using AvalonDock.Layout;
+﻿using System.Windows.Input;
+using AvalonDock.Layout;
 using GalaSoft.MvvmLight.CommandWpf;
-using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands;
 using PixiEditor.Views.Dialogs;
+using Command = PixiEditor.Models.Commands.Attributes.Command;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     [Command.Group("PixiEditor.Window", "Windows")]
     public class WindowViewModel : SubViewModel<ViewModelMain>
     {
+        private ShortcutPopup shortcutPopup;
+        
         public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
 
-        public WindowViewModel()
-            : this(null)
-        {
-        }
-
-        public WindowViewModel(ViewModelMain owner)
+        
+        
+        public WindowViewModel(ViewModelMain owner, CommandController commandController)
             : base(owner)
         {
             ShowAvalonDockWindowCommand = new(ShowAvalonDockWindow);
+            shortcutPopup = new(commandController);
         }
 
         [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window")]
@@ -34,6 +36,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             new HelloTherePopup(Owner.FileSubViewModel).Show();
         }
 
+        [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "Open Shortcut Window", "Open Shortcut Window", Key = Key.F1)]
+        public void ShowShortcutWindow()
+        {
+            shortcutPopup.Show();
+            shortcutPopup.Activate();
+        }
+        
         [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "Open Navigation Window", "Open Navigation Window")]
         public static void ShowAvalonDockWindow(string id)
         {

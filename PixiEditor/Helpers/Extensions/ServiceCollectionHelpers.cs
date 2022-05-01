@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.Services;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;

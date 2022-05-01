@@ -150,6 +150,7 @@
                               IsCheckable="True" InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}"/>
                         <MenuItem Header="Open _Startup Window" ToolTip="Hello there!" cmds:Menu.Command="PixiEditor.Window.OpenStartupWindow"/>
                         <MenuItem Header="Open _Navigation Window" cmds:Menu.Command="PixiEditor.Window.OpenNavigationWindow"/>
+                        <MenuItem Header="Open _Shortcuts Window" cmds:Menu.Command="PixiEditor.Window.OpenShortcutWindow"/>
                     </MenuItem>
                     <MenuItem Header="_Help">
                         <MenuItem Header="_Documentation" cmds:Menu.Command="PixiEditor.Links.OpenDocumentation" />

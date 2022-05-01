@@ -1,7 +1,8 @@
-﻿using PixiEditor.Models.Controllers.Shortcuts;
+﻿using PixiEditor.Models.Commands;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Views.Dialogs
 {
@@ -11,16 +12,20 @@ namespace PixiEditor.Views.Dialogs
     public partial class ShortcutPopup : Window
     {
         public static readonly DependencyProperty ControllerProperty =
-            DependencyProperty.Register(nameof(Controller), typeof(ShortcutController), typeof(ShortcutPopup));
+            DependencyProperty.Register(nameof(Controller), typeof(CommandController), typeof(ShortcutPopup));
 
-        public ShortcutController Controller { get => (ShortcutController)GetValue(ControllerProperty); set => SetValue(ControllerProperty, value); }
+        public CommandController Controller
+        {
+            get => (CommandController)GetValue(ControllerProperty);
+            set => SetValue(ControllerProperty, value);
+        }
 
         public static readonly DependencyProperty IsTopmostProperty =
             DependencyProperty.Register(nameof(IsTopmost), typeof(bool), typeof(ShortcutPopup));
 
         public bool IsTopmost { get => (bool)GetValue(IsTopmostProperty); set => SetValue(IsTopmostProperty, value); }
 
-        public ShortcutPopup(ShortcutController controller)
+        public ShortcutPopup(CommandController controller)
         {
             DataContext = this;
             InitializeComponent();

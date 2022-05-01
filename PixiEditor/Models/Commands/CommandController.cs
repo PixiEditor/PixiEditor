@@ -42,8 +42,6 @@ namespace PixiEditor.Models.Commands
             FactoryEvaluators = new();
             CanExecuteEvaluators = new();
             IconEvaluators = new();
-
-            Init(services);
         }
 
         public void Init(IServiceProvider services)

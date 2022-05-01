@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;

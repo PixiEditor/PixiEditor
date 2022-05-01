@@ -30,9 +30,17 @@ namespace PixiEditor.Models.Commands
         public KeyCombination Shortcut
         {
             get => _shortcut;
-            set => SetProperty(ref _shortcut, value);
+            set
+            {
+                if (SetProperty(ref _shortcut, value, out var oldValue))
+                {
+                    ShortcutChanged?.Invoke(this, new(oldValue, value));
+                }
+            }
         }
 
+        public event ShortcutChangedEventHandler ShortcutChanged;
+        
         protected abstract object GetParameter();
 
         protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute) =>
@@ -43,5 +51,7 @@ namespace PixiEditor.Models.Commands
         public bool CanExecute() => Methods.CanExecute(GetParameter());
 
         public ImageSource GetIcon() => IconEvaluator.EvaluateEvaluator(this, GetParameter());
+        
+        public delegate void ShortcutChangedEventHandler(Command command, ShortcutChangedEventArgs args);
     }
 }

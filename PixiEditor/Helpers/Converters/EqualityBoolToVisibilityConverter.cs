@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 
 namespace PixiEditor.Helpers.Converters
@@ -13,8 +12,16 @@ namespace PixiEditor.Helpers.Converters
             if (value == null)
                 return Invert;
 
-            var parameterValue = System.Convert.ChangeType(parameter, value.GetType());
-            return value.Equals(parameterValue) != Invert ? Visibility.Visible : Visibility.Collapsed;
+            if (value.GetType().IsAssignableTo(typeof(Enum)) && parameter is string s)
+            {
+                parameter = Enum.Parse(value.GetType(), s);
+            }
+            else
+            {
+                parameter = System.Convert.ChangeType(parameter, value.GetType());
+            }
+
+            return value.Equals(parameter) != Invert ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

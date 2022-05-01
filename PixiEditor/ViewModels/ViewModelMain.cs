@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
@@ -158,6 +157,7 @@ namespace PixiEditor.ViewModels
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
 
             CommandController = services.GetService<CommandController>();
+            CommandController.Init(services);
             ShortcutController = new ShortcutController();
 
             ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);

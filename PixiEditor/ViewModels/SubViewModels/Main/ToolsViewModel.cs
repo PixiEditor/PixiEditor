@@ -178,8 +178,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size")]
-        [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Increase Tool Size")]
+        [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size", Key = Key.OemCloseBrackets)]
+        [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Decrease Tool Size", Key = Key.OemOpenBrackets)]
         public void ChangeToolSize(int increment)
         {
             int newSize = ToolSize + increment;
