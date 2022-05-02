@@ -20,7 +20,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         // Using a DependencyProperty as the backing store for ColorToReplace.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorToReplaceProperty =
-            DependencyProperty.Register("ColorToReplace", typeof(SKColor), typeof(ColorReplacer), new PropertyMetadata(SKColors.Transparent));
+            DependencyProperty.Register("ColorToReplace", typeof(SKColor), typeof(ColorReplacer), new PropertyMetadata(SKColors.White));
 
 
         public Color HintColor
@@ -52,14 +52,14 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         // Using a DependencyProperty as the backing store for HintColor.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty HintColorProperty =
-            DependencyProperty.Register("HintColor", typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Transparent));
+            DependencyProperty.Register("HintColor", typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
 
         private void UIElement_OnDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
             {
                 string hex = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
-                ColorToReplace = SKColor.Parse(hex);
+                ColorToReplace = SKColor.Parse(hex).WithAlpha(255);
             }
         }
 
@@ -70,10 +70,10 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         private void ReplaceButton_OnClick(object sender, RoutedEventArgs e)
         {
-            SKColor first = ColorToReplace;
+            SKColor first = ColorToReplace.WithAlpha(255);
             Color rawSecond = NewColor;
 
-            SKColor second = new SKColor(rawSecond.R, rawSecond.G, rawSecond.B, rawSecond.A);
+            SKColor second = new SKColor(rawSecond.R, rawSecond.G, rawSecond.B, 255);
 
             var pack = (first, second);
             if (ReplaceColorsCommand.CanExecute(pack))
@@ -81,7 +81,7 @@ namespace PixiEditor.Views.UserControls.Palettes
                 ReplaceColorsCommand.Execute(pack);
             }
 
-            ColorToReplace = SKColor.Empty;
+            ColorToReplace = SKColors.White;
         }
     }
 }
