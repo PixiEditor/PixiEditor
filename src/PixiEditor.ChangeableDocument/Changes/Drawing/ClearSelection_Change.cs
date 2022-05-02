@@ -27,7 +27,7 @@ internal class ClearSelection_Change : Change
         target.Selection.IsEmptyAndInactive = true;
 
         target.Selection.SelectionImage.CancelChanges();
-        target.Selection.SelectionImage.Clear();
+        target.Selection.SelectionImage.EnqueueClear();
         HashSet<Vector2i> affChunks = target.Selection.SelectionImage.FindAffectedChunks();
         target.Selection.SelectionImage.CommitChanges();
 

@@ -47,19 +47,19 @@ internal class ResizeCanvas_Change : Change
 
         ForEachLayer(target.StructureRoot, (layer) =>
         {
-            layer.LayerImage.Resize(newSize);
+            layer.LayerImage.EnqueueResize(newSize);
             deletedChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedChunks()));
             layer.LayerImage.CommitChanges();
 
             if (layer.Mask is null)
                 return;
 
-            layer.Mask.Resize(newSize);
+            layer.Mask.EnqueueResize(newSize);
             deletedMaskChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.Mask, layer.Mask.FindAffectedChunks()));
             layer.Mask.CommitChanges();
         });
 
-        target.Selection.SelectionImage.Resize(newSize);
+        target.Selection.SelectionImage.EnqueueResize(newSize);
         selectionChunkStorage = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAffectedChunks());
         target.Selection.SelectionImage.CommitChanges();
 
@@ -75,19 +75,19 @@ internal class ResizeCanvas_Change : Change
         target.Size = originalSize;
         ForEachLayer(target.StructureRoot, (layer) =>
         {
-            layer.LayerImage.Resize(originalSize);
+            layer.LayerImage.EnqueueResize(originalSize);
             deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
             layer.LayerImage.CommitChanges();
 
             if (layer.Mask is null)
                 return;
 
-            layer.Mask.Resize(originalSize);
+            layer.Mask.EnqueueResize(originalSize);
             deletedMaskChunks[layer.GuidValue].ApplyChunksToImage(layer.Mask);
             layer.Mask.CommitChanges();
         });
 
-        target.Selection.SelectionImage.Resize(originalSize);
+        target.Selection.SelectionImage.EnqueueResize(originalSize);
         selectionChunkStorage!.ApplyChunksToImage(target.Selection.SelectionImage);
         target.Selection.SelectionImage.CommitChanges();
         selectionChunkStorage.Dispose();

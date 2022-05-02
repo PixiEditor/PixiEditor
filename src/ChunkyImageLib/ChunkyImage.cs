@@ -1,6 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using OneOf;
+using OneOf.Types;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
@@ -52,6 +54,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     public Vector2i LatestSize { get; private set; }
 
     private List<(IOperation operation, HashSet<Vector2i> affectedChunks)> queuedOperations = new();
+    private List<ChunkyImage> activeClips = new();
 
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> committedChunks;
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> latestChunks;
@@ -94,7 +97,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             {
                 var image = (Chunk?)GetLatestChunk(chunk, ChunkResolution.Full);
                 if (image is not null)
-                    output.DrawImage(chunk * ChunkSize, image.Surface);
+                    output.EnqueueDrawImage(chunk * ChunkSize, image.Surface);
             }
             output.CommitChanges();
             return output;
@@ -197,7 +200,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private Chunk? MaybeGetLatestChunk(Vector2i pos, ChunkResolution resolution) => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
     private Chunk? MaybeGetCommittedChunk(Vector2i pos, ChunkResolution resolution) => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
 
-    public void DrawRectangle(ShapeData rect)
+    public void AddRasterClip(ChunkyImage clippingMask)
+    {
+        lock (lockObject)
+        {
+            if (queuedOperations.Count > 0)
+                throw new InvalidOperationException("This function can only be executed when there are no queued operations");
+            activeClips.Add(clippingMask);
+        }
+    }
+
+    public void EnqueueDrawRectangle(ShapeData rect)
     {
         lock (lockObject)
         {
@@ -206,7 +219,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    public void DrawImage(Vector2i pos, Surface image)
+    public void EnqueueDrawImage(Vector2i pos, Surface image)
     {
         lock (lockObject)
         {
@@ -215,7 +228,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    public void ClearRegion(Vector2i pos, Vector2i size)
+    public void EnqueueClearRegion(Vector2i pos, Vector2i size)
     {
         lock (lockObject)
         {
@@ -224,7 +237,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    public void Clear()
+    public void EnqueueClear()
     {
         lock (lockObject)
         {
@@ -233,16 +246,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    public void ApplyRasterClip(ChunkyImage clippingMask)
-    {
-        lock (lockObject)
-        {
-            RasterClipOperation operation = new(clippingMask);
-            EnqueueOperation(operation, new());
-        }
-    }
-
-    public void Resize(Vector2i newSize)
+    public void EnqueueResize(Vector2i newSize)
     {
         lock (lockObject)
         {
@@ -273,6 +277,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             foreach (var operation in queuedOperations)
                 operation.Item1.Dispose();
             queuedOperations.Clear();
+            activeClips.Clear();
 
             //clear latest chunks
             foreach (var (_, chunksOfRes) in latestChunks)
@@ -307,6 +312,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             CommitLatestChunks();
             CommittedSize = LatestSize;
             queuedOperations.Clear();
+            activeClips.Clear();
 
             commitCounter++;
             if (commitCounter % 30 == 0)
@@ -415,41 +421,77 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             return;
 
         Chunk? targetChunk = null;
-        List<ChunkyImage> activeClips = new();
-        bool isFullyMaskedOut = false;
-        bool somethingWasApplied = false;
+        OneOf<All, None, Chunk> combinedClips = new All();
+
+        bool initialized = false;
+
         for (int i = 0; i < queuedOperations.Count; i++)
         {
             var (operation, operChunks) = queuedOperations[i];
-            if (operation is RasterClipOperation clipOperation)
-            {
-                // handle self-clipping as a special case to avoid deadlock
-                bool clippingChunkExists = ReferenceEquals(this, clipOperation.ClippingMask) ?
-                    MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) != null :
-                    clipOperation.ClippingMask.CommitedChunkExists(chunkPos, resolution);
-                if (clippingChunkExists)
-                    activeClips.Add(clipOperation.ClippingMask);
-                else
-                    isFullyMaskedOut = true;
-            }
-
             if (!operChunks.Contains(chunkPos))
                 continue;
-            if (!somethingWasApplied)
+
+            if (!initialized)
             {
-                somethingWasApplied = true;
+                initialized = true;
                 targetChunk = GetOrCreateLatestChunk(chunkPos, resolution);
+                combinedClips = CombineClipsForChunk(chunkPos, resolution);
             }
 
             if (chunkData.QueueProgress <= i)
-                chunkData.IsDeleted = ApplyOperationToChunk(operation, activeClips, isFullyMaskedOut, targetChunk!, chunkPos, resolution, chunkData);
+                chunkData.IsDeleted = ApplyOperationToChunk(operation, combinedClips, targetChunk!, chunkPos, resolution, chunkData);
         }
 
-        if (somethingWasApplied)
+        if (initialized)
         {
             chunkData.QueueProgress = queuedOperations.Count;
             latestChunksData[resolution][chunkPos] = chunkData;
         }
+
+        if (combinedClips.TryPickT2(out Chunk value, out var _))
+            value.Dispose();
+    }
+
+    /// <summary>
+    /// (All) -> All is visible, (None) -> None is visible, (Chunk) -> Combined clip
+    /// </summary>
+    private OneOf<All, None, Chunk> CombineClipsForChunk(Vector2i chunkPos, ChunkResolution resolution)
+    {
+        if (activeClips.Count == 0)
+        {
+            return new All();
+        }
+
+        var intersection = Chunk.Create(resolution);
+        intersection.Surface.SkiaSurface.Canvas.Clear(SKColors.White);
+
+        foreach (var mask in activeClips)
+        {
+            // handle self-clipping as a special case to avoid deadlock
+            if (!ReferenceEquals(this, mask))
+            {
+                if (mask.CommitedChunkExists(chunkPos, resolution))
+                {
+                    mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+                }
+                else
+                {
+                    intersection.Dispose();
+                    return new None();
+                }
+            }
+            else
+            {
+                var maskChunk = GetCommittedChunk(chunkPos, resolution);
+                if (maskChunk is null)
+                {
+                    intersection.Dispose();
+                    return new None();
+                }
+                maskChunk.DrawOnSurface(intersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+            }
+        }
+        return intersection;
     }
 
     /// <summary>
@@ -457,8 +499,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// </summary>
     private bool ApplyOperationToChunk(
         IOperation operation,
-        IReadOnlyList<ChunkyImage> activeClips,
-        bool isFullyMaskedOut,
+        OneOf<All, None, Chunk> combinedClips,
         Chunk targetChunk,
         Vector2i chunkPos,
         ChunkResolution resolution,
@@ -469,46 +510,29 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         if (operation is IDrawOperation chunkOperation)
         {
-            if (isFullyMaskedOut)
+            if (combinedClips.IsT1) //None is visible
                 return chunkData.IsDeleted;
 
             if (chunkData.IsDeleted)
                 targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
             // just regular drawing
-            if (activeClips.Count == 0)
+            if (combinedClips.IsT0) //All is visible
             {
                 chunkOperation.DrawOnChunk(targetChunk, chunkPos);
                 return false;
             }
 
             // drawing with clipping
+            var clip = combinedClips.AsT2;
+
             using var tempChunk = Chunk.Create(targetChunk.Resolution);
             targetChunk.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint);
+
             chunkOperation.DrawOnChunk(tempChunk, chunkPos);
 
-            if (activeClips.Count > 1)
-            {
-                using var intersection = IntersectMasks(chunkPos, activeClips, resolution);
-                intersection.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                intersection.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), InverseClippingPaint);
-            }
-            else
-            {
-                if (!ReferenceEquals(this, activeClips[0]))
-                {
-                    activeClips[0].DrawCommittedChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                    activeClips[0].DrawCommittedChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), InverseClippingPaint);
-                }
-                else
-                {
-                    var maskChunk = GetCommittedChunk(chunkPos, resolution);
-                    if (maskChunk is null)
-                        return true; // this should never happen, there is a check in MaybeCreateAndProcessQueueForChunk
-                    maskChunk.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                    maskChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), InverseClippingPaint);
-                }
-            }
+            clip.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+            clip.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), InverseClippingPaint);
 
             tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), AddingPaint);
             return false;
@@ -519,32 +543,6 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             return IsOutsideBounds(chunkPos, resizeOperation.Size);
         }
         return chunkData.IsDeleted;
-    }
-
-    private Chunk IntersectMasks(Vector2i chunkPos, IReadOnlyList<ChunkyImage> activeClips, ChunkResolution resolution)
-    {
-        var maskIntersection = Chunk.Create(resolution);
-        maskIntersection.Surface.SkiaSurface.Canvas.Clear(SKColors.White);
-
-        foreach (var mask in activeClips)
-        {
-            // handle self-clipping as a special case to avoid deadlock
-            if (!ReferenceEquals(this, mask))
-            {
-                mask.DrawCommittedChunkOn(chunkPos, resolution, maskIntersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-            }
-            else
-            {
-                var maskChunk = GetCommittedChunk(chunkPos, resolution);
-                if (maskChunk is null)
-                {
-                    maskIntersection.Surface.SkiaSurface.Canvas.Clear();
-                    return maskIntersection;
-                }
-                maskChunk.DrawOnSurface(maskIntersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-            }
-        }
-        return maskIntersection;
     }
 
     /// <summary>

@@ -56,11 +56,11 @@ internal class CombineStructureMembersOnto_Change : Change
             chunksToCombine.UnionWith(layer.LayerImage.FindAllChunks());
         }
 
-        toDrawOn.LayerImage.Clear();
+        toDrawOn.LayerImage.EnqueueClear();
         foreach (var chunk in chunksToCombine)
         {
             using var combined = ChunkRenderer.RenderSpecificLayers(chunk, ChunkResolution.Full, target.StructureRoot, layersToCombine);
-            toDrawOn.LayerImage.DrawImage(chunk * ChunkyImage.ChunkSize, combined.Surface);
+            toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.ChunkSize, combined.Surface);
         }
         var affectedChunks = toDrawOn.LayerImage.FindAffectedChunks();
         originalChunks = new CommittedChunkStorage(toDrawOn.LayerImage, affectedChunks);
