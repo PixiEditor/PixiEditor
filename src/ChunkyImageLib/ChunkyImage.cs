@@ -55,6 +55,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private List<(IOperation operation, HashSet<Vector2i> affectedChunks)> queuedOperations = new();
     private List<ChunkyImage> activeClips = new();
+    private SKBlendMode blendMode = SKBlendMode.Src;
+    private SKPaint blendModePaint = new SKPaint() { BlendMode = SKBlendMode.Src };
 
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> committedChunks;
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> latestChunks;
@@ -111,7 +113,20 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             var chunk = GetLatestChunk(chunkPos, resolution);
             if (chunk is null)
                 return false;
-            chunk.DrawOnSurface(surface, pos, paint);
+            //if the latest chunks don't need to be superimposed or if there is nothing to superimpose onto
+            if (blendMode == SKBlendMode.Src || !committedChunks[ChunkResolution.Full].TryGetValue(chunkPos, out Chunk? output))
+            {
+                chunk.DrawOnSurface(surface, pos, paint);
+                return true;
+            }
+
+            var commitedChunk = GetCommittedChunk(chunkPos, resolution);
+            using var tempChunk = Chunk.Create(resolution);
+            blendModePaint.BlendMode = blendMode;
+            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(commitedChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
+            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+            tempChunk.DrawOnSurface(surface, pos, paint);
+
             return true;
         }
     }
@@ -210,6 +225,19 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <summary>
+    /// Don't pass in porter duff compositing operators (apart from SrcOver), they won't have the intended effect.
+    /// </summary>
+    public void SetBlendMode(SKBlendMode mode)
+    {
+        lock (lockObject)
+        {
+            if (queuedOperations.Count > 0)
+                throw new InvalidOperationException("This function can only be executed when there are no queued operations");
+            blendMode = mode;
+        }
+    }
+
     public void EnqueueDrawRectangle(ShapeData rect)
     {
         lock (lockObject)
@@ -277,7 +305,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             foreach (var operation in queuedOperations)
                 operation.Item1.Dispose();
             queuedOperations.Clear();
+
+            //clear additional state
             activeClips.Clear();
+            blendMode = SKBlendMode.Src;
 
             //clear latest chunks
             foreach (var (_, chunksOfRes) in latestChunks)
@@ -313,6 +344,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             CommittedSize = LatestSize;
             queuedOperations.Clear();
             activeClips.Clear();
+            blendMode = SKBlendMode.Src;
 
             commitCounter++;
             if (commitCounter % 30 == 0)
@@ -322,18 +354,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private void CommitLatestChunks()
     {
-        // move fully processed latest chunks to committed
+        // move/draw fully processed latest chunks to/on committed
         foreach (var (resolution, chunks) in latestChunks)
         {
             foreach (var (pos, chunk) in chunks)
             {
-                if (committedChunks[resolution].ContainsKey(pos))
-                {
-                    var oldChunk = committedChunks[resolution][pos];
-                    committedChunks[resolution].Remove(pos);
-                    oldChunk.Dispose();
-                }
-
+                // get chunk if exists
                 LatestChunkData data = latestChunksData[resolution][pos];
                 if (data.QueueProgress != queuedOperations.Count)
                 {
@@ -348,10 +374,46 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     }
                 }
 
-                if (!data.IsDeleted)
-                    committedChunks[resolution].Add(pos, chunk);
+                // do a swap
+                if (blendMode == SKBlendMode.Src)
+                {
+                    // delete committed version
+                    if (committedChunks[resolution].ContainsKey(pos))
+                    {
+                        var oldChunk = committedChunks[resolution][pos];
+                        committedChunks[resolution].Remove(pos);
+                        oldChunk.Dispose();
+                    }
+
+                    // put the latest version in place of the committed one
+                    if (!data.IsDeleted)
+                        committedChunks[resolution].Add(pos, chunk);
+                    else
+                        chunk.Dispose();
+                }
+                // do blending
                 else
+                {
+                    // nothing to blend, continue
+                    if (data.IsDeleted)
+                    {
+                        chunk.Dispose();
+                        continue;
+                    }
+
+                    // nothing to blend with, swap
+                    var maybeCommitted = MaybeGetCommittedChunk(pos, resolution);
+                    if (maybeCommitted is null)
+                    {
+                        committedChunks[resolution].Add(pos, chunk);
+                        continue;
+                    }
+
+                    //blend
+                    blendModePaint.BlendMode = blendMode;
+                    maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
                     chunk.Dispose();
+                }
             }
         }
 
@@ -642,7 +704,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         if (maybeCommittedAnyRes is not null)
         {
             Chunk newChunk = Chunk.Create(resolution);
-            maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
+            if (blendMode == SKBlendMode.Src)
+                maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
+            else
+                newChunk.Surface.SkiaSurface.Canvas.Clear();
             latestChunks[resolution][chunkPos] = newChunk;
             return newChunk;
         }
@@ -675,6 +740,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 return;
             CancelChanges();
             DisposeAll();
+            blendModePaint.Dispose();
             GC.SuppressFinalize(this);
         }
     }

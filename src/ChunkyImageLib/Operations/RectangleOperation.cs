@@ -32,6 +32,7 @@ internal record class RectangleOperation : IDrawOperation
         {
             Color = Data.FillColor,
             Style = SKPaintStyle.Fill,
+            BlendMode = Data.BlendMode,
         };
 
         if (Data.FillColor.Alpha > 0)
