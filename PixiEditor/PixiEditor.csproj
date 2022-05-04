@@ -277,14 +277,14 @@
 		<Resource Include="Images\Commands\PixiEditor\Links\OpenRepository.png" />
 		<None Remove="Images\Commands\PixiEditor\File\Export.png" />
 		<Resource Include="Images\Commands\PixiEditor\File\Export.png" />
-		<None Remove="Images\Commands\PixiEditor\Document\CopyCanvas.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\CopyCanvas.png" />
 		<None Remove="Images\Commands\PixiEditor\View\ToggleGrid.png" />
 		<Resource Include="Images\Commands\PixiEditor\View\ToggleGrid.png" />
 		<None Remove="Images\Commands\PixiEditor\View\ZoomIn.png" />
 		<Resource Include="Images\Commands\PixiEditor\View\ZoomIn.png" />
 		<None Remove="Images\Commands\PixiEditor\View\ZoomOut.png" />
 		<Resource Include="Images\Commands\PixiEditor\View\ZoomOut.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
