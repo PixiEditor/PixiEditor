@@ -22,7 +22,7 @@ internal class Folder : StructureMember, IReadOnlyFolder
             Name = Name,
             Opacity = Opacity,
             Children = clonedChildren,
-            Mask = Mask?.CloneFromLatest()
+            Mask = Mask?.CloneFromCommitted()
         };
     }
 

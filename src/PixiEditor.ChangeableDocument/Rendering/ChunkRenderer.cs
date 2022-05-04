@@ -56,7 +56,7 @@ public static class ChunkRenderer
                 continue;
 
             // chunk fully masked out
-            if (child.ReadOnlyMask is not null && !child.ReadOnlyMask.LatestChunkExists(chunkPos, resolution))
+            if (child.ReadOnlyMask is not null && !child.ReadOnlyMask.LatestOrCommittedChunkExists(chunkPos))
                 continue;
 
             // layer
@@ -66,15 +66,15 @@ public static class ChunkRenderer
                 {
                     PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
                     PaintToDrawChunksWith.BlendMode = GetSKBlendMode(layer.BlendMode);
-                    layer.ReadOnlyLayerImage.DrawLatestChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
+                    layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
                 }
                 else
                 {
                     using (Chunk tempChunk = Chunk.Create(resolution))
                     {
-                        if (!layer.ReadOnlyLayerImage.DrawLatestChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
+                        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
                             continue;
-                        layer.ReadOnlyMask.DrawLatestChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+                        layer.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
 
                         PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
                         PaintToDrawChunksWith.BlendMode = GetSKBlendMode(layer.BlendMode);
@@ -89,7 +89,7 @@ public static class ChunkRenderer
             {
                 using Chunk renderedChunk = RenderChunkRecursively(chunkPos, resolution, depth + 1, innerFolder, visibleLayers);
                 if (innerFolder.ReadOnlyMask is not null)
-                    innerFolder.ReadOnlyMask.DrawLatestChunkOn(chunkPos, resolution, renderedChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+                    innerFolder.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, renderedChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
 
                 PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
                 PaintToDrawChunksWith.BlendMode = GetSKBlendMode(innerFolder.BlendMode);

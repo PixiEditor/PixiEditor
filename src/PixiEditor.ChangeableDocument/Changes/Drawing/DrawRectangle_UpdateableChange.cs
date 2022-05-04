@@ -27,12 +27,11 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
     {
         var oldAffectedChunks = targetImage.FindAffectedChunks();
         targetImage.CancelChanges();
-
         if (!target.Selection.IsEmptyAndInactive)
             targetImage.AddRasterClip(target.Selection.SelectionImage);
         var targetMember = target.FindMemberOrThrow(memberGuid);
         if (targetMember is Layer layer && layer.LockTransparency)
-            targetImage.AddRasterClip(targetImage);
+            targetImage.EnableLockTransparency();
 
         targetImage.EnqueueDrawRectangle(rect);
 

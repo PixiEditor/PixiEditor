@@ -186,6 +186,6 @@ internal class WriteableBitmapUpdater
         if (helpers.Tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
             return;
 
-        helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.DrawLatestChunkOn(chunkPos, resolution, screenSurface, chunkPos * resolution.PixelSize(), SelectionPaint);
+        helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.DrawMostUpToDateChunkOn(chunkPos, resolution, screenSurface, chunkPos * resolution.PixelSize(), SelectionPaint);
     }
 }

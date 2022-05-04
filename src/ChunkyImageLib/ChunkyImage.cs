@@ -49,6 +49,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private static SKPaint InverseClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstOut };
     private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
     private static SKPaint AddingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Plus };
+    private SKPaint blendModePaint = new SKPaint() { BlendMode = SKBlendMode.Src };
 
     public Vector2i CommittedSize { get; private set; }
     public Vector2i LatestSize { get; private set; }
@@ -56,7 +57,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private List<(IOperation operation, HashSet<Vector2i> affectedChunks)> queuedOperations = new();
     private List<ChunkyImage> activeClips = new();
     private SKBlendMode blendMode = SKBlendMode.Src;
-    private SKPaint blendModePaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private bool lockTransparency = false;
 
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> committedChunks;
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> latestChunks;
@@ -89,53 +90,72 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         };
     }
 
-    public ChunkyImage CloneFromLatest()
+    public ChunkyImage CloneFromCommitted()
     {
         lock (lockObject)
         {
             ChunkyImage output = new(LatestSize);
-            var chunks = FindAllChunks();
+            var chunks = FindCommittedChunks();
             foreach (var chunk in chunks)
             {
-                var image = (Chunk?)GetLatestChunk(chunk, ChunkResolution.Full);
-                if (image is not null)
-                    output.EnqueueDrawImage(chunk * ChunkSize, image.Surface);
+                var image = GetCommittedChunk(chunk, ChunkResolution.Full);
+                if (image is null)
+                    continue;
+                output.EnqueueDrawImage(chunk * ChunkSize, image.Surface);
             }
             output.CommitChanges();
             return output;
         }
     }
 
-    public bool DrawLatestChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
+    /// <returns>
+    /// True if the chunk existed and was drawn, otherwise false
+    /// </returns>
+    public bool DrawMostUpToDateChunkOn(Vector2i chunkPos, ChunkResolution resolution, SKSurface surface, Vector2i pos, SKPaint? paint = null)
     {
         lock (lockObject)
         {
-            var chunk = GetLatestChunk(chunkPos, resolution);
-            if (chunk is null)
-                return false;
-            //if the latest chunks don't need to be superimposed or if there is nothing to superimpose onto
-            if (blendMode == SKBlendMode.Src || !committedChunks[ChunkResolution.Full].TryGetValue(chunkPos, out Chunk? output))
+            var latestChunk = GetLatestChunk(chunkPos, resolution);
+            var committedChunk = GetCommittedChunk(chunkPos, resolution);
+
+            // latest chunk does not exist, draw committed if it exists
+            if (latestChunk is null)
             {
-                chunk.DrawOnSurface(surface, pos, paint);
+                if (committedChunk is null)
+                    return false;
+                committedChunk.DrawOnSurface(surface, pos, paint);
                 return true;
             }
 
-            var commitedChunk = GetCommittedChunk(chunkPos, resolution);
+            // latest chunk exists
+            if (blendMode == SKBlendMode.Src || committedChunk is null)
+            {
+                // no need to combine with committed, draw directly
+                latestChunk.DrawOnSurface(surface, pos, paint);
+                return true;
+            }
+
+            // combine with committed and then draw
             using var tempChunk = Chunk.Create(resolution);
+            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(committedChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
             blendModePaint.BlendMode = blendMode;
-            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(commitedChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
-            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(latestChunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+            if (lockTransparency)
+                ClampAlpha(tempChunk.Surface.SkiaSurface, committedChunk.Surface.SkiaSurface);
             tempChunk.DrawOnSurface(surface, pos, paint);
 
             return true;
         }
     }
 
-    public bool LatestChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+    public bool LatestOrCommittedChunkExists(Vector2i chunkPos)
     {
         lock (lockObject)
         {
-            return GetLatestChunk(chunkPos, resolution) is not null;
+            return (
+                MaybeGetLatestChunk(chunkPos, ChunkResolution.Full) ??
+                MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full)
+                ) is not null;
         }
     }
 
@@ -160,44 +180,20 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <summary>
-    /// Returns the latest version of the chunk, with uncommitted changes applied if they exist
+    /// Returns the latest version of the chunk if it exists or should exist based on queued operation. The returned chunk is fully up to date.
     /// </summary>
     private Chunk? GetLatestChunk(Vector2i pos, ChunkResolution resolution)
     {
-        //no queued operations
         if (queuedOperations.Count == 0)
-        {
-            var sameResChunk = MaybeGetCommittedChunk(pos, resolution);
-            if (sameResChunk is not null)
-                return sameResChunk;
-
-            var fullResChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
-            if (fullResChunk is not null)
-                return GetOrCreateCommittedChunk(pos, resolution);
-
             return null;
-        }
 
-        // there are queued operations, target chunk is affected
         MaybeCreateAndProcessQueueForChunk(pos, resolution);
         var maybeNewlyProcessedChunk = MaybeGetLatestChunk(pos, resolution);
-        if (maybeNewlyProcessedChunk is not null)
-            return maybeNewlyProcessedChunk;
-
-        // there are queued operations, target chunk is unaffected
-        var maybeSameResCommitedChunk = MaybeGetCommittedChunk(pos, resolution);
-        if (maybeSameResCommitedChunk is not null)
-            return maybeSameResCommitedChunk;
-
-        var maybeFullResCommitedChunk = MaybeGetCommittedChunk(pos, ChunkResolution.Full);
-        if (maybeFullResCommitedChunk is not null)
-            return GetOrCreateCommittedChunk(pos, resolution);
-
-        return null;
+        return maybeNewlyProcessedChunk;
     }
 
     /// <summary>
-    /// Returns the committed version of the chunk ignoring any uncommitted changes
+    /// Tries it's best to return a committed chunk, either if it exists or if it can be created from it's high res version. Returns null if it can't.
     /// </summary>
     private Chunk? GetCommittedChunk(Vector2i pos, ChunkResolution resolution)
     {
@@ -226,7 +222,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <summary>
-    /// Don't pass in porter duff compositing operators (apart from SrcOver), they won't have the intended effect.
+    /// Don't pass in porter duff compositing operators (apart from SrcOver) as they won't have the intended effect.
     /// </summary>
     public void SetBlendMode(SKBlendMode mode)
     {
@@ -235,6 +231,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             if (queuedOperations.Count > 0)
                 throw new InvalidOperationException("This function can only be executed when there are no queued operations");
             blendMode = mode;
+        }
+    }
+
+    public void EnableLockTransparency()
+    {
+        lock (lockObject)
+        {
+            lockTransparency = true;
         }
     }
 
@@ -309,6 +313,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             //clear additional state
             activeClips.Clear();
             blendMode = SKBlendMode.Src;
+            lockTransparency = false;
 
             //clear latest chunks
             foreach (var (_, chunksOfRes) in latestChunks)
@@ -340,11 +345,13 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             {
                 operation.Dispose();
             }
+
             CommitLatestChunks();
             CommittedSize = LatestSize;
             queuedOperations.Clear();
             activeClips.Clear();
             blendMode = SKBlendMode.Src;
+            lockTransparency = false;
 
             commitCounter++;
             if (commitCounter % 30 == 0)
@@ -352,6 +359,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <summary>
+    /// Does all necessery steps to convert latest chunks into committed ones. The latest chunk dictionary become empty after this function is called.
+    /// </summary>
     private void CommitLatestChunks()
     {
         // move/draw fully processed latest chunks to/on committed
@@ -411,7 +421,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
                     //blend
                     blendModePaint.BlendMode = blendMode;
-                    maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+                    if (lockTransparency)
+                    {
+                        using Chunk tempChunk = Chunk.Create(resolution);
+                        tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(maybeCommitted.Surface.SkiaSurface, 0, 0, ReplacingPaint);
+                        maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+                        ClampAlpha(maybeCommitted.Surface.SkiaSurface, tempChunk.Surface.SkiaSurface);
+                    }
+                    else
+                    {
+                        maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+                    }
                     chunk.Dispose();
                 }
             }
@@ -443,15 +463,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    /// <summary>
-    /// Returns all chunks that have something in them, including latest (uncommitted) ones
-    /// </summary>
+    /// <returns>
+    /// All chunks that have something in them, including latest (uncommitted) ones
+    /// </returns>
     public HashSet<Vector2i> FindAllChunks()
     {
         lock (lockObject)
         {
             var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
-            foreach (var (operation, opChunks) in queuedOperations)
+            foreach (var (_, opChunks) in queuedOperations)
             {
                 allChunks.UnionWith(opChunks);
             }
@@ -459,9 +479,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    /// <summary>
-    /// Returns chunks affected by operations that haven't been committed yet
-    /// </summary>
+    public HashSet<Vector2i> FindCommittedChunks()
+    {
+        lock (lockObject)
+        {
+            return committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
+        }
+    }
+
+    /// <returns>
+    /// Chunks affected by operations that haven't been committed yet
+    /// </returns>
     public HashSet<Vector2i> FindAffectedChunks()
     {
         lock (lockObject)
@@ -475,6 +503,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <summary>
+    /// Applies all operations queued for a specific (latest) chunk. If the latest chunk doesn't exist yet, creates it. If none of the existing operations affect the chunk does nothing.
+    /// </summary>
     private void MaybeCreateAndProcessQueueForChunk(Vector2i chunkPos, ChunkResolution resolution)
     {
         if (!latestChunksData[resolution].TryGetValue(chunkPos, out LatestChunkData chunkData))
@@ -506,6 +537,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         if (initialized)
         {
+            if (lockTransparency && !chunkData.IsDeleted && MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null)
+            {
+                var committed = GetCommittedChunk(chunkPos, resolution);
+                ClampAlpha(targetChunk!.Surface.SkiaSurface, committed!.Surface.SkiaSurface);
+            }
+
             chunkData.QueueProgress = queuedOperations.Count;
             latestChunksData[resolution][chunkPos] = chunkData;
         }
@@ -519,10 +556,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// </summary>
     private OneOf<All, None, Chunk> CombineClipsForChunk(Vector2i chunkPos, ChunkResolution resolution)
     {
+        if (lockTransparency && MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is null)
+        {
+            return new None();
+        }
         if (activeClips.Count == 0)
         {
             return new All();
         }
+
 
         var intersection = Chunk.Create(resolution);
         intersection.Surface.SkiaSurface.Canvas.Clear(SKColors.White);
@@ -557,8 +599,46 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <summary>
-    /// Returns true if the chunk was fully cleared (and should be deleted)
+    /// toModify[x,y].Alpha = Math.Min(toModify[x,y].Alpha, toGetAlphaFrom[x,y].Alpha)
     /// </summary>
+    private unsafe void ClampAlpha(SKSurface toModify, SKSurface toGetAlphaFrom)
+    {
+        using (var map = toModify.PeekPixels())
+        {
+            using (var refMap = toGetAlphaFrom.PeekPixels())
+            {
+                long* pixels = (long*)map.GetPixels();
+                long* refPixels = (long*)refMap.GetPixels();
+                int size = map.Width * map.Height;
+                if (map.Width != refMap.Width || map.Height != refMap.Height)
+                    throw new ArgumentException("The surfaces must have the same size");
+
+                for (int i = 0; i < size; i++)
+                {
+                    long* offset = pixels + i;
+                    long* refOffset = refPixels + i;
+                    Half* alpha = (Half*)offset + 3;
+                    Half* refAlpha = (Half*)refOffset + 3;
+                    if (*refAlpha < *alpha)
+                    {
+                        float a = (float)(*alpha);
+                        float r = (float)(*((Half*)offset)) / a;
+                        float g = (float)(*((Half*)offset + 1)) / a;
+                        float b = (float)(*((Half*)offset + 2)) / a;
+                        float newA = (float)(*refAlpha);
+                        Half newR = (Half)(r * newA);
+                        Half newG = (Half)(g * newA);
+                        Half newB = (Half)(b * newA);
+                        *offset = ((long)*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
+                    }
+                }
+            }
+        }
+    }
+
+    /// <returns>
+    /// True if the chunk was fully cleared (and should be deleted).
+    /// </returns>
     private bool ApplyOperationToChunk(
         IOperation operation,
         OneOf<All, None, Chunk> combinedClips,
@@ -608,7 +688,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <summary>
-    /// Note: this function modifies the internal state, it is not thread safe! (same as all the other functions that change the image in some way)
+    /// Finds and deletes empty committed chunks. Returns true if all existing chunks were deleted.
+    /// Note: this function modifies the internal state, it is not thread safe! Use it only in changes (same as all the other functions that change the image in some way).
     /// </summary>
     public bool CheckIfCommittedIsEmpty()
     {
@@ -653,6 +734,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <summary>
+    /// Gets existing committed chunk or creates a new one. Doesn't apply any operations to the chunk, returns it as it is.
+    /// </summary>
     private Chunk GetOrCreateCommittedChunk(Vector2i chunkPos, ChunkResolution resolution)
     {
         // commited chunk of the same resolution exists
@@ -691,6 +775,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <summary>
+    /// Gets existing latest chunk or creates a new one, based on a committed one if it exists. Doesn't do any operations to the chunk.
+    /// </summary>
     private Chunk GetOrCreateLatestChunk(Vector2i chunkPos, ChunkResolution resolution)
     {
         // latest chunk exists

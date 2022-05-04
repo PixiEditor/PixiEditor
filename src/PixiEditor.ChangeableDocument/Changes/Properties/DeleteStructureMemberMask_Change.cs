@@ -20,7 +20,7 @@ internal class DeleteStructureMemberMask_Change : Change
         var member = target.FindMemberOrThrow(memberGuid);
         if (member.Mask is null)
             throw new InvalidOperationException("Cannot delete the mask; Target member has no mask");
-        storedMask = member.Mask.CloneFromLatest();
+        storedMask = member.Mask.CloneFromCommitted();
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
@@ -40,7 +40,7 @@ internal class DeleteStructureMemberMask_Change : Change
         var member = target.FindMemberOrThrow(memberGuid);
         if (member.Mask is not null)
             throw new InvalidOperationException("Cannot revert mask deletion; The target member already has a mask");
-        member.Mask = storedMask!.CloneFromLatest();
+        member.Mask = storedMask!.CloneFromCommitted();
 
         return new StructureMemberMask_ChangeInfo() { GuidValue = memberGuid };
     }

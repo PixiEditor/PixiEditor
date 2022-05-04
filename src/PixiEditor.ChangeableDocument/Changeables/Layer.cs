@@ -28,13 +28,13 @@ internal class Layer : StructureMember, IReadOnlyLayer
 
     internal override Layer Clone()
     {
-        return new Layer(LayerImage.CloneFromLatest())
+        return new Layer(LayerImage.CloneFromCommitted())
         {
             GuidValue = GuidValue,
             IsVisible = IsVisible,
             Name = Name,
             Opacity = Opacity,
-            Mask = Mask?.CloneFromLatest(),
+            Mask = Mask?.CloneFromCommitted(),
         };
     }
 }
