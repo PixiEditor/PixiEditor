@@ -12,6 +12,8 @@ namespace PixiEditor.Models.Commands.Search
 
         public override string Text => $"Set color to {color}";
 
+        public override string Description => $"{color} rgba({color.Red}, {color.Green}, {color.Blue}, {color.Alpha})";
+
         public override bool CanExecute => true;
 
         public override ImageSource Icon => icon;
