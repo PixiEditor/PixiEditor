@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using PixiEditor.Models.DataHolders;
 using System.Windows.Input;
+using System.Windows.Threading;
 using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Views.UserControls
@@ -40,8 +41,11 @@ namespace PixiEditor.Views.UserControls
             {
                 if (Visibility == Visibility.Visible)
                 {
-                    textBox.Focus();
-                    Keyboard.Focus(textBox);
+                    Action action = () =>
+                    {
+                        textBox.Focus();
+                    };
+                    Application.Current.MainWindow.Dispatcher.Invoke(DispatcherPriority.Background, action);
                 }
             });
 
