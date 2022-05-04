@@ -72,7 +72,13 @@ namespace PixiEditor.ViewModels
 
             if (SearchTerm.StartsWith('#'))
             {
-                Results.Add(new ColorSearchResult(SKColor.Parse(SearchTerm)));
+                if (SKColor.TryParse(SearchTerm, out SKColor color))
+                {
+                    Results.Add(new ColorSearchResult(color)
+                    {
+                        SearchTerm = searchTerm
+                    });
+                }
             }
 
             foreach (var command in controller.Commands

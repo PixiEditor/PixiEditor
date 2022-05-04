@@ -5,6 +5,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
 using System.IO;
 using System.Reflection;
+using System.Windows.Input;
 using System.Windows.Media;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
 
@@ -209,7 +210,7 @@ namespace PixiEditor.Models.Commands
 
                 if (parameters.Length == 1)
                 {
-                    func = x => (TParameter)method.Invoke(instance, new[] { Convert.ChangeType(x, parameters[0].ParameterType) });
+                    func = x => (TParameter)method.Invoke(instance, new[] { CastParameter(x, parameters[0].ParameterType) });
                 }
                 else
                 {
@@ -219,6 +220,18 @@ namespace PixiEditor.Models.Commands
                 T evaluator = factory(func);
 
                 evaluators.Add(evaluator.Name, evaluator);
+            }
+
+            object CastParameter(object input, Type target)
+            {
+                if (target == typeof(object) || target == input.GetType())
+                {
+                    return input;
+                }
+                else
+                {
+                    return Convert.ChangeType(input, target);
+                }
             }
 
             TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)

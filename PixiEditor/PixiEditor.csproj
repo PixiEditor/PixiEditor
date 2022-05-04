@@ -224,6 +224,7 @@
 		<Resource Include="Images\Commands\PixiEditor\Document\CenterContent.png" />
 		<Resource Include="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
 		<Resource Include="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\New.png" />
 		<Resource Include="Images\DiagonalRed.png" />
 		<Resource Include="Images\Eye-off.png" />
 		<Resource Include="Images\Eye.png" />
@@ -255,6 +256,35 @@
 		<Resource Include="Images\Tools\SelectImage.png" />
 		<Resource Include="Images\Tools\ZoomImage.png" />
 		<Resource Include="Images\Trash.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenSettingsWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenSettingsWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenStartupWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenStartupWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenNavigationWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenNavigationWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\File\New.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\Open.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\NewDocument.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\Clear.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\Clear.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\SelectAll.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\SelectAll.png" />
+		<None Remove="Images\Commands\PixiEditor\Search\Toggle.png" />
+		<Resource Include="Images\Commands\PixiEditor\Search\Toggle.png" />
+		<None Remove="Images\Commands\PixiEditor\Links\OpenDocumentation.png" />
+		<Resource Include="Images\Commands\PixiEditor\Links\OpenDocumentation.png" />
+		<None Remove="Images\Commands\PixiEditor\Links\OpenRepository.png" />
+		<Resource Include="Images\Commands\PixiEditor\Links\OpenRepository.png" />
+		<None Remove="Images\Commands\PixiEditor\File\Export.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\Export.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\CopyCanvas.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\CopyCanvas.png" />
+		<None Remove="Images\Commands\PixiEditor\View\ToggleGrid.png" />
+		<Resource Include="Images\Commands\PixiEditor\View\ToggleGrid.png" />
+		<None Remove="Images\Commands\PixiEditor\View\ZoomIn.png" />
+		<Resource Include="Images\Commands\PixiEditor\View\ZoomIn.png" />
+		<None Remove="Images\Commands\PixiEditor\View\ZoomOut.png" />
+		<Resource Include="Images\Commands\PixiEditor\View\ZoomOut.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

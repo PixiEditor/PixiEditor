@@ -24,7 +24,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public SearchViewModel(ViewModelMain owner) : base(owner)
         { }
 
-        [Command.Basic("PixiEditor.Search.Toggle", "", "Command Search", "Open/close the command search window", Key = Key.K, Modifiers = ModifierKeys.Control)]
+        [Command.Basic("PixiEditor.Search.Toggle", "", "Command Search", "Open the command search window", Key = Key.K, Modifiers = ModifierKeys.Control)]
         public void ToggleSearchWindow(string searchTerm)
         {
             SearchWindowOpen = !SearchWindowOpen;

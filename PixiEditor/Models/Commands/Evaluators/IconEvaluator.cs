@@ -10,6 +10,9 @@ namespace PixiEditor.Models.Commands.Evaluators
     {
         public static IconEvaluator Default { get; } = new CommandNameEvaluator();
 
+        public override ImageSource EvaluateEvaluator(Command command, object parameter) =>
+            base.EvaluateEvaluator(command, parameter ?? command);
+
         [DebuggerDisplay("IconEvaluator.Default")]
         private class CommandNameEvaluator : IconEvaluator
         {
