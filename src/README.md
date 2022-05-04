@@ -23,7 +23,7 @@ Decouples the state of a document from the UI.
     - [x] Linear color space for blending
     - [ ] Tests for everything related to the operation queueing
     - Operations
-        - [ ] Support for paints with different blending (replace vs. alpha compose)
+        - [x] Support for paints with different blending (replace vs. alpha compose)
         - [ ] Image (basic done, needs rotation, scale, skew, perspective, etc.)
         - [ ] Rectangle (basic done, needs rotation support)
         - [ ] Ellipse
@@ -36,7 +36,7 @@ Decouples the state of a document from the UI.
         - [x] Resize canvas operation
         - [ ] Resize image operation?
         - [x] Raster clip operation
-        - [ ] Lock tranparency operation
+        - [x] Lock tranparency operation
         - [ ] Symmetry operation
         - Filters
             - [ ] Hue/Saturation/Value
@@ -104,7 +104,7 @@ Decouples the state of a document from the UI.
         - [ ] Transform selection
         - [ ] Fill selection (fill with tranparent = delete)
         - [x] Clip to selection
-        - [ ] Lock transparency
+        - [x] Lock transparency
         - [x] Create/Delete mask
         - [ ] Apply mask
 - ViewModel
