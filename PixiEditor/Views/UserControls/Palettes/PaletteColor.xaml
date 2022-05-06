@@ -13,8 +13,8 @@
     </UserControl.Resources>
     <UserControl.Style>
         <Style TargetType="{x:Type palettes:PaletteColor}">
-            <Setter Property="Width" Value="45"/>
-            <Setter Property="Height" Value="45"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
         </Style>
     </UserControl.Style>
     <Grid Width="{Binding ElementName=uc, Path=Width}" Height="{Binding ElementName=uc, Path=Height}">

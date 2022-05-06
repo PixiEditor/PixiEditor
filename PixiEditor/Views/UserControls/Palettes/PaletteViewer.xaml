@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+             xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
     <Grid AllowDrop="True" PreviewDragEnter="Grid_PreviewDragEnter" PreviewDragLeave="Grid_PreviewDragLeave"
@@ -83,9 +84,11 @@
                             </b:Interaction.Triggers>
                             <palettes:PaletteColor.ContextMenu>
                                         <ContextMenu>
+                                    <MenuItem Header="Choose" Foreground="White" Click="MenuItem_OnClick"
+                                              CommandParameter="{Binding}"/>
                                             <MenuItem Header="Remove" Foreground="White"
-                                              Click="RemoveColorMenuItem_OnClick"
-                                              CommandParameter="{Binding}" />
+                                                      Click="RemoveColorMenuItem_OnClick"
+                                                      CommandParameter="{Binding}" />
                                             <MenuItem Header="Replace" Foreground="White"
                                                       CommandParameter="{Binding}"
                                                       Click="ReplaceColor_OnClick"/>

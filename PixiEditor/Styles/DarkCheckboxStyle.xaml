@@ -11,7 +11,7 @@
                 <ControlTemplate TargetType="CheckBox">
                     <BulletDecorator Background="Transparent">
                         <BulletDecorator.Bullet>
-                            <Border x:Name="Border" Width="24" Height="24" CornerRadius="2.5" Background="#FF1B1B1B"
+                            <Border x:Name="Border" Width="20" Height="20" CornerRadius="2.5" Background="#FF1B1B1B"
                                     BorderThickness="1">
                                 <Path Width="9" Height="9" x:Name="CheckMark" SnapsToDevicePixels="False" Stroke="{StaticResource UIElementBlue}" StrokeThickness="1.5" Data="M 0 4 L 3 8 8 0" />
                             </Border>

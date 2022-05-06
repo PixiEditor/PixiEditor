@@ -241,5 +241,14 @@ namespace PixiEditor.Views.UserControls.Palettes
             Replacer.ColorToReplace = color;
             Replacer.VisibilityCheckbox.IsChecked = false;
         }
+
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem origin = (MenuItem)sender;
+            if (SelectColorCommand.CanExecute(origin.CommandParameter))
+            {
+                SelectColorCommand.Execute(origin.CommandParameter);
+            }
+        }
     }
 }

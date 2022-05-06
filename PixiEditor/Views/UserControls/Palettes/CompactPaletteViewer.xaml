@@ -28,7 +28,8 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:PaletteColor ToolTip="Click to select as main color. Drag and drop onto another palette color to swap them." 
+                        <local:PaletteColor ToolTip="Click to select as main color. Drag and drop onto another palette color to swap them."
+                                            Cursor="Hand"
                                             Color="{Binding}" Width="20" Height="20" CornerRadius="0">
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseLeftButtonUp">

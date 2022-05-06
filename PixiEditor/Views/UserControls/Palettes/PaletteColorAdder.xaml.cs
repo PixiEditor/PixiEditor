@@ -38,7 +38,17 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         // Using a DependencyProperty as the backing store for HintColor.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty HintColorProperty =
-            DependencyProperty.Register("HintColor", typeof(Color), typeof(PaletteColorAdder), new PropertyMetadata(System.Windows.Media.Colors.Transparent));
+            DependencyProperty.Register("HintColor", typeof(Color), typeof(PaletteColorAdder), new PropertyMetadata(System.Windows.Media.Colors.Transparent, OnHintColorChanged));
+
+        private static void OnHintColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var adder = (PaletteColorAdder)d;
+            Color newColor = (Color) e.NewValue;
+            if (newColor.A < 255)
+            {
+                adder.HintColor = Color.FromArgb(255, newColor.R, newColor.G, newColor.B);
+            }
+        }
 
         public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(
             "Swatches", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnSwatchesChanged));

@@ -27,15 +27,19 @@
                     </Grid>
                     <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
                         <local:PaletteColor Color="{Binding ElementName=uc, Path=ColorToReplace}"
-                            Height="35" Width="35" AllowDrop="True" Drop="UIElement_OnDrop"/>
+                            Height="35" 
+                            Width="35" 
+                            ToolTip="Right click on palette color and choose 'Replace' or drop it here."
+                            AllowDrop="True" Drop="UIElement_OnDrop"/>
                     <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0"/>
                     <colorPicker:PortableColorPicker 
                         UseHintColor="True"
                         SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
                         HintColor="{Binding ElementName=uc, Path=HintColor}"
-                        Height="20"
+                        Height="37"
                         Style="{StaticResource DefaultColorPickerStyle}"
-                        Width="50" Focusable="False" Margin="0 0 10 0"
+                        Width="37" Focusable="False" Margin="0 0 10 0"
+                        ToolTip="Click to choose the color"
                         ShowAlpha="False"/>
                     <Button Click="ReplaceButton_OnClick" ToolTip="Replace color"
                             Style="{StaticResource ToolButtonStyle}" Cursor="Hand" Height="20" Width="20">
