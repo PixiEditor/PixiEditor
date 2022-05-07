@@ -14,6 +14,7 @@ using PixiEditor.ChangeableDocument.Actions.Root;
 using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditorPrototype.CustomControls.TransformOverlay;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
 
@@ -31,6 +32,42 @@ internal class DocumentViewModel : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new(nameof(SelectedStructureMember)));
         }
     }
+
+    private TransformOverlayMode transformMode = TransformOverlayMode.None;
+    public TransformOverlayMode TransformMode
+    {
+        get => transformMode;
+        private set
+        {
+            transformMode = value;
+            RaisePropertyChanged(nameof(TransformMode));
+        }
+    }
+
+    private ShapeCorners perspectiveTransform;
+    public ShapeCorners PerpectiveTransform
+    {
+        get => perspectiveTransform;
+        set
+        {
+            perspectiveTransform = value;
+            RaisePropertyChanged(nameof(PerpectiveTransform));
+            OnTransformUpdate();
+        }
+    }
+
+    private AffineTransform affineTransform;
+    public AffineTransform AffineTransform
+    {
+        get => affineTransform;
+        set
+        {
+            affineTransform = value;
+            RaisePropertyChanged(nameof(AffineTransform));
+            OnTransformUpdate();
+        }
+    }
+
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -54,6 +91,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? CreateMaskCommand { get; }
     public RelayCommand? DeleteMaskCommand { get; }
     public RelayCommand? ToggleLockTransparencyCommand { get; }
+    public RelayCommand? ApplyTransformCommand { get; }
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
@@ -69,6 +107,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
 
+    public DocumentStateHandler StateHandler { get; }
+
     public int ResizeWidth { get; set; }
     public int ResizeHeight { get; set; }
 
@@ -80,6 +120,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     {
         this.owner = owner;
 
+        StateHandler = new(this);
         Helpers = new DocumentHelpers(this);
         StructureRoot = new FolderViewModel(this, Helpers, Helpers.Tracker.Document.ReadOnlyStructureRoot);
 
@@ -98,6 +139,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         CreateMaskCommand = new RelayCommand(CreateMask);
         DeleteMaskCommand = new RelayCommand(DeleteMask);
         ToggleLockTransparencyCommand = new RelayCommand(ToggleLockTransparency);
+        ApplyTransformCommand = new RelayCommand(ApplyTransform);
 
         foreach (var bitmap in Bitmaps)
         {
@@ -108,7 +150,11 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    bool startedRectangle = false;
+    private bool drawingRectangle = false;
+    private bool transformingRectangle = false;
+
+    private AffineTransform lastShape = new AffineTransform();
+    private ShapeData lastShapeData = new();
     public void StartUpdateRectangle(ShapeData data)
     {
         if (SelectedStructureMember is null)
@@ -116,15 +162,28 @@ internal class DocumentViewModel : INotifyPropertyChanged
         bool drawOnMask = SelectedStructureMember.HasMask && SelectedStructureMember.ShouldDrawOnMask;
         if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
             return;
-        startedRectangle = true;
+        drawingRectangle = true;
         Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data, drawOnMask));
+        lastShape = new AffineTransform(data.Center, data.Size, data.Angle);
+        lastShapeData = data;
     }
 
-    public void EndRectangle()
+    public void EndRectangleDrawing()
     {
-        if (!startedRectangle)
+        if (!drawingRectangle)
             return;
-        startedRectangle = false;
+        drawingRectangle = false;
+        AffineTransform = lastShape;
+        TransformMode = TransformOverlayMode.Affine;
+        transformingRectangle = true;
+    }
+
+    public void ApplyTransform(object? param)
+    {
+        if (!transformingRectangle)
+            return;
+        TransformMode = TransformOverlayMode.None;
+        transformingRectangle = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
     }
 
@@ -143,6 +202,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
         startedSelection = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndSelectRectangle_Action());
+    }
+
+    private void OnTransformUpdate()
+    {
+        if (!transformingRectangle)
+            return;
+        StartUpdateRectangle(new ShapeData(AffineTransform.Center, AffineTransform.Size, AffineTransform.Angle, lastShapeData.StrokeWidth, lastShapeData.StrokeColor, lastShapeData.FillColor, lastShapeData.BlendMode));
     }
 
     public void ForceRefreshView()

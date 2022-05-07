@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 
@@ -10,6 +11,23 @@ public static class OperationHelper
         return new((int)Math.Round(pixelPos.X * mult), (int)Math.Round(pixelPos.Y * mult));
     }
 
+    public static Vector2d ConvertForResolution(Vector2d pixelPos, ChunkResolution resolution)
+    {
+        var mult = resolution.Multiplier();
+        return new(pixelPos.X * mult, pixelPos.Y * mult);
+    }
+
+    public static ShapeCorners ConvertForResolution(ShapeCorners corners, ChunkResolution resolution)
+    {
+        return new ShapeCorners()
+        {
+            BottomLeft = ConvertForResolution(corners.BottomLeft, resolution),
+            BottomRight = ConvertForResolution(corners.BottomRight, resolution),
+            TopLeft = ConvertForResolution(corners.TopLeft, resolution),
+            TopRight = ConvertForResolution(corners.TopRight, resolution),
+        };
+    }
+
     public static Vector2i GetChunkPos(Vector2i pixelPos, int chunkSize)
     {
         return new Vector2i()
@@ -17,6 +35,64 @@ public static class OperationHelper
             X = (int)MathF.Floor(pixelPos.X / (float)chunkSize),
             Y = (int)MathF.Floor(pixelPos.Y / (float)chunkSize)
         };
+    }
+
+    public static SKMatrix CreateMatrixFromPoints(ShapeCorners corners, Vector2d size)
+        => CreateMatrixFromPoints((SKPoint)corners.TopLeft, (SKPoint)corners.TopRight, (SKPoint)corners.BottomRight, (SKPoint)corners.BottomLeft, (float)size.X, (float)size.Y);
+    public static SKMatrix CreateMatrixFromPoints(SKPoint topLeft, SKPoint topRight, SKPoint botRight, SKPoint botLeft, float width, float height)
+    {
+        (float a, float b) = (topLeft.X, topLeft.Y);
+        (float c, float d) = (topRight.X, topRight.Y);
+        (float e, float f) = (botRight.X, botRight.Y);
+        (float g, float h) = (botLeft.X, botLeft.Y);
+        (float w_1, float h_1) = (width, height);
+
+        float scaleX = (b * c * g - a * d * g + a * f * g - c * f * g - b * c * e + a * d * e - a * h * e + c * h * e) / (c * f * w_1 + d * g * w_1 - f * g * w_1 - c * h * w_1 - d * w_1 * e + h * w_1 * e);
+        float skewX = (-a * c * f - b * c * g + c * f * g + a * c * h + a * d * e + b * g * e - d * g * e - a * h * e) / (c * f * h_1 + d * g * h_1 - f * g * h_1 - c * h * h_1 - d * h_1 * e + h * h_1 * e);
+        float transX = a;
+        float skewY = (-b * c * f + a * d * f + b * f * g - d * f * g + b * c * h - a * d * h - b * h * e + d * h * e) / (c * f * w_1 + d * g * w_1 - f * g * w_1 - c * h * w_1 - d * w_1 * e + h * w_1 * e);
+        float scaleY = (-b * c * f - b * d * g + b * f * g + a * d * h - a * f * h + c * f * h + b * d * e - d * h * e) / (c * f * h_1 + d * g * h_1 - f * g * h_1 - c * h * h_1 - d * h_1 * e + h * h_1 * e);
+        float transY = b;
+        float persp0 = (a * f - c * f + b * g - d * g - a * h + c * h - b * e + d * e) / (c * f * w_1 + d * g * w_1 - f * g * w_1 - c * h * w_1 - d * w_1 * e + h * w_1 * e);
+        float persp1 = (-b * c + a * d - a * f - d * g + f * g + c * h + b * e - h * e) / (c * f * h_1 + d * g * h_1 - f * g * h_1 - c * h * h_1 - d * h_1 * e + h * h_1 * e);
+        float persp2 = 1;
+
+        return new SKMatrix(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2);
+    }
+
+    public static HashSet<Vector2i> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
+    {
+        if (corners.HasNaNOrInfinity)
+            return new HashSet<Vector2i>();
+        List<Vector2i>[] lines = new List<Vector2i>[] {
+            FindChunksAlongLine(corners.TopRight, corners.TopLeft, chunkSize),
+            FindChunksAlongLine(corners.BottomRight, corners.TopRight, chunkSize),
+            FindChunksAlongLine(corners.BottomLeft, corners.BottomRight, chunkSize),
+            FindChunksAlongLine(corners.TopLeft, corners.BottomLeft, chunkSize)
+        };
+        return FillLines(lines);
+    }
+
+    public static HashSet<Vector2i> FindChunksFullyInsideQuadrilateral(ShapeCorners corners, int chunkSize)
+    {
+        if (corners.HasNaNOrInfinity)
+            return new HashSet<Vector2i>();
+        List<Vector2i>[] lines = new List<Vector2i>[] {
+            FindChunksAlongLine(corners.TopLeft, corners.TopRight, chunkSize),
+            FindChunksAlongLine(corners.TopRight, corners.BottomRight, chunkSize),
+            FindChunksAlongLine(corners.BottomRight, corners.BottomLeft, chunkSize),
+            FindChunksAlongLine(corners.BottomLeft, corners.TopLeft, chunkSize)
+        };
+
+        var output = FillLines(lines);
+
+        //exclude lines
+        for (int i = 0; i < lines.Length; i++)
+        {
+            output.ExceptWith(lines[i]);
+        }
+
+        return output;
     }
 
     /// <summary>
@@ -34,14 +110,25 @@ public static class OperationHelper
             FindChunksAlongLine(corners.Item4, corners.Item3, chunkSize),
             FindChunksAlongLine(corners.Item1, corners.Item4, chunkSize)
         };
-
         if (lines[0].Count == 0 || lines[1].Count == 0 || lines[2].Count == 0 || lines[3].Count == 0)
+            return new HashSet<Vector2i>();
+        return FillLines(lines);
+    }
+
+    public static HashSet<Vector2i> FillLines(List<Vector2i>[] lines)
+    {
+        if (lines.Length == 0)
             return new HashSet<Vector2i>();
 
         //find min and max X for each Y in lines
         var ySel = (Vector2i vec) => vec.Y;
-        int minY = Math.Min(lines[0].Min(ySel), lines[2].Min(ySel));
-        int maxY = Math.Max(lines[0].Max(ySel), lines[2].Max(ySel));
+        int minY = int.MaxValue;
+        int maxY = int.MinValue;
+        foreach (var line in lines)
+        {
+            minY = Math.Min(line.Min(ySel), minY);
+            maxY = Math.Max(line.Max(ySel), maxY);
+        }
 
         int[] minXValues = new int[maxY - minY + 1];
         int[] maxXValues = new int[maxY - minY + 1];
@@ -98,34 +185,9 @@ public static class OperationHelper
             FindChunksAlongLine(corners.Item4, corners.Item1, chunkSize)
         };
 
-        //find min and max X for each Y in lines
-        var ySel = (Vector2i vec) => vec.Y;
-        int minY = Math.Min(lines[0].Min(ySel), lines[2].Min(ySel));
-        int maxY = Math.Max(lines[0].Max(ySel), lines[2].Max(ySel));
+        var output = FillLines(lines);
 
-        int[] minXValues = new int[maxY - minY + 1];
-        int[] maxXValues = new int[maxY - minY + 1];
-        for (int i = 0; i < minXValues.Length; i++)
-        {
-            minXValues[i] = int.MaxValue;
-            maxXValues[i] = int.MinValue;
-        }
-
-        for (int i = 0; i < lines.Length; i++)
-        {
-            UpdateMinXValues(lines[i], minXValues, minY);
-            UpdateMaxXValues(lines[i], maxXValues, minY);
-        }
-
-        //draw a line from min X to max X for each Y and exclude lines
-        HashSet<Vector2i> output = new();
-        for (int i = 0; i < minXValues.Length; i++)
-        {
-            int minX = minXValues[i];
-            int maxX = maxXValues[i];
-            for (int x = minX; x <= maxX; x++)
-                output.Add(new(x, i + minY));
-        }
+        //exclude lines
         for (int i = 0; i < lines.Length; i++)
         {
             output.ExceptWith(lines[i]);

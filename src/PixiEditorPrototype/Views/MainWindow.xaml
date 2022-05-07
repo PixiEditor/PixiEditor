@@ -9,6 +9,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:pe="clr-namespace:PixiEditorPrototype"
         xmlns:controls="clr-namespace:PixiEditorPrototype.CustomControls"
+        xmlns:to="clr-namespace:PixiEditorPrototype.CustomControls.TransformOverlay"
         xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
         xmlns:models="clr-namespace:PixiEditorPrototype.Models"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
@@ -143,6 +144,7 @@
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
                     <Button Width="120" Margin="5" Command="{Binding ActiveDocument.ClearHistoryCommand}">Clear undo history</Button>
+                    <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ApplyTransformCommand}">Apply Transform</Button>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
                     <TextBox Width="30" Margin="5" Text="{Binding ActiveDocument.ResizeWidth}"/>
@@ -179,22 +181,29 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
                 <Border BorderThickness="1" Background="White" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Image Focusable="True"
-                           Width="{Binding ActiveDocument.Width}" Height="{Binding ActiveDocument.Height}"
-                           Source="{Binding MainViewport.TargetBitmap}"
-                           RenderOptions.BitmapScalingMode="NearestNeighbor">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseDown">
-                                <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>
-                            </i:EventTrigger>
-                            <i:EventTrigger EventName="MouseMove">
-                                <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" PassEventArgsToCommand="True"/>
-                            </i:EventTrigger>
-                            <i:EventTrigger EventName="MouseUp">
-                                <i:InvokeCommandAction Command="{Binding MouseUpCommand}" PassEventArgsToCommand="True"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Image>
+                    <Grid>
+                        <Image Focusable="True"
+                               Width="{Binding ActiveDocument.Width}" Height="{Binding ActiveDocument.Height}"
+                               Source="{Binding MainViewport.TargetBitmap}"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseMove">
+                                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" PassEventArgsToCommand="True"/>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseUp">
+                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}" PassEventArgsToCommand="True"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Image>
+                        <to:TransformOverlay HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                   AffineTransform="{Binding ActiveDocument.AffineTransform, Mode=TwoWay}"
+                                                   PerspectiveTransform="{Binding ActiveDocument.PerpectiveTransform, Mode=TwoWay}"
+                                                   Mode="{Binding ActiveDocument.TransformMode}"
+                                                   ZoomboxScale="{Binding RelativeSource={RelativeSource AncestorType=zoombox:Zoombox}, Path=Scale}"/>
+                    </Grid>
                 </Border>
             </zoombox:Zoombox>
             <Grid Focusable="False">

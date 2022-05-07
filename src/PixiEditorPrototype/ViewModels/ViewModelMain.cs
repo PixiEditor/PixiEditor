@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Zoombox;
+using PixiEditorPrototype.CustomControls.TransformOverlay;
 using PixiEditorPrototype.Models;
 using PixiEditorPrototype.Views;
 using SkiaSharp;
@@ -111,7 +112,7 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     private void MouseDown(object? param)
     {
-        if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal)
+        if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal || ActiveDocument.TransformMode != TransformOverlayMode.None)
             return;
         mouseIsDown = true;
         var args = (MouseButtonEventArgs)(param!);
@@ -139,9 +140,12 @@ internal class ViewModelMain : INotifyPropertyChanged
         if (activeTool == Tool.Rectangle)
         {
             startedDrawingRect = true;
+            int width = canvasX - mouseDownCanvasX;
+            int height = canvasY - mouseDownCanvasY;
             ActiveDocument!.StartUpdateRectangle(new ShapeData(
-                        new(mouseDownCanvasX, mouseDownCanvasY),
-                        new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY),
+                        new(mouseDownCanvasX + width / 2.0, mouseDownCanvasY + height / 2.0),
+                        new(width, height),
+                        0,
                         90,
                         new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
                         SKColors.Transparent));
@@ -168,7 +172,7 @@ internal class ViewModelMain : INotifyPropertyChanged
         if (startedDrawingRect)
         {
             startedDrawingRect = false;
-            ActiveDocument!.EndRectangle();
+            ActiveDocument!.EndRectangleDrawing();
         }
         if (startedSelectingRect)
         {

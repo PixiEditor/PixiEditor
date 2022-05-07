@@ -33,7 +33,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         var oldChunks = target.Selection.SelectionImage.FindAffectedChunks();
         target.Selection.SelectionImage.CancelChanges();
         target.Selection.IsEmptyAndInactive = false;
-        target.Selection.SelectionImage.EnqueueDrawRectangle(new ShapeData(pos, size, 0, SKColors.Transparent, Selection.SelectionColor));
+        target.Selection.SelectionImage.EnqueueDrawRectangle(new ShapeData(pos + size / 2, size, 0, 0, SKColors.Transparent, Selection.SelectionColor));
 
         oldChunks.UnionWith(target.Selection.SelectionImage.FindAffectedChunks());
         return new Selection_ChangeInfo() { Chunks = oldChunks };

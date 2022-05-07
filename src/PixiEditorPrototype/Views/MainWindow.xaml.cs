@@ -12,7 +12,7 @@ internal partial class MainWindow : Window, IMainView
         ((ViewModelMain)DataContext).View = this;
     }
 
-    private Image? GetImage() => (Image?)((Border?)zoombox.AdditionalContent)?.Child;
+    private Image? GetImage() => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0];
 
     public void ForceRefreshFinalImage()
     {
