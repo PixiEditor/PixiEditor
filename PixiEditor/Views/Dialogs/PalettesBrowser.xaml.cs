@@ -466,10 +466,11 @@ namespace PixiEditor.Views.Dialogs
 
             string oldFileName = $"{e.OldText}.pal";
 
-            if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name)
+            if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name || e.NewText.Length > 50)
             {
                 item.Palette.FileName = oldFileName;
                 item.Palette.Name = e.OldText;
+                item.UpdateName(e.OldText);
                 return;
             }
 
@@ -479,10 +480,11 @@ namespace PixiEditor.Views.Dialogs
             {
                 item.Palette.FileName = oldFileName;
                 item.Palette.Name = e.OldText;
+                item.UpdateName(e.OldText);
                 return;
             }
 
-            string finalNewName = $"{e.NewText}.pal";
+            string finalNewName = $"{Palette.ReplaceInvalidChars(e.NewText)}.pal";
             string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, LocalPalettesFetcher.GetNonExistingName(finalNewName, true));
 
             File.Move(oldPath, newPath);

@@ -37,6 +37,17 @@ namespace PixiEditor.Views
                 typeof(EditableTextBlock),
                 new PropertyMetadata(OnIsEditingChanged));
 
+        public int MaxChars
+        {
+            get { return (int)GetValue(MaxCharsProperty); }
+            set { SetValue(MaxCharsProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MaxChars.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MaxCharsProperty =
+            DependencyProperty.Register("MaxChars", typeof(int), typeof(EditableTextBlock), new PropertyMetadata(int.MaxValue));
+
+
         public event EventHandler<TextChangedEventArgs> OnSubmit;
 
         public EditableTextBlock()

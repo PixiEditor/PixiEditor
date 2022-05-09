@@ -39,7 +39,7 @@ namespace PixiEditor.Models.DataHolders.Palettes
             FileName = fileName;
         }
 
-        private string? ReplaceInvalidChars(string? filename)
+        public static string? ReplaceInvalidChars(string? filename)
         {
             return filename == null ? null : string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
         }

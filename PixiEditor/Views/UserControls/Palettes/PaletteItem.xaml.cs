@@ -57,6 +57,12 @@ namespace PixiEditor.Views.UserControls.Palettes
             InitializeComponent();
         }
 
+        public void UpdateName(string newName)
+        {
+            titleTextBlock.Text = newName;
+            titleTextBlock.textBox.Text = newName;
+        }
+
         private void EditableTextBlock_OnSubmit(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             OnRename?.Invoke(this, e);

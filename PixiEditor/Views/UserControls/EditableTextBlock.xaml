@@ -11,7 +11,7 @@
                    TextTrimming="CharacterEllipsis" Name="textBlock"
                    Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
                    Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" />
-        <TextBox Style="{StaticResource DarkTextBoxStyle}"
+        <TextBox MaxLength="{Binding Path=MaxChars, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" Style="{StaticResource DarkTextBoxStyle}"
                  LostFocus="TextBox_LostFocus"
                  Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}"
                  KeyDown="TextBox_KeyDown"
