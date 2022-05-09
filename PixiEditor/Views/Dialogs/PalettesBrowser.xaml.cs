@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
 using PixiEditor.Helpers;
@@ -144,6 +145,14 @@ namespace PixiEditor.Views.Dialogs
         public WpfObservableRangeCollection<SKColor> CurrentEditingPalette { get; set; }
         public static PalettesBrowser Instance { get; internal set; }
 
+        private LocalPalettesFetcher localPalettesFetcher
+        {
+            get
+            {
+                return _localPalettesFetcher ??= (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+            }
+        }
+
         private static PaletteList _cachedPaletteList;
 
         private LocalPalettesFetcher _localPalettesFetcher;
@@ -154,7 +163,15 @@ namespace PixiEditor.Views.Dialogs
             Instance = this;
             DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
             ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite);
-            Closed += (s, e) => Instance = null;
+            Loaded += (sender, args) =>
+            {
+                localPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
+            };
+            Closed += (s, e) =>
+            {
+                Instance = null;
+                localPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
+            };
         }
 
         public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<SKColor> currentEditingPalette)
@@ -181,6 +198,14 @@ namespace PixiEditor.Views.Dialogs
 
             browser.Show();
             return browser;
+        }
+
+        private async void LocalCacheRefreshed(List<Palette> obj)
+        {
+            await Dispatcher.InvokeAsync(async () =>
+            {
+                await UpdatePaletteList();
+            });
         }
 
         private async void ToggleFavourite(Palette palette)
@@ -212,9 +237,6 @@ namespace PixiEditor.Views.Dialogs
                 {
                     LocalPalettesFetcher.DeletePalette(palette.FileName);
                     RemoveFavouritePalette(palette);
-
-                    await RefreshLocalCache();
-                    await UpdatePaletteList();
                 }
             }
         }
@@ -259,18 +281,6 @@ namespace PixiEditor.Views.Dialogs
             PalettesBrowser browser = (PalettesBrowser)d;
             browser.Sort();
         }
-
-        public async Task RefreshLocalCache()
-        {
-            if (_localPalettesFetcher == null)
-            {
-                _localPalettesFetcher = (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
-
-            }
-
-            await _localPalettesFetcher.RefreshCache();
-        }
-
 
         public async Task UpdatePaletteList()
         {
@@ -435,8 +445,6 @@ namespace PixiEditor.Views.Dialogs
             }
 
             await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
-            await RefreshLocalCache();
-            await UpdatePaletteList();
 
             var palette = _localPalettesFetcher.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
             if (palette != null)
@@ -475,26 +483,11 @@ namespace PixiEditor.Views.Dialogs
             }
 
             string finalNewName = $"{e.NewText}.pal";
-            string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
-
-            while (File.Exists(newPath))
-            {
-                finalNewName = Path.GetFileNameWithoutExtension(finalNewName) + "(1).pal";
-                if (finalNewName == oldFileName)
-                {
-                    item.Palette.FileName = oldFileName;
-                    item.Palette.Name = e.OldText;
-                    return;
-                }
-                newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
-            }
+            string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, LocalPalettesFetcher.GetNonExistingName(finalNewName, true));
 
             File.Move(oldPath, newPath);
 
             item.Palette.FileName = finalNewName;
-
-            await RefreshLocalCache();
-            await UpdatePaletteList();
         }
 
         private void BrowseOnLospec_OnClick(object sender, RoutedEventArgs e)

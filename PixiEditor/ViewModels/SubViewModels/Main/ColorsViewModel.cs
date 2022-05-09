@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.Undo;
 using PixiEditor.Views.Dialogs;
@@ -134,28 +135,48 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));
                 if (palette != null)
                 {
-                    palette.FileName = $"{palette.Name}.pal";
-
-                    await LocalPalettesFetcher.SavePalette(
-                        palette.FileName,
-                        palette.Colors.Select(SKColor.Parse).ToArray());
-
-                    await browser.RefreshLocalCache();
-                    await browser.UpdatePaletteList();
-                    if(browser.SortedResults.Any(x => x.FileName == palette.FileName))
+                    if (LocalPalettesFetcher.PaletteExists(palette.Name))
                     {
-                        int indexOfImported = browser.SortedResults.IndexOf(browser.SortedResults.First(x => x.FileName == palette.FileName));
-                        browser.SortedResults.Move(indexOfImported, 0);
+                        var consent = ConfirmationDialog.Show(
+                            $"Palette '{palette.Name}' already exists, do you want to overwrite it?", "Palette exists");
+                        if (consent == ConfirmationType.No)
+                        {
+                            palette.Name = LocalPalettesFetcher.GetNonExistingName(palette.Name);
+                        }
+                        else if (consent == ConfirmationType.Canceled)
+                        {
+                            browser.IsFetching = false;
+                            return;
+                        }
                     }
-                    else
-                    {
-                        browser.SortedResults.Insert(0, palette);
-                    }
+
+                    await SavePalette(palette, browser);
                 }
                 else
                 {
                     await browser.UpdatePaletteList();
                 }
+            }
+        }
+
+        private static async Task SavePalette(Palette palette, PalettesBrowser browser)
+        {
+            palette.FileName = $"{palette.Name}.pal";
+
+            await LocalPalettesFetcher.SavePalette(
+                palette.FileName,
+                palette.Colors.Select(SKColor.Parse).ToArray());
+
+            await browser.UpdatePaletteList();
+            if (browser.SortedResults.Any(x => x.FileName == palette.FileName))
+            {
+                int indexOfImported =
+                    browser.SortedResults.IndexOf(browser.SortedResults.First(x => x.FileName == palette.FileName));
+                browser.SortedResults.Move(indexOfImported, 0);
+            }
+            else
+            {
+                browser.SortedResults.Insert(0, palette);
             }
         }
 

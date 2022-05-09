@@ -21,6 +21,10 @@ namespace PixiEditor.Models.DataProviders
 
         public List<Palette> CachedPalettes { get; private set; }
 
+        public event Action<List<Palette>> CacheUpdated; 
+
+        private FileSystemWatcher _watcher;
+
         public override async Task<PaletteList> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
         {
             if(CachedPalettes == null)
@@ -46,6 +50,34 @@ namespace PixiEditor.Models.DataProviders
 
             result.FetchedCorrectly = true;
             return result;
+        }
+
+        public static bool PaletteExists(string paletteName)
+        {
+            string finalFileName = paletteName;
+            if (!paletteName.EndsWith(".pal"))
+            {
+                finalFileName += ".pal";
+            }
+
+            return File.Exists(Path.Join(PathToPalettesFolder, finalFileName));
+        }
+
+        public static string GetNonExistingName(string currentName, bool appendExtension = false)
+        {
+            string newName = Path.GetFileNameWithoutExtension(currentName);
+
+            while (File.Exists(Path.Join(PathToPalettesFolder, newName + ".pal")))
+            {
+                newName += "(1)";
+            }
+
+            if (appendExtension)
+            {
+                newName += ".pal";
+            }
+
+            return newName;
         }
 
         public async Task RefreshCache()
@@ -99,6 +131,20 @@ namespace PixiEditor.Models.DataProviders
         public override void Initialize()
         {
             InitDir();
+            _watcher = new FileSystemWatcher(PathToPalettesFolder);
+            _watcher.Filter = "*.pal";
+            _watcher.Changed += FileSystemChanged;
+            _watcher.Deleted += FileSystemChanged;
+            _watcher.Renamed += FileSystemChanged;
+            _watcher.Created += FileSystemChanged;
+
+            _watcher.EnableRaisingEvents = true;
+        }
+
+        private async void FileSystemChanged(object sender, FileSystemEventArgs e)
+        {
+            await RefreshCache();
+            CacheUpdated?.Invoke(CachedPalettes);
         }
 
         private static void InitDir()
