@@ -29,6 +29,10 @@ public struct Vector2d
         result.Y = X * Math.Sin(angle) + Y * Math.Cos(angle);
         return result;
     }
+    public Vector2d Rotate(double angle, Vector2d around)
+    {
+        return (this - around).Rotate(angle) + around;
+    }
     public double DistanceToLineSegment(Vector2d pos1, Vector2d pos2)
     {
         Vector2d segment = pos2 - pos1;
@@ -49,17 +53,35 @@ public struct Vector2d
 
         return triangleArea / a * 2;
     }
+    public Vector2d ProjectOntoLine(Vector2d pos1, Vector2d pos2)
+    {
+        Vector2d line = (pos2 - pos1).Normalize();
+        Vector2d point = this - pos1;
+        return (line * point) * line + pos1;
+    }
+
+    public Vector2d ReflectAcrossLine(Vector2d pos1, Vector2d pos2)
+    {
+        var onLine = ProjectOntoLine(pos1, pos2);
+        return onLine - (this - onLine);
+    }
     public double AngleTo(Vector2d other)
     {
         return Math.Acos((this * other) / Length / other.Length);
     }
 
+    /// <summary>
+    /// Returns the angle between two vectors when travelling counterclockwise (assuming Y pointing up) from this vector to passed vector
+    /// </summary>
     public double CCWAngleTo(Vector2d other)
     {
         var rot = other.Rotate(-Angle);
         return rot.Angle;
     }
-
+    public Vector2d Lerp(Vector2d other, double factor)
+    {
+        return (other - this) * factor + this;
+    }
     public Vector2d Normalize()
     {
         return new Vector2d(X / Length, Y / Length);
@@ -71,6 +93,13 @@ public struct Vector2d
     public Vector2d Signs()
     {
         return new Vector2d(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);
+    }
+    /// <summary>
+    /// Returns the signed magnitude (Z coordinate) of the vector resulting from the cross product
+    /// </summary>
+    public double Cross(Vector2d other)
+    {
+        return (X * other.Y) - (Y * other.X);
     }
     public Vector2d Multiply(Vector2d other)
     {

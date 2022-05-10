@@ -62,7 +62,9 @@ public static class OperationHelper
 
     public static HashSet<Vector2i> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
     {
-        if (corners.HasNaNOrInfinity)
+        if (corners.HasNaNOrInfinity ||
+            (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
+            (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
             return new HashSet<Vector2i>();
         List<Vector2i>[] lines = new List<Vector2i>[] {
             FindChunksAlongLine(corners.TopRight, corners.TopLeft, chunkSize),
@@ -75,7 +77,9 @@ public static class OperationHelper
 
     public static HashSet<Vector2i> FindChunksFullyInsideQuadrilateral(ShapeCorners corners, int chunkSize)
     {
-        if (corners.HasNaNOrInfinity)
+        if (corners.HasNaNOrInfinity ||
+            (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
+            (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
             return new HashSet<Vector2i>();
         List<Vector2i>[] lines = new List<Vector2i>[] {
             FindChunksAlongLine(corners.TopLeft, corners.TopRight, chunkSize),
@@ -100,7 +104,9 @@ public static class OperationHelper
     /// </summary>
     public static HashSet<Vector2i> FindChunksTouchingRectangle(Vector2d center, Vector2d size, double angle, int chunkSize)
     {
-        if (size.X == 0 || size.Y == 0)
+        if (size.X == 0 || size.Y == 0 || center.IsNaNOrInfinity() || size.IsNaNOrInfinity() || double.IsNaN(angle) || double.IsInfinity(angle))
+            return new HashSet<Vector2i>();
+        if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
             return new HashSet<Vector2i>();
         // draw a line on the outside of each side
         var corners = FindRectangleCorners(center, size, angle);
@@ -157,10 +163,12 @@ public static class OperationHelper
         return output;
     }
 
-    public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2i pos, Vector2i size)
+    public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2i pos, Vector2i size, int chunkSize)
     {
+        if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
+            return new HashSet<Vector2i>();
         Vector2i startChunk = GetChunkPos(pos, ChunkPool.FullChunkSize);
-        Vector2i endChunk = GetChunkPosBiased(pos + size, false, false, ChunkPool.FullChunkSize);
+        Vector2i endChunk = GetChunkPosBiased(pos + size, false, false, chunkSize);
         HashSet<Vector2i> output = new();
         for (int x = startChunk.X; x <= endChunk.X; x++)
         {
@@ -175,6 +183,8 @@ public static class OperationHelper
     public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2d center, Vector2d size, double angle, int chunkSize)
     {
         if (size.X < chunkSize || size.Y < chunkSize || center.IsNaNOrInfinity() || size.IsNaNOrInfinity() || double.IsNaN(angle) || double.IsInfinity(angle))
+            return new HashSet<Vector2i>();
+        if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
             return new HashSet<Vector2i>();
         // draw a line on the inside of each side
         var corners = FindRectangleCorners(center, size, angle);

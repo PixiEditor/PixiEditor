@@ -5,7 +5,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Zoombox;
-using PixiEditorPrototype.CustomControls.TransformOverlay;
 using PixiEditorPrototype.Models;
 using PixiEditorPrototype.Views;
 using SkiaSharp;
@@ -112,7 +111,7 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     private void MouseDown(object? param)
     {
-        if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal || ActiveDocument.TransformMode != TransformOverlayMode.None)
+        if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal || ActiveDocument.TransformActive)
             return;
         mouseIsDown = true;
         var args = (MouseButtonEventArgs)(param!);

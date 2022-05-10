@@ -198,11 +198,14 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Image>
-                        <to:TransformOverlay HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                                   AffineTransform="{Binding ActiveDocument.AffineTransform, Mode=TwoWay}"
-                                                   PerspectiveTransform="{Binding ActiveDocument.PerpectiveTransform, Mode=TwoWay}"
-                                                   Mode="{Binding ActiveDocument.TransformMode}"
-                                                   ZoomboxScale="{Binding RelativeSource={RelativeSource AncestorType=zoombox:Zoombox}, Path=Scale}"/>
+                        <to:TransformOverlay HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            Visibility="{Binding ActiveDocument.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Corners="{Binding ActiveDocument.TransformCorners, Mode=TwoWay}"
+                                            RequestedCorners="{Binding ActiveDocument.RequestedTransformCorners}"
+                                            CornerFreedom="{Binding ActiveDocument.TransformCornerFreedom}"
+                                            SideFreedom="{Binding ActiveDocument.TransformSideFreedom}"
+                                            Origin="{Binding ActiveDocument.TransformOrigin}"
+                                            ZoomboxScale="{Binding RelativeSource={RelativeSource AncestorType=zoombox:Zoombox}, Path=Scale}"/>
                     </Grid>
                 </Border>
             </zoombox:Zoombox>

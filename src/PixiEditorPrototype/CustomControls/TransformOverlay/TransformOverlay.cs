@@ -8,39 +8,51 @@ namespace PixiEditorPrototype.CustomControls.TransformOverlay;
 
 internal class TransformOverlay : Control
 {
+    public static DependencyProperty RequestedCornersProperty =
+        DependencyProperty.Register(nameof(RequestedCorners), typeof(ShapeCorners), typeof(TransformOverlay),
+            new FrameworkPropertyMetadata(default(ShapeCorners), FrameworkPropertyMetadataOptions.AffectsRender, new(OnRequestedCorners)));
 
-    public static DependencyProperty AffineTransformProperty =
-        DependencyProperty.Register(nameof(AffineTransform), typeof(AffineTransform), typeof(TransformOverlay),
-            new FrameworkPropertyMetadata(default(AffineTransform), FrameworkPropertyMetadataOptions.AffectsRender));
-
-    public static DependencyProperty PerspectiveTransformProperty =
-        DependencyProperty.Register(nameof(PerspectiveTransform), typeof(ShapeCorners), typeof(TransformOverlay),
+    public static DependencyProperty CornersProperty =
+        DependencyProperty.Register(nameof(Corners), typeof(ShapeCorners), typeof(TransformOverlay),
             new FrameworkPropertyMetadata(default(ShapeCorners), FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static DependencyProperty OriginProperty =
+        DependencyProperty.Register(nameof(Origin), typeof(Vector2d), typeof(TransformOverlay),
+            new FrameworkPropertyMetadata(default(Vector2d), FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static DependencyProperty ZoomboxScaleProperty =
         DependencyProperty.Register(nameof(ZoomboxScale), typeof(double), typeof(TransformOverlay),
             new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
-    public static readonly DependencyProperty ModeProperty =
-        DependencyProperty.Register(nameof(Mode), typeof(TransformOverlayMode), typeof(TransformOverlay),
-            new FrameworkPropertyMetadata(TransformOverlayMode.None, FrameworkPropertyMetadataOptions.AffectsRender, new PropertyChangedCallback(OnModeChange)));
+    public static readonly DependencyProperty SideFreedomProperty =
+        DependencyProperty.Register(nameof(SideFreedom), typeof(TransformSideFreedom), typeof(TransformOverlay),
+            new FrameworkPropertyMetadata(TransformSideFreedom.Locked));
 
-    public TransformOverlayMode Mode
+    public static readonly DependencyProperty CornerFreedomProperty =
+        DependencyProperty.Register(nameof(CornerFreedom), typeof(TransformCornerFreedom), typeof(TransformOverlay),
+            new FrameworkPropertyMetadata(TransformCornerFreedom.Locked));
+
+    public TransformCornerFreedom CornerFreedom
     {
-        get => (TransformOverlayMode)GetValue(ModeProperty);
-        set => SetValue(ModeProperty, value);
+        get { return (TransformCornerFreedom)GetValue(CornerFreedomProperty); }
+        set { SetValue(CornerFreedomProperty, value); }
     }
 
-    public AffineTransform AffineTransform
+    public TransformSideFreedom SideFreedom
     {
-        get => (AffineTransform)GetValue(AffineTransformProperty);
-        set => SetValue(AffineTransformProperty, value);
+        get => (TransformSideFreedom)GetValue(SideFreedomProperty);
+        set => SetValue(SideFreedomProperty, value);
+    }
+    public ShapeCorners Corners
+    {
+        get => (ShapeCorners)GetValue(CornersProperty);
+        set => SetValue(CornersProperty, value);
     }
 
-    public ShapeCorners PerspectiveTransform
+    public ShapeCorners RequestedCorners
     {
-        get => (ShapeCorners)GetValue(PerspectiveTransformProperty);
-        set => SetValue(PerspectiveTransformProperty, value);
+        get => (ShapeCorners)GetValue(RequestedCornersProperty);
+        set => SetValue(RequestedCornersProperty, value);
     }
 
     public double ZoomboxScale
@@ -48,67 +60,79 @@ internal class TransformOverlay : Control
         get => (double)GetValue(ZoomboxScaleProperty);
         set => SetValue(ZoomboxScaleProperty, value);
     }
-
-    private ITransformMode? currentMode;
-
-    public const double SideLength = 10;
-    public Anchor? CapturedAnchor { get; private set; } = null;
-
-    static TransformOverlay()
+    public Vector2d Origin
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(TransformOverlay), new FrameworkPropertyMetadata(typeof(TransformOverlay)));
+        get => (Vector2d)GetValue(OriginProperty);
+        set => SetValue(OriginProperty, value);
     }
+
+    private Anchor? capturedAnchor;
+
+    private bool originMoved = false;
+    private ShapeCorners mouseDownCorners;
+    private Vector2d mouseDownOriginPos;
 
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
-        if (Mode == TransformOverlayMode.None)
-            return;
-        currentMode?.OnRender(drawingContext);
+        TransformHelper.DrawOverlay(drawingContext, Corners, Origin, ZoomboxScale);
     }
-
-    private static void OnModeChange(DependencyObject obj, DependencyPropertyChangedEventArgs args)
-    {
-        var overlay = (TransformOverlay)obj;
-        var value = (TransformOverlayMode)args.NewValue;
-        overlay.ReleaseAnchor();
-        overlay.currentMode = value switch
-        {
-            TransformOverlayMode.Affine => new AffineMode(overlay),
-            TransformOverlayMode.Perspective => new PerpectiveMode(overlay),
-            _ => null,
-        };
-        overlay.InvalidateVisual();
-    }
-
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
-        if (Mode == TransformOverlayMode.None || currentMode is null)
-            return;
 
-        var pos = ToVector2d(e.GetPosition(this));
-        Anchor? anchor = currentMode.GetAnchorInPosition(pos);
+        var pos = TransformHelper.ToVector2d(e.GetPosition(this));
+        var anchor = TransformHelper.GetAnchorInPosition(pos, Corners, Origin, ZoomboxScale);
         if (anchor is null)
             return;
-        CapturedAnchor = anchor;
-        CaptureMouse();
-        e.Handled = true;
-    }
+        capturedAnchor = anchor;
 
-    public bool IsWithinAnchor(Vector2d anchorPos, Vector2d mousePos)
-    {
-        return (anchorPos - mousePos).TaxicabLength <= (SideLength + 6) / ZoomboxScale / 2;
+        mouseDownCorners = Corners;
+        mouseDownOriginPos = Origin;
+
+        e.Handled = true;
+        CaptureMouse();
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
     {
-        if (CapturedAnchor is null || Mode == TransformOverlayMode.None || currentMode is null)
+        if (capturedAnchor is null)
             return;
         e.Handled = true;
-        var pos = ToVector2d(e.GetPosition(this));
-        currentMode.OnAnchorDrag(pos, (Anchor)CapturedAnchor);
+        if (TransformHelper.IsCorner((Anchor)capturedAnchor) && CornerFreedom == TransformCornerFreedom.Locked ||
+            TransformHelper.IsSide((Anchor)capturedAnchor) && SideFreedom == TransformSideFreedom.Locked)
+            return;
+
+        var pos = TransformHelper.ToVector2d(e.GetPosition(this));
+
+        if (TransformHelper.IsCorner((Anchor)capturedAnchor))
+        {
+            var newCorners = TransformUpdateHelper.UpdateShapeFromCorner((Anchor)capturedAnchor, CornerFreedom, mouseDownCorners, pos);
+            if (newCorners is not null)
+                Corners = (ShapeCorners)newCorners;
+            if (!originMoved)
+                Origin = TransformHelper.OriginFromCorners(Corners);
+        }
+        else if (TransformHelper.IsSide((Anchor)capturedAnchor))
+        {
+            var newCorners = TransformUpdateHelper.UpdateShapeFromSide((Anchor)capturedAnchor, SideFreedom, mouseDownCorners, pos);
+            if (newCorners is not null)
+                Corners = (ShapeCorners)newCorners;
+            if (!originMoved)
+                Origin = TransformHelper.OriginFromCorners(Corners);
+        }
+        else if (capturedAnchor == Anchor.Rotation)
+        {
+            var cur = TransformHelper.GetRotPos(mouseDownCorners, ZoomboxScale);
+            var angle = (cur - mouseDownOriginPos).CCWAngleTo(pos - mouseDownOriginPos);
+            Corners = TransformUpdateHelper.UpdateShapeFromRotation(mouseDownCorners, mouseDownOriginPos, angle);
+        }
+        else if (capturedAnchor == Anchor.Origin)
+        {
+            originMoved = true;
+            Origin = pos;
+        }
     }
 
     protected override void OnMouseUp(MouseButtonEventArgs e)
@@ -118,21 +142,20 @@ internal class TransformOverlay : Control
             e.Handled = true;
     }
 
+    private static void OnRequestedCorners(DependencyObject obj, DependencyPropertyChangedEventArgs args)
+    {
+        TransformOverlay overlay = (TransformOverlay)obj;
+        overlay.originMoved = false;
+        overlay.Corners = (ShapeCorners)args.NewValue;
+        overlay.Origin = TransformHelper.OriginFromCorners(overlay.Corners);
+    }
+
     private bool ReleaseAnchor()
     {
-        if (CapturedAnchor is null)
+        if (capturedAnchor is null)
             return false;
         ReleaseMouseCapture();
-        CapturedAnchor = null;
+        capturedAnchor = null;
         return true;
     }
-
-    public Rect ToRect(Vector2d pos)
-    {
-        double scaled = SideLength / ZoomboxScale;
-        return new Rect(pos.X - scaled / 2, pos.Y - scaled / 2, scaled, scaled);
-    }
-
-    public static Vector2d ToVector2d(Point pos) => new Vector2d(pos.X, pos.Y);
-    public static Point ToPoint(Vector2d vec) => new Point(vec.X, vec.Y);
 }

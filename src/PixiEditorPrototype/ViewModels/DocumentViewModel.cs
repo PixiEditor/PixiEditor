@@ -33,38 +33,70 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    private TransformOverlayMode transformMode = TransformOverlayMode.None;
-    public TransformOverlayMode TransformMode
+    private TransformCornerFreedom transformCornerFreedom;
+    public TransformCornerFreedom TransformCornerFreedom
     {
-        get => transformMode;
-        private set
+        get => transformCornerFreedom;
+        set
         {
-            transformMode = value;
-            RaisePropertyChanged(nameof(TransformMode));
+            transformCornerFreedom = value;
+            PropertyChanged?.Invoke(this, new(nameof(TransformCornerFreedom)));
         }
     }
 
-    private ShapeCorners perspectiveTransform;
-    public ShapeCorners PerpectiveTransform
+    private TransformSideFreedom transformSideFreedom;
+    public TransformSideFreedom TransformSideFreedom
     {
-        get => perspectiveTransform;
+        get => transformSideFreedom;
         set
         {
-            perspectiveTransform = value;
-            RaisePropertyChanged(nameof(PerpectiveTransform));
+            transformSideFreedom = value;
+            PropertyChanged?.Invoke(this, new(nameof(TransformSideFreedom)));
+        }
+    }
+
+    private bool transformActive;
+    public bool TransformActive
+    {
+        get => transformActive;
+        set
+        {
+            transformActive = value;
+            PropertyChanged?.Invoke(this, new(nameof(TransformActive)));
+        }
+    }
+
+    private ShapeCorners requestedTransformCorners;
+    public ShapeCorners RequestedTransformCorners
+    {
+        get => requestedTransformCorners;
+        set
+        {
+            requestedTransformCorners = value;
+            RaisePropertyChanged(nameof(RequestedTransformCorners));
+        }
+    }
+
+    private ShapeCorners transformCorners;
+    public ShapeCorners TransformCorners
+    {
+        get => transformCorners;
+        set
+        {
+            transformCorners = value;
+            RaisePropertyChanged(nameof(TransformCorners));
             OnTransformUpdate();
         }
     }
 
-    private AffineTransform affineTransform;
-    public AffineTransform AffineTransform
+    private Vector2d transformOrigin;
+    public Vector2d TransformOrigin
     {
-        get => affineTransform;
+        get => transformOrigin;
         set
         {
-            affineTransform = value;
-            RaisePropertyChanged(nameof(AffineTransform));
-            OnTransformUpdate();
+            transformOrigin = value;
+            RaisePropertyChanged(nameof(TransformOrigin));
         }
     }
 
@@ -148,12 +180,15 @@ internal class DocumentViewModel : INotifyPropertyChanged
                 bitmap.Value.BackBuffer, bitmap.Value.BackBufferStride);
             Surfaces[bitmap.Key] = surface;
         }
+
+        Helpers.ActionAccumulator.AddFinishedActions
+            (new CreateStructureMember_Action(StructureRoot.GuidValue, Guid.NewGuid(), 0, StructureMemberType.Layer));
     }
 
     private bool drawingRectangle = false;
     private bool transformingRectangle = false;
 
-    private AffineTransform lastShape = new AffineTransform();
+    private ShapeCorners lastShape = new ShapeCorners();
     private ShapeData lastShapeData = new();
     public void StartUpdateRectangle(ShapeData data)
     {
@@ -164,7 +199,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
         drawingRectangle = true;
         Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data, drawOnMask));
-        lastShape = new AffineTransform(data.Center, data.Size, data.Angle);
+        lastShape = new ShapeCorners(data.Center, data.Size, data.Angle);
         lastShapeData = data;
     }
 
@@ -173,8 +208,11 @@ internal class DocumentViewModel : INotifyPropertyChanged
         if (!drawingRectangle)
             return;
         drawingRectangle = false;
-        AffineTransform = lastShape;
-        TransformMode = TransformOverlayMode.Affine;
+
+        RequestedTransformCorners = lastShape;
+        TransformCornerFreedom = TransformCornerFreedom.Free;
+        TransformSideFreedom = TransformSideFreedom.Free;
+        TransformActive = true;
         transformingRectangle = true;
     }
 
@@ -182,8 +220,9 @@ internal class DocumentViewModel : INotifyPropertyChanged
     {
         if (!transformingRectangle)
             return;
-        TransformMode = TransformOverlayMode.None;
+
         transformingRectangle = false;
+        TransformActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
     }
 
@@ -208,7 +247,14 @@ internal class DocumentViewModel : INotifyPropertyChanged
     {
         if (!transformingRectangle)
             return;
-        StartUpdateRectangle(new ShapeData(AffineTransform.Center, AffineTransform.Size, AffineTransform.Angle, lastShapeData.StrokeWidth, lastShapeData.StrokeColor, lastShapeData.FillColor, lastShapeData.BlendMode));
+        StartUpdateRectangle(new ShapeData(
+            TransformCorners.RectCenter,
+            TransformCorners.RectSize,
+            TransformCorners.RectRotation,
+            lastShapeData.StrokeWidth,
+            lastShapeData.StrokeColor,
+            lastShapeData.FillColor,
+            lastShapeData.BlendMode));
     }
 
     public void ForceRefreshView()

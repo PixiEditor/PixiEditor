@@ -2,6 +2,7 @@
 
 internal enum Anchor
 {
-    TopLeft, TopRight, BottomLeft, BottomRight, Rotation,
+    TopLeft, TopRight, BottomLeft, BottomRight,
     Top, Left, Right, Bottom,
+    Rotation, Origin
 }

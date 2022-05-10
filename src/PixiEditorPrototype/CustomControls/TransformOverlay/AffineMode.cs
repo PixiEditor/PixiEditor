@@ -1,56 +1,73 @@
-﻿using System.Windows;
-using System.Windows.Media;
-using ChunkyImageLib.DataHolders;
-
-namespace PixiEditorPrototype.CustomControls.TransformOverlay;
+﻿namespace PixiEditorPrototype.CustomControls.TransformOverlay;/*
 internal class AffineMode : ITransformMode
 {
     private TransformOverlay owner;
-
-    private static Pen blackPen = new Pen(Brushes.Black, 1);
-    private static Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 6 }, 0) };
 
     public AffineMode(TransformOverlay owner)
     {
         this.owner = owner;
     }
 
-    public void OnRender(DrawingContext context)
-    {
-        blackPen.Thickness = 1 / owner.ZoomboxScale;
-        blackDashedPen.Thickness = 1 / owner.ZoomboxScale;
-
-        var trans = owner.AffineTransform;
-        context.DrawLine(blackDashedPen, TransformOverlay.ToPoint(trans.TopLeft), TransformOverlay.ToPoint(trans.TopRight));
-        context.DrawLine(blackDashedPen, TransformOverlay.ToPoint(trans.TopLeft), TransformOverlay.ToPoint(trans.BottomLeft));
-        context.DrawLine(blackDashedPen, TransformOverlay.ToPoint(trans.BottomRight), TransformOverlay.ToPoint(trans.BottomLeft));
-        context.DrawLine(blackDashedPen, TransformOverlay.ToPoint(trans.BottomRight), TransformOverlay.ToPoint(trans.TopRight));
-
-        context.DrawRectangle(Brushes.White, blackPen, owner.ToRect(trans.TopLeft));
-        context.DrawRectangle(Brushes.White, blackPen, owner.ToRect(trans.TopRight));
-        context.DrawRectangle(Brushes.White, blackPen, owner.ToRect(trans.BottomLeft));
-        context.DrawRectangle(Brushes.White, blackPen, owner.ToRect(trans.BottomRight));
-
-        Vector2d rotPos = GetRotPos();
-        double radius = TransformOverlay.SideLength / owner.ZoomboxScale / 2;
-        context.DrawEllipse(Brushes.White, blackPen, new Point(rotPos.X, rotPos.Y), radius, radius);
-    }
-
     public void OnAnchorDrag(Vector2d pos, Anchor anchor)
     {
-        if (anchor == Anchor.Rotation)
+        switch (anchor)
         {
-            var cur = GetRotPos();
-            var angle = (cur - owner.AffineTransform.Center).CCWAngleTo(pos - owner.AffineTransform.Center);
-            owner.AffineTransform = new AffineTransform(owner.AffineTransform.Center, owner.AffineTransform.Size, owner.AffineTransform.Angle + angle);
-            return;
+            case Anchor.Rotation:
+                OnRotationDrag(pos);
+                break;
+            case Anchor.TopLeft:
+            case Anchor.TopRight:
+            case Anchor.BottomLeft:
+            case Anchor.BottomRight:
+                MoveCornerKeepStraight(pos, anchor);
+                break;
+            case Anchor.Top:
+            case Anchor.Left:
+            case Anchor.Right:
+            case Anchor.Bottom:
+                MoveSideKeepStraight(pos, anchor);
+                break;
         }
+    }
 
-        Vector2d curPos = AnchorTransformSpace(anchor);
+    private void MoveSideKeepStraight(Vector2d pos, Anchor anchor)
+    {
+        Vector2d curPos = AnchorInTransformSpace(anchor);
         Vector2d newPos = (pos - owner.AffineTransform.Center).Rotate(-owner.AffineTransform.Angle);
 
-        Anchor opposite = GetOpposite(anchor);
-        Vector2d oppPos = AnchorTransformSpace(opposite);
+        if (anchor is Anchor.Bottom or Anchor.Top)
+            newPos.X = curPos.X;
+        else
+            newPos.Y = curPos.Y;
+
+        Vector2d topLeft = AnchorInTransformSpace(Anchor.TopLeft);
+        Vector2d bottomRight = AnchorInTransformSpace(Anchor.BottomRight);
+        Vector2d delta = newPos - curPos;
+
+        if (anchor is Anchor.Top or Anchor.Left)
+            topLeft += delta;
+        else
+            bottomRight += delta;
+
+        Vector2d newTopLeft = new(Math.Min(topLeft.X, bottomRight.X), Math.Min(topLeft.Y, bottomRight.Y));
+        Vector2d newBottomRight = new(Math.Max(topLeft.X, bottomRight.X), Math.Max(topLeft.Y, bottomRight.Y));
+
+        Vector2d deltaCenter =
+            ((newTopLeft - newBottomRight) / 2 + newBottomRight)
+            .Rotate(owner.AffineTransform.Angle) / 2;
+
+        Vector2d newSize = (newBottomRight - newTopLeft);
+
+        owner.AffineTransform = new AffineTransform(owner.AffineTransform.Center + deltaCenter, newSize, owner.AffineTransform.Angle);
+    }
+
+    private void MoveCornerKeepStraight(Vector2d pos, Anchor anchor)
+    {
+        Vector2d curPos = AnchorInTransformSpace(anchor);
+        Vector2d newPos = (pos - owner.AffineTransform.Center).Rotate(-owner.AffineTransform.Angle);
+
+        Anchor opposite = GetOppositeCorner(anchor);
+        Vector2d oppPos = AnchorInTransformSpace(opposite);
 
         Vector2d oldSize = curPos - oppPos;
         Vector2d newSize = newPos - oppPos;
@@ -59,13 +76,7 @@ internal class AffineMode : ITransformMode
         owner.AffineTransform = new AffineTransform(owner.AffineTransform.Center + deltaCenter, newSize.Abs(), owner.AffineTransform.Angle);
     }
 
-    private Vector2d GetRotPos()
-    {
-        var trans = owner.AffineTransform;
-        return (trans.TopLeft + trans.TopRight) / 2 + (trans.TopLeft - trans.BottomLeft).Normalize() * 10 / owner.ZoomboxScale;
-    }
-
-    private Vector2d AnchorTransformSpace(Anchor anchor)
+    private Vector2d AnchorInTransformSpace(Anchor anchor)
     {
         var halfSize = owner.AffineTransform.Size / 2;
         return anchor switch
@@ -74,34 +85,36 @@ internal class AffineMode : ITransformMode
             Anchor.TopRight => new(halfSize.X, -halfSize.Y),
             Anchor.BottomLeft => new(-halfSize.X, halfSize.Y),
             Anchor.BottomRight => halfSize,
+            Anchor.Left => new(-halfSize.X, 0),
+            Anchor.Right => new(halfSize.X, 0),
+            Anchor.Top => new(0, -halfSize.Y),
+            Anchor.Bottom => new(0, halfSize.Y),
             _ => throw new System.NotImplementedException(),
         };
     }
 
-    private Anchor GetOpposite(Anchor anchor)
+    private Anchor GetOppositeSide(Anchor side)
     {
-        return anchor switch
+        return side switch
         {
-            Anchor.TopLeft => Anchor.BottomRight,
-            Anchor.TopRight => Anchor.BottomLeft,
-            Anchor.BottomLeft => Anchor.TopRight,
-            Anchor.BottomRight => Anchor.TopLeft,
-            _ => throw new System.NotImplementedException(),
+            Anchor.Left => Anchor.Right,
+            Anchor.Right => Anchor.Left,
+            Anchor.Top => Anchor.Bottom,
+            Anchor.Bottom => Anchor.Top,
+            _ => throw new ArgumentException($"{side} is not a side anchor"),
         };
     }
 
-    public Anchor? GetAnchorInPosition(Vector2d pos)
+    private (Anchor,Anchor) GetCornersOnSide(Anchor side)
     {
-        if (owner.IsWithinAnchor(owner.AffineTransform.TopLeft, pos))
-            return Anchor.TopLeft;
-        if (owner.IsWithinAnchor(owner.AffineTransform.TopRight, pos))
-            return Anchor.TopRight;
-        if (owner.IsWithinAnchor(owner.AffineTransform.BottomLeft, pos))
-            return Anchor.BottomLeft;
-        if (owner.IsWithinAnchor(owner.AffineTransform.BottomRight, pos))
-            return Anchor.BottomRight;
-        if (owner.IsWithinAnchor(GetRotPos(), pos))
-            return Anchor.Rotation;
-        return null;
+        return side switch
+        {
+            Anchor.Left => (Anchor.TopLeft, Anchor.BottomLeft),
+            Anchor.Right => (Anchor.TopRight, Anchor.BottomRight),
+            Anchor.Top => (Anchor.TopLeft, Anchor.TopRight),
+            Anchor.Bottom => (Anchor.BottomRight, Anchor.BottomLeft),
+            _ => throw new ArgumentException($"{side} is not a side anchor"),
+        };
     }
 }
+*/

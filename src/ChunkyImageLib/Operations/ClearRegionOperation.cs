@@ -29,7 +29,7 @@ internal class ClearRegionOperation : IDrawOperation
 
     public HashSet<Vector2i> FindAffectedChunks()
     {
-        return OperationHelper.FindChunksFullyInsideRectangle(pos, size);
+        return OperationHelper.FindChunksFullyInsideRectangle(pos, size, ChunkPool.FullChunkSize);
     }
     public void Dispose() { }
 }
