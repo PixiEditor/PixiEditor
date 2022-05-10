@@ -10,24 +10,28 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Navigation;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Dialogs
 {
-    public delegate void ListFetched(PaletteList list);
+    public delegate void ListFetched(PaletteList list, int cacheId);
 
     /// <summary>
     /// Interaction logic for LospecPalettesBrowser.xaml
     /// </summary>
     public partial class PalettesBrowser : Window
     {
-        public event ListFetched OnListFetched;
         public const int ItemsPerLoad = 10;
 
         public PaletteList PaletteList
@@ -153,8 +157,6 @@ namespace PixiEditor.Views.Dialogs
             }
         }
 
-        private static PaletteList _cachedPaletteList;
-
         private LocalPalettesFetcher _localPalettesFetcher;
 
         public PalettesBrowser()
@@ -163,9 +165,10 @@ namespace PixiEditor.Views.Dialogs
             Instance = this;
             DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
             ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite);
-            Loaded += (sender, args) =>
+            Loaded += async (sender, args) =>
             {
                 localPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
+                await localPalettesFetcher.RefreshCache();
             };
             Closed += (s, e) =>
             {
@@ -182,16 +185,6 @@ namespace PixiEditor.Views.Dialogs
                 Owner = Application.Current.MainWindow,
                 ImportPaletteCommand = importPaletteCommand,
                 PaletteListDataSources = dataSources
-            };
-
-            if (_cachedPaletteList != null)
-            {
-                browser.PaletteList = _cachedPaletteList;
-            }
-
-            browser.OnListFetched += list =>
-            {
-                _cachedPaletteList = list;
             };
 
             browser.CurrentEditingPalette = currentEditingPalette;
@@ -235,7 +228,7 @@ namespace PixiEditor.Views.Dialogs
             {
                 if (ConfirmationDialog.Show("Are you sure you want to delete this palette? This cannot be undone.", "Warning!") == ConfirmationType.Yes)
                 {
-                    LocalPalettesFetcher.DeletePalette(palette.FileName);
+                    localPalettesFetcher.DeletePalette(palette.FileName);
                     RemoveFavouritePalette(palette);
                 }
             }
@@ -302,7 +295,6 @@ namespace PixiEditor.Views.Dialogs
             }
 
             Sort();
-            OnListFetched?.Invoke(PaletteList);
 
             IsFetching = false;
         }
@@ -338,7 +330,6 @@ namespace PixiEditor.Views.Dialogs
 
                 PaletteList.Palettes.AddRange(newPalettes.Palettes);
                 Sort();
-                OnListFetched?.Invoke(PaletteList);
                 IsFetching = false;
             }
         }
@@ -444,7 +435,7 @@ namespace PixiEditor.Views.Dialogs
                 i++;
             }
 
-            await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
+            await localPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
 
             var palette = _localPalettesFetcher.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
             if (palette != null)
@@ -498,6 +489,38 @@ namespace PixiEditor.Views.Dialogs
             string url = (string)button.CommandParameter;
 
             ProcessHelpers.ShellExecute(url);
+        }
+
+
+        private async void ImportFromFile_OnClick(object sender, RoutedEventArgs e)
+        {
+            var parsers = ViewModelMain.Current.ColorsSubViewModel.PaletteParsers;
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = PaletteHelpers.GetFilter(parsers)
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                await ImportPalette(openFileDialog.FileName, parsers);
+            }
+        }
+
+        private async Task ImportPalette(string fileName, IList<PaletteFileParser> parsers)
+        {
+            var parser = parsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+            if (parser != null)
+            {
+                var data = await parser.Parse(fileName);
+
+                string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
+                await localPalettesFetcher.SavePalette(name, data.Colors.ToArray());
+            }
+        }
+
+        private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            ProcessHelpers.ShellExecute(e.Uri.ToString());
         }
     }
 }

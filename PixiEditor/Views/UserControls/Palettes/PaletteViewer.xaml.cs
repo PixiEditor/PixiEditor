@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -6,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
@@ -104,15 +107,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             {
                 if(_filesFilter == null)
                 {
-                    string filter = "";
-
-                    foreach (var parser in FileParsers)
-                    {
-                        string supportedFormats = string.Join(';', parser.SupportedFileExtensions).Replace(".", "*.");
-                        filter += $"{parser.FileName} ({supportedFormats})|{supportedFormats}|";
-                    }
-                    
-                    _filesFilter = filter.Remove(filter.Length - 1);
+                    _filesFilter = PaletteHelpers.GetFilter(FileParsers);
                 }
 
                 return _filesFilter;

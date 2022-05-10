@@ -39,7 +39,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public WpfObservableRangeCollection<PaletteFileParser> PaletteParsers { get; private set; }
         public WpfObservableRangeCollection<PaletteListDataSource> PaletteDataSources { get; private set; }
 
+        public LocalPalettesFetcher LocalPaletteFetcher => _localPaletteFetcher ??=
+            (LocalPalettesFetcher)PaletteDataSources.FirstOrDefault(x => x is LocalPalettesFetcher);
+
         private SKColor primaryColor = SKColors.Black;
+        private LocalPalettesFetcher _localPaletteFetcher;
 
         public SKColor PrimaryColor // Primary color, hooked with left mouse button
         {
@@ -159,11 +163,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private static async Task SavePalette(Palette palette, PalettesBrowser browser)
+        private async Task SavePalette(Palette palette, PalettesBrowser browser)
         {
             palette.FileName = $"{palette.Name}.pal";
-
-            await LocalPalettesFetcher.SavePalette(
+            
+            await LocalPaletteFetcher.SavePalette(
                 palette.FileName,
                 palette.Colors.Select(SKColor.Parse).ToArray());
 

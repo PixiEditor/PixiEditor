@@ -82,8 +82,11 @@ namespace PixiEditor.Models.DataProviders
 
         public async Task RefreshCache()
         {
-            string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder, string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)), SearchOption.TopDirectoryOnly);
+            string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder,
+                string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)),
+                SearchOption.TopDirectoryOnly);
             CachedPalettes = await ParseAll(files);
+            CacheUpdated?.Invoke(CachedPalettes);
         }
 
         private async Task<List<Palette>> ParseAll(string[] files)
@@ -92,6 +95,7 @@ namespace PixiEditor.Models.DataProviders
             foreach (var file in files)
             {
                 string extension = Path.GetExtension(file);
+                if (!File.Exists(file)) continue;
                 var foundParser = AvailableParsers.First(x => x.SupportedFileExtensions.Contains(extension));
                 {
                     PaletteFileData fileData = await foundParser.Parse(file);
@@ -112,14 +116,19 @@ namespace PixiEditor.Models.DataProviders
             return result;
         }
 
-        public static async Task SavePalette(string fileName, SKColor[] colors)
+        public async Task SavePalette(string fileName, SKColor[] colors)
         {
+            _watcher.EnableRaisingEvents = false;
             string path = Path.Join(PathToPalettesFolder, fileName);
             InitDir();
             await JascFileParser.SaveFile(path, new PaletteFileData(colors));
+
+            
+            _watcher.EnableRaisingEvents = true;
+            await RefreshCache();
         }
 
-        public static void DeletePalette(string name)
+        public void DeletePalette(string name)
         {
             if (!Directory.Exists(PathToPalettesFolder)) return;
             string path = Path.Join(PathToPalettesFolder, name);
@@ -144,7 +153,6 @@ namespace PixiEditor.Models.DataProviders
         private async void FileSystemChanged(object sender, FileSystemEventArgs e)
         {
             await RefreshCache();
-            CacheUpdated?.Invoke(CachedPalettes);
         }
 
         private static void InitDir()

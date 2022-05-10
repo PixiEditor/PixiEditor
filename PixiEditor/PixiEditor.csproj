@@ -140,6 +140,7 @@
 		<None Remove="Images\ChevronDown.png" />
 		<None Remove="Images\ChevronsDown.png" />
 		<None Remove="Images\CopyAdd.png" />
+		<None Remove="Images\Database.png" />
 		<None Remove="Images\DiagonalRed.png" />
 		<None Remove="Images\Download.png" />
 		<None Remove="Images\Edit.png" />
@@ -148,6 +149,7 @@
 		<None Remove="Images\Folder-add.png" />
 		<None Remove="Images\Folder.png" />
 		<None Remove="Images\Globe.png" />
+		<None Remove="Images\hard-drive.png" />
 		<None Remove="Images\Layer-add.png" />
 		<None Remove="Images\MoveImage.png" />
 		<None Remove="Images\MoveViewportImage.png" />
@@ -224,6 +226,7 @@
 		<Resource Include="Images\ChevronDown.png" />
 		<Resource Include="Images\ChevronsDown.png" />
 		<Resource Include="Images\CopyAdd.png" />
+		<Resource Include="Images\Database.png" />
 		<Resource Include="Images\DiagonalRed.png" />
 		<Resource Include="Images\Download.png" />
 		<Resource Include="Images\Edit.png" />
@@ -232,6 +235,7 @@
 		<Resource Include="Images\Folder-add.png" />
 		<Resource Include="Images\Folder.png" />
 		<Resource Include="Images\Globe.png" />
+		<Resource Include="Images\hard-drive.png" />
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\penMode.png" />
 		<Resource Include="Images\PixiBotLogo.png" />

@@ -27,7 +27,7 @@
                 <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" Click="BrowsePalettes_Click"
                 Cursor="Hand" Height="24" Width="24" ToolTip="Browse Palettes">
                         <Button.Background>
-                            <ImageBrush ImageSource="/Images/Search.png"/>
+                            <ImageBrush ImageSource="/Images/Database.png"/>
                         </Button.Background>
                     </Button>
                     <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" 
