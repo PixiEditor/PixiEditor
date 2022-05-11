@@ -21,8 +21,6 @@ namespace PixiEditor.Models.Commands
 
         public List<CommandGroup> CommandGroups { get; }
 
-        public Dictionary<string, FactoryEvaluator> FactoryEvaluators { get; }
-
         public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; }
 
         public Dictionary<string, IconEvaluator> IconEvaluators { get; }
@@ -40,7 +38,6 @@ namespace PixiEditor.Models.Commands
 
             Commands = new();
             CommandGroups = new();
-            FactoryEvaluators = new();
             CanExecuteEvaluators = new();
             IconEvaluators = new();
         }
@@ -90,10 +87,6 @@ namespace PixiEditor.Models.Commands
                                     Name = attribute.Name, 
                                     Evaluate = y => x.Invoke(y) && required.Invoke(this).All(z => z.EvaluateEvaluator(null, y))
                                 });
-                        }
-                        else if (attribute is Evaluator.FactoryAttribute factory)
-                        {
-                            AddEvaluator<Evaluator.FactoryAttribute, FactoryEvaluator, object>(method, instanceType, factory, FactoryEvaluators);
                         }
                         else if (attribute is Evaluator.IconAttribute icon)
                         {
