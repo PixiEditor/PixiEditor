@@ -3,6 +3,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using System.Windows.Input;
+using PixiEditor.Models.Services;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -12,35 +13,35 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public const string ConfirmationDialogTitle = "Unsaved changes";
         public const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
 
-        public DocumentViewModel(ViewModelMain owner)
+        private readonly DocumentProvider _doc;
+        
+        public DocumentViewModel(ViewModelMain owner, DocumentProvider provider)
             : base(owner)
         {
+            _doc = provider;
         }
 
         public void FlipDocument(object parameter)
         {
             if (parameter is "Horizontal")
             {
-                Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Horizontal);
+                _doc.GetDocument().FlipActiveDocument(FlipType.Horizontal);
             }
             else if (parameter is "Vertical")
             {
-                Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Vertical);
+                _doc.GetDocument().FlipActiveDocument(FlipType.Vertical);
             }
         }
 
-        public void RotateDocument(object parameter)
-        {
-            if (parameter is double angle)
-            {
-                Owner.BitmapManager.ActiveDocument?.RotateActiveDocument((float)angle);
-            }
+        public void RotateDocument(float angle)
+        { 
+            _doc.GetDocument().RotateActiveDocument(angle);
         }
 
         [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
         public void ClipCanvas()
         {
-            Owner.BitmapManager.ActiveDocument?.ClipCanvas();
+            _doc.GetDocument().ClipCanvas();
         }
 
         public void RequestCloseDocument(Document document)
@@ -66,7 +67,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, Icon = "Tools/EraserImage.png")]
         public void DeletePixels()
         {
-            var doc = Owner.BitmapManager.ActiveDocument;
+            var doc = _doc.GetDocument();
             Owner.BitmapManager.BitmapOperations.DeletePixels(
                 doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray(),
                 doc.ActiveSelection.SelectedPoints.ToArray());
@@ -77,18 +78,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public void OpenResizePopup(bool canvas)
         {
             ResizeDocumentDialog dialog = new ResizeDocumentDialog(
-                Owner.BitmapManager.ActiveDocument.Width,
-                Owner.BitmapManager.ActiveDocument.Height,
+                _doc.GetDocument().Width,
+                _doc.GetDocument().Height,
                 canvas);
             if (dialog.ShowDialog())
             {
                 if (canvas)
                 {
-                    Owner.BitmapManager.ActiveDocument.ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
+                    _doc.GetDocument().ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
                 }
                 else
                 {
-                    Owner.BitmapManager.ActiveDocument.Resize(dialog.Width, dialog.Height);
+                    _doc.GetDocument().Resize(dialog.Width, dialog.Height);
                 }
             }
         }
@@ -96,7 +97,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
         public void CenterContent()
         {
-            Owner.BitmapManager.ActiveDocument.CenterContent();
+            _doc.GetDocument().CenterContent();
         }
     }
 }

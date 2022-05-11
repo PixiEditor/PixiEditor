@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Layers;
-using System.Collections.Generic;
+using SkiaSharp;
 
 namespace PixiEditor.Models.Services
 {
@@ -20,7 +20,7 @@ namespace PixiEditor.Models.Services
         /// <summary>
         /// Gets all opened documents
         /// </summary>
-        public IEnumerable<Document> GetDocuments() => _bitmapManager.Documents;
+        public ICollection<Document> GetDocuments() => _bitmapManager.Documents;
 
         /// <summary>
         /// Gets the active document
@@ -30,7 +30,7 @@ namespace PixiEditor.Models.Services
         /// <summary>
         /// Get the layers of the opened document
         /// </summary>
-        public IEnumerable<Layer> GetLayers() => _bitmapManager.ActiveDocument?.Layers;
+        public ICollection<Layer> GetLayers() => _bitmapManager.ActiveDocument?.Layers;
 
         /// <summary>
         /// Gets the layer structure of the opened document
@@ -66,5 +66,7 @@ namespace PixiEditor.Models.Services
         /// Gets the renderer for the reference layer of the active document
         /// </summary>
         public SingleLayerRenderer GetReferenceRenderer() => _bitmapManager.ActiveDocument?.ReferenceLayerRenderer;
+        
+        public ICollection<SKColor> GetSwatches() => _bitmapManager.ActiveDocument?.Swatches;
     }
 }

@@ -7,13 +7,16 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Models.Services;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     [Command.Group("PixiEditor.Clipboard", "Clipboard")]
     public class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
-        public ClipboardViewModel(ViewModelMain owner)
+        private readonly DocumentProvider _doc;
+        
+        public ClipboardViewModel(ViewModelMain owner, DocumentProvider provider)
             : base(owner)
         {
         }
@@ -30,15 +33,15 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             Copy();
             Owner.BitmapManager.BitmapOperations.DeletePixels(
-                new[] { Owner.BitmapManager.ActiveDocument.ActiveLayer },
-                Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray());
+                new[] { _doc.GetLayer() },
+                _doc.GetDocument().ActiveSelection.SelectedPoints.ToArray());
         }
 
         [Command.Basic("PixiEditor.Clipboard.Paste", "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
         public void Paste()
         {
-            if (Owner.BitmapManager.ActiveDocument == null) return;
-            ClipboardController.PasteFromClipboard(Owner.BitmapManager.ActiveDocument);
+            if (_doc.GetDocument() == null) return;
+            ClipboardController.PasteFromClipboard(_doc.GetDocument());
         }
 
         [Command.Basic("PixiEditor.Clipboard.PasteColor", "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
@@ -53,10 +56,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             ClipboardController.CopyToClipboard(Owner.BitmapManager.ActiveDocument);
         }
 
-        [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
+        [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste", requires: "PixiEditor.HasDocument")]
         public bool CanPaste()
         {
-            return Owner.DocumentIsNotNull(null) && ClipboardController.IsImageInClipboard();
+            return ClipboardController.IsImageInClipboard();
         }
 
         [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
