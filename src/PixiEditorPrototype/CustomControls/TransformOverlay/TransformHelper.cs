@@ -6,7 +6,8 @@ using ChunkyImageLib.DataHolders;
 namespace PixiEditorPrototype.CustomControls.TransformOverlay;
 internal static class TransformHelper
 {
-    public const double SideLength = 10;
+    public const double AnchorSize = 10;
+    public const double MoveHandleSize = 16;
 
     private static Pen blackPen = new Pen(Brushes.Black, 1);
     private static Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 0) };
@@ -14,9 +15,22 @@ internal static class TransformHelper
     private static Pen blackFreqDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 0) };
     private static Pen whiteFreqDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 2) };
 
-    public static Rect ToRect(Vector2d pos, double zoomboxScale)
+    private static PathGeometry handleGeometry = new()
     {
-        double scaled = SideLength / zoomboxScale;
+        FillRule = FillRule.Nonzero,
+        Figures = (PathFigureCollection?)new PathFigureCollectionConverter()
+            .ConvertFrom("M 0.50025839 0 0.4248062 0.12971572 0.34987079 0.25994821 h 0.1002584 V 0.45012906 H 0.25994831 V 0.34987066 L 0.12971577 0.42480604 0 0.5002582 0.12971577 0.57519373 0.25994831 0.65012926 V 0.5498709 H 0.45012919 V 0.74005175 H 0.34987079 L 0.42480619 0.87028439 0.50025839 1 0.57519399 0.87028439 0.65012959 0.74005175 H 0.54987119 V 0.5498709 H 0.74005211 V 0.65012926 L 0.87028423 0.57519358 1 0.5002582 0.87028423 0.42480604 0.74005169 0.34987066 v 0.1002584 H 0.54987077 V 0.25994821 h 0.1002584 L 0.5751938 0.12971572 Z"),
+    };
+
+    public static Rect ToAnchorRect(Vector2d pos, double zoomboxScale)
+    {
+        double scaled = AnchorSize / zoomboxScale;
+        return new Rect(pos.X - scaled / 2, pos.Y - scaled / 2, scaled, scaled);
+    }
+
+    public static Rect ToHandleRect(Vector2d pos, double zoomboxScale)
+    {
+        double scaled = MoveHandleSize / zoomboxScale;
         return new Rect(pos.X - scaled / 2, pos.Y - scaled / 2, scaled, scaled);
     }
 
@@ -183,10 +197,6 @@ internal static class TransformHelper
         if (IsWithinAnchor((bottomLeft - bottomRight) / 2 + bottomRight, pos, zoomboxScale))
             return Anchor.Bottom;
 
-        // rotation
-        if (IsWithinAnchor(GetRotPos(corners, zoomboxScale), pos, zoomboxScale))
-            return Anchor.Rotation;
-
         // origin
         if (IsWithinAnchor(origin, pos, zoomboxScale))
             return Anchor.Origin;
@@ -195,12 +205,24 @@ internal static class TransformHelper
 
     public static bool IsWithinAnchor(Vector2d anchorPos, Vector2d mousePos, double zoomboxScale)
     {
-        return (anchorPos - mousePos).TaxicabLength <= (SideLength + 6) / zoomboxScale / 2;
+        var delta = (anchorPos - mousePos).Abs();
+        double scaled = AnchorSize / zoomboxScale / 2;
+        return delta.X < scaled && delta.Y < scaled;
+    }
+
+    public static bool IsWithinTransformHandle(Vector2d handlePos, Vector2d mousePos, double zoomboxScale)
+    {
+        var delta = (handlePos - mousePos).Abs();
+        double scaled = MoveHandleSize / zoomboxScale / 2;
+        return delta.X < scaled && delta.Y < scaled;
     }
 
     public static void DrawOverlay
-        (DrawingContext context, ShapeCorners corners, Vector2d origin, double zoomboxScale)
+        (DrawingContext context, Vector2d size, ShapeCorners corners, Vector2d origin, double zoomboxScale)
     {
+        // draw transparent background to enable mouse input everywhere
+        context.DrawRectangle(Brushes.Transparent, null, new Rect(new Point(0, 0), new Size(size.X, size.Y)));
+
         blackPen.Thickness = 1 / zoomboxScale;
         blackDashedPen.Thickness = 1 / zoomboxScale;
         whiteDashedPen.Thickness = 1 / zoomboxScale;
@@ -222,31 +244,40 @@ internal static class TransformHelper
         context.DrawLine(blackDashedPen, ToPoint(bottomRight), ToPoint(topRight));
         context.DrawLine(whiteDashedPen, ToPoint(bottomRight), ToPoint(topRight));
 
-        // corners
-        context.DrawRectangle(Brushes.White, blackPen, ToRect(topLeft, zoomboxScale));
-        context.DrawRectangle(Brushes.White, blackPen, ToRect(topRight, zoomboxScale));
-        context.DrawRectangle(Brushes.White, blackPen, ToRect(bottomLeft, zoomboxScale));
-        context.DrawRectangle(Brushes.White, blackPen, ToRect(bottomRight, zoomboxScale));
+        // corner anchors
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect(topLeft, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect(topRight, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect(bottomLeft, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect(bottomRight, zoomboxScale));
 
-        // sides
-        context.DrawRectangle(Brushes.White, blackPen, ToRect((topLeft - topRight) / 2 + topRight, zoomboxScale));
-        context.DrawRectangle(Brushes.White, blackPen, ToRect((topLeft - bottomLeft) / 2 + bottomLeft, zoomboxScale));
-        context.DrawRectangle(Brushes.White, blackPen, ToRect((bottomLeft - bottomRight) / 2 + bottomRight, zoomboxScale));
-        context.DrawRectangle(Brushes.White, blackPen, ToRect((topRight - bottomRight) / 2 + bottomRight, zoomboxScale));
-
-        // rotation
-        Vector2d rotPos = GetRotPos(corners, zoomboxScale);
-        double radius = SideLength / zoomboxScale / 2;
-        context.DrawEllipse(Brushes.White, blackPen, ToPoint(rotPos), radius, radius);
+        // side anchors
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect((topLeft - topRight) / 2 + topRight, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect((topLeft - bottomLeft) / 2 + bottomLeft, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect((bottomLeft - bottomRight) / 2 + bottomRight, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, ToAnchorRect((topRight - bottomRight) / 2 + bottomRight, zoomboxScale));
 
         // origin
+        double radius = AnchorSize / zoomboxScale / 2;
         context.DrawEllipse(Brushes.Transparent, blackFreqDashedPen, ToPoint(origin), radius, radius);
         context.DrawEllipse(Brushes.Transparent, whiteFreqDashedPen, ToPoint(origin), radius, radius);
+
+        // move handle
+        Vector2d handlePos = GetDragHandlePos(corners, zoomboxScale);
+        const double CrossSize = MoveHandleSize - 1;
+        context.DrawRectangle(Brushes.White, blackPen, ToHandleRect(handlePos, zoomboxScale));
+        handleGeometry.Transform = new MatrixTransform(
+            0, CrossSize / zoomboxScale,
+            CrossSize / zoomboxScale, 0,
+            handlePos.X - CrossSize / (zoomboxScale * 2), handlePos.Y - CrossSize / (zoomboxScale * 2)
+            );
+        context.DrawGeometry(Brushes.Black, null, handleGeometry);
     }
 
-    public static Vector2d GetRotPos(ShapeCorners corners, double zoomboxScale)
+    public static Vector2d GetDragHandlePos(ShapeCorners corners, double zoomboxScale)
     {
-        return (corners.TopLeft + corners.TopRight) / 2 +
-            (corners.TopLeft.Lerp(corners.TopRight, 0.5) - corners.BottomLeft.Lerp(corners.BottomRight, 0.5)).Normalize() * 15 / zoomboxScale;
+        Vector2d max = new(
+            Math.Max(Math.Max(corners.TopLeft.X, corners.TopRight.X), Math.Max(corners.BottomLeft.X, corners.BottomRight.X)),
+            Math.Max(Math.Max(corners.TopLeft.Y, corners.TopRight.Y), Math.Max(corners.BottomLeft.Y, corners.BottomRight.Y)));
+        return max + new Vector2d(MoveHandleSize / zoomboxScale, MoveHandleSize / zoomboxScale);
     }
 }

@@ -31,4 +31,23 @@ public struct ShapeCorners
         (TopLeft - TopRight).Cross(TopLeft - BottomLeft) > 0 ?
         RectSize.CCWAngleTo(BottomRight - TopLeft) :
         RectSize.CCWAngleTo(BottomLeft - TopRight);
+    public bool IsPointInside(Vector2d point)
+    {
+        var top = TopLeft - TopRight;
+        var right = TopRight - BottomRight;
+        var bottom = BottomRight - BottomLeft;
+        var left = BottomLeft - TopLeft;
+
+        var deltaTopLeft = point - TopLeft;
+        var deltaTopRight = point - TopRight;
+        var deltaBottomRight = point - BottomRight;
+        var deltaBottomLeft = point - BottomLeft;
+
+        var crossTop = Math.Sign(top.Cross(deltaTopLeft));
+        var crossRight = Math.Sign(right.Cross(deltaTopRight));
+        var crossBottom = Math.Sign(bottom.Cross(deltaBottomRight));
+        var crossLeft = Math.Sign(left.Cross(deltaBottomLeft));
+
+        return crossTop == crossRight && crossTop == crossLeft && crossTop == crossBottom;
+    }
 }

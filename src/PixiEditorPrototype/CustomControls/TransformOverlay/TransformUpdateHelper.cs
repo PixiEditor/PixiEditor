@@ -5,7 +5,7 @@ namespace PixiEditorPrototype.CustomControls.TransformOverlay;
 internal static class TransformUpdateHelper
 {
     public static ShapeCorners? UpdateShapeFromCorner
-        (Anchor targetCorner, TransformCornerFreedom freedom, ShapeCorners corners, Vector2d desiredPos)
+        (Anchor targetCorner, TransformCornerFreedom freedom, ShapeCorners corners, Vector2d movement)
     {
         if (!TransformHelper.IsCorner(targetCorner))
             throw new ArgumentException($"{targetCorner} is not a corner");
@@ -16,6 +16,7 @@ internal static class TransformUpdateHelper
         if (freedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale)
         {
             var targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
+            Vector2d desiredPos = targetPos + movement;
             var opposite = TransformHelper.GetOpposite(targetCorner);
             var oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
@@ -45,6 +46,8 @@ internal static class TransformUpdateHelper
 
         if (freedom == TransformCornerFreedom.Free)
         {
+            var targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
+            Vector2d desiredPos = targetPos + movement;
             var newCorners = TransformHelper.UpdateCorner(corners, targetCorner, desiredPos);
             return newCorners.IsLegal ? newCorners : null;
         }
@@ -52,7 +55,7 @@ internal static class TransformUpdateHelper
     }
 
     public static ShapeCorners? UpdateShapeFromSide
-        (Anchor targetSide, TransformSideFreedom freedom, ShapeCorners corners, Vector2d desiredPos)
+        (Anchor targetSide, TransformSideFreedom freedom, ShapeCorners corners, Vector2d movement)
     {
         if (!TransformHelper.IsSide(targetSide))
             throw new ArgumentException($"{targetSide} is not a side");
@@ -63,6 +66,7 @@ internal static class TransformUpdateHelper
         if (freedom is TransformSideFreedom.ScaleProportionally)
         {
             var targetPos = TransformHelper.GetAnchorPosition(corners, targetSide);
+            Vector2d desiredPos = targetPos + movement;
             var opposite = TransformHelper.GetOpposite(targetSide);
             var oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
@@ -96,6 +100,7 @@ internal static class TransformUpdateHelper
             var side1Pos = TransformHelper.GetAnchorPosition(corners, side1);
             var side2Pos = TransformHelper.GetAnchorPosition(corners, side2);
             var targetPos = TransformHelper.GetAnchorPosition(corners, targetSide);
+            var desiredPos = targetPos + movement;
 
             var opposite = TransformHelper.GetOpposite(targetSide);
             var oppPos = TransformHelper.GetAnchorPosition(corners, opposite);
