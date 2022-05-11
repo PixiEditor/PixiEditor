@@ -37,6 +37,15 @@ internal static class TransformHelper
     public static Vector2d ToVector2d(Point pos) => new Vector2d(pos.X, pos.Y);
     public static Point ToPoint(Vector2d vec) => new Point(vec.X, vec.Y);
 
+    public static ShapeCorners SnapToPixels(ShapeCorners corners)
+    {
+        corners.TopLeft = corners.TopLeft.Round();
+        corners.TopRight = corners.TopRight.Round();
+        corners.BottomLeft = corners.BottomLeft.Round();
+        corners.BottomRight = corners.BottomRight.Round();
+        return corners;
+    }
+
     public static Vector2d OriginFromCorners(ShapeCorners corners)
     {
         var maybeOrigin = TwoLineIntersection(

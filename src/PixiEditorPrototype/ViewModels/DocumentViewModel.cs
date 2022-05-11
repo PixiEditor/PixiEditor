@@ -210,8 +210,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
         drawingRectangle = false;
 
         RequestedTransformCorners = lastShape;
-        TransformCornerFreedom = TransformCornerFreedom.Free;
-        TransformSideFreedom = TransformSideFreedom.Free;
+        TransformCornerFreedom = TransformCornerFreedom.ScaleProportionally;
+        TransformSideFreedom = TransformSideFreedom.Stretch;
         TransformActive = true;
         transformingRectangle = true;
     }

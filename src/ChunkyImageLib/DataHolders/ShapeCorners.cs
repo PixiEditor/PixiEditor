@@ -31,6 +31,18 @@ public struct ShapeCorners
         (TopLeft - TopRight).Cross(TopLeft - BottomLeft) > 0 ?
         RectSize.CCWAngleTo(BottomRight - TopLeft) :
         RectSize.CCWAngleTo(BottomLeft - TopRight);
+    public bool IsSnappedToPixels
+    {
+        get
+        {
+            double epsilon = 0.01;
+            return
+                (TopLeft - TopLeft.Round()).TaxicabLength < epsilon &&
+                (TopRight - TopRight.Round()).TaxicabLength < epsilon &&
+                (BottomLeft - BottomLeft.Round()).TaxicabLength < epsilon &&
+                (BottomRight - BottomRight.Round()).TaxicabLength < epsilon;
+        }
+    }
     public bool IsPointInside(Vector2d point)
     {
         var top = TopLeft - TopRight;

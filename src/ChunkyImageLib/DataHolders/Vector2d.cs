@@ -21,7 +21,10 @@ public struct Vector2d
     {
         return new Vector2d(Math.Cos(angle) * length, Math.Sin(angle) * length);
     }
-
+    public Vector2d Round()
+    {
+        return new(Math.Round(X), Math.Round(Y));
+    }
     public Vector2d Rotate(double angle)
     {
         Vector2d result = new Vector2d();
