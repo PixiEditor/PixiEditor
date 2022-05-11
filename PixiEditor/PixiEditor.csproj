@@ -209,7 +209,7 @@
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
-		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.2" />
+		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.3" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.1.0" />
 		<PackageReference Include="SkiaSharp" Version="2.80.3" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
