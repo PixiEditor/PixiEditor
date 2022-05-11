@@ -6,7 +6,9 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
              xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-             xmlns:PixiEditor="clr-namespace:PixiEditor" x:Class="PixiEditor.Views.Dialogs.PalettesBrowser"
+             xmlns:PixiEditor="clr-namespace:PixiEditor"
+             xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+             x:Class="PixiEditor.Views.Dialogs.PalettesBrowser"
              mc:Ignorable="d"
              Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="850" WindowStyle="None"
              x:Name="palettesBrowser">
@@ -26,19 +28,16 @@
     <Grid Background="{StaticResource AccentColor}" FocusVisualStyle="{x:Null}" Focusable="True" MouseDown="Grid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
-            <RowDefinition Height="55"/>
+            <RowDefinition Height="45"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
-        </DockPanel>
+        <dialogs:DialogTitleBar TitleText="Palette Browser" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="1">
             <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
-                <Label Content="Sort by:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
-                <ComboBox x:Name="sortingComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
+                <Label Content="Sort by:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
+                <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True" Content="Default"/>
                     <ComboBoxItem Content="Alphabetical"/>
                     <ComboBoxItem Content="Color Count"/>
@@ -67,23 +66,23 @@
                         </Image.Style>
                     </Image>
                 </ToggleButton>
-                <Label Margin="10 0 0 0" Content="Name:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
-                <usercontrols:InputBox FontSize="16"
+                <Label Margin="10 0 0 0" Content="Name:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
+                <usercontrols:InputBox
                                        Text="{Binding NameFilter, Delay=100, ElementName=palettesBrowser, UpdateSourceTrigger=PropertyChanged}"
                                        VerticalAlignment="Center"
                                        Style="{StaticResource DarkTextBoxStyle}" Width="150" />
 
-                <Label Margin="10 0 0 0" Content="Colors:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center" FontSize="16"/>
-                <ComboBox x:Name="colorsComboBox" FontSize="16" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
+                <Label Margin="10 0 0 0" Content="Colors:" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
+                <ComboBox x:Name="colorsComboBox" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True" Content="Any"/>
                     <ComboBoxItem Content="Max"/>
                     <ComboBoxItem Content="Min"/>
                     <ComboBoxItem Content="Exact"/>
                 </ComboBox>
-                <views:NumberInput Width="50" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0"
+                <views:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
                                    FocusNext="True"
                                    Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}"/>
-                <CheckBox Margin="10 0 0 0" VerticalAlignment="Center" FontSize="16"
+                <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"
                           IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}" Content="Favourites"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">

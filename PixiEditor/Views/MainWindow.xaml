@@ -359,8 +359,8 @@
 
                                 <LayoutAnchorablePane x:Name="colorPane">
                                     <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
-                                                             CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
-                                                             CanDockAsTabbedDocument="False" CanFloat="True">
+                                                      CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
+                                                      CanDockAsTabbedDocument="False" CanFloat="True">
                                         <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"
                                                                          SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" 
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
@@ -380,7 +380,7 @@
                                         </colorpicker:ColorSliders>
                                     </LayoutAnchorable>
                                     <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
-                                                                 CanClose="False" CanAutoHide="False"
+                                                                 CanClose="False" CanAutoHide="False" x:Name="paletteAnchorable"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
                                         <Grid>
                                             <palettes:CompactPaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,

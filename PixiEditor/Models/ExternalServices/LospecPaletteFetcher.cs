@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Models.ExternalServices
 {
@@ -36,6 +37,7 @@ namespace PixiEditor.Models.ExternalServices
             }
             catch(HttpRequestException)
             {
+                NoticeDialog.Show("Failed to download palette.", "Error");
                 return null;
             }
 
