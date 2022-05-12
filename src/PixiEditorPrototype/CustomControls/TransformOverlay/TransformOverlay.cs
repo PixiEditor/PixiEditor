@@ -75,6 +75,10 @@ internal class TransformOverlay : Control
     private bool isRotating = false;
     private Vector2d mousePosOnStartRotate = new();
     private ShapeCorners preciseCornersOnStartRotate = new();
+    private double proportionalAngle1 = 0;
+    private double proportionalAngle2 = 0;
+    private double propAngle1OnStartRotate = 0;
+    private double propAngle2OnStartRotate = 0;
 
     private Anchor? capturedAnchor;
     private bool originWasManuallyDragged = false;
@@ -116,6 +120,8 @@ internal class TransformOverlay : Control
             isRotating = true;
             mousePosOnStartRotate = TransformHelper.ToVector2d(e.GetPosition(this));
             preciseCornersOnStartRotate = Corners;
+            propAngle1OnStartRotate = proportionalAngle1;
+            propAngle2OnStartRotate = proportionalAngle2;
         }
         CaptureMouse();
     }
@@ -149,7 +155,9 @@ internal class TransformOverlay : Control
         {
             var pos = TransformHelper.ToVector2d(e.GetPosition(this));
             var angle = (mousePosOnStartRotate - Origin).CCWAngleTo(pos - Origin);
-            Corners = Corners = TransformUpdateHelper.UpdateShapeFromRotation(preciseCornersOnStartRotate, Origin, angle);
+            proportionalAngle1 = propAngle1OnStartRotate + angle;
+            proportionalAngle2 = propAngle2OnStartRotate + angle;
+            Corners = TransformUpdateHelper.UpdateShapeFromRotation(preciseCornersOnStartRotate, Origin, angle);
         }
     }
 
@@ -167,7 +175,7 @@ internal class TransformOverlay : Control
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
             var targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
-            var newCorners = TransformUpdateHelper.UpdateShapeFromCorner((Anchor)capturedAnchor, CornerFreedom, preciseCornersOnStartAnchorDrag, targetPos);
+            var newCorners = TransformUpdateHelper.UpdateShapeFromCorner((Anchor)capturedAnchor, CornerFreedom, proportionalAngle1, proportionalAngle2, preciseCornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {
                 bool shouldSnap = (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) && Corners.IsSnappedToPixels;
@@ -179,7 +187,7 @@ internal class TransformOverlay : Control
         else if (TransformHelper.IsSide((Anchor)capturedAnchor))
         {
             var targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
-            var newCorners = TransformUpdateHelper.UpdateShapeFromSide((Anchor)capturedAnchor, SideFreedom, preciseCornersOnStartAnchorDrag, targetPos);
+            var newCorners = TransformUpdateHelper.UpdateShapeFromSide((Anchor)capturedAnchor, SideFreedom, proportionalAngle1, proportionalAngle2, preciseCornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {
                 bool shouldSnap = (SideFreedom is TransformSideFreedom.ScaleProportionally or TransformSideFreedom.Stretch) && Corners.IsSnappedToPixels;
@@ -219,6 +227,8 @@ internal class TransformOverlay : Control
         TransformOverlay overlay = (TransformOverlay)obj;
         overlay.originWasManuallyDragged = false;
         overlay.Corners = (ShapeCorners)args.NewValue;
+        overlay.proportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle;
+        overlay.proportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle;
         overlay.Origin = TransformHelper.OriginFromCorners(overlay.Corners);
     }
 

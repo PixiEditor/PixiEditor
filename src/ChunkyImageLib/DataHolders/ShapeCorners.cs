@@ -25,6 +25,7 @@ public struct ShapeCorners
         }
     }
     public bool HasNaNOrInfinity => TopLeft.IsNaNOrInfinity() || TopRight.IsNaNOrInfinity() || BottomLeft.IsNaNOrInfinity() || BottomRight.IsNaNOrInfinity();
+    public bool IsRect => Math.Abs((TopLeft - BottomRight).Length - (TopRight - BottomLeft).Length) < 0.001;
     public Vector2d RectSize => new((TopLeft - TopRight).Length, (TopLeft - BottomLeft).Length);
     public Vector2d RectCenter => (TopLeft - BottomRight) / 2 + BottomRight;
     public double RectRotation =>

@@ -124,7 +124,10 @@ internal static class TransformHelper
         };
     }
 
-    public static (Anchor, Anchor) GetCornersOnSide(Anchor side)
+    /// <summary>
+    /// The first anchor would be on your left if you were standing on the side and looking inside the shape; the second anchor is to the right.
+    /// </summary>
+    public static (Anchor leftAnchor, Anchor rightAnchor) GetCornersOnSide(Anchor side)
     {
         return side switch
         {
@@ -136,14 +139,17 @@ internal static class TransformHelper
         };
     }
 
+    /// <summary>
+    /// The first corner would be on your left if you were standing on the passed corner and looking inside the shape; the second corner is to the right.
+    /// </summary>
     public static (Anchor, Anchor) GetNeighboringCorners(Anchor corner)
     {
         return corner switch
         {
             Anchor.TopLeft => (Anchor.TopRight, Anchor.BottomLeft),
-            Anchor.TopRight => (Anchor.TopLeft, Anchor.BottomRight),
+            Anchor.TopRight => (Anchor.BottomRight, Anchor.TopLeft),
             Anchor.BottomLeft => (Anchor.TopLeft, Anchor.BottomRight),
-            Anchor.BottomRight => (Anchor.TopRight, Anchor.BottomLeft),
+            Anchor.BottomRight => (Anchor.BottomLeft, Anchor.TopRight),
             _ => throw new ArgumentException($"{corner} is not a corner anchor"),
         };
     }
