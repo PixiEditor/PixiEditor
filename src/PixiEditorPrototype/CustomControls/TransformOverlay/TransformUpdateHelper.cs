@@ -66,33 +66,6 @@ internal static class TransformUpdateHelper
 
         if (freedom is TransformSideFreedom.ScaleProportionally)
         {
-            /*
-            var targetPos = TransformHelper.GetAnchorPosition(corners, targetSide);
-            var opposite = TransformHelper.GetOpposite(targetSide);
-            var oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
-
-            Vector2d thing = targetPos - oppositePos;
-            thing = Vector2d.FromAngleAndLength(thing.Angle, 1 / thing.Length);
-            double scalingFactor = (desiredPos - oppositePos) * thing;
-            Vector2d scalingVector = new(1, scalingFactor / 2);
-            corners.TopLeft = ((corners.TopLeft - oppositePos).Rotate(-propAngle1).Multiply(scalingVector)).Rotate(propAngle1) + oppositePos;
-            corners.TopRight = ((corners.TopRight - oppositePos).Rotate(-propAngle1).Multiply(scalingVector)).Rotate(propAngle1) + oppositePos;
-            corners.BottomLeft = ((corners.BottomLeft - oppositePos).Rotate(-propAngle1).Multiply(scalingVector)).Rotate(propAngle1) + oppositePos;
-            corners.BottomRight = ((corners.BottomRight - oppositePos).Rotate(-propAngle1).Multiply(scalingVector)).Rotate(propAngle1) + oppositePos;
-
-            corners.TopLeft = ((corners.TopLeft - oppositePos).Rotate(-propAngle2).Multiply(scalingVector)).Rotate(propAngle2) + oppositePos;
-            corners.TopRight = ((corners.TopRight - oppositePos).Rotate(-propAngle2).Multiply(scalingVector)).Rotate(propAngle2) + oppositePos;
-            corners.BottomLeft = ((corners.BottomLeft - oppositePos).Rotate(-propAngle2).Multiply(scalingVector)).Rotate(propAngle2) + oppositePos;
-            corners.BottomRight = ((corners.BottomRight - oppositePos).Rotate(-propAngle2).Multiply(scalingVector)).Rotate(propAngle2) + oppositePos;
-
-            return corners;
-            */
-
-            //var (corner1, corner2) = TransformHelper.GetCornersOnSide(targetSide);
-            //UpdateShapeFromCorner(corner1, TransformCornerFreedom.ScaleProportionally, propAngle1, propAngle2, corners,)
-
-
-
             var targetPos = TransformHelper.GetAnchorPosition(corners, targetSide);
             var opposite = TransformHelper.GetOpposite(targetSide);
             var oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);

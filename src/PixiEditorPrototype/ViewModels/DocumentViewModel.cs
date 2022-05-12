@@ -14,7 +14,6 @@ using PixiEditor.ChangeableDocument.Actions.Root;
 using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditorPrototype.CustomControls.TransformOverlay;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
 
@@ -33,74 +32,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    private TransformCornerFreedom transformCornerFreedom;
-    public TransformCornerFreedom TransformCornerFreedom
-    {
-        get => transformCornerFreedom;
-        set
-        {
-            transformCornerFreedom = value;
-            PropertyChanged?.Invoke(this, new(nameof(TransformCornerFreedom)));
-        }
-    }
-
-    private TransformSideFreedom transformSideFreedom;
-    public TransformSideFreedom TransformSideFreedom
-    {
-        get => transformSideFreedom;
-        set
-        {
-            transformSideFreedom = value;
-            PropertyChanged?.Invoke(this, new(nameof(TransformSideFreedom)));
-        }
-    }
-
-    private bool transformActive;
-    public bool TransformActive
-    {
-        get => transformActive;
-        set
-        {
-            transformActive = value;
-            PropertyChanged?.Invoke(this, new(nameof(TransformActive)));
-        }
-    }
-
-    private ShapeCorners requestedTransformCorners;
-    public ShapeCorners RequestedTransformCorners
-    {
-        get => requestedTransformCorners;
-        set
-        {
-            requestedTransformCorners = value;
-            RaisePropertyChanged(nameof(RequestedTransformCorners));
-        }
-    }
-
-    private ShapeCorners transformCorners;
-    public ShapeCorners TransformCorners
-    {
-        get => transformCorners;
-        set
-        {
-            transformCorners = value;
-            RaisePropertyChanged(nameof(TransformCorners));
-            OnTransformUpdate();
-        }
-    }
-
-    private Vector2d transformOrigin;
-    public Vector2d TransformOrigin
-    {
-        get => transformOrigin;
-        set
-        {
-            transformOrigin = value;
-            RaisePropertyChanged(nameof(TransformOrigin));
-        }
-    }
-
-
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public void RaisePropertyChanged(string name)
@@ -109,6 +40,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     public FolderViewModel StructureRoot { get; }
+    public DocumentTransformViewModel TransformViewModel { get; }
     public RelayCommand? UndoCommand { get; }
     public RelayCommand? RedoCommand { get; }
     public RelayCommand? ClearSelectionCommand { get; }
@@ -152,10 +84,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
     {
         this.owner = owner;
 
+        TransformViewModel = new();
+        TransformViewModel.TransformMoved += OnTransformUpdate;
+
         StateHandler = new(this);
         Helpers = new DocumentHelpers(this);
         StructureRoot = new FolderViewModel(this, Helpers, Helpers.Tracker.Document.ReadOnlyStructureRoot);
-
 
         UndoCommand = new RelayCommand(Undo);
         RedoCommand = new RelayCommand(Redo);
@@ -209,10 +143,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
         drawingRectangle = false;
 
-        RequestedTransformCorners = lastShape;
-        TransformCornerFreedom = TransformCornerFreedom.Free;
-        TransformSideFreedom = TransformSideFreedom.ScaleProportionally;
-        TransformActive = true;
+        TransformViewModel.ShowShapeTransform(lastShape);
         transformingRectangle = true;
     }
 
@@ -222,7 +153,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
 
         transformingRectangle = false;
-        TransformActive = false;
+        TransformViewModel.HideTransform();
         Helpers.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
     }
 
@@ -243,14 +174,14 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndSelectRectangle_Action());
     }
 
-    private void OnTransformUpdate()
+    private void OnTransformUpdate(object? sender, ShapeCorners newCorners)
     {
         if (!transformingRectangle)
             return;
         StartUpdateRectangle(new ShapeData(
-            TransformCorners.RectCenter,
-            TransformCorners.RectSize,
-            TransformCorners.RectRotation,
+            newCorners.RectCenter,
+            newCorners.RectSize,
+            newCorners.RectRotation,
             lastShapeData.StrokeWidth,
             lastShapeData.StrokeColor,
             lastShapeData.FillColor,

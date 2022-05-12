@@ -111,7 +111,7 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     private void MouseDown(object? param)
     {
-        if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal || ActiveDocument.TransformActive)
+        if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal || ActiveDocument.TransformViewModel.TransformActive)
             return;
         mouseIsDown = true;
         var args = (MouseButtonEventArgs)(param!);

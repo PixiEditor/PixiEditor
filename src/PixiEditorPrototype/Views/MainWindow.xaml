@@ -199,12 +199,11 @@
                             </i:Interaction.Triggers>
                         </Image>
                         <to:TransformOverlay HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                            Visibility="{Binding ActiveDocument.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            Corners="{Binding ActiveDocument.TransformCorners, Mode=TwoWay}"
-                                            RequestedCorners="{Binding ActiveDocument.RequestedTransformCorners}"
-                                            CornerFreedom="{Binding ActiveDocument.TransformCornerFreedom}"
-                                            SideFreedom="{Binding ActiveDocument.TransformSideFreedom}"
-                                            Origin="{Binding ActiveDocument.TransformOrigin}"
+                                            Visibility="{Binding ActiveDocument.TransformViewModel.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Corners="{Binding ActiveDocument.TransformViewModel.Corners, Mode=TwoWay}"
+                                            RequestedCorners="{Binding ActiveDocument.TransformViewModel.RequestedCorners}"
+                                            CornerFreedom="{Binding ActiveDocument.TransformViewModel.CornerFreedom}"
+                                            SideFreedom="{Binding ActiveDocument.TransformViewModel.SideFreedom}"
                                             ZoomboxScale="{Binding RelativeSource={RelativeSource AncestorType=zoombox:Zoombox}, Path=Scale}"/>
                     </Grid>
                 </Border>
