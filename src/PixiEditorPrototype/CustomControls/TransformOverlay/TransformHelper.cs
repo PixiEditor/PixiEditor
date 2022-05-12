@@ -46,6 +46,32 @@ internal static class TransformHelper
         return corners;
     }
 
+    private static double GetSnappingAngle(double angle)
+    {
+        return Math.Round(angle * 8 / (Math.PI * 2)) * (Math.PI * 2) / 8;
+    }
+    public static double FindSnappingAngle(ShapeCorners corners, double desiredAngle)
+    {
+        var desTop = (corners.TopLeft - corners.TopRight).Rotate(desiredAngle).Angle;
+        var desRight = (corners.TopRight - corners.BottomRight).Rotate(desiredAngle).Angle;
+        var desBottom = (corners.BottomRight - corners.BottomLeft).Rotate(desiredAngle).Angle;
+        var desLeft = (corners.BottomLeft - corners.TopLeft).Rotate(desiredAngle).Angle;
+
+        var deltaTop = GetSnappingAngle(desTop) - desTop;
+        var deltaRight = GetSnappingAngle(desRight) - desRight;
+        var deltaLeft = GetSnappingAngle(desLeft) - desLeft;
+        var deltaBottom = GetSnappingAngle(desBottom) - desBottom;
+
+        var minDelta = deltaTop;
+        if (Math.Abs(minDelta) > Math.Abs(deltaRight))
+            minDelta = deltaRight;
+        if (Math.Abs(minDelta) > Math.Abs(deltaLeft))
+            minDelta = deltaLeft;
+        if (Math.Abs(minDelta) > Math.Abs(deltaBottom))
+            minDelta = deltaBottom;
+        return minDelta + desiredAngle;
+    }
+
     public static Vector2d OriginFromCorners(ShapeCorners corners)
     {
         var maybeOrigin = TwoLineIntersection(

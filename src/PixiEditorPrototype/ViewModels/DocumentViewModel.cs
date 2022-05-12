@@ -210,7 +210,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         drawingRectangle = false;
 
         RequestedTransformCorners = lastShape;
-        TransformCornerFreedom = TransformCornerFreedom.Scale;
+        TransformCornerFreedom = TransformCornerFreedom.Free;
         TransformSideFreedom = TransformSideFreedom.ScaleProportionally;
         TransformActive = true;
         transformingRectangle = true;
