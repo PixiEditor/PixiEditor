@@ -79,8 +79,8 @@ internal class DocumentTransformViewModel : INotifyPropertyChanged
 
     public void ShowFreeTransform(ShapeCorners initPos)
     {
-        CornerFreedom = TransformCornerFreedom.Scale;
-        SideFreedom = TransformSideFreedom.ScaleProportionally;
+        CornerFreedom = TransformCornerFreedom.Free;
+        SideFreedom = TransformSideFreedom.Free;
         RequestedCorners = initPos;
         TransformActive = true;
     }

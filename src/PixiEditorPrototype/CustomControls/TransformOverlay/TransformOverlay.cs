@@ -202,6 +202,7 @@ internal class TransformOverlay : Control
         {
             originWasManuallyDragged = true;
             origin = originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag;
+            InvalidateVisual();
         }
     }
 

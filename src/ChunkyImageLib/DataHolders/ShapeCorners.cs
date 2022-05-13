@@ -8,6 +8,13 @@ public struct ShapeCorners
         BottomRight = center + size / 2;
         BottomLeft = center + new Vector2d(-size.X / 2, size.Y / 2);
     }
+    public ShapeCorners(Vector2d topLeft, Vector2d size)
+    {
+        TopLeft = topLeft;
+        TopRight = new(topLeft.X + size.X, topLeft.Y);
+        BottomRight = topLeft + size;
+        BottomLeft = new(topLeft.X, topLeft.Y + size.Y);
+    }
     public Vector2d TopLeft { get; set; }
     public Vector2d TopRight { get; set; }
     public Vector2d BottomLeft { get; set; }
@@ -55,6 +62,9 @@ public struct ShapeCorners
         var deltaTopRight = point - TopRight;
         var deltaBottomRight = point - BottomRight;
         var deltaBottomLeft = point - BottomLeft;
+
+        if (deltaTopRight.IsNaNOrInfinity() || deltaTopLeft.IsNaNOrInfinity() || deltaBottomRight.IsNaNOrInfinity() || deltaBottomRight.IsNaNOrInfinity())
+            return false;
 
         var crossTop = Math.Sign(top.Cross(deltaTopLeft));
         var crossRight = Math.Sign(right.Cross(deltaTopRight));

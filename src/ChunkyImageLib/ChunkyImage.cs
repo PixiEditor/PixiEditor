@@ -26,6 +26,12 @@ namespace ChunkyImageLib;
 ///         The data includes how many operations from the queue have already been applied to the chunk, as well as chunk deleted state (the clear operation deletes chunks)
 ///     - LatestSize contains the new size if any resize operations were requested, otherwise the commited size
 /// You can check the current state via queuedOperations.Count == 0
+/// 
+/// Depending on the chosen blend mode the latest chunks contain different things:
+///     - SKBlendMode.Src: default mode, the latest chunks are the same as committed ones but with some or all queued operations applied. 
+///         This means that operations can work with the existing pixels.
+///     - Any other blend mode: the latest chunks contain only the things drawn by the queued operations.
+///         They need to be drawn over the committed chunks to obtain the final image. In this case, operations won't have access to the existing pixels.
 /// </summary>
 public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 {
@@ -171,11 +177,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    internal bool CommitedChunkExists(Vector2i chunkPos, ChunkResolution resolution)
+    internal bool CommittedChunkExists(Vector2i chunkPos)
     {
         lock (lockObject)
         {
-            return GetCommittedChunk(chunkPos, resolution) is not null;
+            return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null;
         }
     }
 
@@ -222,7 +228,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <summary>
-    /// Don't pass in porter duff compositing operators (apart from SrcOver) as they won't have the intended effect.
+    /// Porter duff compositing operators (apart from SrcOver) likely won't have the intended effect.
     /// </summary>
     public void SetBlendMode(SKBlendMode mode)
     {
@@ -247,6 +253,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         lock (lockObject)
         {
             RectangleOperation operation = new(rect);
+            EnqueueOperation(operation);
+        }
+    }
+
+    public void EnqueueDrawImage(ShapeCorners corners, Surface image)
+    {
+        lock (lockObject)
+        {
+            ImageOperation operation = new(corners, image);
             EnqueueOperation(operation);
         }
     }
@@ -565,34 +580,19 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             return new All();
         }
 
-
         var intersection = Chunk.Create(resolution);
         intersection.Surface.SkiaSurface.Canvas.Clear(SKColors.White);
 
         foreach (var mask in activeClips)
         {
-            // handle self-clipping as a special case to avoid deadlock
-            if (!ReferenceEquals(this, mask))
+            if (mask.CommittedChunkExists(chunkPos))
             {
-                if (mask.CommitedChunkExists(chunkPos, resolution))
-                {
-                    mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                }
-                else
-                {
-                    intersection.Dispose();
-                    return new None();
-                }
+                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
             }
             else
             {
-                var maskChunk = GetCommittedChunk(chunkPos, resolution);
-                if (maskChunk is null)
-                {
-                    intersection.Dispose();
-                    return new None();
-                }
-                maskChunk.DrawOnSurface(intersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+                intersection.Dispose();
+                return new None();
             }
         }
         return intersection;

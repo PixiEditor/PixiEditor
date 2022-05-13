@@ -41,6 +41,7 @@ public class CommittedChunkStorage : IDisposable
     {
         if (disposed)
             return;
+        disposed = true;
         foreach (var (_, chunk) in savedChunks)
         {
             if (chunk is not null)

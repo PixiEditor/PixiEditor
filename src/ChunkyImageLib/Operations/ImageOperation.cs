@@ -5,7 +5,8 @@ namespace ChunkyImageLib.Operations;
 
 internal record class ImageOperation : IDrawOperation
 {
-    private Vector2i pos;
+    private SKMatrix transformMatrix;
+    private ShapeCorners corners;
     private Surface toPaint;
     private static SKPaint ReplacingPaint = new() { BlendMode = SKBlendMode.Src };
 
@@ -13,36 +14,44 @@ internal record class ImageOperation : IDrawOperation
 
     public ImageOperation(Vector2i pos, Surface image)
     {
-        this.pos = pos;
+        corners = new()
+        {
+            TopLeft = pos,
+            TopRight = new(pos.X + image.Size.X, pos.Y),
+            BottomRight = pos + image.Size,
+            BottomLeft = new Vector2d(pos.X, pos.Y + image.Size.Y)
+        };
+        transformMatrix = SKMatrix.CreateIdentity();
+        transformMatrix.TransX = pos.X;
+        transformMatrix.TransY = pos.Y;
+        // copying is required for thread safety
+        toPaint = new Surface(image);
+    }
+
+    public ImageOperation(ShapeCorners corners, Surface image)
+    {
+        this.corners = corners;
+        transformMatrix = OperationHelper.CreateMatrixFromPoints(corners, image.Size);
         toPaint = new Surface(image);
     }
 
     public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
     {
-        if (chunk.Resolution == ChunkResolution.Full)
-        {
-            chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
-            return;
-        }
+        float scaleMult = (float)chunk.Resolution.Multiplier();
+        Vector2d trans = -chunkPos * ChunkPool.FullChunkSize;
+
+        var scaleTrans = SKMatrix.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
+        var finalMatrix = SKMatrix.Concat(scaleTrans, transformMatrix);
+
         chunk.Surface.SkiaSurface.Canvas.Save();
-        chunk.Surface.SkiaSurface.Canvas.Scale((float)chunk.Resolution.Multiplier());
-        chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, pos - chunkPos * ChunkPool.FullChunkSize, ReplacingPaint);
+        chunk.Surface.SkiaSurface.Canvas.SetMatrix(finalMatrix);
+        chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, 0, 0, ReplacingPaint);
         chunk.Surface.SkiaSurface.Canvas.Restore();
     }
 
     public HashSet<Vector2i> FindAffectedChunks()
     {
-        Vector2i start = OperationHelper.GetChunkPos(pos, ChunkPool.FullChunkSize);
-        Vector2i end = OperationHelper.GetChunkPos(new(pos.X + toPaint.Size.X - 1, pos.Y + toPaint.Size.Y - 1), ChunkPool.FullChunkSize);
-        HashSet<Vector2i> output = new();
-        for (int cx = start.X; cx <= end.X; cx++)
-        {
-            for (int cy = start.Y; cy <= end.Y; cy++)
-            {
-                output.Add(new(cx, cy));
-            }
-        }
-        return output;
+        return OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize);
     }
 
     public void Dispose()

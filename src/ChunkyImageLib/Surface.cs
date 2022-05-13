@@ -1,7 +1,7 @@
-﻿using ChunkyImageLib.DataHolders;
-using SkiaSharp;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using ChunkyImageLib.DataHolders;
+using SkiaSharp;
 
 namespace ChunkyImageLib;
 
@@ -30,6 +30,18 @@ public class Surface : IDisposable
     public Surface(Surface original) : this(original.Size)
     {
         SkiaSurface.Canvas.DrawSurface(original.SkiaSurface, 0, 0);
+    }
+
+    public static Surface Load(string path)
+    {
+        if (!File.Exists(path))
+            throw new FileNotFoundException(null, path);
+        using var bitmap = SKBitmap.Decode(path);
+        if (bitmap is null)
+            throw new ArgumentException($"The image with path {path} couldn't be loaded");
+        var surface = new Surface(new Vector2i(bitmap.Width, bitmap.Height));
+        surface.SkiaSurface.Canvas.DrawBitmap(bitmap, 0, 0);
+        return surface;
     }
 
     public unsafe void CopyTo(Surface other)

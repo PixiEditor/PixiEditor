@@ -5,8 +5,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Actions.Drawing;
+using PixiEditor.ChangeableDocument.Actions.Drawing.PasteImage;
 using PixiEditor.ChangeableDocument.Actions.Drawing.Rectangle;
 using PixiEditor.ChangeableDocument.Actions.Drawing.Selection;
 using PixiEditor.ChangeableDocument.Actions.Properties;
@@ -56,6 +59,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? DeleteMaskCommand { get; }
     public RelayCommand? ToggleLockTransparencyCommand { get; }
     public RelayCommand? ApplyTransformCommand { get; }
+    public RelayCommand? PasteImageCommand { get; }
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
@@ -105,6 +109,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         CreateMaskCommand = new RelayCommand(CreateMask);
         DeleteMaskCommand = new RelayCommand(DeleteMask);
         ToggleLockTransparencyCommand = new RelayCommand(ToggleLockTransparency);
+        PasteImageCommand = new RelayCommand(PasteImage);
         ApplyTransformCommand = new RelayCommand(ApplyTransform);
 
         foreach (var bitmap in Bitmaps)
@@ -119,8 +124,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
             (new CreateStructureMember_Action(StructureRoot.GuidValue, Guid.NewGuid(), 0, StructureMemberType.Layer));
     }
 
+    private bool updateableChangeActive = false;
+
     private bool drawingRectangle = false;
     private bool transformingRectangle = false;
+
+    private bool pastingImage = false;
+    private Surface? pastedImage;
 
     private ShapeCorners lastShape = new ShapeCorners();
     private ShapeData lastShapeData = new();
@@ -131,6 +141,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         bool drawOnMask = SelectedStructureMember.HasMask && SelectedStructureMember.ShouldDrawOnMask;
         if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
             return;
+        updateableChangeActive = true;
         drawingRectangle = true;
         Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data, drawOnMask));
         lastShape = new ShapeCorners(data.Center, data.Size, data.Angle);
@@ -149,12 +160,24 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void ApplyTransform(object? param)
     {
-        if (!transformingRectangle)
+        if (!transformingRectangle && !pastingImage)
             return;
 
-        transformingRectangle = false;
-        TransformViewModel.HideTransform();
-        Helpers.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
+        if (transformingRectangle)
+        {
+            transformingRectangle = false;
+            TransformViewModel.HideTransform();
+            Helpers.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
+        }
+        else if (pastingImage)
+        {
+            pastingImage = false;
+            TransformViewModel.HideTransform();
+            Helpers.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
+            pastedImage?.Dispose();
+            pastedImage = null;
+        }
+        updateableChangeActive = false;
     }
 
     bool startedSelection = false;
@@ -163,6 +186,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         if (!startedSelection)
             Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
         startedSelection = true;
+        updateableChangeActive = true;
         Helpers.ActionAccumulator.AddActions(new SelectRectangle_Action(pos, size));
     }
 
@@ -171,21 +195,29 @@ internal class DocumentViewModel : INotifyPropertyChanged
         if (!startedSelection)
             return;
         startedSelection = false;
+        updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndSelectRectangle_Action());
     }
 
     private void OnTransformUpdate(object? sender, ShapeCorners newCorners)
     {
-        if (!transformingRectangle)
-            return;
-        StartUpdateRectangle(new ShapeData(
-            newCorners.RectCenter,
-            newCorners.RectSize,
-            newCorners.RectRotation,
-            lastShapeData.StrokeWidth,
-            lastShapeData.StrokeColor,
-            lastShapeData.FillColor,
-            lastShapeData.BlendMode));
+        if (transformingRectangle)
+        {
+            StartUpdateRectangle(new ShapeData(
+                newCorners.RectCenter,
+                newCorners.RectSize,
+                newCorners.RectRotation,
+                lastShapeData.StrokeWidth,
+                lastShapeData.StrokeColor,
+                lastShapeData.FillColor,
+                lastShapeData.BlendMode));
+        }
+        else if (pastingImage)
+        {
+            if (SelectedStructureMember is null || pastedImage is null)
+                return;
+            Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, newCorners, SelectedStructureMember.GuidValue, false));
+        }
     }
 
     public void ForceRefreshView()
@@ -206,6 +238,21 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public void RefreshViewport(Guid viewportGuid)
     {
         Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(viewportGuid));
+    }
+
+    private void PasteImage(object? args)
+    {
+        if (SelectedStructureMember is null || SelectedStructureMember is not LayerViewModel)
+            return;
+        OpenFileDialog dialog = new();
+        if (dialog.ShowDialog() != true)
+            return;
+
+        pastedImage = Surface.Load(dialog.FileName);
+        pastingImage = true;
+        ShapeCorners corners = new(new(), pastedImage.Size);
+        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, SelectedStructureMember.GuidValue, false));
+        TransformViewModel.ShowFreeTransform(corners);
     }
 
     private void ClearSelection(object? param)

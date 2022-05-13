@@ -14,7 +14,7 @@
         xmlns:models="clr-namespace:PixiEditorPrototype.Models"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         mc:Ignorable="d"
-        Title="MainWindow" Height="576" Width="1024">
+        Title="MainWindow" Height="700" Width="1400">
     <Window.DataContext>
         <vm:ViewModelMain/>
     </Window.DataContext>
@@ -144,6 +144,7 @@
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
                     <Button Width="120" Margin="5" Command="{Binding ActiveDocument.ClearHistoryCommand}">Clear undo history</Button>
+                    <Button Width="100" Margin="5" Command="{Binding ActiveDocument.PasteImageCommand}">Paste Image</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ApplyTransformCommand}">Apply Transform</Button>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">

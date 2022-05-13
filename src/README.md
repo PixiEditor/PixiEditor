@@ -25,6 +25,7 @@ Decouples the state of a document from the UI.
     - Operations
         - [x] Support for paints with different blending (replace vs. alpha compose)
         - [ ] Image (basic done, needs rotation, scale, skew, perspective, etc.)
+        - [ ] ChunkyImage
         - [ ] Rectangle (basic done, needs rotation support)
         - [ ] Ellipse
         - [ ] Line
@@ -109,6 +110,7 @@ Decouples the state of a document from the UI.
         - [ ] Apply mask
 - ViewModel
     - [ ] Action filtering
+    - [ ] Transform overlay
     - [x] Viewport movement as an action
     - [x] Integrate viewport from PixiEditor
     - [x] Rotate viewport
