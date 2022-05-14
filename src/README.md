@@ -87,7 +87,8 @@ Decouples the state of a document from the UI.
         - [ ] Reference layer manipulation?
         - [ ] Resize canvas (basic done, anchors left)
         - [ ] Resize image
-        - [ ] Draw image (for pasting/loading from file)
+        - [x] Paste image with transformation
+        - [ ] Draw image (for loading from file and such)
         - [ ] Rectangle (basic done, rotation left)
         - [ ] Ellipse
         - [ ] Line
