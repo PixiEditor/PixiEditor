@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -10,11 +11,13 @@ internal class ClearSelection_Change : Change
 {
     private bool originalIsEmpty;
     private CommittedChunkStorage? savedSelection;
+    private SKPath? originalPath;
     public override void Initialize(Document target)
     {
         originalIsEmpty = target.Selection.IsEmptyAndInactive;
         if (!originalIsEmpty)
             savedSelection = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAllChunks());
+        originalPath = new SKPath(target.Selection.SelectionPath);
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
@@ -31,6 +34,9 @@ internal class ClearSelection_Change : Change
         HashSet<Vector2i> affChunks = target.Selection.SelectionImage.FindAffectedChunks();
         target.Selection.SelectionImage.CommitChanges();
 
+        target.Selection.SelectionPath.Dispose();
+        target.Selection.SelectionPath = new SKPath();
+
         ignoreInUndo = false;
         return new Selection_ChangeInfo() { Chunks = affChunks };
     }
@@ -46,11 +52,15 @@ internal class ClearSelection_Change : Change
         HashSet<Vector2i> affChunks = target.Selection.SelectionImage.FindAffectedChunks();
         target.Selection.SelectionImage.CommitChanges();
 
+        target.Selection.SelectionPath.Dispose();
+        target.Selection.SelectionPath = new SKPath(originalPath);
+
         return new Selection_ChangeInfo() { Chunks = affChunks };
     }
 
     public override void Dispose()
     {
         savedSelection?.Dispose();
+        originalPath?.Dispose();
     }
 }

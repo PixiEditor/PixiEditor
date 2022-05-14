@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
@@ -66,7 +67,15 @@ internal class DocumentUpdater
             case LayerLockTransparency_ChangeInfo info:
                 ProcessLayerLockTransparency(info);
                 break;
+            case Selection_ChangeInfo info:
+                ProcessSelection(info);
+                break;
         }
+    }
+
+    private void ProcessSelection(Selection_ChangeInfo info)
+    {
+        doc.RaisePropertyChanged(nameof(doc.SelectionPath));
     }
 
     private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)

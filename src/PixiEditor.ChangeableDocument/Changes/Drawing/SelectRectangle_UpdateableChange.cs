@@ -13,6 +13,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     private Vector2i pos;
     private Vector2i size;
     private CommittedChunkStorage? originalSelectionState;
+    private SKPath? originalPath;
     public SelectRectangle_UpdateableChange(Vector2i pos, Vector2i size)
     {
         Update(pos, size);
@@ -20,6 +21,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     public override void Initialize(Document target)
     {
         originalIsEmpty = target.Selection.IsEmptyAndInactive;
+        originalPath = new SKPath(target.Selection.SelectionPath);
     }
 
     public void Update(Vector2i pos, Vector2i size)
@@ -34,6 +36,16 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         target.Selection.SelectionImage.CancelChanges();
         target.Selection.IsEmptyAndInactive = false;
         target.Selection.SelectionImage.EnqueueDrawRectangle(new ShapeData(pos + size / 2, size, 0, 0, SKColors.Transparent, Selection.SelectionColor));
+
+        using SKPath rect = new SKPath();
+        rect.MoveTo(pos);
+        rect.LineTo(pos.X + size.X, pos.Y);
+        rect.LineTo(pos + size);
+        rect.LineTo(pos.X, pos.Y + size.Y);
+        rect.LineTo(pos);
+
+        target.Selection.SelectionPath.Dispose();
+        target.Selection.SelectionPath = originalPath!.Op(rect, SKPathOp.Union);
 
         oldChunks.UnionWith(target.Selection.SelectionImage.FindAffectedChunks());
         return new Selection_ChangeInfo() { Chunks = oldChunks };
@@ -57,11 +69,14 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         originalSelectionState = null;
         var changes = new Selection_ChangeInfo() { Chunks = target.Selection.SelectionImage.FindAffectedChunks() };
         target.Selection.SelectionImage.CommitChanges();
+        target.Selection.SelectionPath.Dispose();
+        target.Selection.SelectionPath = new SKPath(originalPath);
         return changes;
     }
 
     public override void Dispose()
     {
         originalSelectionState?.Dispose();
+        originalPath?.Dispose();
     }
 }

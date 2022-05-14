@@ -70,6 +70,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
+    public SKPath SelectionPath => Helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionPath;
     public Guid GuidValue { get; } = Guid.NewGuid();
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
@@ -181,8 +182,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
     bool startedSelection = false;
     public void StartUpdateSelection(Vector2i pos, Vector2i size)
     {
-        if (!startedSelection)
-            Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
+        //if (!startedSelection)
+        //   Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
         startedSelection = true;
         updateableChangeActive = true;
         Helpers.ActionAccumulator.AddActions(new SelectRectangle_Action(pos, size));

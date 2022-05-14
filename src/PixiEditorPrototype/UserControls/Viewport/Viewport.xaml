@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:PixiEditorPrototype.UserControls.Viewport"
              xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
              xmlns:to="clr-namespace:PixiEditorPrototype.CustomControls.TransformOverlay"
+             xmlns:cust="clr-namespace:PixiEditorPrototype.CustomControls"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:conv="clr-namespace:PixiEditorPrototype.Converters"
              mc:Ignorable="d"
@@ -43,6 +44,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Image>
+                    <cust:SelectionOverlay Path="{Binding Document.SelectionPath}" ZoomboxScale="{Binding Zoombox.Scale}"/>
                     <to:TransformOverlay HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                             Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"
                                             Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
