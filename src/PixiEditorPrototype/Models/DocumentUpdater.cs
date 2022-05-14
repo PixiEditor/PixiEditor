@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
@@ -53,6 +54,9 @@ internal class DocumentUpdater
             case RefreshViewport_PassthroughAction info:
                 ProcessRefreshViewport(info);
                 break;
+            case RemoveViewport_PassthroughAction info:
+                ProcessRemoveViewport(info);
+                break;
             case StructureMemberMask_ChangeInfo info:
                 ProcessStructureMemberMask(info);
                 break;
@@ -85,26 +89,27 @@ internal class DocumentUpdater
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
     {
-        var viewport = doc.GetViewport(info.GuidValue);
-        if (viewport is null)
-        {
-            helper.State.Viewports.Remove(info.GuidValue);
-            return;
-        }
-        helper.State.Viewports[info.GuidValue] = viewport.Value with { Dimensions = viewport.Value.Dimensions / 2, RealDimensions = viewport.Value.RealDimensions / 2 };
-        doc.UpdateViewportResolution(info.GuidValue, viewport.Value.Resolution);
+        helper.State.Viewports[info.Location.GuidValue] = info.Location;
+    }
+
+    private void ProcessRemoveViewport(RemoveViewport_PassthroughAction info)
+    {
+        helper.State.Viewports.Remove(info.GuidValue);
     }
 
     private void ProcessSize(Size_ChangeInfo info)
     {
         var size = helper.Tracker.Document.Size;
+        Dictionary<ChunkResolution, WriteableBitmap> newBitmaps = new();
         foreach (var (res, surf) in doc.Surfaces)
         {
             surf.Dispose();
-            doc.Bitmaps[res] = CreateBitmap((Vector2i)(size * res.Multiplier()));
-            doc.Surfaces[res] = CreateSKSurface(doc.Bitmaps[res]);
+            newBitmaps[res] = CreateBitmap((Vector2i)(size * res.Multiplier()));
+            doc.Surfaces[res] = CreateSKSurface(newBitmaps[res]);
         }
 
+        doc.Bitmaps = newBitmaps;
+        doc.RaisePropertyChanged(nameof(doc.Bitmaps));
         doc.RaisePropertyChanged(nameof(doc.Width));
         doc.RaisePropertyChanged(nameof(doc.Height));
     }

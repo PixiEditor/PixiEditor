@@ -10,6 +10,7 @@
         xmlns:pe="clr-namespace:PixiEditorPrototype"
         xmlns:controls="clr-namespace:PixiEditorPrototype.CustomControls"
         xmlns:to="clr-namespace:PixiEditorPrototype.CustomControls.TransformOverlay"
+        xmlns:vp="clr-namespace:PixiEditorPrototype.UserControls.Viewport"
         xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
         xmlns:models="clr-namespace:PixiEditorPrototype.Models"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
@@ -166,62 +167,35 @@
                 <CheckBox x:Name="flipYCheckbox" Margin="5, 0">Flip Y</CheckBox>
             </StackPanel>
         </Border>
-
         <Grid>
-            <zoombox:Zoombox x:Name="zoombox" UseTouchGestures="True"
-                             Center="{Binding MainViewport.Center, Mode=OneWayToSource}"
-                             Angle="{Binding MainViewport.Angle, Mode=OneWayToSource}"
-                             RealDimensions="{Binding MainViewport.RealDimensions, Mode=OneWayToSource}"
-                             Dimensions="{Binding MainViewport.Dimensions, Mode=OneWayToSource}"
-                             ZoomMode="{Binding ZoomboxMode, Mode=TwoWay}" 
-                             FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
-                             FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="ViewportMoved">
-                        <i:InvokeCommandAction Command="{Binding ActiveDocument.MoveViewportCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-                <Border BorderThickness="1" Background="White" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Grid>
-                        <Image Focusable="True"
-                               Width="{Binding ActiveDocument.Width}" Height="{Binding ActiveDocument.Height}"
-                               Source="{Binding MainViewport.TargetBitmap}"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDown">
-                                    <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>
-                                </i:EventTrigger>
-                                <i:EventTrigger EventName="MouseMove">
-                                    <i:InvokeCommandAction Command="{Binding MouseMoveCommand}" PassEventArgsToCommand="True"/>
-                                </i:EventTrigger>
-                                <i:EventTrigger EventName="MouseUp">
-                                    <i:InvokeCommandAction Command="{Binding MouseUpCommand}" PassEventArgsToCommand="True"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Image>
-                        <to:TransformOverlay HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                            Visibility="{Binding ActiveDocument.TransformViewModel.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            Corners="{Binding ActiveDocument.TransformViewModel.Corners, Mode=TwoWay}"
-                                            RequestedCorners="{Binding ActiveDocument.TransformViewModel.RequestedCorners}"
-                                            CornerFreedom="{Binding ActiveDocument.TransformViewModel.CornerFreedom}"
-                                            SideFreedom="{Binding ActiveDocument.TransformViewModel.SideFreedom}"
-                                            ZoomboxScale="{Binding RelativeSource={RelativeSource AncestorType=zoombox:Zoombox}, Path=Scale}"/>
-                    </Grid>
-                </Border>
-            </zoombox:Zoombox>
-            <Grid Focusable="False">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="2*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Border BorderBrush="Red" Grid.Row="1" Grid.Column="1" BorderThickness="1"/>
-            </Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border BorderThickness="1" BorderBrush="Black" Margin="5">
+                <vp:Viewport
+                    Document="{Binding ActiveDocument}"
+                    FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
+                    FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}"
+                    ZoomMode="{Binding ZoomboxMode, Mode=TwoWay}"
+                    MouseDownCommand="{Binding MouseDownCommand}"
+                    MouseMoveCommand="{Binding MouseMoveCommand}"
+                    MouseUpCommand="{Binding MouseUpCommand}"
+                    Tag="First"
+                    />
+            </Border>
+            <Border BorderThickness="1" BorderBrush="Black" Margin="5" Grid.Column="1">
+                <vp:Viewport
+                    Document="{Binding ActiveDocument}"
+                    FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
+                    FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}"
+                    ZoomMode="{Binding ZoomboxMode, Mode=TwoWay}"
+                    MouseDownCommand="{Binding MouseDownCommand}"
+                    MouseMoveCommand="{Binding MouseMoveCommand}"
+                    MouseUpCommand="{Binding MouseUpCommand}"
+                    Tag="Second"
+                    />
+            </Border>
         </Grid>
     </DockPanel>
 </Window>

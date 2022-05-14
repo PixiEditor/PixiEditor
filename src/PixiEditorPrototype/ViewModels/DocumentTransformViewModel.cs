@@ -6,6 +6,17 @@ using PixiEditorPrototype.CustomControls.TransformOverlay;
 namespace PixiEditorPrototype.ViewModels;
 internal class DocumentTransformViewModel : INotifyPropertyChanged
 {
+    private TransformState internalState;
+    public TransformState InternalState
+    {
+        get => internalState;
+        set
+        {
+            internalState = value;
+            PropertyChanged?.Invoke(this, new(nameof(InternalState)));
+        }
+    }
+
     private TransformCornerFreedom cornerFreedom;
     public TransformCornerFreedom CornerFreedom
     {

@@ -6,15 +6,12 @@ using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
-using PixiEditorPrototype.Views;
 using SkiaSharp;
 
 namespace PixiEditorPrototype.ViewModels;
 
 internal class ViewModelMain : INotifyPropertyChanged
 {
-    public IMainView? View { get; set; }
-
     public DocumentViewModel? ActiveDocument => GetDocumentByGuid(activeDocumentGuid);
 
     public RelayCommand? MouseDownCommand { get; }
@@ -61,8 +58,6 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     public ZoomboxMode ZoomboxMode { get; set; }
 
-    public ViewportViewModel MainViewport { get; }
-
     private Dictionary<Guid, DocumentViewModel> documents = new();
     private Guid activeDocumentGuid;
 
@@ -85,28 +80,11 @@ internal class ViewModelMain : INotifyPropertyChanged
         var doc = new DocumentViewModel(this);
         documents[doc.GuidValue] = doc;
         activeDocumentGuid = doc.GuidValue;
-
-        MainViewport = new(this, activeDocumentGuid);
-        doc.RefreshViewport(MainViewport.GuidValue);
-    }
-
-    public ViewportLocation? GetViewport(Guid viewportGuid)
-    {
-        if (MainViewport.GuidValue != viewportGuid)
-            return null;
-        return new ViewportLocation(MainViewport.Angle, MainViewport.Center, MainViewport.RealDimensions, MainViewport.Dimensions, Guid.Empty);
     }
 
     public DocumentViewModel? GetDocumentByGuid(Guid guid)
     {
         return documents.TryGetValue(guid, out DocumentViewModel? value) ? value : null;
-    }
-
-    public void UpdateViewportResolution(Guid viewportGuid, ChunkResolution resolution)
-    {
-        if (viewportGuid != MainViewport.GuidValue)
-            return;
-        MainViewport.Resolution = resolution;
     }
 
     private void MouseDown(object? param)

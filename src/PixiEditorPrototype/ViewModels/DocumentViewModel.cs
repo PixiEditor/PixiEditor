@@ -35,6 +35,14 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
+    public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
+    {
+        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
+    };
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public void RaisePropertyChanged(string name)
@@ -54,7 +62,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? ResizeCanvasCommand { get; }
     public RelayCommand? CombineCommand { get; }
     public RelayCommand? ClearHistoryCommand { get; }
-    public RelayCommand? MoveViewportCommand { get; }
     public RelayCommand? CreateMaskCommand { get; }
     public RelayCommand? DeleteMaskCommand { get; }
     public RelayCommand? ToggleLockTransparencyCommand { get; }
@@ -64,14 +71,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
     public Guid GuidValue { get; } = Guid.NewGuid();
-
-    public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
-    {
-        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
-    };
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
 
@@ -105,7 +104,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
         ResizeCanvasCommand = new RelayCommand(ResizeCanvas);
         CombineCommand = new RelayCommand(Combine);
         ClearHistoryCommand = new RelayCommand(ClearHistory);
-        MoveViewportCommand = new RelayCommand(MoveViewport);
         CreateMaskCommand = new RelayCommand(CreateMask);
         DeleteMaskCommand = new RelayCommand(DeleteMask);
         ToggleLockTransparencyCommand = new RelayCommand(ToggleLockTransparency);
@@ -220,24 +218,14 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    public void ForceRefreshView()
+    public void AddOrUpdateViewport(ViewportLocation location)
     {
-        owner.View?.ForceRefreshFinalImage();
+        Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(location));
     }
 
-    public void UpdateViewportResolution(Guid viewportGuid, ChunkResolution resolution)
+    public void RemoveViewport(Guid viewportGuid)
     {
-        owner.UpdateViewportResolution(viewportGuid, resolution);
-    }
-
-    public ViewportLocation? GetViewport(Guid viewportGuid)
-    {
-        return owner.GetViewport(viewportGuid);
-    }
-
-    public void RefreshViewport(Guid viewportGuid)
-    {
-        Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(viewportGuid));
+        Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
     }
 
     private void PasteImage(object? args)
@@ -328,11 +316,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
         foreach (var member in selected)
             Helpers.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Helpers.ActionAccumulator.AddActions(new ChangeBoundary_Action());
-    }
-
-    private void MoveViewport(object? param)
-    {
-        Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(Guid.Empty));
     }
 
     private void ClearHistory(object? param)

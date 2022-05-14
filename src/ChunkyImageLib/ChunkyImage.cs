@@ -257,11 +257,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    public void EnqueueDrawImage(ShapeCorners corners, Surface image)
+    /// <summary>
+    /// Be careful about the copyImage argument. The default is true, and this is a thread safe version without any side effects. 
+    /// It will hovewer copy the surface right away which can be slow (in updateable changes especially). 
+    /// If copyImage is set to false, the image won't be copied and instead a reference will be stored.
+    /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
+    /// </summary>
+    public void EnqueueDrawImage(ShapeCorners corners, Surface image, bool copyImage = true)
     {
         lock (lockObject)
         {
-            ImageOperation operation = new(corners, image);
+            ImageOperation operation = new(corners, image, copyImage);
             EnqueueOperation(operation);
         }
     }

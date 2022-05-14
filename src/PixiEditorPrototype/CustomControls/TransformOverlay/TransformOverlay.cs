@@ -32,6 +32,16 @@ internal class TransformOverlay : Control
     public static readonly DependencyProperty SnapToAnglesProperty =
         DependencyProperty.Register(nameof(SnapToAngles), typeof(bool), typeof(TransformOverlay), new PropertyMetadata(false));
 
+    public static readonly DependencyProperty InternalStateProperty =
+        DependencyProperty.Register(nameof(InternalState), typeof(TransformState), typeof(TransformOverlay),
+            new FrameworkPropertyMetadata(default(TransformState), FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public TransformState InternalState
+    {
+        get => (TransformState)GetValue(InternalStateProperty);
+        set => SetValue(InternalStateProperty, value);
+    }
+
     public bool SnapToAngles
     {
         get => (bool)GetValue(SnapToAnglesProperty);
@@ -67,8 +77,6 @@ internal class TransformOverlay : Control
         set => SetValue(ZoomboxScaleProperty, value);
     }
 
-    private Vector2d origin;
-
     private bool isMoving = false;
     private Vector2d mousePosOnStartMove = new();
     private Vector2d originOnStartMove = new();
@@ -77,21 +85,86 @@ internal class TransformOverlay : Control
     private bool isRotating = false;
     private Vector2d mousePosOnStartRotate = new();
     private ShapeCorners cornersOnStartRotate = new();
-    private double proportionalAngle1 = 0;
-    private double proportionalAngle2 = 0;
     private double propAngle1OnStartRotate = 0;
     private double propAngle2OnStartRotate = 0;
 
     private Anchor? capturedAnchor;
-    private bool originWasManuallyDragged = false;
     private ShapeCorners cornersOnStartAnchorDrag;
     private Vector2d mousePosOnStartAnchorDrag;
     private Vector2d originOnStartAnchorDrag;
 
+    private Pen blackPen = new Pen(Brushes.Black, 1);
+    private Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 0) };
+    private Pen whiteDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 4 }, 2) };
+    private Pen blackFreqDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 0) };
+    private Pen whiteFreqDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 2) };
+
+    private PathGeometry handleGeometry = new()
+    {
+        FillRule = FillRule.Nonzero,
+        Figures = (PathFigureCollection?)new PathFigureCollectionConverter()
+            .ConvertFrom("M 0.50025839 0 0.4248062 0.12971572 0.34987079 0.25994821 h 0.1002584 V 0.45012906 H 0.25994831 V 0.34987066 L 0.12971577 0.42480604 0 0.5002582 0.12971577 0.57519373 0.25994831 0.65012926 V 0.5498709 H 0.45012919 V 0.74005175 H 0.34987079 L 0.42480619 0.87028439 0.50025839 1 0.57519399 0.87028439 0.65012959 0.74005175 H 0.54987119 V 0.5498709 H 0.74005211 V 0.65012926 L 0.87028423 0.57519358 1 0.5002582 0.87028423 0.42480604 0.74005169 0.34987066 v 0.1002584 H 0.54987077 V 0.25994821 h 0.1002584 L 0.5751938 0.12971572 Z"),
+    };
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
-        TransformHelper.DrawOverlay(drawingContext, new(ActualWidth, ActualHeight), Corners, origin, ZoomboxScale);
+        DrawOverlay(drawingContext, new(ActualWidth, ActualHeight), Corners, InternalState.Origin, ZoomboxScale);
+    }
+
+    private void DrawOverlay
+        (DrawingContext context, Vector2d size, ShapeCorners corners, Vector2d origin, double zoomboxScale)
+    {
+        // draw transparent background to enable mouse input everywhere
+        context.DrawRectangle(Brushes.Transparent, null, new Rect(new Point(0, 0), new Size(size.X, size.Y)));
+
+        blackPen.Thickness = 1 / zoomboxScale;
+        blackDashedPen.Thickness = 1 / zoomboxScale;
+        whiteDashedPen.Thickness = 1 / zoomboxScale;
+        blackFreqDashedPen.Thickness = 1 / zoomboxScale;
+        whiteFreqDashedPen.Thickness = 1 / zoomboxScale;
+
+        Vector2d topLeft = corners.TopLeft;
+        Vector2d topRight = corners.TopRight;
+        Vector2d bottomLeft = corners.BottomLeft;
+        Vector2d bottomRight = corners.BottomRight;
+
+        // lines
+        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(topRight));
+        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(topRight));
+        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(bottomLeft));
+        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(topLeft), TransformHelper.ToPoint(bottomLeft));
+        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(bottomLeft));
+        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(bottomLeft));
+        context.DrawLine(blackDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
+        context.DrawLine(whiteDashedPen, TransformHelper.ToPoint(bottomRight), TransformHelper.ToPoint(topRight));
+
+        // corner anchors
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect(topLeft, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect(topRight, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect(bottomLeft, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect(bottomRight, zoomboxScale));
+
+        // side anchors
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect((topLeft - topRight) / 2 + topRight, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect((topLeft - bottomLeft) / 2 + bottomLeft, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect((bottomLeft - bottomRight) / 2 + bottomRight, zoomboxScale));
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToAnchorRect((topRight - bottomRight) / 2 + bottomRight, zoomboxScale));
+
+        // origin
+        double radius = TransformHelper.AnchorSize / zoomboxScale / 2;
+        context.DrawEllipse(Brushes.Transparent, blackFreqDashedPen, TransformHelper.ToPoint(origin), radius, radius);
+        context.DrawEllipse(Brushes.Transparent, whiteFreqDashedPen, TransformHelper.ToPoint(origin), radius, radius);
+
+        // move handle
+        Vector2d handlePos = TransformHelper.GetDragHandlePos(corners, zoomboxScale);
+        const double CrossSize = TransformHelper.MoveHandleSize - 1;
+        context.DrawRectangle(Brushes.White, blackPen, TransformHelper.ToHandleRect(handlePos, zoomboxScale));
+        handleGeometry.Transform = new MatrixTransform(
+            0, CrossSize / zoomboxScale,
+            CrossSize / zoomboxScale, 0,
+            handlePos.X - CrossSize / (zoomboxScale * 2), handlePos.Y - CrossSize / (zoomboxScale * 2)
+            );
+        context.DrawGeometry(Brushes.Black, null, handleGeometry);
     }
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -100,19 +173,19 @@ internal class TransformOverlay : Control
 
         e.Handled = true;
         var pos = TransformHelper.ToVector2d(e.GetPosition(this));
-        var anchor = TransformHelper.GetAnchorInPosition(pos, Corners, origin, ZoomboxScale);
+        var anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale);
         if (anchor is not null)
         {
             capturedAnchor = anchor;
             cornersOnStartAnchorDrag = Corners;
-            originOnStartAnchorDrag = origin;
+            originOnStartAnchorDrag = InternalState.Origin;
             mousePosOnStartAnchorDrag = pos;
         }
         else if (Corners.IsPointInside(pos) || TransformHelper.IsWithinTransformHandle(TransformHelper.GetDragHandlePos(Corners, ZoomboxScale), pos, ZoomboxScale))
         {
             isMoving = true;
             mousePosOnStartMove = TransformHelper.ToVector2d(e.GetPosition(this));
-            originOnStartMove = origin;
+            originOnStartMove = InternalState.Origin;
             cornersOnStartMove = Corners;
         }
         else
@@ -120,8 +193,8 @@ internal class TransformOverlay : Control
             isRotating = true;
             mousePosOnStartRotate = TransformHelper.ToVector2d(e.GetPosition(this));
             cornersOnStartRotate = Corners;
-            propAngle1OnStartRotate = proportionalAngle1;
-            propAngle2OnStartRotate = proportionalAngle2;
+            propAngle1OnStartRotate = InternalState.ProportionalAngle1;
+            propAngle2OnStartRotate = InternalState.ProportionalAngle2;
         }
         CaptureMouse();
     }
@@ -149,17 +222,20 @@ internal class TransformOverlay : Control
                 TopRight = cornersOnStartMove.TopRight + delta,
             };
 
-            origin = originOnStartMove + delta;
+            InternalState = InternalState with { Origin = originOnStartMove + delta };
         }
         else if (isRotating)
         {
             var pos = TransformHelper.ToVector2d(e.GetPosition(this));
-            var angle = (mousePosOnStartRotate - origin).CCWAngleTo(pos - origin);
+            var angle = (mousePosOnStartRotate - InternalState.Origin).CCWAngleTo(pos - InternalState.Origin);
             if (SnapToAngles)
                 angle = TransformHelper.FindSnappingAngle(cornersOnStartRotate, angle);
-            proportionalAngle1 = propAngle1OnStartRotate + angle;
-            proportionalAngle2 = propAngle2OnStartRotate + angle;
-            Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, origin, angle);
+            InternalState = InternalState with
+            {
+                ProportionalAngle1 = propAngle1OnStartRotate + angle,
+                ProportionalAngle2 = propAngle2OnStartRotate + angle,
+            };
+            Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
         }
     }
 
@@ -177,32 +253,36 @@ internal class TransformOverlay : Control
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
             var targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
-            var newCorners = TransformUpdateHelper.UpdateShapeFromCorner((Anchor)capturedAnchor, CornerFreedom, proportionalAngle1, proportionalAngle2, cornersOnStartAnchorDrag, targetPos);
+            var newCorners = TransformUpdateHelper.UpdateShapeFromCorner
+                ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1, InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {
                 bool shouldSnap = (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) && Corners.IsSnappedToPixels;
                 Corners = shouldSnap ? TransformHelper.SnapToPixels((ShapeCorners)newCorners) : (ShapeCorners)newCorners;
             }
-            if (!originWasManuallyDragged)
-                origin = TransformHelper.OriginFromCorners(Corners);
+            if (!InternalState.OriginWasManuallyDragged)
+                InternalState = InternalState with { Origin = TransformHelper.OriginFromCorners(Corners) };
         }
         else if (TransformHelper.IsSide((Anchor)capturedAnchor))
         {
             var targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
-            var newCorners = TransformUpdateHelper.UpdateShapeFromSide((Anchor)capturedAnchor, SideFreedom, proportionalAngle1, proportionalAngle2, cornersOnStartAnchorDrag, targetPos);
+            var newCorners = TransformUpdateHelper.UpdateShapeFromSide
+                ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1, InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {
                 bool shouldSnap = (SideFreedom is TransformSideFreedom.ScaleProportionally or TransformSideFreedom.Stretch) && Corners.IsSnappedToPixels;
                 Corners = shouldSnap ? TransformHelper.SnapToPixels((ShapeCorners)newCorners) : (ShapeCorners)newCorners;
             }
-            if (!originWasManuallyDragged)
-                origin = TransformHelper.OriginFromCorners(Corners);
+            if (!InternalState.OriginWasManuallyDragged)
+                InternalState = InternalState with { Origin = TransformHelper.OriginFromCorners(Corners) };
         }
         else if (capturedAnchor == Anchor.Origin)
         {
-            originWasManuallyDragged = true;
-            origin = originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag;
-            InvalidateVisual();
+            InternalState = InternalState with
+            {
+                OriginWasManuallyDragged = true,
+                Origin = originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag,
+            };
         }
     }
 
@@ -228,11 +308,14 @@ internal class TransformOverlay : Control
     private static void OnRequestedCorners(DependencyObject obj, DependencyPropertyChangedEventArgs args)
     {
         TransformOverlay overlay = (TransformOverlay)obj;
-        overlay.originWasManuallyDragged = false;
         overlay.Corners = (ShapeCorners)args.NewValue;
-        overlay.proportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle;
-        overlay.proportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle;
-        overlay.origin = TransformHelper.OriginFromCorners(overlay.Corners);
+        overlay.InternalState = new()
+        {
+            ProportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle,
+            ProportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle,
+            OriginWasManuallyDragged = false,
+            Origin = TransformHelper.OriginFromCorners(overlay.Corners),
+        };
     }
 
     private bool ReleaseAnchor()

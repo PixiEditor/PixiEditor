@@ -74,7 +74,10 @@ internal class ActionAccumulator
                 bitmap.Unlock();
             }
 
-            document.ForceRefreshView();
+            foreach (var (_, value) in helpers.State.Viewports)
+            {
+                value.InvalidateVisual();
+            }
         }
 
         executing = false;

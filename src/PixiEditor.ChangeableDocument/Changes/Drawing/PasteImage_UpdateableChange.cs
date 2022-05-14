@@ -12,6 +12,8 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private readonly Surface imageToPaste;
     private CommittedChunkStorage? savedChunks;
 
+    private bool hasEnqueudImage = false;
+
     public PasteImage_UpdateableChange(ShapeCorners corners, Surface imageToPaste, Guid memberGuid, bool drawOnMask)
     {
         this.corners = corners;
@@ -30,7 +32,8 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         var prevChunks = targetImage.FindAffectedChunks();
 
         targetImage.CancelChanges();
-        targetImage.EnqueueDrawImage(corners, imageToPaste);
+        targetImage.EnqueueDrawImage(corners, imageToPaste, false);
+        hasEnqueudImage = true;
 
         var affectedChunks = targetImage.FindAffectedChunks();
         affectedChunks.UnionWith(prevChunks);
@@ -44,6 +47,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         savedChunks?.Dispose();
         savedChunks = new(targetImage, targetImage.FindAffectedChunks());
         targetImage.CommitChanges();
+        hasEnqueudImage = false;
         ignoreInUndo = false;
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
     }
@@ -62,6 +66,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         savedChunks.ApplyChunksToImage(targetImage);
         var chunks = targetImage.FindAffectedChunks();
         targetImage.CommitChanges();
+        hasEnqueudImage = false;
         savedChunks.Dispose();
         savedChunks = null;
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
@@ -69,6 +74,8 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override void Dispose()
     {
+        if (hasEnqueudImage)
+            throw new InvalidOperationException("Attempted to dispose the change while it's internally stored image is still used enqueued in some ChunkyImage. Most likely someone tried to dispose a change after ApplyTemporarily was called but before the subsequent call to Apply. Don't do that.");
         imageToPaste.Dispose();
         savedChunks?.Dispose();
     }
