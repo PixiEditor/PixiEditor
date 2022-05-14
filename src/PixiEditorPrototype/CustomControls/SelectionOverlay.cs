@@ -7,7 +7,7 @@ using SkiaSharp;
 
 namespace PixiEditorPrototype.CustomControls;
 
-public class SelectionOverlay : Control
+internal class SelectionOverlay : Control
 {
     public static readonly DependencyProperty PathProperty =
         DependencyProperty.Register(nameof(Path), typeof(SKPath), typeof(SelectionOverlay),
