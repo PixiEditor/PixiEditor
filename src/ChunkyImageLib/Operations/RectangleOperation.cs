@@ -20,13 +20,16 @@ internal record class RectangleOperation : IDrawOperation
         // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
         skiaSurf.Canvas.Save();
 
-        var convertedPos = OperationHelper.ConvertForResolution(Data.Center - Data.Size / 2, chunk.Resolution);
+        var convertedPos = OperationHelper.ConvertForResolution(-Data.Size / 2, chunk.Resolution);
+        var convertedCenter = OperationHelper.ConvertForResolution(Data.Center, chunk.Resolution) - chunkPos.Multiply(chunk.PixelSize);
+
         var convertedSize = OperationHelper.ConvertForResolution(Data.Size, chunk.Resolution);
         int convertedStroke = (int)Math.Round(chunk.Resolution.Multiplier() * Data.StrokeWidth);
 
-        var rect = SKRect.Create((SKPoint)(convertedPos - chunkPos.Multiply(chunk.PixelSize)), (SKSize)convertedSize);
+        var rect = SKRect.Create((SKPoint)convertedPos, (SKSize)convertedSize);
 
-        skiaSurf.Canvas.RotateRadians((float)Data.Angle, (float)Data.Center.X, (float)Data.Center.Y);
+        skiaSurf.Canvas.Translate((SKPoint)convertedCenter);
+        skiaSurf.Canvas.RotateRadians((float)Data.Angle);
         skiaSurf.Canvas.ClipRect(rect);
 
         // draw fill
