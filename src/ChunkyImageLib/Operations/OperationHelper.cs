@@ -66,6 +66,8 @@ public static class OperationHelper
             (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
             (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
             return new HashSet<VecI>();
+        if (corners.IsInverted)
+            corners = corners with { BottomLeft = corners.TopRight, TopRight = corners.BottomLeft };
         List<VecI>[] lines = new List<VecI>[] {
             FindChunksAlongLine(corners.TopRight, corners.TopLeft, chunkSize),
             FindChunksAlongLine(corners.BottomRight, corners.TopRight, chunkSize),
@@ -81,6 +83,8 @@ public static class OperationHelper
             (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
             (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
             return new HashSet<VecI>();
+        if (corners.IsInverted)
+            corners = corners with { BottomLeft = corners.TopRight, TopRight = corners.BottomLeft };
         List<VecI>[] lines = new List<VecI>[] {
             FindChunksAlongLine(corners.TopLeft, corners.TopRight, chunkSize),
             FindChunksAlongLine(corners.TopRight, corners.BottomRight, chunkSize),

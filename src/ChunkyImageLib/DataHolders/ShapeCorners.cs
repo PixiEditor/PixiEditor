@@ -19,6 +19,17 @@ public struct ShapeCorners
     public VecD TopRight { get; set; }
     public VecD BottomLeft { get; set; }
     public VecD BottomRight { get; set; }
+    public bool IsInverted
+    {
+        get
+        {
+            var top = TopLeft - TopRight;
+            var right = TopRight - BottomRight;
+            var bottom = BottomRight - BottomLeft;
+            var left = BottomLeft - TopLeft;
+            return Math.Sign(top.Cross(right)) + Math.Sign(right.Cross(bottom)) + Math.Sign(bottom.Cross(left)) + Math.Sign(left.Cross(top)) < 0;
+        }
+    }
     public bool IsLegal
     {
         get

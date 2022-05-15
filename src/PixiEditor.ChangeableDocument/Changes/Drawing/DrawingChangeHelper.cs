@@ -23,6 +23,22 @@ internal static class DrawingChangeHelper
         return ((Layer)member).LayerImage;
     }
 
+    public static void ApplyClipsSymmetriesEtc(Document target, ChunkyImage targetImage, Guid targetMemberGuid, bool drawOnMask)
+    {
+        if (!target.Selection.IsEmptyAndInactive)
+            targetImage.AddRasterClip(target.Selection.SelectionImage);
+
+        var targetMember = target.FindMemberOrThrow(targetMemberGuid);
+        if (targetMember is Layer layer && layer.LockTransparency && !drawOnMask)
+            targetImage.EnableLockTransparency();
+
+        if (target.HorizontalSymmetryAxisEnabled)
+            targetImage.SetHorizontalAxisOfSymmetry(target.HorizontalSymmetryAxisY);
+        if (target.VerticalSymmetryAxisEnabled)
+            targetImage.SetVerticalAxisOfSymmetry(target.VerticalSymmetryAxisX);
+    }
+
+
     public static IChangeInfo CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask)
     {
         return drawOnMask switch

@@ -27,11 +27,12 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         corners = newCorners;
     }
 
-    private HashSet<VecI> DrawImage(ChunkyImage targetImage)
+    private HashSet<VecI> DrawImage(Document target, ChunkyImage targetImage)
     {
         var prevChunks = targetImage.FindAffectedChunks();
 
         targetImage.CancelChanges();
+        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
         targetImage.EnqueueDrawImage(corners, imageToPaste, false);
         hasEnqueudImage = true;
 
@@ -43,7 +44,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
-        var chunks = DrawImage(targetImage);
+        var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
         savedChunks = new(targetImage, targetImage.FindAffectedChunks());
         targetImage.CommitChanges();
@@ -55,7 +56,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     public override IChangeInfo? ApplyTemporarily(Document target)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, DrawImage(targetImage), drawOnMask);
+        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
     public override IChangeInfo? Revert(Document target)

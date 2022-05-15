@@ -26,17 +26,10 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
     private HashSet<VecI> UpdateRectangle(Document target, ChunkyImage targetImage)
     {
         var oldAffectedChunks = targetImage.FindAffectedChunks();
-        targetImage.CancelChanges();
-        if (!target.Selection.IsEmptyAndInactive)
-            targetImage.AddRasterClip(target.Selection.SelectionImage);
         var targetMember = target.FindMemberOrThrow(memberGuid);
-        if (targetMember is Layer layer && layer.LockTransparency)
-            targetImage.EnableLockTransparency();
-        if (target.HorizontalSymmetryAxisEnabled)
-            targetImage.SetHorizontalAxisOfSymmetry(target.HorizontalSymmetryAxisY);
-        if (target.VerticalSymmetryAxisEnabled)
-            targetImage.SetVerticalAxisOfSymmetry(target.VerticalSymmetryAxisX);
 
+        targetImage.CancelChanges();
+        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
         targetImage.EnqueueDrawRectangle(rect);
 
         var affectedChunks = targetImage.FindAffectedChunks();
