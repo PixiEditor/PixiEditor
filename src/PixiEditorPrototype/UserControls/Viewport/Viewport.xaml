@@ -8,7 +8,7 @@
              xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
              xmlns:to="clr-namespace:PixiEditorPrototype.CustomControls.TransformOverlay"
              xmlns:cust="clr-namespace:PixiEditorPrototype.CustomControls"
-             xmlns:sym="clr-namespace:PixiEditorPrototype.CustomControls.SymmertyOverlay"
+             xmlns:sym="clr-namespace:PixiEditorPrototype.CustomControls.SymmetryOverlay"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:conv="clr-namespace:PixiEditorPrototype.Converters"
              mc:Ignorable="d"
@@ -18,21 +18,24 @@
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
     <Grid>
-        <zoombox:Zoombox x:Name="zoombox" UseTouchGestures="True"
-                             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-                             Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-                             RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-                             Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-                             ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}" 
-                             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
-                             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
-            <Border BorderThickness="1" Background="White" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
+        <zoombox:Zoombox 
+            x:Name="zoombox" UseTouchGestures="True"
+            Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
+            Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
+            RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
+            Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
+            ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}" 
+            FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
+            FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
+            <Border 
+                BorderThickness="1" Background="White" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
                 <Grid>
-                    <Image Focusable="True"
-                               Width="{Binding Document.Width}" Height="{Binding Document.Height}"
-                               Source="{Binding TargetBitmap}"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor">
+                    <Image 
+                        Focusable="True"
+                        Width="{Binding Document.Width}" Height="{Binding Document.Height}"
+                        Source="{Binding TargetBitmap}"
+                        RenderOptions.BitmapScalingMode="NearestNeighbor">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown">
                                 <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>
@@ -45,16 +48,25 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Image>
-                    <sym:SymmetryOverlay HorizontalVisible="True" VerticalVisible="True" ZoomboxScale="{Binding Zoombox.Scale}"/>
+                    <sym:SymmetryOverlay 
+                        ZoomboxScale="{Binding Zoombox.Scale}"
+                        HorizontalVisible="{Binding Document.HorizontalSymmetryEnabled}"
+                        VerticalVisible="{Binding Document.VerticalSymmetryEnabled}"
+                        HorizontalPosition="{Binding Document.HorizontalSymmetryPosition, Mode=OneWay}"
+                        VerticalPosition="{Binding Document.VerticalSymmetryPosition, Mode=OneWay}"
+                        DragCommand="{Binding Document.DragSymmetryCommand}"
+                        DragEndCommand="{Binding Document.EndDragSymmetryCommand}"
+                        />
                     <cust:SelectionOverlay Path="{Binding Document.SelectionPath}" ZoomboxScale="{Binding Zoombox.Scale}"/>
-                    <to:TransformOverlay HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                            Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
-                                            RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners}"
-                                            CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
-                                            SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
-                                            InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
-                                            ZoomboxScale="{Binding Zoombox.Scale}"/>
+                    <to:TransformOverlay 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
+                        RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners}"
+                        CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
+                        SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
+                        InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
+                        ZoomboxScale="{Binding Zoombox.Scale}"/>
                 </Grid>
             </Border>
         </zoombox:Zoombox>

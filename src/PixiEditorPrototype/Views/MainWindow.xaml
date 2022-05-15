@@ -165,6 +165,12 @@
                 <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding RotateZoombox, Mode=OneWayToSource}">Rotate</RadioButton>
                 <CheckBox x:Name="flipXCheckbox" Margin="5, 0">Flip X</CheckBox>
                 <CheckBox x:Name="flipYCheckbox" Margin="5, 0">Flip Y</CheckBox>
+                <CheckBox 
+                    x:Name="horizontalSymmetryCheckbox" Margin="5,0" 
+                    IsChecked="{Binding ActiveDocument.HorizontalSymmetryEnabled}">Hor Sym</CheckBox>
+                <CheckBox 
+                    x:Name="verticalSymmetryCheckbox" Margin="5,0" 
+                    IsChecked="{Binding ActiveDocument.VerticalSymmetryEnabled}">Ver Sym</CheckBox>
             </StackPanel>
         </Border>
         <Grid>

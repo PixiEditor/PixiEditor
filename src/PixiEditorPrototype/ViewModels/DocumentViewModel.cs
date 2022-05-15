@@ -14,9 +14,11 @@ using PixiEditor.ChangeableDocument.Actions.Drawing.Rectangle;
 using PixiEditor.ChangeableDocument.Actions.Drawing.Selection;
 using PixiEditor.ChangeableDocument.Actions.Properties;
 using PixiEditor.ChangeableDocument.Actions.Root;
+using PixiEditor.ChangeableDocument.Actions.Root.SymmetryPosition;
 using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditorPrototype.CustomControls.SymmetryOverlay;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
 
@@ -67,11 +69,25 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? ToggleLockTransparencyCommand { get; }
     public RelayCommand? ApplyTransformCommand { get; }
     public RelayCommand? PasteImageCommand { get; }
+    public RelayCommand? DragSymmetryCommand { get; }
+    public RelayCommand? EndDragSymmetryCommand { get; }
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
     public SKPath SelectionPath => Helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionPath;
     public Guid GuidValue { get; } = Guid.NewGuid();
+    public int HorizontalSymmetryPosition => Helpers.Tracker.Document.HorizontalSymmetryPosition;
+    public int VerticalSymmetryPosition => Helpers.Tracker.Document.VerticalSymmetryPosition;
+    public bool HorizontalSymmetryEnabled
+    {
+        get => Helpers.Tracker.Document.HorizontalSymmetryEnabled;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryState_Action(SymmetryDirection.Horizontal, value));
+    }
+    public bool VerticalSymmetryEnabled
+    {
+        get => Helpers.Tracker.Document.VerticalSymmetryEnabled;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryState_Action(SymmetryDirection.Vertical, value));
+    }
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
 
@@ -110,6 +126,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
         ToggleLockTransparencyCommand = new RelayCommand(ToggleLockTransparency);
         PasteImageCommand = new RelayCommand(PasteImage);
         ApplyTransformCommand = new RelayCommand(ApplyTransform);
+        DragSymmetryCommand = new RelayCommand(DragSymmetry);
+        EndDragSymmetryCommand = new RelayCommand(EndDragSymmetry);
 
         foreach (var bitmap in Bitmaps)
         {
@@ -133,6 +151,22 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private ShapeCorners lastShape = new ShapeCorners();
     private ShapeData lastShapeData = new();
+
+    private void DragSymmetry(object? obj)
+    {
+        if (obj is null)
+            return;
+        var info = (SymmetryDragInfo)obj;
+        Helpers.ActionAccumulator.AddActions(new SetSymmetryPosition_Action(info.Direction, info.NewPosition));
+    }
+
+    private void EndDragSymmetry(object? obj)
+    {
+        if (obj is null)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndSetSymmetryPosition_Action());
+    }
+
     public void StartUpdateRectangle(ShapeData data)
     {
         if (SelectedStructureMember is null)

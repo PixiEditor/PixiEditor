@@ -9,6 +9,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditorPrototype.ViewModels;
 using SkiaSharp;
 
@@ -70,7 +71,29 @@ internal class DocumentUpdater
             case Selection_ChangeInfo info:
                 ProcessSelection(info);
                 break;
+            case SymmetryState_ChangeInfo info:
+                ProcessSymmetryState(info);
+                break;
+            case SymmetryPosition_ChangeInfo info:
+                ProcessSymmetryPosition(info);
+                break;
         }
+    }
+
+    private void ProcessSymmetryPosition(SymmetryPosition_ChangeInfo info)
+    {
+        if (info.Direction == SymmetryDirection.Horizontal)
+            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryPosition));
+        else if (info.Direction == SymmetryDirection.Vertical)
+            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryPosition));
+    }
+
+    private void ProcessSymmetryState(SymmetryState_ChangeInfo info)
+    {
+        if (info.Direction == SymmetryDirection.Horizontal)
+            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryEnabled));
+        else if (info.Direction == SymmetryDirection.Vertical)
+            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryEnabled));
     }
 
     private void ProcessSelection(Selection_ChangeInfo info)
