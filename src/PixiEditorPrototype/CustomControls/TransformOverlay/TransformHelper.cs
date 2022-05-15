@@ -8,20 +8,20 @@ internal static class TransformHelper
     public const double AnchorSize = 10;
     public const double MoveHandleSize = 16;
 
-    public static Rect ToAnchorRect(Vector2d pos, double zoomboxScale)
+    public static Rect ToAnchorRect(VecD pos, double zoomboxScale)
     {
         double scaled = AnchorSize / zoomboxScale;
         return new Rect(pos.X - scaled / 2, pos.Y - scaled / 2, scaled, scaled);
     }
 
-    public static Rect ToHandleRect(Vector2d pos, double zoomboxScale)
+    public static Rect ToHandleRect(VecD pos, double zoomboxScale)
     {
         double scaled = MoveHandleSize / zoomboxScale;
         return new Rect(pos.X - scaled / 2, pos.Y - scaled / 2, scaled, scaled);
     }
 
-    public static Vector2d ToVector2d(Point pos) => new Vector2d(pos.X, pos.Y);
-    public static Point ToPoint(Vector2d vec) => new Point(vec.X, vec.Y);
+    public static VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);
+    public static Point ToPoint(VecD vec) => new Point(vec.X, vec.Y);
 
     public static ShapeCorners SnapToPixels(ShapeCorners corners)
     {
@@ -58,7 +58,7 @@ internal static class TransformHelper
         return minDelta + desiredAngle;
     }
 
-    public static Vector2d OriginFromCorners(ShapeCorners corners)
+    public static VecD OriginFromCorners(ShapeCorners corners)
     {
         var maybeOrigin = TwoLineIntersection(
             GetAnchorPosition(corners, Anchor.Top),
@@ -69,12 +69,12 @@ internal static class TransformHelper
         return maybeOrigin ?? corners.TopLeft.Lerp(corners.BottomRight, 0.5);
     }
 
-    public static Vector2d? TwoLineIntersection(Vector2d line1Start, Vector2d line1End, Vector2d line2Start, Vector2d line2End)
+    public static VecD? TwoLineIntersection(VecD line1Start, VecD line1End, VecD line2Start, VecD line2End)
     {
         const double epsilon = 0.0001;
 
-        Vector2d line1delta = line1End - line1Start;
-        Vector2d line2delta = line2End - line2Start;
+        VecD line1delta = line1End - line1Start;
+        VecD line2delta = line2End - line2Start;
 
         // both lines are vertical, no intersections
         if (Math.Abs(line1delta.X) < epsilon && Math.Abs(line2delta.X) < epsilon)
@@ -166,7 +166,7 @@ internal static class TransformHelper
         };
     }
 
-    public static ShapeCorners UpdateCorner(ShapeCorners original, Anchor corner, Vector2d newPos)
+    public static ShapeCorners UpdateCorner(ShapeCorners original, Anchor corner, VecD newPos)
     {
         if (corner == Anchor.TopLeft)
             original.TopLeft = newPos;
@@ -181,7 +181,7 @@ internal static class TransformHelper
         return original;
     }
 
-    public static Vector2d GetAnchorPosition(ShapeCorners corners, Anchor anchor)
+    public static VecD GetAnchorPosition(ShapeCorners corners, Anchor anchor)
     {
         return anchor switch
         {
@@ -197,12 +197,12 @@ internal static class TransformHelper
         };
     }
 
-    public static Anchor? GetAnchorInPosition(Vector2d pos, ShapeCorners corners, Vector2d origin, double zoomboxScale)
+    public static Anchor? GetAnchorInPosition(VecD pos, ShapeCorners corners, VecD origin, double zoomboxScale)
     {
-        Vector2d topLeft = corners.TopLeft;
-        Vector2d topRight = corners.TopRight;
-        Vector2d bottomLeft = corners.BottomLeft;
-        Vector2d bottomRight = corners.BottomRight;
+        VecD topLeft = corners.TopLeft;
+        VecD topRight = corners.TopRight;
+        VecD bottomLeft = corners.BottomLeft;
+        VecD bottomRight = corners.BottomRight;
 
         // corners
         if (IsWithinAnchor(topLeft, pos, zoomboxScale))
@@ -230,25 +230,25 @@ internal static class TransformHelper
         return null;
     }
 
-    public static bool IsWithinAnchor(Vector2d anchorPos, Vector2d mousePos, double zoomboxScale)
+    public static bool IsWithinAnchor(VecD anchorPos, VecD mousePos, double zoomboxScale)
     {
         var delta = (anchorPos - mousePos).Abs();
         double scaled = AnchorSize / zoomboxScale / 2;
         return delta.X < scaled && delta.Y < scaled;
     }
 
-    public static bool IsWithinTransformHandle(Vector2d handlePos, Vector2d mousePos, double zoomboxScale)
+    public static bool IsWithinTransformHandle(VecD handlePos, VecD mousePos, double zoomboxScale)
     {
         var delta = (handlePos - mousePos).Abs();
         double scaled = MoveHandleSize / zoomboxScale / 2;
         return delta.X < scaled && delta.Y < scaled;
     }
 
-    public static Vector2d GetDragHandlePos(ShapeCorners corners, double zoomboxScale)
+    public static VecD GetDragHandlePos(ShapeCorners corners, double zoomboxScale)
     {
-        Vector2d max = new(
+        VecD max = new(
             Math.Max(Math.Max(corners.TopLeft.X, corners.TopRight.X), Math.Max(corners.BottomLeft.X, corners.BottomRight.X)),
             Math.Max(Math.Max(corners.TopLeft.Y, corners.TopRight.Y), Math.Max(corners.BottomLeft.Y, corners.BottomRight.Y)));
-        return max + new Vector2d(MoveHandleSize / zoomboxScale, MoveHandleSize / zoomboxScale);
+        return max + new VecD(MoveHandleSize / zoomboxScale, MoveHandleSize / zoomboxScale);
     }
 }

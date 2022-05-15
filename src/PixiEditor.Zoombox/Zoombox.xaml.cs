@@ -31,13 +31,13 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         DependencyProperty.Register(nameof(Scale), typeof(double), typeof(Zoombox), new(1.0, OnPropertyChange));
 
     public static readonly DependencyProperty CenterProperty =
-        DependencyProperty.Register(nameof(Center), typeof(Vector2d), typeof(Zoombox), new(new Vector2d(0, 0), OnPropertyChange));
+        DependencyProperty.Register(nameof(Center), typeof(VecD), typeof(Zoombox), new(new VecD(0, 0), OnPropertyChange));
 
     public static readonly DependencyProperty DimensionsProperty =
-        DependencyProperty.Register(nameof(Dimensions), typeof(Vector2d), typeof(Zoombox));
+        DependencyProperty.Register(nameof(Dimensions), typeof(VecD), typeof(Zoombox));
 
     public static readonly DependencyProperty RealDimensionsProperty =
-        DependencyProperty.Register(nameof(RealDimensions), typeof(Vector2d), typeof(Zoombox));
+        DependencyProperty.Register(nameof(RealDimensions), typeof(VecD), typeof(Zoombox));
 
     public static readonly DependencyProperty AngleProperty =
         DependencyProperty.Register(nameof(Angle), typeof(double), typeof(Zoombox), new(0.0, OnPropertyChange));
@@ -98,21 +98,21 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         set => SetValue(AngleProperty, value);
     }
 
-    public Vector2d Center
+    public VecD Center
     {
-        get => (Vector2d)GetValue(CenterProperty);
+        get => (VecD)GetValue(CenterProperty);
         set => SetValue(CenterProperty, value);
     }
 
-    public Vector2d Dimensions
+    public VecD Dimensions
     {
-        get => (Vector2d)GetValue(DimensionsProperty);
+        get => (VecD)GetValue(DimensionsProperty);
         set => SetValue(DimensionsProperty, value);
     }
 
-    public Vector2d RealDimensions
+    public VecD RealDimensions
     {
-        get => (Vector2d)GetValue(RealDimensionsProperty);
+        get => (VecD)GetValue(RealDimensionsProperty);
         set => SetValue(RealDimensionsProperty, value);
     }
 
@@ -145,21 +145,21 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private double[] roundZoomValues = new double[] { .01, .02, .03, .04, .05, .06, .07, .08, .1, .13, .17, .2, .25, .33, .5, .67, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64 };
 
-    internal Vector2d ToScreenSpace(Vector2d p)
+    internal VecD ToScreenSpace(VecD p)
     {
-        Vector2d delta = p - Center;
+        VecD delta = p - Center;
         delta = delta.Rotate(Angle) * Scale;
         if (FlipX)
             delta.X = -delta.X;
         if (FlipY)
             delta.Y = -delta.Y;
-        delta += new Vector2d(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2);
+        delta += new VecD(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2);
         return delta;
     }
 
-    internal Vector2d ToZoomboxSpace(Vector2d mousePos)
+    internal VecD ToZoomboxSpace(VecD mousePos)
     {
-        Vector2d delta = mousePos - new Vector2d(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2);
+        VecD delta = mousePos - new VecD(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2);
         if (FlipX)
             delta.X = -delta.X;
         if (FlipY)
@@ -190,7 +190,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void RaiseViewportEvent()
     {
-        var realDim = new Vector2d(mainCanvas.ActualWidth, mainCanvas.ActualHeight);
+        var realDim = new VecD(mainCanvas.ActualWidth, mainCanvas.ActualHeight);
         RealDimensions = realDim;
         RaiseEvent(new ViewportRoutedEventArgs(
             ViewportMovedEvent,
@@ -202,7 +202,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     public void CenterContent() => CenterContent(new(mainGrid.ActualWidth, mainGrid.ActualHeight));
 
-    public void CenterContent(Vector2d newSize)
+    public void CenterContent(VecD newSize)
     {
 
         const double marginFactor = 1.1;
@@ -219,10 +219,10 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     public void ZoomIntoCenter(double delta)
     {
-        ZoomInto(new Vector2d(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2), delta);
+        ZoomInto(new VecD(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2), delta);
     }
 
-    public void ZoomInto(Vector2d mousePos, double delta)
+    public void ZoomInto(VecD mousePos, double delta)
     {
         if (delta == 0)
             return;
@@ -299,7 +299,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         else
         {
             if (ZoomMode == ZoomboxMode.Zoom && e.ChangedButton == MouseButton.Left)
-                ZoomInto(ToVector2d(e.GetPosition(mainCanvas)), ZoomOutOnClick ? -1 : 1);
+                ZoomInto(ToVecD(e.GetPosition(mainCanvas)), ZoomOutOnClick ? -1 : 1);
         }
         activeMouseDownEventArgs = null;
     }
@@ -320,7 +320,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         for (int i = 0; i < Math.Abs(e.Delta / 100); i++)
         {
-            ZoomInto(ToVector2d(e.GetPosition(mainCanvas)), e.Delta / 100);
+            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta / 100);
         }
     }
 
@@ -329,35 +329,35 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         if (!UseTouchGestures)
             return;
         e.Handled = true;
-        Vector2d screenTranslation = new(e.DeltaManipulation.Translation.X, e.DeltaManipulation.Translation.Y);
-        Vector2d screenOrigin = new(e.ManipulationOrigin.X, e.ManipulationOrigin.Y);
+        VecD screenTranslation = new(e.DeltaManipulation.Translation.X, e.DeltaManipulation.Translation.Y);
+        VecD screenOrigin = new(e.ManipulationOrigin.X, e.ManipulationOrigin.Y);
         Manipulate(e.DeltaManipulation.Scale.X, screenTranslation, screenOrigin, e.DeltaManipulation.Rotation / 180 * Math.PI);
     }
 
-    private void Manipulate(double deltaScale, Vector2d screenTranslation, Vector2d screenOrigin, double rotation)
+    private void Manipulate(double deltaScale, VecD screenTranslation, VecD screenOrigin, double rotation)
     {
         double newScale = Math.Clamp(Scale * deltaScale, MinScale, MaxScale);
         double newAngle = Angle + rotation;
 
-        Vector2d originalPos = ToZoomboxSpace(screenOrigin);
+        VecD originalPos = ToZoomboxSpace(screenOrigin);
         Angle = newAngle;
         Scale = newScale;
-        Vector2d newPos = ToZoomboxSpace(screenOrigin);
-        Vector2d centerTranslation = originalPos - newPos;
+        VecD newPos = ToZoomboxSpace(screenOrigin);
+        VecD centerTranslation = originalPos - newPos;
         Center += centerTranslation;
 
-        Vector2d translatedZoomboxPos = ToZoomboxSpace(screenOrigin + screenTranslation);
+        VecD translatedZoomboxPos = ToZoomboxSpace(screenOrigin + screenTranslation);
         Center -= translatedZoomboxPos - originalPos;
     }
 
-    internal static Vector2d ToVector2d(Point point) => new Vector2d(point.X, point.Y);
+    internal static VecD ToVecD(Point point) => new VecD(point.X, point.Y);
 
     private static void OnPropertyChange(DependencyObject obj, DependencyPropertyChangedEventArgs args)
     {
         var zoombox = (Zoombox)obj;
 
-        Vector2d topLeft = zoombox.ToZoomboxSpace(new(0, 0)).Rotate(zoombox.Angle);
-        Vector2d bottomRight = zoombox.ToZoomboxSpace(new(zoombox.mainCanvas.ActualWidth, zoombox.mainCanvas.ActualHeight)).Rotate(zoombox.Angle);
+        VecD topLeft = zoombox.ToZoomboxSpace(new(0, 0)).Rotate(zoombox.Angle);
+        VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.mainCanvas.ActualWidth, zoombox.mainCanvas.ActualHeight)).Rotate(zoombox.Angle);
 
         zoombox.Dimensions = (bottomRight - topLeft).Abs();
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.ScaleTransformXY)));

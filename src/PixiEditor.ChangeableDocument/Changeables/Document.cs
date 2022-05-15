@@ -12,10 +12,10 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
     (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
-    public static Vector2i DefaultSize { get; } = new Vector2i(64, 64);
+    public static VecI DefaultSize { get; } = new VecI(64, 64);
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
-    public Vector2i Size { get; set; } = DefaultSize;
+    public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }
     public int HorizontalSymmetryAxisY { get; set; }

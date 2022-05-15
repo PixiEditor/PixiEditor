@@ -11,9 +11,9 @@ public class Surface : IDisposable
     private int bytesPerPixel;
     public IntPtr PixelBuffer { get; }
     public SKSurface SkiaSurface { get; }
-    public Vector2i Size { get; }
+    public VecI Size { get; }
 
-    public Surface(Vector2i size)
+    public Surface(VecI size)
     {
         if (size.X < 1 || size.Y < 1)
             throw new ArgumentException("Width and height must be >1");
@@ -39,7 +39,7 @@ public class Surface : IDisposable
         using var bitmap = SKBitmap.Decode(path);
         if (bitmap is null)
             throw new ArgumentException($"The image with path {path} couldn't be loaded");
-        var surface = new Surface(new Vector2i(bitmap.Width, bitmap.Height));
+        var surface = new Surface(new VecI(bitmap.Width, bitmap.Height));
         surface.SkiaSurface.Canvas.DrawBitmap(bitmap, 0, 0);
         return surface;
     }

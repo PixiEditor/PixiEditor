@@ -3,4 +3,4 @@ using ChunkyImageLib.DataHolders;
 
 namespace PixiEditorPrototype.Models;
 internal readonly record struct ViewportLocation
-    (double Angle, Vector2d Center, Vector2d RealDimensions, Vector2d Dimensions, ChunkResolution Resolution, Guid GuidValue, Action InvalidateVisual);
+    (double Angle, VecD Center, VecD RealDimensions, VecD Dimensions, ChunkResolution Resolution, Guid GuidValue, Action InvalidateVisual);

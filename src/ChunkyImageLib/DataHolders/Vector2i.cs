@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.DataHolders;
 
-public struct Vector2i
+public struct VecI
 {
     public int X { set; get; }
     public int Y { set; get; }
@@ -13,96 +13,96 @@ public struct Vector2i
     public int LongestAxis => (Math.Abs(X) < Math.Abs(Y)) ? Y : X;
     public int ShortestAxis => (Math.Abs(X) < Math.Abs(Y)) ? X : Y;
 
-    public Vector2i(int x, int y)
+    public VecI(int x, int y)
     {
         X = x;
         Y = y;
     }
 
-    public Vector2i Signs()
+    public VecI Signs()
     {
-        return new Vector2i(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);
+        return new VecI(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);
     }
-    public Vector2i Multiply(Vector2i other)
+    public VecI Multiply(VecI other)
     {
-        return new Vector2i(X * other.X, Y * other.Y);
+        return new VecI(X * other.X, Y * other.Y);
     }
     /// <summary>
     /// Reflects the vector across a vertical line with the specified position
     /// </summary>
-    public Vector2i ReflectX(int lineX)
+    public VecI ReflectX(int lineX)
     {
         return new(2 * lineX - X, Y);
     }
     /// <summary>
     /// Reflects the vector along a horizontal line with the specified position
     /// </summary>
-    public Vector2i ReflectY(int lineY)
+    public VecI ReflectY(int lineY)
     {
         return new(X, 2 * lineY - Y);
     }
-    public static Vector2i operator +(Vector2i a, Vector2i b)
+    public static VecI operator +(VecI a, VecI b)
     {
-        return new Vector2i(a.X + b.X, a.Y + b.Y);
+        return new VecI(a.X + b.X, a.Y + b.Y);
     }
-    public static Vector2i operator -(Vector2i a, Vector2i b)
+    public static VecI operator -(VecI a, VecI b)
     {
-        return new Vector2i(a.X - b.X, a.Y - b.Y);
+        return new VecI(a.X - b.X, a.Y - b.Y);
     }
-    public static Vector2i operator -(Vector2i a)
+    public static VecI operator -(VecI a)
     {
-        return new Vector2i(-a.X, -a.Y);
+        return new VecI(-a.X, -a.Y);
     }
-    public static Vector2i operator *(int b, Vector2i a)
+    public static VecI operator *(int b, VecI a)
     {
-        return new Vector2i(a.X * b, a.Y * b);
+        return new VecI(a.X * b, a.Y * b);
     }
-    public static int operator *(Vector2i a, Vector2i b)
+    public static int operator *(VecI a, VecI b)
     {
         return a.X * b.X + a.Y * b.Y;
     }
-    public static Vector2i operator *(Vector2i a, int b)
+    public static VecI operator *(VecI a, int b)
     {
-        return new Vector2i(a.X * b, a.Y * b);
+        return new VecI(a.X * b, a.Y * b);
     }
-    public static Vector2d operator *(Vector2i a, double b)
+    public static VecD operator *(VecI a, double b)
     {
-        return new Vector2d(a.X * b, a.Y * b);
+        return new VecD(a.X * b, a.Y * b);
     }
-    public static Vector2i operator /(Vector2i a, int b)
+    public static VecI operator /(VecI a, int b)
     {
-        return new Vector2i(a.X / b, a.Y / b);
+        return new VecI(a.X / b, a.Y / b);
     }
-    public static Vector2d operator /(Vector2i a, double b)
+    public static VecD operator /(VecI a, double b)
     {
-        return new Vector2d(a.X / b, a.Y / b);
+        return new VecD(a.X / b, a.Y / b);
     }
-    public static bool operator ==(Vector2i a, Vector2i b)
+    public static bool operator ==(VecI a, VecI b)
     {
         return a.X == b.X && a.Y == b.Y;
     }
-    public static bool operator !=(Vector2i a, Vector2i b)
+    public static bool operator !=(VecI a, VecI b)
     {
         return !(a.X == b.X && a.Y == b.Y);
     }
 
-    public static implicit operator Vector2d(Vector2i vec)
+    public static implicit operator VecD(VecI vec)
     {
-        return new Vector2d(vec.X, vec.Y);
+        return new VecD(vec.X, vec.Y);
     }
-    public static implicit operator SKPointI(Vector2i vec)
+    public static implicit operator SKPointI(VecI vec)
     {
         return new SKPointI(vec.X, vec.Y);
     }
-    public static implicit operator SKPoint(Vector2i vec)
+    public static implicit operator SKPoint(VecI vec)
     {
         return new SKPoint(vec.X, vec.Y);
     }
-    public static implicit operator SKSizeI(Vector2i vec)
+    public static implicit operator SKSizeI(VecI vec)
     {
         return new SKSizeI(vec.X, vec.Y);
     }
-    public static implicit operator SKSize(Vector2i vec)
+    public static implicit operator SKSize(VecI vec)
     {
         return new SKSize(vec.X, vec.Y);
     }
@@ -114,7 +114,7 @@ public struct Vector2i
 
     public override bool Equals(object? obj)
     {
-        var item = obj as Vector2i?;
+        var item = obj as VecI?;
         if (item is null)
             return false;
         return this == item;

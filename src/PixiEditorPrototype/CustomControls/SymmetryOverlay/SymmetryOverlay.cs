@@ -132,13 +132,13 @@ internal class SymmetryOverlay : Control
         return new PointHitTestResult(this, hitTestParameters.HitPoint);
     }
 
-    private SymmetryAxisDirection? IsTouchingHandle(Vector2d position)
+    private SymmetryAxisDirection? IsTouchingHandle(VecD position)
     {
         double radius = HandleSize / ZoomboxScale / 2;
-        Vector2d left = new(-radius, horizontalAxisY);
-        Vector2d right = new(ActualWidth + radius, horizontalAxisY);
-        Vector2d up = new(verticalAxisX, -radius);
-        Vector2d down = new(verticalAxisX, ActualHeight + radius);
+        VecD left = new(-radius, horizontalAxisY);
+        VecD right = new(ActualWidth + radius, horizontalAxisY);
+        VecD up = new(verticalAxisX, -radius);
+        VecD down = new(verticalAxisX, ActualHeight + radius);
 
         if (HorizontalAxisVisible && (Math.Abs((left - position).LongestAxis) < radius || Math.Abs((right - position).LongestAxis) < radius))
             return SymmetryAxisDirection.Horizontal;
@@ -147,7 +147,7 @@ internal class SymmetryOverlay : Control
         return null;
     }
 
-    private Vector2d ToVector2d(Point pos) => new Vector2d(pos.X, pos.Y);
+    private VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);
 
     public SymmetryAxisDirection? capturedDirection;
 
@@ -155,7 +155,7 @@ internal class SymmetryOverlay : Control
     {
         base.OnMouseDown(e);
 
-        var pos = ToVector2d(e.GetPosition(this));
+        var pos = ToVecD(e.GetPosition(this));
         var dir = IsTouchingHandle(pos);
         if (dir is null)
             return;
@@ -196,7 +196,7 @@ internal class SymmetryOverlay : Control
 
         if (capturedDirection is null)
             return;
-        var pos = ToVector2d(e.GetPosition(this));
+        var pos = ToVecD(e.GetPosition(this));
         if (capturedDirection == SymmetryAxisDirection.Horizontal)
         {
             horizontalAxisY = (int)Math.Round(Math.Clamp(pos.Y, 0, ActualHeight));

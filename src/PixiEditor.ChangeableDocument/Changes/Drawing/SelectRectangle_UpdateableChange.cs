@@ -10,11 +10,11 @@ namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class SelectRectangle_UpdateableChange : UpdateableChange
 {
     private bool originalIsEmpty;
-    private Vector2i pos;
-    private Vector2i size;
+    private VecI pos;
+    private VecI size;
     private CommittedChunkStorage? originalSelectionState;
     private SKPath? originalPath;
-    public SelectRectangle_UpdateableChange(Vector2i pos, Vector2i size)
+    public SelectRectangle_UpdateableChange(VecI pos, VecI size)
     {
         Update(pos, size);
     }
@@ -24,7 +24,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         originalPath = new SKPath(target.Selection.SelectionPath);
     }
 
-    public void Update(Vector2i pos, Vector2i size)
+    public void Update(VecI pos, VecI size)
     {
         this.pos = pos;
         this.size = size;

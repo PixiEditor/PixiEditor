@@ -102,8 +102,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
-    private Vector2d center = new(32, 32);
-    public Vector2d Center
+    private VecD center = new(32, 32);
+    public VecD Center
     {
         get => center;
         set
@@ -114,8 +114,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
-    private Vector2d realDimensions = new(double.MaxValue, double.MaxValue);
-    public Vector2d RealDimensions
+    private VecD realDimensions = new(double.MaxValue, double.MaxValue);
+    public VecD RealDimensions
     {
         get => realDimensions;
         set
@@ -132,8 +132,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
-    private Vector2d dimensions = new(64, 64);
-    public Vector2d Dimensions
+    private VecD dimensions = new(64, 64);
+    public VecD Dimensions
     {
         get => dimensions;
         set
@@ -207,7 +207,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private ChunkResolution CalculateResolution()
     {
-        Vector2d densityVec = Dimensions.Divide(RealDimensions);
+        VecD densityVec = Dimensions.Divide(RealDimensions);
         double density = Math.Min(densityVec.X, densityVec.Y);
         if (density > 8.01)
             return ChunkResolution.Eighth;

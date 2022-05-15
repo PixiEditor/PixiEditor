@@ -15,7 +15,7 @@ public class Chunk : IDisposable
 
     private bool returned = false;
     public Surface Surface { get; }
-    public Vector2i PixelSize { get; }
+    public VecI PixelSize { get; }
     public ChunkResolution Resolution { get; }
     private Chunk(ChunkResolution resolution)
     {
@@ -34,7 +34,7 @@ public class Chunk : IDisposable
         return chunk;
     }
 
-    public void DrawOnSurface(SKSurface surface, Vector2i pos, SKPaint? paint = null)
+    public void DrawOnSurface(SKSurface surface, VecI pos, SKPaint? paint = null)
     {
         surface.Canvas.DrawSurface(Surface.SkiaSurface, pos.X, pos.Y, paint);
     }

@@ -27,7 +27,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         corners = newCorners;
     }
 
-    private HashSet<Vector2i> DrawImage(ChunkyImage targetImage)
+    private HashSet<VecI> DrawImage(ChunkyImage targetImage)
     {
         var prevChunks = targetImage.FindAffectedChunks();
 

@@ -1,12 +1,12 @@
-﻿using ChunkyImageLib.DataHolders;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Zoombox;
 
 internal class MoveDragOperation : IDragOperation
 {
     private Zoombox parent;
-    private Vector2d prevMousePos;
+    private VecD prevMousePos;
 
     public MoveDragOperation(Zoombox zoomBox)
     {
@@ -14,13 +14,13 @@ internal class MoveDragOperation : IDragOperation
     }
     public void Start(MouseButtonEventArgs e)
     {
-        prevMousePos = Zoombox.ToVector2d(e.GetPosition(parent.mainCanvas));
+        prevMousePos = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
         parent.mainCanvas.CaptureMouse();
     }
 
     public void Update(MouseEventArgs e)
     {
-        var curMousePos = Zoombox.ToVector2d(e.GetPosition(parent.mainCanvas));
+        var curMousePos = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
         parent.Center += parent.ToZoomboxSpace(prevMousePos) - parent.ToZoomboxSpace(curMousePos);
         prevMousePos = curMousePos;
     }

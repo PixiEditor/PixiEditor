@@ -49,7 +49,7 @@ internal class CombineStructureMembersOnto_Change : Change
     {
         Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
 
-        var chunksToCombine = new HashSet<Vector2i>();
+        var chunksToCombine = new HashSet<VecI>();
         foreach (var guid in layersToCombine)
         {
             var layer = (Layer)target.FindMemberOrThrow(guid);

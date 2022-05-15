@@ -11,12 +11,12 @@ public static class ChunkRenderer
     private static SKPaint PaintToDrawChunksWith = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
     private static SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
     private static SKPaint ClippingPaint = new SKPaint() { BlendMode = SKBlendMode.DstIn };
-    public static Chunk RenderWholeStructure(Vector2i pos, ChunkResolution resolution, IReadOnlyFolder root)
+    public static Chunk RenderWholeStructure(VecI pos, ChunkResolution resolution, IReadOnlyFolder root)
     {
         return RenderChunkRecursively(pos, resolution, 0, root, null);
     }
 
-    public static Chunk RenderSpecificLayers(Vector2i pos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> layers)
+    public static Chunk RenderSpecificLayers(VecI pos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> layers)
     {
         return RenderChunkRecursively(pos, resolution, 0, root, layers);
     }
@@ -46,7 +46,7 @@ public static class ChunkRenderer
         };
     }
 
-    private static Chunk RenderChunkRecursively(Vector2i chunkPos, ChunkResolution resolution, int depth, IReadOnlyFolder folder, HashSet<Guid>? visibleLayers)
+    private static Chunk RenderChunkRecursively(VecI chunkPos, ChunkResolution resolution, int depth, IReadOnlyFolder folder, HashSet<Guid>? visibleLayers)
     {
         Chunk targetChunk = Chunk.Create(resolution);
         targetChunk.Surface.SkiaSurface.Canvas.Clear();

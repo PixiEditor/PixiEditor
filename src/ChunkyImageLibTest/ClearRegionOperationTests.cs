@@ -13,7 +13,7 @@ public class ClearRegionOperationTests
     public void FindAffectedChunks_SingleChunk_ReturnsSingleChunk()
     {
         ClearRegionOperation operation = new(new(chunkSize, chunkSize), new(chunkSize, chunkSize));
-        var expected = new HashSet<Vector2i>() { new(1, 1) };
+        var expected = new HashSet<VecI>() { new(1, 1) };
         var actual = operation.FindAffectedChunks();
         Assert.Equal(expected, actual);
     }
@@ -26,7 +26,7 @@ public class ClearRegionOperationTests
         int from = -chunkSize - chunkSize / 2;
         int to = chunkSize + chunkSize / 2;
         ClearRegionOperation operation = new(new(from, from), new(to - from, to - from));
-        var expected = new HashSet<Vector2i>() 
+        var expected = new HashSet<VecI>() 
         { 
             new(-2, -2), new(-1, -2), new(0, -2), new(1, -2),
             new(-2, -1), new(-1, -1), new(0, -1), new(1, -1),

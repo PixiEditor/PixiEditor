@@ -6,10 +6,10 @@ namespace ChunkyImageLib;
 public class CommittedChunkStorage : IDisposable
 {
     private bool disposed = false;
-    private List<(Vector2i, Chunk?)> savedChunks = new();
+    private List<(VecI, Chunk?)> savedChunks = new();
     private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
 
-    public CommittedChunkStorage(ChunkyImage image, HashSet<Vector2i> committedChunksToSave)
+    public CommittedChunkStorage(ChunkyImage image, HashSet<VecI> committedChunksToSave)
     {
         foreach (var chunkPos in committedChunksToSave)
         {

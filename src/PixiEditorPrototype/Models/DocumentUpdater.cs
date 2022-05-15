@@ -136,7 +136,7 @@ internal class DocumentUpdater
         foreach (var (res, surf) in doc.Surfaces)
         {
             surf.Dispose();
-            newBitmaps[res] = CreateBitmap((Vector2i)(size * res.Multiplier()));
+            newBitmaps[res] = CreateBitmap((VecI)(size * res.Multiplier()));
             doc.Surfaces[res] = CreateSKSurface(newBitmaps[res]);
         }
 
@@ -148,7 +148,7 @@ internal class DocumentUpdater
         doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisX));
     }
 
-    private WriteableBitmap CreateBitmap(Vector2i size)
+    private WriteableBitmap CreateBitmap(VecI size)
     {
         return new WriteableBitmap(Math.Max(size.X, 1), Math.Max(size.Y, 1), 96, 96, PixelFormats.Pbgra32, null);
     }

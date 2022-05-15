@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.DataHolders;
 
-public struct Vector2d
+public struct VecD
 {
     public double X { set; get; }
     public double Y { set; get; }
@@ -10,44 +10,44 @@ public struct Vector2d
     public double TaxicabLength => Math.Abs(X) + Math.Abs(Y);
     public double Length => Math.Sqrt(LengthSquared);
     public double LengthSquared => X * X + Y * Y;
-    public double Angle => Y < 0 ? -AngleTo(new Vector2d(1, 0)) : AngleTo(new Vector2d(1, 0));
+    public double Angle => Y < 0 ? -AngleTo(new VecD(1, 0)) : AngleTo(new VecD(1, 0));
     public double LongestAxis => (Math.Abs(X) < Math.Abs(Y)) ? Y : X;
     public double ShortestAxis => (Math.Abs(X) < Math.Abs(Y)) ? X : Y;
 
-    public Vector2d(double x, double y)
+    public VecD(double x, double y)
     {
         X = x;
         Y = y;
     }
-    public static Vector2d FromAngleAndLength(double angle, double length)
+    public static VecD FromAngleAndLength(double angle, double length)
     {
-        return new Vector2d(Math.Cos(angle) * length, Math.Sin(angle) * length);
+        return new VecD(Math.Cos(angle) * length, Math.Sin(angle) * length);
     }
-    public Vector2d Round()
+    public VecD Round()
     {
         return new(Math.Round(X), Math.Round(Y));
     }
-    public Vector2d Rotate(double angle)
+    public VecD Rotate(double angle)
     {
-        Vector2d result = new Vector2d();
+        VecD result = new VecD();
         result.X = X * Math.Cos(angle) - Y * Math.Sin(angle);
         result.Y = X * Math.Sin(angle) + Y * Math.Cos(angle);
         return result;
     }
-    public Vector2d Rotate(double angle, Vector2d around)
+    public VecD Rotate(double angle, VecD around)
     {
         return (this - around).Rotate(angle) + around;
     }
-    public double DistanceToLineSegment(Vector2d pos1, Vector2d pos2)
+    public double DistanceToLineSegment(VecD pos1, VecD pos2)
     {
-        Vector2d segment = pos2 - pos1;
+        VecD segment = pos2 - pos1;
         if ((this - pos1).AngleTo(segment) > Math.PI / 2)
             return (this - pos1).Length;
         if ((this - pos2).AngleTo(-segment) > Math.PI / 2)
             return (this - pos2).Length;
         return DistanceToLine(pos1, pos2);
     }
-    public double DistanceToLine(Vector2d pos1, Vector2d pos2)
+    public double DistanceToLine(VecD pos1, VecD pos2)
     {
         double a = (pos1 - pos2).Length;
         double b = (this - pos1).Length;
@@ -58,32 +58,32 @@ public struct Vector2d
 
         return triangleArea / a * 2;
     }
-    public Vector2d ProjectOntoLine(Vector2d pos1, Vector2d pos2)
+    public VecD ProjectOntoLine(VecD pos1, VecD pos2)
     {
-        Vector2d line = (pos2 - pos1).Normalize();
-        Vector2d point = this - pos1;
+        VecD line = (pos2 - pos1).Normalize();
+        VecD point = this - pos1;
         return (line * point) * line + pos1;
     }
     /// <summary>
     /// Reflects the vector across a vertical line with the specified position
     /// </summary>
-    public Vector2d ReflectX(double lineX)
+    public VecD ReflectX(double lineX)
     {
         return new(2 * lineX - X, Y);
     }
     /// <summary>
     /// Reflects the vector along a horizontal line with the specified position
     /// </summary>
-    public Vector2d ReflectY(double lineY)
+    public VecD ReflectY(double lineY)
     {
         return new(X, 2 * lineY - Y);
     }
-    public Vector2d ReflectAcrossLine(Vector2d pos1, Vector2d pos2)
+    public VecD ReflectAcrossLine(VecD pos1, VecD pos2)
     {
         var onLine = ProjectOntoLine(pos1, pos2);
         return onLine - (this - onLine);
     }
-    public double AngleTo(Vector2d other)
+    public double AngleTo(VecD other)
     {
         return Math.Acos((this * other) / Length / other.Length);
     }
@@ -91,96 +91,96 @@ public struct Vector2d
     /// <summary>
     /// Returns the angle between two vectors when travelling counterclockwise (assuming Y pointing up) from this vector to passed vector
     /// </summary>
-    public double CCWAngleTo(Vector2d other)
+    public double CCWAngleTo(VecD other)
     {
         var rot = other.Rotate(-Angle);
         return rot.Angle;
     }
-    public Vector2d Lerp(Vector2d other, double factor)
+    public VecD Lerp(VecD other, double factor)
     {
         return (other - this) * factor + this;
     }
-    public Vector2d Normalize()
+    public VecD Normalize()
     {
-        return new Vector2d(X / Length, Y / Length);
+        return new VecD(X / Length, Y / Length);
     }
-    public Vector2d Abs()
+    public VecD Abs()
     {
-        return new Vector2d(Math.Abs(X), Math.Abs(Y));
+        return new VecD(Math.Abs(X), Math.Abs(Y));
     }
-    public Vector2d Signs()
+    public VecD Signs()
     {
-        return new Vector2d(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);
+        return new VecD(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);
     }
     /// <summary>
     /// Returns the signed magnitude (Z coordinate) of the vector resulting from the cross product
     /// </summary>
-    public double Cross(Vector2d other)
+    public double Cross(VecD other)
     {
         return (X * other.Y) - (Y * other.X);
     }
-    public Vector2d Multiply(Vector2d other)
+    public VecD Multiply(VecD other)
     {
-        return new Vector2d(X * other.X, Y * other.Y);
+        return new VecD(X * other.X, Y * other.Y);
     }
-    public Vector2d Divide(Vector2d other)
+    public VecD Divide(VecD other)
     {
-        return new Vector2d(X / other.X, Y / other.Y);
+        return new VecD(X / other.X, Y / other.Y);
     }
-    public static Vector2d operator +(Vector2d a, Vector2d b)
+    public static VecD operator +(VecD a, VecD b)
     {
-        return new Vector2d(a.X + b.X, a.Y + b.Y);
+        return new VecD(a.X + b.X, a.Y + b.Y);
     }
-    public static Vector2d operator -(Vector2d a, Vector2d b)
+    public static VecD operator -(VecD a, VecD b)
     {
-        return new Vector2d(a.X - b.X, a.Y - b.Y);
+        return new VecD(a.X - b.X, a.Y - b.Y);
     }
-    public static Vector2d operator -(Vector2d a)
+    public static VecD operator -(VecD a)
     {
-        return new Vector2d(-a.X, -a.Y);
+        return new VecD(-a.X, -a.Y);
     }
-    public static Vector2d operator *(double b, Vector2d a)
+    public static VecD operator *(double b, VecD a)
     {
-        return new Vector2d(a.X * b, a.Y * b);
+        return new VecD(a.X * b, a.Y * b);
     }
-    public static double operator *(Vector2d a, Vector2d b)
+    public static double operator *(VecD a, VecD b)
     {
         return a.X * b.X + a.Y * b.Y;
     }
-    public static Vector2d operator *(Vector2d a, double b)
+    public static VecD operator *(VecD a, double b)
     {
-        return new Vector2d(a.X * b, a.Y * b);
+        return new VecD(a.X * b, a.Y * b);
     }
-    public static Vector2d operator /(Vector2d a, double b)
+    public static VecD operator /(VecD a, double b)
     {
-        return new Vector2d(a.X / b, a.Y / b);
+        return new VecD(a.X / b, a.Y / b);
     }
-    public static bool operator ==(Vector2d a, Vector2d b)
+    public static bool operator ==(VecD a, VecD b)
     {
         return a.X == b.X && a.Y == b.Y;
     }
-    public static bool operator !=(Vector2d a, Vector2d b)
+    public static bool operator !=(VecD a, VecD b)
     {
         return !(a.X == b.X && a.Y == b.Y);
     }
 
-    public static explicit operator Vector2i(Vector2d vec)
+    public static explicit operator VecI(VecD vec)
     {
-        return new Vector2i((int)vec.X, (int)vec.Y);
+        return new VecI((int)vec.X, (int)vec.Y);
     }
-    public static explicit operator SKPointI(Vector2d vec)
+    public static explicit operator SKPointI(VecD vec)
     {
         return new SKPointI((int)vec.X, (int)vec.Y);
     }
-    public static explicit operator SKPoint(Vector2d vec)
+    public static explicit operator SKPoint(VecD vec)
     {
         return new SKPoint((float)vec.X, (float)vec.Y);
     }
-    public static explicit operator SKSizeI(Vector2d vec)
+    public static explicit operator SKSizeI(VecD vec)
     {
         return new SKSizeI((int)vec.X, (int)vec.Y);
     }
-    public static explicit operator SKSize(Vector2d vec)
+    public static explicit operator SKSize(VecD vec)
     {
         return new SKSize((float)vec.X, (float)vec.Y);
     }
@@ -197,7 +197,7 @@ public struct Vector2d
 
     public override bool Equals(object? obj)
     {
-        var item = obj as Vector2d?;
+        var item = obj as VecD?;
         if (item is null)
             return false;
         return this == item;

@@ -14,7 +14,7 @@ internal class RectangleOperation : IDrawOperation
 
     public bool IgnoreEmptyChunks => false;
 
-    public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
+    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         var skiaSurf = chunk.Surface.SkiaSurface;
         // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
@@ -54,7 +54,7 @@ internal class RectangleOperation : IDrawOperation
         skiaSurf.Canvas.Restore();
     }
 
-    public HashSet<Vector2i> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks()
     {
         if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
             return new();
@@ -65,7 +65,7 @@ internal class RectangleOperation : IDrawOperation
         chunks.ExceptWith(
             OperationHelper.FindChunksFullyInsideRectangle(
                 Data.Center,
-                Data.Size.Abs() - new Vector2d(Data.StrokeWidth * 2, Data.StrokeWidth * 2),
+                Data.Size.Abs() - new VecD(Data.StrokeWidth * 2, Data.StrokeWidth * 2),
                 Data.Angle,
                 ChunkPool.FullChunkSize));
         return chunks;

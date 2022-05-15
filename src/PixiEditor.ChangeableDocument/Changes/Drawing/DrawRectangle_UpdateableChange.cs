@@ -23,7 +23,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         rect = updatedRectangle;
     }
 
-    private HashSet<Vector2i> UpdateRectangle(Document target, ChunkyImage targetImage)
+    private HashSet<VecI> UpdateRectangle(Document target, ChunkyImage targetImage)
     {
         var oldAffectedChunks = targetImage.FindAffectedChunks();
         targetImage.CancelChanges();

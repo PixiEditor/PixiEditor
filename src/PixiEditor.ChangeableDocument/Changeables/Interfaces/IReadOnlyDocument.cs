@@ -6,7 +6,7 @@ public interface IReadOnlyDocument
 {
     IReadOnlyFolder ReadOnlyStructureRoot { get; }
     IReadOnlySelection ReadOnlySelection { get; }
-    Vector2i Size { get; }
+    VecI Size { get; }
     bool HorizontalSymmetryAxisEnabled { get; }
     bool VerticalSymmetryAxisEnabled { get; }
     int HorizontalSymmetryAxisY { get; }

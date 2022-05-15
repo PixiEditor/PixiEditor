@@ -27,7 +27,7 @@ internal class WriteableBitmapUpdater
     private static readonly SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
     private static readonly SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
-    private readonly Dictionary<ChunkResolution, HashSet<Vector2i>> postponedChunks = new()
+    private readonly Dictionary<ChunkResolution, HashSet<VecI>> postponedChunks = new()
     {
         [ChunkResolution.Full] = new(),
         [ChunkResolution.Half] = new(),
@@ -51,9 +51,9 @@ internal class WriteableBitmapUpdater
         return Render(changes);
     }
 
-    private Dictionary<ChunkResolution, HashSet<Vector2i>> FindChunksToRerender(IReadOnlyList<IChangeInfo?> changes)
+    private Dictionary<ChunkResolution, HashSet<VecI>> FindChunksToRerender(IReadOnlyList<IChangeInfo?> changes)
     {
-        HashSet<Vector2i> affectedChunks = new();
+        HashSet<VecI> affectedChunks = new();
         foreach (var change in changes)
         {
             switch (change)
@@ -112,7 +112,7 @@ internal class WriteableBitmapUpdater
             postponed.UnionWith(affectedChunks);
         }
 
-        var chunksOnScreen = new Dictionary<ChunkResolution, HashSet<Vector2i>>()
+        var chunksOnScreen = new Dictionary<ChunkResolution, HashSet<VecI>>()
         {
             [ChunkResolution.Full] = new(),
             [ChunkResolution.Half] = new(),
@@ -139,9 +139,9 @@ internal class WriteableBitmapUpdater
         return chunksOnScreen;
     }
 
-    private void AddAllChunks(HashSet<Vector2i> chunks)
+    private void AddAllChunks(HashSet<VecI> chunks)
     {
-        Vector2i size = new(
+        VecI size = new(
             (int)Math.Ceiling(helpers.Tracker.Document.Size.X / (float)ChunkyImage.ChunkSize),
             (int)Math.Ceiling(helpers.Tracker.Document.Size.Y / (float)ChunkyImage.ChunkSize));
         for (int i = 0; i < size.X; i++)
@@ -155,7 +155,7 @@ internal class WriteableBitmapUpdater
 
     private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo?> changes)
     {
-        Dictionary<ChunkResolution, HashSet<Vector2i>> chunksToRerender = FindChunksToRerender(changes);
+        Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender = FindChunksToRerender(changes);
 
         List<IRenderInfo> infos = new();
 
@@ -177,7 +177,7 @@ internal class WriteableBitmapUpdater
         return infos;
     }
 
-    private void RenderChunk(Vector2i chunkPos, SKSurface screenSurface, ChunkResolution resolution)
+    private void RenderChunk(VecI chunkPos, SKSurface screenSurface, ChunkResolution resolution)
     {
         using Chunk renderedChunk = ChunkRenderer.RenderWholeStructure(chunkPos, resolution, helpers.Tracker.Document.ReadOnlyStructureRoot);
 

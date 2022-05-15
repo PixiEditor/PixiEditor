@@ -2,4 +2,4 @@
 
 namespace PixiEditorPrototype.Models.Rendering.RenderInfos;
 
-public record class DirtyRect_RenderInfo(Vector2i Pos, Vector2i Size, ChunkResolution Resolution) : IRenderInfo;
+public record class DirtyRect_RenderInfo(VecI Pos, VecI Size, ChunkResolution Resolution) : IRenderInfo;

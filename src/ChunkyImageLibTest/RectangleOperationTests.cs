@@ -18,7 +18,7 @@ public class RectangleOperationTests
         var (x, y, w, h) = (0, 0, chunkSize, chunkSize);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-        HashSet<Vector2i> expected = new() { new(0, 0) };
+        HashSet<VecI> expected = new() { new(0, 0) };
         var actual = operation.FindAffectedChunks();
 
         Assert.Equal(expected, actual);
@@ -30,7 +30,7 @@ public class RectangleOperationTests
         var (x, y, w, h) = (-chunkSize, -chunkSize, chunkSize * 2, chunkSize * 2);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-        HashSet<Vector2i> expected = new() { new(-1, -1), new(0, -1), new(-1, 0), new(0, 0) };
+        HashSet<VecI> expected = new() { new(-1, -1), new(0, -1), new(-1, 0), new(0, 0) };
         var actual = operation.FindAffectedChunks();
 
         Assert.Equal(expected, actual);
@@ -42,7 +42,7 @@ public class RectangleOperationTests
         var (x, y, w, h) = (chunkSize + chunkSize / 2, chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-        HashSet<Vector2i> expected = new()
+        HashSet<VecI> expected = new()
         {
             new(1, 1), new(2, 1), new(3, 1),
             new(1, 2),            new(3, 2),
@@ -59,7 +59,7 @@ public class RectangleOperationTests
         var (x, y, w, h) = (-chunkSize * 3 - chunkSize / 2, -chunkSize * 3 - chunkSize / 2, chunkSize * 2, chunkSize * 2);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
 
-        HashSet<Vector2i> expected = new()
+        HashSet<VecI> expected = new()
         {
             new(-4, -4), new(-3, -4), new(-2, -4),
             new(-4, -3),              new(-2, -3),
@@ -76,7 +76,7 @@ public class RectangleOperationTests
         var (x, y, w, h) = (chunkSize + chunkSize / 2, chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.White));
 
-        HashSet<Vector2i> expected = new()
+        HashSet<VecI> expected = new()
         {
             new(1, 1), new(2, 1), new(3, 1), 
             new(1, 2), new(2, 2), new(3, 2),
@@ -93,7 +93,7 @@ public class RectangleOperationTests
         var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, chunkSize * 4, chunkSize * 4);
         RectangleOperation operation = new(new(new(x, y), new(w, h), chunkSize, SKColors.Black, SKColors.Transparent));
 
-        HashSet<Vector2i> expected = new()
+        HashSet<VecI> expected = new()
         {
             new(0, 0), new(1, 0), new(2, 0), new(3, 0), new(4, 0),
             new(0, 1), new(1, 1), new(2, 1), new(3, 1), new(4, 1),
@@ -112,7 +112,7 @@ public class RectangleOperationTests
         var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, 1, 1);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 256, SKColors.Black, SKColors.White));
 
-        HashSet<Vector2i> expected = new() { new(0, 0) };
+        HashSet<VecI> expected = new() { new(0, 0) };
         var actual = operation.FindAffectedChunks();
 
         Assert.Equal(expected, actual);

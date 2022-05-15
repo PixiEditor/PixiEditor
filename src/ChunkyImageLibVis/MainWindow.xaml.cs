@@ -126,8 +126,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             canvas.Children.Remove(rect);
         }
         rectangles.Clear();
-        var chunks = OperationHelper.FindChunksTouchingRectangle(new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
-        var innerChunks = OperationHelper.FindChunksFullyInsideRectangle(new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
+        var chunks = OperationHelper.FindChunksTouchingRectangle(new VecD(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
+        var innerChunks = OperationHelper.FindChunksFullyInsideRectangle(new VecD(X1 + HalfRectWidth, Y1 + HalfRectHeight), new(X2 - X1, Y2 - Y1), Angle * Math.PI / 180, 32);
         chunks.ExceptWith(innerChunks);
         foreach (var chunk in chunks)
         {
@@ -188,8 +188,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
         else if (rotating)
         {
-            Vector2d center = new Vector2d(X1 + HalfRectWidth, Y1 + HalfRectHeight);
-            Angle = new Vector2d(pos.X - center.X, pos.Y - center.Y).CCWAngleTo(new Vector2d(X2 - center.X, Y2 - center.Y)) * -180 / Math.PI;
+            VecD center = new VecD(X1 + HalfRectWidth, Y1 + HalfRectHeight);
+            Angle = new VecD(pos.X - center.X, pos.Y - center.Y).CCWAngleTo(new VecD(X2 - center.X, Y2 - center.Y)) * -180 / Math.PI;
         }
         UpdateChunks();
     }

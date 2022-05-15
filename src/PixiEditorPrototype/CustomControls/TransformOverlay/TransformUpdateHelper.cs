@@ -5,7 +5,7 @@ namespace PixiEditorPrototype.CustomControls.TransformOverlay;
 internal static class TransformUpdateHelper
 {
     public static ShapeCorners? UpdateShapeFromCorner
-        (Anchor targetCorner, TransformCornerFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners, Vector2d desiredPos)
+        (Anchor targetCorner, TransformCornerFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners, VecD desiredPos)
     {
         if (!TransformHelper.IsCorner(targetCorner))
             throw new ArgumentException($"{targetCorner} is not a corner");
@@ -22,7 +22,7 @@ internal static class TransformUpdateHelper
             if (freedom == TransformCornerFreedom.ScaleProportionally)
             {
                 double correctAngle = targetCorner is Anchor.TopLeft or Anchor.BottomRight ? propAngle1 : propAngle2;
-                desiredPos = desiredPos.ProjectOntoLine(oppositePos, oppositePos + Vector2d.FromAngleAndLength(correctAngle, 1));
+                desiredPos = desiredPos.ProjectOntoLine(oppositePos, oppositePos + VecD.FromAngleAndLength(correctAngle, 1));
             }
 
             var (leftNeighbor, rightNeighbor) = TransformHelper.GetNeighboringCorners(targetCorner);
@@ -34,7 +34,7 @@ internal static class TransformUpdateHelper
             var leftNeighTrans = (leftNeighborPos - oppositePos).Rotate(-angle);
             var rightNeighTrans = (rightNeighborPos - oppositePos).Rotate(-angle);
 
-            Vector2d delta = (desiredPos - targetPos).Rotate(-angle);
+            VecD delta = (desiredPos - targetPos).Rotate(-angle);
 
             corners = TransformHelper.UpdateCorner(corners, targetCorner,
                 (targetTrans + delta).Rotate(angle) + oppositePos);
@@ -56,7 +56,7 @@ internal static class TransformUpdateHelper
     }
 
     public static ShapeCorners? UpdateShapeFromSide
-        (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners, Vector2d desiredPos)
+        (Anchor targetSide, TransformSideFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners, VecD desiredPos)
     {
         if (!TransformHelper.IsSide(targetSide))
             throw new ArgumentException($"{targetSide} is not a side");
@@ -72,8 +72,8 @@ internal static class TransformUpdateHelper
 
             desiredPos = desiredPos.ProjectOntoLine(targetPos, oppositePos);
 
-            Vector2d thing = targetPos - oppositePos;
-            thing = Vector2d.FromAngleAndLength(thing.Angle, 1 / thing.Length);
+            VecD thing = targetPos - oppositePos;
+            thing = VecD.FromAngleAndLength(thing.Angle, 1 / thing.Length);
             double scalingFactor = (desiredPos - oppositePos) * thing;
             if (!double.IsNormal(scalingFactor))
                 return corners;
@@ -94,18 +94,18 @@ internal static class TransformUpdateHelper
 
                 var (leftAngle, rightAngle) = leftCorn is Anchor.TopLeft or Anchor.BottomRight ? (propAngle1, propAngle2) : (propAngle2, propAngle1);
 
-                var updLeftCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta, center, center + Vector2d.FromAngleAndLength(leftAngle, 1));
-                var updRightCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta, center, center + Vector2d.FromAngleAndLength(rightAngle, 1));
-                var updLeftOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center, center + Vector2d.FromAngleAndLength(rightAngle, 1));
-                var updRightOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center, center + Vector2d.FromAngleAndLength(leftAngle, 1));
+                var updLeftCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta, center, center + VecD.FromAngleAndLength(leftAngle, 1));
+                var updRightCorn = TransformHelper.TwoLineIntersection(leftCornPos + delta, rightCornPos + delta, center, center + VecD.FromAngleAndLength(rightAngle, 1));
+                var updLeftOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center, center + VecD.FromAngleAndLength(rightAngle, 1));
+                var updRightOppCorn = TransformHelper.TwoLineIntersection(leftOppCornPos, rightOppCornPos, center, center + VecD.FromAngleAndLength(leftAngle, 1));
 
                 if (updLeftCorn is null || updRightCorn is null || updLeftOppCorn is null || updRightOppCorn is null)
                     goto fallback;
 
-                corners = TransformHelper.UpdateCorner(corners, leftCorn, (Vector2d)updLeftCorn);
-                corners = TransformHelper.UpdateCorner(corners, rightCorn, (Vector2d)updRightCorn);
-                corners = TransformHelper.UpdateCorner(corners, leftOppCorn, (Vector2d)updLeftOppCorn);
-                corners = TransformHelper.UpdateCorner(corners, rightOppCorn, (Vector2d)updRightOppCorn);
+                corners = TransformHelper.UpdateCorner(corners, leftCorn, (VecD)updLeftCorn);
+                corners = TransformHelper.UpdateCorner(corners, rightCorn, (VecD)updRightCorn);
+                corners = TransformHelper.UpdateCorner(corners, leftOppCorn, (VecD)updLeftOppCorn);
+                corners = TransformHelper.UpdateCorner(corners, rightOppCorn, (VecD)updRightOppCorn);
 
                 return corners;
             }
@@ -150,7 +150,7 @@ fallback:
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
     }
 
-    public static ShapeCorners UpdateShapeFromRotation(ShapeCorners corners, Vector2d origin, double angle)
+    public static ShapeCorners UpdateShapeFromRotation(ShapeCorners corners, VecD origin, double angle)
     {
         corners.TopLeft = corners.TopLeft.Rotate(angle, origin);
         corners.TopRight = corners.TopRight.Rotate(angle, origin);

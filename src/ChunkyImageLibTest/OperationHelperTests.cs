@@ -14,7 +14,7 @@ public class OperationHelperTests
     [InlineData(-33, -33, -2, -2)]
     public void GetChunkPos_32ChunkSize_ReturnsCorrectValues(int x, int y, int expX, int expY)
     {
-        Vector2i act = OperationHelper.GetChunkPos(new(x, y), 32);
+        VecI act = OperationHelper.GetChunkPos(new(x, y), 32);
         Assert.Equal(expX, act.X);
         Assert.Equal(expY, act.Y);
     }
@@ -30,7 +30,7 @@ public class OperationHelperTests
     [InlineData(48.5, 48.5, false, false, 1, 1)]
     public void GetChunkPosBiased_32ChunkSize_ReturnsCorrectValues(double x, double y, bool positiveX, bool positiveY, int expX, int expY)
     {
-        Vector2i act = OperationHelper.GetChunkPosBiased(new(x, y), positiveX, positiveY, 32);
+        VecI act = OperationHelper.GetChunkPosBiased(new(x, y), positiveX, positiveY, 32);
         Assert.Equal(expX, act.X);
         Assert.Equal(expY, act.Y);
     }

@@ -8,14 +8,14 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 
 internal class ResizeCanvas_Change : Change
 {
-    private Vector2i originalSize;
+    private VecI originalSize;
     private int originalHorAxisY;
     private int originalVerAxisX;
     private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
     private CommittedChunkStorage? selectionChunkStorage;
-    private Vector2i newSize;
-    public ResizeCanvas_Change(Vector2i size)
+    private VecI newSize;
+    public ResizeCanvas_Change(VecI size)
     {
         newSize = size;
     }

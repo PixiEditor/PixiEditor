@@ -1,24 +1,24 @@
 ﻿namespace ChunkyImageLib.DataHolders;
 public struct ShapeCorners
 {
-    public ShapeCorners(Vector2d center, Vector2d size, double angle)
+    public ShapeCorners(VecD center, VecD size, double angle)
     {
         TopLeft = center - size / 2;
-        TopRight = center + new Vector2d(size.X / 2, -size.Y / 2);
+        TopRight = center + new VecD(size.X / 2, -size.Y / 2);
         BottomRight = center + size / 2;
-        BottomLeft = center + new Vector2d(-size.X / 2, size.Y / 2);
+        BottomLeft = center + new VecD(-size.X / 2, size.Y / 2);
     }
-    public ShapeCorners(Vector2d topLeft, Vector2d size)
+    public ShapeCorners(VecD topLeft, VecD size)
     {
         TopLeft = topLeft;
         TopRight = new(topLeft.X + size.X, topLeft.Y);
         BottomRight = topLeft + size;
         BottomLeft = new(topLeft.X, topLeft.Y + size.Y);
     }
-    public Vector2d TopLeft { get; set; }
-    public Vector2d TopRight { get; set; }
-    public Vector2d BottomLeft { get; set; }
-    public Vector2d BottomRight { get; set; }
+    public VecD TopLeft { get; set; }
+    public VecD TopRight { get; set; }
+    public VecD BottomLeft { get; set; }
+    public VecD BottomRight { get; set; }
     public bool IsLegal
     {
         get
@@ -33,8 +33,8 @@ public struct ShapeCorners
     }
     public bool HasNaNOrInfinity => TopLeft.IsNaNOrInfinity() || TopRight.IsNaNOrInfinity() || BottomLeft.IsNaNOrInfinity() || BottomRight.IsNaNOrInfinity();
     public bool IsRect => Math.Abs((TopLeft - BottomRight).Length - (TopRight - BottomLeft).Length) < 0.001;
-    public Vector2d RectSize => new((TopLeft - TopRight).Length, (TopLeft - BottomLeft).Length);
-    public Vector2d RectCenter => (TopLeft - BottomRight) / 2 + BottomRight;
+    public VecD RectSize => new((TopLeft - TopRight).Length, (TopLeft - BottomLeft).Length);
+    public VecD RectCenter => (TopLeft - BottomRight) / 2 + BottomRight;
     public double RectRotation =>
         (TopLeft - TopRight).Cross(TopLeft - BottomLeft) > 0 ?
         RectSize.CCWAngleTo(BottomRight - TopLeft) :
@@ -51,7 +51,7 @@ public struct ShapeCorners
                 (BottomRight - BottomRight.Round()).TaxicabLength < epsilon;
         }
     }
-    public bool IsPointInside(Vector2d point)
+    public bool IsPointInside(VecD point)
     {
         var top = TopLeft - TopRight;
         var right = TopRight - BottomRight;

@@ -5,13 +5,13 @@ namespace ChunkyImageLib.Operations;
 
 public static class OperationHelper
 {
-    public static Vector2i ConvertForResolution(Vector2i pixelPos, ChunkResolution resolution)
+    public static VecI ConvertForResolution(VecI pixelPos, ChunkResolution resolution)
     {
         var mult = resolution.Multiplier();
         return new((int)Math.Round(pixelPos.X * mult), (int)Math.Round(pixelPos.Y * mult));
     }
 
-    public static Vector2d ConvertForResolution(Vector2d pixelPos, ChunkResolution resolution)
+    public static VecD ConvertForResolution(VecD pixelPos, ChunkResolution resolution)
     {
         var mult = resolution.Multiplier();
         return new(pixelPos.X * mult, pixelPos.Y * mult);
@@ -28,16 +28,16 @@ public static class OperationHelper
         };
     }
 
-    public static Vector2i GetChunkPos(Vector2i pixelPos, int chunkSize)
+    public static VecI GetChunkPos(VecI pixelPos, int chunkSize)
     {
-        return new Vector2i()
+        return new VecI()
         {
             X = (int)MathF.Floor(pixelPos.X / (float)chunkSize),
             Y = (int)MathF.Floor(pixelPos.Y / (float)chunkSize)
         };
     }
 
-    public static SKMatrix CreateMatrixFromPoints(ShapeCorners corners, Vector2d size)
+    public static SKMatrix CreateMatrixFromPoints(ShapeCorners corners, VecD size)
         => CreateMatrixFromPoints((SKPoint)corners.TopLeft, (SKPoint)corners.TopRight, (SKPoint)corners.BottomRight, (SKPoint)corners.BottomLeft, (float)size.X, (float)size.Y);
     public static SKMatrix CreateMatrixFromPoints(SKPoint topLeft, SKPoint topRight, SKPoint botRight, SKPoint botLeft, float width, float height)
     {
@@ -60,13 +60,13 @@ public static class OperationHelper
         return new SKMatrix(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2);
     }
 
-    public static HashSet<Vector2i> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
+    public static HashSet<VecI> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
     {
         if (corners.HasNaNOrInfinity ||
             (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
             (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
-            return new HashSet<Vector2i>();
-        List<Vector2i>[] lines = new List<Vector2i>[] {
+            return new HashSet<VecI>();
+        List<VecI>[] lines = new List<VecI>[] {
             FindChunksAlongLine(corners.TopRight, corners.TopLeft, chunkSize),
             FindChunksAlongLine(corners.BottomRight, corners.TopRight, chunkSize),
             FindChunksAlongLine(corners.BottomLeft, corners.BottomRight, chunkSize),
@@ -75,13 +75,13 @@ public static class OperationHelper
         return FillLines(lines);
     }
 
-    public static HashSet<Vector2i> FindChunksFullyInsideQuadrilateral(ShapeCorners corners, int chunkSize)
+    public static HashSet<VecI> FindChunksFullyInsideQuadrilateral(ShapeCorners corners, int chunkSize)
     {
         if (corners.HasNaNOrInfinity ||
             (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
             (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
-            return new HashSet<Vector2i>();
-        List<Vector2i>[] lines = new List<Vector2i>[] {
+            return new HashSet<VecI>();
+        List<VecI>[] lines = new List<VecI>[] {
             FindChunksAlongLine(corners.TopLeft, corners.TopRight, chunkSize),
             FindChunksAlongLine(corners.TopRight, corners.BottomRight, chunkSize),
             FindChunksAlongLine(corners.BottomRight, corners.BottomLeft, chunkSize),
@@ -102,32 +102,32 @@ public static class OperationHelper
     /// <summary>
     /// Finds chunks that at least partially lie inside of a rectangle
     /// </summary>
-    public static HashSet<Vector2i> FindChunksTouchingRectangle(Vector2d center, Vector2d size, double angle, int chunkSize)
+    public static HashSet<VecI> FindChunksTouchingRectangle(VecD center, VecD size, double angle, int chunkSize)
     {
         if (size.X == 0 || size.Y == 0 || center.IsNaNOrInfinity() || size.IsNaNOrInfinity() || double.IsNaN(angle) || double.IsInfinity(angle))
-            return new HashSet<Vector2i>();
+            return new HashSet<VecI>();
         if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
-            return new HashSet<Vector2i>();
+            return new HashSet<VecI>();
         // draw a line on the outside of each side
         var corners = FindRectangleCorners(center, size, angle);
-        List<Vector2i>[] lines = new List<Vector2i>[] {
+        List<VecI>[] lines = new List<VecI>[] {
             FindChunksAlongLine(corners.Item2, corners.Item1, chunkSize),
             FindChunksAlongLine(corners.Item3, corners.Item2, chunkSize),
             FindChunksAlongLine(corners.Item4, corners.Item3, chunkSize),
             FindChunksAlongLine(corners.Item1, corners.Item4, chunkSize)
         };
         if (lines[0].Count == 0 || lines[1].Count == 0 || lines[2].Count == 0 || lines[3].Count == 0)
-            return new HashSet<Vector2i>();
+            return new HashSet<VecI>();
         return FillLines(lines);
     }
 
-    public static HashSet<Vector2i> FillLines(List<Vector2i>[] lines)
+    public static HashSet<VecI> FillLines(List<VecI>[] lines)
     {
         if (lines.Length == 0)
-            return new HashSet<Vector2i>();
+            return new HashSet<VecI>();
 
         //find min and max X for each Y in lines
-        var ySel = (Vector2i vec) => vec.Y;
+        var ySel = (VecI vec) => vec.Y;
         int minY = int.MaxValue;
         int maxY = int.MinValue;
         foreach (var line in lines)
@@ -151,7 +151,7 @@ public static class OperationHelper
         }
 
         //draw a line from min X to max X for each Y
-        HashSet<Vector2i> output = new();
+        HashSet<VecI> output = new();
         for (int i = 0; i < minXValues.Length; i++)
         {
             int minX = minXValues[i];
@@ -163,32 +163,32 @@ public static class OperationHelper
         return output;
     }
 
-    public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2i pos, Vector2i size, int chunkSize)
+    public static HashSet<VecI> FindChunksFullyInsideRectangle(VecI pos, VecI size, int chunkSize)
     {
         if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
-            return new HashSet<Vector2i>();
-        Vector2i startChunk = GetChunkPos(pos, ChunkPool.FullChunkSize);
-        Vector2i endChunk = GetChunkPosBiased(pos + size, false, false, chunkSize);
-        HashSet<Vector2i> output = new();
+            return new HashSet<VecI>();
+        VecI startChunk = GetChunkPos(pos, ChunkPool.FullChunkSize);
+        VecI endChunk = GetChunkPosBiased(pos + size, false, false, chunkSize);
+        HashSet<VecI> output = new();
         for (int x = startChunk.X; x <= endChunk.X; x++)
         {
             for (int y = startChunk.Y; y <= endChunk.Y; y++)
             {
-                output.Add(new Vector2i(x, y));
+                output.Add(new VecI(x, y));
             }
         }
         return output;
     }
 
-    public static HashSet<Vector2i> FindChunksFullyInsideRectangle(Vector2d center, Vector2d size, double angle, int chunkSize)
+    public static HashSet<VecI> FindChunksFullyInsideRectangle(VecD center, VecD size, double angle, int chunkSize)
     {
         if (size.X < chunkSize || size.Y < chunkSize || center.IsNaNOrInfinity() || size.IsNaNOrInfinity() || double.IsNaN(angle) || double.IsInfinity(angle))
-            return new HashSet<Vector2i>();
+            return new HashSet<VecI>();
         if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
-            return new HashSet<Vector2i>();
+            return new HashSet<VecI>();
         // draw a line on the inside of each side
         var corners = FindRectangleCorners(center, size, angle);
-        List<Vector2i>[] lines = new List<Vector2i>[] {
+        List<VecI>[] lines = new List<VecI>[] {
             FindChunksAlongLine(corners.Item1, corners.Item2, chunkSize),
             FindChunksAlongLine(corners.Item2, corners.Item3, chunkSize),
             FindChunksAlongLine(corners.Item3, corners.Item4, chunkSize),
@@ -206,7 +206,7 @@ public static class OperationHelper
         return output;
     }
 
-    private static void UpdateMinXValues(List<Vector2i> line, int[] minXValues, int minY)
+    private static void UpdateMinXValues(List<VecI> line, int[] minXValues, int minY)
     {
         for (int i = 0; i < line.Count; i++)
         {
@@ -215,7 +215,7 @@ public static class OperationHelper
         }
     }
 
-    private static void UpdateMaxXValues(List<Vector2i> line, int[] maxXValues, int minY)
+    private static void UpdateMaxXValues(List<VecI> line, int[] maxXValues, int minY)
     {
         for (int i = 0; i < line.Count; i++)
         {
@@ -230,10 +230,10 @@ public static class OperationHelper
     /// This ensures that when you draw a filled shape all updated chunks will be covered (the filled part should go to the right of the line)
     /// No parts of the line will stick out to the left and be left uncovered
     /// </summary>
-    public static List<Vector2i> FindChunksAlongLine(Vector2d p1, Vector2d p2, int chunkSize)
+    public static List<VecI> FindChunksAlongLine(VecD p1, VecD p2, int chunkSize)
     {
         if (p1 == p2 || p1.IsNaNOrInfinity() || p2.IsNaNOrInfinity())
-            return new List<Vector2i>();
+            return new List<VecI>();
 
         //rotate the line into the first quadrant of the coordinate plane
         int quadrant;
@@ -260,14 +260,14 @@ public static class OperationHelper
             (p2.X, p2.Y) = (-p2.Y, p2.X);
         }
 
-        List<Vector2i> output = new();
+        List<VecI> output = new();
         //vertical line
         if (p1.X == p2.X)
         {
             //if exactly on a chunk boundary, pick the chunk on the top-left
-            Vector2i start = GetChunkPosBiased(p1, false, true, chunkSize);
+            VecI start = GetChunkPosBiased(p1, false, true, chunkSize);
             //if exactly on chunk boundary, pick the chunk on the bottom-left
-            Vector2i end = GetChunkPosBiased(p2, false, false, chunkSize);
+            VecI end = GetChunkPosBiased(p2, false, false, chunkSize);
             for (int y = start.Y; y <= end.Y; y++)
                 output.Add(new(start.X, y));
         }
@@ -275,9 +275,9 @@ public static class OperationHelper
         else if (p1.Y == p2.Y)
         {
             //if exactly on a chunk boundary, pick the chunk on the top-right
-            Vector2i start = GetChunkPosBiased(p1, true, true, chunkSize);
+            VecI start = GetChunkPosBiased(p1, true, true, chunkSize);
             //if exactly on chunk boundary, pick the chunk on the top-left
-            Vector2i end = GetChunkPosBiased(p2, false, true, chunkSize);
+            VecI end = GetChunkPosBiased(p2, false, true, chunkSize);
             for (int x = start.X; x <= end.X; x++)
                 output.Add(new(x, start.Y));
         }
@@ -287,11 +287,11 @@ public static class OperationHelper
             //y = mx + b
             double m = (p2.Y - p1.Y) / (p2.X - p1.X);
             double b = p1.Y - (p1.X * m);
-            Vector2i cur = GetChunkPosBiased(p1, true, true, chunkSize);
+            VecI cur = GetChunkPosBiased(p1, true, true, chunkSize);
             output.Add(cur);
             if (LineEq(m, cur.X * chunkSize + chunkSize, b) > cur.Y * chunkSize + chunkSize)
                 cur.X--;
-            Vector2i end = GetChunkPosBiased(p2, false, false, chunkSize);
+            VecI end = GetChunkPosBiased(p2, false, false, chunkSize);
             if (m < 1)
             {
                 while (true)
@@ -357,10 +357,10 @@ public static class OperationHelper
         return m * x + b;
     }
 
-    public static Vector2i GetChunkPosBiased(Vector2d pos, bool positiveX, bool positiveY, int chunkSize)
+    public static VecI GetChunkPosBiased(VecD pos, bool positiveX, bool positiveY, int chunkSize)
     {
         pos /= chunkSize;
-        return new Vector2i()
+        return new VecI()
         {
             X = positiveX ? (int)Math.Floor(pos.X) : (int)Math.Ceiling(pos.X) - 1,
             Y = positiveY ? (int)Math.Floor(pos.Y) : (int)Math.Ceiling(pos.Y) - 1,
@@ -370,10 +370,10 @@ public static class OperationHelper
     /// <summary>
     /// Returns corners in ccw direction (assuming y points up)
     /// </summary>
-    private static (Vector2d, Vector2d, Vector2d, Vector2d) FindRectangleCorners(Vector2d center, Vector2d size, double angle)
+    private static (VecD, VecD, VecD, VecD) FindRectangleCorners(VecD center, VecD size, double angle)
     {
-        Vector2d right = Vector2d.FromAngleAndLength(angle, size.X / 2);
-        Vector2d up = Vector2d.FromAngleAndLength(angle + Math.PI / 2, size.Y / 2);
+        VecD right = VecD.FromAngleAndLength(angle, size.X / 2);
+        VecD up = VecD.FromAngleAndLength(angle + Math.PI / 2, size.Y / 2);
         return (
             center + right + up,
             center - right + up,

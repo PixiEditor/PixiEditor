@@ -10,8 +10,8 @@ internal class ZoomDragOperation : IDragOperation
 
     private double initScale;
 
-    private Vector2d scaleOrigin;
-    private Vector2d screenScaleOrigin;
+    private VecD scaleOrigin;
+    private VecD screenScaleOrigin;
 
     public ZoomDragOperation(Zoombox zoomBox)
     {
@@ -19,7 +19,7 @@ internal class ZoomDragOperation : IDragOperation
     }
     public void Start(MouseButtonEventArgs e)
     {
-        screenScaleOrigin = parent.ToZoomboxSpace(Zoombox.ToVector2d(e.GetPosition(parent.mainCanvas)));
+        screenScaleOrigin = parent.ToZoomboxSpace(Zoombox.ToVecD(e.GetPosition(parent.mainCanvas)));
         scaleOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
         initScale = parent.Scale;
         parent.mainCanvas.CaptureMouse();

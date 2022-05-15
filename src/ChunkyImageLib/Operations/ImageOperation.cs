@@ -13,14 +13,14 @@ internal class ImageOperation : IDrawOperation
 
     public bool IgnoreEmptyChunks => false;
 
-    public ImageOperation(Vector2i pos, Surface image, bool copyImage = true)
+    public ImageOperation(VecI pos, Surface image, bool copyImage = true)
     {
         corners = new()
         {
             TopLeft = pos,
             TopRight = new(pos.X + image.Size.X, pos.Y),
             BottomRight = pos + image.Size,
-            BottomLeft = new Vector2d(pos.X, pos.Y + image.Size.Y)
+            BottomLeft = new VecD(pos.X, pos.Y + image.Size.Y)
         };
         transformMatrix = SKMatrix.CreateIdentity();
         transformMatrix.TransX = pos.X;
@@ -47,10 +47,10 @@ internal class ImageOperation : IDrawOperation
         imageWasCopied = copyImage;
     }
 
-    public void DrawOnChunk(Chunk chunk, Vector2i chunkPos)
+    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         float scaleMult = (float)chunk.Resolution.Multiplier();
-        Vector2d trans = -chunkPos * ChunkPool.FullChunkSize;
+        VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
         var scaleTrans = SKMatrix.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
         var finalMatrix = SKMatrix.Concat(scaleTrans, transformMatrix);
@@ -61,7 +61,7 @@ internal class ImageOperation : IDrawOperation
         chunk.Surface.SkiaSurface.Canvas.Restore();
     }
 
-    public HashSet<Vector2i> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks()
     {
         return OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize);
     }
@@ -77,10 +77,10 @@ internal class ImageOperation : IDrawOperation
         if (verAxisX is not null && horAxisY is not null)
             return new ImageOperation
                 (corners.AsMirroredAcrossVerAxis((int)verAxisX).AsMirroredAcrossHorAxis((int)horAxisY), toPaint, imageWasCopied);
-        else if (verAxisX is not null)
+        if (verAxisX is not null)
             return new ImageOperation
                 (corners.AsMirroredAcrossVerAxis((int)verAxisX), toPaint, imageWasCopied);
-        else if (horAxisY is not null)
+        if (horAxisY is not null)
             return new ImageOperation
                 (corners.AsMirroredAcrossHorAxis((int)horAxisY), toPaint, imageWasCopied);
         return new ImageOperation(corners, toPaint, imageWasCopied);

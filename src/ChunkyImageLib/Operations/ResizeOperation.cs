@@ -4,8 +4,8 @@ namespace ChunkyImageLib.Operations;
 
 internal record class ResizeOperation : IOperation
 {
-    public Vector2i Size { get; }
-    public ResizeOperation(Vector2i size)
+    public VecI Size { get; }
+    public ResizeOperation(VecI size)
     {
         Size = size;
     }

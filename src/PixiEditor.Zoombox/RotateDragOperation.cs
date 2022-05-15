@@ -22,9 +22,9 @@ internal class RotateDragOperation : IDragOperation
         parent.mainCanvas.CaptureMouse();
     }
 
-    private double GetAngle(Vector2d point)
+    private double GetAngle(VecD point)
     {
-        Vector2d center = new(parent.mainCanvas.ActualWidth / 2, parent.mainCanvas.ActualHeight / 2);
+        VecD center = new(parent.mainCanvas.ActualWidth / 2, parent.mainCanvas.ActualHeight / 2);
         double angle = (point - center).Angle;
         if (double.IsNaN(angle) || double.IsInfinity(angle))
             return 0;

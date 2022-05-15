@@ -6,9 +6,9 @@ namespace PixiEditor.ChangeableDocument.Actions.Drawing.Selection;
 
 public record class SelectRectangle_Action : IStartOrUpdateChangeAction
 {
-    public Vector2i Pos { get; }
-    public Vector2i Size { get; }
-    public SelectRectangle_Action(Vector2i pos, Vector2i size)
+    public VecI Pos { get; }
+    public VecI Size { get; }
+    public SelectRectangle_Action(VecI pos, VecI size)
     {
         Pos = pos;
         Size = size;

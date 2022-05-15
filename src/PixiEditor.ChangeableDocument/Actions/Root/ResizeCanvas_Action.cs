@@ -6,8 +6,8 @@ namespace PixiEditor.ChangeableDocument.Actions.Root;
 
 public record class ResizeCanvas_Action : IMakeChangeAction
 {
-    public Vector2i Size { get; }
-    public ResizeCanvas_Action(Vector2i size)
+    public VecI Size { get; }
+    public ResizeCanvas_Action(VecI size)
     {
         Size = size;
     }

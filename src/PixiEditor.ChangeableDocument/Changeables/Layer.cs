@@ -10,7 +10,7 @@ internal class Layer : StructureMember, IReadOnlyLayer
     public ChunkyImage LayerImage { get; set; }
     IReadOnlyChunkyImage IReadOnlyLayer.ReadOnlyLayerImage => LayerImage;
 
-    public Layer(Vector2i size)
+    public Layer(VecI size)
     {
         LayerImage = new(size);
     }

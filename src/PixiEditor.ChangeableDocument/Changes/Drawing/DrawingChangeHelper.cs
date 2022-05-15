@@ -23,7 +23,7 @@ internal static class DrawingChangeHelper
         return ((Layer)member).LayerImage;
     }
 
-    public static IChangeInfo CreateChunkChangeInfo(Guid memberGuid, HashSet<Vector2i> affectedChunks, bool drawOnMask)
+    public static IChangeInfo CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask)
     {
         return drawOnMask switch
         {

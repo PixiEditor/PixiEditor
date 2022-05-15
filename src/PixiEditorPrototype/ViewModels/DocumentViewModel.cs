@@ -91,7 +91,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
 
-    public DocumentStateHandler StateHandler { get; }
 
     public int ResizeWidth { get; set; }
     public int ResizeHeight { get; set; }
@@ -107,7 +106,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
         TransformViewModel = new();
         TransformViewModel.TransformMoved += OnTransformUpdate;
 
-        StateHandler = new(this);
         Helpers = new DocumentHelpers(this);
         StructureRoot = new FolderViewModel(this, Helpers, Helpers.Tracker.Document.ReadOnlyStructureRoot);
 
@@ -214,7 +212,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     bool startedSelection = false;
-    public void StartUpdateSelection(Vector2i pos, Vector2i size)
+    public void StartUpdateSelection(VecI pos, VecI size)
     {
         //if (!startedSelection)
         //   Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
@@ -280,34 +278,43 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void ClearSelection(object? param)
     {
+        if (updateableChangeActive)
+            return;
         Helpers.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
     }
 
     private void DeleteStructureMember(object? param)
     {
-        if (SelectedStructureMember is not null)
-            Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(SelectedStructureMember.GuidValue));
+        if (updateableChangeActive || SelectedStructureMember is null)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(SelectedStructureMember.GuidValue));
     }
 
     private void Undo(object? param)
     {
+        if (updateableChangeActive)
+            return;
         Helpers.ActionAccumulator.AddActions(new Undo_Action());
     }
 
     private void Redo(object? param)
     {
+        if (updateableChangeActive)
+            return;
         Helpers.ActionAccumulator.AddActions(new Redo_Action());
     }
 
     private void ToggleLockTransparency(object? param)
     {
-        if (SelectedStructureMember is not LayerViewModel layer)
+        if (updateableChangeActive || SelectedStructureMember is not LayerViewModel layer)
             return;
         layer.LockTransparency = !layer.LockTransparency;
     }
 
     private void ResizeCanvas(object? param)
     {
+        if (updateableChangeActive)
+            return;
         Helpers.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight)));
     }
 
@@ -318,21 +325,21 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void CreateMask(object? param)
     {
-        if (SelectedStructureMember is null || SelectedStructureMember.HasMask)
+        if (updateableChangeActive || SelectedStructureMember is null || SelectedStructureMember.HasMask)
             return;
         Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(SelectedStructureMember.GuidValue));
     }
 
     private void DeleteMask(object? param)
     {
-        if (SelectedStructureMember is null || !SelectedStructureMember.HasMask)
+        if (updateableChangeActive || SelectedStructureMember is null || !SelectedStructureMember.HasMask)
             return;
         Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(SelectedStructureMember.GuidValue));
     }
 
     private void Combine(object? param)
     {
-        if (SelectedStructureMember is null)
+        if (updateableChangeActive || SelectedStructureMember is null)
             return;
         List<Guid> selected = new();
         AddSelectedMembers(StructureRoot, selected);
@@ -355,6 +362,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void ClearHistory(object? param)
     {
+        if (updateableChangeActive)
+            return;
         Helpers.ActionAccumulator.AddActions(new DeleteRecordedChanges_Action());
     }
 
