@@ -50,10 +50,10 @@
                     </Image>
                     <sym:SymmetryOverlay 
                         ZoomboxScale="{Binding Zoombox.Scale}"
-                        HorizontalVisible="{Binding Document.HorizontalSymmetryEnabled}"
-                        VerticalVisible="{Binding Document.VerticalSymmetryEnabled}"
-                        HorizontalPosition="{Binding Document.HorizontalSymmetryPosition, Mode=OneWay}"
-                        VerticalPosition="{Binding Document.VerticalSymmetryPosition, Mode=OneWay}"
+                        HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabled}"
+                        VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabled}"
+                        HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisY, Mode=OneWay}"
+                        VerticalAxisX="{Binding Document.VerticalSymmetryAxisX, Mode=OneWay}"
                         DragCommand="{Binding Document.DragSymmetryCommand}"
                         DragEndCommand="{Binding Document.EndDragSymmetryCommand}"
                         />

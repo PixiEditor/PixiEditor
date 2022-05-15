@@ -16,10 +16,10 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
     public Vector2i Size { get; set; } = DefaultSize;
-    public bool HorizontalSymmetryEnabled { get; set; }
-    public bool VerticalSymmetryEnabled { get; set; }
-    public int HorizontalSymmetryPosition { get; set; }
-    public int VerticalSymmetryPosition { get; set; }
+    public bool HorizontalSymmetryAxisEnabled { get; set; }
+    public bool VerticalSymmetryAxisEnabled { get; set; }
+    public int HorizontalSymmetryAxisY { get; set; }
+    public int VerticalSymmetryAxisX { get; set; }
 
     public void Dispose()
     {

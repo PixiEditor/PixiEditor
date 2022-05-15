@@ -9,6 +9,8 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 internal class ResizeCanvas_Change : Change
 {
     private Vector2i originalSize;
+    private int originalHorAxisY;
+    private int originalVerAxisX;
     private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
     private CommittedChunkStorage? selectionChunkStorage;
@@ -20,6 +22,8 @@ internal class ResizeCanvas_Change : Change
     public override void Initialize(Document target)
     {
         originalSize = target.Size;
+        originalHorAxisY = target.HorizontalSymmetryAxisY;
+        originalVerAxisX = target.VerticalSymmetryAxisX;
     }
 
     private void ForEachLayer(Folder folder, Action<Layer> action)
@@ -44,6 +48,8 @@ internal class ResizeCanvas_Change : Change
         }
 
         target.Size = newSize;
+        target.VerticalSymmetryAxisX = Math.Clamp(originalVerAxisX, 0, target.Size.X);
+        target.HorizontalSymmetryAxisY = Math.Clamp(originalHorAxisY, 0, target.Size.Y);
 
         ForEachLayer(target.StructureRoot, (layer) =>
         {
@@ -92,6 +98,9 @@ internal class ResizeCanvas_Change : Change
         target.Selection.SelectionImage.CommitChanges();
         selectionChunkStorage.Dispose();
         selectionChunkStorage = null;
+
+        target.HorizontalSymmetryAxisY = originalHorAxisY;
+        target.VerticalSymmetryAxisX = originalVerAxisX;
 
         foreach (var stored in deletedChunks)
             stored.Value.Dispose();

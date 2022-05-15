@@ -10,44 +10,44 @@ namespace PixiEditorPrototype.CustomControls.SymmetryOverlay;
 
 internal class SymmetryOverlay : Control
 {
-    public static readonly DependencyProperty HorizontalPositionProperty =
-        DependencyProperty.Register(nameof(HorizontalPosition), typeof(int), typeof(SymmetryOverlay),
+    public static readonly DependencyProperty HorizontalAxisYProperty =
+        DependencyProperty.Register(nameof(HorizontalAxisY), typeof(int), typeof(SymmetryOverlay),
             new(0, OnPositionUpdate));
 
-    public int HorizontalPosition
+    public int HorizontalAxisY
     {
-        get => (int)GetValue(HorizontalPositionProperty);
-        set => SetValue(HorizontalPositionProperty, value);
+        get => (int)GetValue(HorizontalAxisYProperty);
+        set => SetValue(HorizontalAxisYProperty, value);
     }
 
-    public static readonly DependencyProperty VerticalPositionProperty =
-        DependencyProperty.Register(nameof(VerticalPosition), typeof(int), typeof(SymmetryOverlay),
+    public static readonly DependencyProperty VerticalAxisXProperty =
+        DependencyProperty.Register(nameof(VerticalAxisX), typeof(int), typeof(SymmetryOverlay),
             new(0, OnPositionUpdate));
 
-    public int VerticalPosition
+    public int VerticalAxisX
     {
-        get => (int)GetValue(VerticalPositionProperty);
-        set => SetValue(VerticalPositionProperty, value);
+        get => (int)GetValue(VerticalAxisXProperty);
+        set => SetValue(VerticalAxisXProperty, value);
     }
 
-    public static readonly DependencyProperty HorizontalVisibleProperty =
-        DependencyProperty.Register(nameof(HorizontalVisible), typeof(bool), typeof(SymmetryOverlay),
+    public static readonly DependencyProperty HorizontalAxisVisibleProperty =
+        DependencyProperty.Register(nameof(HorizontalAxisVisible), typeof(bool), typeof(SymmetryOverlay),
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
-    public bool HorizontalVisible
+    public bool HorizontalAxisVisible
     {
-        get => (bool)GetValue(HorizontalVisibleProperty);
-        set => SetValue(HorizontalVisibleProperty, value);
+        get => (bool)GetValue(HorizontalAxisVisibleProperty);
+        set => SetValue(HorizontalAxisVisibleProperty, value);
     }
 
-    public static readonly DependencyProperty VerticalVisibleProperty =
-        DependencyProperty.Register(nameof(VerticalVisible), typeof(bool), typeof(SymmetryOverlay),
+    public static readonly DependencyProperty VerticalAxisVisibleProperty =
+        DependencyProperty.Register(nameof(VerticalAxisVisible), typeof(bool), typeof(SymmetryOverlay),
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
-    public bool VerticalVisible
+    public bool VerticalAxisVisible
     {
-        get => (bool)GetValue(VerticalVisibleProperty);
-        set => SetValue(VerticalVisibleProperty, value);
+        get => (bool)GetValue(VerticalAxisVisibleProperty);
+        set => SetValue(VerticalAxisVisibleProperty, value);
     }
 
     public static readonly DependencyProperty ZoomboxScaleProperty =
@@ -87,39 +87,39 @@ internal class SymmetryOverlay : Control
     };
 
     private Pen borderPen = new Pen(Brushes.Black, 1.0);
-    private int horizontalPosition;
-    private int verticalPosition;
+    private int horizontalAxisY;
+    private int verticalAxisX;
 
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
-        if (!HorizontalVisible && !VerticalVisible)
+        if (!HorizontalAxisVisible && !VerticalAxisVisible)
             return;
 
         borderPen.Thickness = 1.0 / ZoomboxScale;
         handleGeometry.Transform = new ScaleTransform(HandleSize / ZoomboxScale, HandleSize / ZoomboxScale);
 
-        if (HorizontalVisible)
+        if (HorizontalAxisVisible)
         {
-            drawingContext.PushTransform(new TranslateTransform(0, horizontalPosition));
+            drawingContext.PushTransform(new TranslateTransform(0, horizontalAxisY));
             drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
             drawingContext.PushTransform(new RotateTransform(180, ActualWidth / 2, 0));
             drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
             drawingContext.Pop();
             drawingContext.Pop();
-            drawingContext.DrawLine(borderPen, new(0, horizontalPosition), new(ActualWidth, horizontalPosition));
+            drawingContext.DrawLine(borderPen, new(0, horizontalAxisY), new(ActualWidth, horizontalAxisY));
         }
-        if (VerticalVisible)
+        if (VerticalAxisVisible)
         {
             drawingContext.PushTransform(new RotateTransform(90));
-            drawingContext.PushTransform(new TranslateTransform(0, -verticalPosition));
+            drawingContext.PushTransform(new TranslateTransform(0, -verticalAxisX));
             drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
             drawingContext.PushTransform(new RotateTransform(180, ActualHeight / 2, 0));
             drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
             drawingContext.Pop();
             drawingContext.Pop();
             drawingContext.Pop();
-            drawingContext.DrawLine(borderPen, new(verticalPosition, 0), new(verticalPosition, ActualHeight));
+            drawingContext.DrawLine(borderPen, new(verticalAxisX, 0), new(verticalAxisX, ActualHeight));
         }
     }
 
@@ -132,24 +132,24 @@ internal class SymmetryOverlay : Control
         return new PointHitTestResult(this, hitTestParameters.HitPoint);
     }
 
-    private SymmetryDirection? IsTouchingHandle(Vector2d position)
+    private SymmetryAxisDirection? IsTouchingHandle(Vector2d position)
     {
         double radius = HandleSize / ZoomboxScale / 2;
-        Vector2d left = new(-radius, horizontalPosition);
-        Vector2d right = new(ActualWidth + radius, horizontalPosition);
-        Vector2d up = new(verticalPosition, -radius);
-        Vector2d down = new(verticalPosition, ActualHeight + radius);
+        Vector2d left = new(-radius, horizontalAxisY);
+        Vector2d right = new(ActualWidth + radius, horizontalAxisY);
+        Vector2d up = new(verticalAxisX, -radius);
+        Vector2d down = new(verticalAxisX, ActualHeight + radius);
 
-        if (HorizontalVisible && ((left - position).Length < radius || (right - position).Length < radius))
-            return SymmetryDirection.Horizontal;
-        if (VerticalVisible && ((up - position).Length < radius || (down - position).Length < radius))
-            return SymmetryDirection.Vertical;
+        if (HorizontalAxisVisible && (Math.Abs((left - position).LongestAxis) < radius || Math.Abs((right - position).LongestAxis) < radius))
+            return SymmetryAxisDirection.Horizontal;
+        if (VerticalAxisVisible && (Math.Abs((up - position).LongestAxis) < radius || Math.Abs((down - position).LongestAxis) < radius))
+            return SymmetryAxisDirection.Vertical;
         return null;
     }
 
     private Vector2d ToVector2d(Point pos) => new Vector2d(pos.X, pos.Y);
 
-    public SymmetryDirection? capturedDirection;
+    public SymmetryAxisDirection? capturedDirection;
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
@@ -164,13 +164,13 @@ internal class SymmetryOverlay : Control
         e.Handled = true;
     }
 
-    private void CallSymmetryDragCommand(SymmetryDirection direction, int position)
+    private void CallSymmetryDragCommand(SymmetryAxisDirection direction, int position)
     {
-        SymmetryDragInfo dragInfo = new(direction, position);
+        SymmetryAxisDragInfo dragInfo = new(direction, position);
         if (DragCommand is not null && DragCommand.CanExecute(dragInfo))
             DragCommand.Execute(dragInfo);
     }
-    private void CallSymmetryDragEndCommand(SymmetryDirection direction)
+    private void CallSymmetryDragEndCommand(SymmetryAxisDirection direction)
     {
         if (DragEndCommand is not null && DragEndCommand.CanExecute(direction))
             DragEndCommand.Execute(direction);
@@ -184,7 +184,7 @@ internal class SymmetryOverlay : Control
             return;
         ReleaseMouseCapture();
 
-        CallSymmetryDragEndCommand((SymmetryDirection)capturedDirection);
+        CallSymmetryDragEndCommand((SymmetryAxisDirection)capturedDirection);
 
         capturedDirection = null;
         e.Handled = true;
@@ -197,15 +197,15 @@ internal class SymmetryOverlay : Control
         if (capturedDirection is null)
             return;
         var pos = ToVector2d(e.GetPosition(this));
-        if (capturedDirection == SymmetryDirection.Horizontal)
+        if (capturedDirection == SymmetryAxisDirection.Horizontal)
         {
-            horizontalPosition = (int)Math.Round(Math.Clamp(pos.Y, 0, ActualHeight));
-            CallSymmetryDragCommand((SymmetryDirection)capturedDirection, horizontalPosition);
+            horizontalAxisY = (int)Math.Round(Math.Clamp(pos.Y, 0, ActualHeight));
+            CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, horizontalAxisY);
         }
-        else if (capturedDirection == SymmetryDirection.Vertical)
+        else if (capturedDirection == SymmetryAxisDirection.Vertical)
         {
-            verticalPosition = (int)Math.Round(Math.Clamp(pos.X, 0, ActualWidth));
-            CallSymmetryDragCommand((SymmetryDirection)capturedDirection, verticalPosition);
+            verticalAxisX = (int)Math.Round(Math.Clamp(pos.X, 0, ActualWidth));
+            CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, verticalAxisX);
         }
         e.Handled = true;
     }
@@ -213,8 +213,8 @@ internal class SymmetryOverlay : Control
     private static void OnPositionUpdate(DependencyObject obj, DependencyPropertyChangedEventArgs args)
     {
         var self = (SymmetryOverlay)obj;
-        self.horizontalPosition = self.HorizontalPosition;
-        self.verticalPosition = self.VerticalPosition;
+        self.horizontalAxisY = self.HorizontalAxisY;
+        self.verticalAxisX = self.VerticalAxisX;
         self.InvalidateVisual();
     }
 }

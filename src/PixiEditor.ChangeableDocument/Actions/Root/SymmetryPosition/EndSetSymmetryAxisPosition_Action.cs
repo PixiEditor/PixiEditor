@@ -2,10 +2,10 @@
 using PixiEditor.ChangeableDocument.Changes.Root;
 
 namespace PixiEditor.ChangeableDocument.Actions.Root.SymmetryPosition;
-public class EndSetSymmetryPosition_Action : IEndChangeAction
+public class EndSetSymmetryAxisPosition_Action : IEndChangeAction
 {
     bool IEndChangeAction.IsChangeTypeMatching(Change change)
     {
-        return change is SymmetryPosition_UpdateableChange;
+        return change is SymmetryAxisPosition_UpdateableChange;
     }
 }

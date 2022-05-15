@@ -10,6 +10,8 @@ public struct Vector2i
     public int TaxicabLength => Math.Abs(X) + Math.Abs(Y);
     public double Length => Math.Sqrt(LengthSquared);
     public int LengthSquared => X * X + Y * Y;
+    public int LongestAxis => (Math.Abs(X) < Math.Abs(Y)) ? Y : X;
+    public int ShortestAxis => (Math.Abs(X) < Math.Abs(Y)) ? X : Y;
 
     public Vector2i(int x, int y)
     {
@@ -24,6 +26,20 @@ public struct Vector2i
     public Vector2i Multiply(Vector2i other)
     {
         return new Vector2i(X * other.X, Y * other.Y);
+    }
+    /// <summary>
+    /// Reflects the vector across a vertical line with the specified position
+    /// </summary>
+    public Vector2i ReflectX(int lineX)
+    {
+        return new(2 * lineX - X, Y);
+    }
+    /// <summary>
+    /// Reflects the vector along a horizontal line with the specified position
+    /// </summary>
+    public Vector2i ReflectY(int lineY)
+    {
+        return new(X, 2 * lineY - Y);
     }
     public static Vector2i operator +(Vector2i a, Vector2i b)
     {

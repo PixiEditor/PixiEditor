@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 
-internal record class ImageOperation : IDrawOperation
+internal class ImageOperation : IDrawOperation
 {
     private SKMatrix transformMatrix;
     private ShapeCorners corners;
@@ -70,5 +70,19 @@ internal record class ImageOperation : IDrawOperation
     {
         if (imageWasCopied)
             toPaint.Dispose();
+    }
+
+    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    {
+        if (verAxisX is not null && horAxisY is not null)
+            return new ImageOperation
+                (corners.AsMirroredAcrossVerAxis((int)verAxisX).AsMirroredAcrossHorAxis((int)horAxisY), toPaint, imageWasCopied);
+        else if (verAxisX is not null)
+            return new ImageOperation
+                (corners.AsMirroredAcrossVerAxis((int)verAxisX), toPaint, imageWasCopied);
+        else if (horAxisY is not null)
+            return new ImageOperation
+                (corners.AsMirroredAcrossHorAxis((int)horAxisY), toPaint, imageWasCopied);
+        return new ImageOperation(corners, toPaint, imageWasCopied);
     }
 }

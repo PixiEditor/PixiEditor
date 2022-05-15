@@ -32,6 +32,10 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         var targetMember = target.FindMemberOrThrow(memberGuid);
         if (targetMember is Layer layer && layer.LockTransparency)
             targetImage.EnableLockTransparency();
+        if (target.HorizontalSymmetryAxisEnabled)
+            targetImage.SetHorizontalAxisOfSymmetry(target.HorizontalSymmetryAxisY);
+        if (target.VerticalSymmetryAxisEnabled)
+            targetImage.SetVerticalAxisOfSymmetry(target.VerticalSymmetryAxisX);
 
         targetImage.EnqueueDrawRectangle(rect);
 

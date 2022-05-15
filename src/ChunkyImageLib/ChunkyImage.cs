@@ -64,6 +64,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private List<ChunkyImage> activeClips = new();
     private SKBlendMode blendMode = SKBlendMode.Src;
     private bool lockTransparency = false;
+    private int? horizontalSymmetryAxis = null;
+    private int? verticalSymmetryAxis = null;
 
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> committedChunks;
     private Dictionary<ChunkResolution, Dictionary<Vector2i, Chunk>> latestChunks;
@@ -214,8 +216,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         return null;
     }
 
-    private Chunk? MaybeGetLatestChunk(Vector2i pos, ChunkResolution resolution) => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
-    private Chunk? MaybeGetCommittedChunk(Vector2i pos, ChunkResolution resolution) => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+    private Chunk? MaybeGetLatestChunk(Vector2i pos, ChunkResolution resolution)
+        => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+    private Chunk? MaybeGetCommittedChunk(Vector2i pos, ChunkResolution resolution)
+        => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
 
     public void AddRasterClip(ChunkyImage clippingMask)
     {
@@ -237,6 +241,26 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             if (queuedOperations.Count > 0)
                 throw new InvalidOperationException("This function can only be executed when there are no queued operations");
             blendMode = mode;
+        }
+    }
+
+    public void SetHorizontalAxisOfSymmetry(int position)
+    {
+        lock (lockObject)
+        {
+            if (queuedOperations.Count > 0)
+                throw new InvalidOperationException("This function can only be executed when there are no queued operations");
+            horizontalSymmetryAxis = position;
+        }
+    }
+
+    public void SetVerticalAxisOfSymmetry(int position)
+    {
+        lock (lockObject)
+        {
+            if (queuedOperations.Count > 0)
+                throw new InvalidOperationException("This function can only be executed when there are no queued operations");
+            verticalSymmetryAxis = position;
         }
     }
 
@@ -311,12 +335,26 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private void EnqueueOperation(IDrawOperation operation)
     {
-        var chunks = operation.FindAffectedChunks();
-        chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
-        if (operation.IgnoreEmptyChunks)
-            chunks.IntersectWith(FindAllChunks());
-        EnqueueOperation(operation, chunks);
+        List<IDrawOperation> operations = new(4) { operation };
+
+        if (horizontalSymmetryAxis is not null && verticalSymmetryAxis is not null)
+            operations.Add(operation.AsMirrored(verticalSymmetryAxis, horizontalSymmetryAxis));
+        if (horizontalSymmetryAxis is not null)
+            operations.Add(operation.AsMirrored(null, horizontalSymmetryAxis));
+        if (verticalSymmetryAxis is not null)
+            operations.Add(operation.AsMirrored(verticalSymmetryAxis, null));
+
+        foreach (var op in operations)
+        {
+            var chunks = op.FindAffectedChunks();
+            chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
+            if (operation.IgnoreEmptyChunks)
+                chunks.IntersectWith(FindAllChunks());
+            chunks.UnionWith(op.FindAffectedChunks());
+            EnqueueOperation(op, chunks);
+        }
     }
+
     private void EnqueueOperation(IOperation operation, HashSet<Vector2i> chunks)
     {
         queuedOperations.Add((operation, chunks));
@@ -335,6 +373,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             activeClips.Clear();
             blendMode = SKBlendMode.Src;
             lockTransparency = false;
+            horizontalSymmetryAxis = null;
+            verticalSymmetryAxis = null;
 
             //clear latest chunks
             foreach (var (_, chunksOfRes) in latestChunks)
@@ -373,6 +413,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             activeClips.Clear();
             blendMode = SKBlendMode.Src;
             lockTransparency = false;
+            horizontalSymmetryAxis = null;
+            verticalSymmetryAxis = null;
 
             commitCounter++;
             if (commitCounter % 30 == 0)
@@ -639,6 +681,36 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     }
                 }
             }
+        }
+    }
+
+    private void DrawOperationWithSymmetry(IDrawOperation operation, Chunk chunk, Vector2i chunkPos)
+    {
+        operation.DrawOnChunk(chunk, chunkPos);
+        if (horizontalSymmetryAxis is not null)
+        {
+            chunk.Surface.SkiaSurface.Canvas.Save();
+            float y = (float)horizontalSymmetryAxis * (float)chunk.Resolution.Multiplier() - (chunkPos.Y * chunk.Resolution.PixelSize());
+            chunk.Surface.SkiaSurface.Canvas.Scale(1, -1, 0, y);
+            operation.DrawOnChunk(chunk, chunkPos);
+            chunk.Surface.SkiaSurface.Canvas.Restore();
+        }
+        if (verticalSymmetryAxis is not null)
+        {
+            chunk.Surface.SkiaSurface.Canvas.Save();
+            float x = (float)verticalSymmetryAxis * (float)chunk.Resolution.Multiplier() - (chunkPos.X * chunk.Resolution.PixelSize());
+            chunk.Surface.SkiaSurface.Canvas.Scale(-1, 1, x, 0);
+            operation.DrawOnChunk(chunk, chunkPos);
+            chunk.Surface.SkiaSurface.Canvas.Restore();
+        }
+        if (horizontalSymmetryAxis is not null && verticalSymmetryAxis is not null)
+        {
+            float x = (float)verticalSymmetryAxis * (float)chunk.Resolution.Multiplier() - (chunkPos.X * chunk.Resolution.PixelSize());
+            float y = (float)horizontalSymmetryAxis * (float)chunk.Resolution.Multiplier() - (chunkPos.Y * chunk.Resolution.PixelSize());
+            chunk.Surface.SkiaSurface.Canvas.Save();
+            chunk.Surface.SkiaSurface.Canvas.Scale(-1, -1, x, y);
+            operation.DrawOnChunk(chunk, chunkPos);
+            chunk.Surface.SkiaSurface.Canvas.Restore();
         }
     }
 

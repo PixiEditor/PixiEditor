@@ -71,29 +71,29 @@ internal class DocumentUpdater
             case Selection_ChangeInfo info:
                 ProcessSelection(info);
                 break;
-            case SymmetryState_ChangeInfo info:
+            case SymmetryAxisState_ChangeInfo info:
                 ProcessSymmetryState(info);
                 break;
-            case SymmetryPosition_ChangeInfo info:
+            case SymmetryAxisPosition_ChangeInfo info:
                 ProcessSymmetryPosition(info);
                 break;
         }
     }
 
-    private void ProcessSymmetryPosition(SymmetryPosition_ChangeInfo info)
+    private void ProcessSymmetryPosition(SymmetryAxisPosition_ChangeInfo info)
     {
-        if (info.Direction == SymmetryDirection.Horizontal)
-            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryPosition));
-        else if (info.Direction == SymmetryDirection.Vertical)
-            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryPosition));
+        if (info.Direction == SymmetryAxisDirection.Horizontal)
+            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryAxisY));
+        else if (info.Direction == SymmetryAxisDirection.Vertical)
+            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisX));
     }
 
-    private void ProcessSymmetryState(SymmetryState_ChangeInfo info)
+    private void ProcessSymmetryState(SymmetryAxisState_ChangeInfo info)
     {
-        if (info.Direction == SymmetryDirection.Horizontal)
-            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryEnabled));
-        else if (info.Direction == SymmetryDirection.Vertical)
-            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryEnabled));
+        if (info.Direction == SymmetryAxisDirection.Horizontal)
+            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryAxisEnabled));
+        else if (info.Direction == SymmetryAxisDirection.Vertical)
+            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisEnabled));
     }
 
     private void ProcessSelection(Selection_ChangeInfo info)
@@ -144,6 +144,8 @@ internal class DocumentUpdater
         doc.RaisePropertyChanged(nameof(doc.Bitmaps));
         doc.RaisePropertyChanged(nameof(doc.Width));
         doc.RaisePropertyChanged(nameof(doc.Height));
+        doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryAxisY));
+        doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisX));
     }
 
     private WriteableBitmap CreateBitmap(Vector2i size)

@@ -3,7 +3,7 @@ using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 
-internal record class RectangleOperation : IDrawOperation
+internal class RectangleOperation : IDrawOperation
 {
     public RectangleOperation(ShapeData rect)
     {
@@ -20,10 +20,10 @@ internal record class RectangleOperation : IDrawOperation
         // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
         skiaSurf.Canvas.Save();
 
-        var convertedPos = OperationHelper.ConvertForResolution(-Data.Size / 2, chunk.Resolution);
+        var convertedPos = OperationHelper.ConvertForResolution(-Data.Size.Abs() / 2, chunk.Resolution);
         var convertedCenter = OperationHelper.ConvertForResolution(Data.Center, chunk.Resolution) - chunkPos.Multiply(chunk.PixelSize);
 
-        var convertedSize = OperationHelper.ConvertForResolution(Data.Size, chunk.Resolution);
+        var convertedSize = OperationHelper.ConvertForResolution(Data.Size.Abs(), chunk.Resolution);
         int convertedStroke = (int)Math.Round(chunk.Resolution.Multiplier() * Data.StrokeWidth);
 
         var rect = SKRect.Create((SKPoint)convertedPos, (SKSize)convertedSize);
@@ -56,20 +56,31 @@ internal record class RectangleOperation : IDrawOperation
 
     public HashSet<Vector2i> FindAffectedChunks()
     {
-        if (Data.Size.X < 1 || Data.Size.Y < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
+        if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
             return new();
-        if (Data.FillColor.Alpha != 0 || Data.Size.X == 1 || Data.Size.Y == 1)
-            return OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size, Data.Angle, ChunkPool.FullChunkSize);
+        if (Data.FillColor.Alpha != 0 || Math.Abs(Data.Size.X) == 1 || Math.Abs(Data.Size.Y) == 1)
+            return OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize);
 
-        var chunks = OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size, Data.Angle, ChunkPool.FullChunkSize);
+        var chunks = OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize);
         chunks.ExceptWith(
             OperationHelper.FindChunksFullyInsideRectangle(
                 Data.Center,
-                Data.Size - new Vector2d(Data.StrokeWidth * 2, Data.StrokeWidth * 2),
+                Data.Size.Abs() - new Vector2d(Data.StrokeWidth * 2, Data.StrokeWidth * 2),
                 Data.Angle,
                 ChunkPool.FullChunkSize));
         return chunks;
     }
 
     public void Dispose() { }
+
+    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    {
+        if (verAxisX is not null && horAxisY is not null)
+            return new RectangleOperation(Data.AsMirroredAcrossHorAxis((int)horAxisY).AsMirroredAcrossVerAxis((int)verAxisX));
+        else if (verAxisX is not null)
+            return new RectangleOperation(Data.AsMirroredAcrossVerAxis((int)verAxisX));
+        else if (horAxisY is not null)
+            return new RectangleOperation(Data.AsMirroredAcrossHorAxis((int)horAxisY));
+        return new RectangleOperation(Data);
+    }
 }

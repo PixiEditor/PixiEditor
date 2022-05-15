@@ -11,6 +11,8 @@ public struct Vector2d
     public double Length => Math.Sqrt(LengthSquared);
     public double LengthSquared => X * X + Y * Y;
     public double Angle => Y < 0 ? -AngleTo(new Vector2d(1, 0)) : AngleTo(new Vector2d(1, 0));
+    public double LongestAxis => (Math.Abs(X) < Math.Abs(Y)) ? Y : X;
+    public double ShortestAxis => (Math.Abs(X) < Math.Abs(Y)) ? X : Y;
 
     public Vector2d(double x, double y)
     {
@@ -62,7 +64,20 @@ public struct Vector2d
         Vector2d point = this - pos1;
         return (line * point) * line + pos1;
     }
-
+    /// <summary>
+    /// Reflects the vector across a vertical line with the specified position
+    /// </summary>
+    public Vector2d ReflectX(double lineX)
+    {
+        return new(2 * lineX - X, Y);
+    }
+    /// <summary>
+    /// Reflects the vector along a horizontal line with the specified position
+    /// </summary>
+    public Vector2d ReflectY(double lineY)
+    {
+        return new(X, 2 * lineY - Y);
+    }
     public Vector2d ReflectAcrossLine(Vector2d pos1, Vector2d pos2)
     {
         var onLine = ProjectOntoLine(pos1, pos2);

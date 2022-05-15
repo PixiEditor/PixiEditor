@@ -1,5 +1,5 @@
 ﻿namespace PixiEditor.ChangeableDocument.Enums;
-public enum SymmetryDirection
+public enum SymmetryAxisDirection
 {
     Horizontal, Vertical
 }

@@ -32,4 +32,15 @@ internal class ClearRegionOperation : IDrawOperation
         return OperationHelper.FindChunksFullyInsideRectangle(pos, size, ChunkPool.FullChunkSize);
     }
     public void Dispose() { }
+
+    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    {
+        if (verAxisX is not null && horAxisY is not null)
+            return new ClearRegionOperation((pos + size).ReflectX((int)verAxisX).ReflectY((int)horAxisY), size);
+        if (verAxisX is not null)
+            return new ClearRegionOperation(new Vector2i(pos.X + size.X, pos.Y).ReflectX((int)verAxisX), size);
+        if (horAxisY is not null)
+            return new ClearRegionOperation(new Vector2i(pos.X, pos.Y + size.Y).ReflectY((int)horAxisY), size);
+        return new ClearRegionOperation(pos, size);
+    }
 }

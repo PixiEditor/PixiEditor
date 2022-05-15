@@ -76,17 +76,17 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public int Height => Helpers.Tracker.Document.Size.Y;
     public SKPath SelectionPath => Helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionPath;
     public Guid GuidValue { get; } = Guid.NewGuid();
-    public int HorizontalSymmetryPosition => Helpers.Tracker.Document.HorizontalSymmetryPosition;
-    public int VerticalSymmetryPosition => Helpers.Tracker.Document.VerticalSymmetryPosition;
-    public bool HorizontalSymmetryEnabled
+    public int HorizontalSymmetryAxisY => Helpers.Tracker.Document.HorizontalSymmetryAxisY;
+    public int VerticalSymmetryAxisX => Helpers.Tracker.Document.VerticalSymmetryAxisX;
+    public bool HorizontalSymmetryAxisEnabled
     {
-        get => Helpers.Tracker.Document.HorizontalSymmetryEnabled;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryState_Action(SymmetryDirection.Horizontal, value));
+        get => Helpers.Tracker.Document.HorizontalSymmetryAxisEnabled;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
     }
-    public bool VerticalSymmetryEnabled
+    public bool VerticalSymmetryAxisEnabled
     {
-        get => Helpers.Tracker.Document.VerticalSymmetryEnabled;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryState_Action(SymmetryDirection.Vertical, value));
+        get => Helpers.Tracker.Document.VerticalSymmetryAxisEnabled;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
     }
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
@@ -156,15 +156,15 @@ internal class DocumentViewModel : INotifyPropertyChanged
     {
         if (obj is null)
             return;
-        var info = (SymmetryDragInfo)obj;
-        Helpers.ActionAccumulator.AddActions(new SetSymmetryPosition_Action(info.Direction, info.NewPosition));
+        var info = (SymmetryAxisDragInfo)obj;
+        Helpers.ActionAccumulator.AddActions(new SetSymmetryAxisPosition_Action(info.Direction, info.NewPosition));
     }
 
     private void EndDragSymmetry(object? obj)
     {
         if (obj is null)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new EndSetSymmetryPosition_Action());
+        Helpers.ActionAccumulator.AddFinishedActions(new EndSetSymmetryAxisPosition_Action());
     }
 
     public void StartUpdateRectangle(ShapeData data)

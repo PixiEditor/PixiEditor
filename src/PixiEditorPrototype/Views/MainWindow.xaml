@@ -167,10 +167,10 @@
                 <CheckBox x:Name="flipYCheckbox" Margin="5, 0">Flip Y</CheckBox>
                 <CheckBox 
                     x:Name="horizontalSymmetryCheckbox" Margin="5,0" 
-                    IsChecked="{Binding ActiveDocument.HorizontalSymmetryEnabled}">Hor Sym</CheckBox>
+                    IsChecked="{Binding ActiveDocument.HorizontalSymmetryAxisEnabled}">Hor Sym</CheckBox>
                 <CheckBox 
                     x:Name="verticalSymmetryCheckbox" Margin="5,0" 
-                    IsChecked="{Binding ActiveDocument.VerticalSymmetryEnabled}">Ver Sym</CheckBox>
+                    IsChecked="{Binding ActiveDocument.VerticalSymmetryAxisEnabled}">Ver Sym</CheckBox>
             </StackPanel>
         </Border>
         <Grid>

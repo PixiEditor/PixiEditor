@@ -18,7 +18,14 @@ public record struct ShapeData
     public SKColor FillColor { get; }
     public SKBlendMode BlendMode { get; }
     public Vector2d Center { get; }
+    /// <summary>Can be negative to show flipping </summary>
     public Vector2d Size { get; }
     public double Angle { get; }
     public int StrokeWidth { get; }
+
+    public ShapeData AsMirroredAcrossHorAxis(int horAxisY)
+        => new ShapeData(Center.ReflectY(horAxisY), new(Size.X, -Size.Y), -Angle, StrokeWidth, StrokeColor, FillColor, BlendMode);
+    public ShapeData AsMirroredAcrossVerAxis(int verAxisX)
+        => new ShapeData(Center.ReflectX(verAxisX), new(-Size.X, Size.Y), -Angle, StrokeWidth, StrokeColor, FillColor, BlendMode);
+
 }
