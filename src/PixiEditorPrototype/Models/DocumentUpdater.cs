@@ -77,7 +77,16 @@ internal class DocumentUpdater
             case SymmetryAxisPosition_ChangeInfo info:
                 ProcessSymmetryPosition(info);
                 break;
+            case StructureMemberClipToMemberBelow_ChangeInfo info:
+                ProcessClipToMemberBelow(info);
+                break;
         }
+    }
+
+    private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
+    {
+        var member = helper.StructureHelper.FindOrThrow(info.MemberGuid);
+        member.RaisePropertyChanged(nameof(member.ClipToMemberBelowEnabled));
     }
 
     private void ProcessSymmetryPosition(SymmetryAxisPosition_ChangeInfo info)

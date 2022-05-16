@@ -71,6 +71,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? PasteImageCommand { get; }
     public RelayCommand? DragSymmetryCommand { get; }
     public RelayCommand? EndDragSymmetryCommand { get; }
+    public RelayCommand? ClipToMemberBelowCommand { get; }
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
@@ -126,6 +127,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         ApplyTransformCommand = new RelayCommand(ApplyTransform);
         DragSymmetryCommand = new RelayCommand(DragSymmetry);
         EndDragSymmetryCommand = new RelayCommand(EndDragSymmetry);
+        ClipToMemberBelowCommand = new RelayCommand(ClipToMemberBelow);
 
         foreach (var bitmap in Bitmaps)
         {
@@ -137,6 +139,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
         Helpers.ActionAccumulator.AddFinishedActions
             (new CreateStructureMember_Action(StructureRoot.GuidValue, Guid.NewGuid(), 0, StructureMemberType.Layer));
+    }
+
+    private void ClipToMemberBelow(object? obj)
+    {
+        if (updateableChangeActive || SelectedStructureMember is null)
+            return;
+        SelectedStructureMember.ClipToMemberBelowEnabled = !SelectedStructureMember.ClipToMemberBelowEnabled;
     }
 
     private bool updateableChangeActive = false;

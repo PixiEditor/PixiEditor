@@ -149,7 +149,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             blendModePaint.BlendMode = blendMode;
             tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(latestChunk.Surface.SkiaSurface, 0, 0, blendModePaint);
             if (lockTransparency)
-                ClampAlpha(tempChunk.Surface.SkiaSurface, committedChunk.Surface.SkiaSurface);
+                OperationHelper.ClampAlpha(tempChunk.Surface.SkiaSurface, committedChunk.Surface.SkiaSurface);
             tempChunk.DrawOnSurface(surface, pos, paint);
 
             return true;
@@ -160,10 +160,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
-            return (
-                MaybeGetLatestChunk(chunkPos, ChunkResolution.Full) ??
-                MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full)
-                ) is not null;
+            if (MaybeGetLatestChunk(chunkPos, ChunkResolution.Full) is not null ||
+                MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null)
+                return true;
+            foreach (var operation in queuedOperations)
+            {
+                if (operation.affectedChunks.Contains(chunkPos))
+                    return true;
+            }
+            return false;
         }
     }
 
@@ -489,7 +494,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                         using Chunk tempChunk = Chunk.Create(resolution);
                         tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(maybeCommitted.Surface.SkiaSurface, 0, 0, ReplacingPaint);
                         maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
-                        ClampAlpha(maybeCommitted.Surface.SkiaSurface, tempChunk.Surface.SkiaSurface);
+                        OperationHelper.ClampAlpha(maybeCommitted.Surface.SkiaSurface, tempChunk.Surface.SkiaSurface);
                     }
                     else
                     {
@@ -603,7 +608,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             if (lockTransparency && !chunkData.IsDeleted && MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null)
             {
                 var committed = GetCommittedChunk(chunkPos, resolution);
-                ClampAlpha(targetChunk!.Surface.SkiaSurface, committed!.Surface.SkiaSurface);
+                OperationHelper.ClampAlpha(targetChunk!.Surface.SkiaSurface, committed!.Surface.SkiaSurface);
             }
 
             chunkData.QueueProgress = queuedOperations.Count;
@@ -644,44 +649,6 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             }
         }
         return intersection;
-    }
-
-    /// <summary>
-    /// toModify[x,y].Alpha = Math.Min(toModify[x,y].Alpha, toGetAlphaFrom[x,y].Alpha)
-    /// </summary>
-    private unsafe void ClampAlpha(SKSurface toModify, SKSurface toGetAlphaFrom)
-    {
-        using (var map = toModify.PeekPixels())
-        {
-            using (var refMap = toGetAlphaFrom.PeekPixels())
-            {
-                long* pixels = (long*)map.GetPixels();
-                long* refPixels = (long*)refMap.GetPixels();
-                int size = map.Width * map.Height;
-                if (map.Width != refMap.Width || map.Height != refMap.Height)
-                    throw new ArgumentException("The surfaces must have the same size");
-
-                for (int i = 0; i < size; i++)
-                {
-                    long* offset = pixels + i;
-                    long* refOffset = refPixels + i;
-                    Half* alpha = (Half*)offset + 3;
-                    Half* refAlpha = (Half*)refOffset + 3;
-                    if (*refAlpha < *alpha)
-                    {
-                        float a = (float)(*alpha);
-                        float r = (float)(*((Half*)offset)) / a;
-                        float g = (float)(*((Half*)offset + 1)) / a;
-                        float b = (float)(*((Half*)offset + 2)) / a;
-                        float newA = (float)(*refAlpha);
-                        Half newR = (Half)(r * newA);
-                        Half newG = (Half)(g * newA);
-                        Half newB = (Half)(b * newA);
-                        *offset = ((long)*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
-                    }
-                }
-            }
-        }
     }
 
     /// <returns>

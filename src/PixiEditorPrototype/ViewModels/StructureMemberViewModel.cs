@@ -33,6 +33,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberBlendMode_Action(value, member.GuidValue));
     }
 
+    public bool ClipToMemberBelowEnabled
+    {
+        get => member.ClipToMemberBelow;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberClipToMemberBelow_Action(value, member.GuidValue));
+    }
+
     public bool IsSelected { get; set; }
     public bool ShouldDrawOnMask { get; set; }
 

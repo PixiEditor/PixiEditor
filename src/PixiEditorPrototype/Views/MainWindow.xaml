@@ -40,6 +40,7 @@
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
                     <Button Margin="5,0" Command="{Binding ActiveDocument.ToggleLockTransparencyCommand}" Width="80">Lock Alpha</Button>
                     <Button Margin="5,0" IsEnabled="False" Width="80">Lock</Button>
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.ClipToMemberBelowCommand}" Width="80">Clip to below</Button>
                 </StackPanel>
                 <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,5,0,5">
                     <Button Width="80" Margin="5,0" Command="{Binding ActiveDocument.CombineCommand}">Merge</Button>
@@ -81,13 +82,15 @@
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
                             <StackPanel Orientation="Horizontal" MinWidth="200">
+                                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
+                                <Rectangle 
+                                    Fill="DarkRed" Width="8" Margin="3,0" 
+                                    Visibility="{Binding ClipToMemberBelowEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <StackPanel>
                                     <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
                                 </StackPanel>
-                                <Border BorderBrush="Black" BorderThickness="1" Background="Yellow" Width="25" Height="25" Margin="3,0,0,0">
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
-                                </Border>
+                                <Border BorderBrush="Black" BorderThickness="1" Background="Yellow" Width="25" Height="25" Margin="3,0,0,0"/>
                                 <StackPanel VerticalAlignment="Center">
                                     <DockPanel Margin="3, 0, 0, 0">
                                         <TextBlock Text="{Binding Opacity}" Width="25"/>
@@ -108,12 +111,15 @@
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type vm:LayerViewModel}">
                             <StackPanel Orientation="Horizontal">
+                                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
+                                <Rectangle 
+                                    Fill="DarkRed" Width="8" Margin="3,0" 
+                                    Visibility="{Binding ClipToMemberBelowEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <StackPanel>
                                     <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
                                 </StackPanel>
                                 <Border BorderBrush="Black" BorderThickness="1" Background="White" Width="25" Height="25" Margin="3,0,0,0">
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <DockPanel Margin="3, 0, 0, 0">

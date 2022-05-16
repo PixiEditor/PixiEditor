@@ -17,6 +17,44 @@ public static class OperationHelper
         return new(pixelPos.X * mult, pixelPos.Y * mult);
     }
 
+    /// <summary>
+    /// toModify[x,y].Alpha = Math.Min(toModify[x,y].Alpha, toGetAlphaFrom[x,y].Alpha)
+    /// </summary>
+    public unsafe static void ClampAlpha(SKSurface toModify, SKSurface toGetAlphaFrom)
+    {
+        using (var map = toModify.PeekPixels())
+        {
+            using (var refMap = toGetAlphaFrom.PeekPixels())
+            {
+                long* pixels = (long*)map.GetPixels();
+                long* refPixels = (long*)refMap.GetPixels();
+                int size = map.Width * map.Height;
+                if (map.Width != refMap.Width || map.Height != refMap.Height)
+                    throw new ArgumentException("The surfaces must have the same size");
+
+                for (int i = 0; i < size; i++)
+                {
+                    long* offset = pixels + i;
+                    long* refOffset = refPixels + i;
+                    Half* alpha = (Half*)offset + 3;
+                    Half* refAlpha = (Half*)refOffset + 3;
+                    if (*refAlpha < *alpha)
+                    {
+                        float a = (float)(*alpha);
+                        float r = (float)(*((Half*)offset)) / a;
+                        float g = (float)(*((Half*)offset + 1)) / a;
+                        float b = (float)(*((Half*)offset + 2)) / a;
+                        float newA = (float)(*refAlpha);
+                        Half newR = (Half)(r * newA);
+                        Half newG = (Half)(g * newA);
+                        Half newB = (Half)(b * newA);
+                        *offset = ((long)*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
+                    }
+                }
+            }
+        }
+    }
+
     public static ShapeCorners ConvertForResolution(ShapeCorners corners, ChunkResolution resolution)
     {
         return new ShapeCorners()

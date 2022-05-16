@@ -86,6 +86,7 @@ internal class WriteableBitmapUpdater
                 case Size_ChangeInfo:
                 case StructureMemberMask_ChangeInfo:
                 case StructureMemberBlendMode_ChangeInfo:
+                case StructureMemberClipToMemberBelow_ChangeInfo:
                     AddAllChunks(affectedChunks);
                     break;
                 case StructureMemberOpacity_ChangeInfo opacityChangeInfo:
