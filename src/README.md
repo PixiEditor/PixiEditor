@@ -24,21 +24,18 @@ Decouples the state of a document from the UI.
     - [ ] Tests for everything related to the operation queueing
     - Operations
         - [x] Support for paints with different blending (replace vs. alpha compose)
-        - [ ] Image (basic done, needs rotation, scale, skew, perspective, etc.)
+        - [x] Image
         - [ ] ChunkyImage
-        - [ ] Rectangle (basic done, needs rotation support)
+        - [x] Rectangle
         - [ ] Ellipse
         - [ ] Line
-        - [ ] Fill
         - [ ] Draw pixels
-        - [ ] Translate everything
         - [x] Clear operation
         - [x] Clear region operation
         - [x] Resize canvas operation
-        - [ ] Resize image operation?
         - [x] Raster clip operation
         - [x] Lock tranparency operation
-        - [ ] Symmetry operation
+        - [x] Symmetry operation
         - Filters
             - [ ] Hue/Saturation/Value
             - [ ] Brightness/Contrast
@@ -47,6 +44,7 @@ Decouples the state of a document from the UI.
             - [ ] Replace color
 - ChangeableDocument/Renderer
     - [x] Basic Action->Change->ChangeInfo pipeline
+    - [ ] Code generation for Action/ChangeInfo boilerplate
     - Undo handling
         - [x] UpdateableChange class for changes requiring preview
         - [x] Handling for changes that don't change anything
@@ -64,7 +62,7 @@ Decouples the state of a document from the UI.
         - [x] Opacity/Visibility support
         - [x] Recursive rendering of folders
         - [x] Blending modes support
-        - [ ] Clip to layer below support
+        - [x] Clip to layer below support
         - [x] Layer mask support
         - [x] Low-res rendering
         - [x] Don't render chunks outside viewport
@@ -111,11 +109,11 @@ Decouples the state of a document from the UI.
         - [ ] Apply mask
 - ViewModel
     - [ ] Action filtering
-    - [ ] Transform overlay
-    - [x] Viewport movement as an action
-    - [x] Integrate viewport from PixiEditor
-    - [x] Rotate viewport
-    - [x] Flip viewport
+    - [x] Transform overlay
+    - [x] Symmetry overlay
+    - [x] Selection overlay
+    - [x] Viewport system
+    - [ ] New zoombox (touch fixes left)
     - [ ] Pipette tool
 
 ## Included cs projects (all wip, most features not implemented yet):
