@@ -4,174 +4,197 @@ using ChunkyImageLib.Operations;
 using OneOf;
 using OneOf.Types;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
 public static class ChunkRenderer
 {
-    private static SKPaint PaintToDrawChunksWith = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
     private static SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
     private static SKPaint ClippingPaint = new SKPaint() { BlendMode = SKBlendMode.DstIn };
-    public static Chunk RenderWholeStructure(VecI pos, ChunkResolution resolution, IReadOnlyFolder root)
+
+    public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI pos, ChunkResolution resolution, IReadOnlyFolder root)
     {
-        return RenderChunkRecursively(pos, resolution, 0, root, null);
+        using (RenderingContext context = new())
+            return MergeFolderContents(context, pos, resolution, root, new All());
     }
 
-    public static Chunk RenderSpecificLayers(VecI pos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> layers)
+    public static OneOf<Chunk, EmptyChunk> MergeChosenMembers(VecI pos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> members)
     {
-        return RenderChunkRecursively(pos, resolution, 0, root, layers);
+        using (RenderingContext context = new())
+            return MergeFolderContents(context, pos, resolution, root, members);
     }
 
-    private static SKBlendMode GetSKBlendMode(BlendMode blendMode)
+    private static OneOf<EmptyChunk, Chunk> RenderLayerWithMask
+        (RenderingContext context, Chunk targetChunk, VecI chunkPos, ChunkResolution resolution, IReadOnlyLayer layer, OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk)
     {
-        return blendMode switch
+        if (
+            clippingChunk.IsT1 ||
+            !layer.IsVisible ||
+            layer.Opacity == 0 ||
+            (layer.ReadOnlyMask is not null && !layer.ReadOnlyMask.LatestOrCommittedChunkExists(chunkPos))
+            )
+            return new EmptyChunk();
+
+        context.UpdateFromMember(layer);
+
+        Chunk renderingResult = Chunk.Create(resolution);
+        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
         {
-            BlendMode.Normal => SKBlendMode.SrcOver,
-            BlendMode.Darken => SKBlendMode.Darken,
-            BlendMode.Multiply => SKBlendMode.Multiply,
-            BlendMode.ColorBurn => SKBlendMode.ColorBurn,
-            BlendMode.Lighten => SKBlendMode.Lighten,
-            BlendMode.Screen => SKBlendMode.Screen,
-            BlendMode.ColorDodge => SKBlendMode.ColorDodge,
-            BlendMode.LinearDodge => SKBlendMode.Plus,
-            BlendMode.Overlay => SKBlendMode.Overlay,
-            BlendMode.SoftLight => SKBlendMode.SoftLight,
-            BlendMode.HardLight => SKBlendMode.HardLight,
-            BlendMode.Difference => SKBlendMode.Difference,
-            BlendMode.Exclusion => SKBlendMode.Exclusion,
-            BlendMode.Hue => SKBlendMode.Hue,
-            BlendMode.Saturation => SKBlendMode.Saturation,
-            BlendMode.Luminosity => SKBlendMode.Luminosity,
-            BlendMode.Color => SKBlendMode.Color,
-            _ => SKBlendMode.SrcOver,
-        };
+            renderingResult.Dispose();
+            return new EmptyChunk();
+        }
+
+        if (!layer.ReadOnlyMask!.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), ClippingPaint))
+        {
+            // should pretty much never happen due to the check above, but you can never be sure with many threads
+            renderingResult.Dispose();
+            return new EmptyChunk();
+        }
+
+        if (clippingChunk.IsT2)
+            OperationHelper.ClampAlpha(renderingResult.Surface.SkiaSurface, clippingChunk.AsT2.Surface.SkiaSurface);
+
+        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(renderingResult.Surface.SkiaSurface, 0, 0, context.BlendModePaint);
+        return renderingResult;
     }
 
-    private static Chunk RenderChunkRecursively(VecI chunkPos, ChunkResolution resolution, int depth, IReadOnlyFolder folder, HashSet<Guid>? visibleLayers)
+    private static OneOf<EmptyChunk, Chunk> RenderLayerSaveResult
+        (RenderingContext context, Chunk targetChunk, VecI chunkPos, ChunkResolution resolution, IReadOnlyLayer layer, OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk)
     {
-        // if you are a skilled programmer any problem can be solved with enough if/else statements
+        if (clippingChunk.IsT1 || !layer.IsVisible || layer.Opacity == 0)
+            return new EmptyChunk();
+
+        if (layer.ReadOnlyMask is not null)
+            return RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
+
+        context.UpdateFromMember(layer);
+        Chunk renderingResult = Chunk.Create(resolution);
+        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
+        {
+            renderingResult.Dispose();
+            return new EmptyChunk();
+        }
+
+        if (clippingChunk.IsT2)
+            OperationHelper.ClampAlpha(renderingResult.Surface.SkiaSurface, clippingChunk.AsT2.Surface.SkiaSurface);
+        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(renderingResult.Surface.SkiaSurface, 0, 0, context.BlendModePaint);
+        return renderingResult;
+    }
+
+    private static void RenderLayer
+        (RenderingContext context, Chunk targetChunk, VecI chunkPos, ChunkResolution resolution, IReadOnlyLayer layer, OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk)
+    {
+        if (clippingChunk.IsT1 || !layer.IsVisible || layer.Opacity == 0)
+            return;
+        if (layer.ReadOnlyMask is not null)
+        {
+            var result = RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
+            if (result.IsT1)
+                result.AsT1.Dispose();
+            return;
+        }
+        // clipping chunk requires a temp chunk anyway so we could as well reuse the code from RenderLayerSaveResult
+        if (clippingChunk.IsT2)
+        {
+            var result = RenderLayerSaveResult(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
+            if (result.IsT1)
+                result.AsT1.Dispose();
+            return;
+        }
+        context.UpdateFromMember(layer);
+        layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), context.BlendModeOpacityPaint);
+    }
+
+    private static OneOf<EmptyChunk, Chunk> RenderFolder(
+        RenderingContext context,
+        Chunk targetChunk,
+        VecI chunkPos,
+        ChunkResolution resolution,
+        IReadOnlyFolder folder,
+        OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk,
+        OneOf<All, HashSet<Guid>> membersToMerge)
+    {
+        if (
+            clippingChunk.IsT1 ||
+            !folder.IsVisible ||
+            folder.Opacity == 0 ||
+            folder.ReadOnlyChildren.Count == 0 ||
+            (folder.ReadOnlyMask is not null && !folder.ReadOnlyMask.LatestOrCommittedChunkExists(chunkPos))
+            )
+            return new EmptyChunk();
+
+        OneOf<Chunk, EmptyChunk> maybeContents = MergeFolderContents(context, chunkPos, resolution, folder, membersToMerge);
+        if (maybeContents.IsT1)
+            return new EmptyChunk();
+        Chunk contents = maybeContents.AsT0;
+
+        if (folder.ReadOnlyMask is not null)
+        {
+            if (!folder.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.SkiaSurface, new(0, 0), ClippingPaint))
+            {
+                // this shouldn't really happen due to the check above, but another thread could edit the mask in the meantime
+                contents.Dispose();
+                return new EmptyChunk();
+            }
+        }
+
+        if (clippingChunk.IsT2)
+            OperationHelper.ClampAlpha(contents.Surface.SkiaSurface, clippingChunk.AsT2.Surface.SkiaSurface);
+        context.UpdateFromMember(folder);
+        contents.Surface.SkiaSurface.Canvas.DrawSurface(contents.Surface.SkiaSurface, 0, 0, context.ReplacingPaintWithOpacity);
+        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(contents.Surface.SkiaSurface, 0, 0, context.BlendModePaint);
+
+        return contents;
+    }
+
+    private static OneOf<Chunk, EmptyChunk> MergeFolderContents(
+        RenderingContext context,
+        VecI chunkPos,
+        ChunkResolution resolution,
+        IReadOnlyFolder folder,
+        OneOf<All, HashSet<Guid>> membersToMerge)
+    {
+        if (folder.ReadOnlyChildren.Count == 0)
+            return new EmptyChunk();
+
+        // clipping to member below doesn't make sense if we are skipping some of them
+        bool ignoreClipToBelow = membersToMerge.IsT1;
+
         Chunk targetChunk = Chunk.Create(resolution);
         targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
-        //<clipping Chunk; None to clip with (fully masked out); No active clip>
-        OneOf<Chunk, None, No> clippingChunk = new No();
+        OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk = new FilledChunk();
         for (int i = 0; i < folder.ReadOnlyChildren.Count; i++)
         {
             var child = folder.ReadOnlyChildren[i];
 
             // next child might use clip to member below in which case we need to save the clip image
-            bool needToSaveClip =
+            bool needToSaveClippingChunk =
+                !ignoreClipToBelow &&
                 i < folder.ReadOnlyChildren.Count - 1 &&
                 !child.ClipToMemberBelow &&
                 folder.ReadOnlyChildren[i + 1].ClipToMemberBelow;
-            bool clipActiveWithReference = (clippingChunk.IsT0 || clippingChunk.IsT1) && child.ClipToMemberBelow;
-            if (!child.ClipToMemberBelow && !clippingChunk.IsT2)
-            {
-                if (clippingChunk.IsT0)
-                    clippingChunk.AsT0.Dispose();
-                clippingChunk = new No();
-            }
 
-            if (!child.IsVisible)
+            // if the current member doesn't need a clip, get rid of it
+            if (!child.ClipToMemberBelow && !clippingChunk.IsT0)
             {
-                if (needToSaveClip)
-                    clippingChunk = new None();
-                continue;
-            }
-
-            //// actual drawing
-            // chunk fully masked out
-            if (child.ReadOnlyMask is not null && !child.ReadOnlyMask.LatestOrCommittedChunkExists(chunkPos))
-            {
-                if (needToSaveClip)
-                    clippingChunk = new None();
-                continue;
+                if (clippingChunk.IsT2)
+                    clippingChunk.AsT2.Dispose();
+                clippingChunk = new FilledChunk();
             }
 
             // layer
-            if (child is IReadOnlyLayer layer && (visibleLayers is null || visibleLayers.Contains(layer.GuidValue)))
+            if (child is IReadOnlyLayer layer && (membersToMerge.IsT0 || membersToMerge.AsT1.Contains(layer.GuidValue)))
             {
-                // no mask
-                if (layer.ReadOnlyMask is null)
+                if (needToSaveClippingChunk)
                 {
-                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
-                    PaintToDrawChunksWith.BlendMode = GetSKBlendMode(layer.BlendMode);
-                    // draw while saving clip for later
-                    if (needToSaveClip)
-                    {
-                        var clip = Chunk.Create(resolution);
-                        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, clip.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
-                        {
-                            clip.Dispose();
-                            clippingChunk = new None();
-                            continue;
-                        }
-                        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(clip.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
-                        clippingChunk = clip;
-                    }
-                    // draw using saved clip
-                    else if (clipActiveWithReference)
-                    {
-                        if (clippingChunk.IsT1)
-                            continue;
-                        using var tempChunk = Chunk.Create();
-                        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn
-                            (chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
-                            continue;
-                        OperationHelper.ClampAlpha(tempChunk.Surface.SkiaSurface, clippingChunk.AsT0.Surface.SkiaSurface);
-                        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(tempChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
-                    }
-                    // just draw
-                    else
-                    {
-                        layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn
-                            (chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
-                    }
+                    OneOf<EmptyChunk, Chunk> result = RenderLayerSaveResult(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
+                    clippingChunk = result.IsT0 ? result.AsT0 : result.AsT1;
                 }
-                // with mask
                 else
                 {
-                    PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
-                    PaintToDrawChunksWith.BlendMode = GetSKBlendMode(layer.BlendMode);
-                    // draw while saving clip
-                    if (needToSaveClip)
-                    {
-                        Chunk tempChunk = Chunk.Create(resolution);
-                        // this chunk is empty
-                        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
-                        {
-                            tempChunk.Dispose();
-                            clippingChunk = new None();
-                            continue;
-                        }
-                        // this chunk is not empty
-                        layer.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(tempChunk.Surface.SkiaSurface, 0, 0, PaintToDrawChunksWith);
-                        clippingChunk = tempChunk;
-                    }
-                    // draw using saved clip
-                    else if (clipActiveWithReference)
-                    {
-                        if (clippingChunk.IsT1)
-                            continue;
-                        using Chunk tempChunk = Chunk.Create(resolution);
-                        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
-                            continue;
-                        layer.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                        OperationHelper.ClampAlpha(tempChunk.Surface.SkiaSurface, clippingChunk.AsT0.Surface.SkiaSurface);
-                        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(tempChunk.Surface.SkiaSurface, 0, 0, PaintToDrawChunksWith);
-                    }
-                    // just draw
-                    else
-                    {
-                        using Chunk tempChunk = Chunk.Create(resolution);
-                        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
-                            continue;
-                        layer.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(tempChunk.Surface.SkiaSurface, 0, 0, PaintToDrawChunksWith);
-                    }
+                    RenderLayer(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
                 }
                 continue;
             }
@@ -179,45 +202,22 @@ public static class ChunkRenderer
             // folder
             if (child is IReadOnlyFolder innerFolder)
             {
-                PaintToDrawChunksWith.Color = new SKColor(255, 255, 255, (byte)Math.Round(child.Opacity * 255));
-                PaintToDrawChunksWith.BlendMode = GetSKBlendMode(innerFolder.BlendMode);
-
-                // draw while saving clip
-                if (needToSaveClip)
+                bool shouldRenderAllChildren = membersToMerge.IsT0 || membersToMerge.AsT1.Contains(innerFolder.GuidValue);
+                OneOf<All, HashSet<Guid>> innerMembersToMerge = shouldRenderAllChildren ? new All() : membersToMerge;
+                if (needToSaveClippingChunk)
                 {
-                    Chunk renderedChunk = RenderChunkRecursively(chunkPos, resolution, depth + 1, innerFolder, visibleLayers);
-                    if (innerFolder.ReadOnlyMask is not null)
-                        innerFolder.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, renderedChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-
-                    renderedChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
-                    clippingChunk = renderedChunk;
-                    continue;
+                    OneOf<EmptyChunk, Chunk> result = RenderFolder(context, targetChunk, chunkPos, resolution, innerFolder, clippingChunk, innerMembersToMerge);
+                    clippingChunk = result.IsT0 ? result.AsT0 : result.AsT1;
                 }
-                // draw using saved clip
-                else if (clipActiveWithReference)
-                {
-                    if (clippingChunk.IsT1)
-                        continue;
-                    using Chunk renderedChunk = RenderChunkRecursively(chunkPos, resolution, depth + 1, innerFolder, visibleLayers);
-                    if (innerFolder.ReadOnlyMask is not null)
-                        innerFolder.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, renderedChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                    OperationHelper.ClampAlpha(renderedChunk.Surface.SkiaSurface, clippingChunk.AsT0.Surface.SkiaSurface);
-                    renderedChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
-                    continue;
-                }
-                // just draw
                 else
                 {
-                    using Chunk renderedChunk = RenderChunkRecursively(chunkPos, resolution, depth + 1, innerFolder, visibleLayers);
-                    if (innerFolder.ReadOnlyMask is not null)
-                        innerFolder.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, renderedChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-                    renderedChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), PaintToDrawChunksWith);
-                    continue;
+                    RenderFolder(context, targetChunk, chunkPos, resolution, innerFolder, clippingChunk, innerMembersToMerge);
                 }
+                continue;
             }
         }
-        if (clippingChunk.IsT0)
-            clippingChunk.AsT0.Dispose();
+        if (clippingChunk.IsT2)
+            clippingChunk.AsT2.Dispose();
         return targetChunk;
     }
 }

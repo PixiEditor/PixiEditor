@@ -30,7 +30,7 @@ internal class DeleteStructureMember_Change : Change
         parent.Children.Remove(member);
         member.Dispose();
         ignoreInUndo = false;
-        return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid };
+        return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentGuid = parentGuid };
     }
 
     public override IChangeInfo Revert(Document doc)

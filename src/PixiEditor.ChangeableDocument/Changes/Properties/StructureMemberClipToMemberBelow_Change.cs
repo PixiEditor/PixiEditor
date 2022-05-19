@@ -31,7 +31,7 @@ internal class StructureMemberClipToMemberBelow_Change : Change
         var member = target.FindMemberOrThrow(memberGuid);
         member.ClipToMemberBelow = newValue;
         ignoreInUndo = false;
-        return new StructureMemberClipToMemberBelow_ChangeInfo() { MemberGuid = memberGuid };
+        return new StructureMemberClipToMemberBelow_ChangeInfo() { GuidValue = memberGuid };
     }
 
     public override IChangeInfo? Revert(Document target)
@@ -40,7 +40,7 @@ internal class StructureMemberClipToMemberBelow_Change : Change
             return null;
         var member = target.FindMemberOrThrow(memberGuid);
         member.ClipToMemberBelow = originalValue;
-        return new StructureMemberClipToMemberBelow_ChangeInfo() { MemberGuid = memberGuid };
+        return new StructureMemberClipToMemberBelow_ChangeInfo() { GuidValue = memberGuid };
     }
 
     public override bool IsMergeableWith(Change other)

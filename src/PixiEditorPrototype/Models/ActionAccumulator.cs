@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
@@ -49,31 +50,47 @@ internal class ActionAccumulator
 
         while (queuedActions.Count > 0)
         {
+            // select actions to be processed
             var toExecute = queuedActions;
             queuedActions = new List<IAction>();
 
-            List<IChangeInfo?> result = AreAllPassthrough(toExecute) ?
-                toExecute.Select(a => (IChangeInfo?)a).ToList() :
-                await helpers.Tracker.ProcessActions(toExecute);
+            // pass them to changeabledocument for processing
+            List<IChangeInfo?> changes;
+            if (AreAllPassthrough(toExecute))
+                changes = toExecute.Select(a => (IChangeInfo?)a).ToList();
+            else
+                changes = await helpers.Tracker.ProcessActions(toExecute);
 
-            foreach (IChangeInfo? info in result)
+            // update viewmodels based on changes
+            foreach (IChangeInfo? info in changes)
             {
                 helpers.Updater.ApplyChangeFromChangeInfo(info);
             }
+
+            // lock bitmaps that need to be updated
+            var affectedChunks = new AffectedChunkGatherer(helpers.Tracker, changes);
 
             foreach (var (_, bitmap) in document.Bitmaps)
             {
                 bitmap.Lock();
             }
+            bool refreshPreviews = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+            if (refreshPreviews)
+                LockPreviewBitmaps(document.StructureRoot);
 
-            var renderResult = await renderer.ProcessChanges(result);
+            // update bitmaps
+            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, refreshPreviews);
             AddDirtyRects(renderResult);
 
+            // unlock bitmaps
             foreach (var (_, bitmap) in document.Bitmaps)
             {
                 bitmap.Unlock();
             }
+            if (refreshPreviews)
+                UnlockPreviewBitmaps(document.StructureRoot);
 
+            // force refresh viewports for better responsiveness
             foreach (var (_, value) in helpers.State.Viewports)
             {
                 value.InvalidateVisual();
@@ -93,18 +110,64 @@ internal class ActionAccumulator
         return true;
     }
 
+    private void LockPreviewBitmaps(FolderViewModel root)
+    {
+        foreach (var child in root.Children)
+        {
+            child.PreviewBitmap.Lock();
+            if (child.MaskPreviewBitmap is not null)
+                child.MaskPreviewBitmap.Lock();
+            if (child is FolderViewModel innerFolder)
+                LockPreviewBitmaps(innerFolder);
+        }
+    }
+
+    private void UnlockPreviewBitmaps(FolderViewModel root)
+    {
+        foreach (var child in root.Children)
+        {
+            child.PreviewBitmap.Unlock();
+            if (child.MaskPreviewBitmap is not null)
+                child.MaskPreviewBitmap.Unlock();
+            if (child is FolderViewModel innerFolder)
+                UnlockPreviewBitmaps(innerFolder);
+        }
+    }
+
     private void AddDirtyRects(List<IRenderInfo> changes)
     {
-        foreach (IRenderInfo info in changes)
+        foreach (IRenderInfo renderInfo in changes)
         {
-            if (info is not DirtyRect_RenderInfo dirtyRectInfo)
-                continue;
-            var bitmap = document.Bitmaps[dirtyRectInfo.Resolution];
-            SKRectI finalRect = SKRectI.Create(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
+            switch (renderInfo)
+            {
+                case DirtyRect_RenderInfo info:
+                    {
+                        var bitmap = document.Bitmaps[info.Resolution];
+                        SKRectI finalRect = SKRectI.Create(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
 
-            SKRectI dirtyRect = SKRectI.Create(dirtyRectInfo.Pos, dirtyRectInfo.Size);
-            dirtyRect.Intersect(finalRect);
-            bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
+                        SKRectI dirtyRect = SKRectI.Create(info.Pos, info.Size);
+                        dirtyRect.Intersect(finalRect);
+                        bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
+                    }
+                    break;
+                case PreviewDirty_RenderInfo info:
+                    {
+                        var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.PreviewBitmap;
+                        if (bitmap is null)
+                            continue;
+                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+                    }
+                    break;
+                case MaskPreviewDirty_RenderInfo info:
+                    {
+                        var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.MaskPreviewBitmap;
+                        if (bitmap is null)
+                            continue;
+                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+                    }
+                    break;
+            }
         }
+
     }
 }

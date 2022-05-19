@@ -47,6 +47,6 @@ internal class CreateStructureMember_Change : Change
         child.Dispose();
         folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
 
-        return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
+        return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid, ParentGuid = parentFolderGuid };
     }
 }

@@ -2,7 +2,6 @@
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
-using OneOf.Types;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
@@ -582,7 +581,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             return;
 
         Chunk? targetChunk = null;
-        OneOf<All, None, Chunk> combinedClips = new All();
+        OneOf<FilledChunk, EmptyChunk, Chunk> combinedClips = new FilledChunk();
 
         bool initialized = false;
 
@@ -619,18 +618,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             value.Dispose();
     }
 
-    /// <summary>
-    /// (All) -> All is visible, (None) -> None is visible, (Chunk) -> Combined clip
-    /// </summary>
-    private OneOf<All, None, Chunk> CombineClipsForChunk(VecI chunkPos, ChunkResolution resolution)
+    private OneOf<FilledChunk, EmptyChunk, Chunk> CombineClipsForChunk(VecI chunkPos, ChunkResolution resolution)
     {
         if (lockTransparency && MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is null)
         {
-            return new None();
+            return new EmptyChunk();
         }
         if (activeClips.Count == 0)
         {
-            return new All();
+            return new FilledChunk();
         }
 
         var intersection = Chunk.Create(resolution);
@@ -645,7 +641,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             else
             {
                 intersection.Dispose();
-                return new None();
+                return new EmptyChunk();
             }
         }
         return intersection;
@@ -656,7 +652,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// </returns>
     private bool ApplyOperationToChunk(
         IOperation operation,
-        OneOf<All, None, Chunk> combinedClips,
+        OneOf<FilledChunk, EmptyChunk, Chunk> combinedClips,
         Chunk targetChunk,
         VecI chunkPos,
         ChunkResolution resolution,
@@ -667,14 +663,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         if (operation is IDrawOperation chunkOperation)
         {
-            if (combinedClips.IsT1) //None is visible
+            if (combinedClips.IsT1) //Nothing is visible
                 return chunkData.IsDeleted;
 
             if (chunkData.IsDeleted)
                 targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
             // just regular drawing
-            if (combinedClips.IsT0) //All is visible
+            if (combinedClips.IsT0) //Everything is visible
             {
                 chunkOperation.DrawOnChunk(targetChunk, chunkPos);
                 return false;

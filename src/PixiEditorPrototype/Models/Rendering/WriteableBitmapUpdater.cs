@@ -4,12 +4,8 @@ using System.Threading.Tasks;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using OneOf;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
-using PixiEditor.ChangeableDocument.ChangeInfos.Root;
-using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using PixiEditorPrototype.ViewModels;
@@ -27,7 +23,7 @@ internal class WriteableBitmapUpdater
     private static readonly SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
     private static readonly SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
-    private readonly Dictionary<ChunkResolution, HashSet<VecI>> postponedChunks = new()
+    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalPostponedChunks = new()
     {
         [ChunkResolution.Full] = new(),
         [ChunkResolution.Half] = new(),
@@ -35,82 +31,25 @@ internal class WriteableBitmapUpdater
         [ChunkResolution.Eighth] = new()
     };
 
+    private Dictionary<Guid, HashSet<VecI>> previewPostponedChunks = new();
+    private Dictionary<Guid, HashSet<VecI>> maskPostponedChunks = new();
+
     public WriteableBitmapUpdater(DocumentViewModel doc, DocumentHelpers helpers)
     {
         this.doc = doc;
         this.helpers = helpers;
     }
 
-    public async Task<List<IRenderInfo>> ProcessChanges(IReadOnlyList<IChangeInfo?> changes)
+    public async Task<List<IRenderInfo>> UpdateGatheredChunks(AffectedChunkGatherer chunkGatherer, bool updatePreviews)
     {
-        return await Task.Run(() => Render(changes)).ConfigureAwait(true);
+        return await Task.Run(() => Render(chunkGatherer, updatePreviews)).ConfigureAwait(true);
     }
 
-    public List<IRenderInfo> ProcessChangesSync(IReadOnlyList<IChangeInfo?> changes)
+    private Dictionary<ChunkResolution, HashSet<VecI>> FindGlobalChunksToRerender(AffectedChunkGatherer chunkGatherer)
     {
-        return Render(changes);
-    }
-
-    private Dictionary<ChunkResolution, HashSet<VecI>> FindChunksToRerender(IReadOnlyList<IChangeInfo?> changes)
-    {
-        HashSet<VecI> affectedChunks = new();
-        foreach (var change in changes)
+        foreach (var (_, postponed) in globalPostponedChunks)
         {
-            switch (change)
-            {
-                case MaskChunks_ChangeInfo maskChunks:
-                    if (maskChunks.Chunks is null)
-                        throw new InvalidOperationException("Chunks must not be null");
-                    affectedChunks.UnionWith(maskChunks.Chunks);
-                    break;
-                case LayerImageChunks_ChangeInfo layerImageChunks:
-                    if (layerImageChunks.Chunks is null)
-                        throw new InvalidOperationException("Chunks must not be null");
-                    affectedChunks.UnionWith(layerImageChunks.Chunks);
-                    break;
-                case Selection_ChangeInfo selection:
-                    if (helpers.Tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
-                    {
-                        AddAllChunks(affectedChunks);
-                    }
-                    else
-                    {
-                        if (selection.Chunks is null)
-                            throw new InvalidOperationException("Chunks must not be null");
-                        affectedChunks.UnionWith(selection.Chunks);
-                    }
-                    break;
-                case CreateStructureMember_ChangeInfo:
-                case DeleteStructureMember_ChangeInfo:
-                case MoveStructureMember_ChangeInfo:
-                case Size_ChangeInfo:
-                case StructureMemberMask_ChangeInfo:
-                case StructureMemberBlendMode_ChangeInfo:
-                case StructureMemberClipToMemberBelow_ChangeInfo:
-                    AddAllChunks(affectedChunks);
-                    break;
-                case StructureMemberOpacity_ChangeInfo opacityChangeInfo:
-                    var memberWithOpacity = helpers.Tracker.Document.FindMemberOrThrow(opacityChangeInfo.GuidValue);
-                    if (memberWithOpacity is IReadOnlyLayer layerWithOpacity)
-                        affectedChunks.UnionWith(layerWithOpacity.ReadOnlyLayerImage.FindAllChunks());
-                    else
-                        AddAllChunks(affectedChunks);
-                    break;
-                case StructureMemberIsVisible_ChangeInfo visibilityChangeInfo:
-                    var memberWithVisibility = helpers.Tracker.Document.FindMemberOrThrow(visibilityChangeInfo.GuidValue);
-                    if (memberWithVisibility is IReadOnlyLayer layerWithVisibility)
-                        affectedChunks.UnionWith(layerWithVisibility.ReadOnlyLayerImage.FindAllChunks());
-                    else
-                        AddAllChunks(affectedChunks);
-                    break;
-                case RefreshViewport_PassthroughAction moveViewportInfo:
-                    break;
-            }
-        }
-
-        foreach (var (_, postponed) in postponedChunks)
-        {
-            postponed.UnionWith(affectedChunks);
+            postponed.UnionWith(chunkGatherer.mainImageChunks);
         }
 
         var chunksOnScreen = new Dictionary<ChunkResolution, HashSet<VecI>>()
@@ -131,7 +70,7 @@ internal class WriteableBitmapUpdater
             chunksOnScreen[viewport.Resolution].UnionWith(viewportChunks);
         }
 
-        foreach (var (res, postponed) in postponedChunks)
+        foreach (var (res, postponed) in globalPostponedChunks)
         {
             chunksOnScreen[res].IntersectWith(postponed);
             postponed.ExceptWith(chunksOnScreen[res]);
@@ -140,26 +79,119 @@ internal class WriteableBitmapUpdater
         return chunksOnScreen;
     }
 
-    private void AddAllChunks(HashSet<VecI> chunks)
+
+    private static void AddChunks(Dictionary<Guid, HashSet<VecI>> from, Dictionary<Guid, HashSet<VecI>> to)
     {
-        VecI size = new(
-            (int)Math.Ceiling(helpers.Tracker.Document.Size.X / (float)ChunkyImage.ChunkSize),
-            (int)Math.Ceiling(helpers.Tracker.Document.Size.Y / (float)ChunkyImage.ChunkSize));
-        for (int i = 0; i < size.X; i++)
+        foreach ((Guid guid, HashSet<VecI> chunks) in from)
         {
-            for (int j = 0; j < size.Y; j++)
+            if (!to.ContainsKey(guid))
+                to[guid] = new HashSet<VecI>();
+            to[guid].UnionWith(chunks);
+        }
+    }
+    private (Dictionary<Guid, HashSet<VecI>> image, Dictionary<Guid, HashSet<VecI>> mask) FindPreviewChunksToRerender
+        (AffectedChunkGatherer chunkGatherer, bool postpone)
+    {
+        AddChunks(chunkGatherer.imagePreviewChunks, previewPostponedChunks);
+        AddChunks(chunkGatherer.maskPreviewChunks, maskPostponedChunks);
+        if (postpone)
+            return (new(), new());
+        var result = (previewPostponedChunks, maskPostponedChunks);
+        previewPostponedChunks = new();
+        maskPostponedChunks = new();
+        return result;
+    }
+
+    private List<IRenderInfo> Render(AffectedChunkGatherer chunkGatherer, bool updatePreviews)
+    {
+        Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender = FindGlobalChunksToRerender(chunkGatherer);
+
+        List<IRenderInfo> infos = new();
+        UpdateMainImage(chunksToRerender, infos);
+
+        var (imagePreviewChunksToRerender, maskPreviewChunksToRerender) = FindPreviewChunksToRerender(chunkGatherer, !updatePreviews);
+        var previewSize = StructureMemberViewModel.CalculatePreviewSize(helpers.Tracker.Document.Size);
+        float scaling = (float)previewSize.X / doc.Width;
+        UpdateImagePreviews(imagePreviewChunksToRerender, scaling, infos);
+        UpdateMaskPreviews(maskPreviewChunksToRerender, scaling, infos);
+
+        return infos;
+    }
+
+    private void UpdateImagePreviews(Dictionary<Guid, HashSet<VecI>> imagePreviewChunks, float scaling, List<IRenderInfo> infos)
+    {
+        foreach (var (guid, chunks) in imagePreviewChunks)
+        {
+            var memberVM = helpers.StructureHelper.Find(guid);
+            if (memberVM is null)
+                continue;
+            var member = helpers.Tracker.Document.FindMemberOrThrow(guid);
+
+            memberVM.PreviewSurface.Canvas.Save();
+            memberVM.PreviewSurface.Canvas.Scale(scaling);
+            if (memberVM is LayerViewModel)
             {
-                chunks.Add(new(i, j));
+                var layer = (IReadOnlyLayer)member;
+                foreach (var chunk in chunks)
+                {
+                    var pos = chunk * ChunkResolution.Full.PixelSize();
+                    // the full res chunks are already rendered so drawing them again should be fast
+                    layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn
+                        (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, ReplacingPaint);
+                }
+                infos.Add(new PreviewDirty_RenderInfo(guid));
             }
+            else if (memberVM is FolderViewModel)
+            {
+                var folder = (IReadOnlyFolder)member;
+                foreach (var chunk in chunks)
+                {
+                    var pos = chunk * ChunkResolution.Full.PixelSize();
+                    // drawing in full res here is kinda slow
+                    // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
+                    OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder);
+                    if (rendered.IsT0)
+                    {
+                        memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.SkiaSurface, pos, ReplacingPaint);
+                        rendered.AsT0.Dispose();
+                    }
+                    else
+                    {
+                        memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(), ChunkResolution.Full.PixelSize(), ClearPaint);
+                    }
+                }
+                infos.Add(new PreviewDirty_RenderInfo(guid));
+            }
+            memberVM.PreviewSurface.Canvas.Restore();
         }
     }
 
-    private List<IRenderInfo> Render(IReadOnlyList<IChangeInfo?> changes)
+    private void UpdateMaskPreviews(Dictionary<Guid, HashSet<VecI>> maskPreviewChunks, float scaling, List<IRenderInfo> infos)
     {
-        Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender = FindChunksToRerender(changes);
+        foreach (var (guid, chunks) in maskPreviewChunks)
+        {
+            var memberVM = helpers.StructureHelper.Find(guid);
+            if (memberVM is null || !memberVM.HasMask)
+                continue;
 
-        List<IRenderInfo> infos = new();
+            var member = helpers.Tracker.Document.FindMemberOrThrow(guid);
+            memberVM.MaskPreviewSurface!.Canvas.Save();
+            memberVM.MaskPreviewSurface.Canvas.Scale(scaling);
 
+            foreach (var chunk in chunks)
+            {
+                var pos = chunk * ChunkResolution.Full.PixelSize();
+                member.ReadOnlyMask!.DrawMostUpToDateChunkOn
+                    (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface, pos, ReplacingPaint);
+            }
+
+            memberVM.MaskPreviewSurface.Canvas.Restore();
+            infos.Add(new MaskPreviewDirty_RenderInfo(guid));
+        }
+    }
+
+    private void UpdateMainImage(Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender, List<IRenderInfo> infos)
+    {
         foreach (var (resolution, chunks) in chunksToRerender)
         {
             int chunkSize = resolution.PixelSize();
@@ -174,19 +206,20 @@ internal class WriteableBitmapUpdater
                     ));
             }
         }
-
-        return infos;
     }
 
     private void RenderChunk(VecI chunkPos, SKSurface screenSurface, ChunkResolution resolution)
     {
-        using Chunk renderedChunk = ChunkRenderer.RenderWholeStructure(chunkPos, resolution, helpers.Tracker.Document.ReadOnlyStructureRoot);
-
-        screenSurface.Canvas.DrawSurface(renderedChunk.Surface.SkiaSurface, chunkPos.Multiply(renderedChunk.PixelSize), ReplacingPaint);
-
-        if (helpers.Tracker.Document.ReadOnlySelection.ReadOnlyIsEmptyAndInactive)
-            return;
-
-        helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionImage.DrawMostUpToDateChunkOn(chunkPos, resolution, screenSurface, chunkPos * resolution.PixelSize(), SelectionPaint);
+        ChunkRenderer.MergeWholeStructure(chunkPos, resolution, helpers.Tracker.Document.ReadOnlyStructureRoot).Switch(
+            (Chunk chunk) =>
+            {
+                screenSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
+                chunk.Dispose();
+            },
+            (EmptyChunk chunk) =>
+            {
+                var pos = chunkPos * resolution.PixelSize();
+                screenSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(), resolution.PixelSize(), ClearPaint);
+            });
     }
 }

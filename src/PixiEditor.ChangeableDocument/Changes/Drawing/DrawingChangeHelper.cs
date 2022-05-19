@@ -46,12 +46,12 @@ internal static class DrawingChangeHelper
             false => new LayerImageChunks_ChangeInfo()
             {
                 Chunks = affectedChunks,
-                LayerGuid = memberGuid
+                GuidValue = memberGuid
             },
             true => new MaskChunks_ChangeInfo()
             {
                 Chunks = affectedChunks,
-                MemberGuid = memberGuid
+                GuidValue = memberGuid
             },
         };
     }

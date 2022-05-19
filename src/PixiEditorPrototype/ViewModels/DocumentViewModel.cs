@@ -45,6 +45,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
         [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
     };
 
+    public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public void RaisePropertyChanged(string name)
@@ -89,9 +91,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
         get => Helpers.Tracker.Document.VerticalSymmetryAxisEnabled;
         set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
     }
-
-    public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
-
 
     public int ResizeWidth { get; set; }
     public int ResizeHeight { get; set; }

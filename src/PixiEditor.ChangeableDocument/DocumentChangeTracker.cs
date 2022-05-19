@@ -180,7 +180,7 @@ public class DocumentChangeTracker : IDisposable
         return info;
     }
 
-    private List<IChangeInfo?> ProcessActionList(List<IAction> actions)
+    private List<IChangeInfo?> ProcessActionList(IReadOnlyList<IAction> actions)
     {
         List<IChangeInfo?> changeInfos = new();
         foreach (var action in actions)
@@ -217,7 +217,7 @@ public class DocumentChangeTracker : IDisposable
         return changeInfos;
     }
 
-    public async Task<List<IChangeInfo?>> ProcessActions(List<IAction> actions)
+    public async Task<List<IChangeInfo?>> ProcessActions(IReadOnlyList<IAction> actions)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));
@@ -229,7 +229,7 @@ public class DocumentChangeTracker : IDisposable
         return result;
     }
 
-    public List<IChangeInfo?> ProcessActionsSync(List<IAction> actions)
+    public List<IChangeInfo?> ProcessActionsSync(IReadOnlyList<IAction> actions)
     {
         if (disposed)
             throw new ObjectDisposedException(nameof(DocumentChangeTracker));

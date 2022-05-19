@@ -85,7 +85,7 @@ internal class DocumentUpdater
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
     {
-        var member = helper.StructureHelper.FindOrThrow(info.MemberGuid);
+        var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
         member.RaisePropertyChanged(nameof(member.ClipToMemberBelowEnabled));
     }
 
@@ -125,7 +125,17 @@ internal class DocumentUpdater
     private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
     {
         var memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        memberVm.MaskPreviewSurface?.Dispose();
+        memberVm.MaskPreviewSurface = null;
+        memberVm.MaskPreviewBitmap = null;
+        var size = StructureMemberViewModel.CalculatePreviewSize(new(doc.Width, doc.Height));
+        if (memberVm.HasMask)
+        {
+            memberVm.MaskPreviewBitmap = CreateBitmap(size);
+            memberVm.MaskPreviewSurface = CreateSKSurface(memberVm.MaskPreviewBitmap);
+        }
         memberVm.RaisePropertyChanged(nameof(memberVm.HasMask));
+        memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
     }
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
@@ -136,6 +146,32 @@ internal class DocumentUpdater
     private void ProcessRemoveViewport(RemoveViewport_PassthroughAction info)
     {
         helper.State.Viewports.Remove(info.GuidValue);
+    }
+
+    private void UpdateMemberBitmapsRecursively(FolderViewModel folder, VecI newSize)
+    {
+        foreach (var member in folder.Children)
+        {
+            member.PreviewSurface.Dispose();
+            member.PreviewBitmap = CreateBitmap(newSize);
+            member.PreviewSurface = CreateSKSurface(member.PreviewBitmap);
+            member.RaisePropertyChanged(nameof(member.PreviewBitmap));
+
+            member.MaskPreviewSurface?.Dispose();
+            member.MaskPreviewSurface = null;
+            member.MaskPreviewBitmap = null;
+            if (member.HasMask)
+            {
+                member.MaskPreviewBitmap = CreateBitmap(newSize);
+                member.MaskPreviewSurface = CreateSKSurface(member.MaskPreviewBitmap);
+            }
+            member.RaisePropertyChanged(nameof(member.MaskPreviewBitmap));
+
+            if (member is FolderViewModel innerFolder)
+            {
+                UpdateMemberBitmapsRecursively(innerFolder, newSize);
+            }
+        }
     }
 
     private void ProcessSize(Size_ChangeInfo info)
@@ -155,6 +191,9 @@ internal class DocumentUpdater
         doc.RaisePropertyChanged(nameof(doc.Height));
         doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryAxisY));
         doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisX));
+
+        var previewSize = StructureMemberViewModel.CalculatePreviewSize(size);
+        UpdateMemberBitmapsRecursively(doc.StructureRoot, previewSize);
     }
 
     private WriteableBitmap CreateBitmap(VecI size)

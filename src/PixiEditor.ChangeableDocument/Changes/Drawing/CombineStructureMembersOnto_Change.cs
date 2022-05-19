@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using OneOf;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
@@ -59,8 +60,12 @@ internal class CombineStructureMembersOnto_Change : Change
         toDrawOn.LayerImage.EnqueueClear();
         foreach (var chunk in chunksToCombine)
         {
-            using var combined = ChunkRenderer.RenderSpecificLayers(chunk, ChunkResolution.Full, target.StructureRoot, layersToCombine);
-            toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.ChunkSize, combined.Surface);
+            OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.StructureRoot, layersToCombine);
+            if (combined.IsT0)
+            {
+                toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.ChunkSize, combined.AsT0.Surface);
+                combined.AsT0.Surface.Dispose();
+            }
         }
         var affectedChunks = toDrawOn.LayerImage.FindAffectedChunks();
         originalChunks = new CommittedChunkStorage(toDrawOn.LayerImage, affectedChunks);
@@ -69,7 +74,7 @@ internal class CombineStructureMembersOnto_Change : Change
         ignoreInUndo = false;
         return new LayerImageChunks_ChangeInfo()
         {
-            LayerGuid = targetLayer,
+            GuidValue = targetLayer,
             Chunks = affectedChunks
         };
     }
@@ -87,7 +92,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
         return new LayerImageChunks_ChangeInfo()
         {
-            LayerGuid = targetLayer,
+            GuidValue = targetLayer,
             Chunks = affectedChunks
         };
     }

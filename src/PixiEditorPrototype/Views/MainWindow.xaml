@@ -81,7 +81,7 @@
                     </i:Interaction.Triggers>
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
-                            <StackPanel Orientation="Horizontal" MinWidth="200">
+                            <StackPanel Orientation="Horizontal" MinWidth="200" Background="Wheat">
                                 <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
                                 <Rectangle 
                                     Fill="DarkRed" Width="8" Margin="3,0" 
@@ -90,7 +90,17 @@
                                     <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
                                 </StackPanel>
-                                <Border BorderBrush="Black" BorderThickness="1" Background="Yellow" Width="25" Height="25" Margin="3,0,0,0"/>
+                                <Border 
+                                    BorderBrush="Black" BorderThickness="1" MaxWidth="30" MaxHeight="30" 
+                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
+                                    <Image Source="{Binding PreviewBitmap}"></Image>
+                                </Border>
+                                <Border 
+                                    Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
+                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
+                                    <Image Source="{Binding MaskPreviewBitmap}"></Image>
+                                </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <DockPanel Margin="3, 0, 0, 0">
                                         <TextBlock Text="{Binding Opacity}" Width="25"/>
@@ -119,7 +129,16 @@
                                     <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
                                 </StackPanel>
-                                <Border BorderBrush="Black" BorderThickness="1" Background="White" Width="25" Height="25" Margin="3,0,0,0">
+                                <Border 
+                                    BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
+                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
+                                    <Image Source="{Binding PreviewBitmap}"></Image>
+                                </Border>
+                                <Border 
+                                    Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
+                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
+                                    <Image Source="{Binding MaskPreviewBitmap}"></Image>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <DockPanel Margin="3, 0, 0, 0">
