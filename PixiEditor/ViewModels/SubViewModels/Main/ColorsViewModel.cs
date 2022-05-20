@@ -1,14 +1,12 @@
 ﻿using PixiEditor.Models.Commands.Attributes;
 using SkiaSharp;
 using System.Windows.Input;
-using PixiEditor.Models.Services;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     public class ColorsViewModel : SubViewModel<ViewModelMain>
     {
         private SKColor primaryColor = SKColors.Black;
-        private DocumentProvider _doc;
 
         public SKColor PrimaryColor // Primary color, hooked with left mouse button
         {
@@ -39,10 +37,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public ColorsViewModel(ViewModelMain owner, DocumentProvider provider)
+        public ColorsViewModel(ViewModelMain owner)
             : base(owner)
         {
-            _doc = provider;
         }
 
         [Command.Basic("PixiEditor.Colors.Swap", "Swap colors", "Swap primary and secondary colors", Key = Key.X)]
@@ -55,20 +52,18 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public void AddSwatch(SKColor color)
         {
-            var swatches = _doc.GetSwatches();
-            if (!swatches.Contains(color))
+            if (!Owner.BitmapManager.ActiveDocument.Swatches.Contains(color))
             {
-                swatches.Add(color);
+                Owner.BitmapManager.ActiveDocument.Swatches.Add(color);
             }
         }
 
         [Command.Internal("PixiEditor.Colors.RemoveSwatch")]
         public void RemoveSwatch(SKColor color)
         {
-            var swatches = _doc.GetSwatches();
-            if (swatches.Contains(color))
+            if (Owner.BitmapManager.ActiveDocument.Swatches.Contains(color))
             {
-                swatches.Remove(color);
+                Owner.BitmapManager.ActiveDocument.Swatches.Remove(color);
             }
         }
 

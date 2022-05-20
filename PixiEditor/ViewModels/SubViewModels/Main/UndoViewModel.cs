@@ -2,23 +2,20 @@
 using PixiEditor.Models.Undo;
 using System.IO;
 using System.Windows.Input;
-using PixiEditor.Models.Services;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
     [Command.Group("PixiEditor.Undo", "Undo")]
     public class UndoViewModel : SubViewModel<ViewModelMain>
     {
-        private readonly DocumentProvider _doc;
-        
         public event EventHandler UndoRedoCalled;
 
-        public UndoViewModel(ViewModelMain owner, DocumentProvider provider)
+        public UndoViewModel(ViewModelMain owner)
             : base(owner)
         {
             var result = Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
 
-            _doc = provider;
+            //ClearUndoTempDirectory();
         }
 
         /// <summary>
@@ -50,8 +47,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             //sometimes CanUndo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
             if (CanUndo())
             {
-                _doc.GetDocument().UndoManager.Undo();
-                _doc.GetDocument().ChangesSaved = false;
+                Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
+                Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
             }
         }
 
@@ -72,10 +69,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// </summary>
         /// <param name="property">CommandParameter.</param>
         /// <returns>True if can undo.</returns>
-        [Evaluator.CanExecute("PixiEditor.Undo.CanUndo", requires: "PixiEditor.HasDocument")]
+        [Evaluator.CanExecute("PixiEditor.Undo.CanUndo")]
         public bool CanUndo()
         {
-            return _doc.GetDocument().UndoManager.CanUndo;
+            return Owner.BitmapManager.ActiveDocument?.UndoManager.CanUndo ?? false;
         }
 
         /// <summary>
@@ -83,10 +80,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// </summary>
         /// <param name="property">CommandProperty.</param>
         /// <returns>True if can redo.</returns>
-        [Evaluator.CanExecute("PixiEditor.Undo.CanRedo", requires: "PixiEditor.HasDocument")]
+        [Evaluator.CanExecute("PixiEditor.Undo.CanRedo")]
         public bool CanRedo()
         {
-            return _doc.GetDocument().UndoManager.CanRedo;
+            return Owner.BitmapManager.ActiveDocument?.UndoManager.CanRedo ?? false;
         }
     }
 }
