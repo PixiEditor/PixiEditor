@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
@@ -14,6 +15,8 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     private VecI size;
     private CommittedChunkStorage? originalSelectionState;
     private SKPath? originalPath;
+
+    [GenerateUpdateableChangeActions]
     public SelectRectangle_UpdateableChange(VecI pos, VecI size)
     {
         Update(pos, size);
@@ -24,6 +27,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         originalPath = new SKPath(target.Selection.SelectionPath);
     }
 
+    [UpdateChangeMethod]
     public void Update(VecI pos, VecI size)
     {
         this.pos = pos;

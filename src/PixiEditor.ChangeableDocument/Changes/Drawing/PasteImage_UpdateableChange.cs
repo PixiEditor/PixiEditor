@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 
@@ -14,17 +15,19 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     private bool hasEnqueudImage = false;
 
-    public PasteImage_UpdateableChange(ShapeCorners corners, Surface imageToPaste, Guid memberGuid, bool drawOnMask)
+    [GenerateUpdateableChangeActions]
+    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool isDrawingOnMask)
     {
         this.corners = corners;
         this.memberGuid = memberGuid;
-        this.drawOnMask = drawOnMask;
-        this.imageToPaste = new Surface(imageToPaste);
+        this.drawOnMask = isDrawingOnMask;
+        this.imageToPaste = new Surface(image);
     }
 
-    public void Update(ShapeCorners newCorners)
+    [UpdateChangeMethod]
+    public void Update(ShapeCorners corners)
     {
-        corners = newCorners;
+        this.corners = corners;
     }
 
     private HashSet<VecI> DrawImage(Document target, ChunkyImage targetImage)

@@ -18,7 +18,7 @@ namespace PixiEditor.ChangeableDocument.Gen
                         context,
                         cancelToken,
                         constructor,
-                        new NamespacedType("GenerateMakeChangeActionAttribute", "PixiEditor.ChangeableDocument.Actions")
+                        new NamespacedType("GenerateMakeChangeActionAttribute", "PixiEditor.ChangeableDocument.Actions.Attributes")
                         ))
                         return null;
 

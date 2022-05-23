@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 
@@ -11,6 +12,8 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
     private ShapeData rect;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? storedChunks;
+
+    [GenerateUpdateableChangeActions]
     public DrawRectangle_UpdateableChange(Guid memberGuid, ShapeData rectangle, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
@@ -18,9 +21,10 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         this.drawOnMask = drawOnMask;
     }
 
-    public void Update(ShapeData updatedRectangle)
+    [UpdateChangeMethod]
+    public void Update(ShapeData rectangle)
     {
-        rect = updatedRectangle;
+        rect = rectangle;
     }
 
     private HashSet<VecI> UpdateRectangle(Document target, ChunkyImage targetImage)

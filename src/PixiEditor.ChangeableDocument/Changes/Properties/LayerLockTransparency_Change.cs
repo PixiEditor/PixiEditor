@@ -1,13 +1,15 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.Changes;
+using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
-namespace PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+namespace PixiEditor.ChangeableDocument.Changes.Properties;
 internal class LayerLockTransparency_Change : Change
 {
     private readonly Guid layerGuid;
     private bool originalValue;
     private readonly bool newValue;
 
+    [GenerateMakeChangeAction]
     public LayerLockTransparency_Change(Guid layerGuid, bool newValue)
     {
         this.layerGuid = layerGuid;

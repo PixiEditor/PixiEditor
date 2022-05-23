@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditorPrototype.ViewModels;
 

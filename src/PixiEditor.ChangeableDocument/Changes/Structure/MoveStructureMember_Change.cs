@@ -14,6 +14,7 @@ internal class MoveStructureMember_Change : Change
     private Guid originalFolderGuid;
     private int originalFolderIndex;
 
+    [GenerateMakeChangeAction]
     public MoveStructureMember_Change(Guid memberGuid, Guid targetFolder, int targetFolderIndex)
     {
         this.memberGuid = memberGuid;

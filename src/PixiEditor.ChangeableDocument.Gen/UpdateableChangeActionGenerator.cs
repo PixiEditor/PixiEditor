@@ -1,17 +1,19 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace PixiEditor.ChangeableDocument.Gen;
 [Generator]
 public class UpdateableChangeActionGenerator : IIncrementalGenerator
 {
-    private const string ActionsNamespace = "PixiEditor.ChangeableDocument.Actions";
+    private const string AttributesNamespace = "PixiEditor.ChangeableDocument.Actions.Attributes";
     private const string ConstructorAttribute = "GenerateUpdateableChangeActionsAttribute";
     private const string UpdateMethodAttribute = "UpdateChangeMethodAttribute";
-    private static NamespacedType ConstructorAttributeType = new NamespacedType(ConstructorAttribute, ActionsNamespace);
-    private static NamespacedType UpdateMethodAttributeType = new NamespacedType(UpdateMethodAttribute, ActionsNamespace);
+    private static NamespacedType ConstructorAttributeType = new NamespacedType(ConstructorAttribute, AttributesNamespace);
+    private static NamespacedType UpdateMethodAttributeType = new NamespacedType(UpdateMethodAttribute, AttributesNamespace);
 
-    private static Result<(IMethodSymbol, IMethodSymbol)>? TransformSyntax(GeneratorSyntaxContext context, CancellationToken cancelToken)
+    private static Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>? TransformSyntax
+        (GeneratorSyntaxContext context, CancellationToken cancelToken)
     {
         ClassDeclarationSyntax containingClass;
         ConstructorDeclarationSyntax constructorSyntax;
@@ -31,8 +33,8 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         var classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(containingClass)!;
         if (!Helpers.IsInheritedFrom(classSymbol, new("UpdateableChange", "PixiEditor.ChangeableDocument.Changes")))
         {
-            return Result<(IMethodSymbol, IMethodSymbol)>.Error
-                ("The GenerateUpdateableChangeActions and UpdateChangeMethodAttribute can only be used inside UpdateableChanges");
+            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
+                ("The GenerateUpdateableChangeActions and UpdateChangeMethodAttribute can only be used inside UpdateableChanges", containingClass.SyntaxTree, containingClass.Span);
         }
 
         // here we are sure we are inside an updateable change, time to find the update method
@@ -40,7 +42,8 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         var members = containingClass.Members.Where(node => node is MethodDeclarationSyntax);
         const string errorMessage = $"Update method isn't marked with {UpdateMethodAttribute}";
         if (!members.Any())
-            return Result<(IMethodSymbol, IMethodSymbol)>.Error(errorMessage);
+            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
+                (errorMessage, containingClass.SyntaxTree, containingClass.Span);
         foreach (var member in members)
         {
             cancelToken.ThrowIfCancellationRequested();
@@ -54,7 +57,8 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         }
         if (methodSyntax is null)
         {
-            return Result<(IMethodSymbol, IMethodSymbol)>.Error(errorMessage);
+            return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
+                (errorMessage, containingClass.SyntaxTree, containingClass.Span);
         }
 
         // finally, get symbols
@@ -62,22 +66,24 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         var contructorSymbol = context.SemanticModel.GetDeclaredSymbol(constructorSyntax, cancelToken);
         if (contructorSymbol is not IMethodSymbol || methodSymbol is not IMethodSymbol)
             return null;
-        return ((IMethodSymbol)contructorSymbol, (IMethodSymbol)methodSymbol);
+        return ((IMethodSymbol)contructorSymbol, (IMethodSymbol)methodSymbol, containingClass);
     }
 
     private static Result<(NamedSourceCode, NamedSourceCode)> GenerateActions
-        (Result<(IMethodSymbol, IMethodSymbol)>? prevResult, CancellationToken cancelToken)
+        (Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>? prevResult, CancellationToken cancelToken)
     {
         if (prevResult!.Value.ErrorText is not null)
-            return Result<(NamedSourceCode, NamedSourceCode)>.Error(prevResult.Value.ErrorText);
-        var (constructor, update) = prevResult.Value.Value;
+            return Result<(NamedSourceCode, NamedSourceCode)>.Error
+                (prevResult.Value.ErrorText, prevResult.Value.SyntaxTree!, (TextSpan)prevResult.Value.Span!);
+        var (constructor, update, containingClass) = prevResult.Value.Value;
 
         var constructorInfo = Helpers.ExtractMethodInfo(constructor!);
         var updateInfo = Helpers.ExtractMethodInfo(update!);
 
-        var maybeStartUpdateAction = Helpers.CreateStartUpdateChangeAction(constructorInfo, updateInfo);
+        var maybeStartUpdateAction = Helpers.CreateStartUpdateChangeAction(constructorInfo, updateInfo, containingClass);
         if (maybeStartUpdateAction.ErrorText is not null)
-            return Result<(NamedSourceCode, NamedSourceCode)>.Error(maybeStartUpdateAction.ErrorText);
+            return Result<(NamedSourceCode, NamedSourceCode)>.Error
+                (maybeStartUpdateAction.ErrorText, maybeStartUpdateAction.SyntaxTree!, (TextSpan)maybeStartUpdateAction.Span!);
 
         var endAction = Helpers.CreateEndChangeAction(constructorInfo);
 
@@ -106,7 +112,7 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
                 context.ReportDiagnostic(
                     Diagnostic.Create(
                         new DiagnosticDescriptor("AGErr", "", namedActions.ErrorText, "UpdateableActionGenerator", DiagnosticSeverity.Error, true),
-                        null));
+                        Location.Create(namedActions.SyntaxTree!, (TextSpan)namedActions.Span!)));
                 return;
             }
 

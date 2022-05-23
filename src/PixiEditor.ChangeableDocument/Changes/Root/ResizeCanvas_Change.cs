@@ -15,6 +15,8 @@ internal class ResizeCanvas_Change : Change
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
     private CommittedChunkStorage? selectionChunkStorage;
     private VecI newSize;
+
+    [GenerateMakeChangeAction]
     public ResizeCanvas_Change(VecI size)
     {
         newSize = size;

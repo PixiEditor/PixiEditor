@@ -8,14 +8,6 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
-using PixiEditor.ChangeableDocument.Actions.Drawing;
-using PixiEditor.ChangeableDocument.Actions.Drawing.PasteImage;
-using PixiEditor.ChangeableDocument.Actions.Drawing.Rectangle;
-using PixiEditor.ChangeableDocument.Actions.Drawing.Selection;
-using PixiEditor.ChangeableDocument.Actions.Properties;
-using PixiEditor.ChangeableDocument.Actions.Root;
-using PixiEditor.ChangeableDocument.Actions.Root.SymmetryPosition;
-using PixiEditor.ChangeableDocument.Actions.Structure;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditorPrototype.CustomControls.SymmetryOverlay;
@@ -84,12 +76,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public bool HorizontalSymmetryAxisEnabled
     {
         get => Helpers.Tracker.Document.HorizontalSymmetryAxisEnabled;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
     }
     public bool VerticalSymmetryAxisEnabled
     {
         get => Helpers.Tracker.Document.VerticalSymmetryAxisEnabled;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetSymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
+        set => Helpers.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
     }
 
     public int ResizeWidth { get; set; }
@@ -163,14 +155,14 @@ internal class DocumentViewModel : INotifyPropertyChanged
         if (obj is null)
             return;
         var info = (SymmetryAxisDragInfo)obj;
-        Helpers.ActionAccumulator.AddActions(new SetSymmetryAxisPosition_Action(info.Direction, info.NewPosition));
+        Helpers.ActionAccumulator.AddActions(new SymmetryAxisPosition_Action(info.Direction, info.NewPosition));
     }
 
     private void EndDragSymmetry(object? obj)
     {
         if (obj is null)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new EndSetSymmetryAxisPosition_Action());
+        Helpers.ActionAccumulator.AddFinishedActions(new EndSymmetryAxisPosition_Action());
     }
 
     public void StartUpdateRectangle(ShapeData data)
@@ -361,8 +353,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
         //make a new layer, put combined image onto it, delete layers that were merged
         Helpers.ActionAccumulator.AddActions(
             new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer),
-            new SetStructureMemberName_Action(child.Name + "-comb", newGuid),
-            new CombineStructureMembersOnto_Action(newGuid, selected.ToHashSet()));
+            new StructureMemberName_Action(newGuid, child.Name + "-comb"),
+            new CombineStructureMembersOnto_Action(selected.ToHashSet(), newGuid));
         foreach (var member in selected)
             Helpers.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Helpers.ActionAccumulator.AddActions(new ChangeBoundary_Action());

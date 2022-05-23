@@ -10,6 +10,7 @@ internal class DeleteStructureMemberMask_Change : Change
     private readonly Guid memberGuid;
     private ChunkyImage? storedMask;
 
+    [GenerateMakeChangeAction]
     public DeleteStructureMemberMask_Change(Guid memberGuid)
     {
         this.memberGuid = memberGuid;

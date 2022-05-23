@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions.Properties;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditorPrototype.Models;
@@ -22,25 +21,25 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public string Name
     {
         get => member.Name;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberName_Action(value, member.GuidValue));
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(member.GuidValue, value));
     }
 
     public bool IsVisible
     {
         get => member.IsVisible;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberVisibility_Action(value, member.GuidValue));
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, member.GuidValue));
     }
 
     public BlendMode BlendMode
     {
         get => member.BlendMode;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberBlendMode_Action(value, member.GuidValue));
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, member.GuidValue));
     }
 
     public bool ClipToMemberBelowEnabled
     {
         get => member.ClipToMemberBelow;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new SetStructureMemberClipToMemberBelow_Action(value, member.GuidValue));
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberClipToMemberBelow_Action(value, member.GuidValue));
     }
 
     public bool IsSelected { get; set; }
@@ -101,13 +100,13 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 
     private void EndOpacityUpdate(object? opacity)
     {
-        Helpers.ActionAccumulator.AddFinishedActions(new EndOpacityChange_Action());
+        Helpers.ActionAccumulator.AddFinishedActions(new EndStructureMemberOpacity_Action());
     }
 
     private void UpdateOpacity(object? opacity)
     {
         if (opacity is not double value)
             throw new ArgumentException("The passed value isn't a double");
-        Helpers.ActionAccumulator.AddActions(new OpacityChange_Action(GuidValue, (float)value));
+        Helpers.ActionAccumulator.AddActions(new StructureMemberOpacity_Action(GuidValue, (float)value));
     }
 }

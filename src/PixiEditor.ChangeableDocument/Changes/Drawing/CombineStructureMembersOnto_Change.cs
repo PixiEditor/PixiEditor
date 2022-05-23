@@ -17,6 +17,7 @@ internal class CombineStructureMembersOnto_Change : Change
     private Guid targetLayer;
     private CommittedChunkStorage? originalChunks;
 
+    [GenerateMakeChangeAction]
     public CombineStructureMembersOnto_Change(HashSet<Guid> membersToMerge, Guid targetLayer)
     {
         this.membersToMerge = new HashSet<Guid>(membersToMerge);

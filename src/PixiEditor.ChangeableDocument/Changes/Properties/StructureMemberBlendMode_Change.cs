@@ -10,10 +10,11 @@ internal class StructureMemberBlendMode_Change : Change
     private readonly BlendMode newBlendMode;
     private readonly Guid targetGuid;
 
-    public StructureMemberBlendMode_Change(BlendMode newBlendMode, Guid targetGuid)
+    [GenerateMakeChangeAction]
+    public StructureMemberBlendMode_Change(BlendMode blendMode, Guid memberGuid)
     {
-        this.newBlendMode = newBlendMode;
-        this.targetGuid = targetGuid;
+        this.newBlendMode = blendMode;
+        this.targetGuid = memberGuid;
     }
 
     public override void Initialize(Document target)

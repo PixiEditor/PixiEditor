@@ -12,6 +12,10 @@ internal class ClearSelection_Change : Change
     private bool originalIsEmpty;
     private CommittedChunkStorage? savedSelection;
     private SKPath? originalPath;
+
+    [GenerateMakeChangeAction]
+    public ClearSelection_Change() { }
+
     public override void Initialize(Document target)
     {
         originalIsEmpty = target.Selection.IsEmptyAndInactive;

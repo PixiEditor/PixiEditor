@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
+﻿using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
@@ -11,15 +12,17 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
     private float originalOpacity;
     private float newOpacity;
 
+    [GenerateUpdateableChangeActions]
     public StructureMemberOpacity_UpdateableChange(Guid memberGuid, float opacity)
     {
         this.memberGuid = memberGuid;
         newOpacity = opacity;
     }
 
-    public void Update(float updatedOpacity)
+    [UpdateChangeMethod]
+    public void Update(float opacity)
     {
-        newOpacity = updatedOpacity;
+        newOpacity = opacity;
     }
 
     public override void Initialize(Document document)

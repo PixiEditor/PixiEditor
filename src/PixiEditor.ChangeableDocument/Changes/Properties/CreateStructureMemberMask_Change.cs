@@ -8,6 +8,8 @@ namespace PixiEditor.ChangeableDocument.Changes.Properties;
 internal class CreateStructureMemberMask_Change : Change
 {
     private Guid targetMember;
+
+    [GenerateMakeChangeAction]
     public CreateStructureMemberMask_Change(Guid memberGuid)
     {
         targetMember = memberGuid;

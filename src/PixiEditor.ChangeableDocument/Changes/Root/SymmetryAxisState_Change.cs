@@ -10,6 +10,7 @@ internal class SymmetryAxisState_Change : Change
     private readonly bool newEnabled;
     private bool originalEnabled;
 
+    [GenerateMakeChangeAction]
     public SymmetryAxisState_Change(SymmetryAxisDirection direction, bool enabled)
     {
         this.direction = direction;

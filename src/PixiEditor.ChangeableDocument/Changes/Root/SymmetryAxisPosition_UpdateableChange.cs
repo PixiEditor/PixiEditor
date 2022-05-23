@@ -10,12 +10,14 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
     private int newPos;
     private int originalPos;
 
+    [GenerateUpdateableChangeActions]
     public SymmetryAxisPosition_UpdateableChange(SymmetryAxisDirection direction, int pos)
     {
         this.direction = direction;
         newPos = pos;
     }
 
+    [UpdateChangeMethod]
     public void Update(int pos)
     {
         newPos = pos;

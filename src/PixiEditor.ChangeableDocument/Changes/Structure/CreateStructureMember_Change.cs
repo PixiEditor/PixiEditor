@@ -13,6 +13,7 @@ internal class CreateStructureMember_Change : Change
     private int parentFolderIndex;
     private StructureMemberType type;
 
+    [GenerateMakeChangeAction]
     public CreateStructureMember_Change(Guid parentFolder, Guid newGuid, int parentFolderIndex, StructureMemberType type)
     {
         this.parentFolderGuid = parentFolder;

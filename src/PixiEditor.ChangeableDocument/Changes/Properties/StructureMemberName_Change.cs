@@ -9,10 +9,12 @@ internal class StructureMemberName_Change : Change
     private string? originalName;
     private string newName;
     private Guid targetMember;
-    public StructureMemberName_Change(Guid targetMember, string newName)
+
+    [GenerateMakeChangeAction]
+    public StructureMemberName_Change(Guid memberGuid, string name)
     {
-        this.targetMember = targetMember;
-        this.newName = newName;
+        this.targetMember = memberGuid;
+        this.newName = name;
     }
 
     public override void Initialize(Document target)

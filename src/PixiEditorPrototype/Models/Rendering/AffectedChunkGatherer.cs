@@ -91,7 +91,7 @@ internal class AffectedChunkGatherer
 
     private void AddAllToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
     {
-        var member = tracker.Document.FindMemberOrThrow(memberGuid);
+        var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayer layer)
         {
             var chunks = layer.ReadOnlyLayerImage.FindAllChunks();
@@ -104,7 +104,7 @@ internal class AffectedChunkGatherer
     }
     private void AddAllToMainImage(Guid memberGuid)
     {
-        var member = tracker.Document.FindMemberOrThrow(memberGuid);
+        var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayer layer)
         {
             var chunks = layer.ReadOnlyLayerImage.FindAllChunks();
@@ -119,8 +119,8 @@ internal class AffectedChunkGatherer
     }
     private void AddAllToMaskPreview(Guid memberGuid)
     {
-        var member = tracker.Document.FindMemberOrThrow(memberGuid);
-        if (member.ReadOnlyMask is null)
+        var member = tracker.Document.FindMember(memberGuid);
+        if (member is null || member.ReadOnlyMask is null)
             return;
         var chunks = member.ReadOnlyMask.FindAllChunks();
         AddToMaskPreview(memberGuid, chunks);
@@ -135,7 +135,7 @@ internal class AffectedChunkGatherer
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
         if (path.Count < 2)
-            throw new ArgumentException($"Member with guid {memberGuid} was not found");
+            return;
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {
             var member = path[i];
@@ -162,7 +162,7 @@ internal class AffectedChunkGatherer
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
         if (path.Count < 2)
-            throw new ArgumentException($"Member with guid {memberGuid} was not found");
+            return;
         // skip root folder
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {

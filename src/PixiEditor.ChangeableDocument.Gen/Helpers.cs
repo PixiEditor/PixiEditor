@@ -6,6 +6,8 @@ namespace PixiEditor.ChangeableDocument.Gen;
 
 internal static class Helpers
 {
+    private static SymbolDisplayFormat TypeWithGenerics =
+        new SymbolDisplayFormat(genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeTypeConstraints);
     public static string CreateMakeChangeAction(MethodInfo changeConstructorInfo)
     {
         string actionName = changeConstructorInfo.ContainingClass.Name.Split('_')[0] + "_Action";
@@ -32,7 +34,8 @@ internal static class Helpers
         return sb.ToString();
     }
 
-    public static Result<string> CreateStartUpdateChangeAction(MethodInfo changeConstructorInfo, MethodInfo updateMethodInfo)
+    public static Result<string> CreateStartUpdateChangeAction
+        (MethodInfo changeConstructorInfo, MethodInfo updateMethodInfo, ClassDeclarationSyntax containingClass)
     {
         string actionName = changeConstructorInfo.ContainingClass.Name.Split('_')[0] + "_Action";
         List<TypeWithName> constructorArgs = changeConstructorInfo.Arguments;
@@ -44,7 +47,7 @@ internal static class Helpers
         var constructorAssignments = MatchMembers(properties, constructorArgs);
         var updatePropsToPass = MatchMembers(updateMethodInfo.Arguments, properties).Select(pair => pair.Item2).ToList();
         if (updatePropsToPass.Count != updateMethodInfo.Arguments.Count)
-            return Result<string>.Error("Couldn't match update method arguments with constructor arguments");
+            return Result<string>.Error("Couldn't match update method arguments with constructor arguments", containingClass.SyntaxTree, containingClass.Span);
 
         StringBuilder sb = new();
 
@@ -83,12 +86,13 @@ public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IEndCha
         List<TypeWithName> variables = method.Parameters.Select(static parameter =>
         {
             return new TypeWithName(
-                parameter.Type.Name,
+                parameter.Type.ToDisplayString(TypeWithGenerics),
                 parameter.Type.ContainingNamespace.ToDisplayString(),
                 parameter.Name
                 );
         }).ToList();
         string changeName = method.ContainingType.Name;
+
         string changeFullNamespace = method.ContainingNamespace.ToDisplayString();
         return new MethodInfo(method.Name, variables, new NamespacedType(changeName, changeFullNamespace));
     }
@@ -117,6 +121,7 @@ public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IEndCha
                 }
             }
         }
+        paired.Reverse();
         return paired;
     }
 

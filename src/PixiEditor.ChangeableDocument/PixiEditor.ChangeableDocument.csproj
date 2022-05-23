@@ -9,10 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
-    <ProjectReference 
-      Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" 
-      OutputItemType="Analyzer" 
-      ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

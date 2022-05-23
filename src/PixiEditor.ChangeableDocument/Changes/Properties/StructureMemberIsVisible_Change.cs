@@ -9,10 +9,11 @@ internal class StructureMemberIsVisible_Change : Change
     private bool? originalIsVisible;
     private bool newIsVisible;
     private Guid targetMember;
-    public StructureMemberIsVisible_Change(Guid targetMember, bool newIsVisible)
+    [GenerateMakeChangeAction]
+    public StructureMemberIsVisible_Change(bool isVisible, Guid memberGuid)
     {
-        this.targetMember = targetMember;
-        this.newIsVisible = newIsVisible;
+        this.targetMember = memberGuid;
+        this.newIsVisible = isVisible;
     }
 
     public override void Initialize(Document target)

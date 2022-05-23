@@ -9,9 +9,10 @@ internal class StructureMemberClipToMemberBelow_Change : Change
     private readonly bool newValue;
     private readonly Guid memberGuid;
 
-    public StructureMemberClipToMemberBelow_Change(bool newValue, Guid memberGuid)
+    [GenerateMakeChangeAction]
+    public StructureMemberClipToMemberBelow_Change(bool enabled, Guid memberGuid)
     {
-        this.newValue = newValue;
+        this.newValue = enabled;
         this.memberGuid = memberGuid;
     }
 

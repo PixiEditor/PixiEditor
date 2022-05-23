@@ -10,6 +10,8 @@ internal class DeleteStructureMember_Change : Change
     private Guid parentGuid;
     private int originalIndex;
     private StructureMember? savedCopy;
+
+    [GenerateMakeChangeAction]
     public DeleteStructureMember_Change(Guid memberGuid)
     {
         this.memberGuid = memberGuid;
