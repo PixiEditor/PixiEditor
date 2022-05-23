@@ -3,6 +3,7 @@ using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Search;
 using SkiaSharp;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace PixiEditor.ViewModels
@@ -35,6 +36,7 @@ namespace PixiEditor.ViewModels
                     {
                         oldValue.IsSelected = false;
                     }
+
                     if (value != null)
                     {
                         value.IsSelected = true;
@@ -70,6 +72,15 @@ namespace PixiEditor.ViewModels
                 return;
             }
 
+            var filePath = SearchTerm.Trim(' ', '"', '\'');
+
+            if (filePath.StartsWith("~"))
+            {
+                filePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), filePath[1..]);
+            }
+
+            HandleFile(filePath);
+
             if (SearchTerm.StartsWith('#'))
             {
                 if (SKColor.TryParse(SearchTerm, out SKColor color))
@@ -82,9 +93,10 @@ namespace PixiEditor.ViewModels
             }
 
             foreach (var command in controller.Commands
-                .Where(x => x.Description.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(x => x.Description.Contains($" {SearchTerm} ", StringComparison.OrdinalIgnoreCase))
-                .Take(12))
+                         .Where(x => x.Description.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                         .OrderByDescending(x =>
+                             x.Description.Contains($" {SearchTerm} ", StringComparison.OrdinalIgnoreCase))
+                         .Take(12))
             {
                 Results.Add(
                     new CommandSearchResult(command)
@@ -94,7 +106,8 @@ namespace PixiEditor.ViewModels
                     });
             }
 
-            foreach (var file in ViewModelMain.Current.FileSubViewModel.RecentlyOpened.Where(x => x.FilePath.Contains(searchTerm)))
+            foreach (var file in ViewModelMain.Current.FileSubViewModel.RecentlyOpened
+                         .Where(x => x.FilePath.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
             {
                 Results.Add(
                     new FileSearchResult(file.FilePath)
@@ -104,9 +117,54 @@ namespace PixiEditor.ViewModels
                     });
             }
 
-            Match Match(string text) => Regex.Match(text, $"(.*)({Regex.Escape(SearchTerm)})(.*)", RegexOptions.IgnoreCase);
-
             SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
+        }
+
+        private void HandleFile(string filePath)
+        {
+            if (!Path.IsPathFullyQualified(filePath))
+            {
+                return;
+            }
+
+            GetDirectory(filePath, out var directory, out var name);
+            var files = Directory.EnumerateFiles(directory)
+                .Where(x => SupportedFilesHelper.IsExtensionSupported(Path.GetExtension(x)));
+
+            if (name is not null or "")
+            {
+                files = files.Where(x => x.Contains(name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            foreach (var file in files.Select(x => Path.GetFullPath(x)))
+            {
+                Results.Add(
+                    new FileSearchResult(file)
+                    {
+                        SearchTerm = name,
+                        Match = Match($".../{Path.GetFileName(file)}", name)
+                    });
+            }
+        }
+
+        private Match Match(string text) => Match(text, SearchTerm);
+
+        private Match Match(string text, string searchTerm) =>
+            Regex.Match(text, $"(.*)({Regex.Escape(searchTerm)})(.*)", RegexOptions.IgnoreCase);
+
+        private bool GetDirectory(string path, out string directory, out string file)
+        {
+            if (Directory.Exists(path))
+            {
+                directory = path;
+                file = string.Empty;
+                return true;
+            }
+
+            directory = Path.GetDirectoryName(path);
+            file = Path.GetFileName(path);
+
+            return Directory.Exists(directory);
         }
     }
 }
