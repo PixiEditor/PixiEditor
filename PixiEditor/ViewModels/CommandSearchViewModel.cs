@@ -5,6 +5,7 @@ using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.RegularExpressions;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.ViewModels
 {
@@ -12,6 +13,7 @@ namespace PixiEditor.ViewModels
     {
         private string searchTerm;
         private SearchResult selectedCommand;
+        private bool invalidColor;
 
         public string SearchTerm
         {
@@ -45,6 +47,12 @@ namespace PixiEditor.ViewModels
             }
         }
 
+        public bool InvalidColor
+        {
+            get => invalidColor;
+            set => SetProperty(ref invalidColor, value);
+        }
+        
         public ObservableCollection<SearchResult> Results { get; } = new();
 
         public CommandSearchViewModel()
@@ -54,21 +62,19 @@ namespace PixiEditor.ViewModels
 
         private void UpdateSearchResults()
         {
-            CommandController controller = CommandController.Current;
             Results.Clear();
 
+            var recentlyOpened = HandleRecentlyOpened();
+            
             if (string.IsNullOrWhiteSpace(SearchTerm))
             {
-                foreach (var file in ViewModelMain.Current.FileSubViewModel.RecentlyOpened)
+                foreach (var result in recentlyOpened)
                 {
-                    Results.Add(
-                        new FileSearchResult(file.FilePath)
-                        {
-                            SearchTerm = searchTerm
-                        });
+                    Results.Add(result);
                 }
 
                 SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
+                InvalidColor = false;
                 return;
             }
 
@@ -80,10 +86,24 @@ namespace PixiEditor.ViewModels
             }
 
             HandleFile(filePath);
+            HandleColor();
+            HandleCommands();
 
+            foreach (var result in recentlyOpened)
+            {
+                Results.Add(result);
+            }
+
+            SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
+        }
+
+        private void HandleColor()
+        {
             if (SearchTerm.StartsWith('#'))
             {
-                if (SKColor.TryParse(SearchTerm, out SKColor color))
+                InvalidColor = !SKColor.TryParse(SearchTerm, out var color);
+                
+                if (!InvalidColor)
                 {
                     Results.Add(new ColorSearchResult(color)
                     {
@@ -91,8 +111,15 @@ namespace PixiEditor.ViewModels
                     });
                 }
             }
+            else
+            {
+                InvalidColor = false;
+            }
+        }
 
-            foreach (var command in controller.Commands
+        private void HandleCommands()
+        {
+            foreach (var command in CommandController.Current.Commands
                          .Where(x => x.Description.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
                          .OrderByDescending(x =>
                              x.Description.Contains($" {SearchTerm} ", StringComparison.OrdinalIgnoreCase))
@@ -105,19 +132,25 @@ namespace PixiEditor.ViewModels
                         Match = Match(command.Description)
                     });
             }
+        }
+        
+        private IEnumerable<FileSearchResult> HandleRecentlyOpened()
+        {
+            IEnumerable<RecentlyOpenedDocument> enumerable = ViewModelMain.Current.FileSubViewModel.RecentlyOpened;
 
-            foreach (var file in ViewModelMain.Current.FileSubViewModel.RecentlyOpened
-                         .Where(x => x.FilePath.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
-                Results.Add(
-                    new FileSearchResult(file.FilePath)
-                    {
-                        SearchTerm = searchTerm,
-                        Match = Match(file.FilePath)
-                    });
+                enumerable = enumerable.Where(x => x.FilePath.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
             }
 
-            SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
+            foreach (var file in enumerable)
+            {
+                yield return new FileSearchResult(file.FilePath)
+                {
+                    SearchTerm = searchTerm,
+                    Match = Match(file.FilePath)
+                };
+            }
         }
 
         private void HandleFile(string filePath)
@@ -150,7 +183,7 @@ namespace PixiEditor.ViewModels
         private Match Match(string text) => Match(text, SearchTerm);
 
         private Match Match(string text, string searchTerm) =>
-            Regex.Match(text, $"(.*)({Regex.Escape(searchTerm)})(.*)", RegexOptions.IgnoreCase);
+            Regex.Match(text, $"(.*)({Regex.Escape(searchTerm ?? string.Empty)})(.*)", RegexOptions.IgnoreCase);
 
         private bool GetDirectory(string path, out string directory, out string file)
         {

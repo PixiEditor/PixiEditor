@@ -1,8 +1,8 @@
 ﻿<UserControl x:Class="PixiEditor.Views.UserControls.CommandSearchControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:vm="clr-namespace:PixiEditor.ViewModels"
              xmlns:behaves="clr-namespace:PixiEditor.Helpers.Behaviours"
@@ -16,26 +16,27 @@
     <Grid DataContext="{DynamicResource viewModel}" x:Name="mainGrid">
         <Grid.Resources>
             <ResourceDictionary>
-                <vm:CommandSearchViewModel x:Key="viewModel"/>
+                <vm:CommandSearchViewModel x:Key="viewModel" />
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBox Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="18" Padding="5"
+        <TextBox Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="18"
+                 Padding="5"
                  x:Name="textBox">
             <i:Interaction.Behaviors>
                 <behaves:TextBoxFocusBehavior SelectOnMouseClick="True" />
-                <behaves:GlobalShortcutFocusBehavior/>
+                <behaves:GlobalShortcutFocusBehavior />
             </i:Interaction.Behaviors>
             <TextBox.Style>
                 <Style TargetType="TextBox" BasedOn="{StaticResource DarkTextBoxStyle}">
                     <Style.Resources>
                         <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="5,5,0,0"/>
+                            <Setter Property="CornerRadius" Value="5,5,0,0" />
                         </Style>
                     </Style.Resources>
                 </Style>
@@ -43,78 +44,91 @@
         </TextBox>
         <Border Grid.Row="1" BorderThickness="1,0,1,0" BorderBrush="{StaticResource BrighterAccentColor}"
                 Background="{StaticResource AccentColor}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl ItemsSource="{Binding Results}" MinWidth="400">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="cmdssearch:SearchTerm">
-                            <Button Padding="5" Height="40" BorderThickness="0" Background="Transparent"
-                                Command="{Binding ExecuteCommand}"
-                                CommandParameter="{Binding}"
-                                MouseMove="Button_MouseMove">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border>
-                                                        <Border.Style>
-                                                            <Style TargetType="Border">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsSelected, Mode=TwoWay}" Value="False">
-                                                                        <Setter Property="Background" Value="Transparent"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding IsSelected, Mode=TwoWay}" Value="True">
-                                                                        <Setter Property="Background" Value="{StaticResource BrighterAccentColor}"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding CanExecute}" Value="False">
-                                                                        <Setter Property="Background" Value="Transparent"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Border.Style>
-                                                        <ContentPresenter/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Button.Style>
-                                <Button.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="FontSize" Value="16"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CanExecute}" Value="True">
-                                                <Setter Property="Foreground" Value="White"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding CanExecute}" Value="False">
-                                                <Setter Property="Foreground" Value="Gray"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Resources>
-                                <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Border Width="25" Margin="0,0,5,0" Padding="1">
-                                            <Image HorizontalAlignment="Center" Source="{Binding Icon}"/>
-                                        </Border>
-                                        <TextBlock VerticalAlignment="Center"
-                                               behaves:TextBlockExtensions.BindableInlines="{Binding TextBlockContent}"/>
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding Shortcut}"/>
-                                </Grid>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <Grid>
+                <TextBlock Text="Invalid color" TextAlignment="Center" Foreground="Gray" Margin="0,5,0,0"
+                           Visibility="{Binding InvalidColor, Converter={BoolToVisibilityConverter}}"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Results}" MinWidth="400">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="cmdssearch:SearchResult">
+                                <Button Padding="5" Height="40" BorderThickness="0" Background="Transparent"
+                                        Command="{Binding ExecuteCommand}"
+                                        CommandParameter="{Binding}"
+                                        MouseMove="Button_MouseMove">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border>
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
+                                                                            Value="False">
+                                                                            <Setter Property="Background"
+                                                                                Value="Transparent" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
+                                                                            Value="True">
+                                                                            <Setter Property="Background"
+                                                                                Value="{StaticResource BrighterAccentColor}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding CanExecute}"
+                                                                            Value="False">
+                                                                            <Setter Property="Background"
+                                                                                Value="Transparent" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <Button.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="16" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CanExecute}" Value="True">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CanExecute}" Value="False">
+                                                    <Setter Property="Foreground" Value="Gray" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Resources>
+                                    <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="25" Margin="0,0,5,0" Padding="1">
+                                                <Image HorizontalAlignment="Center" Source="{Binding Icon}" />
+                                            </Border>
+                                            <TextBlock VerticalAlignment="Center"
+                                                       behaves:TextBlockExtensions.BindableInlines="{Binding TextBlockContent}" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Right" Text="{Binding Shortcut}" />
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </Border>
         <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource BrighterAccentColor}"
                 CornerRadius="0,0,5,5" Background="{StaticResource AccentColor}">
-            <TextBlock Margin="5" FontSize="16" Text="{Binding SelectedResult.Description}"/>
+            <TextBlock Margin="5" FontSize="16" Text="{Binding SelectedResult.Description}" />
         </Border>
     </Grid>
 </UserControl>
