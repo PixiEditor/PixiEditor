@@ -111,9 +111,56 @@ namespace PixiEditor.ViewModels
                     });
                 }
             }
+            else if (SearchTerm.StartsWith("rgb") || searchTerm.StartsWith("rgba"))
+            {
+                Match match = Regex.Match(SearchTerm, @"rgba?\(? *(?<r>\d{1,3}) *, *(?<g>\d{1,3}) *, *(?<b>\d{1,3})(?: *, *(?<a>\d{1,3}))?");
+
+                if (match.Success)
+                {
+                    ParseRGB(match);
+                }
+                else if (SearchTerm.StartsWith("rgb(") || SearchTerm.StartsWith("rgba("))
+                {
+                    InvalidColor = true;
+                }
+                else
+                {
+                    InvalidColor = false;
+                }
+            }
             else
             {
                 InvalidColor = false;
+            }
+
+            void ParseRGB(Match match)
+            {
+                bool invalid = !(
+                    byte.TryParse(match.Groups["r"].ValueSpan, out var r) &
+                    byte.TryParse(match.Groups["g"].ValueSpan, out var g) &
+                    byte.TryParse(match.Groups["b"].ValueSpan, out var b)
+                );
+
+                var aText = match.Groups["a"].Value;
+                
+                if (string.IsNullOrEmpty(aText) || !byte.TryParse(aText, out var a))
+                {
+                    a = 255;
+                }
+                else
+                {
+                    invalid = true;
+                }
+
+                InvalidColor = invalid;
+                
+                if (!InvalidColor)
+                {
+                    Results.Add(new ColorSearchResult(new SKColor(r, g, b, a))
+                    {
+                        SearchTerm = searchTerm
+                    });
+                }
             }
         }
 
