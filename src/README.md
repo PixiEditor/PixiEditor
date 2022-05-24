@@ -44,7 +44,8 @@ Decouples the state of a document from the UI.
             - [ ] Replace color
 - ChangeableDocument/Renderer
     - [x] Basic Action->Change->ChangeInfo pipeline
-    - [ ] Code generation for Action/ChangeInfo boilerplate
+    - [x] Code generation for Action/ChangeInfo boilerplate
+    - [ ] Ignore invalid inputs
     - Undo handling
         - [x] UpdateableChange class for changes requiring preview
         - [x] Handling for changes that don't change anything
@@ -71,7 +72,7 @@ Decouples the state of a document from the UI.
         - [ ] Caching for everything below current layer
         - Rendering images for changes (tools requiring final image, merge layers, etc.)
             - [x] ChunkRenderer as a part of Document
-        - [ ] Rendering of layer previews
+        - [x] Rendering of layer previews
         - [ ] Rendering of canvas previews
         - [x] Support for multiple viewports
     - Changes
