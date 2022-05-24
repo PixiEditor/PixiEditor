@@ -79,20 +79,20 @@ public static class OperationHelper
         => CreateMatrixFromPoints((SKPoint)corners.TopLeft, (SKPoint)corners.TopRight, (SKPoint)corners.BottomRight, (SKPoint)corners.BottomLeft, (float)size.X, (float)size.Y);
     public static SKMatrix CreateMatrixFromPoints(SKPoint topLeft, SKPoint topRight, SKPoint botRight, SKPoint botLeft, float width, float height)
     {
-        (float a, float b) = (topLeft.X, topLeft.Y);
-        (float c, float d) = (topRight.X, topRight.Y);
-        (float e, float f) = (botRight.X, botRight.Y);
-        (float g, float h) = (botLeft.X, botLeft.Y);
-        (float w_1, float h_1) = (width, height);
+        (float x1, float y1) = (topLeft.X, topLeft.Y);
+        (float x2, float y2) = (topRight.X, topRight.Y);
+        (float x3, float y3) = (botRight.X, botRight.Y);
+        (float x4, float y4) = (botLeft.X, botLeft.Y);
+        (float w, float h) = (width, height);
 
-        float scaleX = (b * c * g - a * d * g + a * f * g - c * f * g - b * c * e + a * d * e - a * h * e + c * h * e) / (c * f * w_1 + d * g * w_1 - f * g * w_1 - c * h * w_1 - d * w_1 * e + h * w_1 * e);
-        float skewX = (-a * c * f - b * c * g + c * f * g + a * c * h + a * d * e + b * g * e - d * g * e - a * h * e) / (c * f * h_1 + d * g * h_1 - f * g * h_1 - c * h * h_1 - d * h_1 * e + h * h_1 * e);
-        float transX = a;
-        float skewY = (-b * c * f + a * d * f + b * f * g - d * f * g + b * c * h - a * d * h - b * h * e + d * h * e) / (c * f * w_1 + d * g * w_1 - f * g * w_1 - c * h * w_1 - d * w_1 * e + h * w_1 * e);
-        float scaleY = (-b * c * f - b * d * g + b * f * g + a * d * h - a * f * h + c * f * h + b * d * e - d * h * e) / (c * f * h_1 + d * g * h_1 - f * g * h_1 - c * h * h_1 - d * h_1 * e + h * h_1 * e);
-        float transY = b;
-        float persp0 = (a * f - c * f + b * g - d * g - a * h + c * h - b * e + d * e) / (c * f * w_1 + d * g * w_1 - f * g * w_1 - c * h * w_1 - d * w_1 * e + h * w_1 * e);
-        float persp1 = (-b * c + a * d - a * f - d * g + f * g + c * h + b * e - h * e) / (c * f * h_1 + d * g * h_1 - f * g * h_1 - c * h * h_1 - d * h_1 * e + h * h_1 * e);
+        float scaleX = (y1 * x2 * x4 - x1 * y2 * x4 + x1 * y3 * x4 - x2 * y3 * x4 - y1 * x2 * x3 + x1 * y2 * x3 - x1 * y4 * x3 + x2 * y4 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3);
+        float skewX = (-x1 * x2 * y3 - y1 * x2 * x4 + x2 * y3 * x4 + x1 * x2 * y4 + x1 * y2 * x3 + y1 * x4 * x3 - y2 * x4 * x3 - x1 * y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3);
+        float transX = x1;
+        float skewY = (-y1 * x2 * y3 + x1 * y2 * y3 + y1 * y3 * x4 - y2 * y3 * x4 + y1 * x2 * y4 - x1 * y2 * y4 - y1 * y4 * x3 + y2 * y4 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3);
+        float scaleY = (-y1 * x2 * y3 - y1 * y2 * x4 + y1 * y3 * x4 + x1 * y2 * y4 - x1 * y3 * y4 + x2 * y3 * y4 + y1 * y2 * x3 - y2 * y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3);
+        float transY = y1;
+        float persp0 = (x1 * y3 - x2 * y3 + y1 * x4 - y2 * x4 - x1 * y4 + x2 * y4 - y1 * x3 + y2 * x3) / (x2 * y3 * w + y2 * x4 * w - y3 * x4 * w - x2 * y4 * w - y2 * w * x3 + y4 * w * x3);
+        float persp1 = (-y1 * x2 + x1 * y2 - x1 * y3 - y2 * x4 + y3 * x4 + x2 * y4 + y1 * x3 - y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3);
         float persp2 = 1;
 
         return new SKMatrix(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2);
