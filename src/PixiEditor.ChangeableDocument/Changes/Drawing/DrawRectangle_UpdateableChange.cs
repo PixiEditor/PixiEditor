@@ -1,10 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-
-namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
 internal class DrawRectangle_UpdateableChange : UpdateableChange
 {
@@ -21,6 +15,13 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         this.drawOnMask = drawOnMask;
     }
 
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    {
+        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
+            return new Error();
+        return new Success();
+    }
+
     [UpdateChangeMethod]
     public void Update(ShapeData rectangle)
     {
@@ -30,7 +31,6 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
     private HashSet<VecI> UpdateRectangle(Document target, ChunkyImage targetImage)
     {
         var oldAffectedChunks = targetImage.FindAffectedChunks();
-        var targetMember = target.FindMemberOrThrow(memberGuid);
 
         targetImage.CancelChanges();
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
@@ -44,14 +44,14 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
 
     public override IChangeInfo? ApplyTemporarily(Document target)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var chunks = UpdateRectangle(target, targetImage);
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var affectedChunks = UpdateRectangle(target, targetImage);
         storedChunks = new CommittedChunkStorage(targetImage, affectedChunks!);
         targetImage.CommitChanges();
@@ -62,7 +62,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
 
     public override IChangeInfo? Revert(Document target)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         storedChunks!.ApplyChunksToImage(targetImage);
         storedChunks.Dispose();
         storedChunks = null;

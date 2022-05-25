@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 internal class StructureMemberClipToMemberBelow_Change : Change
@@ -16,10 +14,13 @@ internal class StructureMemberClipToMemberBelow_Change : Change
         this.memberGuid = memberGuid;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMemberOrThrow(memberGuid);
+        var member = target.FindMember(memberGuid);
+        if (member is null || member.ClipToMemberBelow == newValue)
+            return new Error();
         originalValue = member.ClipToMemberBelow;
+        return new Success();
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)

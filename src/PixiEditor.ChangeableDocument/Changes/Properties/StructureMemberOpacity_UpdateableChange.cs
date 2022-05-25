@@ -1,7 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 
@@ -25,10 +22,13 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         newOpacity = opacity;
     }
 
-    public override void Initialize(Document document)
+    public override OneOf<Success, Error> InitializeAndValidate(Document document)
     {
-        var member = document.FindMemberOrThrow(memberGuid);
+        var member = document.FindMember(memberGuid);
+        if (member is null)
+            return new Error();
         originalOpacity = member.Opacity;
+        return new Success();
     }
 
     public override IChangeInfo? ApplyTemporarily(Document target) => Apply(target, out _);

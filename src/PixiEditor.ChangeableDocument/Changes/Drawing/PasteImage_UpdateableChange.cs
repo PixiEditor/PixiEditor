@@ -1,10 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-
-namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : UpdateableChange
 {
     private ShapeCorners corners;
@@ -22,6 +16,13 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         this.memberGuid = memberGuid;
         this.drawOnMask = isDrawingOnMask;
         this.imageToPaste = new Surface(image);
+    }
+
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    {
+        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
+            return new Error();
+        return new Success();
     }
 
     [UpdateChangeMethod]
@@ -46,7 +47,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
         savedChunks = new(targetImage, targetImage.FindAffectedChunks());
@@ -58,7 +59,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override IChangeInfo? ApplyTemporarily(Document target)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
@@ -66,7 +67,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     {
         if (savedChunks is null)
             throw new InvalidOperationException("No saved chunks to restore");
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImage(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         savedChunks.ApplyChunksToImage(targetImage);
         var chunks = targetImage.FindAffectedChunks();
         targetImage.CommitChanges();

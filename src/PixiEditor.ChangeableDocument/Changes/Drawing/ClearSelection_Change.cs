@@ -1,36 +1,27 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
 internal class ClearSelection_Change : Change
 {
-    private bool originalIsEmpty;
     private CommittedChunkStorage? savedSelection;
     private SKPath? originalPath;
 
     [GenerateMakeChangeAction]
     public ClearSelection_Change() { }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        originalIsEmpty = target.Selection.IsEmptyAndInactive;
-        if (!originalIsEmpty)
-            savedSelection = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAllChunks());
+        if (target.Selection.IsEmptyAndInactive)
+            return new Error();
+        savedSelection = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAllChunks());
         originalPath = new SKPath(target.Selection.SelectionPath);
+        return new Success();
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
-        if (originalIsEmpty)
-        {
-            ignoreInUndo = true;
-            return null;
-        }
         target.Selection.IsEmptyAndInactive = true;
 
         target.Selection.SelectionImage.CancelChanges();
@@ -47,8 +38,6 @@ internal class ClearSelection_Change : Change
 
     public override IChangeInfo? Revert(Document target)
     {
-        if (originalIsEmpty)
-            return new Selection_ChangeInfo() { Chunks = new() };
         target.Selection.IsEmptyAndInactive = false;
 
         target.Selection.SelectionImage.CancelChanges();

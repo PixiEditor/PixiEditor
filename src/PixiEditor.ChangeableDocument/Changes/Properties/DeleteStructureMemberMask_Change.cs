@@ -1,7 +1,4 @@
-﻿using ChunkyImageLib;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 
@@ -16,12 +13,13 @@ internal class DeleteStructureMemberMask_Change : Change
         this.memberGuid = memberGuid;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMemberOrThrow(memberGuid);
-        if (member.Mask is null)
-            throw new InvalidOperationException("Cannot delete the mask; Target member has no mask");
+        var member = target.FindMember(memberGuid);
+        if (member is null || member.Mask is null)
+            return new Error();
         storedMask = member.Mask.CloneFromCommitted();
+        return new Success();
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)

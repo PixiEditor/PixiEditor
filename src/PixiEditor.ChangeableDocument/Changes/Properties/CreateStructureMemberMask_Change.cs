@@ -1,7 +1,4 @@
-﻿using ChunkyImageLib;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 
@@ -15,7 +12,13 @@ internal class CreateStructureMemberMask_Change : Change
         targetMember = memberGuid;
     }
 
-    public override void Initialize(Document target) { }
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    {
+        var member = target.FindMember(targetMember);
+        if (member is null || member.Mask is not null)
+            return new Error();
+        return new Success();
+    }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {

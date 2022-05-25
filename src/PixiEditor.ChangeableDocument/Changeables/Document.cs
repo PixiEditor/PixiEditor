@@ -1,5 +1,4 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -40,6 +39,17 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         if (path.Count < 2)
             throw new ArgumentException("Couldn't find child and parent");
         return (path[0], (Folder)path[1]);
+    }
+
+    public (StructureMember?, Folder?) FindChildAndParent(Guid childGuid)
+    {
+        var path = FindMemberPath(childGuid);
+        return path.Count switch
+        {
+            1 => (path[0], null),
+            > 1 => (path[0], (Folder)path[1]),
+            _ => (null, null),
+        };
     }
 
     public List<StructureMember> FindMemberPath(Guid guid)

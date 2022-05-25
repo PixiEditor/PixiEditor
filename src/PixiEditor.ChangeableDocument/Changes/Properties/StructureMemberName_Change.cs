@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 
@@ -17,19 +15,17 @@ internal class StructureMemberName_Change : Change
         this.newName = name;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMemberOrThrow(targetMember);
+        var member = target.FindMember(targetMember);
+        if (member is null || member.Name == newName)
+            return new Error();
         originalName = member.Name;
+        return new Success();
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
-        if (originalName == newName)
-        {
-            ignoreInUndo = true;
-            return null;
-        }
         target.FindMemberOrThrow(targetMember).Name = newName;
 
         ignoreInUndo = false;

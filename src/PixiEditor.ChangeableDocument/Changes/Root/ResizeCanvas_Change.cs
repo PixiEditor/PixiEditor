@@ -1,8 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -21,11 +17,14 @@ internal class ResizeCanvas_Change : Change
     {
         newSize = size;
     }
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
+        if (target.Size == newSize)
+            return new Error();
         originalSize = target.Size;
         originalHorAxisY = target.HorizontalSymmetryAxisY;
         originalVerAxisX = target.VerticalSymmetryAxisX;
+        return new Success();
     }
 
     private void ForEachLayer(Folder folder, Action<Layer> action)

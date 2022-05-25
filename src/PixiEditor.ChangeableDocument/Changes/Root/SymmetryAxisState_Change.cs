@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -17,7 +15,7 @@ internal class SymmetryAxisState_Change : Change
         this.newEnabled = enabled;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
         originalEnabled = direction switch
         {
@@ -25,6 +23,9 @@ internal class SymmetryAxisState_Change : Change
             SymmetryAxisDirection.Vertical => target.VerticalSymmetryAxisEnabled,
             _ => throw new NotImplementedException(),
         };
+        if (originalEnabled == newEnabled)
+            return new Error();
+        return new Success();
     }
 
     private void SetState(Document target, bool state)
@@ -39,11 +40,6 @@ internal class SymmetryAxisState_Change : Change
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
-        if (originalEnabled == newEnabled)
-        {
-            ignoreInUndo = true;
-            return null;
-        }
         SetState(target, newEnabled);
         ignoreInUndo = false;
         return new SymmetryAxisState_ChangeInfo() { Direction = direction };
@@ -51,8 +47,6 @@ internal class SymmetryAxisState_Change : Change
 
     public override IChangeInfo? Revert(Document target)
     {
-        if (originalEnabled == newEnabled)
-            return null;
         SetState(target, originalEnabled);
         return new SymmetryAxisState_ChangeInfo() { Direction = direction };
     }

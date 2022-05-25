@@ -1,8 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Actions;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
-using PixiEditor.ChangeableDocument.Changeables;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Changes;
 
 namespace ChangeableDocument;
@@ -14,7 +13,7 @@ public class DocumentChangeTracker : IDisposable
     private bool running = false;
     public IReadOnlyDocument Document => document;
 
-    private UpdateableChange? activeChange = null;
+    private UpdateableChange? activeUpdateableChange = null;
     private List<Change>? activePacket = null;
 
     private Stack<List<Change>> undoStack = new();
@@ -30,7 +29,7 @@ public class DocumentChangeTracker : IDisposable
 
         document.Dispose();
 
-        activeChange?.Dispose();
+        activeUpdateableChange?.Dispose();
 
         if (activePacket != null)
             foreach (var change in activePacket)
@@ -97,8 +96,11 @@ public class DocumentChangeTracker : IDisposable
     {
         if (undoStack.Count == 0)
             return new List<IChangeInfo?>();
-        if (activePacket is not null || activeChange is not null)
-            throw new InvalidOperationException("Cannot undo while there is an active updateable change or an unfinished undo packet");
+        if (activePacket is not null || activeUpdateableChange is not null)
+        {
+            Trace.WriteLine("Attempted to undo while there is an active updateable change or an unfinished undo packet");
+            return new List<IChangeInfo?>();
+        }
         List<IChangeInfo?> changeInfos = new();
         List<Change> changePacket = undoStack.Pop();
 
@@ -113,8 +115,11 @@ public class DocumentChangeTracker : IDisposable
     {
         if (redoStack.Count == 0)
             return new List<IChangeInfo?>();
-        if (activePacket is not null || activeChange is not null)
-            throw new InvalidOperationException("Cannot redo while there is an active updateable change or an unfinished undo packet");
+        if (activePacket is not null || activeUpdateableChange is not null)
+        {
+            Trace.WriteLine("Attempted to redo while there is an active updateable change or an unfinished undo packet");
+            return new List<IChangeInfo?>();
+        }
         List<IChangeInfo?> changeInfos = new();
         List<Change> changePacket = redoStack.Pop();
 
@@ -127,8 +132,11 @@ public class DocumentChangeTracker : IDisposable
 
     private void DeleteAllChanges()
     {
-        if (activeChange is not null || activePacket is not null)
-            throw new InvalidOperationException("Cannot delete all changes while there is an active updateable change or an unfinished undo packet");
+        if (activeUpdateableChange is not null || activePacket is not null)
+        {
+            Trace.WriteLine("Attempted to delete all changes while there is an active updateable change or an unfinished undo packet");
+            return;
+        }
         foreach (var changesToDispose in redoStack)
             foreach (var changeToDispose in changesToDispose)
                 changeToDispose.Dispose();
@@ -141,10 +149,20 @@ public class DocumentChangeTracker : IDisposable
 
     private IChangeInfo? ProcessMakeChangeAction(IMakeChangeAction act)
     {
-        if (activeChange is not null)
-            throw new InvalidOperationException("Can't make a change while another change is active");
+        if (activeUpdateableChange is not null)
+        {
+            Trace.WriteLine($"Attempted to execute make change action {act} while {activeUpdateableChange} is active");
+            return null;
+        }
         var change = act.CreateCorrespondingChange();
-        change.Initialize(document);
+        var validationResult = change.InitializeAndValidate(document);
+        if (validationResult.IsT1)
+        {
+            Trace.WriteLine($"Change {change} failed validation");
+            change.Dispose();
+            return null;
+        }
+
         var info = change.Apply(document, out bool ignoreInUndo);
         if (!ignoreInUndo)
             AddToUndo(change);
@@ -155,28 +173,46 @@ public class DocumentChangeTracker : IDisposable
 
     private IChangeInfo? ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act)
     {
-        if (activeChange is null)
+        if (activeUpdateableChange is null)
         {
-            activeChange = act.CreateCorrespondingChange();
-            activeChange.Initialize(document);
+            var newChange = act.CreateCorrespondingChange();
+            var validationResult = newChange.InitializeAndValidate(document);
+            if (validationResult.IsT1)
+            {
+                Trace.WriteLine($"Change {newChange} failed validation");
+                newChange.Dispose();
+                return null;
+            }
+            activeUpdateableChange = newChange;
         }
-        act.UpdateCorrespodingChange(activeChange);
-        return activeChange.ApplyTemporarily(document);
+        else if (!act.IsChangeTypeMatching(activeUpdateableChange))
+        {
+            Trace.WriteLine($"Tried to start or update a change using action {act} while a change of type {activeUpdateableChange} is active");
+            return null;
+        }
+        act.UpdateCorrespodingChange(activeUpdateableChange);
+        return activeUpdateableChange.ApplyTemporarily(document);
     }
 
     private IChangeInfo? ProcessEndChangeAction(IEndChangeAction act)
     {
-        if (activeChange is null)
-            throw new InvalidOperationException("Can't end a change: no changes are active");
-        if (!act.IsChangeTypeMatching(activeChange))
-            throw new InvalidOperationException($"Trying to end a change with an action of type {act.GetType()} while a change of type {activeChange.GetType()} is active");
+        if (activeUpdateableChange is null)
+        {
+            Trace.WriteLine($"Attempted to end a change using action {act} while no changes are active");
+            return null;
+        }
+        if (!act.IsChangeTypeMatching(activeUpdateableChange))
+        {
+            Trace.WriteLine($"Trying to end a change with an action {act} while change {activeUpdateableChange} is active");
+            return null;
+        }
 
-        var info = activeChange.Apply(document, out bool ignoreInUndo);
+        var info = activeUpdateableChange.Apply(document, out bool ignoreInUndo);
         if (!ignoreInUndo)
-            AddToUndo(activeChange);
+            AddToUndo(activeUpdateableChange);
         else
-            activeChange.Dispose();
-        activeChange = null;
+            activeUpdateableChange.Dispose();
+        activeUpdateableChange = null;
         return info;
     }
 

@@ -1,9 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using OneOf;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
@@ -24,16 +19,21 @@ internal class CombineStructureMembersOnto_Change : Change
         this.targetLayer = targetLayer;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
+        if (target.FindMember(targetLayer) is null || membersToMerge.Count == 0)
+            return new Error();
         foreach (Guid guid in membersToMerge)
         {
-            var member = target.FindMemberOrThrow(guid);
+            var member = target.FindMember(guid);
+            if (member is null)
+                return new Error();
             if (member is Layer layer)
                 layersToCombine.Add(layer.GuidValue);
             else if (member is Folder innerFolder)
                 AddChildren(innerFolder, layersToCombine);
         }
+        return new Success();
     }
 
     private void AddChildren(Folder folder, HashSet<Guid> collection)

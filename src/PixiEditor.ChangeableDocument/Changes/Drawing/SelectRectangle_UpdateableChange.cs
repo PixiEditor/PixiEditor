@@ -1,9 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
@@ -21,10 +16,11 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     {
         Update(pos, size);
     }
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
         originalIsEmpty = target.Selection.IsEmptyAndInactive;
         originalPath = new SKPath(target.Selection.SelectionPath);
+        return new Success();
     }
 
     [UpdateChangeMethod]

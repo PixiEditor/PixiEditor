@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
@@ -22,7 +20,12 @@ internal class CreateStructureMember_Change : Change
         newMemberGuid = newGuid;
     }
 
-    public override void Initialize(Document target) { }
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    {
+        if (target.FindMember(parentFolderGuid) is null)
+            return new Error();
+        return new Success();
+    }
 
     public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
     {

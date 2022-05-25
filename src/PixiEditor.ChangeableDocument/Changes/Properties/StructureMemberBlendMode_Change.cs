@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
@@ -17,10 +15,13 @@ internal class StructureMemberBlendMode_Change : Change
         this.targetGuid = memberGuid;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMemberOrThrow(targetGuid);
+        var member = target.FindMember(targetGuid);
+        if (member is null || member.BlendMode == newBlendMode)
+            return new Error();
         originalBlendMode = member.BlendMode;
+        return new Success();
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)

@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -23,7 +21,7 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
         newPos = pos;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
         originalPos = direction switch
         {
@@ -31,6 +29,7 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
             SymmetryAxisDirection.Vertical => target.VerticalSymmetryAxisX,
             _ => throw new NotImplementedException(),
         };
+        return new Success();
     }
 
     private void SetPosition(Document target, int position)

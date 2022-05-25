@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties;
 
@@ -16,20 +14,20 @@ internal class StructureMemberIsVisible_Change : Change
         this.newIsVisible = isVisible;
     }
 
-    public override void Initialize(Document target)
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMemberOrThrow(targetMember);
+        var member = target.FindMember(targetMember);
+        if (member is null || member.IsVisible == newIsVisible)
+            return new Error();
         originalIsVisible = member.IsVisible;
+        return new Success();
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
         // don't record layer/folder visibility changes - it's just more convenient this way
         ignoreInUndo = true;
-        if (originalIsVisible == newIsVisible)
-            return null;
         target.FindMemberOrThrow(targetMember).IsVisible = newIsVisible;
-
         return new StructureMemberIsVisible_ChangeInfo() { GuidValue = targetMember };
     }
 

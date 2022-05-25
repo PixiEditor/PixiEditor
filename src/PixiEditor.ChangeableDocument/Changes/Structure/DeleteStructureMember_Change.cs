@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -17,13 +15,16 @@ internal class DeleteStructureMember_Change : Change
         this.memberGuid = memberGuid;
     }
 
-    public override void Initialize(Document document)
+    public override OneOf<Success, Error> InitializeAndValidate(Document document)
     {
-        var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
+        var (member, parent) = document.FindChildAndParent(memberGuid);
+        if (member is null || parent is null)
+            return new Error();
 
         originalIndex = parent.Children.IndexOf(member);
         parentGuid = parent.GuidValue;
         savedCopy = member.Clone();
+        return new Success();
     }
 
     public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
@@ -45,6 +46,6 @@ internal class DeleteStructureMember_Change : Change
 
     public override void Dispose()
     {
-        savedCopy!.Dispose();
+        savedCopy?.Dispose();
     }
 }

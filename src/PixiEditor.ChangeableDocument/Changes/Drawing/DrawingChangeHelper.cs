@@ -1,13 +1,9 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
 {
-    public static ChunkyImage GetTargetImage(Document target, Guid memberGuid, bool drawOnMask)
+    public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask)
     {
         var member = target.FindMemberOrThrow(memberGuid);
         if (drawOnMask)
@@ -38,6 +34,17 @@ internal static class DrawingChangeHelper
             targetImage.SetVerticalAxisOfSymmetry(target.VerticalSymmetryAxisX);
     }
 
+    public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask)
+    {
+        var member = target.FindMember(memberGuid);
+        if (member is null)
+            return false;
+        if (drawOnMask && member.Mask is null)
+            return false;
+        if (!drawOnMask && member is Folder)
+            return false;
+        return true;
+    }
 
     public static IChangeInfo CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask)
     {

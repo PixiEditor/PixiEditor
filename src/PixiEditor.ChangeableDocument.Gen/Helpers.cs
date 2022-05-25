@@ -60,6 +60,12 @@ internal static class Helpers
         AppendProperties(sb, properties);
         AppendCreateUpdateableCorrespondingChange(sb, changeConstructorInfo.ContainingClass, properties);
         AppendUpdateCorrespondingChange(sb, updateMethodInfo.Name, changeConstructorInfo.ContainingClass, updatePropsToPass);
+        sb.AppendLine($@"
+bool PixiEditor.ChangeableDocument.Actions.IStartOrUpdateChangeAction.IsChangeTypeMatching(PixiEditor.ChangeableDocument.Changes.Change change)
+{{
+    return change is {changeConstructorInfo.ContainingClass.NameWithNamespace};
+}}
+");
         sb.AppendLine("}");
 
         return sb.ToString();

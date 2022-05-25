@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Changeables;
-using PixiEditor.ChangeableDocument.ChangeInfos;
-using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -22,11 +20,15 @@ internal class MoveStructureMember_Change : Change
         this.targetFolderIndex = targetFolderIndex;
     }
 
-    public override void Initialize(Document document)
+    public override OneOf<Success, Error> InitializeAndValidate(Document document)
     {
-        var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
+        var (member, curFolder) = document.FindChildAndParent(memberGuid);
+        var targetFolder = document.FindMember(targetFolderGuid);
+        if (member is null || curFolder is null || targetFolder is not Folder)
+            return new Error();
         originalFolderGuid = curFolder.GuidValue;
         originalFolderIndex = curFolder.Children.IndexOf(member);
+        return new Success();
     }
 
     private static void Move(Document document, Guid memberGuid, Guid targetFolderGuid, int targetIndex)

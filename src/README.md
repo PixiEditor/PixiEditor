@@ -45,7 +45,7 @@ Decouples the state of a document from the UI.
 - ChangeableDocument/Renderer
     - [x] Basic Action->Change->ChangeInfo pipeline
     - [x] Code generation for Action/ChangeInfo boilerplate
-    - [ ] Ignore invalid inputs
+    - [x] Ignore invalid inputs
     - Undo handling
         - [x] UpdateableChange class for changes requiring preview
         - [x] Handling for changes that don't change anything
