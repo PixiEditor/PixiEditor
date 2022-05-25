@@ -13,6 +13,8 @@ public class Surface : IDisposable
     public SKSurface SkiaSurface { get; }
     public VecI Size { get; }
 
+    private SKPaint drawingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+
     public Surface(VecI size)
     {
         if (size.X < 1 || size.Y < 1)
@@ -49,16 +51,24 @@ public class Surface : IDisposable
         if (other.Size != Size)
             throw new ArgumentException("Target Surface must have the same dimensions");
         int bytesC = Size.X * Size.Y * bytesPerPixel;
-        Buffer.MemoryCopy((void*)PixelBuffer, (void*)other.PixelBuffer, bytesC, bytesC);
+        using var pixmap = other.SkiaSurface.PeekPixels();
+        Buffer.MemoryCopy((void*)PixelBuffer, (void*)pixmap.GetPixels(), bytesC, bytesC);
     }
 
-    public unsafe SKColor GetSRGBPixel(int x, int y)
+    /// <summary>
+    /// Consider getting a pixmap from SkiaSurface.PeekPixels().GetPixels() and writing into it's buffer for bulk pixel get/set. Don't forget to dispose the pixmap afterwards.
+    /// </summary>
+    public unsafe SKColor GetSRGBPixel(VecI pos)
     {
-        throw new NotImplementedException("This function needs to be changed to account for linear -> srgb conversion");
-        /*
-        Half* ptr = (Half*)(PixelBuffer + (x + y * Size.X) * bytesPerPixel);
+        Half* ptr = (Half*)(PixelBuffer + (pos.X + pos.Y * Size.X) * bytesPerPixel);
         float a = (float)ptr[3];
-        return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);*/
+        return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
+    }
+
+    public void SetSRGBPixel(VecI pos, SKColor color)
+    {
+        drawingPaint.Color = color;
+        SkiaSurface.Canvas.DrawPoint(pos.X, pos.Y, drawingPaint);
     }
 
     public unsafe bool IsFullyTransparent()
@@ -88,7 +98,7 @@ public class Surface : IDisposable
 
     private SKSurface CreateSKSurface()
     {
-        var surface = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgbLinear()), PixelBuffer);
+        var surface = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()), PixelBuffer);
         if (surface is null)
             throw new InvalidOperationException($"Could not create surface (Size:{Size})");
         return surface;
@@ -107,6 +117,7 @@ public class Surface : IDisposable
         if (disposed)
             return;
         disposed = true;
+        drawingPaint.Dispose();
         Marshal.FreeHGlobal(PixelBuffer);
         GC.SuppressFinalize(this);
     }

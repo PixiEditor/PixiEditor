@@ -3,5 +3,6 @@
 internal enum Tool
 {
     Rectangle,
-    Select
+    Select,
+    FloodFill
 }

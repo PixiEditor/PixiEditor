@@ -97,6 +97,10 @@ internal class ViewModelMain : INotifyPropertyChanged
         var pos = args.GetPosition(source);
         mouseDownCanvasX = (int)(pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth);
         mouseDownCanvasY = (int)(pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight);
+        if (activeTool is Tool.FloodFill)
+        {
+            ActiveDocument.FloodFill(new VecI(mouseDownCanvasX, mouseDownCanvasY), new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+        }
     }
 
     private void MouseMove(object? param)

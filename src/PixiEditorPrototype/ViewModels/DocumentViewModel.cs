@@ -251,6 +251,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
+    public void FloodFill(VecI pos, SKColor color)
+    {
+        if (updateableChangeActive || SelectedStructureMember is null)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new FloodFill_Action(SelectedStructureMember.GuidValue, pos, color, SelectedStructureMember.ShouldDrawOnMask));
+    }
+
     public void AddOrUpdateViewport(ViewportLocation location)
     {
         Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(location));

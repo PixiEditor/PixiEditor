@@ -27,6 +27,14 @@ public struct VecD
     {
         return new(Math.Round(X), Math.Round(Y));
     }
+    public VecD Ceiling()
+    {
+        return new(Math.Ceiling(X), Math.Ceiling(Y));
+    }
+    public VecD Floor()
+    {
+        return new(Math.Floor(X), Math.Floor(Y));
+    }
     public VecD Rotate(double angle)
     {
         VecD result = new VecD();
