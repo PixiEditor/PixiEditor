@@ -1,9 +1,7 @@
-﻿using ChunkyImageLib;
-
-namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyLayer : IReadOnlyStructureMember
 {
-    IReadOnlyChunkyImage ReadOnlyLayerImage { get; }
+    IReadOnlyChunkyImage LayerImage { get; }
     bool LockTransparency { get; }
 }

@@ -1,18 +1,20 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using System.Collections.Immutable;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Folder : StructureMember, IReadOnlyFolder
 {
-    internal List<StructureMember> Children { get; set; } = new();
-    public IReadOnlyList<IReadOnlyStructureMember> ReadOnlyChildren => Children;
+    public ImmutableList<StructureMember> Children { get; set; } = ImmutableList<StructureMember>.Empty;
+    IReadOnlyList<IReadOnlyStructureMember> IReadOnlyFolder.Children => Children;
 
     internal override Folder Clone()
     {
-        List<StructureMember> clonedChildren = new();
-        foreach (var child in Children)
+        var builder = ImmutableList<StructureMember>.Empty.ToBuilder();
+        for (var i = 0; i < Children.Count; i++)
         {
-            clonedChildren.Add(child.Clone());
+            var child = Children[i];
+            builder.Add(child.Clone());
         }
 
         return new Folder()
@@ -21,16 +23,16 @@ internal class Folder : StructureMember, IReadOnlyFolder
             IsVisible = IsVisible,
             Name = Name,
             Opacity = Opacity,
-            Children = clonedChildren,
+            Children = builder.ToImmutable(),
             Mask = Mask?.CloneFromCommitted()
         };
     }
 
     public override void Dispose()
     {
-        foreach (var child in Children)
+        for (var i = 0; i < Children.Count; i++)
         {
-            child.Dispose();
+            Children[i].Dispose();
         }
         Mask?.Dispose();
     }

@@ -136,7 +136,7 @@ internal class WriteableBitmapUpdater
                 {
                     var pos = chunk * ChunkResolution.Full.PixelSize();
                     // the full res chunks are already rendered so drawing them again should be fast
-                    layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn
+                    layer.LayerImage.DrawMostUpToDateChunkOn
                         (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, ReplacingPaint);
                 }
                 infos.Add(new PreviewDirty_RenderInfo(guid));
@@ -181,7 +181,7 @@ internal class WriteableBitmapUpdater
             foreach (var chunk in chunks)
             {
                 var pos = chunk * ChunkResolution.Full.PixelSize();
-                member.ReadOnlyMask!.DrawMostUpToDateChunkOn
+                member.Mask!.DrawMostUpToDateChunkOn
                     (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface, pos, ReplacingPaint);
             }
 
@@ -210,7 +210,7 @@ internal class WriteableBitmapUpdater
 
     private void RenderChunk(VecI chunkPos, SKSurface screenSurface, ChunkResolution resolution)
     {
-        ChunkRenderer.MergeWholeStructure(chunkPos, resolution, helpers.Tracker.Document.ReadOnlyStructureRoot).Switch(
+        ChunkRenderer.MergeWholeStructure(chunkPos, resolution, helpers.Tracker.Document.StructureRoot).Switch(
             (Chunk chunk) =>
             {
                 screenSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);

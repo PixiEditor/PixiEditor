@@ -38,7 +38,7 @@ internal class CreateStructureMember_Change : Change
             _ => throw new InvalidOperationException("Cannon create member of type " + type.ToString())
         };
 
-        folder.Children.Insert(parentFolderIndex, member);
+        folder.Children = folder.Children.Insert(parentFolderIndex, member);
 
         ignoreInUndo = false;
         return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
@@ -49,7 +49,7 @@ internal class CreateStructureMember_Change : Change
         var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
         var child = document.FindMemberOrThrow(newMemberGuid);
         child.Dispose();
-        folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
+        folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
 
         return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid, ParentGuid = parentFolderGuid };
     }

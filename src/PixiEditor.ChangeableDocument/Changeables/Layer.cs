@@ -1,6 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -8,7 +6,7 @@ internal class Layer : StructureMember, IReadOnlyLayer
 {
     public bool LockTransparency { get; set; } = false;
     public ChunkyImage LayerImage { get; set; }
-    IReadOnlyChunkyImage IReadOnlyLayer.ReadOnlyLayerImage => LayerImage;
+    IReadOnlyChunkyImage IReadOnlyLayer.LayerImage => LayerImage;
 
     public Layer(VecI size)
     {

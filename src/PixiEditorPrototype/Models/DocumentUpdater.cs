@@ -214,7 +214,7 @@ internal class DocumentUpdater
         var (member, parentFolder) = helper.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
         var parentFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(parentFolder.GuidValue);
 
-        int index = parentFolder.ReadOnlyChildren.IndexOf(member);
+        int index = parentFolder.Children.IndexOf(member);
 
         StructureMemberViewModel memberVM = member switch
         {
@@ -227,7 +227,7 @@ internal class DocumentUpdater
 
         if (member is IReadOnlyFolder folder2)
         {
-            foreach (IReadOnlyStructureMember child in folder2.ReadOnlyChildren)
+            foreach (IReadOnlyStructureMember child in folder2.Children)
             {
                 ProcessCreateStructureMember(new CreateStructureMember_ChangeInfo() { GuidValue = child.GuidValue });
             }
@@ -263,7 +263,7 @@ internal class DocumentUpdater
         var (memberVM, curFolderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
         var (member, targetFolder) = helper.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
 
-        int index = targetFolder.ReadOnlyChildren.IndexOf(member);
+        int index = targetFolder.Children.IndexOf(member);
         var targetFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(targetFolder.GuidValue);
 
         curFolderVM.Children.Remove(memberVM);

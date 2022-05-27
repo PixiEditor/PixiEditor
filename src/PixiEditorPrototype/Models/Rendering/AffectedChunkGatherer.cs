@@ -94,7 +94,7 @@ internal class AffectedChunkGatherer
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayer layer)
         {
-            var chunks = layer.ReadOnlyLayerImage.FindAllChunks();
+            var chunks = layer.LayerImage.FindAllChunks();
             AddToImagePreviews(memberGuid, chunks, ignoreSelf);
         }
         else
@@ -107,9 +107,9 @@ internal class AffectedChunkGatherer
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayer layer)
         {
-            var chunks = layer.ReadOnlyLayerImage.FindAllChunks();
-            if (layer.ReadOnlyMask is not null)
-                chunks.IntersectWith(layer.ReadOnlyMask.FindAllChunks());
+            var chunks = layer.LayerImage.FindAllChunks();
+            if (layer.Mask is not null)
+                chunks.IntersectWith(layer.Mask.FindAllChunks());
             AddToMainImage(chunks);
         }
         else
@@ -120,9 +120,9 @@ internal class AffectedChunkGatherer
     private void AddAllToMaskPreview(Guid memberGuid)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is null || member.ReadOnlyMask is null)
+        if (member is null || member.Mask is null)
             return;
-        var chunks = member.ReadOnlyMask.FindAllChunks();
+        var chunks = member.Mask.FindAllChunks();
         AddToMaskPreview(memberGuid, chunks);
     }
 
@@ -182,18 +182,18 @@ internal class AffectedChunkGatherer
 
     private void AddWholeCanvasToEveryImagePreview()
     {
-        ForEveryMember(tracker.Document.ReadOnlyStructureRoot, (member) => AddWholeCanvasToImagePreviews(member.GuidValue));
+        ForEveryMember(tracker.Document.StructureRoot, (member) => AddWholeCanvasToImagePreviews(member.GuidValue));
     }
 
     private void AddWholeCanvasToEveryMaskPreview()
     {
-        ForEveryMember(tracker.Document.ReadOnlyStructureRoot, (member) => AddWholeCanvasToMaskPreview(member.GuidValue));
+        ForEveryMember(tracker.Document.StructureRoot, (member) => AddWholeCanvasToMaskPreview(member.GuidValue));
     }
 
 
     private void ForEveryMember(IReadOnlyFolder folder, Action<IReadOnlyStructureMember> action)
     {
-        foreach (var child in folder.ReadOnlyChildren)
+        foreach (var child in folder.Children)
         {
             action(child);
             if (child is IReadOnlyFolder innerFolder)

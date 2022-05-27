@@ -11,5 +11,5 @@ public interface IReadOnlyStructureMember
     Guid GuidValue { get; }
     float Opacity { get; }
     BlendMode BlendMode { get; }
-    IReadOnlyChunkyImage? ReadOnlyMask { get; }
+    IReadOnlyChunkyImage? Mask { get; }
 }

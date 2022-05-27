@@ -2,5 +2,5 @@
 
 public interface IReadOnlyFolder : IReadOnlyStructureMember
 {
-    IReadOnlyList<IReadOnlyStructureMember> ReadOnlyChildren { get; }
+    IReadOnlyList<IReadOnlyStructureMember> Children { get; }
 }

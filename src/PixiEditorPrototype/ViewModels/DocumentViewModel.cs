@@ -69,7 +69,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
-    public SKPath SelectionPath => Helpers.Tracker.Document.ReadOnlySelection.ReadOnlySelectionPath;
+    public SKPath SelectionPath => Helpers.Tracker.Document.Selection.SelectionPath;
     public Guid GuidValue { get; } = Guid.NewGuid();
     public int HorizontalSymmetryAxisY => Helpers.Tracker.Document.HorizontalSymmetryAxisY;
     public int VerticalSymmetryAxisX => Helpers.Tracker.Document.VerticalSymmetryAxisX;
@@ -99,7 +99,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         TransformViewModel.TransformMoved += OnTransformUpdate;
 
         Helpers = new DocumentHelpers(this);
-        StructureRoot = new FolderViewModel(this, Helpers, Helpers.Tracker.Document.ReadOnlyStructureRoot);
+        StructureRoot = new FolderViewModel(this, Helpers, Helpers.Tracker.Document.StructureRoot);
 
         UndoCommand = new RelayCommand(Undo);
         RedoCommand = new RelayCommand(Redo);

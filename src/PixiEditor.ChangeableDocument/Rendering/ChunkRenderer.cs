@@ -32,20 +32,20 @@ public static class ChunkRenderer
             clippingChunk.IsT1 ||
             !layer.IsVisible ||
             layer.Opacity == 0 ||
-            (layer.ReadOnlyMask is not null && !layer.ReadOnlyMask.LatestOrCommittedChunkExists(chunkPos))
+            (layer.Mask is not null && !layer.Mask.LatestOrCommittedChunkExists(chunkPos))
             )
             return new EmptyChunk();
 
         context.UpdateFromMember(layer);
 
         Chunk renderingResult = Chunk.Create(resolution);
-        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
+        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
         }
 
-        if (!layer.ReadOnlyMask!.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), ClippingPaint))
+        if (!layer.Mask!.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), ClippingPaint))
         {
             // should pretty much never happen due to the check above, but you can never be sure with many threads
             renderingResult.Dispose();
@@ -65,12 +65,12 @@ public static class ChunkRenderer
         if (clippingChunk.IsT1 || !layer.IsVisible || layer.Opacity == 0)
             return new EmptyChunk();
 
-        if (layer.ReadOnlyMask is not null)
+        if (layer.Mask is not null)
             return RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
 
         context.UpdateFromMember(layer);
         Chunk renderingResult = Chunk.Create(resolution);
-        if (!layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
+        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
@@ -87,7 +87,7 @@ public static class ChunkRenderer
     {
         if (clippingChunk.IsT1 || !layer.IsVisible || layer.Opacity == 0)
             return;
-        if (layer.ReadOnlyMask is not null)
+        if (layer.Mask is not null)
         {
             var result = RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
             if (result.IsT1)
@@ -103,7 +103,7 @@ public static class ChunkRenderer
             return;
         }
         context.UpdateFromMember(layer);
-        layer.ReadOnlyLayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), context.BlendModeOpacityPaint);
+        layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), context.BlendModeOpacityPaint);
     }
 
     private static OneOf<EmptyChunk, Chunk> RenderFolder(
@@ -119,8 +119,8 @@ public static class ChunkRenderer
             clippingChunk.IsT1 ||
             !folder.IsVisible ||
             folder.Opacity == 0 ||
-            folder.ReadOnlyChildren.Count == 0 ||
-            (folder.ReadOnlyMask is not null && !folder.ReadOnlyMask.LatestOrCommittedChunkExists(chunkPos))
+            folder.Children.Count == 0 ||
+            (folder.Mask is not null && !folder.Mask.LatestOrCommittedChunkExists(chunkPos))
             )
             return new EmptyChunk();
 
@@ -129,9 +129,9 @@ public static class ChunkRenderer
             return new EmptyChunk();
         Chunk contents = maybeContents.AsT0;
 
-        if (folder.ReadOnlyMask is not null)
+        if (folder.Mask is not null)
         {
-            if (!folder.ReadOnlyMask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.SkiaSurface, new(0, 0), ClippingPaint))
+            if (!folder.Mask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.SkiaSurface, new(0, 0), ClippingPaint))
             {
                 // this shouldn't really happen due to the check above, but another thread could edit the mask in the meantime
                 contents.Dispose();
@@ -155,7 +155,7 @@ public static class ChunkRenderer
         IReadOnlyFolder folder,
         OneOf<All, HashSet<Guid>> membersToMerge)
     {
-        if (folder.ReadOnlyChildren.Count == 0)
+        if (folder.Children.Count == 0)
             return new EmptyChunk();
 
         // clipping to member below doesn't make sense if we are skipping some of them
@@ -165,16 +165,16 @@ public static class ChunkRenderer
         targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
         OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk = new FilledChunk();
-        for (int i = 0; i < folder.ReadOnlyChildren.Count; i++)
+        for (int i = 0; i < folder.Children.Count; i++)
         {
-            var child = folder.ReadOnlyChildren[i];
+            var child = folder.Children[i];
 
             // next child might use clip to member below in which case we need to save the clip image
             bool needToSaveClippingChunk =
                 !ignoreClipToBelow &&
-                i < folder.ReadOnlyChildren.Count - 1 &&
+                i < folder.Children.Count - 1 &&
                 !child.ClipToMemberBelow &&
-                folder.ReadOnlyChildren[i + 1].ClipToMemberBelow;
+                folder.Children[i + 1].ClipToMemberBelow;
 
             // if the current member doesn't need a clip, get rid of it
             if (!child.ClipToMemberBelow && !clippingChunk.IsT0)

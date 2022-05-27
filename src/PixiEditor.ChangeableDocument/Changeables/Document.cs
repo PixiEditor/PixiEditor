@@ -4,8 +4,8 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Document : IChangeable, IReadOnlyDocument, IDisposable
 {
-    public IReadOnlyFolder ReadOnlyStructureRoot => StructureRoot;
-    public IReadOnlySelection ReadOnlySelection => Selection;
+    IReadOnlyFolder IReadOnlyDocument.StructureRoot => StructureRoot;
+    IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyStructureMember? IReadOnlyDocument.FindMember(Guid guid) => FindMember(guid);
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyDocument.FindMemberPath(Guid guid) => FindMemberPath(guid);
     IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
@@ -66,6 +66,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         {
             return true;
         }
+
         foreach (var member in folder.Children)
         {
             if (member is Layer childLayer && childLayer.GuidValue == guid)

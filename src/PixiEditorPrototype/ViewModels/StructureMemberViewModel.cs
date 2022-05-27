@@ -49,7 +49,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 
     public Guid GuidValue => member.GuidValue;
 
-    public bool HasMask => member.ReadOnlyMask is not null;
+    public bool HasMask => member.Mask is not null;
 
     public const int PreviewSize = 48;
     public WriteableBitmap PreviewBitmap { get; set; }
@@ -91,7 +91,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         var previewSize = CalculatePreviewSize(new(doc.Width, doc.Height));
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
-        if (member.ReadOnlyMask is not null)
+        if (member.Mask is not null)
         {
             MaskPreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
             MaskPreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);

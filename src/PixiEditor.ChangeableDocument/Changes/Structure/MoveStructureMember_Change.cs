@@ -36,8 +36,8 @@ internal class MoveStructureMember_Change : Change
         var targetFolder = (Folder)document.FindMemberOrThrow(targetFolderGuid);
         var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
 
-        curFolder.Children.Remove(member);
-        targetFolder.Children.Insert(targetIndex, member);
+        curFolder.Children = curFolder.Children.Remove(member);
+        targetFolder.Children = targetFolder.Children.Insert(targetIndex, member);
     }
 
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)

@@ -1,5 +1,4 @@
-﻿using ChunkyImageLib;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
@@ -10,10 +9,10 @@ internal class Selection : IReadOnlySelection, IDisposable
     public bool IsEmptyAndInactive { get; set; } = true;
     public ChunkyImage SelectionImage { get; set; } = new(new(64, 64));
     public SKPath SelectionPath { get; set; } = new();
-    public SKPath ReadOnlySelectionPath => new SKPath(SelectionPath);
+    SKPath IReadOnlySelection.SelectionPath => new SKPath(SelectionPath);
 
-    public IReadOnlyChunkyImage ReadOnlySelectionImage => SelectionImage;
-    public bool ReadOnlyIsEmptyAndInactive => IsEmptyAndInactive;
+    IReadOnlyChunkyImage IReadOnlySelection.SelectionImage => SelectionImage;
+    bool IReadOnlySelection.IsEmptyAndInactive => IsEmptyAndInactive;
 
     public void Dispose()
     {

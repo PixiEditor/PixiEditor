@@ -30,7 +30,7 @@ internal class DeleteStructureMember_Change : Change
     public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
     {
         var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
-        parent.Children.Remove(member);
+        parent.Children = parent.Children.Remove(member);
         member.Dispose();
         ignoreInUndo = false;
         return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentGuid = parentGuid };
@@ -40,7 +40,7 @@ internal class DeleteStructureMember_Change : Change
     {
         var parent = (Folder)doc.FindMemberOrThrow(parentGuid);
 
-        parent.Children.Insert(originalIndex, savedCopy!.Clone());
+        parent.Children = parent.Children.Insert(originalIndex, savedCopy!.Clone());
         return new CreateStructureMember_ChangeInfo() { GuidValue = memberGuid };
     }
 

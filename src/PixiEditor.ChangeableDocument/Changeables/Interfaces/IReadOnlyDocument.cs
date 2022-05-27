@@ -1,11 +1,9 @@
-﻿using ChunkyImageLib.DataHolders;
-
-namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyDocument
 {
-    IReadOnlyFolder ReadOnlyStructureRoot { get; }
-    IReadOnlySelection ReadOnlySelection { get; }
+    IReadOnlyFolder StructureRoot { get; }
+    IReadOnlySelection Selection { get; }
     VecI Size { get; }
     bool HorizontalSymmetryAxisEnabled { get; }
     bool VerticalSymmetryAxisEnabled { get; }
