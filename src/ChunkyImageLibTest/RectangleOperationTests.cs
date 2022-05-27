@@ -1,8 +1,8 @@
-﻿using ChunkyImageLib;
+﻿using System.Collections.Generic;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using SkiaSharp;
-using System.Collections.Generic;
 using Xunit;
 
 namespace ChunkyImageLibTest;
@@ -15,8 +15,8 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_SmallStrokeOnly_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (0, 0, chunkSize, chunkSize);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
+        var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, chunkSize, chunkSize);
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, SKColors.Black, SKColors.Transparent));
 
         HashSet<VecI> expected = new() { new(0, 0) };
         var actual = operation.FindAffectedChunks();
@@ -27,8 +27,8 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_2by2StrokeOnly_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (-chunkSize, -chunkSize, chunkSize * 2, chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
+        var (x, y, w, h) = (0, 0, chunkSize * 2, chunkSize * 2);
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, SKColors.Black, SKColors.Transparent));
 
         HashSet<VecI> expected = new() { new(-1, -1), new(0, -1), new(-1, 0), new(0, 0) };
         var actual = operation.FindAffectedChunks();
@@ -39,8 +39,8 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_3x3PositiveStrokeOnly_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (chunkSize + chunkSize / 2, chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
+        var (x, y, w, h) = (2 * chunkSize + chunkSize / 2, 2 * chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, SKColors.Black, SKColors.Transparent));
 
         HashSet<VecI> expected = new()
         {
@@ -56,8 +56,8 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_3x3NegativeStrokeOnly_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (-chunkSize * 3 - chunkSize / 2, -chunkSize * 3 - chunkSize / 2, chunkSize * 2, chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.Transparent));
+        var (x, y, w, h) = (-chunkSize * 2 - chunkSize / 2, -chunkSize * 2 - chunkSize / 2, chunkSize * 2, chunkSize * 2);
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, SKColors.Black, SKColors.Transparent));
 
         HashSet<VecI> expected = new()
         {
@@ -73,8 +73,8 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_3x3PositiveFilled_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (chunkSize + chunkSize / 2, chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 1, SKColors.Black, SKColors.White));
+        var (x, y, w, h) = (2 * chunkSize + chunkSize / 2, 2 * chunkSize + chunkSize / 2, chunkSize * 2, chunkSize * 2);
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, SKColors.Black, SKColors.White));
 
         HashSet<VecI> expected = new()
         {
@@ -90,8 +90,8 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_ThickPositiveStroke_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, chunkSize * 4, chunkSize * 4);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), chunkSize, SKColors.Black, SKColors.Transparent));
+        var (x, y, w, h) = (2 * chunkSize + chunkSize / 2, 2 * chunkSize + chunkSize / 2, chunkSize * 4, chunkSize * 4);
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, chunkSize, SKColors.Black, SKColors.Transparent));
 
         HashSet<VecI> expected = new()
         {
@@ -109,8 +109,8 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_SmallButThick_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (chunkSize / 2, chunkSize / 2, 1, 1);
-        RectangleOperation operation = new(new(new(x, y), new(w, h), 256, SKColors.Black, SKColors.White));
+        var (x, y, w, h) = (chunkSize / 2 - 0.5, chunkSize / 2 - 0.5, 1, 1);
+        RectangleOperation operation = new(new(new(x, y), new(w, h), 0, chunkSize, SKColors.Black, SKColors.White));
 
         HashSet<VecI> expected = new() { new(0, 0) };
         var actual = operation.FindAffectedChunks();
