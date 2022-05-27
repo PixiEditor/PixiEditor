@@ -1,7 +1,7 @@
 ﻿using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
-internal struct FloodFillColorBounds
+internal struct FloodFillColorRange
 {
     public float LowerR { get; set; }
     public float LowerG { get; set; }
@@ -12,7 +12,7 @@ internal struct FloodFillColorBounds
     public float UpperB { get; set; }
     public float UpperA { get; set; }
 
-    public FloodFillColorBounds(SKColor color)
+    public FloodFillColorRange(SKColor color)
     {
         static (float lower, float upper) FindInclusiveBoundaryPremul(byte channel, float alpha)
         {

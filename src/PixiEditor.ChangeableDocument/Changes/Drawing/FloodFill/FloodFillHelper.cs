@@ -4,27 +4,58 @@ using SkiaSharp;
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 internal class FloodFillHelper
 {
-    public static (HashSet<VecI>, CommittedChunkStorage) FloodFillAndCommit(ChunkyImage image, VecI pos, SKColor color)
+    public static FloodFillChunkStorage FloodFill(ChunkyImage image, VecI startingPos, SKColor drawingColor)
     {
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        using FloodFillChunkStorage storage = new(image);
+        FloodFillChunkStorage storage = new(image);
 
-        VecI initChunkPos = OperationHelper.GetChunkPos(pos, chunkSize);
+        VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(image.LatestSize / (double)chunkSize).Ceiling();
-        VecI initPosOnChunk = pos - initChunkPos * chunkSize;
+        VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
         SKColor colorToReplace = storage.GetChunk(initChunkPos).Surface.GetSRGBPixel(initPosOnChunk);
 
-        FloodFillColorBounds bounds = new(colorToReplace);
-        ulong uLongColor = ToULong(color);
+        if (colorToReplace.Alpha == 0 && drawingColor.Alpha == 0 || colorToReplace == drawingColor)
+            return storage;
 
+        // Premultiplies the color and convert it to floats. Since floats are inprecise, a range is used.
+        // Used for faster pixel checking
+        FloodFillColorRange bounds = new(colorToReplace);
+        ulong uLongColor = ToULong(drawingColor);
+
+        // flood fill chunks using a basic 4-way approach with a stack (each chunk is kinda like a pixel)
+        // once the chunk is filled all places where it spills over to neighboring chunks are saved in the stack
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
         while (positionsToFloodFill.Count > 0)
         {
             var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
+
+            // if the chunks is empty and we are replacing a transparent color clear the whole chunk right away
+            if (!storage.ChunkExistsInStorageOrInImage(chunkPos))
+            {
+                if (colorToReplace.Alpha == 0)
+                {
+                    var chunkToClear = storage.GetChunk(chunkPos);
+                    chunkToClear.Surface.SkiaSurface.Canvas.Clear(drawingColor);
+                    for (int i = 0; i < chunkSize; i++)
+                    {
+                        if (chunkPos.Y > 0)
+                            positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
+                        if (chunkPos.Y < imageSizeInChunks.Y - 1)
+                            positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
+                        if (chunkPos.X > 0)
+                            positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
+                        if (chunkPos.X < imageSizeInChunks.X - 1)
+                            positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
+                    }
+                }
+                continue;
+            }
+
+            // use regular flood fill for chunks that have something in them
             Chunk chunk = storage.GetChunk(chunkPos);
-            var maybeArray = FloodFillChunk(chunk, chunkSize, uLongColor, color, posOnChunk, bounds);
+            var maybeArray = FloodFillChunk(chunk, chunkSize, uLongColor, drawingColor, posOnChunk, bounds);
             if (maybeArray is null)
                 continue;
             for (int i = 0; i < chunkSize; i++)
@@ -39,11 +70,7 @@ internal class FloodFillHelper
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
-        storage.DrawOnImage();
-        var affected = image.FindAffectedChunks();
-        var affectedChunkStorage = new CommittedChunkStorage(image, affected);
-        image.CommitChanges();
-        return (affected, affectedChunkStorage);
+        return storage;
     }
 
     private unsafe static ulong ToULong(SKColor color)
@@ -58,7 +85,7 @@ internal class FloodFillHelper
         return result;
     }
 
-    private unsafe static bool IsWithinBounds(ref FloodFillColorBounds bounds, Half* pixel)
+    private unsafe static bool IsWithinBounds(ref FloodFillColorRange bounds, Half* pixel)
     {
         float r = (float)pixel[0];
         float g = (float)pixel[1];
@@ -75,7 +102,7 @@ internal class FloodFillHelper
         return true;
     }
 
-    private unsafe static bool[]? FloodFillChunk(Chunk chunk, int chunkSize, ulong colorBits, SKColor color, VecI pos, FloodFillColorBounds bounds)
+    private unsafe static bool[]? FloodFillChunk(Chunk chunk, int chunkSize, ulong colorBits, SKColor color, VecI pos, FloodFillColorRange bounds)
     {
         if (chunk.Surface.GetSRGBPixel(pos) == color)
             return null;

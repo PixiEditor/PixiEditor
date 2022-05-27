@@ -12,6 +12,11 @@ internal class FloodFillChunkStorage : IDisposable
         this.image = image;
     }
 
+    public bool ChunkExistsInStorageOrInImage(VecI pos)
+    {
+        return acquiredChunks.ContainsKey(pos) || image.LatestOrCommittedChunkExists(pos);
+    }
+
     public Chunk GetChunk(VecI pos)
     {
         if (acquiredChunks.ContainsKey(pos))
@@ -23,12 +28,16 @@ internal class FloodFillChunkStorage : IDisposable
         return chunk;
     }
 
-    public void DrawOnImage()
+    public (CommittedChunkStorage, HashSet<VecI>) DrawOnChunkyImage(ChunkyImage chunkyImage)
     {
         foreach (var (pos, chunk) in acquiredChunks)
         {
-            image.EnqueueDrawImage(pos * ChunkResolution.Full.PixelSize(), chunk.Surface, false);
+            chunkyImage.EnqueueDrawImage(pos * ChunkResolution.Full.PixelSize(), chunk.Surface, false);
         }
+        var affected = chunkyImage.FindAffectedChunks();
+        var affectedChunkStorage = new CommittedChunkStorage(chunkyImage, affected);
+        chunkyImage.CommitChanges();
+        return (affectedChunkStorage, affected);
     }
 
     public void Dispose()

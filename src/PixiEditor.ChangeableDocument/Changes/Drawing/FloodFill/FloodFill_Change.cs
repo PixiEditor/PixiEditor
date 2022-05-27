@@ -30,7 +30,10 @@ internal class FloodFill_Change : Change
     public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
     {
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        (var affectedChunks, chunkStorage) = FloodFillHelper.FloodFillAndCommit(image, pos, color);
+
+        using var floodFilledChunks = FloodFillHelper.FloodFill(image, pos, color);
+        (chunkStorage, var affectedChunks) = floodFilledChunks.DrawOnChunkyImage(image);
+
         ignoreInUndo = false;
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
     }
