@@ -152,6 +152,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private bool drawingRectangle = false;
     private bool transformingRectangle = false;
+    private bool shiftingLayer = false;
 
     private bool pastingImage = false;
     private Surface? pastedImage;
@@ -196,6 +197,24 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
         TransformViewModel.ShowShapeTransform(lastShape);
         transformingRectangle = true;
+    }
+
+    public void StartUpdateShiftLayer(VecI delta)
+    {
+        if (SelectedStructureMember is not LayerViewModel layer)
+            return;
+        updateableChangeActive = true;
+        shiftingLayer = true;
+        Helpers.ActionAccumulator.AddActions(new ShiftLayer_Action(layer.GuidValue, delta));
+    }
+
+    public void EndShiftLayer()
+    {
+        if (!shiftingLayer)
+            return;
+        updateableChangeActive = false;
+        shiftingLayer = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndShiftLayer_Action());
     }
 
     public void ApplyTransform(object? param)

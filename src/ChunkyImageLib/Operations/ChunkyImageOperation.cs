@@ -51,6 +51,9 @@ internal class ChunkyImageOperation : IDrawOperation
         int leftX = (int)Math.Floor(posOnImage.X);
         int rightX = (int)Math.Ceiling(posOnImage.X);
 
+
+        int chunkPixelSize = chunk.Resolution.PixelSize();
+
         // this is kinda dumb
         if (pos % ChunkyImage.FullChunkSize == VecI.Zero)
         {
@@ -58,20 +61,20 @@ internal class ChunkyImageOperation : IDrawOperation
         }
         else if (pos.X % ChunkyImage.FullChunkSize == 0)
         {
-            imageToDraw.DrawCommittedChunkOn(new VecI((int)posOnImage.X, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI(0, (int)(topY - posOnImage.Y)));
-            imageToDraw.DrawCommittedChunkOn(new VecI((int)posOnImage.X, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI(0, (int)(bottomY - posOnImage.Y)));
+            imageToDraw.DrawCommittedChunkOn(new VecI((int)posOnImage.X, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI(0, (int)((topY - posOnImage.Y) * chunkPixelSize)));
+            imageToDraw.DrawCommittedChunkOn(new VecI((int)posOnImage.X, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI(0, (int)((bottomY - posOnImage.Y) * chunkPixelSize)));
         }
         else if (pos.Y % ChunkyImage.FullChunkSize == 0)
         {
-            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, (int)posOnImage.Y), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)(leftX - posOnImage.X), 0));
-            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, (int)posOnImage.Y), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)(rightX - posOnImage.X), 0));
+            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, (int)posOnImage.Y), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((leftX - posOnImage.X) * chunkPixelSize), 0));
+            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, (int)posOnImage.Y), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((rightX - posOnImage.X) * chunkPixelSize), 0));
         }
         else
         {
-            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)(leftX - posOnImage.X), (int)(topY - posOnImage.Y)));
-            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)(rightX - posOnImage.X), (int)(topY - posOnImage.Y)));
-            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)(leftX - posOnImage.X), (int)(bottomY - posOnImage.Y)));
-            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)(rightX - posOnImage.X), (int)(bottomY - posOnImage.Y)));
+            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((leftX - posOnImage.X) * chunkPixelSize), (int)((topY - posOnImage.Y) * chunkPixelSize)));
+            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((rightX - posOnImage.X) * chunkPixelSize), (int)((topY - posOnImage.Y) * chunkPixelSize)));
+            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((leftX - posOnImage.X) * chunkPixelSize), (int)((bottomY - posOnImage.Y) * chunkPixelSize)));
+            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((rightX - posOnImage.X) * chunkPixelSize), (int)((bottomY - posOnImage.Y) * chunkPixelSize)));
         }
 
         chunk.Surface.SkiaSurface.Canvas.Restore();
@@ -86,9 +89,9 @@ internal class ChunkyImageOperation : IDrawOperation
     {
         VecI topLeft = pos;
         if (mirrorHorizontal)
-            topLeft.X -= imageToDraw.LatestSize.X;
+            topLeft.X -= imageToDraw.CommittedSize.X;
         if (mirrorVertical)
-            topLeft.Y -= imageToDraw.LatestSize.Y;
+            topLeft.Y -= imageToDraw.CommittedSize.Y;
         return topLeft;
     }
 

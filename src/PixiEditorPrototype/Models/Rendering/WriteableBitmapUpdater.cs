@@ -136,8 +136,9 @@ internal class WriteableBitmapUpdater
                 {
                     var pos = chunk * ChunkResolution.Full.PixelSize();
                     // the full res chunks are already rendered so drawing them again should be fast
-                    layer.LayerImage.DrawMostUpToDateChunkOn
-                        (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, ReplacingPaint);
+                    if (!layer.LayerImage.DrawMostUpToDateChunkOn
+                        (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, ReplacingPaint))
+                        memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
                 }
                 infos.Add(new PreviewDirty_RenderInfo(guid));
             }

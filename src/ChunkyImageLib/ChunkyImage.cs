@@ -2,6 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
+using OneOf.Types;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
@@ -124,11 +125,23 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         lock (lockObject)
         {
             ThrowIfDisposed();
-            var latestChunk = GetLatestChunk(chunkPos, resolution);
+            OneOf<None, EmptyChunk, Chunk> latestChunk;
+            {
+                var chunk = GetLatestChunk(chunkPos, resolution);
+                if (latestChunksData[resolution].TryGetValue(chunkPos, out var chunkData) && chunkData.IsDeleted)
+                {
+                    latestChunk = new EmptyChunk();
+                }
+                else
+                {
+                    latestChunk = chunk is null ? new None() : chunk;
+                }
+            }
+
             var committedChunk = GetCommittedChunk(chunkPos, resolution);
 
-            // latest chunk does not exist, draw committed if it exists
-            if (latestChunk is null)
+            // draw committed directly
+            if (latestChunk.IsT0 || latestChunk.IsT1 && committedChunk is not null && blendMode != SKBlendMode.Src)
             {
                 if (committedChunk is null)
                     return false;
@@ -136,19 +149,22 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 return true;
             }
 
-            // latest chunk exists
+            // no need to combine with committed, draw directly
             if (blendMode == SKBlendMode.Src || committedChunk is null)
             {
-                // no need to combine with committed, draw directly
-                latestChunk.DrawOnSurface(surface, pos, paint);
-                return true;
+                if (latestChunk.IsT2)
+                {
+                    latestChunk.AsT2.DrawOnSurface(surface, pos, paint);
+                    return true;
+                }
+                return false;
             }
 
             // combine with committed and then draw
             using var tempChunk = Chunk.Create(resolution);
             tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(committedChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
             blendModePaint.BlendMode = blendMode;
-            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(latestChunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(latestChunk.AsT2.Surface.SkiaSurface, 0, 0, blendModePaint);
             if (lockTransparency)
                 OperationHelper.ClampAlpha(tempChunk.Surface.SkiaSurface, committedChunk.Surface.SkiaSurface);
             tempChunk.DrawOnSurface(surface, pos, paint);

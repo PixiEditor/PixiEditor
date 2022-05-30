@@ -4,5 +4,6 @@ internal enum Tool
 {
     Rectangle,
     Select,
+    ShiftLayer,
     FloodFill
 }

@@ -61,14 +61,14 @@ internal class ViewModelMain : INotifyPropertyChanged
     private Dictionary<Guid, DocumentViewModel> documents = new();
     private Guid activeDocumentGuid;
 
-    private bool mouseIsDown = false;
     private int mouseDownCanvasX = 0;
     private int mouseDownCanvasY = 0;
 
-    private bool startedDrawingRect = false;
-    private bool startedSelectingRect = false;
+    private bool mouseHasMoved = false;
+    private bool mouseIsDown = false;
 
     private Tool activeTool = Tool.Rectangle;
+    private Tool toolOnMouseDown = Tool.Rectangle;
 
     public ViewModelMain()
     {
@@ -91,26 +91,40 @@ internal class ViewModelMain : INotifyPropertyChanged
     {
         if (ActiveDocument is null || ZoomboxMode != ZoomboxMode.Normal || ActiveDocument.TransformViewModel.TransformActive)
             return;
+        if (mouseIsDown)
+        {
+            mouseIsDown = false;
+            ProcessToolMouseUp();
+            mouseHasMoved = false;
+        }
+
         mouseIsDown = true;
         var args = (MouseButtonEventArgs)(param!);
         var source = (System.Windows.Controls.Image)args.Source;
         var pos = args.GetPosition(source);
         mouseDownCanvasX = (int)(pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth);
         mouseDownCanvasY = (int)(pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight);
-        if (activeTool is Tool.FloodFill)
+        toolOnMouseDown = activeTool;
+        ProcessToolMouseDown(mouseDownCanvasX, mouseDownCanvasY);
+    }
+
+    private void ProcessToolMouseDown(int canvasX, int canvasY)
+    {
+        if (toolOnMouseDown is Tool.FloodFill)
         {
-            ActiveDocument.FloodFill(new VecI(mouseDownCanvasX, mouseDownCanvasY), new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+            ActiveDocument!.FloodFill(new VecI(canvasX, canvasY), new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
         }
     }
 
     private void MouseMove(object? param)
     {
-        if (ActiveDocument is null || !mouseIsDown || ZoomboxMode != ZoomboxMode.Normal)
+        if (!mouseIsDown)
             return;
+        mouseHasMoved = true;
         var args = (MouseEventArgs)(param!);
         var source = (System.Windows.Controls.Image)args.Source;
         var pos = args.GetPosition(source);
-        int curX = (int)(pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth);
+        int curX = (int)(pos.X / source.Width * ActiveDocument!.Bitmaps[ChunkResolution.Full].PixelWidth);
         int curY = (int)(pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight);
 
         ProcessToolMouseMove(curX, curY);
@@ -118,9 +132,8 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     private void ProcessToolMouseMove(int canvasX, int canvasY)
     {
-        if (activeTool == Tool.Rectangle)
+        if (toolOnMouseDown == Tool.Rectangle)
         {
-            startedDrawingRect = true;
             int width = canvasX - mouseDownCanvasX;
             int height = canvasY - mouseDownCanvasY;
             ActiveDocument!.StartUpdateRectangle(new ShapeData(
@@ -131,35 +144,45 @@ internal class ViewModelMain : INotifyPropertyChanged
                         new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
                         SKColors.Transparent));
         }
-        else if (activeTool == Tool.Select)
+        else if (toolOnMouseDown == Tool.Select)
         {
-            startedSelectingRect = true;
             ActiveDocument!.StartUpdateSelection(
                 new(mouseDownCanvasX, mouseDownCanvasY),
                 new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY));
+        }
+        else if (toolOnMouseDown == Tool.ShiftLayer)
+        {
+            ActiveDocument!.StartUpdateShiftLayer(new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY));
         }
     }
 
     private void MouseUp(object? param)
     {
-        if (ActiveDocument is null || !mouseIsDown || ZoomboxMode != ZoomboxMode.Normal)
+        if (!mouseIsDown)
             return;
         mouseIsDown = false;
         ProcessToolMouseUp();
+        mouseHasMoved = false;
     }
 
     private void ProcessToolMouseUp()
     {
-        if (startedDrawingRect)
+        if (mouseHasMoved)
         {
-            startedDrawingRect = false;
-            ActiveDocument!.EndRectangleDrawing();
+            switch (toolOnMouseDown)
+            {
+                case Tool.Rectangle:
+                    ActiveDocument!.EndRectangleDrawing();
+                    break;
+                case Tool.Select:
+                    ActiveDocument!.EndSelection();
+                    break;
+                case Tool.ShiftLayer:
+                    ActiveDocument!.EndShiftLayer();
+                    break;
+            }
         }
-        if (startedSelectingRect)
-        {
-            startedSelectingRect = false;
-            ActiveDocument!.EndSelection();
-        }
+
     }
 
     private void ChangeActiveTool(object? param)
