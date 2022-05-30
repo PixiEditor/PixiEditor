@@ -13,6 +13,8 @@ public struct VecI
     public int LongestAxis => (Math.Abs(X) < Math.Abs(Y)) ? Y : X;
     public int ShortestAxis => (Math.Abs(X) < Math.Abs(Y)) ? X : Y;
 
+    public static VecI Zero { get; } = new(0, 0);
+
     public VecI(int x, int y)
     {
         X = x;
@@ -28,14 +30,14 @@ public struct VecI
         return new VecI(X * other.X, Y * other.Y);
     }
     /// <summary>
-    /// Reflects the vector across a vertical line with the specified position
+    /// Reflects the vector across a vertical line with the specified x position
     /// </summary>
     public VecI ReflectX(int lineX)
     {
         return new(2 * lineX - X, Y);
     }
     /// <summary>
-    /// Reflects the vector along a horizontal line with the specified position
+    /// Reflects the vector across a horizontal line with the specified y position
     /// </summary>
     public VecI ReflectY(int lineY)
     {
@@ -76,6 +78,14 @@ public struct VecI
     public static VecD operator /(VecI a, double b)
     {
         return new VecD(a.X / b, a.Y / b);
+    }
+    public static VecI operator %(VecI a, int b)
+    {
+        return new(a.X % b, a.Y % b);
+    }
+    public static VecD operator %(VecI a, double b)
+    {
+        return new(a.X % b, a.Y % b);
     }
     public static bool operator ==(VecI a, VecI b)
     {

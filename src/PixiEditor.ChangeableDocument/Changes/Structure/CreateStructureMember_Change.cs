@@ -27,7 +27,7 @@ internal class CreateStructureMember_Change : Change
         return new Success();
     }
 
-    public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, out bool ignoreInUndo)
     {
         var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
 
@@ -44,7 +44,7 @@ internal class CreateStructureMember_Change : Change
         return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
     }
 
-    public override IChangeInfo Revert(Document document)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
         var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
         var child = document.FindMemberOrThrow(newMemberGuid);

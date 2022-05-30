@@ -27,7 +27,7 @@ internal class DeleteStructureMember_Change : Change
         return new Success();
     }
 
-    public override IChangeInfo Apply(Document document, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, out bool ignoreInUndo)
     {
         var (member, parent) = document.FindChildAndParentOrThrow(memberGuid);
         parent.Children = parent.Children.Remove(member);
@@ -36,7 +36,7 @@ internal class DeleteStructureMember_Change : Change
         return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentGuid = parentGuid };
     }
 
-    public override IChangeInfo Revert(Document doc)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document doc)
     {
         var parent = (Folder)doc.FindMemberOrThrow(parentGuid);
 

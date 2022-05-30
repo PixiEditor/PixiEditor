@@ -30,7 +30,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         this.size = size;
     }
 
-    public override IChangeInfo? ApplyTemporarily(Document target)
+    private (Selection_ChangeInfo info, HashSet<VecI> chunks) CommonApply(Document target)
     {
         var oldChunks = target.Selection.SelectionImage.FindAffectedChunks();
         target.Selection.SelectionImage.CancelChanges();
@@ -48,20 +48,26 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         target.Selection.SelectionPath = originalPath!.Op(rect, SKPathOp.Union);
 
         oldChunks.UnionWith(target.Selection.SelectionImage.FindAffectedChunks());
-        return new Selection_ChangeInfo() { Chunks = oldChunks };
+        return (new Selection_ChangeInfo() { Chunks = oldChunks }, oldChunks);
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        var changes = ApplyTemporarily(target);
-        originalSelectionState = new CommittedChunkStorage(target.Selection.SelectionImage, ((Selection_ChangeInfo)changes!).Chunks!);
+        var (info, _) = CommonApply(target);
+        return info;
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    {
+        var (changes, affChunks) = CommonApply(target);
+        originalSelectionState = new CommittedChunkStorage(target.Selection.SelectionImage, affChunks);
         target.Selection.SelectionImage.CommitChanges();
         target.Selection.IsEmptyAndInactive = target.Selection.SelectionImage.CheckIfCommittedIsEmpty();
         ignoreInUndo = false;
         return changes;
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.Selection.IsEmptyAndInactive = originalIsEmpty;
         originalSelectionState!.ApplyChunksToImage(target.Selection.SelectionImage);

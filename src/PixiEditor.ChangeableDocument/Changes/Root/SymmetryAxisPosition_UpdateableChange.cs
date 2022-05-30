@@ -42,23 +42,23 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
             throw new NotImplementedException();
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         ignoreInUndo = originalPos == newPos;
         SetPosition(target, newPos);
         return new SymmetryAxisPosition_ChangeInfo() { Direction = direction };
     }
 
-    public override IChangeInfo? ApplyTemporarily(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         SetPosition(target, newPos);
         return new SymmetryAxisPosition_ChangeInfo() { Direction = direction };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         if (originalPos == newPos)
-            return null;
+            return new None();
         SetPosition(target, originalPos);
         return new SymmetryAxisPosition_ChangeInfo() { Direction = direction };
     }

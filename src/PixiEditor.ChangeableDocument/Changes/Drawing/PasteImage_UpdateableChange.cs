@@ -45,7 +45,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         return affectedChunks;
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var chunks = DrawImage(target, targetImage);
@@ -57,13 +57,13 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
     }
 
-    public override IChangeInfo? ApplyTemporarily(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         if (savedChunks is null)
             throw new InvalidOperationException("No saved chunks to restore");

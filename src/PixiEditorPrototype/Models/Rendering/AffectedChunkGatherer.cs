@@ -204,8 +204,8 @@ internal class AffectedChunkGatherer
     private void AddAllChunks(HashSet<VecI> chunks)
     {
         VecI size = new(
-            (int)Math.Ceiling(tracker.Document.Size.X / (float)ChunkyImage.ChunkSize),
-            (int)Math.Ceiling(tracker.Document.Size.Y / (float)ChunkyImage.ChunkSize));
+            (int)Math.Ceiling(tracker.Document.Size.X / (float)ChunkyImage.FullChunkSize),
+            (int)Math.Ceiling(tracker.Document.Size.Y / (float)ChunkyImage.FullChunkSize));
         for (int i = 0; i < size.X; i++)
         {
             for (int j = 0; j < size.Y; j++)

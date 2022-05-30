@@ -92,39 +92,49 @@ public class DocumentChangeTracker : IDisposable
         return true;
     }
 
-    private List<IChangeInfo?> Undo()
+    private List<IChangeInfo> Undo()
     {
         if (undoStack.Count == 0)
-            return new List<IChangeInfo?>();
+            return new List<IChangeInfo>();
         if (activePacket is not null || activeUpdateableChange is not null)
         {
             Trace.WriteLine("Attempted to undo while there is an active updateable change or an unfinished undo packet");
-            return new List<IChangeInfo?>();
+            return new List<IChangeInfo>();
         }
-        List<IChangeInfo?> changeInfos = new();
+        List<IChangeInfo> changeInfos = new();
         List<Change> changePacket = undoStack.Pop();
 
         for (int i = changePacket.Count - 1; i >= 0; i--)
-            changeInfos.Add(changePacket[i].Revert(document));
+        {
+            changePacket[i].Revert(document).Switch(
+                (None _) => { },
+                (IChangeInfo info) => changeInfos.Add(info),
+                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+        }
 
         redoStack.Push(changePacket);
         return changeInfos;
     }
 
-    private List<IChangeInfo?> Redo()
+    private List<IChangeInfo> Redo()
     {
         if (redoStack.Count == 0)
-            return new List<IChangeInfo?>();
+            return new List<IChangeInfo>();
         if (activePacket is not null || activeUpdateableChange is not null)
         {
             Trace.WriteLine("Attempted to redo while there is an active updateable change or an unfinished undo packet");
-            return new List<IChangeInfo?>();
+            return new List<IChangeInfo>();
         }
-        List<IChangeInfo?> changeInfos = new();
+        List<IChangeInfo> changeInfos = new();
         List<Change> changePacket = redoStack.Pop();
 
         for (int i = 0; i < changePacket.Count; i++)
-            changeInfos.Add(changePacket[i].Apply(document, out _));
+        {
+            changePacket[i].Apply(document, out _).Switch(
+                (None _) => { },
+                (IChangeInfo info) => changeInfos.Add(info),
+                (List<IChangeInfo> infos) => changeInfos.AddRange(infos)); ;
+        }
 
         undoStack.Push(changePacket);
         return changeInfos;
@@ -147,12 +157,12 @@ public class DocumentChangeTracker : IDisposable
         undoStack.Clear();
     }
 
-    private IChangeInfo? ProcessMakeChangeAction(IMakeChangeAction act)
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessMakeChangeAction(IMakeChangeAction act)
     {
         if (activeUpdateableChange is not null)
         {
             Trace.WriteLine($"Attempted to execute make change action {act} while {activeUpdateableChange} is active");
-            return null;
+            return new None();
         }
         var change = act.CreateCorrespondingChange();
         var validationResult = change.InitializeAndValidate(document);
@@ -160,7 +170,7 @@ public class DocumentChangeTracker : IDisposable
         {
             Trace.WriteLine($"Change {change} failed validation");
             change.Dispose();
-            return null;
+            return new None();
         }
 
         var info = change.Apply(document, out bool ignoreInUndo);
@@ -171,7 +181,7 @@ public class DocumentChangeTracker : IDisposable
         return info;
     }
 
-    private IChangeInfo? ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act)
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessStartOrUpdateChangeAction(IStartOrUpdateChangeAction act)
     {
         if (activeUpdateableChange is null)
         {
@@ -181,30 +191,30 @@ public class DocumentChangeTracker : IDisposable
             {
                 Trace.WriteLine($"Change {newChange} failed validation");
                 newChange.Dispose();
-                return null;
+                return new None();
             }
             activeUpdateableChange = newChange;
         }
         else if (!act.IsChangeTypeMatching(activeUpdateableChange))
         {
             Trace.WriteLine($"Tried to start or update a change using action {act} while a change of type {activeUpdateableChange} is active");
-            return null;
+            return new None();
         }
         act.UpdateCorrespodingChange(activeUpdateableChange);
         return activeUpdateableChange.ApplyTemporarily(document);
     }
 
-    private IChangeInfo? ProcessEndChangeAction(IEndChangeAction act)
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> ProcessEndChangeAction(IEndChangeAction act)
     {
         if (activeUpdateableChange is null)
         {
             Trace.WriteLine($"Attempted to end a change using action {act} while no changes are active");
-            return null;
+            return new None();
         }
         if (!act.IsChangeTypeMatching(activeUpdateableChange))
         {
             Trace.WriteLine($"Trying to end a change with an action {act} while change {activeUpdateableChange} is active");
-            return null;
+            return new None();
         }
 
         var info = activeUpdateableChange.Apply(document, out bool ignoreInUndo);
@@ -219,24 +229,30 @@ public class DocumentChangeTracker : IDisposable
     private List<IChangeInfo?> ProcessActionList(IReadOnlyList<IAction> actions)
     {
         List<IChangeInfo?> changeInfos = new();
+        void AddInfo(OneOf<None, IChangeInfo, List<IChangeInfo>> info) =>
+            info.Switch(
+                static (None _) => { },
+                (IChangeInfo info) => changeInfos.Add(info),
+                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
+
         foreach (var action in actions)
         {
             switch (action)
             {
                 case IMakeChangeAction act:
-                    changeInfos.Add(ProcessMakeChangeAction(act));
+                    AddInfo(ProcessMakeChangeAction(act));
                     break;
                 case IStartOrUpdateChangeAction act:
-                    changeInfos.Add(ProcessStartOrUpdateChangeAction(act));
+                    AddInfo(ProcessStartOrUpdateChangeAction(act));
                     break;
                 case IEndChangeAction act:
-                    changeInfos.Add(ProcessEndChangeAction(act));
+                    AddInfo(ProcessEndChangeAction(act));
                     break;
                 case Undo_Action act:
-                    changeInfos.AddRange(Undo());
+                    AddInfo(Undo());
                     break;
                 case Redo_Action act:
-                    changeInfos.AddRange(Redo());
+                    AddInfo(Redo());
                     break;
                 case ChangeBoundary_Action:
                     CompletePacket();

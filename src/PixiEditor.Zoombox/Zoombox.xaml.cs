@@ -122,8 +122,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         remove => RemoveHandler(ViewportMovedEvent, value);
     }
 
-    public double CanvasX => ToScreenSpace(new(0, 0)).X;
-    public double CanvasY => ToScreenSpace(new(0, 0)).Y;
+    public double CanvasX => ToScreenSpace(VecD.Zero).X;
+    public double CanvasY => ToScreenSpace(VecD.Zero).Y;
 
     public double ScaleTransformXY => Scale;
     public double FlipTransformX => FlipX ? -1 : 1;
@@ -356,7 +356,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         var zoombox = (Zoombox)obj;
 
-        VecD topLeft = zoombox.ToZoomboxSpace(new(0, 0)).Rotate(zoombox.Angle);
+        VecD topLeft = zoombox.ToZoomboxSpace(VecD.Zero).Rotate(zoombox.Angle);
         VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.mainCanvas.ActualWidth, zoombox.mainCanvas.ActualHeight)).Rotate(zoombox.Angle);
 
         zoombox.Dimensions = (bottomRight - topLeft).Abs();

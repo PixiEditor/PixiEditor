@@ -20,7 +20,7 @@ internal class CreateStructureMemberMask_Change : Change
         return new Success();
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         var member = target.FindMemberOrThrow(targetMember);
         if (member.Mask is not null)
@@ -31,7 +31,7 @@ internal class CreateStructureMemberMask_Change : Change
         return new StructureMemberMask_ChangeInfo() { GuidValue = targetMember };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(targetMember);
         if (member.Mask is null)

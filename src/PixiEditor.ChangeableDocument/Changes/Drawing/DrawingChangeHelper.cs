@@ -46,7 +46,7 @@ internal static class DrawingChangeHelper
         return true;
     }
 
-    public static IChangeInfo CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask)
+    public static OneOf<None, IChangeInfo, List<IChangeInfo>> CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask)
     {
         return drawOnMask switch
         {

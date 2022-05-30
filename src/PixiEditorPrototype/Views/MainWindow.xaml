@@ -35,6 +35,9 @@
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
                     <Button Margin="5,0" Command="{Binding ActiveDocument.CreateMaskCommand}" Width="80">Create Mask</Button>
                     <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteMaskCommand}" Width="80">Delete Mask</Button>
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.ApplyMaskCommand}" Width="80">Apply Mask</Button>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
                     <controls:BlendModeComboBox Margin="5,0" Width="80" SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendMode, Mode=TwoWay}"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">

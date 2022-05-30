@@ -60,6 +60,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? ClearHistoryCommand { get; }
     public RelayCommand? CreateMaskCommand { get; }
     public RelayCommand? DeleteMaskCommand { get; }
+    public RelayCommand? ApplyMaskCommand { get; }
     public RelayCommand? ToggleLockTransparencyCommand { get; }
     public RelayCommand? ApplyTransformCommand { get; }
     public RelayCommand? PasteImageCommand { get; }
@@ -119,6 +120,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         DragSymmetryCommand = new RelayCommand(DragSymmetry);
         EndDragSymmetryCommand = new RelayCommand(EndDragSymmetry);
         ClipToMemberBelowCommand = new RelayCommand(ClipToMemberBelow);
+        ApplyMaskCommand = new RelayCommand(ApplyMask);
 
         foreach (var bitmap in Bitmaps)
         {
@@ -130,6 +132,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
         Helpers.ActionAccumulator.AddFinishedActions
             (new CreateStructureMember_Action(StructureRoot.GuidValue, Guid.NewGuid(), 0, StructureMemberType.Layer));
+    }
+
+    private void ApplyMask(object? obj)
+    {
+        if (updateableChangeActive || SelectedStructureMember is not LayerViewModel layer || !layer.HasMask)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new ApplyLayerMask_Action(layer.GuidValue));
     }
 
     private void ClipToMemberBelow(object? obj)

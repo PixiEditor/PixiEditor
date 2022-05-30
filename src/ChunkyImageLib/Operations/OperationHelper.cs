@@ -77,6 +77,8 @@ public static class OperationHelper
 
     public static SKMatrix CreateMatrixFromPoints(ShapeCorners corners, VecD size)
         => CreateMatrixFromPoints((SKPoint)corners.TopLeft, (SKPoint)corners.TopRight, (SKPoint)corners.BottomRight, (SKPoint)corners.BottomLeft, (float)size.X, (float)size.Y);
+
+    // see https://stackoverflow.com/questions/48416118/perspective-transform-in-skia/72364829#72364829
     public static SKMatrix CreateMatrixFromPoints(SKPoint topLeft, SKPoint topRight, SKPoint botRight, SKPoint botLeft, float width, float height)
     {
         (float x1, float y1) = (topLeft.X, topLeft.Y);

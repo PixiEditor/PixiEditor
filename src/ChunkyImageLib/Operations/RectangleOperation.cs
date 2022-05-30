@@ -17,7 +17,6 @@ internal class RectangleOperation : IDrawOperation
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         var skiaSurf = chunk.Surface.SkiaSurface;
-        // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
         skiaSurf.Canvas.Save();
 
         var convertedPos = OperationHelper.ConvertForResolution(-Data.Size.Abs() / 2, chunk.Resolution);
@@ -30,6 +29,8 @@ internal class RectangleOperation : IDrawOperation
 
         skiaSurf.Canvas.Translate((SKPoint)convertedCenter);
         skiaSurf.Canvas.RotateRadians((float)Data.Angle);
+
+        // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
         skiaSurf.Canvas.ClipRect(rect);
 
         // draw fill

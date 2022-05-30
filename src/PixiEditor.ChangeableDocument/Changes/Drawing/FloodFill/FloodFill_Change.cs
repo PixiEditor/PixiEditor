@@ -27,7 +27,7 @@ internal class FloodFill_Change : Change
         return new Success();
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
 
@@ -38,7 +38,7 @@ internal class FloodFill_Change : Change
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         if (chunkStorage is null)
             throw new InvalidOperationException("No saved chunks to revert to");

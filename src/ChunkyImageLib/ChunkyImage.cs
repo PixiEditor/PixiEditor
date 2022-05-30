@@ -49,7 +49,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private object lockObject = new();
     private int commitCounter = 0;
 
-    public static int ChunkSize => ChunkPool.FullChunkSize;
+    public const int FullChunkSize = ChunkPool.FullChunkSize;
     private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
     private static SKPaint InverseClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstOut };
     private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
@@ -101,6 +101,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             ChunkyImage output = new(LatestSize);
             var chunks = FindCommittedChunks();
             foreach (var chunk in chunks)
@@ -108,7 +109,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 var image = GetCommittedChunk(chunk, ChunkResolution.Full);
                 if (image is null)
                     continue;
-                output.EnqueueDrawImage(chunk * ChunkSize, image.Surface);
+                output.EnqueueDrawImage(chunk * FullChunkSize, image.Surface);
             }
             output.CommitChanges();
             return output;
@@ -122,6 +123,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             var latestChunk = GetLatestChunk(chunkPos, resolution);
             var committedChunk = GetCommittedChunk(chunkPos, resolution);
 
@@ -159,6 +161,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             if (MaybeGetLatestChunk(chunkPos, ChunkResolution.Full) is not null ||
                 MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null)
                 return true;
@@ -175,6 +178,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             var chunk = GetCommittedChunk(chunkPos, resolution);
             if (chunk is null)
                 return false;
@@ -187,6 +191,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null;
         }
     }
@@ -229,6 +234,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             if (queuedOperations.Count > 0)
                 throw new InvalidOperationException("This function can only be executed when there are no queued operations");
             activeClips.Add(clippingMask);
@@ -242,6 +248,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             if (queuedOperations.Count > 0)
                 throw new InvalidOperationException("This function can only be executed when there are no queued operations");
             blendMode = mode;
@@ -252,6 +259,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             if (queuedOperations.Count > 0)
                 throw new InvalidOperationException("This function can only be executed when there are no queued operations");
             horizontalSymmetryAxis = position;
@@ -262,6 +270,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             if (queuedOperations.Count > 0)
                 throw new InvalidOperationException("This function can only be executed when there are no queued operations");
             verticalSymmetryAxis = position;
@@ -272,6 +281,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             lockTransparency = true;
         }
     }
@@ -280,6 +290,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             RectangleOperation operation = new(rect);
             EnqueueOperation(operation);
         }
@@ -295,6 +306,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             ImageOperation operation = new(corners, image, copyImage);
             EnqueueOperation(operation);
         }
@@ -310,7 +322,18 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             ImageOperation operation = new(pos, image, copyImage);
+            EnqueueOperation(operation);
+        }
+    }
+
+    public void EnqueueDrawChunkyImage(VecI pos, ChunkyImage image, bool flipHor = false, bool flipVer = false)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            ChunkyImageOperation operation = new(image, pos, flipHor, flipVer);
             EnqueueOperation(operation);
         }
     }
@@ -319,6 +342,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             ClearRegionOperation operation = new(pos, size);
             EnqueueOperation(operation);
         }
@@ -328,6 +352,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             ClearOperation operation = new();
             EnqueueOperation(operation, FindAllChunks());
         }
@@ -337,6 +362,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             ResizeOperation operation = new(newSize);
             LatestSize = newSize;
             EnqueueOperation(operation, FindAllChunksOutsideBounds(newSize));
@@ -374,9 +400,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             //clear queued operations
             foreach (var operation in queuedOperations)
-                operation.Item1.Dispose();
+                operation.operation.Dispose();
             queuedOperations.Clear();
 
             //clear additional state
@@ -407,6 +434,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             var affectedChunks = FindAffectedChunks();
             foreach (var chunk in affectedChunks)
             {
@@ -543,6 +571,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
             foreach (var (_, opChunks) in queuedOperations)
             {
@@ -556,6 +585,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             return committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
         }
     }
@@ -567,6 +597,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             var chunks = new HashSet<VecI>();
             foreach (var (_, opChunks) in queuedOperations)
             {
@@ -642,7 +673,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             if (mask.CommittedChunkExists(chunkPos))
             {
-                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.SkiaSurface, new(0, 0), ClippingPaint);
+                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.SkiaSurface, VecI.Zero, ClippingPaint);
             }
             else
             {
@@ -686,14 +717,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             var clip = combinedClips.AsT2;
 
             using var tempChunk = Chunk.Create(targetChunk.Resolution);
-            targetChunk.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint);
+            targetChunk.DrawOnSurface(tempChunk.Surface.SkiaSurface, VecI.Zero, ReplacingPaint);
 
             chunkOperation.DrawOnChunk(tempChunk, chunkPos);
 
-            clip.DrawOnSurface(tempChunk.Surface.SkiaSurface, new(0, 0), ClippingPaint);
-            clip.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), InverseClippingPaint);
+            clip.DrawOnSurface(tempChunk.Surface.SkiaSurface, VecI.Zero, ClippingPaint);
+            clip.DrawOnSurface(targetChunk.Surface.SkiaSurface, VecI.Zero, InverseClippingPaint);
 
-            tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, new(0, 0), AddingPaint);
+            tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, VecI.Zero, AddingPaint);
             return false;
         }
 
@@ -712,6 +743,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
+            if (queuedOperations.Count > 0)
+                throw new InvalidOperationException("This function can only be used when there are no queued operations");
             FindAndDeleteEmptyCommittedChunks();
             return committedChunks[ChunkResolution.Full].Count == 0;
         }
@@ -726,7 +760,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private static bool IsOutsideBounds(VecI chunkPos, VecI imageSize)
     {
-        return chunkPos.X < 0 || chunkPos.Y < 0 || chunkPos.X * ChunkSize >= imageSize.X || chunkPos.Y * ChunkSize >= imageSize.Y;
+        return chunkPos.X < 0 || chunkPos.Y < 0 || chunkPos.X * FullChunkSize >= imageSize.X || chunkPos.Y * FullChunkSize >= imageSize.Y;
     }
 
     private void FindAndDeleteEmptyCommittedChunks()
@@ -834,6 +868,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         newLatestChunk.Surface.SkiaSurface.Canvas.Clear();
         latestChunks[resolution][chunkPos] = newLatestChunk;
         return newLatestChunk;
+    }
+
+    private void ThrowIfDisposed()
+    {
+        if (disposed)
+            throw new ObjectDisposedException(nameof(ChunkyImage));
     }
 
     public void Dispose()

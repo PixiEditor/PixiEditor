@@ -38,14 +38,14 @@ internal class SymmetryAxisState_Change : Change
             throw new NotImplementedException();
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         SetState(target, newEnabled);
         ignoreInUndo = false;
         return new SymmetryAxisState_ChangeInfo() { Direction = direction };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         SetState(target, originalEnabled);
         return new SymmetryAxisState_ChangeInfo() { Direction = direction };

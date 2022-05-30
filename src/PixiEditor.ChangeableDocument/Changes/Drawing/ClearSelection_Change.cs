@@ -20,7 +20,7 @@ internal class ClearSelection_Change : Change
         return new Success();
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         target.Selection.IsEmptyAndInactive = true;
 
@@ -36,7 +36,7 @@ internal class ClearSelection_Change : Change
         return new Selection_ChangeInfo() { Chunks = affChunks };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.Selection.IsEmptyAndInactive = false;
 

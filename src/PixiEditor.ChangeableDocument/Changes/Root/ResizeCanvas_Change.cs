@@ -40,14 +40,8 @@ internal class ResizeCanvas_Change : Change
         }
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
-        if (originalSize == newSize)
-        {
-            ignoreInUndo = true;
-            return null;
-        }
-
         target.Size = newSize;
         target.VerticalSymmetryAxisX = Math.Clamp(originalVerAxisX, 0, target.Size.X);
         target.HorizontalSymmetryAxisY = Math.Clamp(originalHorAxisY, 0, target.Size.Y);
@@ -74,11 +68,8 @@ internal class ResizeCanvas_Change : Change
         return new Size_ChangeInfo();
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        if (originalSize == newSize)
-            return null;
-
         target.Size = originalSize;
         ForEachLayer(target.StructureRoot, (layer) =>
         {

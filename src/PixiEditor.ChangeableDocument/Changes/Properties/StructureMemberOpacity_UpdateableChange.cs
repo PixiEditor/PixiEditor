@@ -31,14 +31,14 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         return new Success();
     }
 
-    public override IChangeInfo? ApplyTemporarily(Document target) => Apply(target, out _);
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target) => Apply(target, out _);
 
-    public override IChangeInfo? Apply(Document document, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, out bool ignoreInUndo)
     {
         if (originalOpacity == newOpacity)
         {
             ignoreInUndo = true;
-            return null;
+            return new None();
         }
 
         var member = document.FindMemberOrThrow(memberGuid);
@@ -48,10 +48,10 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
     }
 
-    public override IChangeInfo? Revert(Document document)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
         if (originalOpacity == newOpacity)
-            return null;
+            return new None();
 
         var member = document.FindMemberOrThrow(memberGuid);
         member.Opacity = originalOpacity;

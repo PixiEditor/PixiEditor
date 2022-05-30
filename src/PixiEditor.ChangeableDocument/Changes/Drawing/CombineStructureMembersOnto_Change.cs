@@ -47,7 +47,7 @@ internal class CombineStructureMembersOnto_Change : Change
         }
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
 
@@ -64,7 +64,7 @@ internal class CombineStructureMembersOnto_Change : Change
             OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.StructureRoot, layersToCombine);
             if (combined.IsT0)
             {
-                toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.ChunkSize, combined.AsT0.Surface);
+                toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
                 combined.AsT0.Surface.Dispose();
             }
         }
@@ -80,7 +80,7 @@ internal class CombineStructureMembersOnto_Change : Change
         };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
 

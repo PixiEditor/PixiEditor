@@ -25,14 +25,14 @@ internal class LayerLockTransparency_Change : Change
         return new Success();
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         ((Layer)target.FindMemberOrThrow(layerGuid)).LockTransparency = newValue;
         ignoreInUndo = false;
         return new LayerLockTransparency_ChangeInfo() { GuidValue = layerGuid };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         ((Layer)target.FindMemberOrThrow(layerGuid)).LockTransparency = originalValue;
         return new LayerLockTransparency_ChangeInfo() { GuidValue = layerGuid };

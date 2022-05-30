@@ -1,8 +1,4 @@
-﻿using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using ChunkyImageLib.Operations;
-using OneOf;
-using OneOf.Types;
+﻿using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using SkiaSharp;
 
@@ -39,13 +35,13 @@ public static class ChunkRenderer
         context.UpdateFromMember(layer);
 
         Chunk renderingResult = Chunk.Create(resolution);
-        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
+        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
         }
 
-        if (!layer.Mask!.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), ClippingPaint))
+        if (!layer.Mask!.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, VecI.Zero, ClippingPaint))
         {
             // should pretty much never happen due to the check above, but you can never be sure with many threads
             renderingResult.Dispose();
@@ -70,7 +66,7 @@ public static class ChunkRenderer
 
         context.UpdateFromMember(layer);
         Chunk renderingResult = Chunk.Create(resolution);
-        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, new(0, 0), context.ReplacingPaintWithOpacity))
+        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
@@ -103,7 +99,7 @@ public static class ChunkRenderer
             return;
         }
         context.UpdateFromMember(layer);
-        layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, new(0, 0), context.BlendModeOpacityPaint);
+        layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, VecI.Zero, context.BlendModeOpacityPaint);
     }
 
     private static OneOf<EmptyChunk, Chunk> RenderFolder(
@@ -131,7 +127,7 @@ public static class ChunkRenderer
 
         if (folder.Mask is not null)
         {
-            if (!folder.Mask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.SkiaSurface, new(0, 0), ClippingPaint))
+            if (!folder.Mask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.SkiaSurface, VecI.Zero, ClippingPaint))
             {
                 // this shouldn't really happen due to the check above, but another thread could edit the mask in the meantime
                 contents.Dispose();

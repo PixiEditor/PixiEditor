@@ -14,6 +14,8 @@ public struct VecD
     public double LongestAxis => (Math.Abs(X) < Math.Abs(Y)) ? Y : X;
     public double ShortestAxis => (Math.Abs(X) < Math.Abs(Y)) ? X : Y;
 
+    public static VecD Zero { get; } = new(0, 0);
+
     public VecD(double x, double y)
     {
         X = x;
@@ -162,6 +164,10 @@ public struct VecD
     public static VecD operator /(VecD a, double b)
     {
         return new VecD(a.X / b, a.Y / b);
+    }
+    public static VecD operator %(VecD a, double b)
+    {
+        return new(a.X % b, a.Y % b);
     }
     public static bool operator ==(VecD a, VecD b)
     {

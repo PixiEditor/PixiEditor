@@ -40,14 +40,14 @@ internal class MoveStructureMember_Change : Change
         targetFolder.Children = targetFolder.Children.Insert(targetIndex, member);
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         Move(target, memberGuid, targetFolderGuid, targetFolderIndex);
         ignoreInUndo = false;
         return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentFromGuid = originalFolderGuid, ParentToGuid = targetFolderGuid };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         Move(target, memberGuid, originalFolderGuid, originalFolderIndex);
         return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentFromGuid = targetFolderGuid, ParentToGuid = originalFolderGuid };

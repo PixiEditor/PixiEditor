@@ -14,7 +14,7 @@ public class CommittedChunkStorage : IDisposable
         foreach (var chunkPos in committedChunksToSave)
         {
             Chunk copy = Chunk.Create();
-            if (!image.DrawCommittedChunkOn(chunkPos, ChunkResolution.Full, copy.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
+            if (!image.DrawCommittedChunkOn(chunkPos, ChunkResolution.Full, copy.Surface.SkiaSurface, VecI.Zero, ReplacingPaint))
             {
                 copy.Dispose();
                 savedChunks.Add((chunkPos, null));

@@ -22,7 +22,7 @@ internal class FloodFillChunkStorage : IDisposable
         if (acquiredChunks.ContainsKey(pos))
             return acquiredChunks[pos];
         Chunk chunk = Chunk.Create(ChunkResolution.Full);
-        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunk.Surface.SkiaSurface, new(0, 0), ReplacingPaint))
+        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunk.Surface.SkiaSurface, VecI.Zero, ReplacingPaint))
             chunk.Surface.SkiaSurface.Canvas.Clear();
         acquiredChunks[pos] = chunk;
         return chunk;

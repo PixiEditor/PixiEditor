@@ -21,6 +21,7 @@ Decouples the state of a document from the UI.
         - [ ] Write chunks to the hard drive?
         - [ ] Compress chunks?
     - [x] Linear color space for blending
+    - [ ] Make low res chunks use smooth filtering
     - [ ] Tests for everything related to the operation queueing
     - Operations
         - [x] Support for paints with different blending (replace vs. alpha compose)
@@ -107,6 +108,7 @@ Decouples the state of a document from the UI.
         - [x] Clip to selection
         - [x] Lock transparency
         - [x] Create/Delete mask
+        - [ ] Enable/Disable mask
         - [ ] Apply mask
 - ViewModel
     - [ ] Loading window when background thread is busy

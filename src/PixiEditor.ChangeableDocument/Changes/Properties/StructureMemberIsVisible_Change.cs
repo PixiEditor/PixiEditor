@@ -23,7 +23,7 @@ internal class StructureMemberIsVisible_Change : Change
         return new Success();
     }
 
-    public override IChangeInfo? Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
         // don't record layer/folder visibility changes - it's just more convenient this way
         ignoreInUndo = true;
@@ -31,7 +31,7 @@ internal class StructureMemberIsVisible_Change : Change
         return new StructureMemberIsVisible_ChangeInfo() { GuidValue = targetMember };
     }
 
-    public override IChangeInfo? Revert(Document target)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.FindMemberOrThrow(targetMember).IsVisible = originalIsVisible!.Value;
         return new StructureMemberIsVisible_ChangeInfo() { GuidValue = targetMember };
