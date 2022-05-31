@@ -110,7 +110,7 @@ Decouples the state of a document from the UI.
         - [x] Clip to selection
         - [x] Lock transparency
         - [x] Create/Delete mask
-        - [ ] Enable/Disable mask
+        - [x] Enable/Disable mask
         - [x] Apply mask
 - ViewModel
     - [ ] Loading window when background thread is busy

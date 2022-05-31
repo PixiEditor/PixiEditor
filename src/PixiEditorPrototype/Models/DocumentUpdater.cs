@@ -80,7 +80,16 @@ internal class DocumentUpdater
             case StructureMemberClipToMemberBelow_ChangeInfo info:
                 ProcessClipToMemberBelow(info);
                 break;
+            case StructureMemberMaskIsVisible_ChangeInfo info:
+                ProcessMaskIsVisible(info);
+                break;
         }
+    }
+
+    private void ProcessMaskIsVisible(StructureMemberMaskIsVisible_ChangeInfo info)
+    {
+        var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        member.RaisePropertyChanged(nameof(member.MaskIsVisible));
     }
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)

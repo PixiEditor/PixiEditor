@@ -30,6 +30,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, member.GuidValue));
     }
 
+    public bool MaskIsVisible
+    {
+        get => member.MaskIsVisible;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberMaskIsVisible_Action(value, member.GuidValue));
+    }
+
     public BlendMode BlendMode
     {
         get => member.BlendMode;

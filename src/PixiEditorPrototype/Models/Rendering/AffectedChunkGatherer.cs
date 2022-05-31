@@ -85,6 +85,10 @@ internal class AffectedChunkGatherer
                     AddAllToMainImage(info.GuidValue);
                     AddAllToImagePreviews(info.GuidValue, true);
                     break;
+                case StructureMemberMaskIsVisible_ChangeInfo info:
+                    AddAllToMainImage(info.GuidValue, false);
+                    AddAllToImagePreviews(info.GuidValue, true);
+                    break;
             }
         }
     }
@@ -102,13 +106,13 @@ internal class AffectedChunkGatherer
             AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
         }
     }
-    private void AddAllToMainImage(Guid memberGuid)
+    private void AddAllToMainImage(Guid memberGuid, bool useMask = true)
     {
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayer layer)
         {
             var chunks = layer.LayerImage.FindAllChunks();
-            if (layer.Mask is not null)
+            if (layer.Mask is not null && layer.MaskIsVisible && useMask)
                 chunks.IntersectWith(layer.Mask.FindAllChunks());
             AddToMainImage(chunks);
         }

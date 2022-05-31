@@ -12,6 +12,7 @@ internal abstract class StructureMember : IChangeable, IReadOnlyStructureMember,
     public BlendMode BlendMode { get; set; } = BlendMode.Normal;
     public Guid GuidValue { get; init; }
     public ChunkyImage? Mask { get; set; } = null;
+    public bool MaskIsVisible { get; set; } = true;
     IReadOnlyChunkyImage? IReadOnlyStructureMember.Mask => Mask;
 
     internal abstract StructureMember Clone();

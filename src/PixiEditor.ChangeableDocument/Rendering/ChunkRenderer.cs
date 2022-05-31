@@ -61,7 +61,7 @@ public static class ChunkRenderer
         if (clippingChunk.IsT1 || !layer.IsVisible || layer.Opacity == 0)
             return new EmptyChunk();
 
-        if (layer.Mask is not null)
+        if (layer.Mask is not null && layer.MaskIsVisible)
             return RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
 
         context.UpdateFromMember(layer);
@@ -83,7 +83,7 @@ public static class ChunkRenderer
     {
         if (clippingChunk.IsT1 || !layer.IsVisible || layer.Opacity == 0)
             return;
-        if (layer.Mask is not null)
+        if (layer.Mask is not null && layer.MaskIsVisible)
         {
             var result = RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
             if (result.IsT1)
@@ -116,7 +116,7 @@ public static class ChunkRenderer
             !folder.IsVisible ||
             folder.Opacity == 0 ||
             folder.Children.Count == 0 ||
-            (folder.Mask is not null && !folder.Mask.LatestOrCommittedChunkExists(chunkPos))
+            (folder.Mask is not null && folder.MaskIsVisible && !folder.Mask.LatestOrCommittedChunkExists(chunkPos))
             )
             return new EmptyChunk();
 
@@ -125,7 +125,7 @@ public static class ChunkRenderer
             return new EmptyChunk();
         Chunk contents = maybeContents.AsT0;
 
-        if (folder.Mask is not null)
+        if (folder.Mask is not null && folder.MaskIsVisible)
         {
             if (!folder.Mask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.SkiaSurface, VecI.Zero, ClippingPaint))
             {

@@ -1,11 +1,11 @@
-﻿using ChunkyImageLib;
-using PixiEditor.ChangeableDocument.Enums;
+﻿using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyStructureMember
 {
     bool IsVisible { get; }
+    bool MaskIsVisible { get; }
     bool ClipToMemberBelow { get; }
     string Name { get; }
     Guid GuidValue { get; }

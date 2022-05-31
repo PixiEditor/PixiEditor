@@ -85,7 +85,12 @@
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
                             <StackPanel Orientation="Horizontal" MinWidth="200" Background="Wheat">
-                                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
+                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisible}"
+                                              Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                              Background="LightBlue"/>
+                                </StackPanel>
                                 <Rectangle 
                                     Fill="DarkRed" Width="8" Margin="3,0" 
                                     Visibility="{Binding ClipToMemberBelowEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -124,7 +129,12 @@
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type vm:LayerViewModel}">
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
+                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisible}"
+                                              Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                              Background="LightBlue"/>
+                                </StackPanel>
                                 <Rectangle 
                                     Fill="DarkRed" Width="8" Margin="3,0" 
                                     Visibility="{Binding ClipToMemberBelowEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
