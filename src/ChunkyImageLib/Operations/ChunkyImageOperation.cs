@@ -25,56 +25,69 @@ internal class ChunkyImageOperation : IDrawOperation
 
         {
             VecI pixelPos = chunkPos * ChunkyImage.FullChunkSize;
-            VecI topLeft = GetTopLeft();
+            VecI topLeftImageCorner = GetTopLeft();
             SKRect clippingRect = SKRect.Create(
-                OperationHelper.ConvertForResolution(topLeft - pixelPos, chunk.Resolution),
+                OperationHelper.ConvertForResolution(topLeftImageCorner - pixelPos, chunk.Resolution),
                 OperationHelper.ConvertForResolution(imageToDraw.CommittedSize, chunk.Resolution));
             chunk.Surface.SkiaSurface.Canvas.ClipRect(clippingRect);
         }
 
+        VecI chunkPixelCenter = chunkPos * ChunkyImage.FullChunkSize;
+        chunkPixelCenter.X += ChunkyImage.FullChunkSize / 2;
+        chunkPixelCenter.Y += ChunkyImage.FullChunkSize / 2;
+
+        VecI chunkCenterOnImage = chunkPixelCenter - pos;
+        VecI chunkSize = chunk.PixelSize;
         if (mirrorHorizontal)
         {
-            chunkPos.X = (-((chunkPos.X * ChunkyImage.FullChunkSize) - pos.X) + pos.X) / ChunkyImage.FullChunkSize - 1;
-            chunk.Surface.SkiaSurface.Canvas.Translate(chunk.PixelSize.X, 0);
-            chunk.Surface.SkiaSurface.Canvas.Scale(-1, 0);
+            chunk.Surface.SkiaSurface.Canvas.Scale(-1, 1, chunkSize.X / 2, chunkSize.Y / 2);
+            chunkCenterOnImage.X = -chunkCenterOnImage.X;
         }
         if (mirrorVertical)
         {
-            chunkPos.Y = (-((chunkPos.Y * ChunkyImage.FullChunkSize) - pos.Y) + pos.Y) / ChunkyImage.FullChunkSize - 1;
-            chunk.Surface.SkiaSurface.Canvas.Translate(0, chunk.PixelSize.Y);
-            chunk.Surface.SkiaSurface.Canvas.Scale(0, -1);
+            chunk.Surface.SkiaSurface.Canvas.Scale(1, -1, chunkSize.X / 2, chunkSize.Y / 2);
+            chunkCenterOnImage.Y = -chunkCenterOnImage.Y;
         }
 
-        VecD posOnImage = chunkPos - (pos / (double)ChunkyImage.FullChunkSize);
-        int topY = (int)Math.Floor(posOnImage.Y);
-        int bottomY = (int)Math.Ceiling(posOnImage.Y);
-        int leftX = (int)Math.Floor(posOnImage.X);
-        int rightX = (int)Math.Ceiling(posOnImage.X);
+        VecI halfChunk = new(ChunkyImage.FullChunkSize / 2, ChunkyImage.FullChunkSize / 2);
 
+        VecI topLeft = OperationHelper.GetChunkPos(chunkCenterOnImage - halfChunk, ChunkyImage.FullChunkSize);
+        VecI topRight = OperationHelper.GetChunkPos(
+            new VecI(chunkCenterOnImage.X + halfChunk.X, chunkCenterOnImage.Y - halfChunk.Y), ChunkyImage.FullChunkSize);
+        VecI bottomRight = OperationHelper.GetChunkPos(chunkCenterOnImage + halfChunk, ChunkyImage.FullChunkSize);
+        VecI bottomLeft = OperationHelper.GetChunkPos(
+            new VecI(chunkCenterOnImage.X - halfChunk.X, chunkCenterOnImage.Y + halfChunk.Y), ChunkyImage.FullChunkSize);
 
-        int chunkPixelSize = chunk.Resolution.PixelSize();
+        imageToDraw.DrawCommittedChunkOn(
+            topLeft,
+            chunk.Resolution,
+            chunk.Surface.SkiaSurface,
+            (VecI)((topLeft * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * chunk.Resolution.Multiplier()));
 
-        // this is kinda dumb
-        if (pos % ChunkyImage.FullChunkSize == VecI.Zero)
+        VecI gridShift = pos % ChunkyImage.FullChunkSize;
+        if (gridShift.X != 0)
         {
-            imageToDraw.DrawCommittedChunkOn((VecI)posOnImage, chunk.Resolution, chunk.Surface.SkiaSurface, VecI.Zero);
+            imageToDraw.DrawCommittedChunkOn(
+            topRight,
+            chunk.Resolution,
+            chunk.Surface.SkiaSurface,
+            (VecI)((topRight * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * chunk.Resolution.Multiplier()));
         }
-        else if (pos.X % ChunkyImage.FullChunkSize == 0)
+        if (gridShift.Y != 0)
         {
-            imageToDraw.DrawCommittedChunkOn(new VecI((int)posOnImage.X, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI(0, (int)((topY - posOnImage.Y) * chunkPixelSize)));
-            imageToDraw.DrawCommittedChunkOn(new VecI((int)posOnImage.X, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI(0, (int)((bottomY - posOnImage.Y) * chunkPixelSize)));
+            imageToDraw.DrawCommittedChunkOn(
+            bottomLeft,
+            chunk.Resolution,
+            chunk.Surface.SkiaSurface,
+            (VecI)((bottomLeft * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * chunk.Resolution.Multiplier()));
         }
-        else if (pos.Y % ChunkyImage.FullChunkSize == 0)
+        if (gridShift.X != 0 && gridShift.Y != 0)
         {
-            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, (int)posOnImage.Y), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((leftX - posOnImage.X) * chunkPixelSize), 0));
-            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, (int)posOnImage.Y), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((rightX - posOnImage.X) * chunkPixelSize), 0));
-        }
-        else
-        {
-            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((leftX - posOnImage.X) * chunkPixelSize), (int)((topY - posOnImage.Y) * chunkPixelSize)));
-            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, topY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((rightX - posOnImage.X) * chunkPixelSize), (int)((topY - posOnImage.Y) * chunkPixelSize)));
-            imageToDraw.DrawCommittedChunkOn(new VecI(leftX, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((leftX - posOnImage.X) * chunkPixelSize), (int)((bottomY - posOnImage.Y) * chunkPixelSize)));
-            imageToDraw.DrawCommittedChunkOn(new VecI(rightX, bottomY), chunk.Resolution, chunk.Surface.SkiaSurface, new VecI((int)((rightX - posOnImage.X) * chunkPixelSize), (int)((bottomY - posOnImage.Y) * chunkPixelSize)));
+            imageToDraw.DrawCommittedChunkOn(
+            bottomRight,
+            chunk.Resolution,
+            chunk.Surface.SkiaSurface,
+            (VecI)((bottomRight * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * chunk.Resolution.Multiplier()));
         }
 
         chunk.Surface.SkiaSurface.Canvas.Restore();
@@ -82,7 +95,7 @@ internal class ChunkyImageOperation : IDrawOperation
 
     public HashSet<VecI> FindAffectedChunks()
     {
-        return OperationHelper.FindChunksFullyInsideRectangle(GetTopLeft(), imageToDraw.CommittedSize, ChunkyImage.FullChunkSize);
+        return OperationHelper.FindChunksTouchingRectangle(GetTopLeft(), imageToDraw.CommittedSize, ChunkyImage.FullChunkSize);
     }
 
     private VecI GetTopLeft()

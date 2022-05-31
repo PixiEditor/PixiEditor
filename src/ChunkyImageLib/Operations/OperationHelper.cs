@@ -143,6 +143,21 @@ public static class OperationHelper
         return output;
     }
 
+    public static HashSet<VecI> FindChunksTouchingRectangle(VecI topLeft, VecI size, int chunkSize)
+    {
+        VecI min = GetChunkPos(topLeft, chunkSize);
+        VecI max = GetChunkPosBiased(topLeft + size, false, false, chunkSize);
+        HashSet<VecI> output = new();
+        for (int x = min.X; x <= max.X; x++)
+        {
+            for (int y = min.Y; y <= max.Y; y++)
+            {
+                output.Add(new(x, y));
+            }
+        }
+        return output;
+    }
+
     /// <summary>
     /// Finds chunks that at least partially lie inside of a rectangle
     /// </summary>

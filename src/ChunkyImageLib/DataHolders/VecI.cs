@@ -29,6 +29,10 @@ public struct VecI
     {
         return new VecI(X * other.X, Y * other.Y);
     }
+    public VecI Add(int value)
+    {
+        return new VecI(X + value, Y + value);
+    }
     /// <summary>
     /// Reflects the vector across a vertical line with the specified x position
     /// </summary>
