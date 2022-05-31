@@ -31,7 +31,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
 
     private Selection_ChangeInfo CommonApply(Document target)
     {
-        using var rect = new SKPath();
+        using var rect = new SKPath() { FillType = SKPathFillType.EvenOdd };
         rect.MoveTo(pos);
         rect.LineTo(pos.X + size.X, pos.Y);
         rect.LineTo(pos + size);

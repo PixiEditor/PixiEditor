@@ -5,7 +5,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SelectLasso_UpdateableChange : UpdateableChange
 {
     private SKPath? originalPath;
-    private SKPath path = new();
+    private SKPath path = new() { FillType = SKPathFillType.EvenOdd };
     private readonly SelectionMode mode;
 
     [GenerateUpdateableChangeActions]

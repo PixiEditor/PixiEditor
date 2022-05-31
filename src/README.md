@@ -106,7 +106,7 @@ Decouples the state of a document from the UI.
         - [x] Shift layer image
         - [ ] Move/Rotate selection
         - [ ] Transform selected area
-        - [ ] Fill selection (fill with tranparent = delete)
+        - [ ] Fill selection (fill with transparent = delete)
         - [x] Clip to selection
         - [x] Lock transparency
         - [x] Create/Delete mask

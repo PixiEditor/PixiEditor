@@ -73,7 +73,7 @@ internal class SelectionOverlay : Control
 
         renderPath = new PathGeometry()
         {
-            FillRule = FillRule.Nonzero,
+            FillRule = FillRule.EvenOdd,
             Figures = (PathFigureCollection?)converter.ConvertFromString(Path.ToSvgPathData()),
         };
         drawingContext.DrawGeometry(null, whitePen, renderPath);
