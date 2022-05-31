@@ -13,6 +13,7 @@ Decouples the state of a document from the UI.
     - [x] ChunkPool multithreading support
     - [x] Dispose that returns borrowed chunks
     - [x] ChunkyImage finalizer that returns borrowed chunks
+    - [ ] Get Committed Pixel
     - [x] GetLatestChunk resolution parameter
         - [x] Support for different chunk sizes in chunkpool
         - [x] Rendering for different chunk sizes
@@ -26,7 +27,7 @@ Decouples the state of a document from the UI.
     - Operations
         - [x] Support for paints with different blending (replace vs. alpha compose)
         - [x] Image
-        - [ ] ChunkyImage
+        - [x] ChunkyImage
         - [x] Rectangle
         - [ ] Ellipse
         - [ ] Line
@@ -89,7 +90,7 @@ Decouples the state of a document from the UI.
         - [ ] Resize image
         - [x] Paste image with transformation
         - [ ] Draw image (for loading from file and such)
-        - [ ] Rectangle (basic done, rotation left)
+        - [x] Rectangle
         - [ ] Ellipse
         - [ ] Line
         - [ ] Pen
@@ -102,6 +103,7 @@ Decouples the state of a document from the UI.
         - [ ] Circular selection
         - [ ] Magic wand
         - [ ] Lasso
+        - [x] Shift layer image
         - [ ] Move/Rotate selection
         - [ ] Transform selection
         - [ ] Fill selection (fill with tranparent = delete)
@@ -109,7 +111,7 @@ Decouples the state of a document from the UI.
         - [x] Lock transparency
         - [x] Create/Delete mask
         - [ ] Enable/Disable mask
-        - [ ] Apply mask
+        - [x] Apply mask
 - ViewModel
     - [ ] Loading window when background thread is busy
     - [ ] Action filtering
