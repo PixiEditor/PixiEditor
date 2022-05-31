@@ -150,6 +150,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private bool updateableChangeActive = false;
 
+    private bool selectingRect = false;
+    private bool selectingLasso = false;
     private bool drawingRectangle = false;
     private bool transformingRectangle = false;
     private bool shiftingLayer = false;
@@ -217,6 +219,22 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndShiftLayer_Action());
     }
 
+    public void StartUpdateLassoSelection(VecI startPos, SelectionMode mode)
+    {
+        updateableChangeActive = true;
+        selectingLasso = true;
+        Helpers.ActionAccumulator.AddActions(new SelectLasso_Action(startPos, mode));
+    }
+
+    public void EndLassoSelection()
+    {
+        if (!selectingLasso)
+            return;
+        selectingLasso = false;
+        updateableChangeActive = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndSelectLasso_Action());
+    }
+
     public void ApplyTransform(object? param)
     {
         if (!transformingRectangle && !pastingImage)
@@ -239,21 +257,18 @@ internal class DocumentViewModel : INotifyPropertyChanged
         updateableChangeActive = false;
     }
 
-    bool startedSelection = false;
-    public void StartUpdateSelection(VecI pos, VecI size)
+    public void StartUpdateRectSelection(VecI pos, VecI size, SelectionMode mode)
     {
-        //if (!startedSelection)
-        //   Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
-        startedSelection = true;
+        selectingRect = true;
         updateableChangeActive = true;
-        Helpers.ActionAccumulator.AddActions(new SelectRectangle_Action(pos, size));
+        Helpers.ActionAccumulator.AddActions(new SelectRectangle_Action(pos, size, mode));
     }
 
-    public void EndSelection()
+    public void EndRectSelection()
     {
-        if (!startedSelection)
+        if (!selectingRect)
             return;
-        startedSelection = false;
+        selectingRect = false;
         updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndSelectRectangle_Action());
     }

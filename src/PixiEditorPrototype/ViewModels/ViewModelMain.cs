@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
@@ -14,10 +15,11 @@ internal class ViewModelMain : INotifyPropertyChanged
 {
     public DocumentViewModel? ActiveDocument => GetDocumentByGuid(activeDocumentGuid);
 
-    public RelayCommand? MouseDownCommand { get; }
-    public RelayCommand? MouseMoveCommand { get; }
-    public RelayCommand? MouseUpCommand { get; }
-    public RelayCommand? ChangeActiveToolCommand { get; }
+    public RelayCommand MouseDownCommand { get; }
+    public RelayCommand MouseMoveCommand { get; }
+    public RelayCommand MouseUpCommand { get; }
+    public RelayCommand ChangeActiveToolCommand { get; }
+    public RelayCommand SetSelectionModeCommand { get; }
 
     public Color SelectedColor { get; set; } = Colors.Black;
 
@@ -68,6 +70,8 @@ internal class ViewModelMain : INotifyPropertyChanged
     private bool mouseIsDown = false;
 
     private Tool activeTool = Tool.Rectangle;
+    private SelectionMode selectionMode = SelectionMode.New;
+
     private Tool toolOnMouseDown = Tool.Rectangle;
 
     public ViewModelMain()
@@ -76,10 +80,18 @@ internal class ViewModelMain : INotifyPropertyChanged
         MouseMoveCommand = new RelayCommand(MouseMove);
         MouseUpCommand = new RelayCommand(MouseUp);
         ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
+        SetSelectionModeCommand = new RelayCommand(SetSelectionMode);
 
         var doc = new DocumentViewModel(this);
         documents[doc.GuidValue] = doc;
         activeDocumentGuid = doc.GuidValue;
+    }
+
+    private void SetSelectionMode(object? obj)
+    {
+        if (obj is not SelectionMode mode)
+            return;
+        selectionMode = mode;
     }
 
     public DocumentViewModel? GetDocumentByGuid(Guid guid)
@@ -146,13 +158,18 @@ internal class ViewModelMain : INotifyPropertyChanged
         }
         else if (toolOnMouseDown == Tool.Select)
         {
-            ActiveDocument!.StartUpdateSelection(
+            ActiveDocument!.StartUpdateRectSelection(
                 new(mouseDownCanvasX, mouseDownCanvasY),
-                new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY));
+                new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY),
+                selectionMode);
         }
         else if (toolOnMouseDown == Tool.ShiftLayer)
         {
             ActiveDocument!.StartUpdateShiftLayer(new(canvasX - mouseDownCanvasX, canvasY - mouseDownCanvasY));
+        }
+        else if (toolOnMouseDown == Tool.Lasso)
+        {
+            ActiveDocument!.StartUpdateLassoSelection(new(canvasX, canvasY), selectionMode);
         }
     }
 
@@ -175,10 +192,13 @@ internal class ViewModelMain : INotifyPropertyChanged
                     ActiveDocument!.EndRectangleDrawing();
                     break;
                 case Tool.Select:
-                    ActiveDocument!.EndSelection();
+                    ActiveDocument!.EndRectSelection();
                     break;
                 case Tool.ShiftLayer:
                     ActiveDocument!.EndShiftLayer();
+                    break;
+                case Tool.Lasso:
+                    ActiveDocument!.EndLassoSelection();
                     break;
             }
         }

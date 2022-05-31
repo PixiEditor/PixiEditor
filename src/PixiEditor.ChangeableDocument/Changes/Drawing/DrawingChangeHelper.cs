@@ -1,6 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
-
-namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
 {
     public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask)
@@ -21,8 +19,8 @@ internal static class DrawingChangeHelper
 
     public static void ApplyClipsSymmetriesEtc(Document target, ChunkyImage targetImage, Guid targetMemberGuid, bool drawOnMask)
     {
-        if (!target.Selection.IsEmptyAndInactive)
-            targetImage.AddRasterClip(target.Selection.SelectionImage);
+        if (!target.Selection.SelectionPath.IsEmpty)
+            targetImage.SetClippingPath(target.Selection.SelectionPath);
 
         var targetMember = target.FindMemberOrThrow(targetMemberGuid);
         if (targetMember is Layer layer && layer.LockTransparency && !drawOnMask)

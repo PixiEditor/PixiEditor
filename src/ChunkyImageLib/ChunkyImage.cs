@@ -64,6 +64,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private List<ChunkyImage> activeClips = new();
     private SKBlendMode blendMode = SKBlendMode.Src;
     private bool lockTransparency = false;
+    private SKPath? clippingPath;
     private int? horizontalSymmetryAxis = null;
     private int? verticalSymmetryAxis = null;
 
@@ -257,6 +258,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    public void SetClippingPath(SKPath clippingPath)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            if (queuedOperations.Count > 0)
+                throw new InvalidOperationException("This function can only be executed when there are no queued operations");
+            this.clippingPath = clippingPath;
+        }
+    }
+
     /// <summary>
     /// Porter duff compositing operators (apart from SrcOver) likely won't have the intended effect.
     /// </summary>
@@ -428,6 +440,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             lockTransparency = false;
             horizontalSymmetryAxis = null;
             verticalSymmetryAxis = null;
+            clippingPath = null;
 
             //clear latest chunks
             foreach (var (_, chunksOfRes) in latestChunks)
@@ -469,6 +482,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             lockTransparency = false;
             horizontalSymmetryAxis = null;
             verticalSymmetryAxis = null;
+            clippingPath = null;
 
             commitCounter++;
             if (commitCounter % 30 == 0)
@@ -634,7 +648,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             return;
 
         Chunk? targetChunk = null;
-        OneOf<FilledChunk, EmptyChunk, Chunk> combinedClips = new FilledChunk();
+        OneOf<FilledChunk, EmptyChunk, Chunk> combinedRasterClips = new FilledChunk();
 
         bool initialized = false;
 
@@ -648,11 +662,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             {
                 initialized = true;
                 targetChunk = GetOrCreateLatestChunk(chunkPos, resolution);
-                combinedClips = CombineClipsForChunk(chunkPos, resolution);
+                combinedRasterClips = CombineRasterClipsForChunk(chunkPos, resolution);
             }
 
             if (chunkData.QueueProgress <= i)
-                chunkData.IsDeleted = ApplyOperationToChunk(operation, combinedClips, targetChunk!, chunkPos, resolution, chunkData);
+                chunkData.IsDeleted = ApplyOperationToChunk(operation, combinedRasterClips, targetChunk!, chunkPos, resolution, chunkData);
         }
 
         if (initialized)
@@ -667,11 +681,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             latestChunksData[resolution][chunkPos] = chunkData;
         }
 
-        if (combinedClips.TryPickT2(out Chunk value, out var _))
+        if (combinedRasterClips.TryPickT2(out Chunk value, out var _))
             value.Dispose();
     }
 
-    private OneOf<FilledChunk, EmptyChunk, Chunk> CombineClipsForChunk(VecI chunkPos, ChunkResolution resolution)
+    private OneOf<FilledChunk, EmptyChunk, Chunk> CombineRasterClipsForChunk(VecI chunkPos, ChunkResolution resolution)
     {
         if (lockTransparency && MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is null)
         {
@@ -705,7 +719,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// </returns>
     private bool ApplyOperationToChunk(
         IOperation operation,
-        OneOf<FilledChunk, EmptyChunk, Chunk> combinedClips,
+        OneOf<FilledChunk, EmptyChunk, Chunk> combinedRasterClips,
         Chunk targetChunk,
         VecI chunkPos,
         ChunkResolution resolution,
@@ -716,26 +730,26 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         if (operation is IDrawOperation chunkOperation)
         {
-            if (combinedClips.IsT1) //Nothing is visible
+            if (combinedRasterClips.IsT1) //Nothing is visible
                 return chunkData.IsDeleted;
 
             if (chunkData.IsDeleted)
                 targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
             // just regular drawing
-            if (combinedClips.IsT0) //Everything is visible
+            if (combinedRasterClips.IsT0) //Everything is visible as far as raster clips are concerned
             {
-                chunkOperation.DrawOnChunk(targetChunk, chunkPos);
+                CallDrawWithClip(chunkOperation, targetChunk, resolution, chunkPos);
                 return false;
             }
 
-            // drawing with clipping
-            var clip = combinedClips.AsT2;
+            // drawing with raster clipping
+            var clip = combinedRasterClips.AsT2;
 
             using var tempChunk = Chunk.Create(targetChunk.Resolution);
             targetChunk.DrawOnSurface(tempChunk.Surface.SkiaSurface, VecI.Zero, ReplacingPaint);
 
-            chunkOperation.DrawOnChunk(tempChunk, chunkPos);
+            CallDrawWithClip(chunkOperation, tempChunk, resolution, chunkPos);
 
             clip.DrawOnSurface(tempChunk.Surface.SkiaSurface, VecI.Zero, ClippingPaint);
             clip.DrawOnSurface(targetChunk.Surface.SkiaSurface, VecI.Zero, InverseClippingPaint);
@@ -749,6 +763,26 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             return IsOutsideBounds(chunkPos, resizeOperation.Size);
         }
         return chunkData.IsDeleted;
+    }
+
+    private void CallDrawWithClip(IDrawOperation operation, Chunk targetChunk, ChunkResolution resolution, VecI chunkPos)
+    {
+        if (clippingPath is not null && !clippingPath.IsEmpty)
+        {
+            int count = targetChunk.Surface.SkiaSurface.Canvas.Save();
+
+            using SKPath transformedPath = new(clippingPath);
+            float scale = (float)resolution.Multiplier();
+            VecD trans = -chunkPos * FullChunkSize * scale;
+            transformedPath.Transform(SKMatrix.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
+            targetChunk.Surface.SkiaSurface.Canvas.ClipPath(transformedPath);
+            operation.DrawOnChunk(targetChunk, chunkPos);
+            targetChunk.Surface.SkiaSurface.Canvas.RestoreToCount(count);
+        }
+        else
+        {
+            operation.DrawOnChunk(targetChunk, chunkPos);
+        }
     }
 
     /// <summary>

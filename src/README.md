@@ -99,13 +99,13 @@ Decouples the state of a document from the UI.
         - [ ] Fill
         - [ ] Brightness
         - [x] Basic selection changes
-        - [ ] Selection modes
+        - [x] Selection modes
         - [ ] Circular selection
         - [ ] Magic wand
-        - [ ] Lasso
+        - [x] Lasso
         - [x] Shift layer image
         - [ ] Move/Rotate selection
-        - [ ] Transform selection
+        - [ ] Transform selected area
         - [ ] Fill selection (fill with tranparent = delete)
         - [x] Clip to selection
         - [x] Lock transparency

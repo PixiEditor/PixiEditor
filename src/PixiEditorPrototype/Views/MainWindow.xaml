@@ -13,6 +13,7 @@
         xmlns:vp="clr-namespace:PixiEditorPrototype.UserControls.Viewport"
         xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
         xmlns:models="clr-namespace:PixiEditorPrototype.Models"
+        xmlns:chen="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         mc:Ignorable="d"
         Title="MainWindow" Height="700" Width="1400">
@@ -182,6 +183,17 @@
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.UndoCommand}">Undo</Button>
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
+                    <ComboBox Width="50" Height="20" Margin="5" SelectedIndex="0" x:Name="selectionModeComboBox">
+                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.New}">New</ComboBoxItem>
+                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.Add}">Add</ComboBoxItem>
+                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.Subtract}">Subtract</ComboBoxItem>
+                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.Intersect}">Intersect</ComboBoxItem>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding SetSelectionModeCommand}" CommandParameter="{Binding SelectedItem.Tag, ElementName=selectionModeComboBox}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
                     <Button Width="120" Margin="5" Command="{Binding ActiveDocument.ClearHistoryCommand}">Clear undo history</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.PasteImageCommand}">Paste Image</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ApplyTransformCommand}">Apply Transform</Button>
@@ -197,6 +209,7 @@
             <StackPanel Orientation="Vertical" Background="White">
                 <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
                 <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
+                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Lasso}">Lasso</Button>
                 <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.ShiftLayer}">Shift Layer</Button>
                 <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.FloodFill}">Fill</Button>
                 <colorpicker:PortableColorPicker Margin="5" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="30" Height="30"/>

@@ -9,7 +9,6 @@ internal class ResizeCanvas_Change : Change
     private int originalVerAxisX;
     private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
-    private CommittedChunkStorage? selectionChunkStorage;
     private VecI newSize;
 
     [GenerateMakeChangeAction]
@@ -59,11 +58,6 @@ internal class ResizeCanvas_Change : Change
             deletedMaskChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.Mask, layer.Mask.FindAffectedChunks()));
             layer.Mask.CommitChanges();
         });
-
-        target.Selection.SelectionImage.EnqueueResize(newSize);
-        selectionChunkStorage = new(target.Selection.SelectionImage, target.Selection.SelectionImage.FindAffectedChunks());
-        target.Selection.SelectionImage.CommitChanges();
-
         ignoreInUndo = false;
         return new Size_ChangeInfo();
     }
@@ -85,12 +79,6 @@ internal class ResizeCanvas_Change : Change
             layer.Mask.CommitChanges();
         });
 
-        target.Selection.SelectionImage.EnqueueResize(originalSize);
-        selectionChunkStorage!.ApplyChunksToImage(target.Selection.SelectionImage);
-        target.Selection.SelectionImage.CommitChanges();
-        selectionChunkStorage.Dispose();
-        selectionChunkStorage = null;
-
         target.HorizontalSymmetryAxisY = originalHorAxisY;
         target.VerticalSymmetryAxisX = originalVerAxisX;
 
@@ -107,6 +95,5 @@ internal class ResizeCanvas_Change : Change
             layer.Value.Dispose();
         foreach (var mask in deletedMaskChunks)
             mask.Value.Dispose();
-        selectionChunkStorage?.Dispose();
     }
 }

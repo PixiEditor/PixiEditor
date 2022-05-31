@@ -31,6 +31,7 @@ internal class SelectionOverlay : Control
 
     private Pen whitePen = new Pen(Brushes.White, 1);
     private Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = frame7 };
+    private Brush fillBrush = new SolidColorBrush(Color.FromArgb(80, 0, 80, 255));
 
     private static DashStyle frame1 = new DashStyle(new double[] { 2, 4 }, 0);
     private static DashStyle frame2 = new DashStyle(new double[] { 2, 4 }, 1);
@@ -76,7 +77,7 @@ internal class SelectionOverlay : Control
             Figures = (PathFigureCollection?)converter.ConvertFromString(Path.ToSvgPathData()),
         };
         drawingContext.DrawGeometry(null, whitePen, renderPath);
-        drawingContext.DrawGeometry(null, blackDashedPen, renderPath);
+        drawingContext.DrawGeometry(fillBrush, blackDashedPen, renderPath);
     }
 
     private static void OnZoomboxScaleChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
