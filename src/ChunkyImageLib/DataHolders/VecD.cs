@@ -177,7 +177,14 @@ public struct VecD
     {
         return !(a.X == b.X && a.Y == b.Y);
     }
-
+    public static implicit operator VecD(SKPoint point)
+    {
+        return new VecD(point.X, point.Y);
+    }
+    public static implicit operator VecD(SKSize size)
+    {
+        return new VecD(size.Width, size.Height);
+    }
     public static explicit operator VecI(VecD vec)
     {
         return new VecI((int)vec.X, (int)vec.Y);

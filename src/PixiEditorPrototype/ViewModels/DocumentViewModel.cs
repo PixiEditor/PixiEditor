@@ -67,6 +67,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? DragSymmetryCommand { get; }
     public RelayCommand? EndDragSymmetryCommand { get; }
     public RelayCommand? ClipToMemberBelowCommand { get; }
+    public RelayCommand? TransformSelectionPathCommand { get; }
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
@@ -121,6 +122,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         EndDragSymmetryCommand = new RelayCommand(EndDragSymmetry);
         ClipToMemberBelowCommand = new RelayCommand(ClipToMemberBelow);
         ApplyMaskCommand = new RelayCommand(ApplyMask);
+        TransformSelectionPathCommand = new RelayCommand(TransformSelectionPath);
 
         foreach (var bitmap in Bitmaps)
         {
@@ -155,6 +157,9 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool drawingRectangle = false;
     private bool transformingRectangle = false;
     private bool shiftingLayer = false;
+
+    private bool transformingSelectionPath = false;
+    ShapeCorners initialSelectionCorners = new();
 
     private bool pastingImage = false;
     private Surface? pastedImage;
@@ -219,6 +224,19 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndShiftLayer_Action());
     }
 
+    private void TransformSelectionPath(object? arg)
+    {
+        var path = SelectionPath;
+        if (path.IsEmpty)
+            return;
+        updateableChangeActive = true;
+        transformingSelectionPath = true;
+        var bounds = path.TightBounds;
+        initialSelectionCorners = new ShapeCorners(bounds.Location, bounds.Size);
+        TransformViewModel.ShowShapeTransform(initialSelectionCorners);
+        Helpers.ActionAccumulator.AddActions(new TransformSelectionPath_Action(initialSelectionCorners));
+    }
+
     public void StartUpdateLassoSelection(VecI startPos, SelectionMode mode)
     {
         updateableChangeActive = true;
@@ -237,7 +255,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void ApplyTransform(object? param)
     {
-        if (!transformingRectangle && !pastingImage)
+        if (!transformingRectangle && !pastingImage && !transformingSelectionPath)
             return;
 
         if (transformingRectangle)
@@ -253,6 +271,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
             Helpers.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());
             pastedImage?.Dispose();
             pastedImage = null;
+        }
+        else if (transformingSelectionPath)
+        {
+            transformingSelectionPath = false;
+            TransformViewModel.HideTransform();
+            Helpers.ActionAccumulator.AddFinishedActions(new EndTransformSelectionPath_Action());
         }
         updateableChangeActive = false;
     }
@@ -291,6 +315,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
             if (SelectedStructureMember is null || pastedImage is null)
                 return;
             Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, newCorners, SelectedStructureMember.GuidValue, false));
+        }
+        else if (transformingSelectionPath)
+        {
+            Helpers.ActionAccumulator.AddActions(new TransformSelectionPath_Action(newCorners));
         }
     }
 

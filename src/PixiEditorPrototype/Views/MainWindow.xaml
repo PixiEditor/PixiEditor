@@ -183,7 +183,8 @@
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.UndoCommand}">Undo</Button>
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
-                    <ComboBox Width="50" Height="20" Margin="5" SelectedIndex="0" x:Name="selectionModeComboBox">
+                    <Button Width="110" Margin="5" Command="{Binding ActiveDocument.TransformSelectionPathCommand}">Transform sel. path</Button>
+                    <ComboBox Width="70" Height="20" Margin="5" SelectedIndex="0" x:Name="selectionModeComboBox">
                         <ComboBoxItem Tag="{x:Static chen:SelectionMode.New}">New</ComboBoxItem>
                         <ComboBoxItem Tag="{x:Static chen:SelectionMode.Add}">Add</ComboBoxItem>
                         <ComboBoxItem Tag="{x:Static chen:SelectionMode.Subtract}">Subtract</ComboBoxItem>

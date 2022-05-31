@@ -104,7 +104,7 @@ Decouples the state of a document from the UI.
         - [ ] Magic wand
         - [x] Lasso
         - [x] Shift layer image
-        - [ ] Move/Rotate selection
+        - [ ] Move/Rotate selection path
         - [ ] Transform selected area
         - [ ] Fill selection (fill with transparent = delete)
         - [x] Clip to selection
