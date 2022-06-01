@@ -31,6 +31,7 @@ Decouples the state of a document from the UI.
         - [x] Rectangle
         - [ ] Ellipse
         - [ ] Line
+        - [x] Path
         - [ ] Draw pixels
         - [x] Clear operation
         - [x] Clear region operation
@@ -93,7 +94,8 @@ Decouples the state of a document from the UI.
         - [x] Rectangle
         - [ ] Ellipse
         - [ ] Line
-        - [ ] Pen
+        - [x] Path-based pen
+        - [ ] Regular pen
         - [ ] Pixel-perfect pen
         - [ ] Eraser (same as pen?)
         - [ ] Fill
@@ -110,7 +112,6 @@ Decouples the state of a document from the UI.
         - [x] Lock transparency
         - [x] Create/Delete mask
         - [x] Enable/Disable mask
-        - [ ] Link mask
         - [x] Apply mask
 - ViewModel
     - [ ] Loading window when background thread is busy
