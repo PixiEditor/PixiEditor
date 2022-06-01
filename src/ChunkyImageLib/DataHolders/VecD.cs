@@ -185,6 +185,14 @@ public struct VecD
     {
         return new VecD(size.Width, size.Height);
     }
+    public static implicit operator VecD(SKPointI point)
+    {
+        return new VecD(point.X, point.Y);
+    }
+    public static implicit operator VecD(SKSizeI size)
+    {
+        return new VecD(size.Width, size.Height);
+    }
     public static explicit operator VecI(VecD vec)
     {
         return new VecI((int)vec.X, (int)vec.Y);

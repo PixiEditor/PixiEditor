@@ -22,6 +22,7 @@ internal class ViewModelMain : INotifyPropertyChanged
     public RelayCommand SetSelectionModeCommand { get; }
 
     public Color SelectedColor { get; set; } = Colors.Black;
+    public bool KeepOriginalImageOnTransform { get; set; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

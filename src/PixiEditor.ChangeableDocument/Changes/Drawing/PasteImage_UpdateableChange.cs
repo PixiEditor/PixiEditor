@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿using SkiaSharp;
+
+namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : UpdateableChange
 {
     private ShapeCorners corners;
@@ -6,6 +8,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private readonly bool drawOnMask;
     private readonly Surface imageToPaste;
     private CommittedChunkStorage? savedChunks;
+    private static SKPaint RegularPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
 
     private bool hasEnqueudImage = false;
 
@@ -37,7 +40,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
         targetImage.CancelChanges();
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
-        targetImage.EnqueueDrawImage(corners, imageToPaste, false);
+        targetImage.EnqueueDrawImage(corners, imageToPaste, RegularPaint, false);
         hasEnqueudImage = true;
 
         var affectedChunks = targetImage.FindAffectedChunks();

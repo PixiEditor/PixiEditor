@@ -99,7 +99,22 @@ public struct VecI
     {
         return !(a.X == b.X && a.Y == b.Y);
     }
-
+    public static explicit operator VecI(SKPoint point)
+    {
+        return new VecI((int)point.X, (int)point.Y);
+    }
+    public static explicit operator VecI(SKSize size)
+    {
+        return new VecI((int)size.Width, (int)size.Height);
+    }
+    public static implicit operator VecI(SKPointI point)
+    {
+        return new VecI(point.X, point.Y);
+    }
+    public static implicit operator VecI(SKSizeI size)
+    {
+        return new VecI(size.Width, size.Height);
+    }
     public static implicit operator VecD(VecI vec)
     {
         return new VecD(vec.X, vec.Y);

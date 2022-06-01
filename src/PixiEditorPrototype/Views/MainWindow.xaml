@@ -184,6 +184,7 @@
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
                     <Button Width="110" Margin="5" Command="{Binding ActiveDocument.TransformSelectionPathCommand}">Transform sel. path</Button>
+                    <Button Width="110" Margin="5" Command="{Binding ActiveDocument.TransformSelectedAreaCommand}">Transform sel. area</Button>
                     <ComboBox Width="70" Height="20" Margin="5" SelectedIndex="0" x:Name="selectionModeComboBox">
                         <ComboBoxItem Tag="{x:Static chen:SelectionMode.New}">New</ComboBoxItem>
                         <ComboBoxItem Tag="{x:Static chen:SelectionMode.Add}">Add</ComboBoxItem>
@@ -208,17 +209,20 @@
         </Border>
         <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Left" Margin="5">
             <StackPanel Orientation="Vertical" Background="White">
-                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
-                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
-                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Lasso}">Lasso</Button>
-                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.ShiftLayer}">Shift Layer</Button>
-                <Button Width="50" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.FloodFill}">Fill</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Lasso}">Lasso</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.ShiftLayer}">Shift Layer</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.FloodFill}">Fill</Button>
                 <colorpicker:PortableColorPicker Margin="5" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="30" Height="30"/>
                 <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding NormalZoombox, Mode=OneWayToSource}">Normal</RadioButton>
                 <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding MoveZoombox, Mode=OneWayToSource}">Move</RadioButton>
                 <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding RotateZoombox, Mode=OneWayToSource}">Rotate</RadioButton>
                 <CheckBox x:Name="flipXCheckbox" Margin="5, 0">Flip X</CheckBox>
                 <CheckBox x:Name="flipYCheckbox" Margin="5, 0">Flip Y</CheckBox>
+                <CheckBox 
+                    x:Name="keepOriginalImageCheckbox" Margin="5, 0"
+                    IsChecked="{Binding KeepOriginalImageOnTransform}">Keep area</CheckBox>
                 <CheckBox 
                     x:Name="horizontalSymmetryCheckbox" Margin="5,0" 
                     IsChecked="{Binding ActiveDocument.HorizontalSymmetryAxisEnabled}">Hor Sym</CheckBox>

@@ -32,7 +32,7 @@ internal class FloodFillChunkStorage : IDisposable
     {
         foreach (var (pos, chunk) in acquiredChunks)
         {
-            chunkyImage.EnqueueDrawImage(pos * ChunkResolution.Full.PixelSize(), chunk.Surface, false);
+            chunkyImage.EnqueueDrawImage(pos * ChunkResolution.Full.PixelSize(), chunk.Surface, ReplacingPaint, false);
         }
         var affected = chunkyImage.FindAffectedChunks();
         var affectedChunkStorage = new CommittedChunkStorage(chunkyImage, affected);

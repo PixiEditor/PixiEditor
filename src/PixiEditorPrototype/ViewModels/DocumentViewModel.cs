@@ -9,6 +9,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditorPrototype.CustomControls.SymmetryOverlay;
 using PixiEditorPrototype.Models;
@@ -68,6 +69,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? EndDragSymmetryCommand { get; }
     public RelayCommand? ClipToMemberBelowCommand { get; }
     public RelayCommand? TransformSelectionPathCommand { get; }
+    public RelayCommand? TransformSelectedAreaCommand { get; }
 
     public int Width => Helpers.Tracker.Document.Size.X;
     public int Height => Helpers.Tracker.Document.Size.Y;
@@ -123,6 +125,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         ClipToMemberBelowCommand = new RelayCommand(ClipToMemberBelow);
         ApplyMaskCommand = new RelayCommand(ApplyMask);
         TransformSelectionPathCommand = new RelayCommand(TransformSelectionPath);
+        TransformSelectedAreaCommand = new RelayCommand(TransformSelectedArea);
 
         foreach (var bitmap in Bitmaps)
         {
@@ -134,6 +137,44 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
         Helpers.ActionAccumulator.AddFinishedActions
             (new CreateStructureMember_Action(StructureRoot.GuidValue, Guid.NewGuid(), 0, StructureMemberType.Layer));
+    }
+
+    private void TransformSelectedArea(object? obj)
+    {
+        if (updateableChangeActive || SelectedStructureMember is not LayerViewModel layer || SelectionPath.IsEmpty)
+            return;
+        IReadOnlyChunkyImage? layerImage = (Helpers.Tracker.Document.FindMember(layer.GuidValue) as IReadOnlyLayer)?.LayerImage;
+        if (layerImage is null)
+            return;
+
+        // find area location and size
+        using SKPath path = SelectionPath;
+        var bounds = path.TightBounds;
+        bounds.Intersect(SKRect.Create(0, 0, Width, Height));
+        VecI pixelTopLeft = (VecI)((VecD)bounds.Location).Floor();
+        VecI pixelSize = (VecI)((VecD)bounds.Location + (VecD)bounds.Size - pixelTopLeft).Ceiling();
+
+        // extract surface to be transformed
+        path.Transform(SKMatrix.CreateTranslation(-pixelTopLeft.X, -pixelTopLeft.Y));
+        Surface surface = new(pixelSize);
+        surface.SkiaSurface.Canvas.Save();
+        surface.SkiaSurface.Canvas.ClipPath(path);
+        layerImage.DrawMostUpToDateRegionOn(SKRectI.Create(pixelTopLeft, pixelSize), ChunkResolution.Full, surface.SkiaSurface, VecI.Zero);
+        surface.SkiaSurface.Canvas.Restore();
+
+        // clear area
+        if (!owner.KeepOriginalImageOnTransform)
+        {
+            Helpers.ActionAccumulator.AddActions(new ClearSelectedArea_Action(layer.GuidValue, false));
+        }
+        Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
+
+        // initiate transform using paste image logic
+        pastedImage = surface;
+        pastingImage = true;
+        ShapeCorners corners = new(pixelTopLeft, pixelSize);
+        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, layer.GuidValue, false));
+        TransformViewModel.ShowFreeTransform(corners);
     }
 
     private void ApplyMask(object? obj)

@@ -330,12 +330,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// If copyImage is set to false, the image won't be copied and instead a reference will be stored.
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
-    public void EnqueueDrawImage(ShapeCorners corners, Surface image, bool copyImage = true)
+    public void EnqueueDrawImage(ShapeCorners corners, Surface image, SKPaint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ImageOperation operation = new(corners, image, copyImage);
+            ImageOperation operation = new(corners, image, paint, copyImage);
             EnqueueOperation(operation);
         }
     }
@@ -346,12 +346,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// If copyImage is set to false, the image won't be copied and instead a reference will be stored.
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
-    public void EnqueueDrawImage(VecI pos, Surface image, bool copyImage = true)
+    public void EnqueueDrawImage(VecI pos, Surface image, SKPaint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ImageOperation operation = new(pos, image, copyImage);
+            ImageOperation operation = new(pos, image, paint, copyImage);
             EnqueueOperation(operation);
         }
     }

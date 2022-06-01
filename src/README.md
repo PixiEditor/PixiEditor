@@ -104,13 +104,13 @@ Decouples the state of a document from the UI.
         - [ ] Magic wand
         - [x] Lasso
         - [x] Shift layer image
-        - [ ] Move/Rotate selection path
-        - [ ] Transform selected area
-        - [ ] Fill selection (fill with transparent = delete)
+        - [x] Transform selection path
+        - [x] Clear selected area
         - [x] Clip to selection
         - [x] Lock transparency
         - [x] Create/Delete mask
         - [x] Enable/Disable mask
+        - [ ] Link mask
         - [x] Apply mask
 - ViewModel
     - [ ] Loading window when background thread is busy
