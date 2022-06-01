@@ -59,6 +59,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }
+    public int QueueLength
+    {
+        get
+        {
+            lock (lockObject)
+                return queuedOperations.Count;
+        }
+    }
 
     private List<(IOperation operation, HashSet<VecI> affectedChunks)> queuedOperations = new();
     private List<ChunkyImage> activeClips = new();
@@ -356,6 +364,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    public void EnqueueDrawPath(SKPath path, SKColor color, float strokeWidth, SKStrokeCap strokeCap, SKRect? customBounds = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PathOperation operation = new(path, color, strokeWidth, strokeCap, customBounds);
+            EnqueueOperation(operation);
+        }
+    }
+
     public void EnqueueDrawChunkyImage(VecI pos, ChunkyImage image, bool flipHor = false, bool flipVer = false)
     {
         lock (lockObject)
@@ -623,14 +642,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// <returns>
     /// Chunks affected by operations that haven't been committed yet
     /// </returns>
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(int fromOperationIndex = 0)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
             var chunks = new HashSet<VecI>();
-            foreach (var (_, opChunks) in queuedOperations)
+            for (int i = fromOperationIndex; i < queuedOperations.Count; i++)
             {
+                var (_, opChunks) = queuedOperations[i];
                 chunks.UnionWith(opChunks);
             }
             return chunks;

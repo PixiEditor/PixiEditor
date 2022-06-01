@@ -16,7 +16,7 @@
         xmlns:chen="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1400">
+        Title="MainWindow" Height="800" Width="1500">
     <Window.DataContext>
         <vm:ViewModelMain/>
     </Window.DataContext>
@@ -201,6 +201,8 @@
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ApplyTransformCommand}">Apply Transform</Button>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Label>Pen size:</Label>
+                    <TextBox Width="30" Margin="5" Text="{Binding StrokeWidth}"/>
                     <TextBox Width="30" Margin="5" Text="{Binding ActiveDocument.ResizeWidth}"/>
                     <TextBox Width="30" Margin="5" Text="{Binding ActiveDocument.ResizeHeight}"/>
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.ResizeCanvasCommand}">Resize</Button>
@@ -210,6 +212,7 @@
         <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Left" Margin="5">
             <StackPanel Orientation="Vertical" Background="White">
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.PathBasedPen}">Path Pen</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Lasso}">Lasso</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.ShiftLayer}">Shift Layer</Button>
