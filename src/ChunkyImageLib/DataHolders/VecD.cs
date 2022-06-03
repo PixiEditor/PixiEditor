@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.DataHolders;
 
-public struct VecD
+public struct VecD : IEquatable<VecD>
 {
     public double X { set; get; }
     public double Y { set; get; }
@@ -213,7 +213,15 @@ public struct VecD
     {
         return new SKSize((float)vec.X, (float)vec.Y);
     }
-
+    public static implicit operator VecD((double, double) tuple)
+    {
+        return new VecD(tuple.Item1, tuple.Item2);
+    }
+    public void Deconstruct(out double x, out double y)
+    {
+        x = X;
+        y = Y;
+    }
     public bool IsNaNOrInfinity()
     {
         return double.IsNaN(X) || double.IsNaN(Y) || double.IsInfinity(X) || double.IsInfinity(Y);
@@ -235,5 +243,10 @@ public struct VecD
     public override int GetHashCode()
     {
         return HashCode.Combine(X, Y);
+    }
+
+    public bool Equals(VecD other)
+    {
+        return other.X == X && other.Y == Y;
     }
 }

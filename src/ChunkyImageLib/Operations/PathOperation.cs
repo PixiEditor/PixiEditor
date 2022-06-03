@@ -7,20 +7,17 @@ internal class PathOperation : IDrawOperation
     private readonly SKPath path;
 
     private readonly SKPaint paint;
-    private readonly VecI boundsTopLeft;
-    private readonly VecI boundsSize;
+    private readonly RectI bounds;
 
     public bool IgnoreEmptyChunks => false;
 
-    public PathOperation(SKPath path, SKColor color, float strokeWidth, SKStrokeCap cap, SKRect? customBounds = null)
+    public PathOperation(SKPath path, SKColor color, float strokeWidth, SKStrokeCap cap, RectI? customBounds = null)
     {
         this.path = new SKPath(path);
         paint = new() { Color = color, Style = SKPaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap };
 
-        var floatBounds = customBounds ?? path.TightBounds;
-        floatBounds.Inflate(strokeWidth + 1, strokeWidth + 1);
-        boundsTopLeft = (VecI)floatBounds.Location;
-        boundsSize = (VecI)floatBounds.Size;
+        RectI floatBounds = customBounds ?? (RectI)((RectD)path.TightBounds).RoundOutwards();
+        bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
@@ -35,7 +32,7 @@ internal class PathOperation : IDrawOperation
 
     public HashSet<VecI> FindAffectedChunks()
     {
-        return OperationHelper.FindChunksTouchingRectangle(boundsTopLeft, boundsSize, ChunkyImage.FullChunkSize);
+        return OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
@@ -44,11 +41,12 @@ internal class PathOperation : IDrawOperation
         using var copy = new SKPath(path);
         copy.Transform(matrix);
 
-        VecI p1 = (VecI)matrix.MapPoint(boundsTopLeft);
-        VecI p2 = (VecI)matrix.MapPoint(boundsTopLeft + boundsSize);
-        VecI topLeft = new(Math.Min(p1.X, p2.X), Math.Min(p1.Y, p2.Y));
-
-        return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, SKRect.Create(topLeft, boundsSize));
+        RectI newBounds = bounds;
+        if (verAxisX is not null)
+            newBounds = newBounds.ReflectX((int)verAxisX);
+        if (horAxisY is not null)
+            newBounds = newBounds.ReflectY((int)horAxisY);
+        return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, newBounds);
     }
 
     public void Dispose()

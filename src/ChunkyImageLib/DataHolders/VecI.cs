@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.DataHolders;
 
-public struct VecI
+public struct VecI : IEquatable<VecI>
 {
     public int X { set; get; }
     public int Y { set; get; }
@@ -135,6 +135,15 @@ public struct VecI
     {
         return new SKSize(vec.X, vec.Y);
     }
+    public static implicit operator VecI((int, int) tuple)
+    {
+        return new VecI(tuple.Item1, tuple.Item2);
+    }
+    public void Deconstruct(out int x, out int y)
+    {
+        x = X;
+        y = Y;
+    }
 
     public override string ToString()
     {
@@ -152,5 +161,10 @@ public struct VecI
     public override int GetHashCode()
     {
         return HashCode.Combine(X, Y);
+    }
+
+    public bool Equals(VecI other)
+    {
+        return other.X == X && other.Y == Y;
     }
 }

@@ -31,7 +31,7 @@ public class CommittedChunkStorage : IDisposable
         foreach (var (pos, chunk) in savedChunks)
         {
             if (chunk is null)
-                image.EnqueueClearRegion(pos * ChunkPool.FullChunkSize, new(ChunkPool.FullChunkSize, ChunkPool.FullChunkSize));
+                image.EnqueueClearRegion(new(pos * ChunkPool.FullChunkSize, new(ChunkPool.FullChunkSize, ChunkPool.FullChunkSize)));
             else
                 image.EnqueueDrawImage(pos * ChunkPool.FullChunkSize, chunk.Surface, ReplacingPaint);
         }

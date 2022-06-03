@@ -143,10 +143,13 @@ public static class OperationHelper
         return output;
     }
 
-    public static HashSet<VecI> FindChunksTouchingRectangle(VecI topLeft, VecI size, int chunkSize)
+    public static HashSet<VecI> FindChunksTouchingRectangle(RectI rect, int chunkSize)
     {
-        VecI min = GetChunkPos(topLeft, chunkSize);
-        VecI max = GetChunkPosBiased(topLeft + size, false, false, chunkSize);
+        if (rect.Width > chunkSize * 40 * 20 || rect.Height > chunkSize * 40 * 20)
+            return new HashSet<VecI>();
+
+        VecI min = GetChunkPos(rect.TopLeft, chunkSize);
+        VecI max = GetChunkPosBiased(rect.BottomRight, false, false, chunkSize);
         HashSet<VecI> output = new();
         for (int x = min.X; x <= max.X; x++)
         {
@@ -163,6 +166,8 @@ public static class OperationHelper
     /// </summary>
     public static HashSet<VecI> FindChunksTouchingRectangle(VecD center, VecD size, double angle, int chunkSize)
     {
+        if (angle == 0)
+            return FindChunksTouchingRectangle((RectI)RectD.FromCenterAndSize(center, size).RoundOutwards(), chunkSize);
         if (size.X == 0 || size.Y == 0 || center.IsNaNOrInfinity() || size.IsNaNOrInfinity() || double.IsNaN(angle) || double.IsInfinity(angle))
             return new HashSet<VecI>();
         if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
@@ -222,12 +227,12 @@ public static class OperationHelper
         return output;
     }
 
-    public static HashSet<VecI> FindChunksFullyInsideRectangle(VecI pos, VecI size, int chunkSize)
+    public static HashSet<VecI> FindChunksFullyInsideRectangle(RectI rect, int chunkSize)
     {
-        if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
+        if (rect.Width > chunkSize * 40 * 20 || rect.Height > chunkSize * 40 * 20)
             return new HashSet<VecI>();
-        VecI startChunk = GetChunkPos(pos, ChunkPool.FullChunkSize);
-        VecI endChunk = GetChunkPosBiased(pos + size, false, false, chunkSize);
+        VecI startChunk = GetChunkPosBiased(rect.TopLeft, false, false, ChunkPool.FullChunkSize) + new VecI(1, 1);
+        VecI endChunk = GetChunkPosBiased(rect.BottomRight, true, true, chunkSize) - new VecI(1, 1);
         HashSet<VecI> output = new();
         for (int x = startChunk.X; x <= endChunk.X; x++)
         {
@@ -241,6 +246,8 @@ public static class OperationHelper
 
     public static HashSet<VecI> FindChunksFullyInsideRectangle(VecD center, VecD size, double angle, int chunkSize)
     {
+        if (angle == 0)
+            return FindChunksFullyInsideRectangle((RectI)RectD.FromCenterAndSize(center, size).RoundOutwards(), chunkSize);
         if (size.X < chunkSize || size.Y < chunkSize || center.IsNaNOrInfinity() || size.IsNaNOrInfinity() || double.IsNaN(angle) || double.IsInfinity(angle))
             return new HashSet<VecI>();
         if (size.X > chunkSize * 40 * 20 || size.Y > chunkSize * 40 * 20)
@@ -416,6 +423,12 @@ public static class OperationHelper
         return m * x + b;
     }
 
+    /// <summary>
+    /// "Bias" specifies how to handle whole values. This function behaves the same as GetChunkPos for fractional values.
+    /// Examples if you pass (0, 0):
+    /// If both positiveX and positiveY are true it behaves like GetChunkPos, you get chunk (0, 0)
+    /// If both are false you'll get (-1, -1), because the right and bottom boundaries are now considered to be part of the chunk, and top and left aren't.
+    /// </summary>
     public static VecI GetChunkPosBiased(VecD pos, bool positiveX, bool positiveY, int chunkSize)
     {
         pos /= chunkSize;

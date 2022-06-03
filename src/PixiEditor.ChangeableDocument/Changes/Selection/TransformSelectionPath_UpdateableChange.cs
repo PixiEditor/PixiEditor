@@ -26,7 +26,7 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
             return new Error();
         originalPath = new(target.Selection.SelectionPath);
         var bounds = originalPath.TightBounds;
-        originalCorners = new(bounds.Location, bounds.Size);
+        originalCorners = new(bounds);
         return new Success();
     }
 

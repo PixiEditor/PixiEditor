@@ -25,7 +25,7 @@ internal class RectangleOperation : IDrawOperation
         var convertedSize = OperationHelper.ConvertForResolution(Data.Size.Abs(), chunk.Resolution);
         int convertedStroke = (int)Math.Round(chunk.Resolution.Multiplier() * Data.StrokeWidth);
 
-        var rect = SKRect.Create((SKPoint)convertedPos, (SKSize)convertedSize);
+        var rect = (SKRect)new RectD(convertedPos, convertedSize);
 
         skiaSurf.Canvas.Translate((SKPoint)convertedCenter);
         skiaSurf.Canvas.RotateRadians((float)Data.Angle);

@@ -5,15 +5,14 @@ namespace PixiEditor.ChangeableDocument.Changes.Selection;
 
 internal class SelectRectangle_UpdateableChange : UpdateableChange
 {
-    private VecI pos;
-    private VecI size;
     private SKPath? originalPath;
+    private RectI rect;
     private readonly SelectionMode mode;
 
     [GenerateUpdateableChangeActions]
-    public SelectRectangle_UpdateableChange(VecI pos, VecI size, SelectionMode mode)
+    public SelectRectangle_UpdateableChange(RectI rect, SelectionMode mode)
     {
-        Update(pos, size);
+        this.rect = rect;
         this.mode = mode;
     }
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
@@ -23,26 +22,25 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI pos, VecI size)
+    public void Update(RectI rect)
     {
-        this.pos = pos;
-        this.size = size;
+        this.rect = rect;
     }
 
     private Selection_ChangeInfo CommonApply(Document target)
     {
-        using var rect = new SKPath() { FillType = SKPathFillType.EvenOdd };
-        rect.MoveTo(pos);
-        rect.LineTo(pos.X + size.X, pos.Y);
-        rect.LineTo(pos + size);
-        rect.LineTo(pos.X, pos.Y + size.Y);
-        rect.LineTo(pos);
+        using var rectPath = new SKPath() { FillType = SKPathFillType.EvenOdd };
+        rectPath.MoveTo(rect.TopLeft);
+        rectPath.LineTo(rect.TopRight);
+        rectPath.LineTo(rect.BottomRight);
+        rectPath.LineTo(rect.BottomLeft);
+        rectPath.Close();
 
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)
-            target.Selection.SelectionPath = new(rect);
+            target.Selection.SelectionPath = new(rectPath);
         else
-            target.Selection.SelectionPath = originalPath!.Op(rect, mode.ToSKPathOp());
+            target.Selection.SelectionPath = originalPath!.Op(rectPath, mode.ToSKPathOp());
         toDispose.Dispose();
 
         return new Selection_ChangeInfo();

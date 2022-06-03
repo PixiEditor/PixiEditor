@@ -149,17 +149,16 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
         // find area location and size
         using SKPath path = SelectionPath;
-        var bounds = path.TightBounds;
-        bounds.Intersect(SKRect.Create(0, 0, Width, Height));
-        VecI pixelTopLeft = (VecI)((VecD)bounds.Location).Floor();
-        VecI pixelSize = (VecI)((VecD)bounds.Location + (VecD)bounds.Size - pixelTopLeft).Ceiling();
+        var bounds = (RectD)path.TightBounds;
+        bounds = bounds.Intersect(new RectD(VecD.Zero, new(Width, Height)));
+        var intBounds = (RectI)bounds.RoundOutwards();
 
         // extract surface to be transformed
-        path.Transform(SKMatrix.CreateTranslation(-pixelTopLeft.X, -pixelTopLeft.Y));
-        Surface surface = new(pixelSize);
+        path.Transform(SKMatrix.CreateTranslation(-intBounds.X, -intBounds.Y));
+        Surface surface = new(intBounds.Size);
         surface.SkiaSurface.Canvas.Save();
         surface.SkiaSurface.Canvas.ClipPath(path);
-        layerImage.DrawMostUpToDateRegionOn(SKRectI.Create(pixelTopLeft, pixelSize), ChunkResolution.Full, surface.SkiaSurface, VecI.Zero);
+        layerImage.DrawMostUpToDateRegionOn(intBounds, ChunkResolution.Full, surface.SkiaSurface, VecI.Zero);
         surface.SkiaSurface.Canvas.Restore();
 
         // clear area
@@ -172,7 +171,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         // initiate transform using paste image logic
         pastedImage = surface;
         pastingImage = true;
-        ShapeCorners corners = new(pixelTopLeft, pixelSize);
+        ShapeCorners corners = new(intBounds);
         Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, layer.GuidValue, false));
         TransformViewModel.ShowFreeTransform(corners);
     }
@@ -300,7 +299,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         updateableChangeActive = true;
         transformingSelectionPath = true;
         var bounds = path.TightBounds;
-        initialSelectionCorners = new ShapeCorners(bounds.Location, bounds.Size);
+        initialSelectionCorners = new ShapeCorners(bounds);
         TransformViewModel.ShowShapeTransform(initialSelectionCorners);
         Helpers.ActionAccumulator.AddActions(new TransformSelectionPath_Action(initialSelectionCorners));
     }
@@ -349,11 +348,11 @@ internal class DocumentViewModel : INotifyPropertyChanged
         updateableChangeActive = false;
     }
 
-    public void StartUpdateRectSelection(VecI pos, VecI size, SelectionMode mode)
+    public void StartUpdateRectSelection(RectI rect, SelectionMode mode)
     {
         selectingRect = true;
         updateableChangeActive = true;
-        Helpers.ActionAccumulator.AddActions(new SelectRectangle_Action(pos, size, mode));
+        Helpers.ActionAccumulator.AddActions(new SelectRectangle_Action(rect, mode));
     }
 
     public void EndRectSelection()
@@ -417,7 +416,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
         pastedImage = Surface.Load(dialog.FileName);
         pastingImage = true;
-        ShapeCorners corners = new(new(), pastedImage.Size);
+        ShapeCorners corners = new ShapeCorners(new RectD(VecD.Zero, pastedImage.Size));
         Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, SelectedStructureMember.GuidValue, false));
         TransformViewModel.ShowFreeTransform(corners);
     }

@@ -30,13 +30,11 @@ internal class ClearSelectedArea_Change : Change
 
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
 
-        SKRect bounds = target.Selection.SelectionPath.Bounds;
-        bounds.Intersect(SKRect.Create(0, 0, target.Size.X, target.Size.Y));
-        VecI pixelTopLeft = (VecI)((VecD)bounds.Location).Floor();
-        VecI pixelSize = (VecI)((VecD)bounds.Location + (VecD)bounds.Size - pixelTopLeft).Ceiling();
+        RectD bounds = target.Selection.SelectionPath.Bounds;
+        RectI intBounds = (RectI)bounds.Intersect(SKRect.Create(0, 0, target.Size.X, target.Size.Y)).RoundOutwards();
 
         image.SetClippingPath(target.Selection.SelectionPath);
-        image.EnqueueClearRegion(pixelTopLeft, pixelSize);
+        image.EnqueueClearRegion(intBounds);
         var affChunks = image.FindAffectedChunks();
         savedChunks = new(image, affChunks);
         image.CommitChanges();

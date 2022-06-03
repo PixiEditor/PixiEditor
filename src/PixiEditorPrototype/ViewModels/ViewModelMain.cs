@@ -166,8 +166,7 @@ internal class ViewModelMain : INotifyPropertyChanged
         else if (toolOnMouseDown == Tool.Select)
         {
             ActiveDocument!.StartUpdateRectSelection(
-                (VecI)mouseDownCanvasPos,
-                (VecI)canvasPos - (VecI)mouseDownCanvasPos,
+                new RectI((VecI)mouseDownCanvasPos, (VecI)canvasPos - (VecI)mouseDownCanvasPos),
                 selectionMode);
         }
         else if (toolOnMouseDown == Tool.ShiftLayer)

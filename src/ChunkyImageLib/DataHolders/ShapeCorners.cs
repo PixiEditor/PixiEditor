@@ -8,12 +8,12 @@ public struct ShapeCorners
         BottomRight = center + size / 2;
         BottomLeft = center + new VecD(-size.X / 2, size.Y / 2);
     }
-    public ShapeCorners(VecD topLeft, VecD size)
+    public ShapeCorners(RectD rect)
     {
-        TopLeft = topLeft;
-        TopRight = new(topLeft.X + size.X, topLeft.Y);
-        BottomRight = topLeft + size;
-        BottomLeft = new(topLeft.X, topLeft.Y + size.Y);
+        TopLeft = rect.TopLeft;
+        TopRight = rect.TopRight;
+        BottomRight = rect.BottomRight;
+        BottomLeft = rect.BottomLeft;
     }
     public VecD TopLeft { get; set; }
     public VecD TopRight { get; set; }

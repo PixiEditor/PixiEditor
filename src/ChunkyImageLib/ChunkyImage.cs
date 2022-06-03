@@ -365,12 +365,22 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
-    public void EnqueueDrawPath(SKPath path, SKColor color, float strokeWidth, SKStrokeCap strokeCap, SKRect? customBounds = null)
+    public void EnqueueDrawPath(SKPath path, SKColor color, float strokeWidth, SKStrokeCap strokeCap, RectI? customBounds = null)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
             PathOperation operation = new(path, color, strokeWidth, strokeCap, customBounds);
+            EnqueueOperation(operation);
+        }
+    }
+
+    public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            SkiaLineOperation operation = new(from, to, strokeCap, strokeWidth, color);
             EnqueueOperation(operation);
         }
     }
@@ -385,12 +395,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    public void EnqueueClearRegion(VecI pos, VecI size)
+    public void EnqueueClearRegion(RectI region)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ClearRegionOperation operation = new(pos, size);
+            ClearRegionOperation operation = new(region);
             EnqueueOperation(operation);
         }
     }

@@ -95,7 +95,7 @@ internal class ChunkyImageOperation : IDrawOperation
 
     public HashSet<VecI> FindAffectedChunks()
     {
-        return OperationHelper.FindChunksTouchingRectangle(GetTopLeft(), imageToDraw.CommittedSize, ChunkyImage.FullChunkSize);
+        return OperationHelper.FindChunksTouchingRectangle(new(GetTopLeft(), imageToDraw.CommittedSize), ChunkyImage.FullChunkSize);
     }
 
     private VecI GetTopLeft()

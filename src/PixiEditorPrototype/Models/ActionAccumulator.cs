@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditorPrototype.Models.Rendering;
 using PixiEditorPrototype.Models.Rendering.RenderInfos;
 using PixiEditorPrototype.ViewModels;
-using SkiaSharp;
 
 namespace PixiEditorPrototype.Models;
 
@@ -143,10 +143,9 @@ internal class ActionAccumulator
                 case DirtyRect_RenderInfo info:
                     {
                         var bitmap = document.Bitmaps[info.Resolution];
-                        SKRectI finalRect = SKRectI.Create(0, 0, bitmap.PixelWidth, bitmap.PixelHeight);
+                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.PixelWidth, bitmap.PixelHeight));
 
-                        SKRectI dirtyRect = SKRectI.Create(info.Pos, info.Size);
-                        dirtyRect.Intersect(finalRect);
+                        RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
                         bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
                     }
                     break;
