@@ -1,0 +1,121 @@
+﻿using SkiaSharp;
+
+namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+internal class LineBasedPen_UpdateableChange : UpdateableChange
+{
+    private readonly Guid memberGuid;
+    private readonly SKColor color;
+    private readonly int strokeWidth;
+    private readonly bool drawOnMask;
+
+    bool firstApply = true;
+
+    private CommittedChunkStorage? storedChunks;
+    private readonly List<VecI> points = new();
+
+    [GenerateUpdateableChangeActions]
+    public LineBasedPen_UpdateableChange(Guid memberGuid, SKColor color, VecI pos, int strokeWidth, bool drawOnMask)
+    {
+        this.memberGuid = memberGuid;
+        this.color = color;
+        this.strokeWidth = strokeWidth;
+        this.drawOnMask = drawOnMask;
+        points.Add(pos);
+    }
+
+    [UpdateChangeMethod]
+    public void Update(VecI pos)
+    {
+        points.Add(pos);
+    }
+
+    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    {
+        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
+            return new Error();
+        if (strokeWidth < 1)
+            return new Error();
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
+        return new Success();
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
+    {
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+
+        var (from, to) = points.Count > 1 ? (points[^2], points[^1]) : (points[0], points[0]);
+
+        int opCount = image.QueueLength;
+
+        if (strokeWidth == 1)
+            image.EnqueueDrawBresenhamLine(from, to, color);
+        else
+            image.EnqueueDrawSkiaLine(from, to, SKStrokeCap.Round, strokeWidth, color);
+        var affChunks = image.FindAffectedChunks(opCount);
+
+        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+    }
+
+    private void FastforwardEnqueueDrawLines(ChunkyImage targetImage)
+    {
+        if (points.Count == 1)
+        {
+            if (strokeWidth == 1)
+                targetImage.EnqueueDrawBresenhamLine(points[0], points[0], color);
+            else
+                targetImage.EnqueueDrawSkiaLine(points[0], points[0], SKStrokeCap.Round, strokeWidth, color);
+            return;
+        }
+        for (int i = 1; i < points.Count; i++)
+        {
+            if (strokeWidth == 1)
+                targetImage.EnqueueDrawBresenhamLine(points[i - 1], points[i], color);
+            else
+                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], SKStrokeCap.Round, strokeWidth, color);
+        }
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    {
+        if (storedChunks is not null)
+            throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+
+        ignoreInUndo = false;
+        if (firstApply)
+        {
+            firstApply = false;
+
+            var affChunks = image.FindAffectedChunks();
+            storedChunks = new CommittedChunkStorage(image, affChunks);
+            image.CommitChanges();
+
+            return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+        }
+        else
+        {
+            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
+
+            FastforwardEnqueueDrawLines(image);
+            var affChunks = image.FindAffectedChunks();
+            storedChunks = new CommittedChunkStorage(image, affChunks);
+            image.CommitChanges();
+
+            return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+        }
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        if (storedChunks is null)
+            throw new InvalidOperationException("No saved chunks to revert to");
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        storedChunks.ApplyChunksToImage(image);
+        var affected = image.FindAffectedChunks();
+        image.CommitChanges();
+        storedChunks.Dispose();
+        storedChunks = null;
+        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affected, drawOnMask);
+    }
+}

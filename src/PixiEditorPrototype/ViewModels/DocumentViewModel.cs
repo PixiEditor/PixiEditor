@@ -196,6 +196,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool selectingLasso = false;
     private bool drawingRectangle = false;
     private bool drawingPathBasedPen = false;
+    private bool drawingLineBasedPen = false;
     private bool transformingRectangle = false;
     private bool shiftingLayer = false;
 
@@ -247,6 +248,32 @@ internal class DocumentViewModel : INotifyPropertyChanged
         drawingPathBasedPen = false;
         updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndPathBasedPen_Action());
+    }
+
+    public void StartUpdateLineBasedPen(VecI pos)
+    {
+        if (SelectedStructureMember is null)
+            return;
+        bool drawOnMask = SelectedStructureMember.HasMask && SelectedStructureMember.ShouldDrawOnMask;
+        if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
+            return;
+        updateableChangeActive = true;
+        drawingLineBasedPen = true;
+        Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
+            SelectedStructureMember.GuidValue,
+            new SKColor(owner.SelectedColor.R, owner.SelectedColor.G, owner.SelectedColor.B, owner.SelectedColor.A),
+            pos,
+            (int)owner.StrokeWidth,
+            drawOnMask));
+    }
+
+    public void EndLineBasedPen()
+    {
+        if (!drawingLineBasedPen)
+            return;
+        drawingLineBasedPen = false;
+        updateableChangeActive = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
     }
 
     public void StartUpdateRectangle(ShapeData data)

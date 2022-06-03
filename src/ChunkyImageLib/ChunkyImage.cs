@@ -375,6 +375,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    public void EnqueueDrawBresenhamLine(VecI from, VecI to, SKColor color)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            BresenhamLineOperation operation = new(from, to, color);
+            EnqueueOperation(operation);
+        }
+    }
+
+
     public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color)
     {
         lock (lockObject)

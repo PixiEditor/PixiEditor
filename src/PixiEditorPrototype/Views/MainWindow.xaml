@@ -213,6 +213,7 @@
             <StackPanel Orientation="Vertical" Background="White">
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.PathBasedPen}">Path Pen</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.LineBasedPen}">Line Pen</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Lasso}">Lasso</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.ShiftLayer}">Shift Layer</Button>

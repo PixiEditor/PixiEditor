@@ -134,6 +134,10 @@ internal class ViewModelMain : INotifyPropertyChanged
         {
             ActiveDocument!.StartUpdatePathBasedPen(pos);
         }
+        else if (toolOnMouseDown == Tool.LineBasedPen)
+        {
+            ActiveDocument!.StartUpdateLineBasedPen((VecI)pos);
+        }
     }
 
     private void MouseMove(object? param)
@@ -181,6 +185,10 @@ internal class ViewModelMain : INotifyPropertyChanged
         {
             ActiveDocument!.StartUpdatePathBasedPen(canvasPos);
         }
+        else if (toolOnMouseDown == Tool.LineBasedPen)
+        {
+            ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos);
+        }
     }
 
     private void MouseUp(object? param)
@@ -217,6 +225,9 @@ internal class ViewModelMain : INotifyPropertyChanged
         {
             case Tool.PathBasedPen:
                 ActiveDocument!.EndPathBasedPen();
+                break;
+            case Tool.LineBasedPen:
+                ActiveDocument!.EndLineBasedPen();
                 break;
         }
     }
