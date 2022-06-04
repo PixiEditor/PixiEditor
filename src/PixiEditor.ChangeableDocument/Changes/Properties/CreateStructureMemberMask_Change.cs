@@ -28,7 +28,7 @@ internal class CreateStructureMemberMask_Change : Change
         member.Mask = new ChunkyImage(target.Size);
 
         ignoreInUndo = false;
-        return new StructureMemberMask_ChangeInfo() { GuidValue = targetMember };
+        return new StructureMemberMask_ChangeInfo(targetMember, true);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -38,6 +38,6 @@ internal class CreateStructureMemberMask_Change : Change
             throw new InvalidOperationException("Cannot delete the mask; the target member has no mask");
         member.Mask.Dispose();
         member.Mask = null;
-        return new StructureMemberMask_ChangeInfo() { GuidValue = targetMember };
+        return new StructureMemberMask_ChangeInfo(targetMember, false);
     }
 }

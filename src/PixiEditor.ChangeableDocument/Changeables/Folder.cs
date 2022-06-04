@@ -5,6 +5,7 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Folder : StructureMember, IReadOnlyFolder
 {
+    // Don't forget to update CreateFolder_ChangeInfo, DocumentUpdater.ProcessCreateStructureMember, and Folder.Clone when adding new properties
     public ImmutableList<StructureMember> Children { get; set; } = ImmutableList<StructureMember>.Empty;
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyFolder.Children => Children;
 

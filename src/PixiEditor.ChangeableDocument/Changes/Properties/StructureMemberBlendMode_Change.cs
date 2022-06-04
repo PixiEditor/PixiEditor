@@ -29,18 +29,18 @@ internal class StructureMemberBlendMode_Change : Change
         var member = target.FindMemberOrThrow(targetGuid);
         member.BlendMode = newBlendMode;
         ignoreInUndo = false;
-        return new StructureMemberBlendMode_ChangeInfo() { GuidValue = targetGuid };
+        return new StructureMemberBlendMode_ChangeInfo(targetGuid, newBlendMode);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(targetGuid);
         member.BlendMode = originalBlendMode;
-        return new StructureMemberBlendMode_ChangeInfo() { GuidValue = targetGuid };
+        return new StructureMemberBlendMode_ChangeInfo(targetGuid, originalBlendMode);
     }
 
     public override bool IsMergeableWith(Change other)
     {
-        return other is StructureMemberBlendMode_Change;
+        return other is StructureMemberBlendMode_Change change && change.targetGuid == targetGuid;
     }
 }

@@ -23,7 +23,7 @@ internal class ClearSelection_Change : Change
         target.Selection.SelectionPath = new SKPath();
 
         ignoreInUndo = false;
-        return new Selection_ChangeInfo();
+        return new Selection_ChangeInfo(new SKPath());
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -31,7 +31,7 @@ internal class ClearSelection_Change : Change
         target.Selection.SelectionPath.Dispose();
         target.Selection.SelectionPath = new SKPath(originalPath);
 
-        return new Selection_ChangeInfo();
+        return new Selection_ChangeInfo(new SKPath(originalPath));
     }
 
     public override void Dispose()

@@ -44,12 +44,12 @@ internal class MoveStructureMember_Change : Change
     {
         Move(target, memberGuid, targetFolderGuid, targetFolderIndex);
         ignoreInUndo = false;
-        return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentFromGuid = originalFolderGuid, ParentToGuid = targetFolderGuid };
+        return new MoveStructureMember_ChangeInfo(memberGuid, originalFolderGuid, targetFolderGuid, targetFolderIndex);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         Move(target, memberGuid, originalFolderGuid, originalFolderIndex);
-        return new MoveStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentFromGuid = targetFolderGuid, ParentToGuid = originalFolderGuid };
+        return new MoveStructureMember_ChangeInfo(memberGuid, targetFolderGuid, originalFolderGuid, originalFolderIndex);
     }
 }

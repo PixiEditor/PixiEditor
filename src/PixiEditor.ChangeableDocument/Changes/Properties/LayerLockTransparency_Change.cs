@@ -29,17 +29,17 @@ internal class LayerLockTransparency_Change : Change
     {
         ((Layer)target.FindMemberOrThrow(layerGuid)).LockTransparency = newValue;
         ignoreInUndo = false;
-        return new LayerLockTransparency_ChangeInfo() { GuidValue = layerGuid };
+        return new LayerLockTransparency_ChangeInfo(layerGuid, newValue);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         ((Layer)target.FindMemberOrThrow(layerGuid)).LockTransparency = originalValue;
-        return new LayerLockTransparency_ChangeInfo() { GuidValue = layerGuid };
+        return new LayerLockTransparency_ChangeInfo(layerGuid, originalValue);
     }
 
     public override bool IsMergeableWith(Change other)
     {
-        return other is LayerLockTransparency_Change;
+        return other is LayerLockTransparency_Change change && change.layerGuid == layerGuid;
     }
 }

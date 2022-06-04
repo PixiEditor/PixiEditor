@@ -28,18 +28,18 @@ internal class StructureMemberClipToMemberBelow_Change : Change
         var member = target.FindMemberOrThrow(memberGuid);
         member.ClipToMemberBelow = newValue;
         ignoreInUndo = false;
-        return new StructureMemberClipToMemberBelow_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberClipToMemberBelow_ChangeInfo(memberGuid, newValue);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(memberGuid);
         member.ClipToMemberBelow = originalValue;
-        return new StructureMemberClipToMemberBelow_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberClipToMemberBelow_ChangeInfo(memberGuid, originalValue);
     }
 
     public override bool IsMergeableWith(Change other)
     {
-        return other is StructureMemberClipToMemberBelow_Change;
+        return other is StructureMemberClipToMemberBelow_Change change && change.memberGuid == memberGuid;
     }
 }

@@ -1,5 +1,5 @@
-﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+﻿using SkiaSharp;
 
-public record class Selection_ChangeInfo : IChangeInfo
-{
-}
+namespace PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+
+public record class Selection_ChangeInfo(SKPath NewPath) : IChangeInfo;

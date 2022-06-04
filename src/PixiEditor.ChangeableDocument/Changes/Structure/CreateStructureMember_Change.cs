@@ -35,13 +35,18 @@ internal class CreateStructureMember_Change : Change
         {
             StructureMemberType.Layer => new Layer(document.Size) { GuidValue = newMemberGuid },
             StructureMemberType.Folder => new Folder() { GuidValue = newMemberGuid },
-            _ => throw new InvalidOperationException("Cannon create member of type " + type.ToString())
+            _ => throw new NotSupportedException(),
         };
 
         folder.Children = folder.Children.Insert(parentFolderIndex, member);
 
         ignoreInUndo = false;
-        return new CreateStructureMember_ChangeInfo() { GuidValue = newMemberGuid };
+        return type switch
+        {
+            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid, parentFolderIndex, (Layer)member),
+            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid, parentFolderIndex, (Folder)member),
+            _ => throw new NotSupportedException(),
+        };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
@@ -51,6 +56,6 @@ internal class CreateStructureMember_Change : Change
         child.Dispose();
         folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
 
-        return new DeleteStructureMember_ChangeInfo() { GuidValue = newMemberGuid, ParentGuid = parentFolderGuid };
+        return new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid);
     }
 }

@@ -1,9 +1,3 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 
-namespace PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
-
-public record class MaskChunks_ChangeInfo : IChangeInfo
-{
-    public Guid GuidValue { get; init; }
-    public HashSet<VecI>? Chunks { get; init; }
-}
+public record class MaskChunks_ChangeInfo(Guid GuidValue, HashSet<VecI> Chunks) : IChangeInfo;

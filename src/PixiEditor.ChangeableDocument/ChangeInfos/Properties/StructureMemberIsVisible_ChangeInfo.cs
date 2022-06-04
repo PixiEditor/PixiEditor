@@ -1,6 +1,3 @@
 ﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
-public record class StructureMemberIsVisible_ChangeInfo : IChangeInfo
-{
-    public Guid GuidValue { get; init; }
-}
+public record class StructureMemberIsVisible_ChangeInfo(Guid GuidValue, bool IsVisible) : IChangeInfo;

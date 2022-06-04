@@ -29,7 +29,7 @@ internal class StructureMemberName_Change : Change
         target.FindMemberOrThrow(targetMember).Name = newName;
 
         ignoreInUndo = false;
-        return new StructureMemberName_ChangeInfo() { GuidValue = targetMember };
+        return new StructureMemberName_ChangeInfo(targetMember, newName);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -37,7 +37,7 @@ internal class StructureMemberName_Change : Change
         if (originalName is null)
             throw new InvalidOperationException("No name to revert to");
         target.FindMemberOrThrow(targetMember).Name = originalName;
-        return new StructureMemberName_ChangeInfo() { GuidValue = targetMember };
+        return new StructureMemberName_ChangeInfo(targetMember, originalName);
     }
 
     public override bool IsMergeableWith(Change other)

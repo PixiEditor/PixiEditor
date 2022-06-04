@@ -19,24 +19,30 @@ internal class DocumentStructureHelper
     {
         if (doc.SelectedStructureMember is null)
         {
+            var guid = Guid.NewGuid();
             //put member on top
-            helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, Guid.NewGuid(), doc.StructureRoot.Children.Count, type));
+            helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, guid, doc.StructureRoot.Children.Count, type));
+            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
             return;
         }
         if (doc.SelectedStructureMember is FolderViewModel folder)
         {
+            var guid = Guid.NewGuid();
             //put member inside folder on top
-            helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMember_Action(folder.GuidValue, Guid.NewGuid(), folder.Children.Count, type));
+            helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.GuidValue, guid, folder.Children.Count, type));
+            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
             return;
         }
         if (doc.SelectedStructureMember is LayerViewModel layer)
         {
+            var guid = Guid.NewGuid();
             //put member above the layer
             var path = FindPath(layer.GuidValue);
             if (path.Count < 2)
                 throw new InvalidOperationException("Couldn't find a path to the selected member");
             var parent = (FolderViewModel)path[1];
-            helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMember_Action(parent.GuidValue, Guid.NewGuid(), parent.Children.IndexOf(layer) + 1, type));
+            helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.GuidValue, guid, parent.Children.IndexOf(layer) + 1, type));
+            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
             return;
         }
         throw new ArgumentException("Unknown member type: " + type.ToString());

@@ -33,15 +33,21 @@ internal class DeleteStructureMember_Change : Change
         parent.Children = parent.Children.Remove(member);
         member.Dispose();
         ignoreInUndo = false;
-        return new DeleteStructureMember_ChangeInfo() { GuidValue = memberGuid, ParentGuid = parentGuid };
+        return new DeleteStructureMember_ChangeInfo(memberGuid, parentGuid);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document doc)
     {
         var parent = (Folder)doc.FindMemberOrThrow(parentGuid);
 
-        parent.Children = parent.Children.Insert(originalIndex, savedCopy!.Clone());
-        return new CreateStructureMember_ChangeInfo() { GuidValue = memberGuid };
+        var copy = savedCopy!.Clone();
+        parent.Children = parent.Children.Insert(originalIndex, copy);
+        return copy switch
+        {
+            Layer => CreateLayer_ChangeInfo.FromLayer(parentGuid, originalIndex, (Layer)copy),
+            Folder => CreateFolder_ChangeInfo.FromFolder(parentGuid, originalIndex, (Folder)copy),
+            _ => throw new NotSupportedException(),
+        }; ;
     }
 
     public override void Dispose()

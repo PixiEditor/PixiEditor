@@ -59,7 +59,7 @@ internal class ResizeCanvas_Change : Change
             layer.Mask.CommitChanges();
         });
         ignoreInUndo = false;
-        return new Size_ChangeInfo();
+        return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -86,7 +86,7 @@ internal class ResizeCanvas_Change : Change
             stored.Value.Dispose();
         deletedChunks = new();
 
-        return new Size_ChangeInfo();
+        return new Size_ChangeInfo(originalSize, originalVerAxisX, originalHorAxisY);
     }
 
     public override void Dispose()

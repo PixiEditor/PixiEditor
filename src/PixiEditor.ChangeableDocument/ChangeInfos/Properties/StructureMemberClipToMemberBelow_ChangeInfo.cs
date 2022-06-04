@@ -1,5 +1,2 @@
 ﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Properties;
-public record class StructureMemberClipToMemberBelow_ChangeInfo : IChangeInfo
-{
-    public Guid GuidValue { get; init; }
-}
+public record class StructureMemberClipToMemberBelow_ChangeInfo(Guid GuidValue, bool ClipToMemberBelow) : IChangeInfo;

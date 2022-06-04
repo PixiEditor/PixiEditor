@@ -50,14 +50,14 @@
                     </Image>
                     <sym:SymmetryOverlay 
                         ZoomboxScale="{Binding Zoombox.Scale}"
-                        HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabled}"
-                        VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabled}"
-                        HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisY, Mode=OneWay}"
-                        VerticalAxisX="{Binding Document.VerticalSymmetryAxisX, Mode=OneWay}"
+                        HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
+                        VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
+                        HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisYBindable, Mode=OneWay}"
+                        VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
                         DragCommand="{Binding Document.DragSymmetryCommand}"
                         DragEndCommand="{Binding Document.EndDragSymmetryCommand}"
                         />
-                    <cust:SelectionOverlay Path="{Binding Document.SelectionPath}" ZoomboxScale="{Binding Zoombox.Scale}"/>
+                    <cust:SelectionOverlay Path="{Binding Document.SelectionPathBindable}" ZoomboxScale="{Binding Zoombox.Scale}"/>
                     <to:TransformOverlay 
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                         Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={StaticResource BoolToVisibilityConverter}}"

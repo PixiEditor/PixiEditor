@@ -1,5 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
-using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -73,11 +72,7 @@ internal class CombineStructureMembersOnto_Change : Change
         toDrawOn.LayerImage.CommitChanges();
 
         ignoreInUndo = false;
-        return new LayerImageChunks_ChangeInfo()
-        {
-            GuidValue = targetLayer,
-            Chunks = affectedChunks
-        };
+        return new LayerImageChunks_ChangeInfo(targetLayer, affectedChunks);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -91,11 +86,7 @@ internal class CombineStructureMembersOnto_Change : Change
         originalChunks.Dispose();
         originalChunks = null;
 
-        return new LayerImageChunks_ChangeInfo()
-        {
-            GuidValue = targetLayer,
-            Chunks = affectedChunks
-        };
+        return new LayerImageChunks_ChangeInfo(targetLayer, affectedChunks);
     }
 
     public override void Dispose()

@@ -48,8 +48,8 @@ internal class ApplyLayerMask_Change : Change
         ignoreInUndo = false;
         return new List<IChangeInfo>
         {
-            new StructureMemberMask_ChangeInfo() { GuidValue = layerGuid },
-            new LayerImageChunks_ChangeInfo() { GuidValue = layerGuid, Chunks = affectedChunks }
+            new StructureMemberMask_ChangeInfo(layerGuid, false),
+            new LayerImageChunks_ChangeInfo(layerGuid, affectedChunks)
         };
     }
 
@@ -73,9 +73,9 @@ internal class ApplyLayerMask_Change : Change
 
         return new List<IChangeInfo>
         {
-            new StructureMemberMask_ChangeInfo() { GuidValue = layerGuid },
-            new LayerImageChunks_ChangeInfo() { GuidValue = layerGuid, Chunks = affectedChunksLayer },
-            new MaskChunks_ChangeInfo() { GuidValue = layerGuid, Chunks = affectedChunksMask }
+            new StructureMemberMask_ChangeInfo(layerGuid, true),
+            new LayerImageChunks_ChangeInfo(layerGuid, affectedChunksLayer),
+            new MaskChunks_ChangeInfo(layerGuid, affectedChunksMask)
         };
     }
 

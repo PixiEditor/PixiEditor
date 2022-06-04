@@ -42,13 +42,13 @@ internal class SymmetryAxisState_Change : Change
     {
         SetState(target, newEnabled);
         ignoreInUndo = false;
-        return new SymmetryAxisState_ChangeInfo() { Direction = direction };
+        return new SymmetryAxisState_ChangeInfo(direction, newEnabled);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         SetState(target, originalEnabled);
-        return new SymmetryAxisState_ChangeInfo() { Direction = direction };
+        return new SymmetryAxisState_ChangeInfo(direction, originalEnabled);
     }
 
     public override bool IsMergeableWith(Change other)

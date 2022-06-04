@@ -30,14 +30,14 @@ internal class StructureMemberMaskIsVisible_Change : Change
         var member = target.FindMemberOrThrow(memberGuid);
         member.MaskIsVisible = newMaskIsVisible;
         ignoreInUndo = false;
-        return new StructureMemberMaskIsVisible_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberMaskIsVisible_ChangeInfo(memberGuid, newMaskIsVisible);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(memberGuid);
         member.MaskIsVisible = originalMaskIsVisible;
-        return new StructureMemberMaskIsVisible_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberMaskIsVisible_ChangeInfo(memberGuid, originalMaskIsVisible);
     }
 
     public override bool IsMergeableWith(Change other)

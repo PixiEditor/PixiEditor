@@ -31,7 +31,7 @@ internal class DeleteStructureMemberMask_Change : Change
         member.Mask = null;
 
         ignoreInUndo = false;
-        return new StructureMemberMask_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberMask_ChangeInfo(memberGuid, false);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -41,7 +41,7 @@ internal class DeleteStructureMemberMask_Change : Change
             throw new InvalidOperationException("Cannot revert mask deletion; The target member already has a mask");
         member.Mask = storedMask!.CloneFromCommitted();
 
-        return new StructureMemberMask_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberMask_ChangeInfo(memberGuid, true);
     }
 
     public override void Dispose()

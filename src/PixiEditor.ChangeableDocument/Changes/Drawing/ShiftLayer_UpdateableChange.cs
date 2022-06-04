@@ -49,13 +49,13 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         image.CommitChanges();
 
         ignoreInUndo = delta.TaxicabLength == 0;
-        return new LayerImageChunks_ChangeInfo() { GuidValue = layerGuid, Chunks = chunks };
+        return new LayerImageChunks_ChangeInfo(layerGuid, chunks);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         var chunks = DrawShiftedLayer(target);
-        return new LayerImageChunks_ChangeInfo() { GuidValue = layerGuid, Chunks = chunks };
+        return new LayerImageChunks_ChangeInfo(layerGuid, chunks);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -68,7 +68,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         image.CommitChanges();
         originalLayerChunks.Dispose();
         originalLayerChunks = null;
-        return new LayerImageChunks_ChangeInfo() { GuidValue = layerGuid, Chunks = affected };
+        return new LayerImageChunks_ChangeInfo(layerGuid, affected);
     }
 
     public override void Dispose()

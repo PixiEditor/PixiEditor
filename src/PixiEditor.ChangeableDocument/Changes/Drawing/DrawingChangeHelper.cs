@@ -48,16 +48,8 @@ internal static class DrawingChangeHelper
     {
         return drawOnMask switch
         {
-            false => new LayerImageChunks_ChangeInfo()
-            {
-                Chunks = affectedChunks,
-                GuidValue = memberGuid
-            },
-            true => new MaskChunks_ChangeInfo()
-            {
-                Chunks = affectedChunks,
-                GuidValue = memberGuid
-            },
+            false => new LayerImageChunks_ChangeInfo(memberGuid, affectedChunks),
+            true => new MaskChunks_ChangeInfo(memberGuid, affectedChunks),
         };
     }
 }

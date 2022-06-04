@@ -43,7 +43,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
             target.Selection.SelectionPath = originalPath!.Op(rectPath, mode.ToSKPathOp());
         toDispose.Dispose();
 
-        return new Selection_ChangeInfo();
+        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -60,10 +60,9 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var changes = new Selection_ChangeInfo();
         target.Selection.SelectionPath.Dispose();
         target.Selection.SelectionPath = new SKPath(originalPath);
-        return changes;
+        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 
     public override void Dispose()

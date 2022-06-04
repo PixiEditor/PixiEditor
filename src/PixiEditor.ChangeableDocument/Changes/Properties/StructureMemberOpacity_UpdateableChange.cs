@@ -45,7 +45,7 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         member.Opacity = newOpacity;
 
         ignoreInUndo = false;
-        return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberOpacity_ChangeInfo(memberGuid, newOpacity);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
@@ -56,7 +56,7 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         var member = document.FindMemberOrThrow(memberGuid);
         member.Opacity = originalOpacity;
 
-        return new StructureMemberOpacity_ChangeInfo() { GuidValue = memberGuid };
+        return new StructureMemberOpacity_ChangeInfo(memberGuid, originalOpacity);
     }
 
     public override bool IsMergeableWith(Change other)

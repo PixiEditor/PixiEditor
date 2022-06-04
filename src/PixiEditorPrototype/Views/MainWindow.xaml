@@ -39,7 +39,7 @@
                     <Button Margin="5,0" Command="{Binding ActiveDocument.ApplyMaskCommand}" Width="80">Apply Mask</Button>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
-                    <controls:BlendModeComboBox Margin="5,0" Width="80" SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendMode, Mode=TwoWay}"/>
+                    <controls:BlendModeComboBox Margin="5,0" Width="80" SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay}"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
                     <Button Margin="5,0" Command="{Binding ActiveDocument.ToggleLockTransparencyCommand}" Width="80">Lock Alpha</Button>
@@ -48,11 +48,11 @@
                 </StackPanel>
                 <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,5,0,5">
                     <Button Width="80" Margin="5,0" Command="{Binding ActiveDocument.CombineCommand}">Merge</Button>
-                    <TextBlock Text="{Binding ActiveDocument.SelectedStructureMember.Opacity, StringFormat=N2}" 
+                    <TextBlock Text="{Binding ActiveDocument.SelectedStructureMember.OpacityBindable, StringFormat=N2}" 
                            Margin="5,0" DockPanel.Dock="Right" VerticalAlignment="Center" TextAlignment="Center" d:Text="1.00" Width="30"/>
                     <Slider Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.01" x:Name="opacitySlider"
                             VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                            Value="{Binding ActiveDocument.SelectedStructureMember.Opacity, Mode=OneWay}">
+                            Value="{Binding ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}">
                         <i:Interaction.Behaviors>
                             <beh:SliderUpdateBehavior
                                 DragValueChanged="{Binding ActiveDocument.SelectedStructureMember.UpdateOpacityCommand}"
@@ -87,14 +87,14 @@
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
                             <StackPanel Orientation="Horizontal" MinWidth="200" Background="Wheat">
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisible}"
-                                              Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisibleBindable}"/>
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisibleBindable}"
+                                              Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
                                               Background="LightBlue"/>
                                 </StackPanel>
                                 <Rectangle 
                                     Fill="DarkRed" Width="8" Margin="3,0" 
-                                    Visibility="{Binding ClipToMemberBelowEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    Visibility="{Binding ClipToMemberBelowEnabledBindable, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <StackPanel>
                                     <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
@@ -105,21 +105,21 @@
                                     <Image Source="{Binding PreviewBitmap}"></Image>
                                 </Border>
                                 <Border 
-                                    Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
                                     BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
                                     HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
                                     <Image Source="{Binding MaskPreviewBitmap}"></Image>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <DockPanel Margin="3, 0, 0, 0">
-                                        <TextBlock Text="{Binding Opacity}" Width="25"/>
-                                        <TextBlock Text="{Binding BlendMode, Converter={StaticResource BlendModeToStringConverter}}"/>
+                                        <TextBlock Text="{Binding OpacityBindable}" Width="25"/>
+                                        <TextBlock Text="{Binding BlendModeBindable, Converter={StaticResource BlendModeToStringConverter}}"/>
                                     </DockPanel>
-                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding Name}" Margin="3, 0, 0, 0" Height="20"/>
+                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding NameBindable}" Margin="3, 0, 0, 0" Height="20"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Margin="3, 0, 0, 0">
                                     <CheckBox VerticalAlignment="Center"
-                                          Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                          Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
                                           IsChecked="{Binding ShouldDrawOnMask}">Edit Mask</CheckBox>
                                     <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}">Select</CheckBox>
                                 </StackPanel>
@@ -131,14 +131,14 @@
                         <DataTemplate DataType="{x:Type vm:LayerViewModel}">
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisible}"/>
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisible}"
-                                              Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisibleBindable}"/>
+                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisibleBindable}"
+                                              Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
                                               Background="LightBlue"/>
                                 </StackPanel>
                                 <Rectangle 
                                     Fill="DarkRed" Width="8" Margin="3,0" 
-                                    Visibility="{Binding ClipToMemberBelowEnabled, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    Visibility="{Binding ClipToMemberBelowEnabledBindable, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <StackPanel>
                                     <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
                                     <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
@@ -149,26 +149,26 @@
                                     <Image Source="{Binding PreviewBitmap}"></Image>
                                 </Border>
                                 <Border 
-                                    Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
                                     BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
                                     HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
                                     <Image Source="{Binding MaskPreviewBitmap}"></Image>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center">
                                     <DockPanel Margin="3, 0, 0, 0">
-                                        <TextBlock Text="{Binding Opacity}" Width="25"/>
-                                        <TextBlock Text="{Binding BlendMode, Converter={StaticResource BlendModeToStringConverter}}"/>
+                                        <TextBlock Text="{Binding OpacityBindable}" Width="25"/>
+                                        <TextBlock Text="{Binding BlendModeBindable, Converter={StaticResource BlendModeToStringConverter}}"/>
                                     </DockPanel>
-                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding Name}" Margin="3, 0, 0, 0" Height="20"/>
+                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding NameBindable}" Margin="3, 0, 0, 0" Height="20"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center" Margin="3, 0, 0, 0">
                                     <CheckBox VerticalAlignment="Center"
-                                          Visibility="{Binding HasMask, Converter={StaticResource BoolToVisibilityConverter}}"
+                                          Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
                                           IsChecked="{Binding ShouldDrawOnMask}">Edit Mask</CheckBox>
                                     <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}">Select</CheckBox>
                                 </StackPanel>
                                 <StackPanel Margin="3">
-                                    <TextBlock Visibility="{Binding LockTransparency, Converter={StaticResource BoolToVisibilityConverter}}">🙾</TextBlock>
+                                    <TextBlock Visibility="{Binding LockTransparencyBindable, Converter={StaticResource BoolToVisibilityConverter}}">🙾</TextBlock>
                                     <TextBlock Visibility="Collapsed">🔒</TextBlock>
                                 </StackPanel>
                             </StackPanel>
@@ -229,10 +229,10 @@
                     IsChecked="{Binding KeepOriginalImageOnTransform}">Keep area</CheckBox>
                 <CheckBox 
                     x:Name="horizontalSymmetryCheckbox" Margin="5,0" 
-                    IsChecked="{Binding ActiveDocument.HorizontalSymmetryAxisEnabled}">Hor Sym</CheckBox>
+                    IsChecked="{Binding ActiveDocument.HorizontalSymmetryAxisEnabledBindable}">Hor Sym</CheckBox>
                 <CheckBox 
                     x:Name="verticalSymmetryCheckbox" Margin="5,0" 
-                    IsChecked="{Binding ActiveDocument.VerticalSymmetryAxisEnabled}">Ver Sym</CheckBox>
+                    IsChecked="{Binding ActiveDocument.VerticalSymmetryAxisEnabledBindable}">Ver Sym</CheckBox>
             </StackPanel>
         </Border>
         <Grid>

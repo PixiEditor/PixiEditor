@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
@@ -89,46 +88,46 @@ internal class DocumentUpdater
     private void ProcessMaskIsVisible(StructureMemberMaskIsVisible_ChangeInfo info)
     {
         var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        member.RaisePropertyChanged(nameof(member.MaskIsVisible));
+        member.SetMaskIsVisible(info.IsVisible);
     }
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
     {
         var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        member.RaisePropertyChanged(nameof(member.ClipToMemberBelowEnabled));
+        member.SetClipToMemberBelowEnabled(info.ClipToMemberBelow);
     }
 
     private void ProcessSymmetryPosition(SymmetryAxisPosition_ChangeInfo info)
     {
         if (info.Direction == SymmetryAxisDirection.Horizontal)
-            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryAxisY));
+            doc.SetHorizontalSymmetryAxisY(info.NewPosition);
         else if (info.Direction == SymmetryAxisDirection.Vertical)
-            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisX));
+            doc.SetVerticalSymmetryAxisX(info.NewPosition);
     }
 
     private void ProcessSymmetryState(SymmetryAxisState_ChangeInfo info)
     {
         if (info.Direction == SymmetryAxisDirection.Horizontal)
-            doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryAxisEnabled));
+            doc.SetHorizontalSymmetryAxisEnabled(info.State);
         else if (info.Direction == SymmetryAxisDirection.Vertical)
-            doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisEnabled));
+            doc.SetVerticalSymmetryAxisEnabled(info.State);
     }
 
     private void ProcessSelection(Selection_ChangeInfo info)
     {
-        doc.RaisePropertyChanged(nameof(doc.SelectionPath));
+        doc.SetSelectionPath(info.NewPath);
     }
 
     private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)
     {
         var layer = (LayerViewModel)helper.StructureHelper.FindOrThrow(info.GuidValue);
-        layer.RaisePropertyChanged(nameof(layer.LockTransparency));
+        layer.SetLockTransparency(info.LockTransparency);
     }
 
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
     {
         var memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVm.RaisePropertyChanged(nameof(memberVm.BlendMode));
+        memberVm.SetBlendMode(info.BlendMode);
     }
 
     private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
@@ -137,13 +136,14 @@ internal class DocumentUpdater
         memberVm.MaskPreviewSurface?.Dispose();
         memberVm.MaskPreviewSurface = null;
         memberVm.MaskPreviewBitmap = null;
-        var size = StructureMemberViewModel.CalculatePreviewSize(new(doc.Width, doc.Height));
-        if (memberVm.HasMask)
+
+        if (info.HasMask)
         {
+            var size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
             memberVm.MaskPreviewBitmap = CreateBitmap(size);
             memberVm.MaskPreviewSurface = CreateSKSurface(memberVm.MaskPreviewBitmap);
         }
-        memberVm.RaisePropertyChanged(nameof(memberVm.HasMask));
+        memberVm.SetHasMask(info.HasMask);
         memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
     }
 
@@ -169,7 +169,7 @@ internal class DocumentUpdater
             member.MaskPreviewSurface?.Dispose();
             member.MaskPreviewSurface = null;
             member.MaskPreviewBitmap = null;
-            if (member.HasMask)
+            if (member.HasMaskBindable)
             {
                 member.MaskPreviewBitmap = CreateBitmap(newSize);
                 member.MaskPreviewSurface = CreateSKSurface(member.MaskPreviewBitmap);
@@ -185,23 +185,23 @@ internal class DocumentUpdater
 
     private void ProcessSize(Size_ChangeInfo info)
     {
-        var size = helper.Tracker.Document.Size;
         Dictionary<ChunkResolution, WriteableBitmap> newBitmaps = new();
         foreach (var (res, surf) in doc.Surfaces)
         {
             surf.Dispose();
-            newBitmaps[res] = CreateBitmap((VecI)(size * res.Multiplier()));
+            newBitmaps[res] = CreateBitmap((VecI)(info.Size * res.Multiplier()));
             doc.Surfaces[res] = CreateSKSurface(newBitmaps[res]);
         }
 
         doc.Bitmaps = newBitmaps;
-        doc.RaisePropertyChanged(nameof(doc.Bitmaps));
-        doc.RaisePropertyChanged(nameof(doc.Width));
-        doc.RaisePropertyChanged(nameof(doc.Height));
-        doc.RaisePropertyChanged(nameof(doc.HorizontalSymmetryAxisY));
-        doc.RaisePropertyChanged(nameof(doc.VerticalSymmetryAxisX));
 
-        var previewSize = StructureMemberViewModel.CalculatePreviewSize(size);
+        doc.SetSize(info.Size);
+        doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
+        doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
+
+        doc.RaisePropertyChanged(nameof(doc.Bitmaps));
+
+        var previewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
         UpdateMemberBitmapsRecursively(doc.StructureRoot, previewSize);
     }
 
@@ -220,25 +220,44 @@ internal class DocumentUpdater
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
     {
-        var (member, parentFolder) = helper.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
-        var parentFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(parentFolder.GuidValue);
+        var parentFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentGuid);
 
-        int index = parentFolder.Children.IndexOf(member);
-
-        StructureMemberViewModel memberVM = member switch
+        StructureMemberViewModel memberVM;
+        if (info is CreateLayer_ChangeInfo layerInfo)
         {
-            IReadOnlyLayer layer => new LayerViewModel(doc, helper, layer),
-            IReadOnlyFolder folder => new FolderViewModel(doc, helper, folder),
-            _ => throw new InvalidOperationException("Unsupposed member type")
-        };
-
-        parentFolderVM.Children.Insert(index, memberVM);
-
-        if (member is IReadOnlyFolder folder2)
+            memberVM = new LayerViewModel(doc, helper, info.GuidValue);
+            ((LayerViewModel)memberVM).SetLockTransparency(layerInfo.LockTransparency);
+        }
+        else if (info is CreateFolder_ChangeInfo)
         {
-            foreach (IReadOnlyStructureMember child in folder2.Children)
+            memberVM = new FolderViewModel(doc, helper, info.GuidValue);
+        }
+        else
+        {
+            throw new NotSupportedException();
+        }
+        memberVM.SetOpacity(info.Opacity);
+        memberVM.SetIsVisible(info.IsVisible);
+        memberVM.SetClipToMemberBelowEnabled(info.ClipToMemberBelow);
+        memberVM.SetName(info.Name);
+        memberVM.SetHasMask(info.HasMask);
+        memberVM.SetMaskIsVisible(info.MaskIsVisible);
+        memberVM.SetBlendMode(info.BlendMode);
+
+        if (info.HasMask)
+        {
+            var size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
+            memberVM.MaskPreviewBitmap = CreateBitmap(size);
+            memberVM.MaskPreviewSurface = CreateSKSurface(memberVM.MaskPreviewBitmap);
+        }
+
+        parentFolderVM.Children.Insert(info.Index, memberVM);
+
+        if (info is CreateFolder_ChangeInfo folderInfo)
+        {
+            foreach (CreateStructureMember_ChangeInfo childInfo in folderInfo.Children)
             {
-                ProcessCreateStructureMember(new CreateStructureMember_ChangeInfo() { GuidValue = child.GuidValue });
+                ProcessCreateStructureMember(childInfo);
             }
         }
     }
@@ -252,30 +271,28 @@ internal class DocumentUpdater
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
     {
         var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVM.RaisePropertyChanged(nameof(memberVM.IsVisible));
+        memberVM.SetIsVisible(info.IsVisible);
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
     {
         var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVM.RaisePropertyChanged(nameof(memberVM.Name));
+        memberVM.SetName(info.Name);
     }
 
     private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
     {
         var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVM.RaisePropertyChanged(nameof(memberVM.Opacity));
+        memberVM.SetOpacity(info.Opacity);
     }
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
         var (memberVM, curFolderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
-        var (member, targetFolder) = helper.Tracker.Document.FindChildAndParentOrThrow(info.GuidValue);
 
-        int index = targetFolder.Children.IndexOf(member);
-        var targetFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(targetFolder.GuidValue);
+        var targetFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentToGuid);
 
         curFolderVM.Children.Remove(memberVM);
-        targetFolderVM.Children.Insert(index, memberVM);
+        targetFolderVM.Children.Insert(info.NewIndex, memberVM);
     }
 }

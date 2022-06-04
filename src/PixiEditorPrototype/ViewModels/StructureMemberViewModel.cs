@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
@@ -12,50 +11,102 @@ namespace PixiEditorPrototype.ViewModels;
 
 internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 {
-    protected IReadOnlyStructureMember member;
-
     public event PropertyChangedEventHandler? PropertyChanged;
     protected DocumentViewModel Document { get; }
     protected DocumentHelpers Helpers { get; }
 
-    public string Name
+
+    private string name = "";
+    public void SetName(string name)
     {
-        get => member.Name;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(member.GuidValue, value));
+        this.name = name;
+        RaisePropertyChanged(nameof(NameBindable));
+    }
+    public string NameBindable
+    {
+        get => name;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(GuidValue, value));
     }
 
-    public bool IsVisible
+    private bool isVisible;
+    public void SetIsVisible(bool isVisible)
     {
-        get => member.IsVisible;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, member.GuidValue));
+        this.isVisible = isVisible;
+        RaisePropertyChanged(nameof(IsVisibleBindable));
+    }
+    public bool IsVisibleBindable
+    {
+        get => isVisible;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, GuidValue));
     }
 
-    public bool MaskIsVisible
+    private bool maskIsVisible;
+    public void SetMaskIsVisible(bool maskIsVisible)
     {
-        get => member.MaskIsVisible;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberMaskIsVisible_Action(value, member.GuidValue));
+        this.maskIsVisible = maskIsVisible;
+        RaisePropertyChanged(nameof(MaskIsVisibleBindable));
+    }
+    public bool MaskIsVisibleBindable
+    {
+        get => maskIsVisible;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberMaskIsVisible_Action(value, GuidValue));
     }
 
-    public BlendMode BlendMode
+    private BlendMode blendMode;
+    public void SetBlendMode(BlendMode blendMode)
     {
-        get => member.BlendMode;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, member.GuidValue));
+        this.blendMode = blendMode;
+        RaisePropertyChanged(nameof(BlendModeBindable));
+    }
+    public BlendMode BlendModeBindable
+    {
+        get => blendMode;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, GuidValue));
     }
 
-    public bool ClipToMemberBelowEnabled
+    private bool clipToMemberBelowEnabled;
+    public void SetClipToMemberBelowEnabled(bool clipToMemberBelowEnabled)
     {
-        get => member.ClipToMemberBelow;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberClipToMemberBelow_Action(value, member.GuidValue));
+        this.clipToMemberBelowEnabled = clipToMemberBelowEnabled;
+        RaisePropertyChanged(nameof(ClipToMemberBelowEnabledBindable));
+    }
+    public bool ClipToMemberBelowEnabledBindable
+    {
+        get => clipToMemberBelowEnabled;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberClipToMemberBelow_Action(value, GuidValue));
+    }
+
+    private bool hasMask;
+    public void SetHasMask(bool hasMask)
+    {
+        this.hasMask = hasMask;
+        RaisePropertyChanged(nameof(HasMaskBindable));
+    }
+    public bool HasMaskBindable
+    {
+        get => hasMask;
+    }
+
+    private Guid guidValue;
+    public Guid GuidValue
+    {
+        get => guidValue;
+    }
+
+    private float opacity;
+    public void SetOpacity(float opacity)
+    {
+        this.opacity = opacity;
+        RaisePropertyChanged(nameof(OpacityBindable));
+    }
+    public float OpacityBindable
+    {
+        get => opacity;
     }
 
     public bool IsSelected { get; set; }
     public bool ShouldDrawOnMask { get; set; }
 
-    public float Opacity => member.Opacity;
-
-    public Guid GuidValue => member.GuidValue;
-
-    public bool HasMask => member.Mask is not null;
 
     public const int PreviewSize = 48;
     public WriteableBitmap PreviewBitmap { get; set; }
@@ -63,11 +114,10 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 
     public WriteableBitmap? MaskPreviewBitmap { get; set; }
     public SKSurface? MaskPreviewSurface { get; set; }
+
     public RelayCommand MoveUpCommand { get; }
     public RelayCommand MoveDownCommand { get; }
-
     public RelayCommand UpdateOpacityCommand { get; }
-
     public RelayCommand EndOpacityUpdateCommand { get; }
 
     public void RaisePropertyChanged(string name)
@@ -84,24 +134,20 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
             new VecI(prSize, (int)Math.Round(prSize * proportions));
     }
 
-    public StructureMemberViewModel(DocumentViewModel doc, DocumentHelpers helpers, IReadOnlyStructureMember member)
+    public StructureMemberViewModel(DocumentViewModel doc, DocumentHelpers helpers, Guid guidValue)
     {
-        this.member = member;
         Document = doc;
         Helpers = helpers;
+
         MoveUpCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, false));
         MoveDownCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, true));
         UpdateOpacityCommand = new(UpdateOpacity);
         EndOpacityUpdateCommand = new(EndOpacityUpdate);
 
-        var previewSize = CalculatePreviewSize(new(doc.Width, doc.Height));
+        this.guidValue = guidValue;
+        var previewSize = CalculatePreviewSize(doc.SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
-        if (member.Mask is not null)
-        {
-            MaskPreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
-            MaskPreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
-        }
     }
 
     private void EndOpacityUpdate(object? opacity)

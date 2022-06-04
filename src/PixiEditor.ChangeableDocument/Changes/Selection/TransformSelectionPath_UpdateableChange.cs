@@ -42,7 +42,7 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
         target.Selection.SelectionPath = newPath;
         toDispose.Dispose();
 
-        return new Selection_ChangeInfo();
+        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
@@ -61,7 +61,7 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
         var toDispose = target.Selection.SelectionPath;
         target.Selection.SelectionPath = new SKPath(originalPath);
         toDispose.Dispose();
-        return new Selection_ChangeInfo();
+        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 
     public override void Dispose()

@@ -1,16 +1,22 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using System;
 using PixiEditorPrototype.Models;
 
 namespace PixiEditorPrototype.ViewModels;
 
 internal class LayerViewModel : StructureMemberViewModel
 {
-    public bool LockTransparency
+    bool lockTransparency;
+    public void SetLockTransparency(bool lockTransparency)
     {
-        get => ((IReadOnlyLayer)member).LockTransparency;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(member.GuidValue, value));
+        this.lockTransparency = lockTransparency;
+        RaisePropertyChanged(nameof(LockTransparencyBindable));
     }
-    public LayerViewModel(DocumentViewModel doc, DocumentHelpers helpers, IReadOnlyLayer layer) : base(doc, helpers, layer)
+    public bool LockTransparencyBindable
+    {
+        get => lockTransparency;
+        set => Helpers.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(GuidValue, value));
+    }
+    public LayerViewModel(DocumentViewModel doc, DocumentHelpers helpers, Guid guidValue) : base(doc, helpers, guidValue)
     {
     }
 }

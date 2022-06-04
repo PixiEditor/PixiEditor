@@ -46,13 +46,13 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
     {
         ignoreInUndo = originalPos == newPos;
         SetPosition(target, newPos);
-        return new SymmetryAxisPosition_ChangeInfo() { Direction = direction };
+        return new SymmetryAxisPosition_ChangeInfo(direction, newPos);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         SetPosition(target, newPos);
-        return new SymmetryAxisPosition_ChangeInfo() { Direction = direction };
+        return new SymmetryAxisPosition_ChangeInfo(direction, newPos);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -60,7 +60,7 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
         if (originalPos == newPos)
             return new None();
         SetPosition(target, originalPos);
-        return new SymmetryAxisPosition_ChangeInfo() { Direction = direction };
+        return new SymmetryAxisPosition_ChangeInfo(direction, originalPos);
     }
 
     public override bool IsMergeableWith(Change other)

@@ -42,7 +42,7 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
         }
         toDispose.Dispose();
 
-        return new Selection_ChangeInfo();
+        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
@@ -60,7 +60,7 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
         var toDispose = target.Selection.SelectionPath;
         target.Selection.SelectionPath = new(originalPath);
         toDispose.Dispose();
-        return new Selection_ChangeInfo();
+        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 
     public override void Dispose()

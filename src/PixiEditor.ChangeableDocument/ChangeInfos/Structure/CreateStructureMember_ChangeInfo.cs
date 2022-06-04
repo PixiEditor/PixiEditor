@@ -1,6 +1,16 @@
-﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.Enums;
 
-public record class CreateStructureMember_ChangeInfo : IChangeInfo
-{
-    public Guid GuidValue { get; init; }
-}
+namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+
+public abstract record class CreateStructureMember_ChangeInfo(
+    Guid ParentGuid,
+    int Index,
+    float Opacity,
+    bool IsVisible,
+    bool ClipToMemberBelow,
+    string Name,
+    BlendMode BlendMode,
+    Guid GuidValue,
+    bool HasMask,
+    bool MaskIsVisible
+) : IChangeInfo;

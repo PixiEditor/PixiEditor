@@ -111,7 +111,7 @@ internal class WriteableBitmapUpdater
 
         var (imagePreviewChunksToRerender, maskPreviewChunksToRerender) = FindPreviewChunksToRerender(chunkGatherer, !updatePreviews);
         var previewSize = StructureMemberViewModel.CalculatePreviewSize(helpers.Tracker.Document.Size);
-        float scaling = (float)previewSize.X / doc.Width;
+        float scaling = (float)previewSize.X / doc.SizeBindable.X;
         UpdateImagePreviews(imagePreviewChunksToRerender, scaling, infos);
         UpdateMaskPreviews(maskPreviewChunksToRerender, scaling, infos);
 
@@ -172,7 +172,7 @@ internal class WriteableBitmapUpdater
         foreach (var (guid, chunks) in maskPreviewChunks)
         {
             var memberVM = helpers.StructureHelper.Find(guid);
-            if (memberVM is null || !memberVM.HasMask)
+            if (memberVM is null || !memberVM.HasMaskBindable)
                 continue;
 
             var member = helpers.Tracker.Document.FindMemberOrThrow(guid);
