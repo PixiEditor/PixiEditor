@@ -81,7 +81,7 @@ public struct RectD : IEquatable<RectD>
     public double Width { readonly get => right - left; set => right = left + value; }
     public double Height { readonly get => bottom - top; set => bottom = top + value; }
     public readonly bool IsZeroArea => left == right || top == bottom;
-
+    public readonly bool IsZeroOrNegativeArea => left >= right || top >= bottom;
     public RectD()
     {
         left = 0d;

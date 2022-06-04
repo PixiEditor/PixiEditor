@@ -76,6 +76,7 @@ public struct RectI : IEquatable<RectI>
     public int Width { readonly get => right - left; set => right = left + value; }
     public int Height { readonly get => bottom - top; set => bottom = top + value; }
     public readonly bool IsZeroArea => left == right || top == bottom;
+    public readonly bool IsZeroOrNegativeArea => left >= right || top >= bottom;
 
     public RectI()
     {

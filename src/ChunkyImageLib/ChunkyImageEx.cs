@@ -8,6 +8,9 @@ public static class IReadOnlyChunkyImageEx
     public static void DrawMostUpToDateRegionOn
         (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, SKSurface surface, VecI pos, SKPaint? paint = null)
     {
+        surface.Canvas.Save();
+        surface.Canvas.ClipRect(SKRect.Create(pos, fullResRegion.Size));
+
         VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
         VecI chunkBotRigth = OperationHelper.GetChunkPos(fullResRegion.BottomRight, ChunkyImage.FullChunkSize);
         VecI offsetFullRes = (chunkTopLeft * ChunkyImage.FullChunkSize) - fullResRegion.Pos;
@@ -18,8 +21,10 @@ public static class IReadOnlyChunkyImageEx
             for (int i = chunkTopLeft.X; i <= chunkBotRigth.X; i++)
             {
                 var chunkPos = new VecI(i, j);
-                image.DrawMostUpToDateChunkOn(chunkPos, resolution, surface, offsetTargetRes + chunkPos * resolution.PixelSize() + pos, paint);
+                image.DrawMostUpToDateChunkOn(chunkPos, resolution, surface, offsetTargetRes + (chunkPos - chunkTopLeft) * resolution.PixelSize() + pos, paint);
             }
         }
+
+        surface.Canvas.Restore();
     }
 }

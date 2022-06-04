@@ -31,7 +31,8 @@ internal class FloodFill_Change : Change
     {
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
 
-        using var floodFilledChunks = FloodFillHelper.FloodFill(image, pos, color);
+        SKPath? selection = target.Selection.SelectionPath.IsEmpty ? null : target.Selection.SelectionPath;
+        using var floodFilledChunks = FloodFillHelper.FloodFill(image, selection, pos, color);
         (chunkStorage, var affectedChunks) = floodFilledChunks.DrawOnChunkyImage(image);
 
         ignoreInUndo = false;
