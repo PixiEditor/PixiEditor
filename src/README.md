@@ -30,7 +30,8 @@ Decouples the state of a document from the UI.
         - [x] ChunkyImage
         - [x] Rectangle
         - [ ] Ellipse
-        - [ ] Line
+        - [x] Bresenham Line
+        - [x] Skia Line
         - [x] Path
         - [ ] Draw pixels
         - [x] Clear operation
