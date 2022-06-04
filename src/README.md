@@ -95,7 +95,7 @@ Decouples the state of a document from the UI.
         - [ ] Ellipse
         - [ ] Line
         - [x] Path-based pen
-        - [ ] Regular pen
+        - [x] Regular pen
         - [ ] Pixel-perfect pen
         - [ ] Eraser (same as pen?)
         - [ ] Fill
@@ -115,7 +115,6 @@ Decouples the state of a document from the UI.
         - [x] Apply mask
 - ViewModel
     - [ ] Loading window when background thread is busy
-    - [ ] Action filtering
     - [x] Transform overlay
     - [x] Symmetry overlay
     - [x] Selection overlay
