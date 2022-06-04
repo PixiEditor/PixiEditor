@@ -154,9 +154,6 @@ public static class ChunkRenderer
         if (folder.Children.Count == 0)
             return new EmptyChunk();
 
-        // clipping to member below doesn't make sense if we are skipping some of them
-        bool ignoreClipToBelow = membersToMerge.IsT1;
-
         Chunk targetChunk = Chunk.Create(resolution);
         targetChunk.Surface.SkiaSurface.Canvas.Clear();
 
@@ -167,7 +164,6 @@ public static class ChunkRenderer
 
             // next child might use clip to member below in which case we need to save the clip image
             bool needToSaveClippingChunk =
-                !ignoreClipToBelow &&
                 i < folder.Children.Count - 1 &&
                 !child.ClipToMemberBelow &&
                 folder.Children[i + 1].ClipToMemberBelow;
@@ -193,6 +189,10 @@ public static class ChunkRenderer
                     RenderLayer(context, targetChunk, chunkPos, resolution, layer, clippingChunk);
                 }
                 continue;
+            }
+            else if (child is IReadOnlyLayer && needToSaveClippingChunk)
+            {
+                clippingChunk = new FilledChunk();
             }
 
             // folder

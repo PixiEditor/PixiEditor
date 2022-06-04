@@ -33,6 +33,10 @@ internal class Layer : StructureMember, IReadOnlyLayer
             Name = Name,
             Opacity = Opacity,
             Mask = Mask?.CloneFromCommitted(),
+            ClipToMemberBelow = ClipToMemberBelow,
+            MaskIsVisible = MaskIsVisible,
+            BlendMode = BlendMode,
+            LockTransparency = LockTransparency
         };
     }
 }

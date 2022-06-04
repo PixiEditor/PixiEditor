@@ -24,7 +24,10 @@ internal class Folder : StructureMember, IReadOnlyFolder
             Name = Name,
             Opacity = Opacity,
             Children = builder.ToImmutable(),
-            Mask = Mask?.CloneFromCommitted()
+            Mask = Mask?.CloneFromCommitted(),
+            BlendMode = BlendMode,
+            ClipToMemberBelow = ClipToMemberBelow,
+            MaskIsVisible = MaskIsVisible
         };
     }
 
