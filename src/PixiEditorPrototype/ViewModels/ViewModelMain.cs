@@ -160,7 +160,7 @@ internal class ViewModelMain : INotifyPropertyChanged
         {
             VecI size = (VecI)canvasPos - (VecI)mouseDownCanvasPos;
             ActiveDocument!.StartUpdateRectangle(new ShapeData(
-                        (VecI)mouseDownCanvasPos + size / 2,
+                        (VecI)mouseDownCanvasPos + (VecD)size / 2,
                         size,
                         0,
                         90,
