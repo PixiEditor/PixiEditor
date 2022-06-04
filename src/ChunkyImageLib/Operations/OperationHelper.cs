@@ -102,6 +102,8 @@ public static class OperationHelper
 
     public static HashSet<VecI> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
     {
+        if (corners.IsRect && Math.Abs(corners.RectRotation) < 0.0001)
+            return FindChunksTouchingRectangle((RectI)RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize).RoundOutwards(), chunkSize);
         if (corners.HasNaNOrInfinity ||
             (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
             (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
@@ -119,6 +121,8 @@ public static class OperationHelper
 
     public static HashSet<VecI> FindChunksFullyInsideQuadrilateral(ShapeCorners corners, int chunkSize)
     {
+        if (corners.IsRect && Math.Abs(corners.RectRotation) < 0.0001)
+            return FindChunksFullyInsideRectangle((RectI)RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize).RoundOutwards(), chunkSize);
         if (corners.HasNaNOrInfinity ||
             (corners.BottomLeft - corners.TopRight).Length > chunkSize * 40 * 20 ||
             (corners.TopLeft - corners.BottomRight).Length > chunkSize * 40 * 20)
