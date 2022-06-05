@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using SkiaSharp;
@@ -39,7 +40,8 @@ public partial class PaletteColor : UserControl
     public static readonly DependencyProperty CornerRadiusProperty =
         DependencyProperty.Register("CornerRadius", typeof(CornerRadius), typeof(PaletteColor), new PropertyMetadata(new CornerRadius(5f)));
 
-
+    private Point prevPos;
+    private Point clickPoint;
 
     public PaletteColor()
     {
@@ -51,10 +53,25 @@ public partial class PaletteColor : UserControl
         PaletteColor color = sender as PaletteColor;
         if (color != null && e.LeftButton == MouseButtonState.Pressed)
         {
-            DataObject data = new DataObject();
-            data.SetData(PaletteColor.PaletteColorDaoFormat, color.Color.ToString());
-            DragDrop.DoDragDrop(color, data, DragDropEffects.Move);
-            e.Handled = true;
+            var newPos = e.GetPosition(this) - clickPoint;
+            Vector delta = new Vector(newPos.X - prevPos.X, newPos.Y - prevPos.Y);
+            if (Math.Abs(delta.Length) > 10)
+            {
+                DataObject data = new DataObject();
+                data.SetData(PaletteColor.PaletteColorDaoFormat, color.Color.ToString());
+                DragDrop.DoDragDrop(color, data, DragDropEffects.Move);
+                e.Handled = true;
+            }
+
+            prevPos = new Point(newPos.X, newPos.Y);
+        }
+    }
+
+    private void PaletteColor_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            clickPoint = e.GetPosition(this);
         }
     }
 }

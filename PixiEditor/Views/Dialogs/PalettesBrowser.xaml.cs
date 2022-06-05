@@ -440,6 +440,11 @@ namespace PixiEditor.Views.Dialogs
             var palette = _localPalettesFetcher.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
             if (palette != null)
             {
+                if (SortedResults == null)
+                {
+                    SortedResults = new WpfObservableRangeCollection<Palette>();
+                }
+
                 if (SortedResults.Contains(palette))
                 {
                     SortedResults.Move(SortedResults.IndexOf(palette), 0);

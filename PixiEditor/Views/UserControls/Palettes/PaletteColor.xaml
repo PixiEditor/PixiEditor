@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
-             mc:Ignorable="d"
+             mc:Ignorable="d" MouseDown="PaletteColor_OnMouseDown"
              d:DesignHeight="45" d:DesignWidth="45" Name="uc" MouseMove="PaletteColor_OnMouseMove">
     <UserControl.Resources>
         <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter" />
