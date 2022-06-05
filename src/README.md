@@ -97,7 +97,6 @@ Decouples the state of a document from the UI.
         - [x] Path-based pen
         - [x] Regular pen
         - [ ] Pixel-perfect pen
-        - [ ] Eraser (same as pen?)
         - [ ] Fill
         - [ ] Brightness
         - [x] Basic selection changes

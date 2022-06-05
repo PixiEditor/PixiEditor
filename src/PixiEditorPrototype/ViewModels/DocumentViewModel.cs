@@ -313,7 +313,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndPathBasedPen_Action());
     }
 
-    public void StartUpdateLineBasedPen(VecI pos)
+    public void StartUpdateLineBasedPen(VecI pos, SKColor color, bool replacing = false)
     {
         if (!CanStartUpdate())
             return;
@@ -321,9 +321,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
         drawingLineBasedPen = true;
         Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
             SelectedStructureMember!.GuidValue,
-            new SKColor(owner.SelectedColor.R, owner.SelectedColor.G, owner.SelectedColor.B, owner.SelectedColor.A),
+            color,
             pos,
             (int)owner.StrokeWidth,
+            replacing,
             SelectedStructureMember.ShouldDrawOnMask));
     }
 

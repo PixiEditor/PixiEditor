@@ -6,6 +6,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly Guid memberGuid;
     private readonly SKColor color;
     private readonly int strokeWidth;
+    private readonly bool replacing;
     private readonly bool drawOnMask;
 
     bool firstApply = true;
@@ -14,11 +15,12 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly List<VecI> points = new();
 
     [GenerateUpdateableChangeActions]
-    public LineBasedPen_UpdateableChange(Guid memberGuid, SKColor color, VecI pos, int strokeWidth, bool drawOnMask)
+    public LineBasedPen_UpdateableChange(Guid memberGuid, SKColor color, VecI pos, int strokeWidth, bool replacing, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
         this.color = color;
         this.strokeWidth = strokeWidth;
+        this.replacing = replacing;
         this.drawOnMask = drawOnMask;
         points.Add(pos);
     }
@@ -36,7 +38,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (strokeWidth < 1)
             return new Error();
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        image.SetBlendMode(SKBlendMode.SrcOver);
+        if (!replacing)
+            image.SetBlendMode(SKBlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return new Success();
     }
@@ -96,7 +99,8 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
         else
         {
-            image.SetBlendMode(SKBlendMode.SrcOver);
+            if (!replacing)
+                image.SetBlendMode(SKBlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawLines(image);

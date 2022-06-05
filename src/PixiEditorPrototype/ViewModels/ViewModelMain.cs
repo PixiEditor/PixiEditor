@@ -136,7 +136,11 @@ internal class ViewModelMain : INotifyPropertyChanged
         }
         else if (toolOnMouseDown == Tool.LineBasedPen)
         {
-            ActiveDocument!.StartUpdateLineBasedPen((VecI)pos);
+            ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+        }
+        else if (toolOnMouseDown == Tool.Eraser)
+        {
+            ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, SKColors.Transparent, true);
         }
     }
 
@@ -195,7 +199,10 @@ internal class ViewModelMain : INotifyPropertyChanged
                 ActiveDocument!.StartUpdatePathBasedPen(canvasPos);
                 break;
             case Tool.LineBasedPen:
-                ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos);
+                ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+                break;
+            case Tool.Eraser:
+                ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos, SKColors.Transparent, true);
                 break;
         }
     }
@@ -239,6 +246,7 @@ internal class ViewModelMain : INotifyPropertyChanged
                 ActiveDocument!.EndPathBasedPen();
                 break;
             case Tool.LineBasedPen:
+            case Tool.Eraser:
                 ActiveDocument!.EndLineBasedPen();
                 break;
         }

@@ -6,6 +6,7 @@ internal enum Tool
     Ellipse,
     PathBasedPen,
     LineBasedPen,
+    Eraser,
     Select,
     Lasso,
     ShiftLayer,
