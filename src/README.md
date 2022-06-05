@@ -22,14 +22,14 @@ Decouples the state of a document from the UI.
         - [ ] Write chunks to the hard drive?
         - [ ] Compress chunks?
     - [x] Linear color space for blending
-    - [ ] Make low res chunks use smooth filtering
+    - [x] Make low res chunks use smooth filtering
     - [ ] Tests for everything related to the operation queueing
     - Operations
         - [x] Support for paints with different blending (replace vs. alpha compose)
         - [x] Image
         - [x] ChunkyImage
         - [x] Rectangle
-        - [ ] Ellipse
+        - [x] Ellipse
         - [x] Bresenham Line
         - [x] Skia Line
         - [x] Path
@@ -91,9 +91,8 @@ Decouples the state of a document from the UI.
         - [ ] Resize canvas (basic done, anchors left)
         - [ ] Resize image
         - [x] Paste image with transformation
-        - [ ] Draw image (for loading from file and such)
         - [x] Rectangle
-        - [ ] Ellipse
+        - [x] Ellipse
         - [ ] Line
         - [x] Path-based pen
         - [x] Regular pen
