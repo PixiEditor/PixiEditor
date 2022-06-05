@@ -53,17 +53,14 @@ public partial class PaletteColor : UserControl
         PaletteColor color = sender as PaletteColor;
         if (color != null && e.LeftButton == MouseButtonState.Pressed)
         {
-            var newPos = e.GetPosition(this) - clickPoint;
-            Vector delta = new Vector(newPos.X - prevPos.X, newPos.Y - prevPos.Y);
-            if (Math.Abs(delta.Length) > 10)
+            var movedDistance = (clickPoint - e.GetPosition(this)).Length;
+            if (movedDistance > 10)
             {
                 DataObject data = new DataObject();
                 data.SetData(PaletteColor.PaletteColorDaoFormat, color.Color.ToString());
                 DragDrop.DoDragDrop(color, data, DragDropEffects.Move);
                 e.Handled = true;
             }
-
-            prevPos = new Point(newPos.X, newPos.Y);
         }
     }
 
