@@ -19,8 +19,8 @@ internal class ClearSelection_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
     {
-        target.Selection.SelectionPath.Dispose();
-        target.Selection.SelectionPath = new SKPath();
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new SKPath());
+        toDispose.Dispose();
 
         ignoreInUndo = false;
         return new Selection_ChangeInfo(new SKPath());
@@ -28,8 +28,8 @@ internal class ClearSelection_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        target.Selection.SelectionPath.Dispose();
-        target.Selection.SelectionPath = new SKPath(originalPath);
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new SKPath(originalPath));
+        toDispose.Dispose();
 
         return new Selection_ChangeInfo(new SKPath(originalPath));
     }

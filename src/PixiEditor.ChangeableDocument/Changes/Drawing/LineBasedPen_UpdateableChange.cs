@@ -108,14 +108,12 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        if (storedChunks is null)
-            throw new InvalidOperationException("No saved chunks to revert to");
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        storedChunks.ApplyChunksToImage(image);
-        var affected = image.FindAffectedChunks();
-        image.CommitChanges();
-        storedChunks.Dispose();
-        storedChunks = null;
+        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affected, drawOnMask);
+    }
+
+    public override void Dispose()
+    {
+        storedChunks?.Dispose();
     }
 }

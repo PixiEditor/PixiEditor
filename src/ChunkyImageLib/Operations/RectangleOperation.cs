@@ -20,7 +20,7 @@ internal class RectangleOperation : IDrawOperation
 
         var surf = chunk.Surface.SkiaSurface;
 
-        var rect = RectD.FromCenterAndSize(Data.Center, Data.Size);
+        var rect = RectD.FromCenterAndSize(Data.Center, Data.Size.Abs());
         var innerRect = rect.Inflate(-Data.StrokeWidth);
         if (innerRect.IsZeroOrNegativeArea)
             innerRect = RectD.Empty;

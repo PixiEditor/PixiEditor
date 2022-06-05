@@ -60,8 +60,8 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        target.Selection.SelectionPath.Dispose();
-        target.Selection.SelectionPath = new SKPath(originalPath);
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new SKPath(originalPath));
+        toDispose.Dispose();
         return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 

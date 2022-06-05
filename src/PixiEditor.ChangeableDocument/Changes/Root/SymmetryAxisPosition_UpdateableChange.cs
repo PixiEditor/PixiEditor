@@ -65,6 +65,6 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
 
     public override bool IsMergeableWith(Change other)
     {
-        return other is SymmetryAxisPosition_UpdateableChange;
+        return other is SymmetryAxisPosition_UpdateableChange change && change.direction == direction;
     }
 }

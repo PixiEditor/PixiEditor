@@ -60,14 +60,8 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        if (originalLayerChunks is null)
-            throw new InvalidOperationException("No saved chunks to restore to");
         var image = ((Layer)target.FindMemberOrThrow(layerGuid)).LayerImage;
-        originalLayerChunks.ApplyChunksToImage(image);
-        var affected = image.FindAffectedChunks();
-        image.CommitChanges();
-        originalLayerChunks.Dispose();
-        originalLayerChunks = null;
+        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalLayerChunks);
         return new LayerImageChunks_ChangeInfo(layerGuid, affected);
     }
 

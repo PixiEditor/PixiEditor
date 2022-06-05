@@ -41,14 +41,7 @@ internal class FloodFill_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        if (chunkStorage is null)
-            throw new InvalidOperationException("No saved chunks to revert to");
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        chunkStorage.ApplyChunksToImage(image);
-        var affectedChunks = image.FindAffectedChunks();
-        image.CommitChanges();
-        chunkStorage.Dispose();
-        chunkStorage = null;
+        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref chunkStorage);
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
     }
 

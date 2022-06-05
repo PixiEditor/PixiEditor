@@ -62,14 +62,8 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        storedChunks!.ApplyChunksToImage(targetImage);
-        storedChunks.Dispose();
-        storedChunks = null;
-
-        var changes = DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, targetImage.FindAffectedChunks(), drawOnMask);
-        targetImage.CommitChanges();
-        return changes;
+        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
+        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
     }
 
     public override void Dispose()

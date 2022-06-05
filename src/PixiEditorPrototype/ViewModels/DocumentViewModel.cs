@@ -256,7 +256,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         pastedImage = surface;
         pastingImage = true;
         ShapeCorners corners = new(intBounds);
-        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, layer.GuidValue, false));
+        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, layer.GuidValue, true, false));
         TransformViewModel.ShowFreeTransform(corners);
     }
 
@@ -503,7 +503,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         {
             if (SelectedStructureMember is null || pastedImage is null)
                 return;
-            Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, newCorners, SelectedStructureMember.GuidValue, false));
+            Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, newCorners, SelectedStructureMember.GuidValue, false, false));
         }
         else if (transformingSelectionPath)
         {
@@ -539,7 +539,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         pastedImage = Surface.Load(dialog.FileName);
         pastingImage = true;
         ShapeCorners corners = new ShapeCorners(new RectD(VecD.Zero, pastedImage.Size));
-        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, SelectedStructureMember.GuidValue, false));
+        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, SelectedStructureMember.GuidValue, false, false));
         TransformViewModel.ShowFreeTransform(corners);
     }
 

@@ -21,7 +21,12 @@ public class EllipseHelper
         for (var i = 0; i < ellipse.Count; i++)
         {
             var point = ellipse[i];
-            if (!added[point.Y - ellipseBounds.Top] && i > 0 && ellipse[i - 1].Y == point.Y && point.X - ellipse[i - 1].X > 1)
+            if (!added[point.Y - ellipseBounds.Top] &&
+                i > 0 &&
+                ellipse[i - 1].Y == point.Y &&
+                point.X - ellipse[i - 1].X > 1 &&
+                point.Y > ellipseBounds.Top &&
+                point.Y < ellipseBounds.Bottom - 1)
             {
                 int fromX = ellipse[i - 1].X + 1;
                 int toX = point.X;

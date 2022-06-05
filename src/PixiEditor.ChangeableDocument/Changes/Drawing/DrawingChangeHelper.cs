@@ -1,6 +1,24 @@
 ﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
 {
+    public static HashSet<VecI> ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask, ref CommittedChunkStorage? storage)
+    {
+        var image = GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        return ApplyStoredChunksDisposeAndSetToNull(image, ref storage);
+    }
+
+    public static HashSet<VecI> ApplyStoredChunksDisposeAndSetToNull(ChunkyImage image, ref CommittedChunkStorage? storage)
+    {
+        if (storage is null)
+            throw new InvalidOperationException("No stored chunks to apply");
+        storage.ApplyChunksToImage(image);
+        var chunks = image.FindAffectedChunks();
+        image.CommitChanges();
+        storage.Dispose();
+        storage = null;
+        return chunks;
+    }
+
     public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask)
     {
         var member = target.FindMemberOrThrow(memberGuid);

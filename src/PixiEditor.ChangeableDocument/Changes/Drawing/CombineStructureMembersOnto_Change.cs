@@ -64,7 +64,7 @@ internal class CombineStructureMembersOnto_Change : Change
             if (combined.IsT0)
             {
                 toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
-                combined.AsT0.Surface.Dispose();
+                combined.AsT0.Dispose();
             }
         }
         var affectedChunks = toDrawOn.LayerImage.FindAffectedChunks();
@@ -78,14 +78,7 @@ internal class CombineStructureMembersOnto_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
-
-        originalChunks!.ApplyChunksToImage(toDrawOn.LayerImage);
-        var affectedChunks = toDrawOn.LayerImage.FindAffectedChunks();
-        toDrawOn.LayerImage.CommitChanges();
-
-        originalChunks.Dispose();
-        originalChunks = null;
-
+        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.LayerImage, ref originalChunks);
         return new LayerImageChunks_ChangeInfo(targetLayer, affectedChunks);
     }
 

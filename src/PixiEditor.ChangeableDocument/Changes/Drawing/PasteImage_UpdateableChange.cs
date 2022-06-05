@@ -5,6 +5,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 {
     private ShapeCorners corners;
     private readonly Guid memberGuid;
+    private readonly bool ignoreClipsSymmetriesEtc;
     private readonly bool drawOnMask;
     private readonly Surface imageToPaste;
     private CommittedChunkStorage? savedChunks;
@@ -13,10 +14,11 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private bool hasEnqueudImage = false;
 
     [GenerateUpdateableChangeActions]
-    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool isDrawingOnMask)
+    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipsSymmetriesEtc, bool isDrawingOnMask)
     {
         this.corners = corners;
         this.memberGuid = memberGuid;
+        this.ignoreClipsSymmetriesEtc = ignoreClipsSymmetriesEtc;
         this.drawOnMask = isDrawingOnMask;
         this.imageToPaste = new Surface(image);
     }
@@ -39,7 +41,8 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         var prevChunks = targetImage.FindAffectedChunks();
 
         targetImage.CancelChanges();
-        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
+        if (!ignoreClipsSymmetriesEtc)
+            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
         targetImage.EnqueueDrawImage(corners, imageToPaste, RegularPaint, false);
         hasEnqueudImage = true;
 
@@ -68,15 +71,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        if (savedChunks is null)
-            throw new InvalidOperationException("No saved chunks to restore");
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        savedChunks.ApplyChunksToImage(targetImage);
-        var chunks = targetImage.FindAffectedChunks();
-        targetImage.CommitChanges();
-        hasEnqueudImage = false;
-        savedChunks.Dispose();
-        savedChunks = null;
+        var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
     }
 

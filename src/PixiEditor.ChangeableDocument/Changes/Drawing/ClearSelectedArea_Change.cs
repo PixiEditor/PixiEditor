@@ -44,13 +44,8 @@ internal class ClearSelectedArea_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        savedChunks!.ApplyChunksToImage(image);
-        var affChunks = image.FindAffectedChunks();
-        image.CommitChanges();
-        savedChunks.Dispose();
-        savedChunks = null;
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
+        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
     }
 
     public override void Dispose()

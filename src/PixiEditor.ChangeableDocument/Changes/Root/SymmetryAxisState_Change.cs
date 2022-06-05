@@ -53,6 +53,6 @@ internal class SymmetryAxisState_Change : Change
 
     public override bool IsMergeableWith(Change other)
     {
-        return other is SymmetryAxisState_Change;
+        return other is SymmetryAxisState_Change change && change.direction == direction;
     }
 }
