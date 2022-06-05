@@ -49,7 +49,8 @@
         <Grid Visibility="Hidden" Background="{StaticResource AccentColor}" Opacity="0.7" Grid.Row="2" Name="dragDropGrid">
             <TextBlock Text="Drop palette here" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
-        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="2" Grid.RowSpan="{Binding ElementName=Replacer, Path=IsCollapsed, 
+            Converter={converters:IsCollapsedToRowSpanConverter}}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
            <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}" AlternationCount="9999">
                <d:ItemsControl.ItemsSource>
                    <x:Array Type="{x:Type Color}">

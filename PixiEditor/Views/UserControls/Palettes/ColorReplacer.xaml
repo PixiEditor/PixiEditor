@@ -48,7 +48,7 @@
                         </Button.Background>
                     </Button>
                     </StackPanel>
-                    <CheckBox Focusable="False" Panel.ZIndex="10" Name="VisibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
+                    <CheckBox Focusable="False" IsChecked="{Binding ElementName=uc, Path=IsCollapsed}" Panel.ZIndex="10" Name="VisibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
                         <CheckBox.Triggers>
                             <EventTrigger RoutedEvent="CheckBox.Checked">
                                 <BeginStoryboard>

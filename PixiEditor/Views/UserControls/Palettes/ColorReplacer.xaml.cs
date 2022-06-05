@@ -54,6 +54,20 @@ namespace PixiEditor.Views.UserControls.Palettes
         public static readonly DependencyProperty HintColorProperty =
             DependencyProperty.Register("HintColor", typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
 
+
+
+        public bool IsCollapsed
+        {
+            get { return (bool)GetValue(IsCollapsedProperty); }
+            set { SetValue(IsCollapsedProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsCollapsed.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsCollapsedProperty =
+            DependencyProperty.Register("IsCollapsed", typeof(bool), typeof(ColorReplacer), new PropertyMetadata(false));
+
+
+
         private void UIElement_OnDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
