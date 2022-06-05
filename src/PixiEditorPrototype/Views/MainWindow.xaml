@@ -212,6 +212,7 @@
         <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Left" Margin="5">
             <StackPanel Orientation="Vertical" Background="White">
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
+                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Ellipse}">Ellipse</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.PathBasedPen}">Path Pen</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.LineBasedPen}">Line Pen</Button>
                 <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>

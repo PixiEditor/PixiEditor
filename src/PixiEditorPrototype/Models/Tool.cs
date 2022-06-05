@@ -3,6 +3,7 @@
 internal enum Tool
 {
     Rectangle,
+    Ellipse,
     PathBasedPen,
     LineBasedPen,
     Select,

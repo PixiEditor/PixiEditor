@@ -128,8 +128,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
     public FolderViewModel StructureRoot { get; }
     public DocumentTransformViewModel TransformViewModel { get; }
-    public int ResizeWidth { get; set; }
-    public int ResizeHeight { get; set; }
+    public int ResizeWidth { get; set; } = 1024;
+    public int ResizeHeight { get; set; } = 1024;
 
 
     private DocumentHelpers Helpers { get; }
@@ -141,9 +141,11 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool selectingRect = false;
     private bool selectingLasso = false;
     private bool drawingRectangle = false;
+    private bool drawingEllipse = false;
     private bool drawingPathBasedPen = false;
     private bool drawingLineBasedPen = false;
     private bool transformingRectangle = false;
+    private bool transformingEllipse = false;
     private bool shiftingLayer = false;
 
     private bool transformingSelectionPath = false;
@@ -154,6 +156,11 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private ShapeCorners lastShape = new ShapeCorners();
     private ShapeData lastShapeData = new();
+
+    private SKColor lastEllipseStrokeColor = SKColors.Empty;
+    private SKColor lastEllipseFillColor = SKColors.Empty;
+    private int lastEllipseStrokeWidth = 0;
+    private RectI lastEllipseLocation = RectI.Empty;
 
     public DocumentViewModel(ViewModelMain owner)
     {
@@ -199,6 +206,23 @@ internal class DocumentViewModel : INotifyPropertyChanged
             (new CreateStructureMember_Action(StructureRoot.GuidValue, Guid.NewGuid(), 0, StructureMemberType.Layer));
     }
 
+    private bool CanStartUpdate()
+    {
+        if (SelectedStructureMember is null)
+            return false;
+        bool drawOnMask = SelectedStructureMember.ShouldDrawOnMask;
+        if (!drawOnMask)
+        {
+            if (SelectedStructureMember is FolderViewModel)
+                return false;
+            if (SelectedStructureMember is LayerViewModel)
+                return true;
+        }
+
+        if (!SelectedStructureMember.HasMaskBindable)
+            return false;
+        return true;
+    }
     private void TransformSelectedArea(object? obj)
     {
         if (updateableChangeActive || SelectedStructureMember is not LayerViewModel layer || SelectionPathBindable.IsEmpty)
@@ -268,19 +292,16 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void StartUpdatePathBasedPen(VecD pos)
     {
-        if (SelectedStructureMember is null)
-            return;
-        bool drawOnMask = SelectedStructureMember.HasMaskBindable && SelectedStructureMember.ShouldDrawOnMask;
-        if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
+        if (!CanStartUpdate())
             return;
         updateableChangeActive = true;
         drawingPathBasedPen = true;
         Helpers.ActionAccumulator.AddActions(new PathBasedPen_Action(
-            SelectedStructureMember.GuidValue,
+            SelectedStructureMember!.GuidValue,
             pos,
             new SKColor(owner.SelectedColor.R, owner.SelectedColor.G, owner.SelectedColor.B, owner.SelectedColor.A),
             owner.StrokeWidth,
-            drawOnMask));
+            SelectedStructureMember.ShouldDrawOnMask));
     }
 
     public void EndPathBasedPen()
@@ -294,19 +315,16 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void StartUpdateLineBasedPen(VecI pos)
     {
-        if (SelectedStructureMember is null)
-            return;
-        bool drawOnMask = SelectedStructureMember.HasMaskBindable && SelectedStructureMember.ShouldDrawOnMask;
-        if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
+        if (!CanStartUpdate())
             return;
         updateableChangeActive = true;
         drawingLineBasedPen = true;
         Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
-            SelectedStructureMember.GuidValue,
+            SelectedStructureMember!.GuidValue,
             new SKColor(owner.SelectedColor.R, owner.SelectedColor.G, owner.SelectedColor.B, owner.SelectedColor.A),
             pos,
             (int)owner.StrokeWidth,
-            drawOnMask));
+            SelectedStructureMember.ShouldDrawOnMask));
     }
 
     public void EndLineBasedPen()
@@ -318,16 +336,41 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
     }
 
+    public void StartUpdateEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
+    {
+        if (!CanStartUpdate())
+            return;
+        drawingEllipse = true;
+        updateableChangeActive = true;
+        lastEllipseFillColor = fillColor;
+        lastEllipseStrokeWidth = strokeWidth;
+        lastEllipseStrokeColor = strokeColor;
+        lastEllipseLocation = location;
+        Helpers.ActionAccumulator.AddActions(new DrawEllipse_Action(
+            SelectedStructureMember!.GuidValue,
+            location,
+            strokeColor,
+            fillColor,
+            strokeWidth,
+            SelectedStructureMember.ShouldDrawOnMask));
+    }
+
+    public void EndEllipse()
+    {
+        if (!drawingEllipse)
+            return;
+        drawingEllipse = false;
+        TransformViewModel.ShowShapeTransform(new ShapeCorners(lastEllipseLocation));
+        transformingEllipse = true;
+    }
+
     public void StartUpdateRectangle(ShapeData data)
     {
-        if (SelectedStructureMember is null)
-            return;
-        bool drawOnMask = SelectedStructureMember.HasMaskBindable && SelectedStructureMember.ShouldDrawOnMask;
-        if (SelectedStructureMember is not LayerViewModel && !drawOnMask)
+        if (!CanStartUpdate())
             return;
         updateableChangeActive = true;
         drawingRectangle = true;
-        Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(SelectedStructureMember.GuidValue, data, drawOnMask));
+        Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(SelectedStructureMember!.GuidValue, data, SelectedStructureMember.ShouldDrawOnMask));
         lastShape = new ShapeCorners(data.Center, data.Size, data.Angle);
         lastShapeData = data;
     }
@@ -391,7 +434,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void ApplyTransform(object? param)
     {
-        if (!transformingRectangle && !pastingImage && !transformingSelectionPath)
+        if (!transformingRectangle && !pastingImage && !transformingSelectionPath && !transformingEllipse)
             return;
 
         if (transformingRectangle)
@@ -399,6 +442,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
             transformingRectangle = false;
             TransformViewModel.HideTransform();
             Helpers.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
+        }
+        else if (transformingEllipse)
+        {
+            transformingEllipse = false;
+            TransformViewModel.HideTransform();
+            Helpers.ActionAccumulator.AddFinishedActions(new EndDrawEllipse_Action());
         }
         else if (pastingImage)
         {
@@ -445,6 +494,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
                 lastShapeData.StrokeColor,
                 lastShapeData.FillColor,
                 lastShapeData.BlendMode));
+        }
+        else if (transformingEllipse)
+        {
+            StartUpdateEllipse(RectI.FromTwoPoints((VecI)newCorners.TopLeft, (VecI)newCorners.BottomRight), lastEllipseStrokeColor, lastEllipseFillColor, lastEllipseStrokeWidth);
         }
         else if (pastingImage)
         {

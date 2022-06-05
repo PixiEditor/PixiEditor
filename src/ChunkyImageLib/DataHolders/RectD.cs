@@ -78,6 +78,7 @@ public struct RectD : IEquatable<RectD>
             bottom = top + value.Y;
         }
     }
+    public VecD Center { get => new VecD((left + right) / 2.0, (top + bottom) / 2.0); }
     public double Width { readonly get => right - left; set => right = left + value; }
     public double Height { readonly get => bottom - top; set => bottom = top + value; }
     public readonly bool IsZeroArea => left == right || top == bottom;

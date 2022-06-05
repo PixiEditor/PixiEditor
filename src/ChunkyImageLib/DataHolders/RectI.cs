@@ -73,6 +73,7 @@ public struct RectI : IEquatable<RectI>
             bottom = top + value.Y;
         }
     }
+    public VecD Center { get => new VecD((left + right) / 2.0, (top + bottom) / 2.0); }
     public int Width { readonly get => right - left; set => right = left + value; }
     public int Height { readonly get => bottom - top; set => bottom = top + value; }
     public readonly bool IsZeroArea => left == right || top == bottom;
@@ -122,6 +123,11 @@ public struct RectI : IEquatable<RectI>
             Top = Math.Min(point.Y, opposite.Y),
             Bottom = Math.Max(point.Y, opposite.Y)
         };
+    }
+
+    public static RectI FromTwoPixels(VecI pixel, VecI oppositePixel)
+    {
+        return new RectI(pixel, new(1, 1)).Union(new RectI(oppositePixel, new(1, 1)));
     }
 
     /// <summary>

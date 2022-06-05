@@ -17,42 +17,36 @@ internal class RectangleOperation : IDrawOperation
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         var skiaSurf = chunk.Surface.SkiaSurface;
-        skiaSurf.Canvas.Save();
 
-        var convertedPos = OperationHelper.ConvertForResolution(-Data.Size.Abs() / 2, chunk.Resolution);
-        var convertedCenter = OperationHelper.ConvertForResolution(Data.Center, chunk.Resolution) - chunkPos.Multiply(chunk.PixelSize);
+        var surf = chunk.Surface.SkiaSurface;
 
-        var convertedSize = OperationHelper.ConvertForResolution(Data.Size.Abs(), chunk.Resolution);
-        int convertedStroke = (int)Math.Round(chunk.Resolution.Multiplier() * Data.StrokeWidth);
+        var rect = RectD.FromCenterAndSize(Data.Center, Data.Size);
+        var innerRect = rect.Inflate(-Data.StrokeWidth);
+        if (innerRect.IsZeroOrNegativeArea)
+            innerRect = RectD.Empty;
 
-        var rect = (SKRect)new RectD(convertedPos, convertedSize);
-
-        skiaSurf.Canvas.Translate((SKPoint)convertedCenter);
-        skiaSurf.Canvas.RotateRadians((float)Data.Angle);
-
-        // use a clipping rectangle with 2x stroke width to make sure stroke doesn't stick outside rect bounds
-        skiaSurf.Canvas.ClipRect(rect);
+        surf.Canvas.Save();
+        surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
+        surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
+        skiaSurf.Canvas.RotateRadians((float)Data.Angle, (float)rect.Center.X, (float)rect.Center.Y);
 
         // draw fill
-        using SKPaint paint = new()
-        {
-            Color = Data.FillColor,
-            Style = SKPaintStyle.Fill,
-            BlendMode = Data.BlendMode,
-        };
-
         if (Data.FillColor.Alpha > 0)
-            skiaSurf.Canvas.DrawRect(rect, paint);
+        {
+            skiaSurf.Canvas.Save();
+            skiaSurf.Canvas.ClipRect((SKRect)innerRect);
+            skiaSurf.Canvas.DrawColor(Data.FillColor, Data.BlendMode);
+            skiaSurf.Canvas.Restore();
+        }
 
         // draw stroke
-        paint.Color = Data.StrokeColor;
-        paint.Style = SKPaintStyle.Stroke;
-        paint.StrokeWidth = convertedStroke * 2;
-
-        skiaSurf.Canvas.DrawRect(rect, paint);
-
-        // get rid of the clipping rectangle
+        skiaSurf.Canvas.Save();
+        skiaSurf.Canvas.ClipRect((SKRect)rect);
+        skiaSurf.Canvas.ClipRect((SKRect)innerRect, SKClipOperation.Difference);
+        skiaSurf.Canvas.DrawColor(Data.StrokeColor, Data.BlendMode);
         skiaSurf.Canvas.Restore();
+
+        surf.Canvas.Restore();
     }
 
     public HashSet<VecI> FindAffectedChunks()

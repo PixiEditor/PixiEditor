@@ -332,6 +332,16 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    public void EnqueueDrawEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            EllipseOperation operation = new(location, strokeColor, fillColor, strokeWidth);
+            EnqueueOperation(operation);
+        }
+    }
+
     /// <summary>
     /// Be careful about the copyImage argument. The default is true, and this is a thread safe version without any side effects. 
     /// It will hovewer copy the surface right away which can be slow (in updateable changes especially). 

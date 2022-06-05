@@ -100,6 +100,49 @@ public static class OperationHelper
         return new SKMatrix(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2);
     }
 
+    public static (ShapeCorners, ShapeCorners) CreateStretchedHexagon(VecD centerPos, double hexagonSide, double stretchX)
+    {
+        ShapeCorners left = new ShapeCorners()
+        {
+            TopLeft = centerPos + VecD.FromAngleAndLength(Math.PI * 7 / 6, hexagonSide),
+            TopRight = new VecD(centerPos.X, centerPos.Y - hexagonSide),
+            BottomRight = new VecD(centerPos.X, centerPos.Y + hexagonSide),
+            BottomLeft = centerPos + VecD.FromAngleAndLength(Math.PI * 5 / 6, hexagonSide),
+        };
+        left.TopLeft = new VecD((left.TopLeft.X - centerPos.X) * stretchX + centerPos.X, left.TopLeft.Y);
+        left.BottomLeft = new VecD((left.BottomLeft.X - centerPos.X) * stretchX + centerPos.X, left.BottomLeft.Y);
+        ShapeCorners right = new ShapeCorners()
+        {
+            TopRight = centerPos + VecD.FromAngleAndLength(Math.PI * 11 / 6, hexagonSide),
+            TopLeft = new VecD(centerPos.X, centerPos.Y - hexagonSide),
+            BottomLeft = new VecD(centerPos.X, centerPos.Y + hexagonSide),
+            BottomRight = centerPos + VecD.FromAngleAndLength(Math.PI * 1 / 6, hexagonSide),
+        };
+        right.TopRight = new VecD((right.TopRight.X - centerPos.X) * stretchX + centerPos.X, right.TopRight.Y);
+        right.BottomRight = new VecD((right.BottomRight.X - centerPos.X) * stretchX + centerPos.X, right.BottomRight.Y);
+        return (left, right);
+    }
+
+    public static HashSet<VecI> FindChunksTouchingEllipse(VecD pos, double radiusX, double radiusY, int chunkSize)
+    {
+        const double sqrt3 = 1.73205080757;
+        double hexagonSide = 2.0 / sqrt3 * radiusY;
+        double stretchX = radiusX / radiusY;
+        var (left, right) = CreateStretchedHexagon(pos, hexagonSide, stretchX);
+        var chunks = FindChunksTouchingQuadrilateral(left, chunkSize);
+        chunks.UnionWith(FindChunksTouchingQuadrilateral(right, chunkSize));
+        return chunks;
+    }
+
+    public static HashSet<VecI> FindChunksFullyInsideEllipse(VecD pos, double radiusX, double radiusY, int chunkSize)
+    {
+        double stretchX = radiusX / radiusY;
+        var (left, right) = CreateStretchedHexagon(pos, radiusY, stretchX);
+        var chunks = FindChunksFullyInsideQuadrilateral(left, chunkSize);
+        chunks.UnionWith(FindChunksFullyInsideQuadrilateral(right, chunkSize));
+        return chunks;
+    }
+
     public static HashSet<VecI> FindChunksTouchingQuadrilateral(ShapeCorners corners, int chunkSize)
     {
         if (corners.IsRect && Math.Abs(corners.RectRotation) < 0.0001)

@@ -156,38 +156,47 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     private void ProcessToolMouseMove(VecD canvasPos)
     {
-        if (toolOnMouseDown == Tool.Rectangle)
+        switch (toolOnMouseDown)
         {
-            VecI size = (VecI)canvasPos - (VecI)mouseDownCanvasPos;
-            ActiveDocument!.StartUpdateRectangle(new ShapeData(
-                        (VecI)mouseDownCanvasPos + (VecD)size / 2,
-                        size,
-                        0,
-                        90,
+            case Tool.Rectangle:
+                {
+                    var size = (VecI)canvasPos - (VecI)mouseDownCanvasPos;
+                    var rect = RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos);
+                    ActiveDocument!.StartUpdateRectangle(new ShapeData(
+                                rect.Center,
+                                rect.Size,
+                                0,
+                                (int)StrokeWidth,
+                                new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                                new SKColor(0, 0, 255, 128)));
+                    break;
+                }
+            case Tool.Ellipse:
+                {
+                    ActiveDocument!.StartUpdateEllipse(
+                        RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
                         new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
-                        SKColors.Transparent));
-        }
-        else if (toolOnMouseDown == Tool.Select)
-        {
-            ActiveDocument!.StartUpdateRectSelection(
-                new RectI((VecI)mouseDownCanvasPos, (VecI)canvasPos - (VecI)mouseDownCanvasPos),
-                selectionMode);
-        }
-        else if (toolOnMouseDown == Tool.ShiftLayer)
-        {
-            ActiveDocument!.StartUpdateShiftLayer((VecI)canvasPos - (VecI)mouseDownCanvasPos);
-        }
-        else if (toolOnMouseDown == Tool.Lasso)
-        {
-            ActiveDocument!.StartUpdateLassoSelection((VecI)canvasPos, selectionMode);
-        }
-        else if (toolOnMouseDown == Tool.PathBasedPen)
-        {
-            ActiveDocument!.StartUpdatePathBasedPen(canvasPos);
-        }
-        else if (toolOnMouseDown == Tool.LineBasedPen)
-        {
-            ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos);
+                        new SKColor(0, 0, 255, 128),
+                        (int)StrokeWidth);
+                    break;
+                }
+            case Tool.Select:
+                ActiveDocument!.StartUpdateRectSelection(
+                            RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
+                            selectionMode);
+                break;
+            case Tool.ShiftLayer:
+                ActiveDocument!.StartUpdateShiftLayer((VecI)canvasPos - (VecI)mouseDownCanvasPos);
+                break;
+            case Tool.Lasso:
+                ActiveDocument!.StartUpdateLassoSelection((VecI)canvasPos, selectionMode);
+                break;
+            case Tool.PathBasedPen:
+                ActiveDocument!.StartUpdatePathBasedPen(canvasPos);
+                break;
+            case Tool.LineBasedPen:
+                ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos);
+                break;
         }
     }
 
@@ -208,6 +217,9 @@ internal class ViewModelMain : INotifyPropertyChanged
             {
                 case Tool.Rectangle:
                     ActiveDocument!.EndRectangleDrawing();
+                    break;
+                case Tool.Ellipse:
+                    ActiveDocument!.EndEllipse();
                     break;
                 case Tool.Select:
                     ActiveDocument!.EndRectSelection();
