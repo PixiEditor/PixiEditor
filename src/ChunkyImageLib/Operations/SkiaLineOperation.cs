@@ -10,7 +10,7 @@ internal class SkiaLineOperation : IDrawOperation
     private readonly VecI from;
     private readonly VecI to;
 
-    public SkiaLineOperation(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color)
+    public SkiaLineOperation(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color, SKBlendMode blendMode)
     {
         paint = new()
         {
@@ -18,6 +18,7 @@ internal class SkiaLineOperation : IDrawOperation
             StrokeWidth = strokeWidth,
             Color = color,
             Style = SKPaintStyle.Stroke,
+            BlendMode = blendMode,
         };
         this.from = from;
         this.to = to;
@@ -25,6 +26,7 @@ internal class SkiaLineOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
+        paint.IsAntialias = chunk.Resolution != ChunkResolution.Full;
         var surf = chunk.Surface.SkiaSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
@@ -53,7 +55,7 @@ internal class SkiaLineOperation : IDrawOperation
             newFrom = newFrom.ReflectY((int)horAxisY);
             newTo = newFrom.ReflectY((int)horAxisY);
         }
-        return new SkiaLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, paint.Color);
+        return new SkiaLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, paint.Color, paint.BlendMode);
     }
 
     public void Dispose()

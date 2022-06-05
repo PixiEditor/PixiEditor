@@ -36,6 +36,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (strokeWidth < 1)
             return new Error();
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        image.SetBlendMode(SKBlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return new Success();
     }
@@ -49,9 +50,9 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         int opCount = image.QueueLength;
 
         if (strokeWidth == 1)
-            image.EnqueueDrawBresenhamLine(from, to, color);
+            image.EnqueueDrawBresenhamLine(from, to, color, SKBlendMode.Src);
         else
-            image.EnqueueDrawSkiaLine(from, to, SKStrokeCap.Round, strokeWidth, color);
+            image.EnqueueDrawSkiaLine(from, to, SKStrokeCap.Round, strokeWidth, color, SKBlendMode.Src);
         var affChunks = image.FindAffectedChunks(opCount);
 
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
@@ -62,17 +63,17 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (points.Count == 1)
         {
             if (strokeWidth == 1)
-                targetImage.EnqueueDrawBresenhamLine(points[0], points[0], color);
+                targetImage.EnqueueDrawBresenhamLine(points[0], points[0], color, SKBlendMode.Src);
             else
-                targetImage.EnqueueDrawSkiaLine(points[0], points[0], SKStrokeCap.Round, strokeWidth, color);
+                targetImage.EnqueueDrawSkiaLine(points[0], points[0], SKStrokeCap.Round, strokeWidth, color, SKBlendMode.Src);
             return;
         }
         for (int i = 1; i < points.Count; i++)
         {
             if (strokeWidth == 1)
-                targetImage.EnqueueDrawBresenhamLine(points[i - 1], points[i], color);
+                targetImage.EnqueueDrawBresenhamLine(points[i - 1], points[i], color, SKBlendMode.Src);
             else
-                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], SKStrokeCap.Round, strokeWidth, color);
+                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], SKStrokeCap.Round, strokeWidth, color, SKBlendMode.Src);
         }
     }
 
@@ -95,6 +96,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
         else
         {
+            image.SetBlendMode(SKBlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawLines(image);

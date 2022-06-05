@@ -57,6 +57,8 @@ internal class EllipseOperation : IDrawOperation
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
 
+        paint.IsAntialias = chunk.Resolution != ChunkResolution.Full;
+
         if (strokeWidth == 1)
         {
             if (fillColor.Alpha > 0)

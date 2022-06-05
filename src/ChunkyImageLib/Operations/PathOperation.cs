@@ -11,10 +11,10 @@ internal class PathOperation : IDrawOperation
 
     public bool IgnoreEmptyChunks => false;
 
-    public PathOperation(SKPath path, SKColor color, float strokeWidth, SKStrokeCap cap, RectI? customBounds = null)
+    public PathOperation(SKPath path, SKColor color, float strokeWidth, SKStrokeCap cap, SKBlendMode blendMode, RectI? customBounds = null)
     {
         this.path = new SKPath(path);
-        paint = new() { Color = color, Style = SKPaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap };
+        paint = new() { Color = color, Style = SKPaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
 
         RectI floatBounds = customBounds ?? (RectI)((RectD)path.TightBounds).RoundOutwards();
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
@@ -22,6 +22,7 @@ internal class PathOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
+        paint.IsAntialias = chunk.Resolution != ChunkResolution.Full;
         var surf = chunk.Surface.SkiaSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
@@ -46,7 +47,7 @@ internal class PathOperation : IDrawOperation
             newBounds = newBounds.ReflectX((int)verAxisX);
         if (horAxisY is not null)
             newBounds = newBounds.ReflectY((int)horAxisY);
-        return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, newBounds);
+        return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode, newBounds);
     }
 
     public void Dispose()

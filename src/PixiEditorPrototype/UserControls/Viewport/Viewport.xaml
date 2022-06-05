@@ -16,6 +16,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <conv:ScaleToBitmapScalingModeConverter x:Key="ScaleToBitmapScalingModeConverter"/>
     </UserControl.Resources>
     <Grid>
         <zoombox:Zoombox 
@@ -35,7 +36,7 @@
                         Focusable="True"
                         Width="{Binding Document.Width}" Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
-                        RenderOptions.BitmapScalingMode="NearestNeighbor">
+                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={StaticResource ScaleToBitmapScalingModeConverter}}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDown">
                                 <i:InvokeCommandAction Command="{Binding MouseDownCommand}" PassEventArgsToCommand="True"/>

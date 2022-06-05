@@ -55,6 +55,7 @@ internal class ImageOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
+        //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;
         float scaleMult = (float)chunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 

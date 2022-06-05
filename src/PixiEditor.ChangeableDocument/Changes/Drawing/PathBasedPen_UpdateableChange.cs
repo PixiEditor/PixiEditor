@@ -36,6 +36,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
             return new Error();
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        image.SetBlendMode(SKBlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return new Success();
     }
@@ -53,7 +54,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         for (int i = 0; i < points.Count; i++)
         {
             UpdateTempPath(i + 1);
-            image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round);
+            image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round, SKBlendMode.Src);
         }
     }
 
@@ -111,7 +112,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
             firstApply = false;
             UpdateTempPathFinish();
 
-            image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round);
+            image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round, SKBlendMode.Src);
             var affChunks = image.FindAffectedChunks();
             storedChunks = new CommittedChunkStorage(image, affChunks);
             image.CommitChanges();
@@ -120,6 +121,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         }
         else
         {
+            image.SetBlendMode(SKBlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawPath(image);
@@ -137,7 +139,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
 
         int opCount = image.QueueLength;
-        image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round);
+        image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round, SKBlendMode.Src);
         var affChunks = image.FindAffectedChunks(opCount);
 
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);

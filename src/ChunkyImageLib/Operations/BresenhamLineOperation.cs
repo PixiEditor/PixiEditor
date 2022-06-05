@@ -7,19 +7,26 @@ internal class BresenhamLineOperation : IDrawOperation
     public bool IgnoreEmptyChunks => false;
     private readonly VecI from;
     private readonly VecI to;
+    private readonly SKColor color;
+    private readonly SKBlendMode blendMode;
     private readonly SKPoint[] points;
     private SKPaint paint;
 
-    public BresenhamLineOperation(VecI from, VecI to, SKColor color)
+    public BresenhamLineOperation(VecI from, VecI to, SKColor color, SKBlendMode blendMode)
     {
         this.from = from;
         this.to = to;
-        paint = new SKPaint() { Color = color };
+        this.color = color;
+        this.blendMode = blendMode;
+        paint = new SKPaint() { BlendMode = blendMode };
         points = BresenhamLineHelper.GetBresenhamLine(from, to);
     }
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
+        // a hacky way to make the lines look slightly better on non full res chunks
+        paint.Color = new SKColor(color.Red, color.Green, color.Blue, (byte)(color.Alpha * chunk.Resolution.Multiplier()));
+
         var surf = chunk.Surface.SkiaSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
@@ -48,7 +55,7 @@ internal class BresenhamLineOperation : IDrawOperation
             newFrom = newFrom.ReflectY((int)horAxisY);
             newTo = newTo.ReflectY((int)horAxisY);
         }
-        return new BresenhamLineOperation(newFrom, newTo, paint.Color);
+        return new BresenhamLineOperation(newFrom, newTo, color, blendMode);
     }
 
     public void Dispose()

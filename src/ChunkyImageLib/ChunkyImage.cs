@@ -54,6 +54,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
     private static SKPaint InverseClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstOut };
     private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private static SKPaint SmoothReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium };
     private static SKPaint AddingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Plus };
     private SKPaint blendModePaint = new SKPaint() { BlendMode = SKBlendMode.Src };
 
@@ -375,33 +376,33 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
-    public void EnqueueDrawPath(SKPath path, SKColor color, float strokeWidth, SKStrokeCap strokeCap, RectI? customBounds = null)
+    public void EnqueueDrawPath(SKPath path, SKColor color, float strokeWidth, SKStrokeCap strokeCap, SKBlendMode blendMode, RectI? customBounds = null)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            PathOperation operation = new(path, color, strokeWidth, strokeCap, customBounds);
+            PathOperation operation = new(path, color, strokeWidth, strokeCap, blendMode, customBounds);
             EnqueueOperation(operation);
         }
     }
 
-    public void EnqueueDrawBresenhamLine(VecI from, VecI to, SKColor color)
+    public void EnqueueDrawBresenhamLine(VecI from, VecI to, SKColor color, SKBlendMode blendMode)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            BresenhamLineOperation operation = new(from, to, color);
+            BresenhamLineOperation operation = new(from, to, color, blendMode);
             EnqueueOperation(operation);
         }
     }
 
 
-    public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color)
+    public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color, SKBlendMode blendMode)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            SkiaLineOperation operation = new(from, to, strokeCap, strokeWidth, color);
+            SkiaLineOperation operation = new(from, to, strokeCap, strokeWidth, color, blendMode);
             EnqueueOperation(operation);
         }
     }
@@ -912,7 +913,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             newChunk.Surface.SkiaSurface.Canvas.Save();
             newChunk.Surface.SkiaSurface.Canvas.Scale((float)resolution.Multiplier());
 
-            newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
+            newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk!.Surface.SkiaSurface, 0, 0, SmoothReplacingPaint);
             newChunk.Surface.SkiaSurface.Canvas.Restore();
             committedChunks[resolution][chunkPos] = newChunk;
             return newChunk;

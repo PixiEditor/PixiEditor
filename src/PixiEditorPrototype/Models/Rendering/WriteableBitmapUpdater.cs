@@ -20,6 +20,7 @@ internal class WriteableBitmapUpdater
 
     private static readonly SKPaint BlendingPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
     private static readonly SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private static readonly SKPaint SmoothReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium, IsAntialias = true };
     private static readonly SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
     private static readonly SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
@@ -137,7 +138,7 @@ internal class WriteableBitmapUpdater
                     var pos = chunk * ChunkResolution.Full.PixelSize();
                     // the full res chunks are already rendered so drawing them again should be fast
                     if (!layer.LayerImage.DrawMostUpToDateChunkOn
-                        (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, ReplacingPaint))
+                        (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, SmoothReplacingPaint))
                         memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
                 }
                 infos.Add(new PreviewDirty_RenderInfo(guid));
@@ -153,7 +154,7 @@ internal class WriteableBitmapUpdater
                     OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder);
                     if (rendered.IsT0)
                     {
-                        memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.SkiaSurface, pos, ReplacingPaint);
+                        memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.SkiaSurface, pos, SmoothReplacingPaint);
                         rendered.AsT0.Dispose();
                     }
                     else
@@ -183,7 +184,7 @@ internal class WriteableBitmapUpdater
             {
                 var pos = chunk * ChunkResolution.Full.PixelSize();
                 member.Mask!.DrawMostUpToDateChunkOn
-                    (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface, pos, ReplacingPaint);
+                    (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface, pos, SmoothReplacingPaint);
             }
 
             memberVM.MaskPreviewSurface.Canvas.Restore();
