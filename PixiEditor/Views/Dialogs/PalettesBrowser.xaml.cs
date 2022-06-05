@@ -138,12 +138,12 @@ namespace PixiEditor.Views.Dialogs
         public string SortingType { get; set; } = "Default";
         public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
 
-        private FilteringSettings _filteringSettings;
+        private FilteringSettings filteringSettings;
 
-        public FilteringSettings Filtering => _filteringSettings ??=
+        public FilteringSettings Filtering => filteringSettings ??=
             new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites);
 
-        private char[] _separators = new char[] { ' ', ',' };
+        private char[] separators = new char[] { ' ', ',' };
 
         private SortingType _sortingType => (SortingType)Enum.Parse(typeof(SortingType), SortingType.Replace(" ", ""));
         public WpfObservableRangeCollection<SKColor> CurrentEditingPalette { get; set; }
@@ -219,7 +219,7 @@ namespace PixiEditor.Views.Dialogs
             await UpdatePaletteList();
         }
 
-        private async void DeletePalette(Palette palette)
+        private void DeletePalette(Palette palette)
         {
             if (palette == null) return;
 
@@ -250,7 +250,7 @@ namespace PixiEditor.Views.Dialogs
             e.CanExecute = true;
         }
 
-        private async static void OnShowOnlyFavouritesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static async void OnShowOnlyFavouritesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             PalettesBrowser browser = (PalettesBrowser)d;
             browser.Filtering.ShowOnlyFavourites = (bool)e.NewValue;
@@ -456,7 +456,7 @@ namespace PixiEditor.Views.Dialogs
             }
         }
 
-        private async void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
+        private void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             PaletteItem item = (PaletteItem)sender;
 
