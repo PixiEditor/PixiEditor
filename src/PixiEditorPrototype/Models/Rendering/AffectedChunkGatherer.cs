@@ -101,9 +101,11 @@ internal class AffectedChunkGatherer
             var chunks = layer.LayerImage.FindAllChunks();
             AddToImagePreviews(memberGuid, chunks, ignoreSelf);
         }
-        else
+        else if (member is IReadOnlyFolder folder)
         {
             AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
+            foreach (var child in folder.Children)
+                AddAllToImagePreviews(child.GuidValue);
         }
     }
     private void AddAllToMainImage(Guid memberGuid, bool useMask = true)
@@ -124,10 +126,18 @@ internal class AffectedChunkGatherer
     private void AddAllToMaskPreview(Guid memberGuid)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is null || member.Mask is null)
+        if (member is null)
             return;
-        var chunks = member.Mask.FindAllChunks();
-        AddToMaskPreview(memberGuid, chunks);
+        if (member.Mask is not null)
+        {
+            var chunks = member.Mask.FindAllChunks();
+            AddToMaskPreview(memberGuid, chunks);
+        }
+        if (member is IReadOnlyFolder folder)
+        {
+            foreach (var child in folder.Children)
+                AddAllToMaskPreview(child.GuidValue);
+        }
     }
 
 
