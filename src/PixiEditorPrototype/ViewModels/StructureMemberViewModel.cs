@@ -94,6 +94,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     }
 
     private float opacity;
+
     public void SetOpacity(float opacity)
     {
         this.opacity = opacity;
@@ -104,7 +105,16 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         get => opacity;
     }
 
-    public bool IsSelected { get; set; }
+    private bool isSelected;
+    public bool IsSelected
+    {
+        get => isSelected;
+        set
+        {
+            isSelected = value;
+            Document.RaisePropertyChanged(nameof(Document.SelectedStructureMember));
+        }
+    }
     public bool ShouldDrawOnMask { get; set; }
 
 

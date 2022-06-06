@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
+using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Parser;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
@@ -13,13 +16,14 @@ namespace PixiEditorPrototype.ViewModels;
 
 internal class ViewModelMain : INotifyPropertyChanged
 {
-    public DocumentViewModel? ActiveDocument => GetDocumentByGuid(activeDocumentGuid);
+    public DocumentViewModel? ActiveDocument => ActiveDocumentIndex >= 0 && ActiveDocumentIndex < Documents.Count ? Documents[ActiveDocumentIndex] : null;
 
     public RelayCommand MouseDownCommand { get; }
     public RelayCommand MouseMoveCommand { get; }
     public RelayCommand MouseUpCommand { get; }
     public RelayCommand ChangeActiveToolCommand { get; }
     public RelayCommand SetSelectionModeCommand { get; }
+    public RelayCommand LoadDocumentCommand { get; }
 
     public Color SelectedColor { get; set; } = Colors.Black;
     public bool KeepOriginalImageOnTransform { get; set; } = false;
@@ -59,11 +63,21 @@ internal class ViewModelMain : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new(nameof(ZoomboxMode)));
         }
     }
+    private int activeDocumentIndex;
+    public int ActiveDocumentIndex
+    {
+        get => activeDocumentIndex;
+        set
+        {
+            activeDocumentIndex = value;
+            PropertyChanged?.Invoke(this, new(nameof(ActiveDocumentIndex)));
+            PropertyChanged?.Invoke(this, new(nameof(ActiveDocument)));
+        }
+    }
 
     public ZoomboxMode ZoomboxMode { get; set; }
 
-    private Dictionary<Guid, DocumentViewModel> documents = new();
-    private Guid activeDocumentGuid;
+    public ObservableCollection<DocumentViewModel> Documents { get; } = new();
 
     private VecD mouseDownCanvasPos;
 
@@ -82,10 +96,9 @@ internal class ViewModelMain : INotifyPropertyChanged
         MouseUpCommand = new RelayCommand(MouseUp);
         ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
         SetSelectionModeCommand = new RelayCommand(SetSelectionMode);
+        LoadDocumentCommand = new RelayCommand(LoadDocument);
 
-        var doc = new DocumentViewModel(this);
-        documents[doc.GuidValue] = doc;
-        activeDocumentGuid = doc.GuidValue;
+        Documents.Add(new DocumentViewModel(this, "New Artwork"));
     }
 
     private void SetSelectionMode(object? obj)
@@ -93,11 +106,6 @@ internal class ViewModelMain : INotifyPropertyChanged
         if (obj is not SelectionMode mode)
             return;
         selectionMode = mode;
-    }
-
-    public DocumentViewModel? GetDocumentByGuid(Guid guid)
-    {
-        return documents.TryGetValue(guid, out DocumentViewModel? value) ? value : null;
     }
 
     private void MouseDown(object? param)
@@ -250,6 +258,25 @@ internal class ViewModelMain : INotifyPropertyChanged
                 ActiveDocument!.EndLineBasedPen();
                 break;
         }
+    }
+
+    private void LoadDocument(object? args)
+    {
+        OpenFileDialog dialog = new();
+        if (dialog.ShowDialog() != true)
+            return;
+        SerializableDocument serDocument;
+        try
+        {
+            serDocument = PixiParser.Deserialize(dialog.FileName);
+        }
+        catch (Exception)
+        {
+            return;
+        }
+
+        DocumentViewModel document = DocumentViewModel.FromSerializableDocument(this, serDocument, Path.GetFileName(dialog.FileName));
+        Documents.Add(document);
     }
 
     private void ChangeActiveTool(object? param)

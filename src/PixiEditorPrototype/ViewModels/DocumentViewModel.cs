@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
@@ -11,6 +10,7 @@ using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Parser;
 using PixiEditorPrototype.CustomControls.SymmetryOverlay;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
@@ -102,20 +102,22 @@ internal class DocumentViewModel : INotifyPropertyChanged
         set => Helpers.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
     }
 
+    private string name = string.Empty;
+    public string Name
+    {
+        get => name;
+        set
+        {
+            name = value;
+            RaisePropertyChanged(nameof(Name));
+        }
+    }
+
+    public StructureMemberViewModel? SelectedStructureMember => FindFirstSelectedMember();
+
     public Guid GuidValue { get; } = Guid.NewGuid();
     public int Width => size.X;
     public int Height => size.Y;
-
-    private StructureMemberViewModel? selectedStructureMember;
-    public StructureMemberViewModel? SelectedStructureMember
-    {
-        get => selectedStructureMember;
-        private set
-        {
-            selectedStructureMember = value;
-            PropertyChanged?.Invoke(this, new(nameof(SelectedStructureMember)));
-        }
-    }
 
     public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
     {
@@ -133,6 +135,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
 
     private DocumentHelpers Helpers { get; }
+
     private ViewModelMain owner;
 
 
@@ -162,10 +165,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private int lastEllipseStrokeWidth = 0;
     private RectI lastEllipseLocation = RectI.Empty;
 
-    public DocumentViewModel(ViewModelMain owner)
+    public DocumentViewModel(ViewModelMain owner, string name)
     {
         this.owner = owner;
-
+        Name = name;
         TransformViewModel = new();
         TransformViewModel.TransformMoved += OnTransformUpdate;
 
@@ -178,7 +181,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
         CreateNewLayerCommand = new RelayCommand(_ => Helpers.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer));
         CreateNewFolderCommand = new RelayCommand(_ => Helpers.StructureHelper.CreateNewStructureMember(StructureMemberType.Folder));
         DeleteStructureMemberCommand = new RelayCommand(DeleteStructureMember);
-        ChangeSelectedItemCommand = new RelayCommand(ChangeSelectedItem);
         ResizeCanvasCommand = new RelayCommand(ResizeCanvas);
         CombineCommand = new RelayCommand(Combine);
         ClearHistoryCommand = new RelayCommand(ClearHistory);
@@ -201,31 +203,60 @@ internal class DocumentViewModel : INotifyPropertyChanged
                 bitmap.Value.BackBuffer, bitmap.Value.BackBufferStride);
             Surfaces[bitmap.Key] = surface;
         }
-
-        Helpers.ActionAccumulator.AddFinishedActions
-            (new CreateStructureMember_Action(StructureRoot.GuidValue, Guid.NewGuid(), 0, StructureMemberType.Layer));
     }
+
+    public static DocumentViewModel FromSerializableDocument(ViewModelMain owner, SerializableDocument serDocument, string name)
+    {
+        DocumentViewModel document = new DocumentViewModel(owner, name);
+        var acc = document.Helpers.ActionAccumulator;
+        acc.AddActions(new ResizeCanvas_Action(new(serDocument.Width, serDocument.Height)));
+        int index = 0;
+        foreach (var layer in serDocument.Layers.Reverse())
+        {
+            var guid = Guid.NewGuid();
+            var png = SKBitmap.Decode(layer.PngBytes);
+            Surface surface = new(new VecI(layer.Width, layer.Height));
+            surface.SkiaSurface.Canvas.DrawBitmap(png, 0, 0);
+            acc.AddFinishedActions(
+                new CreateStructureMember_Action(document.StructureRoot.GuidValue, guid, index, StructureMemberType.Layer),
+                new StructureMemberName_Action(guid, layer.Name),
+                new PasteImage_Action(surface, new(new RectD(new VecD(layer.OffsetX, layer.OffsetY), new(layer.Width, layer.Height))), guid, true, false),
+                new EndPasteImage_Action()
+                );
+            if (layer.Opacity != 1)
+                acc.AddFinishedActions(
+                    new StructureMemberOpacity_Action(guid, layer.Opacity),
+                    new EndStructureMemberOpacity_Action());
+            if (!layer.IsVisible)
+                acc.AddFinishedActions(new StructureMemberIsVisible_Action(layer.IsVisible, guid));
+        }
+        acc.AddActions(new DeleteRecordedChanges_Action());
+        return document;
+    }
+
+    public StructureMemberViewModel? FindFirstSelectedMember() => Helpers.StructureHelper.FindFirstWhere(member => member.IsSelected);
 
     private bool CanStartUpdate()
     {
-        if (SelectedStructureMember is null)
+        var member = FindFirstSelectedMember();
+        if (member is null)
             return false;
-        bool drawOnMask = SelectedStructureMember.ShouldDrawOnMask;
+        bool drawOnMask = member.ShouldDrawOnMask;
         if (!drawOnMask)
         {
-            if (SelectedStructureMember is FolderViewModel)
+            if (member is FolderViewModel)
                 return false;
-            if (SelectedStructureMember is LayerViewModel)
+            if (member is LayerViewModel)
                 return true;
         }
 
-        if (!SelectedStructureMember.HasMaskBindable)
+        if (!member.HasMaskBindable)
             return false;
         return true;
     }
     private void TransformSelectedArea(object? obj)
     {
-        if (updateableChangeActive || SelectedStructureMember is not LayerViewModel layer || SelectionPathBindable.IsEmpty)
+        if (updateableChangeActive || FindFirstSelectedMember() is not LayerViewModel layer || SelectionPathBindable.IsEmpty)
             return;
         IReadOnlyChunkyImage? layerImage = (Helpers.Tracker.Document.FindMember(layer.GuidValue) as IReadOnlyLayer)?.LayerImage;
         if (layerImage is null)
@@ -262,16 +293,15 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void ApplyMask(object? obj)
     {
-        if (updateableChangeActive || SelectedStructureMember is not LayerViewModel layer || !layer.HasMaskBindable)
+        if (updateableChangeActive || FindFirstSelectedMember() is not LayerViewModel layer || !layer.HasMaskBindable)
             return;
         Helpers.ActionAccumulator.AddFinishedActions(new ApplyLayerMask_Action(layer.GuidValue));
     }
 
     private void ClipToMemberBelow(object? obj)
     {
-        if (updateableChangeActive || SelectedStructureMember is null)
+        if (updateableChangeActive || FindFirstSelectedMember() is not StructureMemberViewModel member)
             return;
-        var member = SelectedStructureMember;
         member.ClipToMemberBelowEnabledBindable = !member.ClipToMemberBelowEnabledBindable;
     }
 
@@ -296,12 +326,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
         updateableChangeActive = true;
         drawingPathBasedPen = true;
+        var member = FindFirstSelectedMember();
         Helpers.ActionAccumulator.AddActions(new PathBasedPen_Action(
-            SelectedStructureMember!.GuidValue,
+            member!.GuidValue,
             pos,
             new SKColor(owner.SelectedColor.R, owner.SelectedColor.G, owner.SelectedColor.B, owner.SelectedColor.A),
             owner.StrokeWidth,
-            SelectedStructureMember.ShouldDrawOnMask));
+            member.ShouldDrawOnMask));
     }
 
     public void EndPathBasedPen()
@@ -319,13 +350,14 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
         updateableChangeActive = true;
         drawingLineBasedPen = true;
+        var member = FindFirstSelectedMember();
         Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
-            SelectedStructureMember!.GuidValue,
+            member!.GuidValue,
             color,
             pos,
             (int)owner.StrokeWidth,
             replacing,
-            SelectedStructureMember.ShouldDrawOnMask));
+            member.ShouldDrawOnMask));
     }
 
     public void EndLineBasedPen()
@@ -347,13 +379,14 @@ internal class DocumentViewModel : INotifyPropertyChanged
         lastEllipseStrokeWidth = strokeWidth;
         lastEllipseStrokeColor = strokeColor;
         lastEllipseLocation = location;
+        var member = FindFirstSelectedMember();
         Helpers.ActionAccumulator.AddActions(new DrawEllipse_Action(
-            SelectedStructureMember!.GuidValue,
+            member!.GuidValue,
             location,
             strokeColor,
             fillColor,
             strokeWidth,
-            SelectedStructureMember.ShouldDrawOnMask));
+            member.ShouldDrawOnMask));
     }
 
     public void EndEllipse()
@@ -371,7 +404,8 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
         updateableChangeActive = true;
         drawingRectangle = true;
-        Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(SelectedStructureMember!.GuidValue, data, SelectedStructureMember.ShouldDrawOnMask));
+        var member = FindFirstSelectedMember();
+        Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(member!.GuidValue, data, member.ShouldDrawOnMask));
         lastShape = new ShapeCorners(data.Center, data.Size, data.Angle);
         lastShapeData = data;
     }
@@ -388,7 +422,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void StartUpdateShiftLayer(VecI delta)
     {
-        if (SelectedStructureMember is not LayerViewModel layer)
+        if (FindFirstSelectedMember() is not LayerViewModel layer)
             return;
         updateableChangeActive = true;
         shiftingLayer = true;
@@ -502,9 +536,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
         else if (pastingImage)
         {
-            if (SelectedStructureMember is null || pastedImage is null)
+            var member = FindFirstSelectedMember();
+            if (member is null || pastedImage is null)
                 return;
-            Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, newCorners, SelectedStructureMember.GuidValue, false, false));
+            Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, newCorners, member.GuidValue, false, false));
         }
         else if (transformingSelectionPath)
         {
@@ -514,9 +549,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void FloodFill(VecI pos, SKColor color)
     {
-        if (updateableChangeActive || SelectedStructureMember is null)
+        var member = FindFirstSelectedMember();
+        if (updateableChangeActive || member is null)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new FloodFill_Action(SelectedStructureMember.GuidValue, pos, color, SelectedStructureMember.ShouldDrawOnMask));
+        Helpers.ActionAccumulator.AddFinishedActions(new FloodFill_Action(member.GuidValue, pos, color, member.ShouldDrawOnMask));
     }
 
     public void AddOrUpdateViewport(ViewportLocation location)
@@ -531,7 +567,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void PasteImage(object? args)
     {
-        if (SelectedStructureMember is null || SelectedStructureMember is not LayerViewModel)
+        if (FindFirstSelectedMember() is not LayerViewModel layer)
             return;
         OpenFileDialog dialog = new();
         if (dialog.ShowDialog() != true)
@@ -540,7 +576,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         pastedImage = Surface.Load(dialog.FileName);
         pastingImage = true;
         ShapeCorners corners = new ShapeCorners(new RectD(VecD.Zero, pastedImage.Size));
-        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, SelectedStructureMember.GuidValue, false, false));
+        Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, layer.GuidValue, false, false));
         TransformViewModel.ShowFreeTransform(corners);
     }
 
@@ -553,9 +589,9 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void DeleteStructureMember(object? param)
     {
-        if (updateableChangeActive || SelectedStructureMember is null)
+        if (updateableChangeActive || FindFirstSelectedMember() is not StructureMemberViewModel member)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(SelectedStructureMember.GuidValue));
+        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(member.GuidValue));
     }
 
     private void Undo(object? param)
@@ -574,7 +610,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void ToggleLockTransparency(object? param)
     {
-        if (updateableChangeActive || SelectedStructureMember is not LayerViewModel layer)
+        if (updateableChangeActive || FindFirstSelectedMember() is not LayerViewModel layer)
             return;
         layer.LockTransparencyBindable = !layer.LockTransparencyBindable;
     }
@@ -586,28 +622,25 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight)));
     }
 
-    private void ChangeSelectedItem(object? param)
-    {
-        SelectedStructureMember = (StructureMemberViewModel?)((RoutedPropertyChangedEventArgs<object>?)param)?.NewValue;
-    }
-
     private void CreateMask(object? param)
     {
-        if (updateableChangeActive || SelectedStructureMember is null || SelectedStructureMember.HasMaskBindable)
+        var member = FindFirstSelectedMember();
+        if (updateableChangeActive || member is null || member.HasMaskBindable)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(SelectedStructureMember.GuidValue));
+        Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.GuidValue));
     }
 
     private void DeleteMask(object? param)
     {
-        if (updateableChangeActive || SelectedStructureMember is null || !SelectedStructureMember.HasMaskBindable)
+        var member = FindFirstSelectedMember();
+        if (updateableChangeActive || member is null || !member.HasMaskBindable)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(SelectedStructureMember.GuidValue));
+        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.GuidValue));
     }
 
     private void Combine(object? param)
     {
-        if (updateableChangeActive || SelectedStructureMember is null)
+        if (updateableChangeActive)
             return;
         List<Guid> selected = new();
         AddSelectedMembers(StructureRoot, selected);

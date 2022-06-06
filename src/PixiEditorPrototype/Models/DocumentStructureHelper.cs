@@ -17,7 +17,8 @@ internal class DocumentStructureHelper
 
     public void CreateNewStructureMember(StructureMemberType type)
     {
-        if (doc.SelectedStructureMember is null)
+        var member = doc.FindFirstSelectedMember();
+        if (member is null)
         {
             var guid = Guid.NewGuid();
             //put member on top
@@ -25,7 +26,7 @@ internal class DocumentStructureHelper
             helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
             return;
         }
-        if (doc.SelectedStructureMember is FolderViewModel folder)
+        if (member is FolderViewModel folder)
         {
             var guid = Guid.NewGuid();
             //put member inside folder on top
@@ -33,7 +34,7 @@ internal class DocumentStructureHelper
             helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
             return;
         }
-        if (doc.SelectedStructureMember is LayerViewModel layer)
+        if (member is LayerViewModel layer)
         {
             var guid = Guid.NewGuid();
             //put member above the layer
@@ -53,6 +54,26 @@ internal class DocumentStructureHelper
     {
         var list = FindPath(guid);
         return list.Count > 0 ? list[0] : null;
+    }
+
+    public StructureMemberViewModel? FindFirstWhere(Predicate<StructureMemberViewModel> predicate)
+    {
+        return FindFirstWhere(predicate, doc.StructureRoot);
+    }
+    private StructureMemberViewModel? FindFirstWhere(Predicate<StructureMemberViewModel> predicate, FolderViewModel folderVM)
+    {
+        foreach (var child in folderVM.Children)
+        {
+            if (predicate(child))
+                return child;
+            if (child is FolderViewModel innerFolderVM)
+            {
+                var result = FindFirstWhere(predicate, innerFolderVM);
+                if (result is not null)
+                    return result;
+            }
+        }
+        return null;
     }
 
     public (StructureMemberViewModel, FolderViewModel) FindChildAndParentOrThrow(Guid childGuid)

@@ -16,6 +16,7 @@
         xmlns:chen="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         mc:Ignorable="d"
+        x:Name="window"
         Title="MainWindow" Height="800" Width="1500">
     <Window.DataContext>
         <vm:ViewModelMain/>
@@ -78,11 +79,6 @@
                             </Setter>
                         </Style>
                     </TreeView.ItemContainerStyle>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectedItemChanged">
-                            <i:InvokeCommandAction Command="{Binding ActiveDocument.ChangeSelectedItemCommand}" PassEventArgsToCommand="True"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
                             <StackPanel Orientation="Horizontal" MinWidth="200" Background="Wheat">
@@ -180,6 +176,7 @@
         <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Top" Margin="5">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" Background="White">
+                    <Button Width="50" Margin="5" Command="{Binding LoadDocumentCommand}">Open</Button>
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.UndoCommand}">Undo</Button>
                     <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
                     <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
@@ -237,35 +234,46 @@
                     IsChecked="{Binding ActiveDocument.VerticalSymmetryAxisEnabledBindable}">Ver Sym</CheckBox>
             </StackPanel>
         </Border>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Border BorderThickness="1" BorderBrush="Black" Margin="5">
-                <vp:Viewport
-                    Document="{Binding ActiveDocument}"
-                    FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
-                    FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}"
-                    ZoomMode="{Binding ZoomboxMode, Mode=TwoWay}"
-                    MouseDownCommand="{Binding MouseDownCommand}"
-                    MouseMoveCommand="{Binding MouseMoveCommand}"
-                    MouseUpCommand="{Binding MouseUpCommand}"
-                    Tag="First"
-                    />
-            </Border>
-            <Border BorderThickness="1" BorderBrush="Black" Margin="5" Grid.Column="1">
-                <vp:Viewport
-                    Document="{Binding ActiveDocument}"
-                    FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
-                    FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}"
-                    ZoomMode="{Binding ZoomboxMode, Mode=TwoWay}"
-                    MouseDownCommand="{Binding MouseDownCommand}"
-                    MouseMoveCommand="{Binding MouseMoveCommand}"
-                    MouseUpCommand="{Binding MouseUpCommand}"
-                    Tag="Second"
-                    />
-            </Border>
-        </Grid>
+        <TabControl ItemsSource="{Binding Documents}" SelectedIndex="{Binding ActiveDocumentIndex}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <Grid Background="Gray">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Border BorderThickness="1" BorderBrush="Black" Margin="5">
+                            <vp:Viewport
+                                Document="{Binding}"
+                                FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
+                                FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}"
+                                ZoomMode="{Binding ElementName=window, Path=DataContext.ZoomboxMode, Mode=TwoWay}"
+                                MouseDownCommand="{Binding ElementName=window, Path=DataContext.MouseDownCommand}"
+                                MouseMoveCommand="{Binding ElementName=window, Path=DataContext.MouseMoveCommand}"
+                                MouseUpCommand="{Binding ElementName=window, Path=DataContext.MouseUpCommand}"
+                                Tag="First"
+                            />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Margin="5" Grid.Column="1">
+                            <vp:Viewport
+                                Document="{Binding}"
+                                FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
+                                FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}"
+                                ZoomMode="{Binding ElementName=window, Path=DataContext.ZoomboxMode, Mode=TwoWay}"
+                                MouseDownCommand="{Binding ElementName=window, Path=DataContext.MouseDownCommand}"
+                                MouseMoveCommand="{Binding ElementName=window, Path=DataContext.MouseMoveCommand}"
+                                MouseUpCommand="{Binding ElementName=window, Path=DataContext.MouseUpCommand}"
+                                Tag="Second"
+                            />
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </DockPanel>
 </Window>
