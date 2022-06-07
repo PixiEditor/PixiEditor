@@ -32,7 +32,7 @@ namespace PixiEditor.ChangeableDocument.Gen
 
             // generate action source code
             var actionSourceCodeProvider = contructorSymbolProvider.Select(
-                static (constructor, cancelToken) =>
+                static (constructor, _) =>
                 {
                     var info = Helpers.ExtractMethodInfo(constructor!);
                     return new NamedSourceCode(info.ContainingClass.NameWithNamespace + "MakeChangeAction", Helpers.CreateMakeChangeAction(info));

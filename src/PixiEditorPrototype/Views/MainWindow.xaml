@@ -22,7 +22,6 @@
         <vm:ViewModelMain/>
     </Window.DataContext>
     <Window.Resources>
-        <conv:IndexToChunkResolutionConverter x:Key="IndexToChunkResolutionConverter"/>
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <conv:BlendModeToStringConverter x:Key="BlendModeToStringConverter"/>
     </Window.Resources>

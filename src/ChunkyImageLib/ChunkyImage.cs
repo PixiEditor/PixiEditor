@@ -79,7 +79,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
     private Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
-    private Dictionary<ChunkResolution, Dictionary<VecI, LatestChunkData>> latestChunksData = new();
+    private Dictionary<ChunkResolution, Dictionary<VecI, LatestChunkData>> latestChunksData;
 
     public ChunkyImage(VecI size)
     {
@@ -172,13 +172,13 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
             // combine with committed and then draw
             using var tempChunk = Chunk.Create(resolution);
-            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(committedChunk!.Surface.SkiaSurface, 0, 0, ReplacingPaint);
+            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(committedChunk.Surface.SkiaSurface, 0, 0, ReplacingPaint);
             blendModePaint.BlendMode = blendMode;
             tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(latestChunk.AsT2.Surface.SkiaSurface, 0, 0, blendModePaint);
             if (lockTransparency)
                 OperationHelper.ClampAlpha(tempChunk.Surface.SkiaSurface, committedChunk.Surface.SkiaSurface);
             tempChunk.DrawOnSurface(surface, pos, paint);
-
+            
             return true;
         }
     }
@@ -620,7 +620,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
 
         // delete committed low res chunks that weren't updated
-        foreach (var (pos, chunk) in latestChunks[ChunkResolution.Full])
+        foreach (var (pos, _) in latestChunks[ChunkResolution.Full])
         {
             foreach (var (resolution, _) in latestChunks)
             {
@@ -628,10 +628,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     continue;
                 if (!latestChunksData[resolution].TryGetValue(pos, out var halfChunk) || halfChunk.QueueProgress != queuedOperations.Count)
                 {
-                    if (committedChunks[resolution].TryGetValue(pos, out var commitedLowResChunk))
+                    if (committedChunks[resolution].TryGetValue(pos, out var committedLowResChunk))
                     {
                         committedChunks[resolution].Remove(pos);
-                        commitedLowResChunk.Dispose();
+                        committedLowResChunk.Dispose();
                     }
                 }
             }
@@ -907,13 +907,13 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         // for low res chunks: full res version exists
         Chunk? existingFullResChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
-        if (resolution != ChunkResolution.Full && existingFullResChunk is not null)
+        if (existingFullResChunk is not null)
         {
             var newChunk = Chunk.Create(resolution);
             newChunk.Surface.SkiaSurface.Canvas.Save();
             newChunk.Surface.SkiaSurface.Canvas.Scale((float)resolution.Multiplier());
 
-            newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk!.Surface.SkiaSurface, 0, 0, SmoothReplacingPaint);
+            newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk.Surface.SkiaSurface, 0, 0, SmoothReplacingPaint);
             newChunk.Surface.SkiaSurface.Canvas.Restore();
             committedChunks[resolution][chunkPos] = newChunk;
             return newChunk;

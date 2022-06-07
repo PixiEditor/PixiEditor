@@ -40,12 +40,12 @@ internal class ChunkyImageOperation : IDrawOperation
         VecI chunkSize = chunk.PixelSize;
         if (mirrorHorizontal)
         {
-            chunk.Surface.SkiaSurface.Canvas.Scale(-1, 1, chunkSize.X / 2, chunkSize.Y / 2);
+            chunk.Surface.SkiaSurface.Canvas.Scale(-1, 1, chunkSize.X / 2f, chunkSize.Y / 2f);
             chunkCenterOnImage.X = -chunkCenterOnImage.X;
         }
         if (mirrorVertical)
         {
-            chunk.Surface.SkiaSurface.Canvas.Scale(1, -1, chunkSize.X / 2, chunkSize.Y / 2);
+            chunk.Surface.SkiaSurface.Canvas.Scale(1, -1, chunkSize.X / 2f, chunkSize.Y / 2f);
             chunkCenterOnImage.Y = -chunkCenterOnImage.Y;
         }
 

@@ -51,10 +51,10 @@ internal class CreateStructureMember_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
-        var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
-        var child = document.FindMemberOrThrow(newMemberGuid);
+        Folder folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
+        StructureMember child = document.FindMemberOrThrow(newMemberGuid);
         child.Dispose();
-        folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(child => child.GuidValue == newMemberGuid));
+        folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(member => member.GuidValue == newMemberGuid));
 
         return new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid);
     }

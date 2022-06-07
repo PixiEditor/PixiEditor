@@ -1,7 +1,7 @@
 ﻿namespace ChunkyImageLib.DataHolders;
 public struct ShapeCorners
 {
-    public ShapeCorners(VecD center, VecD size, double angle)
+    public ShapeCorners(VecD center, VecD size)
     {
         TopLeft = center - size / 2;
         TopRight = center + new VecD(size.X / 2, -size.Y / 2);
@@ -85,18 +85,19 @@ public struct ShapeCorners
         return crossTop == crossRight && crossTop == crossLeft && crossTop == crossBottom;
     }
 
-    public ShapeCorners AsMirroredAcrossHorAxis(int horAxisY) => this with
+    public ShapeCorners AsMirroredAcrossHorAxis(int horAxisY) => new ShapeCorners
     {
         BottomLeft = BottomLeft.ReflectY(horAxisY),
         BottomRight = BottomRight.ReflectY(horAxisY),
         TopLeft = TopLeft.ReflectY(horAxisY),
-        TopRight = TopRight.ReflectY(horAxisY),
+        TopRight = TopRight.ReflectY(horAxisY)
     };
-    public ShapeCorners AsMirroredAcrossVerAxis(int verAxisX) => this with
+    
+    public ShapeCorners AsMirroredAcrossVerAxis(int verAxisX) => new ShapeCorners
     {
         BottomLeft = BottomLeft.ReflectX(verAxisX),
         BottomRight = BottomRight.ReflectX(verAxisX),
         TopLeft = TopLeft.ReflectX(verAxisX),
-        TopRight = TopRight.ReflectX(verAxisX),
+        TopRight = TopRight.ReflectX(verAxisX)
     };
 }

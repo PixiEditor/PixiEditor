@@ -18,10 +18,8 @@ internal class WriteableBitmapUpdater
     private readonly DocumentViewModel doc;
     private readonly DocumentHelpers helpers;
 
-    private static readonly SKPaint BlendingPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
     private static readonly SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
     private static readonly SKPaint SmoothReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium, IsAntialias = true };
-    private static readonly SKPaint SelectionPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver, Color = new(0xa0FFFFFF) };
     private static readonly SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
     private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalPostponedChunks = new()
@@ -218,7 +216,7 @@ internal class WriteableBitmapUpdater
                 screenSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
                 chunk.Dispose();
             },
-            (EmptyChunk chunk) =>
+            (EmptyChunk _) =>
             {
                 var pos = chunkPos * resolution.PixelSize();
                 screenSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(), resolution.PixelSize(), ClearPaint);

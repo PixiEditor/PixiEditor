@@ -27,7 +27,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? CreateNewLayerCommand { get; }
     public RelayCommand? CreateNewFolderCommand { get; }
     public RelayCommand? DeleteStructureMemberCommand { get; }
-    public RelayCommand? ChangeSelectedItemCommand { get; }
     public RelayCommand? ResizeCanvasCommand { get; }
     public RelayCommand? CombineCommand { get; }
     public RelayCommand? ClearHistoryCommand { get; }
@@ -300,7 +299,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void ClipToMemberBelow(object? obj)
     {
-        if (updateableChangeActive || FindFirstSelectedMember() is not StructureMemberViewModel member)
+        if (updateableChangeActive || FindFirstSelectedMember() is not { } member)
             return;
         member.ClipToMemberBelowEnabledBindable = !member.ClipToMemberBelowEnabledBindable;
     }
@@ -406,7 +405,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         drawingRectangle = true;
         var member = FindFirstSelectedMember();
         Helpers.ActionAccumulator.AddActions(new DrawRectangle_Action(member!.GuidValue, data, member.ShouldDrawOnMask));
-        lastShape = new ShapeCorners(data.Center, data.Size, data.Angle);
+        lastShape = new ShapeCorners(data.Center, data.Size);
         lastShapeData = data;
     }
 
@@ -589,7 +588,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private void DeleteStructureMember(object? param)
     {
-        if (updateableChangeActive || FindFirstSelectedMember() is not StructureMemberViewModel member)
+        if (updateableChangeActive || FindFirstSelectedMember() is not { } member)
             return;
         Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(member.GuidValue));
     }

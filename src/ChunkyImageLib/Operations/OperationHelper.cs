@@ -48,7 +48,7 @@ public static class OperationHelper
                         Half newR = (Half)(r * newA);
                         Half newG = (Half)(g * newA);
                         Half newB = (Half)(b * newA);
-                        *offset = ((long)*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
+                        *offset = (*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
                     }
                 }
             }

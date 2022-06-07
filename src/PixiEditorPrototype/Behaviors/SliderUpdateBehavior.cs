@@ -87,7 +87,7 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private void Thumb_DragCompleted(object sender, DragCompletedEventArgs e)
     {
         dragging = false;
-        if (valueChangedWhileDragging == true && DragEnded is not null && DragEnded.CanExecute(null))
+        if (valueChangedWhileDragging && DragEnded is not null && DragEnded.CanExecute(null))
             DragEnded.Execute(null);
         valueChangedWhileDragging = false;
     }

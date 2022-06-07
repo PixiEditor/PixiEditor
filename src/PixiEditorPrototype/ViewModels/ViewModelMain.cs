@@ -172,7 +172,6 @@ internal class ViewModelMain : INotifyPropertyChanged
         {
             case Tool.Rectangle:
                 {
-                    var size = (VecI)canvasPos - (VecI)mouseDownCanvasPos;
                     var rect = RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos);
                     ActiveDocument!.StartUpdateRectangle(new ShapeData(
                                 rect.Center,

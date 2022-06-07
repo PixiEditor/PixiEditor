@@ -6,9 +6,7 @@ namespace PixiEditor.Zoombox;
 
 internal class ZoomDragOperation : IDragOperation
 {
-    private Zoombox parent;
-
-    private double initScale;
+    private readonly Zoombox parent;
 
     private VecD scaleOrigin;
     private VecD screenScaleOrigin;
@@ -21,7 +19,6 @@ internal class ZoomDragOperation : IDragOperation
     {
         screenScaleOrigin = parent.ToZoomboxSpace(Zoombox.ToVecD(e.GetPosition(parent.mainCanvas)));
         scaleOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
-        initScale = parent.Scale;
         parent.mainCanvas.CaptureMouse();
     }
 

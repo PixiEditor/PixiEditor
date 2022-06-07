@@ -109,7 +109,7 @@ public class RectangleOperationTests
     [Fact]
     public void FindAffectedChunks_SmallButThick_FindsCorrectChunks()
     {
-        var (x, y, w, h) = (chunkSize / 2 - 0.5, chunkSize / 2 - 0.5, 1, 1);
+        var (x, y, w, h) = (chunkSize / 2f - 0.5, chunkSize / 2f - 0.5, 1, 1);
         RectangleOperation operation = new(new(new(x, y), new(w, h), 0, chunkSize, SKColors.Black, SKColors.White));
 
         HashSet<VecI> expected = new() { new(0, 0) };

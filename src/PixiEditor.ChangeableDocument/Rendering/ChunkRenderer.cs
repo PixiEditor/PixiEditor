@@ -6,19 +6,18 @@ namespace PixiEditor.ChangeableDocument.Rendering;
 
 public static class ChunkRenderer
 {
-    private static SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
-    private static SKPaint ClippingPaint = new SKPaint() { BlendMode = SKBlendMode.DstIn };
+    private static readonly SKPaint ClippingPaint = new SKPaint() { BlendMode = SKBlendMode.DstIn };
 
     public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI pos, ChunkResolution resolution, IReadOnlyFolder root)
     {
-        using (RenderingContext context = new())
-            return MergeFolderContents(context, pos, resolution, root, new All());
+        using RenderingContext context = new();
+        return MergeFolderContents(context, pos, resolution, root, new All());
     }
 
     public static OneOf<Chunk, EmptyChunk> MergeChosenMembers(VecI pos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> members)
     {
-        using (RenderingContext context = new())
-            return MergeFolderContents(context, pos, resolution, root, members);
+        using RenderingContext context = new();
+        return MergeFolderContents(context, pos, resolution, root, members);
     }
 
     private static OneOf<EmptyChunk, Chunk> RenderLayerWithMask
@@ -209,7 +208,6 @@ public static class ChunkRenderer
                 {
                     RenderFolder(context, targetChunk, chunkPos, resolution, innerFolder, clippingChunk, innerMembersToMerge);
                 }
-                continue;
             }
         }
         if (clippingChunk.IsT2)

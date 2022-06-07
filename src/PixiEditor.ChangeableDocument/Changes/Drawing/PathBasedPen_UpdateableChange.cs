@@ -75,7 +75,6 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         var (mid, _) = FindCubicPoints(points[^3], points[^2], points[^1], points[^1]);
         tempPath.MoveTo((SKPoint)points[^2]);
         tempPath.QuadTo((SKPoint)mid, (SKPoint)points[^1]);
-        return;
     }
 
     private void UpdateTempPath(int pointsCount)
@@ -97,7 +96,6 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         var (mid1, mid2) = FindCubicPoints(points[pointsCount - 4], points[pointsCount - 3], points[pointsCount - 2], points[pointsCount - 1]);
         tempPath.MoveTo((SKPoint)points[pointsCount - 3]);
         tempPath.CubicTo((SKPoint)mid1, (SKPoint)mid2, (SKPoint)points[pointsCount - 2]);
-        return;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)

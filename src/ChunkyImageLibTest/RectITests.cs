@@ -133,7 +133,7 @@ public class RectITests
         var rect1 = new RectI(new(4, 5), new(1, 1));
         Assert.Equal(rect1, rect1.Standardize());
         var rect2 = new RectI(new(-4, -5), new(1, 1));
-        Assert.Equal(rect1, rect1.Standardize());
+        Assert.Equal(rect2, rect2.Standardize());
     }
 
     [Fact]

@@ -4,7 +4,7 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Changes;
 
-namespace ChangeableDocument;
+namespace PixiEditor.ChangeableDocument;
 
 public class DocumentChangeTracker : IDisposable
 {
@@ -133,7 +133,7 @@ public class DocumentChangeTracker : IDisposable
             changePacket[i].Apply(document, out _).Switch(
                 (None _) => { },
                 (IChangeInfo info) => changeInfos.Add(info),
-                (List<IChangeInfo> infos) => changeInfos.AddRange(infos)); ;
+                (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
         }
 
         undoStack.Push(changePacket);
@@ -232,7 +232,7 @@ public class DocumentChangeTracker : IDisposable
         void AddInfo(OneOf<None, IChangeInfo, List<IChangeInfo>> info) =>
             info.Switch(
                 static (None _) => { },
-                (IChangeInfo info) => changeInfos.Add(info),
+                (IChangeInfo changeInfo) => changeInfos.Add(changeInfo),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
 
         foreach (var action in actions)
@@ -248,10 +248,10 @@ public class DocumentChangeTracker : IDisposable
                 case IEndChangeAction act:
                     AddInfo(ProcessEndChangeAction(act));
                     break;
-                case Undo_Action act:
+                case Undo_Action:
                     AddInfo(Undo());
                     break;
-                case Redo_Action act:
+                case Redo_Action:
                     AddInfo(Redo());
                     break;
                 case ChangeBoundary_Action:

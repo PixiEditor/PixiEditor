@@ -318,9 +318,10 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void OnScroll(object sender, MouseWheelEventArgs e)
     {
-        for (int i = 0; i < Math.Abs(e.Delta / 100); i++)
+        double abs = Math.Abs(e.Delta / 100.0);
+        for (int i = 0; i < abs; i++)
         {
-            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta / 100);
+            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta / 100.0);
         }
     }
 

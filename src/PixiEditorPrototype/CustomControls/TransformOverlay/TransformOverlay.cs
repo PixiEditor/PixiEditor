@@ -9,15 +9,15 @@ namespace PixiEditorPrototype.CustomControls.TransformOverlay;
 
 internal class TransformOverlay : Control
 {
-    public static DependencyProperty RequestedCornersProperty =
+    public static readonly DependencyProperty RequestedCornersProperty =
         DependencyProperty.Register(nameof(RequestedCorners), typeof(ShapeCorners), typeof(TransformOverlay),
-            new FrameworkPropertyMetadata(default(ShapeCorners), FrameworkPropertyMetadataOptions.AffectsRender, new(OnRequestedCorners)));
+            new FrameworkPropertyMetadata(default(ShapeCorners), FrameworkPropertyMetadataOptions.AffectsRender, OnRequestedCorners));
 
-    public static DependencyProperty CornersProperty =
+    public static readonly DependencyProperty CornersProperty =
         DependencyProperty.Register(nameof(Corners), typeof(ShapeCorners), typeof(TransformOverlay),
             new FrameworkPropertyMetadata(default(ShapeCorners), FrameworkPropertyMetadataOptions.AffectsRender));
 
-    public static DependencyProperty ZoomboxScaleProperty =
+    public static readonly DependencyProperty ZoomboxScaleProperty =
         DependencyProperty.Register(nameof(ZoomboxScale), typeof(double), typeof(TransformOverlay),
             new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
@@ -206,7 +206,8 @@ internal class TransformOverlay : Control
             HandleCapturedAnchorMovement(e);
             return;
         }
-        else if (isMoving)
+
+        if (isMoving)
         {
             var pos = TransformHelper.ToVecD(e.GetPosition(this));
             var delta = pos - mousePosOnStartMove;

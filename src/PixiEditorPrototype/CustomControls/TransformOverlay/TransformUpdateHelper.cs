@@ -15,9 +15,9 @@ internal static class TransformUpdateHelper
 
         if (freedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale)
         {
-            var targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
-            var opposite = TransformHelper.GetOpposite(targetCorner);
-            var oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
+            VecD targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
+            Anchor opposite = TransformHelper.GetOpposite(targetCorner);
+            VecD oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
             if (freedom == TransformCornerFreedom.ScaleProportionally)
             {
@@ -25,14 +25,14 @@ internal static class TransformUpdateHelper
                 desiredPos = desiredPos.ProjectOntoLine(oppositePos, oppositePos + VecD.FromAngleAndLength(correctAngle, 1));
             }
 
-            var (leftNeighbor, rightNeighbor) = TransformHelper.GetNeighboringCorners(targetCorner);
-            var leftNeighborPos = TransformHelper.GetAnchorPosition(corners, leftNeighbor);
-            var rightNeighborPos = TransformHelper.GetAnchorPosition(corners, rightNeighbor);
+            (Anchor leftNeighbor, Anchor rightNeighbor) = TransformHelper.GetNeighboringCorners(targetCorner);
+            VecD leftNeighborPos = TransformHelper.GetAnchorPosition(corners, leftNeighbor);
+            VecD rightNeighborPos = TransformHelper.GetAnchorPosition(corners, rightNeighbor);
 
             double angle = corners.RectRotation;
-            var targetTrans = (targetPos - oppositePos).Rotate(-angle);
-            var leftNeighTrans = (leftNeighborPos - oppositePos).Rotate(-angle);
-            var rightNeighTrans = (rightNeighborPos - oppositePos).Rotate(-angle);
+            VecD targetTrans = (targetPos - oppositePos).Rotate(-angle);
+            VecD leftNeighTrans = (leftNeighborPos - oppositePos).Rotate(-angle);
+            VecD rightNeighTrans = (rightNeighborPos - oppositePos).Rotate(-angle);
 
             VecD delta = (desiredPos - targetPos).Rotate(-angle);
 
@@ -48,8 +48,7 @@ internal static class TransformUpdateHelper
 
         if (freedom == TransformCornerFreedom.Free)
         {
-            var targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
-            var newCorners = TransformHelper.UpdateCorner(corners, targetCorner, desiredPos);
+            ShapeCorners newCorners = TransformHelper.UpdateCorner(corners, targetCorner, desiredPos);
             return newCorners.IsLegal ? newCorners : null;
         }
         throw new ArgumentException($"Freedom degree {freedom} is not supported");

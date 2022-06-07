@@ -66,6 +66,6 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         originalPath?.Dispose();
-        path?.Dispose();
+        path.Dispose();
     }
 }

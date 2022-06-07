@@ -13,7 +13,7 @@ public class ChunkyImageTests
         image.EnqueueDrawRectangle(new(new(5, 5), new(80, 80), 0, 2, SKColors.AliceBlue, SKColors.Snow));
         using (Chunk target = Chunk.Create())
         {
-            image.DrawMostUpToDateChunkOn(new(0, 0), ChunkyImageLib.DataHolders.ChunkResolution.Full, target.Surface.SkiaSurface, VecI.Zero);
+            image.DrawMostUpToDateChunkOn(new(0, 0), ChunkResolution.Full, target.Surface.SkiaSurface, VecI.Zero);
             image.CancelChanges();
             image.EnqueueResize(new(ChunkyImage.FullChunkSize * 4, ChunkyImage.FullChunkSize * 4));
             image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, SKColors.AliceBlue, SKColors.Snow, SKBlendMode.Multiply));

@@ -6,12 +6,12 @@ internal class EllipseOperation : IDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
 
-    public readonly RectI location;
+    private readonly RectI location;
     private readonly SKColor strokeColor;
     private readonly SKColor fillColor;
     private readonly int strokeWidth;
     private bool init = false;
-    private SKPaint paint = new();
+    private readonly SKPaint paint = new();
     private SKPath? outerPath;
     private SKPath? innerPath;
     private SKPoint[]? ellipse;
@@ -112,7 +112,7 @@ internal class EllipseOperation : IDrawOperation
 
     public void Dispose()
     {
-        paint?.Dispose();
+        paint.Dispose();
         outerPath?.Dispose();
         innerPath?.Dispose();
     }

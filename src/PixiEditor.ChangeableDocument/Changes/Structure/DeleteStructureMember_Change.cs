@@ -47,7 +47,7 @@ internal class DeleteStructureMember_Change : Change
             Layer => CreateLayer_ChangeInfo.FromLayer(parentGuid, originalIndex, (Layer)copy),
             Folder => CreateFolder_ChangeInfo.FromFolder(parentGuid, originalIndex, (Folder)copy),
             _ => throw new NotSupportedException(),
-        }; ;
+        };
     }
 
     public override void Dispose()

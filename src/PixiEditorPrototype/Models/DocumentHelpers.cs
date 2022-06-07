@@ -1,4 +1,4 @@
-﻿using ChangeableDocument;
+﻿using PixiEditor.ChangeableDocument;
 using PixiEditorPrototype.ViewModels;
 
 namespace PixiEditorPrototype.Models;

@@ -96,7 +96,7 @@ public class OperationHelperTests
     public void FindChunksTouchingEllipse_EllipseSpanningTwoChunks_FindsChunks()
     {
         int cS = ChunkyImage.FullChunkSize;
-        var chunks = OperationHelper.FindChunksTouchingEllipse((cS, cS / 2), cS / 2, cS / 4, cS);
+        var chunks = OperationHelper.FindChunksTouchingEllipse((cS, cS / 2.0), cS / 2.0, cS / 4.0, cS);
         Assert.Equal(new HashSet<VecI>() { (0, 0), (1, 0) }, chunks);
     }
 }

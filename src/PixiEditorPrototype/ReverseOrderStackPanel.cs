@@ -13,8 +13,8 @@ public class ReversedOrderStackPanel : StackPanel
         Rect rcChild = new Rect(arrangeSize);
         double previousChildSize = 0.0;
 
-        System.Collections.Generic.IEnumerable<UIElement> children = InternalChildren.Cast<UIElement>().Reverse();
-        foreach (UIElement child in children)
+        System.Collections.Generic.IEnumerable<UIElement?> children = InternalChildren.Cast<UIElement?>().Reverse();
+        foreach (UIElement? child in children)
         {
             if (child is null)
                 continue;

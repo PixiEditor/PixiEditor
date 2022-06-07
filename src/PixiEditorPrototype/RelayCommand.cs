@@ -7,8 +7,8 @@ internal class RelayCommand : ICommand
 {
     public event EventHandler? CanExecuteChanged;
 
-    private Action<object?> execute;
-    private Func<object?, bool>? canExecute;
+    private readonly Action<object?> execute;
+    private readonly Func<object?, bool>? canExecute;
 
     public RelayCommand(Action<object?> execute, Func<object?, bool> canExecute)
     {
@@ -33,6 +33,6 @@ internal class RelayCommand : ICommand
 
     public void Execute(object? parameter)
     {
-        execute?.Invoke(parameter);
+        execute.Invoke(parameter);
     }
 }

@@ -39,7 +39,7 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
 
         // here we are sure we are inside an updateable change, time to find the update method
         MethodDeclarationSyntax? methodSyntax = null;
-        var members = containingClass.Members.Where(node => node is MethodDeclarationSyntax);
+        var members = containingClass.Members.Where(node => node is MethodDeclarationSyntax).ToList();
         const string errorMessage = $"Update method isn't marked with {UpdateMethodAttribute}";
         if (!members.Any())
             return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
@@ -63,10 +63,10 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
 
         // finally, get symbols
         var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodSyntax, cancelToken);
-        var contructorSymbol = context.SemanticModel.GetDeclaredSymbol(constructorSyntax, cancelToken);
-        if (contructorSymbol is not IMethodSymbol || methodSymbol is not IMethodSymbol)
+        var constructorSymbol = context.SemanticModel.GetDeclaredSymbol(constructorSyntax, cancelToken);
+        if (constructorSymbol is not IMethodSymbol || methodSymbol is not IMethodSymbol)
             return null;
-        return ((IMethodSymbol)contructorSymbol, (IMethodSymbol)methodSymbol, containingClass);
+        return ((IMethodSymbol)constructorSymbol, (IMethodSymbol)methodSymbol, containingClass);
     }
 
     private static Result<(NamedSourceCode, NamedSourceCode)> GenerateActions

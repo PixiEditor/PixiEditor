@@ -53,7 +53,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var affectedChunks = UpdateRectangle(target, targetImage);
-        storedChunks = new CommittedChunkStorage(targetImage, affectedChunks!);
+        storedChunks = new CommittedChunkStorage(targetImage, affectedChunks);
         targetImage.CommitChanges();
 
         ignoreInUndo = false;

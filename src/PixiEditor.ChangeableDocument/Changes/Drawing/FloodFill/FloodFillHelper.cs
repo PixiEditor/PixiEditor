@@ -3,11 +3,10 @@ using ChunkyImageLib.Operations;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
-internal class FloodFillHelper
+internal static class FloodFillHelper
 {
-    private const byte NOT_VISITED = 0;
-    private const byte IN_SELECTION = 1;
-    private const byte VISITED = 2;
+    private const byte InSelection = 1;
+    private const byte Visited = 2;
 
     public static FloodFillChunkStorage FloodFill(ChunkyImage image, SKPath? selection, VecI startingPos, SKColor drawingColor)
     {
@@ -25,7 +24,7 @@ internal class FloodFillHelper
 
         RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, image.LatestSize);
 
-        // Premultiplies the color and convert it to floats. Since floats are inprecise, a range is used.
+        // Premultiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
         FloodFillColorRange colorRange = new(colorToReplace);
         ulong uLongColor = ToULong(drawingColor);
@@ -68,13 +67,13 @@ internal class FloodFillHelper
                 continue;
             for (int i = 0; i < chunkSize; i++)
             {
-                if (chunkPos.Y > 0 && maybeArray[i] == VISITED)
+                if (chunkPos.Y > 0 && maybeArray[i] == Visited)
                     positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
-                if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == VISITED)
+                if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == Visited)
                     positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
-                if (chunkPos.X > 0 && maybeArray[i * chunkSize] == VISITED)
+                if (chunkPos.X > 0 && maybeArray[i * chunkSize] == Visited)
                     positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
-                if (chunkPos.X < imageSizeInChunks.X - 1 && maybeArray[i * chunkSize + (chunkSize - 1)] == VISITED)
+                if (chunkPos.X < imageSizeInChunks.X - 1 && maybeArray[i * chunkSize + (chunkSize - 1)] == Visited)
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
@@ -93,7 +92,7 @@ internal class FloodFillHelper
         return result;
     }
 
-    private unsafe static bool IsWithinBounds(ref FloodFillColorRange bounds, Half* pixel)
+    private static unsafe bool IsWithinBounds(ref FloodFillColorRange bounds, Half* pixel)
     {
         float r = (float)pixel[0];
         float g = (float)pixel[1];
@@ -138,22 +137,22 @@ internal class FloodFillHelper
             int pixelOffset = curPos.X + curPos.Y * chunkSize;
             Half* pixel = array + pixelOffset * 4;
             *(ulong*)pixel = colorBits;
-            pixelStates[pixelOffset] = VISITED;
+            pixelStates[pixelOffset] = Visited;
 
-            if (curPos.X > 0 && pixelStates[pixelOffset - 1] == IN_SELECTION && IsWithinBounds(ref bounds, pixel - 4))
+            if (curPos.X > 0 && pixelStates[pixelOffset - 1] == InSelection && IsWithinBounds(ref bounds, pixel - 4))
                 toVisit.Push(new(curPos.X - 1, curPos.Y));
-            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == IN_SELECTION && IsWithinBounds(ref bounds, pixel + 4))
+            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection && IsWithinBounds(ref bounds, pixel + 4))
                 toVisit.Push(new(curPos.X + 1, curPos.Y));
-            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == IN_SELECTION && IsWithinBounds(ref bounds, pixel - 4 * chunkSize))
+            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection && IsWithinBounds(ref bounds, pixel - 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y - 1));
-            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == IN_SELECTION && IsWithinBounds(ref bounds, pixel + 4 * chunkSize))
+            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection && IsWithinBounds(ref bounds, pixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
         return pixelStates;
     }
 
     /// <summary>
-    /// Use skia to set all pixels in array that are inside selection to IN_SELECTION
+    /// Use skia to set all pixels in array that are inside selection to InSelection
     /// </summary>
     private static unsafe void DrawSelection(byte[] array, SKPath? selection, RectI globalBounds, VecI chunkPos, int chunkSize)
     {
@@ -161,7 +160,7 @@ internal class FloodFillHelper
         {
             fixed (byte* arr = array)
             {
-                Unsafe.InitBlockUnaligned(arr, IN_SELECTION, (uint)(chunkSize * chunkSize));
+                Unsafe.InitBlockUnaligned(arr, InSelection, (uint)(chunkSize * chunkSize));
             }
             return;
         }
@@ -177,7 +176,7 @@ internal class FloodFillHelper
             using SKSurface drawingSurface = SKSurface.Create(
                 new SKImageInfo(localBounds.Right, localBounds.Bottom, SKColorType.Gray8, SKAlphaType.Opaque), (IntPtr)arr, chunkSize);
             drawingSurface.Canvas.ClipPath(shiftedSelection);
-            drawingSurface.Canvas.Clear(new SKColor(IN_SELECTION, IN_SELECTION, IN_SELECTION));
+            drawingSurface.Canvas.Clear(new SKColor(InSelection, InSelection, InSelection));
             drawingSurface.Canvas.Flush();
         }
     }

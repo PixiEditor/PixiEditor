@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using ChangeableDocument;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
@@ -59,7 +59,7 @@ internal class AffectedChunkGatherer
                     if (info.ParentFromGuid != info.ParentToGuid)
                         AddWholeCanvasToImagePreviews(info.ParentFromGuid);
                     break;
-                case Size_ChangeInfo info:
+                case Size_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     AddWholeCanvasToEveryMaskPreview();
