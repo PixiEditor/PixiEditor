@@ -43,6 +43,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? TransformSelectedAreaCommand { get; }
 
     private VecI size = new VecI(64, 64);
+
     public void SetSize(VecI size)
     {
         this.size = size;
@@ -50,39 +51,48 @@ internal class DocumentViewModel : INotifyPropertyChanged
         RaisePropertyChanged(nameof(Width));
         RaisePropertyChanged(nameof(Height));
     }
+
     public VecI SizeBindable => size;
 
     private SKPath selectionPath = new SKPath();
+
     public void SetSelectionPath(SKPath selectionPath)
     {
         (var toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
         toDispose.Dispose();
         RaisePropertyChanged(nameof(SelectionPathBindable));
     }
+
     public SKPath SelectionPathBindable => selectionPath;
 
     private int horizontalSymmetryAxisY;
+
     public void SetHorizontalSymmetryAxisY(int horizontalSymmetryAxisY)
     {
         this.horizontalSymmetryAxisY = horizontalSymmetryAxisY;
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisYBindable));
     }
+
     public int HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
 
     private int verticalSymmetryAxisX;
+
     public void SetVerticalSymmetryAxisX(int verticalSymmetryAxisX)
     {
         this.verticalSymmetryAxisX = verticalSymmetryAxisX;
         RaisePropertyChanged(nameof(VerticalSymmetryAxisXBindable));
     }
+
     public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
 
     private bool horizontalSymmetryAxisEnabled;
+
     public void SetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
     {
         this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisEnabledBindable));
     }
+
     public bool HorizontalSymmetryAxisEnabledBindable
     {
         get => horizontalSymmetryAxisEnabled;
@@ -90,11 +100,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     private bool verticalSymmetryAxisEnabled;
+
     public void SetVerticalSymmetryAxisEnabled(bool verticalSymmetryAxisEnabled)
     {
         this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
         RaisePropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
     }
+
     public bool VerticalSymmetryAxisEnabledBindable
     {
         get => verticalSymmetryAxisEnabled;
@@ -102,6 +114,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     private string name = string.Empty;
+
     public string Name
     {
         get => name;
@@ -120,10 +133,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
     {
-        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
     };
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
@@ -135,7 +145,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     private DocumentHelpers Helpers { get; }
 
-    private ViewModelMain owner;
+    private readonly ViewModelMain owner;
 
 
     private bool updateableChangeActive = false;
@@ -146,6 +156,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool drawingEllipse = false;
     private bool drawingPathBasedPen = false;
     private bool drawingLineBasedPen = false;
+    private bool drawingPixelPerfectPen = false;
     private bool transformingRectangle = false;
     private bool transformingEllipse = false;
     private bool shiftingLayer = false;
@@ -221,7 +232,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
                 new StructureMemberName_Action(guid, layer.Name),
                 new PasteImage_Action(surface, new(new RectD(new VecD(layer.OffsetX, layer.OffsetY), new(layer.Width, layer.Height))), guid, true, false),
                 new EndPasteImage_Action()
-                );
+            );
             if (layer.Opacity != 1)
                 acc.AddFinishedActions(
                     new StructureMemberOpacity_Action(guid, layer.Opacity),
@@ -229,6 +240,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             if (!layer.IsVisible)
                 acc.AddFinishedActions(new StructureMemberIsVisible_Action(layer.IsVisible, guid));
         }
+
         acc.AddActions(new DeleteRecordedChanges_Action());
         return document;
     }
@@ -253,6 +265,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return false;
         return true;
     }
+
     private void TransformSelectedArea(object? obj)
     {
         if (updateableChangeActive || FindFirstSelectedMember() is not LayerViewModel layer || SelectionPathBindable.IsEmpty)
@@ -280,6 +293,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         {
             Helpers.ActionAccumulator.AddActions(new ClearSelectedArea_Action(layer.GuidValue, false));
         }
+
         Helpers.ActionAccumulator.AddActions(new ClearSelection_Action());
 
         // initiate transform using paste image logic
@@ -366,6 +380,25 @@ internal class DocumentViewModel : INotifyPropertyChanged
         drawingLineBasedPen = false;
         updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
+    }
+
+    public void StartUpdatePixelPerfectPen(VecI pos, SKColor color)
+    {
+        if (!CanStartUpdate())
+            return;
+        updateableChangeActive = true;
+        drawingPixelPerfectPen = true;
+        var member = FindFirstSelectedMember();
+        Helpers.ActionAccumulator.AddActions(new PixelPerfectPen_Action(member!.GuidValue, pos, color, member.ShouldDrawOnMask));
+    }
+
+    public void EndUPixelPerfectPen()
+    {
+        if (!drawingPixelPerfectPen)
+            return;
+        drawingPixelPerfectPen = false;
+        updateableChangeActive = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndPixelPerfectPen_Action());
     }
 
     public void StartUpdateEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
@@ -466,7 +499,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndSelectLasso_Action());
     }
 
-    public void ApplyTransform(object? param)
+    private void ApplyTransform(object? param)
     {
         if (!transformingRectangle && !pastingImage && !transformingSelectionPath && !transformingEllipse)
             return;
@@ -497,6 +530,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             TransformViewModel.HideTransform();
             Helpers.ActionAccumulator.AddFinishedActions(new EndTransformSelectionPath_Action());
         }
+
         updateableChangeActive = false;
     }
 

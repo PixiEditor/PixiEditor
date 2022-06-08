@@ -6,6 +6,7 @@ using OneOf.Types;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
+
 namespace ChunkyImageLib;
 
 /// <summary>
@@ -46,8 +47,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         public int QueueProgress { get; set; }
         public bool IsDeleted { get; set; }
     }
+
     private bool disposed = false;
-    private object lockObject = new();
+    private readonly object lockObject = new();
     private int commitCounter = 0;
 
     public const int FullChunkSize = ChunkPool.FullChunkSize;
@@ -56,10 +58,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
     private static SKPaint SmoothReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium };
     private static SKPaint AddingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Plus };
-    private SKPaint blendModePaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private readonly SKPaint blendModePaint = new SKPaint() { BlendMode = SKBlendMode.Src };
 
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }
+
     public int QueueLength
     {
         get
@@ -69,17 +72,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    private List<(IOperation operation, HashSet<VecI> affectedChunks)> queuedOperations = new();
-    private List<ChunkyImage> activeClips = new();
+    private readonly List<(IOperation operation, HashSet<VecI> affectedChunks)> queuedOperations = new();
+    private readonly List<ChunkyImage> activeClips = new();
     private SKBlendMode blendMode = SKBlendMode.Src;
     private bool lockTransparency = false;
     private SKPath? clippingPath;
     private int? horizontalSymmetryAxis = null;
     private int? verticalSymmetryAxis = null;
 
-    private Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
-    private Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
-    private Dictionary<ChunkResolution, Dictionary<VecI, LatestChunkData>> latestChunksData;
+    private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
+    private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
+    private readonly Dictionary<ChunkResolution, Dictionary<VecI, LatestChunkData>> latestChunksData;
 
     public ChunkyImage(VecI size)
     {
@@ -87,24 +90,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         LatestSize = size;
         committedChunks = new()
         {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
+            [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new(),
         };
         latestChunks = new()
         {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
+            [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new(),
         };
         latestChunksData = new()
         {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new(),
+            [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new(),
         };
     }
 
@@ -122,6 +116,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     continue;
                 output.EnqueueDrawImage(chunk * FullChunkSize, image.Surface);
             }
+
             output.CommitChanges();
             return output;
         }
@@ -167,6 +162,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     latestChunk.AsT2.DrawOnSurface(surface, pos, paint);
                     return true;
                 }
+
                 return false;
             }
 
@@ -178,7 +174,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             if (lockTransparency)
                 OperationHelper.ClampAlpha(tempChunk.Surface.SkiaSurface, committedChunk.Surface.SkiaSurface);
             tempChunk.DrawOnSurface(surface, pos, paint);
-            
+
             return true;
         }
     }
@@ -196,6 +192,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 if (operation.affectedChunks.Contains(chunkPos))
                     return true;
             }
+
             return false;
         }
     }
@@ -253,6 +250,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private Chunk? MaybeGetLatestChunk(VecI pos, ChunkResolution resolution)
         => latestChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
+
     private Chunk? MaybeGetCommittedChunk(VecI pos, ChunkResolution resolution)
         => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
 
@@ -396,13 +394,32 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-
     public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color, SKBlendMode blendMode)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
             SkiaLineOperation operation = new(from, to, strokeCap, strokeWidth, color, blendMode);
+            EnqueueOperation(operation);
+        }
+    }
+
+    public void EnqueueDrawPixels(IEnumerable<VecI> pixels, SKColor color, SKBlendMode blendMode)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PixelsOperation operation = new(pixels, color, blendMode);
+            EnqueueOperation(operation);
+        }
+    }
+
+    public void EnqueueDrawPixel(VecI pos, SKColor color, SKBlendMode blendMode)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PixelOperation operation = new(pos, color, blendMode);
             EnqueueOperation(operation);
         }
     }
@@ -501,6 +518,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     chunk.Dispose();
                 }
             }
+
             LatestSize = CommittedSize;
             foreach (var (res, chunks) in latestChunks)
             {
@@ -520,6 +538,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             {
                 MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);
             }
+
             foreach (var (operation, _) in queuedOperations)
             {
                 operation.Dispose();
@@ -614,6 +633,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     {
                         maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
                     }
+
                     chunk.Dispose();
                 }
             }
@@ -658,6 +678,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             {
                 allChunks.UnionWith(opChunks);
             }
+
             return allChunks;
         }
     }
@@ -685,6 +706,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 var (_, opChunks) = queuedOperations[i];
                 chunks.UnionWith(opChunks);
             }
+
             return chunks;
         }
     }
@@ -743,6 +765,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             return new EmptyChunk();
         }
+
         if (activeClips.Count == 0)
         {
             return new FilledChunk();
@@ -763,6 +786,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 return new EmptyChunk();
             }
         }
+
         return intersection;
     }
 
@@ -814,6 +838,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             return IsOutsideBounds(chunkPos, resizeOperation.Size);
         }
+
         return chunkData.IsDeleted;
     }
 
@@ -878,6 +903,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 chunk.Dispose();
             }
         }
+
         foreach (var pos in toRemove)
         {
             committedChunks[ChunkResolution.Full].Remove(pos);
@@ -1000,6 +1026,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 chunk.Dispose();
             }
         }
+
         foreach (var (_, chunks) in latestChunks)
         {
             foreach (var (_, chunk) in chunks)
@@ -1007,8 +1034,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 chunk.Dispose();
             }
         }
+
         disposed = true;
     }
+
     ~ChunkyImage()
     {
         DisposeAll();

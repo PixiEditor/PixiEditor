@@ -1,170 +1,391 @@
-﻿<Window x:Class="PixiEditorPrototype.Views.MainWindow" x:ClassModifier="internal"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:PixiEditorPrototype.ViewModels"
-        xmlns:conv="clr-namespace:PixiEditorPrototype.Converters" 
-        xmlns:beh="clr-namespace:PixiEditorPrototype.Behaviors"
-        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:pe="clr-namespace:PixiEditorPrototype"
-        xmlns:controls="clr-namespace:PixiEditorPrototype.CustomControls"
-        xmlns:to="clr-namespace:PixiEditorPrototype.CustomControls.TransformOverlay"
-        xmlns:vp="clr-namespace:PixiEditorPrototype.UserControls.Viewport"
-        xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
-        xmlns:models="clr-namespace:PixiEditorPrototype.Models"
-        xmlns:chen="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
-        mc:Ignorable="d"
-        x:Name="window"
-        Title="MainWindow" Height="800" Width="1500">
+﻿<Window
+    x:Class="PixiEditorPrototype.Views.MainWindow"
+    x:ClassModifier="internal"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:PixiEditorPrototype.ViewModels"
+    xmlns:conv="clr-namespace:PixiEditorPrototype.Converters"
+    xmlns:beh="clr-namespace:PixiEditorPrototype.Behaviors"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:pe="clr-namespace:PixiEditorPrototype"
+    xmlns:controls="clr-namespace:PixiEditorPrototype.CustomControls"
+    xmlns:to="clr-namespace:PixiEditorPrototype.CustomControls.TransformOverlay"
+    xmlns:vp="clr-namespace:PixiEditorPrototype.UserControls.Viewport"
+    xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
+    xmlns:models="clr-namespace:PixiEditorPrototype.Models"
+    xmlns:chen="clr-namespace:PixiEditor.ChangeableDocument.Enums;assembly=PixiEditor.ChangeableDocument"
+    xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+    mc:Ignorable="d"
+    x:Name="window"
+    Title="MainWindow"
+    Height="800"
+    Width="1500">
     <Window.DataContext>
-        <vm:ViewModelMain/>
+        <vm:ViewModelMain />
     </Window.DataContext>
     <Window.Resources>
-        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <conv:BlendModeToStringConverter x:Key="BlendModeToStringConverter"/>
+        <conv:BoolToVisibilityConverter
+            x:Key="BoolToVisibilityConverter" />
+        <conv:BlendModeToStringConverter
+            x:Key="BlendModeToStringConverter" />
     </Window.Resources>
-    <DockPanel Background="Gray">
-        <Border BorderThickness="1" Background="White" BorderBrush="Black" Width="280" DockPanel.Dock="Right" Margin="5">
+    <DockPanel
+        Background="Gray">
+        <Border
+            BorderThickness="1"
+            Background="White"
+            BorderBrush="Black"
+            Width="280"
+            DockPanel.Dock="Right"
+            Margin="5">
             <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.CreateNewLayerCommand}" Width="80">New Layer</Button>
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.CreateNewFolderCommand}" Width="80">New Folder</Button>
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteStructureMemberCommand}" Width="80">Delete</Button>
+                <StackPanel
+                    DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Margin="0,5,0,0">
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.CreateNewLayerCommand}"
+                        Width="80">
+                        New Layer
+                    </Button>
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.CreateNewFolderCommand}"
+                        Width="80">
+                        New Folder
+                    </Button>
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.DeleteStructureMemberCommand}"
+                        Width="80">
+                        Delete
+                    </Button>
                 </StackPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.CreateMaskCommand}" Width="80">Create Mask</Button>
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteMaskCommand}" Width="80">Delete Mask</Button>
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.ApplyMaskCommand}" Width="80">Apply Mask</Button>
+                <StackPanel
+                    DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Margin="0,5,0,0">
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.CreateMaskCommand}"
+                        Width="80">
+                        Create Mask
+                    </Button>
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.DeleteMaskCommand}"
+                        Width="80">
+                        Delete Mask
+                    </Button>
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.ApplyMaskCommand}"
+                        Width="80">
+                        Apply Mask
+                    </Button>
                 </StackPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
-                    <controls:BlendModeComboBox Margin="5,0" Width="80" SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay}"/>
+                <StackPanel
+                    DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Margin="0,5,0,0">
+                    <controls:BlendModeComboBox
+                        Margin="5,0"
+                        Width="80"
+                        SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay}" />
                 </StackPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.ToggleLockTransparencyCommand}" Width="80">Lock Alpha</Button>
-                    <Button Margin="5,0" IsEnabled="False" Width="80">Lock</Button>
-                    <Button Margin="5,0" Command="{Binding ActiveDocument.ClipToMemberBelowCommand}" Width="80">Clip to below</Button>
+                <StackPanel
+                    DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    Margin="0,5,0,0">
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.ToggleLockTransparencyCommand}"
+                        Width="80">
+                        Lock Alpha
+                    </Button>
+                    <Button
+                        Margin="5,0"
+                        IsEnabled="False"
+                        Width="80">
+                        Lock
+                    </Button>
+                    <Button
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.ClipToMemberBelowCommand}"
+                        Width="80">
+                        Clip to below
+                    </Button>
                 </StackPanel>
-                <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="0,5,0,5">
-                    <Button Width="80" Margin="5,0" Command="{Binding ActiveDocument.CombineCommand}">Merge</Button>
-                    <TextBlock Text="{Binding ActiveDocument.SelectedStructureMember.OpacityBindable, StringFormat=N2}" 
-                           Margin="5,0" DockPanel.Dock="Right" VerticalAlignment="Center" TextAlignment="Center" d:Text="1.00" Width="30"/>
-                    <Slider Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.01" x:Name="opacitySlider"
-                            VerticalAlignment="Center" HorizontalAlignment="Stretch"
-                            Value="{Binding ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}">
+                <DockPanel
+                    DockPanel.Dock="Top"
+                    HorizontalAlignment="Stretch"
+                    Margin="0,5,0,5">
+                    <Button
+                        Width="80"
+                        Margin="5,0"
+                        Command="{Binding ActiveDocument.CombineCommand}">
+                        Merge
+                    </Button>
+                    <TextBlock
+                        Text="{Binding ActiveDocument.SelectedStructureMember.OpacityBindable, StringFormat=N2}"
+                        Margin="5,0"
+                        DockPanel.Dock="Right"
+                        VerticalAlignment="Center"
+                        TextAlignment="Center"
+                        d:Text="1.00"
+                        Width="30" />
+                    <Slider
+                        Minimum="0"
+                        Maximum="1"
+                        SmallChange="0.01"
+                        LargeChange="0.1"
+                        IsSnapToTickEnabled="True"
+                        TickFrequency="0.01"
+                        x:Name="opacitySlider"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Stretch"
+                        Value="{Binding ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}">
                         <i:Interaction.Behaviors>
                             <beh:SliderUpdateBehavior
                                 DragValueChanged="{Binding ActiveDocument.SelectedStructureMember.UpdateOpacityCommand}"
                                 DragEnded="{Binding ActiveDocument.SelectedStructureMember.EndOpacityUpdateCommand}"
-                                ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}"/>
+                                ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}" />
                         </i:Interaction.Behaviors>
                     </Slider>
                 </DockPanel>
-                <TreeView ItemsSource="{Binding ActiveDocument.StructureRoot.Children}">
+                <TreeView
+                    ItemsSource="{Binding ActiveDocument.StructureRoot.Children}">
                     <TreeView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <pe:ReversedOrderStackPanel/>
+                            <pe:ReversedOrderStackPanel />
                         </ItemsPanelTemplate>
                     </TreeView.ItemsPanel>
                     <TreeView.ItemContainerStyle>
-                        <Style TargetType="TreeViewItem">
-                            <Setter Property="ItemsPanel">
+                        <Style
+                            TargetType="TreeViewItem">
+                            <Setter
+                                Property="ItemsPanel">
                                 <Setter.Value>
                                     <ItemsPanelTemplate>
-                                        <pe:ReversedOrderStackPanel/>
+                                        <pe:ReversedOrderStackPanel />
                                     </ItemsPanelTemplate>
                                 </Setter.Value>
                             </Setter>
                         </Style>
                     </TreeView.ItemContainerStyle>
                     <TreeView.Resources>
-                        <HierarchicalDataTemplate DataType="{x:Type vm:FolderViewModel}" ItemsSource="{Binding Children}">
-                            <StackPanel Orientation="Horizontal" MinWidth="200" Background="Wheat">
-                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisibleBindable}"/>
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisibleBindable}"
-                                              Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                              Background="LightBlue"/>
+                        <HierarchicalDataTemplate
+                            DataType="{x:Type vm:FolderViewModel}"
+                            ItemsSource="{Binding Children}">
+                            <StackPanel
+                                Orientation="Horizontal"
+                                MinWidth="200"
+                                Background="Wheat">
+                                <StackPanel
+                                    Orientation="Vertical"
+                                    VerticalAlignment="Center">
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        IsChecked="{Binding IsVisibleBindable}" />
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        IsChecked="{Binding MaskIsVisibleBindable}"
+                                        Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
+                                        Background="LightBlue" />
                                 </StackPanel>
-                                <Rectangle 
-                                    Fill="DarkRed" Width="8" Margin="3,0" 
-                                    Visibility="{Binding ClipToMemberBelowEnabledBindable, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <Rectangle
+                                    Fill="DarkRed"
+                                    Width="8"
+                                    Margin="3,0"
+                                    Visibility="{Binding ClipToMemberBelowEnabledBindable, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 <StackPanel>
-                                    <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
-                                    <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
+                                    <Button
+                                        Width="12"
+                                        Command="{Binding MoveUpCommand}">
+                                        ^
+                                    </Button>
+                                    <Button
+                                        Width="12"
+                                        Command="{Binding MoveDownCommand}">
+                                        v
+                                    </Button>
                                 </StackPanel>
-                                <Border 
-                                    BorderBrush="Black" BorderThickness="1" MaxWidth="30" MaxHeight="30" 
-                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
-                                    <Image Source="{Binding PreviewBitmap}"></Image>
+                                <Border
+                                    BorderBrush="Black"
+                                    BorderThickness="1"
+                                    MaxWidth="30"
+                                    MaxHeight="30"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="3,0,0,0">
+                                    <Image
+                                        Source="{Binding PreviewBitmap}">
+                                    </Image>
                                 </Border>
-                                <Border 
+                                <Border
                                     Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
-                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
-                                    <Image Source="{Binding MaskPreviewBitmap}"></Image>
+                                    BorderBrush="Black"
+                                    BorderThickness="1"
+                                    Background="White"
+                                    MaxWidth="30"
+                                    MaxHeight="30"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="3,0,0,0">
+                                    <Image
+                                        Source="{Binding MaskPreviewBitmap}">
+                                    </Image>
                                 </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <DockPanel Margin="3, 0, 0, 0">
-                                        <TextBlock Text="{Binding OpacityBindable}" Width="25"/>
-                                        <TextBlock Text="{Binding BlendModeBindable, Converter={StaticResource BlendModeToStringConverter}}"/>
+                                <StackPanel
+                                    VerticalAlignment="Center">
+                                    <DockPanel
+                                        Margin="3, 0, 0, 0">
+                                        <TextBlock
+                                            Text="{Binding OpacityBindable}"
+                                            Width="25" />
+                                        <TextBlock
+                                            Text="{Binding BlendModeBindable, Converter={StaticResource BlendModeToStringConverter}}" />
                                     </DockPanel>
-                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding NameBindable}" Margin="3, 0, 0, 0" Height="20"/>
+                                    <TextBox
+                                        HorizontalAlignment="Left"
+                                        Width="65"
+                                        Text="{Binding NameBindable}"
+                                        Margin="3, 0, 0, 0"
+                                        Height="20" />
                                 </StackPanel>
-                                <StackPanel VerticalAlignment="Center" Margin="3, 0, 0, 0">
-                                    <CheckBox VerticalAlignment="Center"
-                                          Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                          IsChecked="{Binding ShouldDrawOnMask}">Edit Mask</CheckBox>
-                                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}">Select</CheckBox>
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Margin="3, 0, 0, 0">
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
+                                        IsChecked="{Binding ShouldDrawOnMask}">
+                                        Edit Mask
+                                    </CheckBox>
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        IsChecked="{Binding IsSelected}">
+                                        Select
+                                    </CheckBox>
                                 </StackPanel>
-                                <StackPanel Margin="3">
-                                    <TextBlock Visibility="Collapsed">🔒</TextBlock>
+                                <StackPanel
+                                    Margin="3">
+                                    <TextBlock
+                                        Visibility="Collapsed">
+                                        🔒
+                                    </TextBlock>
                                 </StackPanel>
                             </StackPanel>
                         </HierarchicalDataTemplate>
-                        <DataTemplate DataType="{x:Type vm:LayerViewModel}">
-                            <StackPanel Orientation="Horizontal">
-                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding IsVisibleBindable}"/>
-                                    <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding MaskIsVisibleBindable}"
-                                              Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                              Background="LightBlue"/>
+                        <DataTemplate
+                            DataType="{x:Type vm:LayerViewModel}">
+                            <StackPanel
+                                Orientation="Horizontal">
+                                <StackPanel
+                                    Orientation="Vertical"
+                                    VerticalAlignment="Center">
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        IsChecked="{Binding IsVisibleBindable}" />
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        IsChecked="{Binding MaskIsVisibleBindable}"
+                                        Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
+                                        Background="LightBlue" />
                                 </StackPanel>
-                                <Rectangle 
-                                    Fill="DarkRed" Width="8" Margin="3,0" 
-                                    Visibility="{Binding ClipToMemberBelowEnabledBindable, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <Rectangle
+                                    Fill="DarkRed"
+                                    Width="8"
+                                    Margin="3,0"
+                                    Visibility="{Binding ClipToMemberBelowEnabledBindable, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 <StackPanel>
-                                    <Button Width="12" Command="{Binding MoveUpCommand}">^</Button>
-                                    <Button Width="12" Command="{Binding MoveDownCommand}">v</Button>
+                                    <Button
+                                        Width="12"
+                                        Command="{Binding MoveUpCommand}">
+                                        ^
+                                    </Button>
+                                    <Button
+                                        Width="12"
+                                        Command="{Binding MoveDownCommand}">
+                                        v
+                                    </Button>
                                 </StackPanel>
-                                <Border 
-                                    BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
-                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
-                                    <Image Source="{Binding PreviewBitmap}"></Image>
+                                <Border
+                                    BorderBrush="Black"
+                                    BorderThickness="1"
+                                    Background="White"
+                                    MaxWidth="30"
+                                    MaxHeight="30"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="3,0,0,0">
+                                    <Image
+                                        Source="{Binding PreviewBitmap}">
+                                    </Image>
                                 </Border>
-                                <Border 
+                                <Border
                                     Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    BorderBrush="Black" BorderThickness="1" Background="White" MaxWidth="30" MaxHeight="30" 
-                                    HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0">
-                                    <Image Source="{Binding MaskPreviewBitmap}"></Image>
+                                    BorderBrush="Black"
+                                    BorderThickness="1"
+                                    Background="White"
+                                    MaxWidth="30"
+                                    MaxHeight="30"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="3,0,0,0">
+                                    <Image
+                                        Source="{Binding MaskPreviewBitmap}">
+                                    </Image>
                                 </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <DockPanel Margin="3, 0, 0, 0">
-                                        <TextBlock Text="{Binding OpacityBindable}" Width="25"/>
-                                        <TextBlock Text="{Binding BlendModeBindable, Converter={StaticResource BlendModeToStringConverter}}"/>
+                                <StackPanel
+                                    VerticalAlignment="Center">
+                                    <DockPanel
+                                        Margin="3, 0, 0, 0">
+                                        <TextBlock
+                                            Text="{Binding OpacityBindable}"
+                                            Width="25" />
+                                        <TextBlock
+                                            Text="{Binding BlendModeBindable, Converter={StaticResource BlendModeToStringConverter}}" />
                                     </DockPanel>
-                                    <TextBox HorizontalAlignment="Left" Width="65" Text="{Binding NameBindable}" Margin="3, 0, 0, 0" Height="20"/>
+                                    <TextBox
+                                        HorizontalAlignment="Left"
+                                        Width="65"
+                                        Text="{Binding NameBindable}"
+                                        Margin="3, 0, 0, 0"
+                                        Height="20" />
                                 </StackPanel>
-                                <StackPanel VerticalAlignment="Center" Margin="3, 0, 0, 0">
-                                    <CheckBox VerticalAlignment="Center"
-                                          Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
-                                          IsChecked="{Binding ShouldDrawOnMask}">Edit Mask</CheckBox>
-                                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}">Select</CheckBox>
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Margin="3, 0, 0, 0">
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding HasMaskBindable, Converter={StaticResource BoolToVisibilityConverter}}"
+                                        IsChecked="{Binding ShouldDrawOnMask}">
+                                        Edit Mask
+                                    </CheckBox>
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        IsChecked="{Binding IsSelected}">
+                                        Select
+                                    </CheckBox>
                                 </StackPanel>
-                                <StackPanel Margin="3">
-                                    <TextBlock Visibility="{Binding LockTransparencyBindable, Converter={StaticResource BoolToVisibilityConverter}}">🙾</TextBlock>
-                                    <TextBlock Visibility="Collapsed">🔒</TextBlock>
+                                <StackPanel
+                                    Margin="3">
+                                    <TextBlock
+                                        Visibility="{Binding LockTransparencyBindable, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        🙾
+                                    </TextBlock>
+                                    <TextBlock
+                                        Visibility="Collapsed">
+                                        🔒
+                                    </TextBlock>
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>
@@ -172,81 +393,281 @@
                 </TreeView>
             </DockPanel>
         </Border>
-        <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Top" Margin="5">
+        <Border
+            BorderThickness="1"
+            Background="White"
+            BorderBrush="Black"
+            DockPanel.Dock="Top"
+            Margin="5">
             <DockPanel>
-                <StackPanel Orientation="Horizontal" Background="White">
-                    <Button Width="50" Margin="5" Command="{Binding LoadDocumentCommand}">Open</Button>
-                    <Button Width="50" Margin="5" Command="{Binding ActiveDocument.UndoCommand}">Undo</Button>
-                    <Button Width="50" Margin="5" Command="{Binding ActiveDocument.RedoCommand}">Redo</Button>
-                    <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ClearSelectionCommand}">Clear selection</Button>
-                    <Button Width="110" Margin="5" Command="{Binding ActiveDocument.TransformSelectionPathCommand}">Transform sel. path</Button>
-                    <Button Width="110" Margin="5" Command="{Binding ActiveDocument.TransformSelectedAreaCommand}">Transform sel. area</Button>
-                    <ComboBox Width="70" Height="20" Margin="5" SelectedIndex="0" x:Name="selectionModeComboBox">
-                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.New}">New</ComboBoxItem>
-                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.Add}">Add</ComboBoxItem>
-                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.Subtract}">Subtract</ComboBoxItem>
-                        <ComboBoxItem Tag="{x:Static chen:SelectionMode.Intersect}">Intersect</ComboBoxItem>
+                <StackPanel
+                    Orientation="Horizontal"
+                    Background="White">
+                    <Button
+                        Width="50"
+                        Margin="5"
+                        Command="{Binding LoadDocumentCommand}">
+                        Open
+                    </Button>
+                    <Button
+                        Width="50"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.UndoCommand}">
+                        Undo
+                    </Button>
+                    <Button
+                        Width="50"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.RedoCommand}">
+                        Redo
+                    </Button>
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.ClearSelectionCommand}">
+                        Clear selection
+                    </Button>
+                    <Button
+                        Width="110"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.TransformSelectionPathCommand}">
+                        Transform sel. path
+                    </Button>
+                    <Button
+                        Width="110"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.TransformSelectedAreaCommand}">
+                        Transform sel. area
+                    </Button>
+                    <ComboBox
+                        Width="70"
+                        Height="20"
+                        Margin="5"
+                        SelectedIndex="0"
+                        x:Name="selectionModeComboBox">
+                        <ComboBoxItem
+                            Tag="{x:Static chen:SelectionMode.New}">
+                            New
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:SelectionMode.Add}">
+                            Add
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:SelectionMode.Subtract}">
+                            Subtract
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:SelectionMode.Intersect}">
+                            Intersect
+                        </ComboBoxItem>
                         <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding SetSelectionModeCommand}" CommandParameter="{Binding SelectedItem.Tag, ElementName=selectionModeComboBox}"/>
+                            <i:EventTrigger
+                                EventName="SelectionChanged">
+                                <i:InvokeCommandAction
+                                    Command="{Binding SetSelectionModeCommand}"
+                                    CommandParameter="{Binding SelectedItem.Tag, ElementName=selectionModeComboBox}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </ComboBox>
-                    <Button Width="120" Margin="5" Command="{Binding ActiveDocument.ClearHistoryCommand}">Clear undo history</Button>
-                    <Button Width="100" Margin="5" Command="{Binding ActiveDocument.PasteImageCommand}">Paste Image</Button>
-                    <Button Width="100" Margin="5" Command="{Binding ActiveDocument.ApplyTransformCommand}">Apply Transform</Button>
+                    <Button
+                        Width="120"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.ClearHistoryCommand}">
+                        Clear undo history
+                    </Button>
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.PasteImageCommand}">
+                        Paste Image
+                    </Button>
+                    <Button
+                        Width="100"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.ApplyTransformCommand}">
+                        Apply Transform
+                    </Button>
                 </StackPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel
+                    DockPanel.Dock="Right"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
                     <Label>Pen size:</Label>
-                    <TextBox Width="30" Margin="5" Text="{Binding StrokeWidth}"/>
-                    <TextBox Width="30" Margin="5" Text="{Binding ActiveDocument.ResizeWidth}"/>
-                    <TextBox Width="30" Margin="5" Text="{Binding ActiveDocument.ResizeHeight}"/>
-                    <Button Width="50" Margin="5" Command="{Binding ActiveDocument.ResizeCanvasCommand}">Resize</Button>
+                    <TextBox
+                        Width="30"
+                        Margin="5"
+                        Text="{Binding StrokeWidth}" />
+                    <TextBox
+                        Width="30"
+                        Margin="5"
+                        Text="{Binding ActiveDocument.ResizeWidth}" />
+                    <TextBox
+                        Width="30"
+                        Margin="5"
+                        Text="{Binding ActiveDocument.ResizeHeight}" />
+                    <Button
+                        Width="50"
+                        Margin="5"
+                        Command="{Binding ActiveDocument.ResizeCanvasCommand}">
+                        Resize
+                    </Button>
                 </StackPanel>
             </DockPanel>
         </Border>
-        <Border BorderThickness="1" Background="White" BorderBrush="Black" DockPanel.Dock="Left" Margin="5">
-            <StackPanel Orientation="Vertical" Background="White">
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Rectangle}">Rect</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Ellipse}">Ellipse</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.PathBasedPen}">Path Pen</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.LineBasedPen}">Line Pen</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Eraser}">Eraser</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Select}">Select</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.Lasso}">Lasso</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.ShiftLayer}">Shift Layer</Button>
-                <Button Width="70" Margin="5" Command="{Binding ChangeActiveToolCommand}" CommandParameter="{x:Static models:Tool.FloodFill}">Fill</Button>
-                <colorpicker:PortableColorPicker Margin="5" SelectedColor="{Binding SelectedColor, Mode=TwoWay}" Width="30" Height="30"/>
-                <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding NormalZoombox, Mode=OneWayToSource}">Normal</RadioButton>
-                <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding MoveZoombox, Mode=OneWayToSource}">Move</RadioButton>
-                <RadioButton GroupName="zoomboxMode" Margin="5,0" IsChecked="{Binding RotateZoombox, Mode=OneWayToSource}">Rotate</RadioButton>
-                <CheckBox x:Name="flipXCheckbox" Margin="5, 0">Flip X</CheckBox>
-                <CheckBox x:Name="flipYCheckbox" Margin="5, 0">Flip Y</CheckBox>
-                <CheckBox 
-                    x:Name="keepOriginalImageCheckbox" Margin="5, 0"
-                    IsChecked="{Binding KeepOriginalImageOnTransform}">Keep area</CheckBox>
-                <CheckBox 
-                    x:Name="horizontalSymmetryCheckbox" Margin="5,0" 
-                    IsChecked="{Binding ActiveDocument.HorizontalSymmetryAxisEnabledBindable}">Hor Sym</CheckBox>
-                <CheckBox 
-                    x:Name="verticalSymmetryCheckbox" Margin="5,0" 
-                    IsChecked="{Binding ActiveDocument.VerticalSymmetryAxisEnabledBindable}">Ver Sym</CheckBox>
+        <Border
+            BorderThickness="1"
+            Background="White"
+            BorderBrush="Black"
+            DockPanel.Dock="Left"
+            Margin="5">
+            <StackPanel
+                Orientation="Vertical"
+                Background="White">
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.Rectangle}">
+                    Rect
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.Ellipse}">
+                    Ellipse
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.PathBasedPen}">
+                    Path Pen
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.LineBasedPen}">
+                    Line Pen
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.PixelPerfectPen}">
+                    P Perf Pen
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.Eraser}">
+                    Eraser
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.Select}">
+                    Select
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.Lasso}">
+                    Lasso
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.ShiftLayer}">
+                    Shift Layer
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.FloodFill}">
+                    Fill
+                </Button>
+                <colorpicker:PortableColorPicker
+                    Margin="5"
+                    SelectedColor="{Binding SelectedColor, Mode=TwoWay}"
+                    Width="30"
+                    Height="30" />
+                <RadioButton
+                    GroupName="zoomboxMode"
+                    Margin="5,0"
+                    IsChecked="{Binding NormalZoombox, Mode=OneWayToSource}">
+                    Normal
+                </RadioButton>
+                <RadioButton
+                    GroupName="zoomboxMode"
+                    Margin="5,0"
+                    IsChecked="{Binding MoveZoombox, Mode=OneWayToSource}">
+                    Move
+                </RadioButton>
+                <RadioButton
+                    GroupName="zoomboxMode"
+                    Margin="5,0"
+                    IsChecked="{Binding RotateZoombox, Mode=OneWayToSource}">
+                    Rotate
+                </RadioButton>
+                <CheckBox
+                    x:Name="flipXCheckbox"
+                    Margin="5, 0">
+                    Flip X
+                </CheckBox>
+                <CheckBox
+                    x:Name="flipYCheckbox"
+                    Margin="5, 0">
+                    Flip Y
+                </CheckBox>
+                <CheckBox
+                    x:Name="keepOriginalImageCheckbox"
+                    Margin="5, 0"
+                    IsChecked="{Binding KeepOriginalImageOnTransform}">
+                    Keep area
+                </CheckBox>
+                <CheckBox
+                    x:Name="horizontalSymmetryCheckbox"
+                    Margin="5,0"
+                    IsChecked="{Binding ActiveDocument.HorizontalSymmetryAxisEnabledBindable}">
+                    Hor Sym
+                </CheckBox>
+                <CheckBox
+                    x:Name="verticalSymmetryCheckbox"
+                    Margin="5,0"
+                    IsChecked="{Binding ActiveDocument.VerticalSymmetryAxisEnabledBindable}">
+                    Ver Sym
+                </CheckBox>
             </StackPanel>
         </Border>
-        <TabControl ItemsSource="{Binding Documents}" SelectedIndex="{Binding ActiveDocumentIndex}">
+        <TabControl
+            ItemsSource="{Binding Documents}"
+            SelectedIndex="{Binding ActiveDocumentIndex}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
+                    <TextBlock
+                        Text="{Binding Name}" />
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <Grid Background="Gray">
+                    <Grid
+                        Background="Gray">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <Border BorderThickness="1" BorderBrush="Black" Margin="5">
+                        <Border
+                            BorderThickness="1"
+                            BorderBrush="Black"
+                            Margin="5">
                             <vp:Viewport
                                 Document="{Binding}"
                                 FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
@@ -255,10 +676,13 @@
                                 MouseDownCommand="{Binding ElementName=window, Path=DataContext.MouseDownCommand}"
                                 MouseMoveCommand="{Binding ElementName=window, Path=DataContext.MouseMoveCommand}"
                                 MouseUpCommand="{Binding ElementName=window, Path=DataContext.MouseUpCommand}"
-                                Tag="First"
-                            />
+                                Tag="First" />
                         </Border>
-                        <Border BorderThickness="1" BorderBrush="Black" Margin="5" Grid.Column="1">
+                        <Border
+                            BorderThickness="1"
+                            BorderBrush="Black"
+                            Margin="5"
+                            Grid.Column="1">
                             <vp:Viewport
                                 Document="{Binding}"
                                 FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
@@ -267,8 +691,7 @@
                                 MouseDownCommand="{Binding ElementName=window, Path=DataContext.MouseDownCommand}"
                                 MouseMoveCommand="{Binding ElementName=window, Path=DataContext.MouseMoveCommand}"
                                 MouseUpCommand="{Binding ElementName=window, Path=DataContext.MouseUpCommand}"
-                                Tag="Second"
-                            />
+                                Tag="Second" />
                         </Border>
                     </Grid>
                 </DataTemplate>

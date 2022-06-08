@@ -63,7 +63,9 @@ internal class ViewModelMain : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new(nameof(ZoomboxMode)));
         }
     }
+
     private int activeDocumentIndex;
+
     public int ActiveDocumentIndex
     {
         get => activeDocumentIndex;
@@ -123,11 +125,7 @@ internal class ViewModelMain : INotifyPropertyChanged
         var args = (MouseButtonEventArgs)(param!);
         var source = (System.Windows.Controls.Image)args.Source;
         var pos = args.GetPosition(source);
-        mouseDownCanvasPos = new()
-        {
-            X = pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth,
-            Y = pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight
-        };
+        mouseDownCanvasPos = new() { X = pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth, Y = pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight };
         toolOnMouseDown = activeTool;
         ProcessToolMouseDown(mouseDownCanvasPos);
     }
@@ -145,6 +143,10 @@ internal class ViewModelMain : INotifyPropertyChanged
         else if (toolOnMouseDown == Tool.LineBasedPen)
         {
             ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+        }
+        else if (toolOnMouseDown == Tool.PixelPerfectPen)
+        {
+            ActiveDocument!.StartUpdatePixelPerfectPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
         }
         else if (toolOnMouseDown == Tool.Eraser)
         {
@@ -171,30 +173,30 @@ internal class ViewModelMain : INotifyPropertyChanged
         switch (toolOnMouseDown)
         {
             case Tool.Rectangle:
-                {
-                    var rect = RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos);
-                    ActiveDocument!.StartUpdateRectangle(new ShapeData(
-                                rect.Center,
-                                rect.Size,
-                                0,
-                                (int)StrokeWidth,
-                                new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
-                                new SKColor(0, 0, 255, 128)));
-                    break;
-                }
+            {
+                var rect = RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos);
+                ActiveDocument!.StartUpdateRectangle(new ShapeData(
+                    rect.Center,
+                    rect.Size,
+                    0,
+                    (int)StrokeWidth,
+                    new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                    new SKColor(0, 0, 255, 128)));
+                break;
+            }
             case Tool.Ellipse:
-                {
-                    ActiveDocument!.StartUpdateEllipse(
-                        RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
-                        new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
-                        new SKColor(0, 0, 255, 128),
-                        (int)StrokeWidth);
-                    break;
-                }
+            {
+                ActiveDocument!.StartUpdateEllipse(
+                    RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
+                    new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                    new SKColor(0, 0, 255, 128),
+                    (int)StrokeWidth);
+                break;
+            }
             case Tool.Select:
                 ActiveDocument!.StartUpdateRectSelection(
-                            RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
-                            selectionMode);
+                    RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
+                    selectionMode);
                 break;
             case Tool.ShiftLayer:
                 ActiveDocument!.StartUpdateShiftLayer((VecI)canvasPos - (VecI)mouseDownCanvasPos);
@@ -207,6 +209,9 @@ internal class ViewModelMain : INotifyPropertyChanged
                 break;
             case Tool.LineBasedPen:
                 ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+                break;
+            case Tool.PixelPerfectPen:
+                ActiveDocument!.StartUpdatePixelPerfectPen((VecI)canvasPos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
                 break;
             case Tool.Eraser:
                 ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos, SKColors.Transparent, true);
@@ -251,6 +256,9 @@ internal class ViewModelMain : INotifyPropertyChanged
         {
             case Tool.PathBasedPen:
                 ActiveDocument!.EndPathBasedPen();
+                break;
+            case Tool.PixelPerfectPen:
+                ActiveDocument!.EndUPixelPerfectPen();
                 break;
             case Tool.LineBasedPen:
             case Tool.Eraser:
