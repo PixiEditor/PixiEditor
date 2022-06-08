@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -211,7 +211,7 @@
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
 		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.3" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.1.0" />
-		<PackageReference Include="SkiaSharp" Version="2.80.3" />
+		<PackageReference Include="SkiaSharp" Version="2.88.0" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
 		<PackageReference Include="WriteableBitmapEx">

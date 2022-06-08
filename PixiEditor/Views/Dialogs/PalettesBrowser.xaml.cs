@@ -1,4 +1,4 @@
-﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Enums;
@@ -158,6 +158,9 @@ namespace PixiEditor.Views.Dialogs
         }
 
         private LocalPalettesFetcher _localPalettesFetcher;
+
+        private string[] _stopItTexts = new[] { "That's enough. Tidy up your file names.", 
+            "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?" };
 
         public PalettesBrowser()
         {
@@ -472,6 +475,15 @@ namespace PixiEditor.Views.Dialogs
 
             string oldPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, oldFileName);
 
+            string finalNewName = $"{Palette.ReplaceInvalidChars(e.NewText)}.pal";
+            string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, LocalPalettesFetcher.GetNonExistingName(finalNewName, true));
+
+            if (newPath.Length > 250)
+            {
+                NoticeDialog.Show(_stopItTexts[Random.Shared.Next(_stopItTexts.Length - 1)], "The name is too long.");
+                return;
+            }
+
             if (!File.Exists(oldPath))
             {
                 item.Palette.FileName = oldFileName;
@@ -480,8 +492,6 @@ namespace PixiEditor.Views.Dialogs
                 return;
             }
 
-            string finalNewName = $"{Palette.ReplaceInvalidChars(e.NewText)}.pal";
-            string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, LocalPalettesFetcher.GetNonExistingName(finalNewName, true));
 
             File.Move(oldPath, newPath);
 
