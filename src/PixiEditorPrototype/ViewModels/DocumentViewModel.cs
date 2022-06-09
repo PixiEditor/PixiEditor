@@ -588,9 +588,9 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new FloodFill_Action(member.GuidValue, pos, color, member.ShouldDrawOnMask));
     }
 
-    public void AddOrUpdateViewport(ViewportLocation location)
+    public void AddOrUpdateViewport(ViewportInfo info)
     {
-        Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(location));
+        Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(info));
     }
 
     public void RemoveViewport(Guid viewportGuid)

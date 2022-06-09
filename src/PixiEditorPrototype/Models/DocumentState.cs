@@ -5,5 +5,5 @@ namespace PixiEditorPrototype.Models;
 
 internal class DocumentState
 {
-    public Dictionary<Guid, ViewportLocation> Viewports { get; set; } = new();
+    public Dictionary<Guid, ViewportInfo> Viewports { get; set; } = new();
 }

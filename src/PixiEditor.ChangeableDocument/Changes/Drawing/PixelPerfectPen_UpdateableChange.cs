@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Design;
-using ChunkyImageLib.Operations;
+﻿using ChunkyImageLib.Operations;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
@@ -65,9 +64,9 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         }
 
         
-        confirmedPixels!.UnionWith(pixelsToConfirm2!);
+        confirmedPixels.UnionWith(pixelsToConfirm2);
         (pixelsToConfirm2, pixelsToConfirm) = (pixelsToConfirm, pixelsToConfirm2);
-        pixelsToConfirm!.Clear();
+        pixelsToConfirm.Clear();
         
         SKPoint[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
         foreach (VecI pixel in line)
@@ -106,8 +105,8 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         if (firstApply)
         {
             incomingPoints = null;
-            confirmedPixels!.UnionWith(pixelsToConfirm!);
-            confirmedPixels.UnionWith(pixelsToConfirm2!);
+            confirmedPixels.UnionWith(pixelsToConfirm);
+            confirmedPixels.UnionWith(pixelsToConfirm2);
         }
         else
         {

@@ -30,8 +30,24 @@ internal class WriteableBitmapUpdater
         [ChunkResolution.Eighth] = new()
     };
 
-    private Dictionary<Guid, HashSet<VecI>> previewPostponedChunks = new();
-    private Dictionary<Guid, HashSet<VecI>> maskPostponedChunks = new();
+    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalPostponedForDelayed = new()
+    {
+        [ChunkResolution.Full] = new(),
+        [ChunkResolution.Half] = new(),
+        [ChunkResolution.Quarter] = new(),
+        [ChunkResolution.Eighth] = new()
+    };
+    
+    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalDelayedChunks = new()
+    {
+        [ChunkResolution.Full] = new(),
+        [ChunkResolution.Half] = new(),
+        [ChunkResolution.Quarter] = new(),
+        [ChunkResolution.Eighth] = new()
+    };
+    
+    private Dictionary<Guid, HashSet<VecI>> previewDelayedChunks = new();
+    private Dictionary<Guid, HashSet<VecI>> maskPreviewDelayedChunks = new();
 
     public WriteableBitmapUpdater(DocumentViewModel doc, DocumentHelpers helpers)
     {
@@ -39,19 +55,30 @@ internal class WriteableBitmapUpdater
         this.helpers = helpers;
     }
 
-    public async Task<List<IRenderInfo>> UpdateGatheredChunks(AffectedChunkGatherer chunkGatherer, bool updatePreviews)
+    public async Task<List<IRenderInfo>> UpdateGatheredChunks
+        (AffectedChunkGatherer chunkGatherer, bool updateDelayed)
     {
-        return await Task.Run(() => Render(chunkGatherer, updatePreviews)).ConfigureAwait(true);
+        return await Task.Run(() => Render(chunkGatherer, updateDelayed)).ConfigureAwait(true);
     }
 
-    private Dictionary<ChunkResolution, HashSet<VecI>> FindGlobalChunksToRerender(AffectedChunkGatherer chunkGatherer)
+    private Dictionary<ChunkResolution, HashSet<VecI>> FindGlobalChunksToRerender(AffectedChunkGatherer chunkGatherer, bool renderDelayed)
     {
+        // add all affected chunks to postponed
         foreach (var (_, postponed) in globalPostponedChunks)
         {
             postponed.UnionWith(chunkGatherer.mainImageChunks);
         }
 
-        var chunksOnScreen = new Dictionary<ChunkResolution, HashSet<VecI>>()
+        // find all chunks that are on viewports and on delayed viewports
+        var chunksToUpdate = new Dictionary<ChunkResolution, HashSet<VecI>>()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new()
+        };
+        
+        var chunksOnDelayedViewports = new Dictionary<ChunkResolution, HashSet<VecI>>()
         {
             [ChunkResolution.Full] = new(),
             [ChunkResolution.Half] = new(),
@@ -66,16 +93,43 @@ internal class WriteableBitmapUpdater
                 viewport.Dimensions,
                 -viewport.Angle,
                 ChunkResolution.Full.PixelSize());
-            chunksOnScreen[viewport.Resolution].UnionWith(viewportChunks);
+            if (viewport.Delayed)
+                chunksOnDelayedViewports[viewport.Resolution].UnionWith(viewportChunks);
+            else
+                chunksToUpdate[viewport.Resolution].UnionWith(viewportChunks);
         }
 
+        // exclude the chunks that don't need to be updated, remove chunks that will be updated from postponed
         foreach (var (res, postponed) in globalPostponedChunks)
         {
-            chunksOnScreen[res].IntersectWith(postponed);
-            postponed.ExceptWith(chunksOnScreen[res]);
+            chunksToUpdate[res].IntersectWith(postponed);
+            chunksOnDelayedViewports[res].IntersectWith(postponed);
+            postponed.ExceptWith(chunksToUpdate[res]);
+        }
+        
+        // decide what to do about the delayed chunks
+        if (renderDelayed)
+        {
+            foreach (var (res, postponed) in globalPostponedChunks)
+            {
+                chunksToUpdate[res].UnionWith(chunksOnDelayedViewports[res]);
+                postponed.ExceptWith(chunksOnDelayedViewports[res]);
+                globalPostponedForDelayed[res] = new HashSet<VecI>(postponed);
+            }
+        }
+        else
+        {
+            foreach (var (res, postponed) in globalPostponedChunks)
+            {
+                chunksOnDelayedViewports[res].IntersectWith(globalPostponedForDelayed[res]);
+                globalPostponedForDelayed[res].ExceptWith(chunksOnDelayedViewports[res]);
+                
+                chunksToUpdate[res].UnionWith(chunksOnDelayedViewports[res]);
+                postponed.ExceptWith(chunksOnDelayedViewports[res]);
+            }
         }
 
-        return chunksOnScreen;
+        return chunksToUpdate;
     }
 
 
@@ -91,24 +145,24 @@ internal class WriteableBitmapUpdater
     private (Dictionary<Guid, HashSet<VecI>> image, Dictionary<Guid, HashSet<VecI>> mask) FindPreviewChunksToRerender
         (AffectedChunkGatherer chunkGatherer, bool postpone)
     {
-        AddChunks(chunkGatherer.imagePreviewChunks, previewPostponedChunks);
-        AddChunks(chunkGatherer.maskPreviewChunks, maskPostponedChunks);
+        AddChunks(chunkGatherer.imagePreviewChunks, previewDelayedChunks);
+        AddChunks(chunkGatherer.maskPreviewChunks, maskPreviewDelayedChunks);
         if (postpone)
             return (new(), new());
-        var result = (previewPostponedChunks, maskPostponedChunks);
-        previewPostponedChunks = new();
-        maskPostponedChunks = new();
+        var result = (previewPostponedChunks: previewDelayedChunks, maskPostponedChunks: maskPreviewDelayedChunks);
+        previewDelayedChunks = new();
+        maskPreviewDelayedChunks = new();
         return result;
     }
 
-    private List<IRenderInfo> Render(AffectedChunkGatherer chunkGatherer, bool updatePreviews)
+    private List<IRenderInfo> Render(AffectedChunkGatherer chunkGatherer, bool updateDelayed)
     {
-        Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender = FindGlobalChunksToRerender(chunkGatherer);
+        Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender = FindGlobalChunksToRerender(chunkGatherer, updateDelayed);
 
         List<IRenderInfo> infos = new();
         UpdateMainImage(chunksToRerender, infos);
 
-        var (imagePreviewChunksToRerender, maskPreviewChunksToRerender) = FindPreviewChunksToRerender(chunkGatherer, !updatePreviews);
+        var (imagePreviewChunksToRerender, maskPreviewChunksToRerender) = FindPreviewChunksToRerender(chunkGatherer, !updateDelayed);
         var previewSize = StructureMemberViewModel.CalculatePreviewSize(helpers.Tracker.Document.Size);
         float scaling = (float)previewSize.X / doc.SizeBindable.X;
         UpdateImagePreviews(imagePreviewChunksToRerender, scaling, infos);

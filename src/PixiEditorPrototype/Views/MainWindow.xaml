@@ -669,6 +669,7 @@
                             BorderBrush="Black"
                             Margin="5">
                             <vp:Viewport
+                                Delayed="True"
                                 Document="{Binding}"
                                 FlipX="{Binding ElementName=flipXCheckbox, Path=IsChecked}"
                                 FlipY="{Binding ElementName=flipYCheckbox, Path=IsChecked}"

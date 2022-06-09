@@ -74,12 +74,12 @@ internal class ActionAccumulator
             {
                 bitmap.Lock();
             }
-            bool refreshPreviews = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            if (refreshPreviews)
+            bool refreshDelayed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+            if (refreshDelayed)
                 LockPreviewBitmaps(document.StructureRoot);
 
             // update bitmaps
-            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, refreshPreviews);
+            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, refreshDelayed);
             AddDirtyRects(renderResult);
 
             // unlock bitmaps
@@ -87,7 +87,7 @@ internal class ActionAccumulator
             {
                 bitmap.Unlock();
             }
-            if (refreshPreviews)
+            if (refreshDelayed)
                 UnlockPreviewBitmaps(document.StructureRoot);
 
             // force refresh viewports for better responsiveness

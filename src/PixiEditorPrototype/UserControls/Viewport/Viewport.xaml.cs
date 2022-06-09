@@ -41,6 +41,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private static readonly DependencyProperty BitmapsProperty =
         DependencyProperty.Register(nameof(Bitmaps), typeof(Dictionary<ChunkResolution, WriteableBitmap>), typeof(Viewport), new(null, OnBitmapsChange));
 
+    public static readonly DependencyProperty DelayedProperty = DependencyProperty.Register(
+        nameof(Delayed), typeof(bool), typeof(Viewport), new PropertyMetadata(false));
+
+    public bool Delayed
+    {
+        get => (bool)GetValue(DelayedProperty);
+        set => SetValue(DelayedProperty, value);
+    }
+    
     public Dictionary<ChunkResolution, WriteableBitmap>? Bitmaps
     {
         get => (Dictionary<ChunkResolution, WriteableBitmap>?)GetValue(BitmapsProperty);
@@ -218,8 +227,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         return ChunkResolution.Full;
     }
 
-    private ViewportLocation GetLocation()
+    private ViewportInfo GetLocation()
     {
-        return new(Angle, Center, RealDimensions / 2, Dimensions / 2, CalculateResolution(), GuidValue, ForceRefreshFinalImage);
+        return new(Angle, Center, RealDimensions / 2, Dimensions / 2, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
     }
 }

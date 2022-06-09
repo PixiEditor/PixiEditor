@@ -149,7 +149,7 @@ internal class DocumentUpdater
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
     {
-        helper.State.Viewports[info.Location.GuidValue] = info.Location;
+        helper.State.Viewports[info.Info.GuidValue] = info.Info;
     }
 
     private void ProcessRemoveViewport(RemoveViewport_PassthroughAction info)

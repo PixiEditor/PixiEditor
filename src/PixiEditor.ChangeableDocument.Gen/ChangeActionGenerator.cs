@@ -8,8 +8,8 @@ namespace PixiEditor.ChangeableDocument.Gen
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // find contrustors with the attribute
-            var contructorSymbolProvider = context.SyntaxProvider.CreateSyntaxProvider(
+            // find constructors with the attribute
+            var constructorSymbolProvider = context.SyntaxProvider.CreateSyntaxProvider(
                 predicate: Helpers.IsConstructorWithAttribute,
                 transform: static (context, cancelToken) =>
                 {
@@ -22,8 +22,8 @@ namespace PixiEditor.ChangeableDocument.Gen
                         ))
                         return null;
 
-                    var contructorSymbol = context.SemanticModel.GetDeclaredSymbol(constructor, cancelToken);
-                    if (contructorSymbol is not IMethodSymbol methodConstructorSymbol ||
+                    var constructorSymbol = context.SemanticModel.GetDeclaredSymbol(constructor, cancelToken);
+                    if (constructorSymbol is not IMethodSymbol methodConstructorSymbol ||
                         methodConstructorSymbol.Kind != SymbolKind.Method)
                         return null;
                     return methodConstructorSymbol;
@@ -31,7 +31,7 @@ namespace PixiEditor.ChangeableDocument.Gen
             ).Where(a => a is not null);
 
             // generate action source code
-            var actionSourceCodeProvider = contructorSymbolProvider.Select(
+            var actionSourceCodeProvider = constructorSymbolProvider.Select(
                 static (constructor, _) =>
                 {
                     var info = Helpers.ExtractMethodInfo(constructor!);
