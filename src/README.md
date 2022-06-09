@@ -5,7 +5,7 @@ Decouples the state of a document from the UI.
 ## Development progress
 
 - ChunkyImage
-    - [x] Basic commited and preview chunk support
+    - [x] Basic committed and preview chunk support
     - [x] Affected chunk infrastructure
     - [x] Size constraining
     - [x] Cloning
@@ -15,10 +15,10 @@ Decouples the state of a document from the UI.
     - [x] ChunkyImage finalizer that returns borrowed chunks
     - [ ] Get Committed Pixel
     - [x] GetLatestChunk resolution parameter
-        - [x] Support for different chunk sizes in chunkpool
+        - [x] Support for different chunk sizes in the chunk pool
         - [x] Rendering for different chunk sizes
         - [x] Read only interface for Chunk
-    - [x] CommitedChunkStorage (used to store chunks for undo)
+    - [x] CommittedChunkStorage (used to store chunks for undo)
         - [ ] Write chunks to the hard drive?
         - [ ] Compress chunks?
     - [x] Linear color space for blending
@@ -33,12 +33,12 @@ Decouples the state of a document from the UI.
         - [x] Bresenham Line
         - [x] Skia Line
         - [x] Path
-        - [ ] Draw pixels
+        - [x] Draw pixels
         - [x] Clear operation
         - [x] Clear region operation
         - [x] Resize canvas operation
         - [x] Raster clip operation
-        - [x] Lock tranparency operation
+        - [x] Lock transparency operation
         - [x] Symmetry operation
         - Filters
             - [ ] Hue/Saturation/Value
@@ -96,7 +96,7 @@ Decouples the state of a document from the UI.
         - [ ] Line
         - [x] Path-based pen
         - [x] Regular pen
-        - [ ] Pixel-perfect pen
+        - [x] Pixel-perfect pen
         - [ ] Fill
         - [ ] Brightness
         - [x] Basic selection changes
@@ -131,7 +131,7 @@ ChunkyImage replaces previews layers by letting you undo latest drawing commands
 
 Whenever you draw something on a ChunkyImage the image doesn't get updated right away. Instead, the drawing command gets stored internally. The stored commands are only executed when someone tries to access the state of the image. Importantly, if someone tries to access a single chunk only that chunk will be redrawn to the final state, saving on computation. All stored commands are applied to all chunks when `CommitChanges` is called.
 
-ChunkyImage lets you request a downscaled version of each chunk. Oftentimes (if the viewport is zoomed out) you don't need to compute the full-resolution version of the chunk just for the preview. Since the drawing is done lazily, the full-resolution version won't be computed if no one asks for it (until the changes are commited).
+ChunkyImage lets you request a downscaled version of each chunk. Oftentimes (if the viewport is zoomed out) you don't need to compute the full-resolution version of the chunk just for the preview. Since the drawing is done lazily, the full-resolution version won't be computed if no one asks for it (until the changes are committed).
 
 - ### ChangeableDocument
 
@@ -141,7 +141,7 @@ The implementation of ChangeableDocument uses these concepts:
 
 - Action: A piece of data with info about something that's been done, e.g. "Delete layer with some GUID"; "Undo"; "Redo".
 - Changeable: A part of the document state. The document itself is a Changeable, any Layer is also a changeable. All a Changeable does is stores the current state of itself.
-- Change: A class that lets you mutate a Changeable in some way. A change has `Apply` and `Revert` functions. For example, when deleting a layer a new Change is created. It first gets initialized, then applied. If Undo is called, it gets reverted. On initilization the current state of the layer is saved in the change. On applying the change the layer gets deleted from the document state. On reverting the change the layer gets recreated using the previously saved data.
+- Change: A class that lets you mutate a Changeable in some way. A change has `Apply` and `Revert` functions. For example, when deleting a layer a new Change is created. It first gets initialized, then applied. If Undo is called, it gets reverted. On initialization the current state of the layer is saved in the change. On applying the change the layer gets deleted from the document state. On reverting the change the layer gets recreated using the previously saved data.
 - UpdateableChange: A type of change that has `ApplyTemporarily` and `Update` functions. These can be called multiple times before the regular `Apply` function is called. `Revert` here should revert to a state before `ApplyTemporarily` was called for the first time. Used for changes that can be updated in real time, like the opacity slider.
 - ChangeInfo: A piece of data describing the changes made to the state by a Change. It is returned by the `Apply` and `Revert` functions of the Change class.
 
@@ -161,7 +161,7 @@ During the implementation process StructureRenderer will most likely become a pa
 
 - ### PixiEditorPrototype
 
-A mockup UI with viewmodels used for testing
+A mockup UI with view models used for testing
 
 ## How it all integrates together
 
@@ -179,13 +179,13 @@ The compression should happen on a separate thread. The general idea is to make 
 
 Right now Chunk.Surface is a public property, and anyone can directly do stuff with the surface. This property will need to become private, and all canvas drawing functions will need to be wrapped. The wrappers will reset the MarkedForCompression flag, decompress the surface if it's currently compressed, and enable thread safety. Thread safety is required because Chunk.Compress() is called from a separate thread. Also, thread safety will allow the any thread to access the chunks at any time, which is required for the pipette tool and for the renderer cache.
 
-Since the compression thread needs to loop over all chunks the chunks need to be stored somewhere. A naive solution would be to add all chunks into a static ConcurrentBag<Chunk> and remove them on dispose. This will hovewer require all chunks to be explicitly disposed, so instead I propose using a static ConcurrentBag<WeakReference> where the weak reference points to the chunks. This will allow the chunks to be garbage collected. Any chunks that have been garbage collected can be removed from the list by the compression thread.
+Since the compression thread needs to loop over all chunks the chunks need to be stored somewhere. A naive solution would be to add all chunks into a static ConcurrentBag<Chunk> and remove them on dispose. This will however require all chunks to be explicitly disposed, so instead I propose using a static ConcurrentBag<WeakReference> where the weak reference points to the chunks. This will allow the chunks to be garbage collected. Any chunks that have been garbage collected can be removed from the list by the compression thread.
 
 ### Making ChunkyImage thread-safe
 
-For the pipette tool and the renderer cache to work they need to be able to access the Layers' ChunkyImages directly at any time, even if they are currently being edited in a separate thread. Therefore, ChunkyImage must become thread-safe. For the most part it's just a matter of adding a lock statement to all public functions, but there is a catch. ChunkyImage.GetLatestChunk and ChunkyImage.GetCommitedChunk return the chunks that are used internally by the ChunkyImage. The chunks are hidden behind the IReadOnlyChunk interface which protects them from being messed with, but that's it. If any changes are made to the ChunkyImage all chunks previously returned by GetLatest/CommitedChunk become effectively invalid (they can be modified in any way or even returned into the pool). At the moment it isn't a problem because the ChunkyImages are only ever accessed by a single thread at once, and no one holds onto the chunks returned by the aforementioned functions.
+For the pipette tool and the renderer cache to work they need to be able to access the Layers' ChunkyImages directly at any time, even if they are currently being edited in a separate thread. Therefore, ChunkyImage must become thread-safe. For the most part it's just a matter of adding a lock statement to all public functions, but there is a catch. ChunkyImage.GetLatestChunk and ChunkyImage.GetCommittedChunk return the chunks that are used internally by the ChunkyImage. The chunks are hidden behind the IReadOnlyChunk interface which protects them from being messed with, but that's it. If any changes are made to the ChunkyImage all chunks previously returned by GetLatest/CommittedChunk become effectively invalid (they can be modified in any way or even returned into the pool). At the moment it isn't a problem because the ChunkyImages are only ever accessed by a single thread at once, and no one holds onto the chunks returned by the aforementioned functions.
 
-~~Obviously, we'd need a different system to make ChunkyImage truly thread safe. A simple solution would be to make a copy of the chunks in GetLatest/CommitedChunk, but that would noticeably affect rendering performance. Instead, I propose a ChunkView class. A ChunkView can be created by calling Chunk.CreateView(). Internally, the Chunk will store a weak reference to the created ChunkView. ChunkView will have methods that let you read the surface of it's corresponding chunk and a Detach() method. The Detach() method will make the ChunkView copy the surface of it's chunk, store the copy internally, and get rid of the reference to the original chunk. Whenever a Chunk gets modified or disposed, it will call detach on all the ChunkViews it has a weak reference to, if they haven't been disposed or garbage collected already, and once it's done the Chunk will get rid of the reference. ChunkView will need to be thread safe. This mechanism will allow us to avoid the copying overhead most of the time while also ensuring that the chunkviews we get from ChunkyImage.GetLatest/CommitedChunk are always valid, even after the ChunkyImage is modified.~~
+~~Obviously, we'd need a different system to make ChunkyImage truly thread safe. A simple solution would be to make a copy of the chunks in GetLatest/CommittedChunk, but that would noticeably affect rendering performance. Instead, I propose a ChunkView class. A ChunkView can be created by calling Chunk.CreateView(). Internally, the Chunk will store a weak reference to the created ChunkView. ChunkView will have methods that let you read the surface of it's corresponding chunk and a Detach() method. The Detach() method will make the ChunkView copy the surface of it's chunk, store the copy internally, and get rid of the reference to the original chunk. Whenever a Chunk gets modified or disposed, it will call detach on all the ChunkViews it has a weak reference to, if they haven't been disposed or garbage collected already, and once it's done the Chunk will get rid of the reference. ChunkView will need to be thread safe. This mechanism will allow us to avoid the copying overhead most of the time while also ensuring that the chunk views we get from ChunkyImage.GetLatest/CommittedChunk are always valid, even after the ChunkyImage is modified.~~
 
 Edit: I decided that it would be much simpler to not return any chunks at all and instead add a couple of wrappers for `Chunk.Surface.SkiaSurface.Canvas.DrawSurface` into `ChunkyImage`.
 
@@ -195,4 +195,4 @@ At the moment, WriteableBitmapUpdater receives IChangeInfos from ActionAccumulat
 
 This pre-rendering process can be done in a separate thread inside WriteableBitmapUpdater. Whenever a chunk is rendered it will try to use pre-rendered images if they exist, and render from scratch otherwise. While processing the IChangeInfos the WriteableBitmapUpdater will get rid of the pre-rendered images if the layers they contain were modified. It will also give the rendering thread instruction about the stuff that needs to be pre-rendered, e.g. "the active layer just got changed, so please work on pre-rendering the layers that are below our new location" (this means that active layer change will need to become an action).
 
-Note that the cache only gets updated after all the IChangeInfos are processed. This means that we can't use the cache inside ChangeableDocument as it can get outdated if multiple Actions get proccessed in a single batch. Hypothetically, we could integrate the cache into ChangeableDocument and update it after every change, but I believe the minor speed up for some operations (mainly just the fill bucket and the magic wand) won't be worth the added complexity. It's nice to keep the caching logic decoupled from ChangeableDocument.
+Note that the cache only gets updated after all the IChangeInfos are processed. This means that we can't use the cache inside ChangeableDocument as it can get outdated if multiple Actions get processed in a single batch. Hypothetically, we could integrate the cache into ChangeableDocument and update it after every change, but I believe the minor speed up for some operations (mainly just the fill bucket and the magic wand) won't be worth the added complexity. It's nice to keep the caching logic decoupled from ChangeableDocument.
