@@ -42,7 +42,7 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
             throw new NotImplementedException();
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         ignoreInUndo = originalPos == newPos;
         SetPosition(target, newPos);

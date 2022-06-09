@@ -8,6 +8,10 @@
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=Xaml_002ERedundantNamespaceAlias/@EntryIndexedValue">SUGGESTION</s:String>
 	<s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/BLANK_LINES_AFTER_BLOCK_STATEMENTS/@EntryValue">0</s:Int64>
 	<s:String x:Key="/Default/CodeStyle/Naming/XamlNaming/UserRules/=XAML_005FFIELD/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="" Suffix="" Style="AaBb"&gt;&lt;ExtraRule Prefix="" Suffix="" Style="aaBb" /&gt;&lt;/Policy&gt;</s:String>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpKeepExistingMigration/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpPlaceEmbeddedOnSameLineMigration/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpUseContinuousIndentInsideBracesMigration/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ESettingsUpgrade_002EMigrateBlankLinesAroundFieldToBlankLinesAroundProperty/@EntryIndexedValue">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=2CAB0A567F30704CA99AA3EC249E3153/Text/@EntryValue">$HEADER$namespace $NAMESPACE$
 {
   internal class $CLASS$ {$END$}

@@ -24,7 +24,7 @@ internal class StructureMemberBlendMode_Change : Change
         return new Success();
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var member = target.FindMemberOrThrow(targetGuid);
         member.BlendMode = newBlendMode;

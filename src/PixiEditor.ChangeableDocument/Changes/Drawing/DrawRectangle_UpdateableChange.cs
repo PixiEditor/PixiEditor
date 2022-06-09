@@ -49,7 +49,7 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var affectedChunks = UpdateRectangle(target, targetImage);

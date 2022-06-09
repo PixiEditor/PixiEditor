@@ -45,7 +45,7 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
         return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         ignoreInUndo = false;
         return CommonApply(target);

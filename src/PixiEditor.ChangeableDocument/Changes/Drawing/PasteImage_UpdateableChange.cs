@@ -51,7 +51,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         return affectedChunks;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var chunks = DrawImage(target, targetImage);

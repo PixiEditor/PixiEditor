@@ -31,9 +31,9 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         return new Success();
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target) => Apply(target, out _);
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target) => Apply(target, false, out _);
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply, out bool ignoreInUndo)
     {
         if (originalOpacity == newOpacity)
         {

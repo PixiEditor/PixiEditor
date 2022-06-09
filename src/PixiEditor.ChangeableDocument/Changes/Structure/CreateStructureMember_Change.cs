@@ -27,7 +27,7 @@ internal class CreateStructureMember_Change : Change
         return new Success();
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply, out bool ignoreInUndo)
     {
         var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
 

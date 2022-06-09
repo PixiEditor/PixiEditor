@@ -23,7 +23,7 @@ internal class StructureMemberIsVisible_Change : Change
         return new Success();
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         // don't record layer/folder visibility changes - it's just more convenient this way
         ignoreInUndo = true;

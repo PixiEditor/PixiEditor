@@ -9,8 +9,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly bool replacing;
     private readonly bool drawOnMask;
 
-    bool firstApply = true;
-
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
 
@@ -80,7 +78,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         }
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
@@ -89,8 +87,6 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         ignoreInUndo = false;
         if (firstApply)
         {
-            firstApply = false;
-
             var affChunks = image.FindAffectedChunks();
             storedChunks = new CommittedChunkStorage(image, affChunks);
             image.CommitChanges();

@@ -46,7 +46,7 @@ internal class CombineStructureMembersOnto_Change : Change
         }
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
 

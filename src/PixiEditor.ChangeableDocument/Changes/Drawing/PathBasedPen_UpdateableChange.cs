@@ -8,8 +8,6 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
     private readonly float strokeWidth;
     private readonly bool drawOnMask;
 
-    bool firstApply = true;
-
     private CommittedChunkStorage? storedChunks;
     private SKPath tempPath = new();
 
@@ -98,7 +96,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         tempPath.CubicTo((SKPoint)mid1, (SKPoint)mid2, (SKPoint)points[pointsCount - 2]);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         if (storedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
@@ -107,7 +105,6 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         ignoreInUndo = false;
         if (firstApply)
         {
-            firstApply = false;
             UpdateTempPathFinish();
 
             image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round, SKBlendMode.Src);

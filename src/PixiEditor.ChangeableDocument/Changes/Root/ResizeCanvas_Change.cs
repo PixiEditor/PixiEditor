@@ -39,7 +39,7 @@ internal class ResizeCanvas_Change : Change
         }
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         target.Size = newSize;
         target.VerticalSymmetryAxisX = Math.Clamp(originalVerAxisX, 0, target.Size.X);

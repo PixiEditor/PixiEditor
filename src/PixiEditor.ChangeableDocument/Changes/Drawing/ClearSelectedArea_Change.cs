@@ -23,7 +23,7 @@ internal class ClearSelectedArea_Change : Change
         return new Success();
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         if (savedChunks is not null)
             throw new InvalidOperationException("trying to save chunks while they are already saved");

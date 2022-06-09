@@ -38,7 +38,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         return curChunks;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var chunks = DrawShiftedLayer(target);
         var image = ((Layer)target.FindMemberOrThrow(layerGuid)).LayerImage;

@@ -40,7 +40,7 @@ internal class MoveStructureMember_Change : Change
         targetFolder.Children = targetFolder.Children.Insert(targetIndex, member);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         Move(target, memberGuid, targetFolderGuid, targetFolderIndex);
         ignoreInUndo = false;

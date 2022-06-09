@@ -130,7 +130,7 @@ public class DocumentChangeTracker : IDisposable
 
         for (int i = 0; i < changePacket.Count; i++)
         {
-            changePacket[i].Apply(document, out _).Switch(
+            changePacket[i].Apply(document, false, out _).Switch(
                 (None _) => { },
                 (IChangeInfo info) => changeInfos.Add(info),
                 (List<IChangeInfo> infos) => changeInfos.AddRange(infos));
@@ -173,7 +173,7 @@ public class DocumentChangeTracker : IDisposable
             return new None();
         }
 
-        var info = change.Apply(document, out bool ignoreInUndo);
+        var info = change.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
             AddToUndo(change);
         else
@@ -217,7 +217,7 @@ public class DocumentChangeTracker : IDisposable
             return new None();
         }
 
-        var info = activeUpdateableChange.Apply(document, out bool ignoreInUndo);
+        var info = activeUpdateableChange.Apply(document, true, out bool ignoreInUndo);
         if (!ignoreInUndo)
             AddToUndo(activeUpdateableChange);
         else
