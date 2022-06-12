@@ -194,6 +194,7 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="CLSEncoderDecoder" Version="1.0.0" />
 		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.1" />
 		<PackageReference Include="ByteSize" Version="2.1.1" />
 		<PackageReference Include="DiscordRichPresence" Version="1.0.175" />
