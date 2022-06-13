@@ -26,7 +26,31 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         Selection.Dispose();
     }
 
+    public void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action) => ForEveryReadonlyMember(StructureRoot, action);
+    public void ForEveryMember(Action<StructureMember> action) => ForEveryMember(StructureRoot, action);
+
+    private void ForEveryReadonlyMember(IReadOnlyFolder folder, Action<IReadOnlyStructureMember> action)
+    {
+        foreach (var child in folder.Children)
+        {
+            action(child);
+            if (child is IReadOnlyFolder innerFolder)
+                ForEveryReadonlyMember(innerFolder, action);
+        }
+    }
+
+    private void ForEveryMember(Folder folder, Action<StructureMember> action)
+    {
+        foreach (var child in folder.Children)
+        {
+            action(child);
+            if (child is Folder innerFolder)
+                ForEveryMember(innerFolder, action);
+        }
+    }
+
     public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
+
     public StructureMember? FindMember(Guid guid)
     {
         var list = FindMemberPath(guid);

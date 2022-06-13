@@ -9,6 +9,7 @@ public interface IReadOnlyDocument
     bool VerticalSymmetryAxisEnabled { get; }
     int HorizontalSymmetryAxisY { get; }
     int VerticalSymmetryAxisX { get; }
+    void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action);
     IReadOnlyStructureMember? FindMember(Guid guid);
     IReadOnlyStructureMember FindMemberOrThrow(Guid guid);
     (IReadOnlyStructureMember, IReadOnlyFolder) FindChildAndParentOrThrow(Guid guid);

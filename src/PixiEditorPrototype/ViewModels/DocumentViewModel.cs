@@ -580,12 +580,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
-    public void FloodFill(VecI pos, SKColor color)
+    public void FloodFill(VecI pos, SKColor color, bool referenceAllLayers)
     {
         var member = FindFirstSelectedMember();
         if (updateableChangeActive || member is null)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new FloodFill_Action(member.GuidValue, pos, color, member.ShouldDrawOnMask));
+        Helpers.ActionAccumulator.AddFinishedActions(new FloodFill_Action(member.GuidValue, pos, color, referenceAllLayers, member.ShouldDrawOnMask));
     }
 
     public void AddOrUpdateViewport(ViewportInfo info)

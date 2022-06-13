@@ -634,6 +634,11 @@
                     Keep area
                 </CheckBox>
                 <CheckBox
+                    Margin="5, 0"
+                    IsChecked="{Binding FillAllLayers}">
+                    Fill all layers
+                </CheckBox>
+                <CheckBox
                     x:Name="horizontalSymmetryCheckbox"
                     Margin="5,0"
                     IsChecked="{Binding ActiveDocument.HorizontalSymmetryAxisEnabledBindable}">

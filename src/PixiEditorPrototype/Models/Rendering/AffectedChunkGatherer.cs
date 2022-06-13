@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 namespace PixiEditorPrototype.Models.Rendering;
+
 internal class AffectedChunkGatherer
 {
     private readonly DocumentChangeTracker tracker;
@@ -108,6 +109,7 @@ internal class AffectedChunkGatherer
                 AddAllToImagePreviews(child.GuidValue);
         }
     }
+
     private void AddAllToMainImage(Guid memberGuid, bool useMask = true)
     {
         var member = tracker.Document.FindMember(memberGuid);
@@ -123,6 +125,7 @@ internal class AffectedChunkGatherer
             AddWholeCanvasToMainImage();
         }
     }
+
     private void AddAllToMaskPreview(Guid memberGuid)
     {
         var member = tracker.Document.FindMember(memberGuid);
@@ -145,6 +148,7 @@ internal class AffectedChunkGatherer
     {
         mainImageChunks.UnionWith(chunks);
     }
+
     private void AddToImagePreviews(Guid memberGuid, HashSet<VecI> chunks, bool ignoreSelf = false)
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
@@ -159,6 +163,7 @@ internal class AffectedChunkGatherer
                 imagePreviewChunks[member.GuidValue].UnionWith(chunks);
         }
     }
+
     private void AddToMaskPreview(Guid memberGuid, HashSet<VecI> chunks)
     {
         if (!maskPreviewChunks.ContainsKey(memberGuid))
@@ -172,6 +177,7 @@ internal class AffectedChunkGatherer
     {
         AddAllChunks(mainImageChunks);
     }
+
     private void AddWholeCanvasToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
@@ -186,6 +192,7 @@ internal class AffectedChunkGatherer
             AddAllChunks(imagePreviewChunks[member.GuidValue]);
         }
     }
+
     private void AddWholeCanvasToMaskPreview(Guid memberGuid)
     {
         if (!maskPreviewChunks.ContainsKey(memberGuid))
@@ -196,23 +203,12 @@ internal class AffectedChunkGatherer
 
     private void AddWholeCanvasToEveryImagePreview()
     {
-        ForEveryMember(tracker.Document.StructureRoot, (member) => AddWholeCanvasToImagePreviews(member.GuidValue));
+        tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToImagePreviews(member.GuidValue));
     }
 
     private void AddWholeCanvasToEveryMaskPreview()
     {
-        ForEveryMember(tracker.Document.StructureRoot, (member) => AddWholeCanvasToMaskPreview(member.GuidValue));
-    }
-
-
-    private void ForEveryMember(IReadOnlyFolder folder, Action<IReadOnlyStructureMember> action)
-    {
-        foreach (var child in folder.Children)
-        {
-            action(child);
-            if (child is IReadOnlyFolder innerFolder)
-                ForEveryMember(innerFolder, action);
-        }
+        tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToMaskPreview(member.GuidValue));
     }
 
     private void AddAllChunks(HashSet<VecI> chunks)

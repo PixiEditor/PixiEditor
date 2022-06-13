@@ -97,7 +97,7 @@ Decouples the state of a document from the UI.
         - [x] Path-based pen
         - [x] Regular pen
         - [x] Pixel-perfect pen
-        - [ ] Fill
+        - [x] Fill
         - [ ] Brightness
         - [x] Basic selection changes
         - [x] Selection modes

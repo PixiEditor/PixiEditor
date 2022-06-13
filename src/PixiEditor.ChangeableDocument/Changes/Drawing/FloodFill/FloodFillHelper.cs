@@ -1,34 +1,59 @@
 ﻿using System.Runtime.CompilerServices;
 using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
+
 internal static class FloodFillHelper
 {
     private const byte InSelection = 1;
     private const byte Visited = 2;
 
-    public static FloodFillChunkStorage FloodFill(ChunkyImage image, SKPath? selection, VecI startingPos, SKColor drawingColor)
+    private static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
+    {
+        if (membersToFloodFill.Count == 1)
+        {
+            Guid guid = membersToFloodFill.First();
+            var member = document.FindMemberOrThrow(guid);
+            if (member is IReadOnlyFolder folder)
+                return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
+            return new FloodFillChunkCache(((IReadOnlyLayer)member).LayerImage);
+        }
+        return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
+    }
+
+    public static Dictionary<VecI, Chunk> FloodFill(
+        HashSet<Guid> membersToFloodFill,
+        IReadOnlyDocument document,
+        SKPath? selection,
+        VecI startingPos,
+        SKColor drawingColor)
     {
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkStorage storage = new(image);
+        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
-        VecI imageSizeInChunks = (VecI)(image.LatestSize / (double)chunkSize).Ceiling();
+        VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
-        SKColor colorToReplace = storage.GetChunk(initChunkPos).Surface.GetSRGBPixel(initPosOnChunk);
+        SKColor colorToReplace = cache.GetChunk(initChunkPos).Match(
+            (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
+            static (EmptyChunk _) => SKColors.Transparent
+        );
 
         if (colorToReplace.Alpha == 0 && drawingColor.Alpha == 0 || colorToReplace == drawingColor)
-            return storage;
+            return new();
 
-        RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, image.LatestSize);
+        RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);
 
-        // Premultiplies the color and convert it to floats. Since floats are imprecise, a range is used.
+        // Pre-multiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
         FloodFillColorRange colorRange = new(colorToReplace);
         ulong uLongColor = ToULong(drawingColor);
 
+        Dictionary<VecI, Chunk> drawingChunks = new();
+        HashSet<VecI> processedEmptyChunks = new();
         // flood fill chunks using a basic 4-way approach with a stack (each chunk is kinda like a pixel)
         // once the chunk is filled all places where it spills over to neighboring chunks are saved in the stack
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
@@ -37,13 +62,21 @@ internal static class FloodFillHelper
         {
             var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
 
-            // if the chunks is empty and we are replacing a transparent color clear the whole chunk right away
-            if (!storage.ChunkExistsInStorageOrInImage(chunkPos))
+            if (!drawingChunks.ContainsKey(chunkPos))
             {
-                if (colorToReplace.Alpha == 0)
+                var chunk = Chunk.Create();
+                chunk.Surface.SkiaSurface.Canvas.Clear(SKColors.Transparent);
+                drawingChunks[chunkPos] = chunk;
+            }
+            var drawingChunk = drawingChunks[chunkPos];
+            var referenceChunk = cache.GetChunk(chunkPos);
+
+            // don't call floodfill if the chunk is empty
+            if (referenceChunk.IsT1)
+            {
+                if (colorToReplace.Alpha == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    var chunkToClear = storage.GetChunk(chunkPos);
-                    chunkToClear.Surface.SkiaSurface.Canvas.Clear(drawingColor);
+                    drawingChunk.Surface.SkiaSurface.Canvas.Clear(drawingColor);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -55,14 +88,25 @@ internal static class FloodFillHelper
                         if (chunkPos.X < imageSizeInChunks.X - 1)
                             positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
                     }
+                    processedEmptyChunks.Add(chunkPos);
                 }
                 continue;
             }
 
             // use regular flood fill for chunks that have something in them
-            Chunk chunk = storage.GetChunk(chunkPos);
-            var maybeArray = FloodFillChunk
-                (chunk, selection, globalSelectionBounds, chunkPos, chunkSize, uLongColor, drawingColor, posOnChunk, colorRange);
+            var reallyReferenceChunk = referenceChunk.AsT0;
+            var maybeArray = FloodFillChunk(
+                reallyReferenceChunk,
+                drawingChunk,
+                selection,
+                globalSelectionBounds,
+                chunkPos,
+                chunkSize,
+                uLongColor,
+                drawingColor,
+                posOnChunk,
+                colorRange);
+
             if (maybeArray is null)
                 continue;
             for (int i = 0; i < chunkSize; i++)
@@ -77,10 +121,10 @@ internal static class FloodFillHelper
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
-        return storage;
+        return drawingChunks;
     }
 
-    private unsafe static ulong ToULong(SKColor color)
+    private static unsafe ulong ToULong(SKColor color)
     {
         ulong result = 0;
         Half* ptr = (Half*)&result;
@@ -110,7 +154,8 @@ internal static class FloodFillHelper
     }
 
     private static unsafe byte[]? FloodFillChunk(
-        Chunk chunk,
+        Chunk referenceChunk,
+        Chunk drawingChunk,
         SKPath? selection,
         RectI globalSelectionBounds,
         VecI chunkPos,
@@ -120,13 +165,17 @@ internal static class FloodFillHelper
         VecI pos,
         FloodFillColorRange bounds)
     {
-        if (chunk.Surface.GetSRGBPixel(pos) == color)
+        if (referenceChunk.Surface.GetSRGBPixel(pos) == color || drawingChunk.Surface.GetSRGBPixel(pos) == color)
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
         DrawSelection(pixelStates, selection, globalSelectionBounds, chunkPos, chunkSize);
-        using var pixmap = chunk.Surface.SkiaSurface.PeekPixels();
-        Half* array = (Half*)pixmap.GetPixels();
+
+        using var refPixmap = referenceChunk.Surface.SkiaSurface.PeekPixels();
+        Half* refArray = (Half*)refPixmap.GetPixels();
+
+        using var drawPixmap = drawingChunk.Surface.SkiaSurface.PeekPixels();
+        Half* drawArray = (Half*)drawPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();
         toVisit.Push(pos);
@@ -135,17 +184,18 @@ internal static class FloodFillHelper
         {
             VecI curPos = toVisit.Pop();
             int pixelOffset = curPos.X + curPos.Y * chunkSize;
-            Half* pixel = array + pixelOffset * 4;
-            *(ulong*)pixel = colorBits;
+            Half* drawPixel = drawArray + pixelOffset * 4;
+            Half* refPixel = refArray + pixelOffset * 4;
+            *(ulong*)drawPixel = colorBits;
             pixelStates[pixelOffset] = Visited;
 
-            if (curPos.X > 0 && pixelStates[pixelOffset - 1] == InSelection && IsWithinBounds(ref bounds, pixel - 4))
+            if (curPos.X > 0 && pixelStates[pixelOffset - 1] == InSelection && IsWithinBounds(ref bounds, refPixel - 4))
                 toVisit.Push(new(curPos.X - 1, curPos.Y));
-            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection && IsWithinBounds(ref bounds, pixel + 4))
+            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection && IsWithinBounds(ref bounds, refPixel + 4))
                 toVisit.Push(new(curPos.X + 1, curPos.Y));
-            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection && IsWithinBounds(ref bounds, pixel - 4 * chunkSize))
+            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection && IsWithinBounds(ref bounds, refPixel - 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y - 1));
-            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection && IsWithinBounds(ref bounds, pixel + 4 * chunkSize))
+            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection && IsWithinBounds(ref bounds, refPixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
         return pixelStates;

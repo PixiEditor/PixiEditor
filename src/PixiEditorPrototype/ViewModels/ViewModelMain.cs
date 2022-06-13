@@ -2,15 +2,16 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Parser;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
+using SelectionMode = PixiEditor.ChangeableDocument.Enums.SelectionMode;
 
 namespace PixiEditorPrototype.ViewModels;
 
@@ -27,6 +28,7 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     public Color SelectedColor { get; set; } = Colors.Black;
     public bool KeepOriginalImageOnTransform { get; set; } = false;
+    public bool FillAllLayers { get; set; } = false;
     public float StrokeWidth { get; set; } = 1f;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -81,6 +83,7 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     public ObservableCollection<DocumentViewModel> Documents { get; } = new();
 
+
     private VecD mouseDownCanvasPos;
 
     private bool mouseHasMoved = false;
@@ -123,7 +126,7 @@ internal class ViewModelMain : INotifyPropertyChanged
 
         mouseIsDown = true;
         var args = (MouseButtonEventArgs)(param!);
-        var source = (System.Windows.Controls.Image)args.Source;
+        var source = (Image)args.Source;
         var pos = args.GetPosition(source);
         mouseDownCanvasPos = new() { X = pos.X / source.Width * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelWidth, Y = pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight };
         toolOnMouseDown = activeTool;
@@ -134,7 +137,7 @@ internal class ViewModelMain : INotifyPropertyChanged
     {
         if (toolOnMouseDown is Tool.FloodFill)
         {
-            ActiveDocument!.FloodFill((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+            ActiveDocument!.FloodFill((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A), FillAllLayers);
         }
         else if (toolOnMouseDown == Tool.PathBasedPen)
         {
@@ -160,7 +163,7 @@ internal class ViewModelMain : INotifyPropertyChanged
             return;
         mouseHasMoved = true;
         var args = (MouseEventArgs)(param!);
-        var source = (System.Windows.Controls.Image)args.Source;
+        var source = (Image)args.Source;
         var pos = args.GetPosition(source);
         double curX = pos.X / source.Width * ActiveDocument!.Bitmaps[ChunkResolution.Full].PixelWidth;
         double curY = pos.Y / source.Height * ActiveDocument.Bitmaps[ChunkResolution.Full].PixelHeight;
