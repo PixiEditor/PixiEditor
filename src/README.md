@@ -101,7 +101,7 @@ Decouples the state of a document from the UI.
         - [ ] Brightness
         - [x] Basic selection changes
         - [x] Selection modes
-        - [ ] Circular selection
+        - [x] Circular selection
         - [ ] Magic wand
         - [x] Lasso
         - [x] Shift layer image
