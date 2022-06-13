@@ -14,9 +14,9 @@ public class ClsFileParser : PaletteFileParser
 
     public override string[] SupportedFileExtensions { get; } = { ".cls" };
     
-    public override Task<PaletteFileData> Parse(string path)
+    public override async Task<PaletteFileData> Parse(string path)
     {
-        return Task.Run(() =>
+        return await Task.Run(() =>
         {
             ClsColorSet set;
             try
@@ -38,11 +38,11 @@ public class ClsFileParser : PaletteFileParser
         });
     }
 
-    public override Task Save(string path, PaletteFileData data)
+    public override async Task Save(string path, PaletteFileData data)
     {   
         string name = data.Title;
         List<ClsColor> colors = data.Colors.Select(color => new ClsColor(color.Red, color.Green, color.Blue, color.Alpha)).ToList();
-        return Task.Run(() =>
+        await Task.Run(() =>
         {
             if (name.Length == 0)
                 name = Path.GetFileNameWithoutExtension(path);
