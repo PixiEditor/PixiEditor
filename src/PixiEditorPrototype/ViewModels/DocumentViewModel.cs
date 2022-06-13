@@ -151,6 +151,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool updateableChangeActive = false;
 
     private bool selectingRect = false;
+    private bool selectingEllipse = false;
     private bool selectingLasso = false;
     private bool drawingRectangle = false;
     private bool drawingEllipse = false;
@@ -548,6 +549,22 @@ internal class DocumentViewModel : INotifyPropertyChanged
         selectingRect = false;
         updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndSelectRectangle_Action());
+    }
+
+    public void StartUpdateEllipseSelection(RectI borders, SelectionMode mode)
+    {
+        selectingEllipse = true;
+        updateableChangeActive = true;
+        Helpers.ActionAccumulator.AddActions(new SelectEllipse_Action(borders, mode));
+    }
+
+    public void EndEllipseSelection()
+    {
+        if (!selectingEllipse)
+            return;
+        selectingEllipse = false;
+        updateableChangeActive = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndSelectEllipse_Action());
     }
 
     private void OnTransformUpdate(object? sender, ShapeCorners newCorners)

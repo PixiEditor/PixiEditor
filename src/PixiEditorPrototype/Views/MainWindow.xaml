@@ -570,8 +570,15 @@
                     Width="70"
                     Margin="5"
                     Command="{Binding ChangeActiveToolCommand}"
-                    CommandParameter="{x:Static models:Tool.Select}">
+                    CommandParameter="{x:Static models:Tool.SelectRectangle}">
                     Select
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.SelectEllipse}">
+                    Select Ellipse
                 </Button>
                 <Button
                     Width="70"

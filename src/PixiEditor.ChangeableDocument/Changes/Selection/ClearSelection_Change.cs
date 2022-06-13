@@ -1,6 +1,6 @@
 ﻿using SkiaSharp;
 
-namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+namespace PixiEditor.ChangeableDocument.Changes.Selection;
 
 internal class ClearSelection_Change : Change
 {

@@ -8,7 +8,8 @@ internal enum Tool
     LineBasedPen,
     PixelPerfectPen,
     Eraser,
-    Select,
+    SelectRectangle,
+    SelectEllipse,
     Lasso,
     ShiftLayer,
     FloodFill

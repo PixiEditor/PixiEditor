@@ -196,8 +196,13 @@ internal class ViewModelMain : INotifyPropertyChanged
                     (int)StrokeWidth);
                 break;
             }
-            case Tool.Select:
+            case Tool.SelectRectangle:
                 ActiveDocument!.StartUpdateRectSelection(
+                    RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
+                    selectionMode);
+                break;
+            case Tool.SelectEllipse:
+                ActiveDocument!.StartUpdateEllipseSelection(
                     RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
                     selectionMode);
                 break;
@@ -243,8 +248,11 @@ internal class ViewModelMain : INotifyPropertyChanged
                 case Tool.Ellipse:
                     ActiveDocument!.EndEllipse();
                     break;
-                case Tool.Select:
+                case Tool.SelectRectangle:
                     ActiveDocument!.EndRectSelection();
+                    break;
+                case Tool.SelectEllipse:
+                    ActiveDocument!.EndEllipseSelection();
                     break;
                 case Tool.ShiftLayer:
                     ActiveDocument!.EndShiftLayer();
