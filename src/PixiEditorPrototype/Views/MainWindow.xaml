@@ -470,6 +470,57 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </ComboBox>
+                    <ComboBox
+                        Width="70"
+                        Height="20"
+                        Margin="5"
+                        SelectedIndex="0"
+                        x:Name="resizeAnchorComboBox">
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.TopLeft}">
+                            Top Left
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.Top}">
+                            Top
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.TopRight}">
+                            Top Right
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.Left}">
+                            Left
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.Center}">
+                            Center
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.Right}">
+                            Right
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.BottomLeft}">
+                            Bottom Left
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.Bottom}">
+                            Bottom
+                        </ComboBoxItem>
+                        <ComboBoxItem
+                            Tag="{x:Static chen:ResizeAnchor.BottomRight}">
+                            Bottom Right
+                        </ComboBoxItem>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger
+                                EventName="SelectionChanged">
+                                <i:InvokeCommandAction
+                                    Command="{Binding SetResizeAnchorCommand}"
+                                    CommandParameter="{Binding SelectedItem.Tag, ElementName=resizeAnchorComboBox}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
                     <Button
                         Width="120"
                         Margin="5"

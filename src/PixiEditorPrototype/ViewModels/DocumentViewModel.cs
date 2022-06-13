@@ -220,7 +220,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     {
         DocumentViewModel document = new DocumentViewModel(owner, name);
         var acc = document.Helpers.ActionAccumulator;
-        acc.AddActions(new ResizeCanvas_Action(new(serDocument.Width, serDocument.Height)));
+        acc.AddActions(new ResizeCanvas_Action(new(serDocument.Width, serDocument.Height), ResizeAnchor.TopLeft));
         int index = 0;
         foreach (var layer in serDocument.Layers.Reverse())
         {
@@ -669,7 +669,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     {
         if (updateableChangeActive)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight)));
+        Helpers.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(new(ResizeWidth, ResizeHeight), owner.ResizeAnchor));
     }
 
     private void CreateMask(object? param)

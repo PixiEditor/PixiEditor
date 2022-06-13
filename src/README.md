@@ -88,7 +88,7 @@ Decouples the state of a document from the UI.
         - [x] Layer/Folder Blend Modes
         - [ ] Layer/Folder locking
         - [ ] Reference layer manipulation?
-        - [ ] Resize canvas (basic done, anchors left)
+        - [x] Resize canvas
         - [ ] Resize image
         - [x] Paste image with transformation
         - [x] Rectangle

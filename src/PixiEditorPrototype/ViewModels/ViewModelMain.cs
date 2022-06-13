@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Parser;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
@@ -24,6 +25,7 @@ internal class ViewModelMain : INotifyPropertyChanged
     public RelayCommand MouseUpCommand { get; }
     public RelayCommand ChangeActiveToolCommand { get; }
     public RelayCommand SetSelectionModeCommand { get; }
+    public RelayCommand SetResizeAnchorCommand { get; }
     public RelayCommand LoadDocumentCommand { get; }
 
     public Color SelectedColor { get; set; } = Colors.Black;
@@ -91,6 +93,7 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     private Tool activeTool = Tool.Rectangle;
     private SelectionMode selectionMode = SelectionMode.New;
+    public ResizeAnchor ResizeAnchor { get; private set; } = ResizeAnchor.TopLeft;
 
     private Tool toolOnMouseDown = Tool.Rectangle;
 
@@ -101,9 +104,17 @@ internal class ViewModelMain : INotifyPropertyChanged
         MouseUpCommand = new RelayCommand(MouseUp);
         ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
         SetSelectionModeCommand = new RelayCommand(SetSelectionMode);
+        SetResizeAnchorCommand = new RelayCommand(SetResizeAnchor);
         LoadDocumentCommand = new RelayCommand(LoadDocument);
 
         Documents.Add(new DocumentViewModel(this, "New Artwork"));
+    }
+
+    private void SetResizeAnchor(object? obj)
+    {
+        if (obj is not ResizeAnchor anchor)
+            return;
+        ResizeAnchor = anchor;
     }
 
     private void SetSelectionMode(object? obj)

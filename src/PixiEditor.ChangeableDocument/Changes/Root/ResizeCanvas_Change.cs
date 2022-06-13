@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -10,12 +11,15 @@ internal class ResizeCanvas_Change : Change
     private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
     private VecI newSize;
+    private readonly ResizeAnchor anchor;
 
     [GenerateMakeChangeAction]
-    public ResizeCanvas_Change(VecI size)
+    public ResizeCanvas_Change(VecI size, ResizeAnchor anchor)
     {
         newSize = size;
+        this.anchor = anchor;
     }
+
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
         if (target.Size == newSize)
@@ -48,6 +52,9 @@ internal class ResizeCanvas_Change : Change
         ForEachLayer(target.StructureRoot, (layer) =>
         {
             layer.LayerImage.EnqueueResize(newSize);
+            layer.LayerImage.EnqueueClear();
+            layer.LayerImage.EnqueueDrawChunkyImage(anchor.FindOffsetFor(originalSize, newSize), layer.LayerImage);
+
             deletedChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedChunks()));
             layer.LayerImage.CommitChanges();
 
@@ -55,6 +62,8 @@ internal class ResizeCanvas_Change : Change
                 return;
 
             layer.Mask.EnqueueResize(newSize);
+            layer.Mask.EnqueueClear();
+            layer.Mask.EnqueueDrawChunkyImage(anchor.FindOffsetFor(originalSize, newSize), layer.Mask);
             deletedMaskChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.Mask, layer.Mask.FindAffectedChunks()));
             layer.Mask.CommitChanges();
         });
