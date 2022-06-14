@@ -20,7 +20,11 @@ public struct VecI : IEquatable<VecI>
         X = x;
         Y = y;
     }
-
+    public VecI(int bothAxesValue)
+    {
+        X = bothAxesValue;
+        Y = bothAxesValue;
+    }
     public VecI Signs()
     {
         return new VecI(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);

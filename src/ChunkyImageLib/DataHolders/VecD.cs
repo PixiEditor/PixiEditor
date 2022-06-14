@@ -21,6 +21,11 @@ public struct VecD : IEquatable<VecD>
         X = x;
         Y = y;
     }
+    public VecD(double bothAxesValue)
+    {
+        X = bothAxesValue;
+        Y = bothAxesValue;
+    }
     public static VecD FromAngleAndLength(double angle, double length)
     {
         return new VecD(Math.Cos(angle) * length, Math.Sin(angle) * length);

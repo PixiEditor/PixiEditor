@@ -122,6 +122,71 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    public SKColor GetCommittedPixel(VecI posOnImage)
+    {
+        lock (lockObject)
+        {
+            var chunkPos = OperationHelper.GetChunkPos(posOnImage, FullChunkSize);
+            var posInChunk = posOnImage - chunkPos * FullChunkSize;
+            return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) switch
+            {
+                null => SKColors.Transparent,
+                var chunk => chunk.Surface.GetSRGBPixel(posInChunk)
+            };
+        }
+    }
+    
+    public SKColor GetMostUpToDatePixel(VecI posOnImage)
+    {
+        lock (lockObject)
+        {
+            var chunkPos = OperationHelper.GetChunkPos(posOnImage, FullChunkSize);
+            var posInChunk = posOnImage - chunkPos * FullChunkSize;
+
+            // nothing queued, return committed
+            if (queuedOperations.Count == 0)
+            {
+                Chunk? committedChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
+                return committedChunk switch
+                {
+                    null => SKColors.Transparent,
+                    _ => committedChunk.Surface.GetSRGBPixel(posInChunk)
+                };
+            }
+
+            // something is queued, blend mode is Src so no merging needed
+            if (blendMode == SKBlendMode.Src)
+            {
+                Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
+                return latestChunk switch
+                {
+                    null => SKColors.Transparent,
+                    _ => latestChunk.Surface.GetSRGBPixel(posInChunk)
+                };
+            }
+
+            // something is queued, blend mode is not Src so we have to do merging
+            {
+                Chunk? committedChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
+                Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
+                SKColor committedColor = committedChunk is null ? 
+                    SKColors.Transparent :  
+                    committedChunk.Surface.GetSRGBPixel(posInChunk);
+                SKColor latestColor = latestChunk is null ?
+                    SKColors.Transparent : 
+                    latestChunk.Surface.GetSRGBPixel(posInChunk);
+                // using a whole chunk just to draw 1 pixel is kinda dumb,
+                // but this should be faster than any approach that requires allocations
+                using Chunk tempChunk = Chunk.Create(ChunkResolution.Eighth);
+                using SKPaint committedPaint = new SKPaint() { Color = committedColor, BlendMode = SKBlendMode.Src };
+                using SKPaint latestPaint = new SKPaint() { Color = latestColor, BlendMode = this.blendMode };
+                tempChunk.Surface.SkiaSurface.Canvas.DrawPoint(VecI.Zero, committedPaint);
+                tempChunk.Surface.SkiaSurface.Canvas.DrawPoint(VecI.Zero, latestPaint);
+                return tempChunk.Surface.GetSRGBPixel(VecI.Zero);
+            }
+        }
+    }
+    
     /// <returns>
     /// True if the chunk existed and was drawn, otherwise false
     /// </returns>
