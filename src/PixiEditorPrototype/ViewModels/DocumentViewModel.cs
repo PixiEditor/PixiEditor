@@ -525,33 +525,33 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     public SKColor PickColor(VecI pos, bool fromAllLayers)
-    {
-        // it might've been a better idea to implement this function
-        // via a passthrough action to avoid all the try catches
-        if (fromAllLayers)
-        {
-            VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize); 
-            return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Helpers.Tracker.Document.StructureRoot)
-                .Match<SKColor>(
-                    (Chunk chunk) =>
-                    {
-                        VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
-                        var color = chunk.Surface.GetSRGBPixel(posOnChunk);
-                        chunk.Dispose();
-                        return color;
-                    },
-                    _ => SKColors.Transparent
-                );
-        }
-        
-        if (SelectedStructureMember is not LayerViewModel layerVm)
-            return SKColors.Transparent;
-        var maybeMember = Helpers.Tracker.Document.FindMember(layerVm.GuidValue);
-        if (maybeMember is not IReadOnlyLayer layer)
-            return SKColors.Transparent;
+    { 
         // there is a tiny chance that the image might get disposed by another thread
         try
         {
+            // it might've been a better idea to implement this function
+            // via a passthrough action to avoid all the try catches
+            if (fromAllLayers)
+            {
+                VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
+                    return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Helpers.Tracker.Document.StructureRoot)
+                        .Match<SKColor>(
+                            (Chunk chunk) =>
+                            {
+                                VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
+                                var color = chunk.Surface.GetSRGBPixel(posOnChunk);
+                                chunk.Dispose();
+                                return color;
+                            },
+                            _ => SKColors.Transparent
+                        );
+            }
+            
+            if (SelectedStructureMember is not LayerViewModel layerVm)
+                return SKColors.Transparent;
+            var maybeMember = Helpers.Tracker.Document.FindMember(layerVm.GuidValue);
+            if (maybeMember is not IReadOnlyLayer layer)
+                return SKColors.Transparent;
             return layer.LayerImage.GetMostUpToDatePixel(pos);
         }
         catch (ObjectDisposedException)
