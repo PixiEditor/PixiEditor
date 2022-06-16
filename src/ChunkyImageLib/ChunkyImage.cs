@@ -25,7 +25,7 @@ namespace ChunkyImageLib;
 ///     - latestChunks stores chunks with some (or none, or all) queued operations applied
 ///     - latestChunksData stores the data for some or all of the latest chunks (not necessarily synced with latestChunks).
 ///         The data includes how many operations from the queue have already been applied to the chunk, as well as chunk deleted state (the clear operation deletes chunks)
-///     - LatestSize contains the new size if any resize operations were requested, otherwise the commited size
+///     - LatestSize contains the new size if any resize operations were requested, otherwise the committed size
 /// You can check the current state via queuedOperations.Count == 0
 /// 
 /// Depending on the chosen blend mode the latest chunks contain different things:
@@ -102,6 +102,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         };
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public ChunkyImage CloneFromCommitted()
     {
         lock (lockObject)
@@ -122,10 +123,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public SKColor GetCommittedPixel(VecI posOnImage)
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             var chunkPos = OperationHelper.GetChunkPos(posOnImage, FullChunkSize);
             var posInChunk = posOnImage - chunkPos * FullChunkSize;
             return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) switch
@@ -136,10 +139,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
     
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public SKColor GetMostUpToDatePixel(VecI posOnImage)
     {
         lock (lockObject)
         {
+            ThrowIfDisposed();
             var chunkPos = OperationHelper.GetChunkPos(posOnImage, FullChunkSize);
             var posInChunk = posOnImage - chunkPos * FullChunkSize;
 
@@ -190,6 +195,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// <returns>
     /// True if the chunk existed and was drawn, otherwise false
     /// </returns>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, SKSurface surface, VecI pos, SKPaint? paint = null)
     {
         lock (lockObject)
@@ -244,6 +250,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public bool LatestOrCommittedChunkExists(VecI chunkPos)
     {
         lock (lockObject)
@@ -262,6 +269,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     internal bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, SKSurface surface, VecI pos, SKPaint? paint = null)
     {
         lock (lockObject)
@@ -275,6 +283,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     internal bool CommittedChunkExists(VecI chunkPos)
     {
         lock (lockObject)
@@ -319,6 +328,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private Chunk? MaybeGetCommittedChunk(VecI pos, ChunkResolution resolution)
         => committedChunks[resolution].TryGetValue(pos, out Chunk? value) ? value : null;
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void AddRasterClip(ChunkyImage clippingMask)
     {
         lock (lockObject)
@@ -330,6 +340,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void SetClippingPath(SKPath clippingPath)
     {
         lock (lockObject)
@@ -344,6 +355,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// <summary>
     /// Porter duff compositing operators (apart from SrcOver) likely won't have the intended effect.
     /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void SetBlendMode(SKBlendMode mode)
     {
         lock (lockObject)
@@ -355,6 +367,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void SetHorizontalAxisOfSymmetry(int position)
     {
         lock (lockObject)
@@ -366,6 +379,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void SetVerticalAxisOfSymmetry(int position)
     {
         lock (lockObject)
@@ -377,6 +391,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnableLockTransparency()
     {
         lock (lockObject)
@@ -386,6 +401,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawRectangle(ShapeData rect)
     {
         lock (lockObject)
@@ -396,6 +412,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
     {
         lock (lockObject)
@@ -408,10 +425,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     /// <summary>
     /// Be careful about the copyImage argument. The default is true, and this is a thread safe version without any side effects. 
-    /// It will hovewer copy the surface right away which can be slow (in updateable changes especially). 
+    /// It will however copy the surface right away which can be slow (in updateable changes especially). 
     /// If copyImage is set to false, the image won't be copied and instead a reference will be stored.
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawImage(ShapeCorners corners, Surface image, SKPaint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
@@ -424,10 +442,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     /// <summary>
     /// Be careful about the copyImage argument. The default is true, and this is a thread safe version without any side effects. 
-    /// It will hovewer copy the surface right away which can be slow (in updateable changes especially). 
+    /// It will however copy the surface right away which can be slow (in updateable changes especially). 
     /// If copyImage is set to false, the image won't be copied and instead a reference will be stored.
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawImage(VecI pos, Surface image, SKPaint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
@@ -439,6 +458,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawPath(SKPath path, SKColor color, float strokeWidth, SKStrokeCap strokeCap, SKBlendMode blendMode, RectI? customBounds = null)
     {
         lock (lockObject)
@@ -449,6 +469,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawBresenhamLine(VecI from, VecI to, SKColor color, SKBlendMode blendMode)
     {
         lock (lockObject)
@@ -459,6 +480,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color, SKBlendMode blendMode)
     {
         lock (lockObject)
@@ -469,6 +491,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawPixels(IEnumerable<VecI> pixels, SKColor color, SKBlendMode blendMode)
     {
         lock (lockObject)
@@ -479,6 +502,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawPixel(VecI pos, SKColor color, SKBlendMode blendMode)
     {
         lock (lockObject)
@@ -489,6 +513,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawChunkyImage(VecI pos, ChunkyImage image, bool flipHor = false, bool flipVer = false)
     {
         lock (lockObject)
@@ -499,6 +524,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueClearRegion(RectI region)
     {
         lock (lockObject)
@@ -509,6 +535,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueClear()
     {
         lock (lockObject)
@@ -519,6 +546,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueResize(VecI newSize)
     {
         lock (lockObject)
@@ -557,6 +585,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         queuedOperations.Add((operation, chunks));
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void CancelChanges()
     {
         lock (lockObject)
@@ -593,6 +622,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void CommitChanges()
     {
         lock (lockObject)
@@ -626,7 +656,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <summary>
-    /// Does all necessery steps to convert latest chunks into committed ones. The latest chunk dictionary become empty after this function is called.
+    /// Does all necessary steps to convert latest chunks into committed ones. The latest chunk dictionary become empty after this function is called.
     /// </summary>
     private void CommitLatestChunks()
     {
@@ -733,6 +763,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// <returns>
     /// All chunks that have something in them, including latest (uncommitted) ones
     /// </returns>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public HashSet<VecI> FindAllChunks()
     {
         lock (lockObject)
@@ -748,6 +779,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public HashSet<VecI> FindCommittedChunks()
     {
         lock (lockObject)
@@ -760,6 +792,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// <returns>
     /// Chunks affected by operations that haven't been committed yet
     /// </returns>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public HashSet<VecI> FindAffectedChunks(int fromOperationIndex = 0)
     {
         lock (lockObject)
@@ -931,6 +964,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Finds and deletes empty committed chunks. Returns true if all existing chunks were deleted.
     /// Note: this function modifies the internal state, it is not thread safe! Use it only in changes (same as all the other functions that change the image in some way).
     /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public bool CheckIfCommittedIsEmpty()
     {
         lock (lockObject)
@@ -983,7 +1017,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// </summary>
     private Chunk GetOrCreateCommittedChunk(VecI chunkPos, ChunkResolution resolution)
     {
-        // commited chunk of the same resolution exists
+        // committed chunk of the same resolution exists
         Chunk? targetChunk = MaybeGetCommittedChunk(chunkPos, resolution);
         if (targetChunk is not null)
             return targetChunk;
@@ -1025,8 +1059,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private Chunk GetOrCreateLatestChunk(VecI chunkPos, ChunkResolution resolution)
     {
         // latest chunk exists
-        Chunk? targetChunk;
-        targetChunk = MaybeGetLatestChunk(chunkPos, resolution);
+        Chunk? targetChunk = MaybeGetLatestChunk(chunkPos, resolution);
         if (targetChunk is not null)
             return targetChunk;
 

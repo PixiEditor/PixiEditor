@@ -8,16 +8,16 @@ public static class ChunkRenderer
 {
     private static readonly SKPaint ClippingPaint = new SKPaint() { BlendMode = SKBlendMode.DstIn };
 
-    public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI pos, ChunkResolution resolution, IReadOnlyFolder root)
+    public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root)
     {
         using RenderingContext context = new();
-        return MergeFolderContents(context, pos, resolution, root, new All());
+        return MergeFolderContents(context, chunkPos, resolution, root, new All());
     }
 
-    public static OneOf<Chunk, EmptyChunk> MergeChosenMembers(VecI pos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> members)
+    public static OneOf<Chunk, EmptyChunk> MergeChosenMembers(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> members)
     {
         using RenderingContext context = new();
-        return MergeFolderContents(context, pos, resolution, root, members);
+        return MergeFolderContents(context, chunkPos, resolution, root, members);
     }
 
     private static OneOf<EmptyChunk, Chunk> RenderLayerWithMask

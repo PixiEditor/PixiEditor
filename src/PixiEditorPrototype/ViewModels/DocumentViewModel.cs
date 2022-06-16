@@ -6,10 +6,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
 using Microsoft.Win32;
+using OneOf;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Parser;
 using PixiEditorPrototype.CustomControls.SymmetryOverlay;
 using PixiEditorPrototype.Models;
@@ -155,6 +158,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool selectingLasso = false;
     private bool drawingRectangle = false;
     private bool drawingEllipse = false;
+    private bool drawingLine = false;
     private bool drawingPathBasedPen = false;
     private bool drawingLineBasedPen = false;
     private bool drawingPixelPerfectPen = false;
@@ -402,6 +406,26 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndPixelPerfectPen_Action());
     }
 
+    public void StartUpdateLine(VecI from, VecI to, SKColor color, SKStrokeCap cap, int strokeWidth)
+    {
+        if (!CanStartUpdate())
+            return;
+        drawingLine = true;
+        updateableChangeActive = true;
+        var member = FindFirstSelectedMember();
+        Helpers.ActionAccumulator.AddActions(
+            new DrawLine_Action(member!.GuidValue, from, to ,strokeWidth, color, cap, member.ShouldDrawOnMask));
+    }
+
+    public void EndLine()
+    {
+        if (!drawingLine)
+            return;
+        drawingLine = false;
+        updateableChangeActive = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
+    }
+    
     public void StartUpdateEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
     {
         if (!CanStartUpdate())
@@ -498,6 +522,42 @@ internal class DocumentViewModel : INotifyPropertyChanged
         selectingLasso = false;
         updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndSelectLasso_Action());
+    }
+
+    public SKColor PickColor(VecI pos, bool fromAllLayers)
+    {
+        // it might've been a better idea to implement this function
+        // via a passthrough action to avoid all the try catches
+        if (fromAllLayers)
+        {
+            VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize); 
+            return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Helpers.Tracker.Document.StructureRoot)
+                .Match<SKColor>(
+                    (Chunk chunk) =>
+                    {
+                        VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
+                        var color = chunk.Surface.GetSRGBPixel(posOnChunk);
+                        chunk.Dispose();
+                        return color;
+                    },
+                    _ => SKColors.Transparent
+                );
+        }
+        
+        if (SelectedStructureMember is not LayerViewModel layerVm)
+            return SKColors.Transparent;
+        var maybeMember = Helpers.Tracker.Document.FindMember(layerVm.GuidValue);
+        if (maybeMember is not IReadOnlyLayer layer)
+            return SKColors.Transparent;
+        // there is a tiny chance that the image might get disposed by another thread
+        try
+        {
+            return layer.LayerImage.GetMostUpToDatePixel(pos);
+        }
+        catch (ObjectDisposedException)
+        {
+            return SKColors.Transparent;
+        }
     }
 
     private void ApplyTransform(object? param)

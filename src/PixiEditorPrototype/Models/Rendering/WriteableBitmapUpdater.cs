@@ -55,6 +55,9 @@ internal class WriteableBitmapUpdater
         this.helpers = helpers;
     }
 
+    /// <summary>
+    /// Don't call this outside ActionAccumulator
+    /// </summary>
     public async Task<List<IRenderInfo>> UpdateGatheredChunks
         (AffectedChunkGatherer chunkGatherer, bool updateDelayed)
     {

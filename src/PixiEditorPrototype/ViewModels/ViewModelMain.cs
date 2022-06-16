@@ -25,16 +25,28 @@ internal class ViewModelMain : INotifyPropertyChanged
     public RelayCommand MouseUpCommand { get; }
     public RelayCommand ChangeActiveToolCommand { get; }
     public RelayCommand SetSelectionModeCommand { get; }
+    public RelayCommand SetLineCapCommand { get; }
     public RelayCommand SetResizeAnchorCommand { get; }
     public RelayCommand LoadDocumentCommand { get; }
 
-    public Color SelectedColor { get; set; } = Colors.Black;
     public bool KeepOriginalImageOnTransform { get; set; } = false;
-    public bool FillAllLayers { get; set; } = false;
+    public bool ReferenceAllLayers { get; set; } = false;
     public float StrokeWidth { get; set; } = 1f;
+    public SKStrokeCap LineStrokeCap { get; set; } = SKStrokeCap.Butt;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    private Color selectedColor = Colors.Black;
+    public Color SelectedColor
+    {
+        get => selectedColor;
+        set
+        {
+            selectedColor = value;
+            PropertyChanged?.Invoke(this, new(nameof(SelectedColor)));
+        }
+    }
+    
     public bool NormalZoombox
     {
         set
@@ -104,10 +116,18 @@ internal class ViewModelMain : INotifyPropertyChanged
         MouseUpCommand = new RelayCommand(MouseUp);
         ChangeActiveToolCommand = new RelayCommand(ChangeActiveTool);
         SetSelectionModeCommand = new RelayCommand(SetSelectionMode);
+        SetLineCapCommand = new RelayCommand(SetLineCap);
         SetResizeAnchorCommand = new RelayCommand(SetResizeAnchor);
         LoadDocumentCommand = new RelayCommand(LoadDocument);
 
         Documents.Add(new DocumentViewModel(this, "New Artwork"));
+    }
+
+    private void SetLineCap(object? obj)
+    {
+        if (obj is not SKStrokeCap cap)
+            return;
+        LineStrokeCap = cap;
     }
 
     private void SetResizeAnchor(object? obj)
@@ -146,25 +166,27 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     private void ProcessToolMouseDown(VecD pos)
     {
-        if (toolOnMouseDown is Tool.FloodFill)
+        switch (toolOnMouseDown)
         {
-            ActiveDocument!.FloodFill((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A), FillAllLayers);
-        }
-        else if (toolOnMouseDown == Tool.PathBasedPen)
-        {
-            ActiveDocument!.StartUpdatePathBasedPen(pos);
-        }
-        else if (toolOnMouseDown == Tool.LineBasedPen)
-        {
-            ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
-        }
-        else if (toolOnMouseDown == Tool.PixelPerfectPen)
-        {
-            ActiveDocument!.StartUpdatePixelPerfectPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
-        }
-        else if (toolOnMouseDown == Tool.Eraser)
-        {
-            ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, SKColors.Transparent, true);
+            case Tool.FloodFill:
+                ActiveDocument!.FloodFill((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A), ReferenceAllLayers);
+                break;
+            case Tool.PathBasedPen:
+                ActiveDocument!.StartUpdatePathBasedPen(pos);
+                break;
+            case Tool.LineBasedPen:
+                ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+                break;
+            case Tool.PixelPerfectPen:
+                ActiveDocument!.StartUpdatePixelPerfectPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
+                break;
+            case Tool.Eraser:
+                ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, SKColors.Transparent, true);
+                break;
+            case Tool.Pipette:
+                var color = ActiveDocument!.PickColor((VecI)pos, ReferenceAllLayers);
+                SelectedColor = Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+                break;
         }
     }
 
@@ -207,6 +229,15 @@ internal class ViewModelMain : INotifyPropertyChanged
                     (int)StrokeWidth);
                 break;
             }
+            case Tool.Line:
+            {
+                ActiveDocument!.StartUpdateLine(
+                    (VecI)mouseDownCanvasPos, (VecI)canvasPos,
+                    new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                    LineStrokeCap,
+                    (int)StrokeWidth);
+                break;
+            }
             case Tool.SelectRectangle:
                 ActiveDocument!.StartUpdateRectSelection(
                     RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
@@ -235,6 +266,10 @@ internal class ViewModelMain : INotifyPropertyChanged
             case Tool.Eraser:
                 ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos, SKColors.Transparent, true);
                 break;
+            case Tool.Pipette:
+                var color = ActiveDocument!.PickColor((VecI)canvasPos, ReferenceAllLayers);
+                SelectedColor = Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+                break;
         }
     }
 
@@ -258,6 +293,9 @@ internal class ViewModelMain : INotifyPropertyChanged
                     break;
                 case Tool.Ellipse:
                     ActiveDocument!.EndEllipse();
+                    break;
+                case Tool.Line:
+                    ActiveDocument!.EndLine();
                     break;
                 case Tool.SelectRectangle:
                     ActiveDocument!.EndRectSelection();

@@ -24,6 +24,9 @@ internal class DocumentUpdater
         this.helper = helper;
     }
 
+    /// <summary>
+    /// Don't call this outside ActionAccumulator
+    /// </summary>
     public void ApplyChangeFromChangeInfo(IChangeInfo? arbitraryInfo)
     {
         if (arbitraryInfo is null)

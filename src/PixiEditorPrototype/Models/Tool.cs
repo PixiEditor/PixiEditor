@@ -2,15 +2,20 @@
 
 internal enum Tool
 {
+    // drawing
     Rectangle,
+    Line,
     Ellipse,
     PathBasedPen,
     LineBasedPen,
     PixelPerfectPen,
     Eraser,
+    ShiftLayer,
+    FloodFill,
+    // selection
     SelectRectangle,
     SelectEllipse,
     Lasso,
-    ShiftLayer,
-    FloodFill
+    //misc
+    Pipette,
 }
