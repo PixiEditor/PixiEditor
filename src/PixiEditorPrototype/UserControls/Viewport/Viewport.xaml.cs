@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Zoombox;
 using PixiEditorPrototype.Models;
 using PixiEditorPrototype.ViewModels;
@@ -37,6 +38,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public static readonly DependencyProperty MouseUpCommandProperty =
             DependencyProperty.Register(nameof(MouseUpCommand), typeof(ICommand), typeof(Viewport), new(null));
+
+    public static readonly DependencyProperty ReferenceBitmapProperty =
+        DependencyProperty.Register(nameof(ReferenceBitmap), typeof(BitmapSource), typeof(Viewport));
+    
+    public static readonly DependencyProperty ReferenceLayerProperty =
+        DependencyProperty.Register(nameof(ReferenceLayer), typeof(IReadOnlyReferenceLayer), typeof(Viewport));
+
+    public static readonly DependencyProperty ReferenceShapeProperty =
+        DependencyProperty.Register(nameof(ReferenceShape), typeof(ShapeCorners), typeof(Viewport));
 
     private static readonly DependencyProperty BitmapsProperty =
         DependencyProperty.Register(nameof(Bitmaps), typeof(Dictionary<ChunkResolution, WriteableBitmap>), typeof(Viewport), new(null, OnBitmapsChange));
@@ -158,6 +168,24 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
+    public IReadOnlyReferenceLayer? ReferenceLayer
+    {
+        get => (IReadOnlyReferenceLayer?)GetValue(ReferenceLayerProperty);
+        set => SetValue(ReferenceLayerProperty, value);
+    }
+
+    public ShapeCorners ReferenceShape
+    {
+        get => (ShapeCorners)GetValue(ReferenceShapeProperty);
+        set => SetValue(ReferenceLayerProperty, value);
+    }
+
+    public WriteableBitmap? ReferenceBitmap
+    {
+        get => (WriteableBitmap?)GetValue(ReferenceBitmapProperty);
+        set => SetValue(ReferenceBitmapProperty, value);
+    }
+
     public Zoombox Zoombox => zoombox;
 
     public Guid GuidValue { get; } = Guid.NewGuid();
@@ -170,6 +198,21 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         binding.Source = this;
         binding.Path = new PropertyPath("Document.Bitmaps");
         SetBinding(BitmapsProperty, binding);
+
+        Binding referenceBitmapBinding = new Binding();
+        referenceBitmapBinding.Source = this;
+        referenceBitmapBinding.Path = new PropertyPath("Document.ReferenceBitmap");
+        SetBinding(ReferenceBitmapProperty, referenceBitmapBinding);
+
+        Binding referenceBinding = new Binding();
+        referenceBinding.Source = this;
+        referenceBinding.Path = new PropertyPath("Document.ReferenceLayer");
+        SetBinding(ReferenceLayerProperty, referenceBinding);
+
+        Binding shapeBinding = new Binding();
+        shapeBinding.Source = this;
+        shapeBinding.Path = new PropertyPath("Document.ReferenceShape");
+        SetBinding(ReferenceShapeProperty, shapeBinding);
 
         Loaded += OnLoad;
         Unloaded += OnUnload;

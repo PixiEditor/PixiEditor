@@ -8,9 +8,9 @@ namespace ChunkyImageLib;
 public class Surface : IDisposable
 {
     private bool disposed;
-    private int bytesPerPixel;
     public IntPtr PixelBuffer { get; }
     public SKSurface SkiaSurface { get; }
+    public int BytesPerPixel { get; }
     public VecI Size { get; }
 
     private SKPaint drawingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
@@ -24,8 +24,8 @@ public class Surface : IDisposable
 
         Size = size;
 
-        bytesPerPixel = 8;
-        PixelBuffer = CreateBuffer(size.X, size.Y, bytesPerPixel);
+        BytesPerPixel = 8;
+        PixelBuffer = CreateBuffer(size.X, size.Y, BytesPerPixel);
         SkiaSurface = CreateSKSurface();
     }
 
@@ -50,7 +50,7 @@ public class Surface : IDisposable
     {
         if (other.Size != Size)
             throw new ArgumentException("Target Surface must have the same dimensions");
-        int bytesC = Size.X * Size.Y * bytesPerPixel;
+        int bytesC = Size.X * Size.Y * BytesPerPixel;
         using var pixmap = other.SkiaSurface.PeekPixels();
         Buffer.MemoryCopy((void*)PixelBuffer, (void*)pixmap.GetPixels(), bytesC, bytesC);
     }
@@ -60,7 +60,7 @@ public class Surface : IDisposable
     /// </summary>
     public unsafe SKColor GetSRGBPixel(VecI pos)
     {
-        Half* ptr = (Half*)(PixelBuffer + (pos.X + pos.Y * Size.X) * bytesPerPixel);
+        Half* ptr = (Half*)(PixelBuffer + (pos.X + pos.Y * Size.X) * BytesPerPixel);
         float a = (float)ptr[3];
         return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
     }

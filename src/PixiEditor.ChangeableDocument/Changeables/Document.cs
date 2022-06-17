@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -11,9 +12,12 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
     (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
+    IReadOnlyReferenceLayer? IReadOnlyDocument.GetReferenceLayer() => ReferenceLayer;
+    
     public static VecI DefaultSize { get; } = new VecI(64, 64);
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
+    internal ReferenceLayer? ReferenceLayer { get; set; }
     public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }

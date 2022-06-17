@@ -13,4 +13,5 @@ public interface IReadOnlyDocument
     IReadOnlyStructureMember FindMemberOrThrow(Guid guid);
     (IReadOnlyStructureMember, IReadOnlyFolder) FindChildAndParentOrThrow(Guid guid);
     IReadOnlyList<IReadOnlyStructureMember> FindMemberPath(Guid guid);
+    IReadOnlyReferenceLayer? GetReferenceLayer();
 }

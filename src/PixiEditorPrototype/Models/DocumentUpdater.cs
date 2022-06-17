@@ -82,6 +82,11 @@ internal class DocumentUpdater
             case StructureMemberMaskIsVisible_ChangeInfo info:
                 ProcessMaskIsVisible(info);
                 break;
+            case CreateReferenceLayer_ChangeInfo:
+                doc.RaisePropertyChanged(nameof(doc.ReferenceLayer));
+                doc.RaisePropertyChanged(nameof(doc.ReferenceBitmap));
+                doc.RaisePropertyChanged(nameof(doc.ReferenceShape));
+                break;
         }
     }
 

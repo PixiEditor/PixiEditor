@@ -32,6 +32,20 @@
                 BorderThickness="1" Background="White" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
                 DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
                 <Grid>
+                    <Image
+                        Width="{Binding Document.Width}" Height="{Binding Document.Height}"/>
+                    <Image
+                        Width="{Binding Document.Width}" Height="{Binding Document.Height}"
+                        Source="{Binding ReferenceBitmap, Mode=OneWay}"
+                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={StaticResource ScaleToBitmapScalingModeConverter}}">
+                        <Image.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform
+                                    X="{Binding ReferenceShape.TopLeft.X}"
+                                    Y="{Binding ReferenceShape.TopLeft.Y}"/>
+                            </TransformGroup>
+                        </Image.RenderTransform>
+                    </Image>
                     <Image 
                         Focusable="True"
                         Width="{Binding Document.Width}" Height="{Binding Document.Height}"

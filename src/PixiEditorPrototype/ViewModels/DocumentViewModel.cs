@@ -12,6 +12,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Parser;
 using PixiEditorPrototype.CustomControls.SymmetryOverlay;
+using PixiEditorPrototype.Helpers;
 using PixiEditorPrototype.Models;
 using SkiaSharp;
 
@@ -37,6 +38,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? ToggleLockTransparencyCommand { get; }
     public RelayCommand? ApplyTransformCommand { get; }
     public RelayCommand? PasteImageCommand { get; }
+    public RelayCommand? CreateReferenceLayerCommand { get; }
     public RelayCommand? DragSymmetryCommand { get; }
     public RelayCommand? EndDragSymmetryCommand { get; }
     public RelayCommand? ClipToMemberBelowCommand { get; }
@@ -133,6 +135,11 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public int ResizeWidth { get; set; } = 1024;
     public int ResizeHeight { get; set; } = 1024;
 
+    public IReadOnlyReferenceLayer? ReferenceLayer => Helpers.Tracker.Document.GetReferenceLayer();
+    
+    public BitmapSource? ReferenceBitmap => ReferenceLayer?.Image.ToWriteableBitmap();
+
+    public ShapeCorners ReferenceShape => transformingReferenceLayer ? TransformViewModel.Corners : ReferenceLayer?.Shape ?? default;
 
     private DocumentHelpers Helpers { get; }
 
@@ -149,6 +156,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool drawingLineBasedPen = false;
     private bool transformingRectangle = false;
     private bool transformingEllipse = false;
+    private bool transformingReferenceLayer = false;
     private bool shiftingLayer = false;
 
     private bool transformingSelectionPath = false;
@@ -188,6 +196,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         DeleteMaskCommand = new RelayCommand(DeleteMask);
         ToggleLockTransparencyCommand = new RelayCommand(ToggleLockTransparency);
         PasteImageCommand = new RelayCommand(PasteImage);
+        CreateReferenceLayerCommand = new RelayCommand(CreateReferenceLayer);
         ApplyTransformCommand = new RelayCommand(ApplyTransform);
         DragSymmetryCommand = new RelayCommand(DragSymmetry);
         EndDragSymmetryCommand = new RelayCommand(EndDragSymmetry);
@@ -498,6 +507,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
             TransformViewModel.HideTransform();
             Helpers.ActionAccumulator.AddFinishedActions(new EndTransformSelectionPath_Action());
         }
+        else if (transformingReferenceLayer)
+        {
+            transformingReferenceLayer = false;
+            TransformViewModel.HideTransform();
+            Helpers.ActionAccumulator.AddFinishedActions(new EndCreateReferenceLayer_Action());
+        }
         updateableChangeActive = false;
     }
 
@@ -545,8 +560,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
         {
             Helpers.ActionAccumulator.AddActions(new TransformSelectionPath_Action(newCorners));
         }
+        else if (transformingReferenceLayer)
+        {
+            Helpers.ActionAccumulator.AddActions(new CreateReferenceLayer_Action(null, newCorners));
+        }
     }
-
+    
     public void FloodFill(VecI pos, SKColor color)
     {
         var member = FindFirstSelectedMember();
@@ -578,6 +597,34 @@ internal class DocumentViewModel : INotifyPropertyChanged
         ShapeCorners corners = new ShapeCorners(new RectD(VecD.Zero, pastedImage.Size));
         Helpers.ActionAccumulator.AddActions(new PasteImage_Action(pastedImage, corners, layer.GuidValue, false, false));
         TransformViewModel.ShowFreeTransform(corners);
+    }
+
+    private void CreateReferenceLayer(object? args)
+    {
+        OpenFileDialog dialog = new();
+        if (dialog.ShowDialog() != true)
+            return;
+
+        var referenceImage = Surface.Load(dialog.FileName);
+
+        double shapeWidth;
+        double shapeHeight;
+
+        if (referenceImage.Size.X > referenceImage.Size.Y)
+        {
+            shapeWidth = Width;
+            shapeHeight = Width / referenceImage.Size.X * referenceImage.Size.Y;
+        }
+        else
+        {
+            shapeWidth = Height / referenceImage.Size.Y * referenceImage.Size.X;
+            shapeHeight = Height;
+        }
+        
+        ShapeCorners corners = new ShapeCorners(new RectD(VecD.Zero, new(shapeWidth, shapeHeight)));
+        Helpers.ActionAccumulator.AddActions(new CreateReferenceLayer_Action(referenceImage, corners));
+        transformingReferenceLayer = true;
+        TransformViewModel.ShowShapeTransform(corners);
     }
 
     private void ClearSelection(object? param)

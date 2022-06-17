@@ -35,6 +35,9 @@
                     <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteStructureMemberCommand}" Width="80">Delete</Button>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
+                    <Button Margin="5,0" Command="{Binding ActiveDocument.CreateReferenceLayerCommand}" Width="80">Add reference</Button>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5,0,0">
                     <Button Margin="5,0" Command="{Binding ActiveDocument.CreateMaskCommand}" Width="80">Create Mask</Button>
                     <Button Margin="5,0" Command="{Binding ActiveDocument.DeleteMaskCommand}" Width="80">Delete Mask</Button>
                     <Button Margin="5,0" Command="{Binding ActiveDocument.ApplyMaskCommand}" Width="80">Apply Mask</Button>
