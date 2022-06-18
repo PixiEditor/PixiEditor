@@ -113,7 +113,7 @@ Decouples the state of a document from the UI.
         - [x] Enable/Disable mask
         - [x] Apply mask
 - ViewModel
-    - [ ] Loading window when background thread is busy
+    - [x] Loading window when background thread is busy
     - [x] Transform overlay
     - [x] Symmetry overlay
     - [x] Selection overlay
