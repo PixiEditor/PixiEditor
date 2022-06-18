@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
@@ -47,6 +49,13 @@ internal class ActionAccumulator
         if (executing || queuedActions.Count == 0)
             return;
         executing = true;
+        DispatcherTimer busyTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(2000) };
+        busyTimer.Tick += (_, _) =>
+        {
+            busyTimer.Stop();
+            document.Busy = true;
+        };
+        busyTimer.Start();
 
         while (queuedActions.Count > 0)
         {
@@ -97,6 +106,9 @@ internal class ActionAccumulator
             }
         }
 
+        busyTimer.Stop();
+        if (document.Busy)
+            document.Busy = false;
         executing = false;
     }
 

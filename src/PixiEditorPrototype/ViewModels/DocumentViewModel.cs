@@ -127,6 +127,18 @@ internal class DocumentViewModel : INotifyPropertyChanged
         }
     }
 
+    private bool busy = false;
+
+    public bool Busy
+    {
+        get => busy;
+        set
+        {
+            busy = value;
+            RaisePropertyChanged(nameof(Busy));
+        }
+    }
+
     public StructureMemberViewModel? SelectedStructureMember => FindFirstSelectedMember();
 
     public Guid GuidValue { get; } = Guid.NewGuid();

@@ -799,6 +799,18 @@
                                 MouseUpCommand="{Binding ElementName=window, Path=DataContext.MouseUpCommand}"
                                 Tag="Second" />
                         </Border>
+                        <Grid
+                            Grid.ColumnSpan="2"
+                            Background="#BB000000"
+                            Visibility="{Binding Busy, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock
+                                Foreground="White"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="20">
+                                Loading...
+                            </TextBlock>
+                        </Grid>
                     </Grid>
                 </DataTemplate>
             </TabControl.ContentTemplate>
