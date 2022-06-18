@@ -8,10 +8,14 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     IReadOnlyFolder IReadOnlyDocument.StructureRoot => StructureRoot;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
     IReadOnlyStructureMember? IReadOnlyDocument.FindMember(Guid guid) => FindMember(guid);
+    bool IReadOnlyDocument.TryFindMember(Guid guid, [NotNullWhen(true)] out IReadOnlyStructureMember? member) => TryFindMember(guid, out member);
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyDocument.FindMemberPath(Guid guid) => FindMemberPath(guid);
     IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
     (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
+    /// <summary>
+    /// The default size for a new document
+    /// </summary>
     public static VecI DefaultSize { get; } = new VecI(64, 64);
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
@@ -26,8 +30,11 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         StructureRoot.Dispose();
         Selection.Dispose();
     }
-
+    
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action) => ForEveryReadonlyMember(StructureRoot, action);
+    /// <summary>
+    /// Performs the specified action on each member of the document
+    /// </summary>
     public void ForEveryMember(Action<StructureMember> action) => ForEveryMember(StructureRoot, action);
 
     private void ForEveryReadonlyMember(IReadOnlyFolder folder, Action<IReadOnlyStructureMember> action)
@@ -98,7 +105,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
-    /// Tries finding the member with the <paramref name="guid"/> and returns if it was found
+    /// Tries finding the member with the <paramref name="guid"/> and returns true if it was found
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the <paramref name="member"/></param>
     /// <param name="member">The member</param>
@@ -117,17 +124,17 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
-    /// Tries finding the member with the <paramref name="guid"/> and returns if it was found
+    /// Tries finding the member with the <paramref name="guid"/> of type <typeparamref name="T"/> and returns true if it was found
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the <paramref name="member"/></param>
     /// <param name="member">The member</param>
     /// <typeparam name="T">The type of the <see cref="StructureMember"/></typeparam>
     /// <returns>True if the member could be found and is of type <typeparamref name="T"/>, otherwise false</returns>
-    public bool TryFindMember<T>(Guid guid, [NotNullWhen(true)] out T? member) where T : StructureMember
+    public bool TryFindMember<T>(Guid guid, [NotNullWhen(true)] out T? member) where T : IReadOnlyStructureMember
     {
         if (!TryFindMember(guid, out var structureMember) || structureMember is not T cast)
         {
-            member = null;
+            member = default;
             return false;
         }
 
@@ -135,6 +142,12 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         return false;
     }
 
+    /// <summary>
+    /// Find's a member with the <paramref name="childGuid"/>  and it's parent, throws a ArgumentException if they can't be found
+    /// </summary>
+    /// <param name="childGuid">The <see cref="StructureMember.GuidValue"/> of the member</param>
+    /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)</returns>
+    /// <exception cref="ArgumentException">Thrown if the member and parent could not be found</exception>
     public (StructureMember, Folder) FindChildAndParentOrThrow(Guid childGuid)
     {
         var path = FindMemberPath(childGuid);
@@ -143,6 +156,11 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         return (path[0], (Folder)path[1]);
     }
 
+    /// <summary>
+    /// Find's a member with the <paramref name="childGuid"/> and it's parent
+    /// </summary>
+    /// <param name="childGuid">The <see cref="StructureMember.GuidValue"/> of the member</param>
+    /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)<para>Child and parent can be null if not found!</para></returns>
     public (StructureMember?, Folder?) FindChildAndParent(Guid childGuid)
     {
         var path = FindMemberPath(childGuid);
@@ -154,6 +172,10 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         };
     }
 
+    /// <summary>
+    /// Find's the path to the member with <paramref name="guid"/>, the first element will be the member
+    /// </summary>
+    /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     public List<StructureMember> FindMemberPath(Guid guid)
     {
         var list = new List<StructureMember>();
