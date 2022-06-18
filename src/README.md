@@ -13,7 +13,7 @@ Decouples the state of a document from the UI.
     - [x] ChunkPool multithreading support
     - [x] Dispose that returns borrowed chunks
     - [x] ChunkyImage finalizer that returns borrowed chunks
-    - [ ] Get Committed Pixel
+    - [x] Get Committed Pixel
     - [x] GetLatestChunk resolution parameter
         - [x] Support for different chunk sizes in the chunk pool
         - [x] Rendering for different chunk sizes
@@ -93,7 +93,7 @@ Decouples the state of a document from the UI.
         - [x] Paste image with transformation
         - [x] Rectangle
         - [x] Ellipse
-        - [ ] Line
+        - [x] Line
         - [x] Path-based pen
         - [x] Regular pen
         - [x] Pixel-perfect pen
@@ -119,7 +119,7 @@ Decouples the state of a document from the UI.
     - [x] Selection overlay
     - [x] Viewport system
     - [ ] New zoombox (touch fixes left)
-    - [ ] Pipette tool
+    - [x] Pipette tool
 
 ## Included cs projects (all wip, most features not implemented yet):
 

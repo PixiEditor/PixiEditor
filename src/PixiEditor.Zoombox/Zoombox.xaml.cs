@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Zoombox.Operations;
 
 namespace PixiEditor.Zoombox;
 
@@ -13,15 +14,15 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 {
     public static readonly DependencyProperty AdditionalContentProperty =
         DependencyProperty.Register(nameof(AdditionalContent), typeof(object), typeof(Zoombox),
-          new PropertyMetadata(null));
+            new PropertyMetadata(null));
 
     public static readonly DependencyProperty ZoomModeProperty =
         DependencyProperty.Register(nameof(ZoomMode), typeof(ZoomboxMode), typeof(Zoombox),
-          new PropertyMetadata(ZoomboxMode.Normal, ZoomModeChanged));
+            new PropertyMetadata(ZoomboxMode.Normal, ZoomModeChanged));
 
     public static readonly DependencyProperty ZoomOutOnClickProperty =
         DependencyProperty.Register(nameof(ZoomOutOnClick), typeof(bool), typeof(Zoombox),
-          new PropertyMetadata(false));
+            new PropertyMetadata(false));
 
     public static readonly DependencyProperty UseTouchGesturesProperty =
         DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(Zoombox));
@@ -56,6 +57,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         get => GetValue(AdditionalContentProperty);
         set => SetValue(AdditionalContentProperty, value);
     }
+
     public ZoomboxMode ZoomMode
     {
         get => (ZoomboxMode)GetValue(ZoomModeProperty);
@@ -130,6 +132,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     public double FlipTransformY => FlipY ? -1 : 1;
     public double RotateTransformAngle => Angle * 180 / Math.PI;
     internal const double MaxScale = 70;
+
     internal double MinScale
     {
         get
@@ -170,7 +173,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private IDragOperation? activeDragOperation = null;
     private MouseButtonEventArgs? activeMouseDownEventArgs = null;
-    private Point activeMouseDownPos;
+    private VecD activeMouseDownPos;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -204,7 +207,6 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     public void CenterContent(VecD newSize)
     {
-
         const double marginFactor = 1.1;
         double scaleFactor = Math.Max(
             newSize.X * marginFactor / mainCanvas.ActualWidth,
@@ -264,7 +266,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         if (e.ChangedButton == MouseButton.Right)
             return;
         activeMouseDownEventArgs = e;
-        activeMouseDownPos = e.GetPosition(mainCanvas);
+        activeMouseDownPos = ToVecD(e.GetPosition(mainCanvas));
         Keyboard.Focus(this);
     }
 
@@ -308,9 +310,9 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         if (activeDragOperation is null && activeMouseDownEventArgs is not null)
         {
-            var cur = e.GetPosition(mainCanvas);
+            var cur = ToVecD(e.GetPosition(mainCanvas));
 
-            if (Math.Abs(cur.X - activeMouseDownPos.X) > 3)
+            if ((cur - activeMouseDownPos).TaxicabLength > 3)
                 InitiateDrag(activeMouseDownEventArgs);
         }
         activeDragOperation?.Update(e);
@@ -325,30 +327,29 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         }
     }
 
-    private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
+
+    private ManipulationOperation? activeManipulationOperation;
+
+    private void OnManipulationStarted(object? sender, ManipulationStartedEventArgs e)
     {
-        if (!UseTouchGestures)
+        if (!UseTouchGestures || activeManipulationOperation is not null)
             return;
-        e.Handled = true;
-        VecD screenTranslation = new(e.DeltaManipulation.Translation.X, e.DeltaManipulation.Translation.Y);
-        VecD screenOrigin = new(e.ManipulationOrigin.X, e.ManipulationOrigin.Y);
-        Manipulate(e.DeltaManipulation.Scale.X, screenTranslation, screenOrigin, e.DeltaManipulation.Rotation / 180 * Math.PI);
+        activeManipulationOperation = new ManipulationOperation(this);
+        activeManipulationOperation.Start();
     }
 
-    private void Manipulate(double deltaScale, VecD screenTranslation, VecD screenOrigin, double rotation)
+    private void OnManipulationDelta(object sender, ManipulationDeltaEventArgs e)
     {
-        double newScale = Math.Clamp(Scale * deltaScale, MinScale, MaxScale);
-        double newAngle = Angle + rotation;
+        if (!UseTouchGestures || activeManipulationOperation is null)
+            return;
+        activeManipulationOperation.Update(e);
+    }
 
-        VecD originalPos = ToZoomboxSpace(screenOrigin);
-        Angle = newAngle;
-        Scale = newScale;
-        VecD newPos = ToZoomboxSpace(screenOrigin);
-        VecD centerTranslation = originalPos - newPos;
-        Center += centerTranslation;
-
-        VecD translatedZoomboxPos = ToZoomboxSpace(screenOrigin + screenTranslation);
-        Center -= translatedZoomboxPos - originalPos;
+    private void OnManipulationCompleted(object? sender, ManipulationCompletedEventArgs e)
+    {
+        if (!UseTouchGestures || activeManipulationOperation is null)
+            return;
+        activeManipulationOperation = null;
     }
 
     internal static VecD ToVecD(Point point) => new VecD(point.X, point.Y);
@@ -372,11 +373,13 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void OnMainCanvasSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        OnPropertyChange(this, new DependencyPropertyChangedEventArgs());
         RaiseViewportEvent();
     }
 
     private void OnGridSizeChanged(object sender, SizeChangedEventArgs args)
     {
+        OnPropertyChange(this, new DependencyPropertyChangedEventArgs());
         RaiseViewportEvent();
     }
 }

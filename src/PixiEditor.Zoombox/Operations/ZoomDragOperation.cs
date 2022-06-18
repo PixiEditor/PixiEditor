@@ -1,8 +1,8 @@
-﻿using ChunkyImageLib.DataHolders;
-using System;
+﻿using System;
 using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 
-namespace PixiEditor.Zoombox;
+namespace PixiEditor.Zoombox.Operations;
 
 internal class ZoomDragOperation : IDragOperation
 {
@@ -15,6 +15,7 @@ internal class ZoomDragOperation : IDragOperation
     {
         parent = zoomBox;
     }
+
     public void Start(MouseButtonEventArgs e)
     {
         screenScaleOrigin = parent.ToZoomboxSpace(Zoombox.ToVecD(e.GetPosition(parent.mainCanvas)));

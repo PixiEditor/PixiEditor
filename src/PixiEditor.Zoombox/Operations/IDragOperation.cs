@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace PixiEditor.Zoombox;
+namespace PixiEditor.Zoombox.Operations;
 
 internal interface IDragOperation
 {
