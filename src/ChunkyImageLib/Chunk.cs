@@ -12,10 +12,18 @@ public class Chunk : IDisposable
     /// </summary>
     public static int ChunkCounter => chunkCounter;
 
-
     private bool returned = false;
+    /// <summary>
+    /// The surface of the chunk
+    /// </summary>
     public Surface Surface { get; }
+    /// <summary>
+    /// The size of the chunk
+    /// </summary>
     public VecI PixelSize { get; }
+    /// <summary>
+    /// The resolution of the chunk
+    /// </summary>
     public ChunkResolution Resolution { get; }
     private Chunk(ChunkResolution resolution)
     {
@@ -26,6 +34,9 @@ public class Chunk : IDisposable
         Surface = new Surface(PixelSize);
     }
 
+    /// <summary>
+    /// Tries to take a chunk with the <paramref name="resolution"/> from the pool, or creates a new one
+    /// </summary>
     public static Chunk Create(ChunkResolution resolution = ChunkResolution.Full)
     {
         var chunk = ChunkPool.Instance.Get(resolution) ?? new Chunk(resolution);
@@ -34,11 +45,19 @@ public class Chunk : IDisposable
         return chunk;
     }
 
+    /// <summary>
+    /// Draw's on the <see cref="Surface"/> of the chunk
+    /// </summary>
+    /// <param name="pos">The destination for the <paramref name="surface"/></param>
+    /// <param name="paint">The paint to use while drawing</param>
     public void DrawOnSurface(SKSurface surface, VecI pos, SKPaint? paint = null)
     {
         surface.Canvas.DrawSurface(Surface.SkiaSurface, pos.X, pos.Y, paint);
     }
 
+    /// <summary>
+    /// Returns the chunk back to the pool
+    /// </summary>
     public void Dispose()
     {
         if (returned)
