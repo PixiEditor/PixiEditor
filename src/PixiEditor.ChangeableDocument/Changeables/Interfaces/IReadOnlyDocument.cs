@@ -3,12 +3,17 @@
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyDocument
-{
+{    /// <summary>
+    /// The root folder of the document
+    /// </summary>
     IReadOnlyFolder StructureRoot { get; }
     /// <summary>
     /// The selection of the document
     /// </summary>
     IReadOnlySelection Selection { get; }
+    /// <summary>
+    /// The size of the document
+    /// </summary>
     VecI Size { get; }
     /// <summary>
     /// Is the horizontal symmetry axis enabled (Mirrors top and bottom)
@@ -55,6 +60,16 @@ public interface IReadOnlyDocument
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <exception cref="ArgumentException">Thrown if the member could not be found</exception>
     IReadOnlyStructureMember FindMemberOrThrow(Guid guid);
-    (IReadOnlyStructureMember, IReadOnlyFolder) FindChildAndParentOrThrow(Guid guid);
+    /// <summary>
+    /// Find's a member with the <paramref name="childGuid"/>  and it's parent, throws a ArgumentException if they can't be found
+    /// </summary>
+    /// <param name="childGuid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
+    /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)</returns>
+    /// <exception cref="ArgumentException">Thrown if the member and parent could not be found</exception>
+    (IReadOnlyStructureMember, IReadOnlyFolder) FindChildAndParentOrThrow(Guid childGuid);
+    /// <summary>
+    /// Find's the path to the member with <paramref name="guid"/>, the first element will be the member
+    /// </summary>
+    /// <param name="guid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
     IReadOnlyList<IReadOnlyStructureMember> FindMemberPath(Guid guid);
 }

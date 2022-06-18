@@ -16,7 +16,6 @@ internal abstract class StructureMember : IChangeable, IReadOnlyStructureMember,
     public ChunkyImage? Mask { get; set; } = null;
     public bool MaskIsVisible { get; set; } = true;
     IReadOnlyChunkyImage? IReadOnlyStructureMember.Mask => Mask;
-
     internal abstract StructureMember Clone();
     public abstract void Dispose();
 }

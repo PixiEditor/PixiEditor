@@ -6,9 +6,15 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 internal class Folder : StructureMember, IReadOnlyFolder
 {
     // Don't forget to update CreateFolder_ChangeInfo, DocumentUpdater.ProcessCreateStructureMember, and Folder.Clone when adding new properties
+    /// <summary>
+    /// The children of the folder
+    /// </summary>
     public ImmutableList<StructureMember> Children { get; set; } = ImmutableList<StructureMember>.Empty;
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyFolder.Children => Children;
 
+    /// <summary>
+    /// Creates a clone of the folder, it's mask and all of it's children
+    /// </summary>
     internal override Folder Clone()
     {
         var builder = ImmutableList<StructureMember>.Empty.ToBuilder();
@@ -18,7 +24,7 @@ internal class Folder : StructureMember, IReadOnlyFolder
             builder.Add(child.Clone());
         }
 
-        return new Folder()
+        return new Folder
         {
             GuidValue = GuidValue,
             IsVisible = IsVisible,
@@ -32,11 +38,14 @@ internal class Folder : StructureMember, IReadOnlyFolder
         };
     }
 
+    /// <summary>
+    /// Disposes all children and the mask
+    /// </summary>
     public override void Dispose()
     {
-        for (var i = 0; i < Children.Count; i++)
+        foreach (var child in Children)
         {
-            Children[i].Dispose();
+            child.Dispose();
         }
         Mask?.Dispose();
     }
