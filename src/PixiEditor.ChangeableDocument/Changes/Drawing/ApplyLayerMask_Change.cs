@@ -15,8 +15,7 @@ internal class ApplyLayerMask_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(layerGuid);
-        if (member is not Layer layer || layer.Mask is null)
+        if (!target.TryFindMember<Layer>(layerGuid, out var layer) || layer.Mask is null)
             return new Error();
 
         savedLayer = new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindCommittedChunks());
@@ -26,7 +25,7 @@ internal class ApplyLayerMask_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var layer = (Layer)target.FindMemberOrThrow(layerGuid);
+        var layer = target.FindMemberOrThrow<Layer>(layerGuid);
         if (layer.Mask is null)
             throw new InvalidOperationException("Cannot apply layer mask, no mask");
 
@@ -55,7 +54,7 @@ internal class ApplyLayerMask_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var layer = (Layer)target.FindMemberOrThrow(layerGuid);
+        var layer = target.FindMemberOrThrow<Layer>(layerGuid);
         if (layer.Mask is not null)
             throw new InvalidOperationException("Cannot restore layer mask, it already has one");
         if (savedLayer is null || savedMask is null)

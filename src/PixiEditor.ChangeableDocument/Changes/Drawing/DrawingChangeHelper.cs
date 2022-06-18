@@ -22,16 +22,19 @@ internal static class DrawingChangeHelper
     public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask)
     {
         var member = target.FindMemberOrThrow(memberGuid);
+        
         if (drawOnMask)
         {
             if (member.Mask is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
             return member.Mask;
         }
-        else if (member is Folder)
+        
+        if (member is Folder)
         {
             throw new InvalidOperationException("Trying to draw on a folder");
         }
+        
         return ((Layer)member).LayerImage;
     }
 
@@ -41,7 +44,7 @@ internal static class DrawingChangeHelper
             targetImage.SetClippingPath(target.Selection.SelectionPath);
 
         var targetMember = target.FindMemberOrThrow(targetMemberGuid);
-        if (targetMember is Layer layer && layer.LockTransparency && !drawOnMask)
+        if (targetMember is Layer { LockTransparency: true } && !drawOnMask)
             targetImage.EnableLockTransparency();
 
         if (target.HorizontalSymmetryAxisEnabled)
@@ -52,22 +55,25 @@ internal static class DrawingChangeHelper
 
     public static bool IsValidForDrawing(Document target, Guid memberGuid, bool drawOnMask)
     {
-        var member = target.FindMember(memberGuid);
-        if (member is null)
+        if (!target.TryFindMember(memberGuid, out var member))
+        {
             return false;
-        if (drawOnMask && member.Mask is null)
-            return false;
-        if (!drawOnMask && member is Folder)
-            return false;
-        return true;
+        }
+
+        return drawOnMask switch
+        {
+            // If it should draw on the mask, the mask can't be null
+            true when member.Mask is null => false,
+            // If it should not draw on the mask, the member can't be a folder
+            false when member is Folder => false,
+            _ => true
+        };
     }
 
-    public static OneOf<None, IChangeInfo, List<IChangeInfo>> CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask)
-    {
-        return drawOnMask switch
+    public static OneOf<None, IChangeInfo, List<IChangeInfo>> CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask) =>
+        drawOnMask switch
         {
             false => new LayerImageChunks_ChangeInfo(memberGuid, affectedChunks),
             true => new MaskChunks_ChangeInfo(memberGuid, affectedChunks),
         };
-    }
 }

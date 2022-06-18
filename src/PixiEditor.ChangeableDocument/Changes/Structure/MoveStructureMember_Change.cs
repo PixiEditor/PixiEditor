@@ -33,7 +33,7 @@ internal class MoveStructureMember_Change : Change
 
     private static void Move(Document document, Guid memberGuid, Guid targetFolderGuid, int targetIndex)
     {
-        var targetFolder = (Folder)document.FindMemberOrThrow(targetFolderGuid);
+        var targetFolder = document.FindMemberOrThrow<Folder>(targetFolderGuid);
         var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
 
         curFolder.Children = curFolder.Children.Remove(member);

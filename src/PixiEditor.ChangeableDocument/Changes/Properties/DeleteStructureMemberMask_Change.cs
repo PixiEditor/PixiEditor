@@ -15,9 +15,9 @@ internal class DeleteStructureMemberMask_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(memberGuid);
-        if (member is null || member.Mask is null)
+        if (!target.TryFindMember(memberGuid, out var member) || member.Mask is null)
             return new Error();
+        
         storedMask = member.Mask.CloneFromCommitted();
         return new Success();
     }

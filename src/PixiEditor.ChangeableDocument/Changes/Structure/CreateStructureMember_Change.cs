@@ -22,14 +22,14 @@ internal class CreateStructureMember_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        if (target.FindMember(parentFolderGuid) is null)
+        if (!target.HasMember(parentFolderGuid))
             return new Error();
         return new Success();
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply, out bool ignoreInUndo)
     {
-        var folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
+        var folder = document.FindMemberOrThrow<Folder>(parentFolderGuid);
 
         StructureMember member = type switch
         {
@@ -51,7 +51,7 @@ internal class CreateStructureMember_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
-        Folder folder = (Folder)document.FindMemberOrThrow(parentFolderGuid);
+        Folder folder = document.FindMemberOrThrow<Folder>(parentFolderGuid);
         StructureMember child = document.FindMemberOrThrow(newMemberGuid);
         child.Dispose();
         folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(member => member.GuidValue == newMemberGuid));

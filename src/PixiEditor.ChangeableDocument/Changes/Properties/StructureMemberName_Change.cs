@@ -17,8 +17,7 @@ internal class StructureMemberName_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(targetMember);
-        if (member is null || member.Name == newName)
+        if (!target.TryFindMember(targetMember, out var member) || member.Name == newName)
             return new Error();
         originalName = member.Name;
         return new Success();

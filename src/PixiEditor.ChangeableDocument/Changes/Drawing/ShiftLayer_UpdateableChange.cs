@@ -14,10 +14,9 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(layerGuid);
-        if (member is not Layer)
-            return new Error();
-        return new Success();
+        if (target.HasMember(layerGuid))
+            return new Success();
+        return new Error();
     }
 
     [UpdateChangeMethod]
@@ -28,7 +27,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
     private HashSet<VecI> DrawShiftedLayer(Document target)
     {
-        var targetImage = ((Layer)target.FindMemberOrThrow(layerGuid)).LayerImage;
+        var targetImage = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
         var prevChunks = targetImage.FindAffectedChunks();
         targetImage.CancelChanges();
         targetImage.EnqueueClear();
@@ -41,7 +40,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var chunks = DrawShiftedLayer(target);
-        var image = ((Layer)target.FindMemberOrThrow(layerGuid)).LayerImage;
+        var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
 
         if (originalLayerChunks is not null)
             throw new InvalidOperationException("saved chunks is not null even though we are trying to save them again");
@@ -60,7 +59,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var image = ((Layer)target.FindMemberOrThrow(layerGuid)).LayerImage;
+        var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
         var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalLayerChunks);
         return new LayerImageChunks_ChangeInfo(layerGuid, affected);
     }

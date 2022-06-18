@@ -16,8 +16,7 @@ internal class StructureMemberClipToMemberBelow_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(memberGuid);
-        if (member is null || member.ClipToMemberBelow == newValue)
+        if (!target.TryFindMember(memberGuid, out var member) || member.ClipToMemberBelow == newValue)
             return new Error();
         originalValue = member.ClipToMemberBelow;
         return new Success();

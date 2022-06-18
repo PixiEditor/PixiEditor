@@ -16,9 +16,9 @@ internal class LayerLockTransparency_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(layerGuid);
-        if (member is not Layer layer)
+        if (!target.TryFindMember<Layer>(layerGuid, out var layer))
             return new Error();
+
         originalValue = layer.LockTransparency;
         if (originalValue == newValue)
             return new Error();
@@ -27,14 +27,14 @@ internal class LayerLockTransparency_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ((Layer)target.FindMemberOrThrow(layerGuid)).LockTransparency = newValue;
+        (target.FindMemberOrThrow<Layer>(layerGuid)).LockTransparency = newValue;
         ignoreInUndo = false;
         return new LayerLockTransparency_ChangeInfo(layerGuid, newValue);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        ((Layer)target.FindMemberOrThrow(layerGuid)).LockTransparency = originalValue;
+        (target.FindMemberOrThrow<Layer>(layerGuid)).LockTransparency = originalValue;
         return new LayerLockTransparency_ChangeInfo(layerGuid, originalValue);
     }
 

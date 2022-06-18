@@ -20,13 +20,13 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        if (target.FindMember(targetLayer) is null || membersToMerge.Count == 0)
+        if (!target.HasMember(targetLayer) || membersToMerge.Count == 0)
             return new Error();
         foreach (Guid guid in membersToMerge)
         {
-            var member = target.FindMember(guid);
-            if (member is null)
+            if (!target.TryFindMember(guid, out var member))
                 return new Error();
+            
             if (member is Layer layer)
                 layersToCombine.Add(layer.GuidValue);
             else if (member is Folder innerFolder)
@@ -48,12 +48,12 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
+        var toDrawOn = target.FindMemberOrThrow<Layer>(targetLayer);
 
         var chunksToCombine = new HashSet<VecI>();
         foreach (var guid in layersToCombine)
         {
-            var layer = (Layer)target.FindMemberOrThrow(guid);
+            var layer = target.FindMemberOrThrow<Layer>(guid);
             chunksToCombine.UnionWith(layer.LayerImage.FindAllChunks());
         }
 
@@ -77,7 +77,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        Layer toDrawOn = (Layer)target.FindMemberOrThrow(targetLayer);
+        var toDrawOn = target.FindMemberOrThrow<Layer>(targetLayer);
         var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.LayerImage, ref originalChunks);
         return new LayerImageChunks_ChangeInfo(targetLayer, affectedChunks);
     }
