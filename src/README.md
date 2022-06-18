@@ -77,7 +77,7 @@ Decouples the state of a document from the UI.
         - Rendering images for changes (tools requiring final image, merge layers, etc.)
             - [x] ChunkRenderer as a part of Document
         - [x] Rendering of layer previews
-        - [ ] Rendering of canvas previews
+        - [x] Rendering of canvas previews
         - [x] Support for multiple viewports
     - Changes
         - [x] Create/Delete/Move structure members

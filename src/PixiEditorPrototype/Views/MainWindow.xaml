@@ -400,192 +400,192 @@
             BorderBrush="Black"
             DockPanel.Dock="Top"
             Margin="5">
-                <WrapPanel
-                    Orientation="Horizontal"
-                    Background="White">
-                    <Button
-                        Width="50"
-                        Margin="5"
-                        Command="{Binding LoadDocumentCommand}">
-                        Open
-                    </Button>
-                    <Button
-                        Width="50"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.UndoCommand}">
-                        Undo
-                    </Button>
-                    <Button
-                        Width="50"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.RedoCommand}">
-                        Redo
-                    </Button>
-                    <Button
-                        Width="100"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.ClearSelectionCommand}">
-                        Clear selection
-                    </Button>
-                    <Button
-                        Width="110"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.TransformSelectionPathCommand}">
-                        Transform sel. path
-                    </Button>
-                    <Button
-                        Width="110"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.TransformSelectedAreaCommand}">
-                        Transform sel. area
-                    </Button>
-                    <ComboBox
-                        Width="70"
-                        Height="20"
-                        Margin="5"
-                        SelectedIndex="0"
-                        x:Name="selectionModeComboBox">
-                        <ComboBoxItem
-                            Tag="{x:Static chen:SelectionMode.New}">
-                            New
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:SelectionMode.Add}">
-                            Add
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:SelectionMode.Subtract}">
-                            Subtract
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:SelectionMode.Intersect}">
-                            Intersect
-                        </ComboBoxItem>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger
-                                EventName="SelectionChanged">
-                                <i:InvokeCommandAction
-                                    Command="{Binding SetSelectionModeCommand}"
-                                    CommandParameter="{Binding SelectedItem.Tag, ElementName=selectionModeComboBox}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </ComboBox>
-                    <ComboBox
-                        Width="70"
-                        Height="20"
-                        Margin="5"
-                        SelectedIndex="0"
-                        x:Name="lineCapComboBox">
-                        <ComboBoxItem
-                            Tag="{x:Static sk:SKStrokeCap.Butt}">
-                            Butt
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static sk:SKStrokeCap.Round}">
-                            Round
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static sk:SKStrokeCap.Square}">
-                            Square
-                        </ComboBoxItem>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger
-                                EventName="SelectionChanged">
-                                <i:InvokeCommandAction
-                                    Command="{Binding SetLineCapCommand}"
-                                    CommandParameter="{Binding SelectedItem.Tag, ElementName=lineCapComboBox}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </ComboBox>
-                    <ComboBox
-                        Width="70"
-                        Height="20"
-                        Margin="5"
-                        SelectedIndex="0"
-                        x:Name="resizeAnchorComboBox">
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.TopLeft}">
-                            Top Left
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.Top}">
-                            Top
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.TopRight}">
-                            Top Right
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.Left}">
-                            Left
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.Center}">
-                            Center
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.Right}">
-                            Right
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.BottomLeft}">
-                            Bottom Left
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.Bottom}">
-                            Bottom
-                        </ComboBoxItem>
-                        <ComboBoxItem
-                            Tag="{x:Static chen:ResizeAnchor.BottomRight}">
-                            Bottom Right
-                        </ComboBoxItem>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger
-                                EventName="SelectionChanged">
-                                <i:InvokeCommandAction
-                                    Command="{Binding SetResizeAnchorCommand}"
-                                    CommandParameter="{Binding SelectedItem.Tag, ElementName=resizeAnchorComboBox}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </ComboBox>
-                    <Button
-                        Width="120"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.ClearHistoryCommand}">
-                        Clear undo history
-                    </Button>
-                    <Button
-                        Width="100"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.PasteImageCommand}">
-                        Paste Image
-                    </Button>
-                    <Button
-                        Width="100"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.ApplyTransformCommand}">
-                        Apply Transform
-                    </Button>
-                    <Label>Pen size:</Label>
-                    <TextBox
-                        Width="30"
-                        Margin="5"
-                        Text="{Binding StrokeWidth}" />
-                    <TextBox
-                        Width="30"
-                        Margin="5"
-                        Text="{Binding ActiveDocument.ResizeWidth}" />
-                    <TextBox
-                        Width="30"
-                        Margin="5"
-                        Text="{Binding ActiveDocument.ResizeHeight}" />
-                    <Button
-                        Width="50"
-                        Margin="5"
-                        Command="{Binding ActiveDocument.ResizeCanvasCommand}">
-                        Resize
-                    </Button>
-                </WrapPanel>
+            <WrapPanel
+                Orientation="Horizontal"
+                Background="White">
+                <Button
+                    Width="50"
+                    Margin="5"
+                    Command="{Binding LoadDocumentCommand}">
+                    Open
+                </Button>
+                <Button
+                    Width="50"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.UndoCommand}">
+                    Undo
+                </Button>
+                <Button
+                    Width="50"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.RedoCommand}">
+                    Redo
+                </Button>
+                <Button
+                    Width="100"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.ClearSelectionCommand}">
+                    Clear selection
+                </Button>
+                <Button
+                    Width="110"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.TransformSelectionPathCommand}">
+                    Transform sel. path
+                </Button>
+                <Button
+                    Width="110"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.TransformSelectedAreaCommand}">
+                    Transform sel. area
+                </Button>
+                <ComboBox
+                    Width="70"
+                    Height="20"
+                    Margin="5"
+                    SelectedIndex="0"
+                    x:Name="selectionModeComboBox">
+                    <ComboBoxItem
+                        Tag="{x:Static chen:SelectionMode.New}">
+                        New
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:SelectionMode.Add}">
+                        Add
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:SelectionMode.Subtract}">
+                        Subtract
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:SelectionMode.Intersect}">
+                        Intersect
+                    </ComboBoxItem>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger
+                            EventName="SelectionChanged">
+                            <i:InvokeCommandAction
+                                Command="{Binding SetSelectionModeCommand}"
+                                CommandParameter="{Binding SelectedItem.Tag, ElementName=selectionModeComboBox}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+                <ComboBox
+                    Width="70"
+                    Height="20"
+                    Margin="5"
+                    SelectedIndex="0"
+                    x:Name="lineCapComboBox">
+                    <ComboBoxItem
+                        Tag="{x:Static sk:SKStrokeCap.Butt}">
+                        Butt
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static sk:SKStrokeCap.Round}">
+                        Round
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static sk:SKStrokeCap.Square}">
+                        Square
+                    </ComboBoxItem>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger
+                            EventName="SelectionChanged">
+                            <i:InvokeCommandAction
+                                Command="{Binding SetLineCapCommand}"
+                                CommandParameter="{Binding SelectedItem.Tag, ElementName=lineCapComboBox}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+                <ComboBox
+                    Width="70"
+                    Height="20"
+                    Margin="5"
+                    SelectedIndex="0"
+                    x:Name="resizeAnchorComboBox">
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.TopLeft}">
+                        Top Left
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.Top}">
+                        Top
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.TopRight}">
+                        Top Right
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.Left}">
+                        Left
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.Center}">
+                        Center
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.Right}">
+                        Right
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.BottomLeft}">
+                        Bottom Left
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.Bottom}">
+                        Bottom
+                    </ComboBoxItem>
+                    <ComboBoxItem
+                        Tag="{x:Static chen:ResizeAnchor.BottomRight}">
+                        Bottom Right
+                    </ComboBoxItem>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger
+                            EventName="SelectionChanged">
+                            <i:InvokeCommandAction
+                                Command="{Binding SetResizeAnchorCommand}"
+                                CommandParameter="{Binding SelectedItem.Tag, ElementName=resizeAnchorComboBox}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+                <Button
+                    Width="120"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.ClearHistoryCommand}">
+                    Clear undo history
+                </Button>
+                <Button
+                    Width="100"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.PasteImageCommand}">
+                    Paste Image
+                </Button>
+                <Button
+                    Width="100"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.ApplyTransformCommand}">
+                    Apply Transform
+                </Button>
+                <Label>Pen size:</Label>
+                <TextBox
+                    Width="30"
+                    Margin="5"
+                    Text="{Binding StrokeWidth}" />
+                <TextBox
+                    Width="30"
+                    Margin="5"
+                    Text="{Binding ActiveDocument.ResizeWidth}" />
+                <TextBox
+                    Width="30"
+                    Margin="5"
+                    Text="{Binding ActiveDocument.ResizeHeight}" />
+                <Button
+                    Width="50"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.ResizeCanvasCommand}">
+                    Resize
+                </Button>
+            </WrapPanel>
         </Border>
         <Border
             BorderThickness="1"
@@ -750,8 +750,15 @@
             SelectedIndex="{Binding ActiveDocumentIndex}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock
-                        Text="{Binding Name}" />
+                    <StackPanel
+                        Orientation="Horizontal">
+                        <Image
+                            Source="{Binding PreviewBitmap}"
+                            Width="30"
+                            Height="30" />
+                        <TextBlock
+                            Text="{Binding Name}" />
+                    </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>

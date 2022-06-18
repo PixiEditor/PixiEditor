@@ -8,7 +8,6 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Microsoft.Win32;
-using OneOf;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
@@ -139,6 +138,9 @@ internal class DocumentViewModel : INotifyPropertyChanged
         [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
     };
 
+    public WriteableBitmap PreviewBitmap { get; set; }
+    public SKSurface PreviewSurface { get; set; }
+
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
     public FolderViewModel StructureRoot { get; }
     public DocumentTransformViewModel TransformViewModel { get; }
@@ -218,6 +220,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
                 bitmap.Value.BackBuffer, bitmap.Value.BackBufferStride);
             Surfaces[bitmap.Key] = surface;
         }
+
+        var previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
+        PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
+        PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
     }
 
     public static DocumentViewModel FromSerializableDocument(ViewModelMain owner, SerializableDocument serDocument, string name)
@@ -414,7 +420,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         updateableChangeActive = true;
         var member = FindFirstSelectedMember();
         Helpers.ActionAccumulator.AddActions(
-            new DrawLine_Action(member!.GuidValue, from, to ,strokeWidth, color, cap, member.ShouldDrawOnMask));
+            new DrawLine_Action(member!.GuidValue, from, to, strokeWidth, color, cap, member.ShouldDrawOnMask));
     }
 
     public void EndLine()
@@ -425,7 +431,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
     }
-    
+
     public void StartUpdateEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
     {
         if (!CanStartUpdate())
@@ -525,7 +531,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     public SKColor PickColor(VecI pos, bool fromAllLayers)
-    { 
+    {
         // there is a tiny chance that the image might get disposed by another thread
         try
         {
@@ -534,19 +540,19 @@ internal class DocumentViewModel : INotifyPropertyChanged
             if (fromAllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                    return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Helpers.Tracker.Document.StructureRoot)
-                        .Match<SKColor>(
-                            (Chunk chunk) =>
-                            {
-                                VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
-                                var color = chunk.Surface.GetSRGBPixel(posOnChunk);
-                                chunk.Dispose();
-                                return color;
-                            },
-                            _ => SKColors.Transparent
-                        );
+                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Helpers.Tracker.Document.StructureRoot)
+                    .Match<SKColor>(
+                        (Chunk chunk) =>
+                        {
+                            VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
+                            var color = chunk.Surface.GetSRGBPixel(posOnChunk);
+                            chunk.Dispose();
+                            return color;
+                        },
+                        _ => SKColors.Transparent
+                    );
             }
-            
+
             if (SelectedStructureMember is not LayerViewModel layerVm)
                 return SKColors.Transparent;
             var maybeMember = Helpers.Tracker.Document.FindMember(layerVm.GuidValue);

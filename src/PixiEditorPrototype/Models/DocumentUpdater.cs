@@ -18,6 +18,7 @@ internal class DocumentUpdater
 {
     private DocumentViewModel doc;
     private DocumentHelpers helper;
+
     public DocumentUpdater(DocumentViewModel doc, DocumentHelpers helper)
     {
         this.doc = doc;
@@ -202,9 +203,14 @@ internal class DocumentUpdater
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
         doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
 
-        doc.RaisePropertyChanged(nameof(doc.Bitmaps));
-
         var previewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
+        doc.PreviewSurface.Dispose();
+        doc.PreviewBitmap = CreateBitmap(previewSize);
+        doc.PreviewSurface = CreateSKSurface(doc.PreviewBitmap);
+
+        doc.RaisePropertyChanged(nameof(doc.Bitmaps));
+        doc.RaisePropertyChanged(nameof(doc.PreviewBitmap));
+
         UpdateMemberBitmapsRecursively(doc.StructureRoot, previewSize);
     }
 

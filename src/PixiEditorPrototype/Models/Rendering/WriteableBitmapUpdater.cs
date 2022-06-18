@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -22,30 +23,26 @@ internal class WriteableBitmapUpdater
     private static readonly SKPaint SmoothReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium, IsAntialias = true };
     private static readonly SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
 
-    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalPostponedChunks = new()
-    {
-        [ChunkResolution.Full] = new(),
-        [ChunkResolution.Half] = new(),
-        [ChunkResolution.Quarter] = new(),
-        [ChunkResolution.Eighth] = new()
-    };
+    /// <summary>
+    /// Chunks that have been updated but don't need to be re-rendered because they are out of view
+    /// </summary>
+    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalPostponedChunks = new() { [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new() };
 
-    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalPostponedForDelayed = new()
-    {
-        [ChunkResolution.Full] = new(),
-        [ChunkResolution.Half] = new(),
-        [ChunkResolution.Quarter] = new(),
-        [ChunkResolution.Eighth] = new()
-    };
-    
-    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalDelayedChunks = new()
-    {
-        [ChunkResolution.Full] = new(),
-        [ChunkResolution.Half] = new(),
-        [ChunkResolution.Quarter] = new(),
-        [ChunkResolution.Eighth] = new()
-    };
-    
+    /// <summary>
+    /// The state of globalPostponedChunks during the last update of global delayed chunks (when you finish using a tool)
+    /// It is required in case the viewport is moved while you are using a tool. In this case the newly visible chunks on delayed viewports
+    /// need to be re-rendered, even though normally re-render only happens after you're done with some tool.
+    /// Because the viewport still has the old version of the image there is no point in re-rendering everything from globalPostponedChunks.
+    /// It's enough to re-render the chunks that were postponed back when the delayed viewports were last updated fully.
+    /// </summary>
+    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalPostponedForDelayed = new() { [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new() };
+
+    /// <summary>
+    /// Chunks that have been updated but don't need to be re-rendered because all viewports that see them have Delayed == true
+    /// These chunks are updated after you finish using a tool
+    /// </summary>
+    private readonly Dictionary<ChunkResolution, HashSet<VecI>> globalDelayedChunks = new() { [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new() };
+
     private Dictionary<Guid, HashSet<VecI>> previewDelayedChunks = new();
     private Dictionary<Guid, HashSet<VecI>> maskPreviewDelayedChunks = new();
 
@@ -73,21 +70,9 @@ internal class WriteableBitmapUpdater
         }
 
         // find all chunks that are on viewports and on delayed viewports
-        var chunksToUpdate = new Dictionary<ChunkResolution, HashSet<VecI>>()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new()
-        };
-        
-        var chunksOnDelayedViewports = new Dictionary<ChunkResolution, HashSet<VecI>>()
-        {
-            [ChunkResolution.Full] = new(),
-            [ChunkResolution.Half] = new(),
-            [ChunkResolution.Quarter] = new(),
-            [ChunkResolution.Eighth] = new()
-        };
+        var chunksToUpdate = new Dictionary<ChunkResolution, HashSet<VecI>>() { [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new() };
+
+        var chunksOnDelayedViewports = new Dictionary<ChunkResolution, HashSet<VecI>>() { [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new() };
 
         foreach (var (_, viewport) in helpers.State.Viewports)
         {
@@ -109,7 +94,7 @@ internal class WriteableBitmapUpdater
             chunksOnDelayedViewports[res].IntersectWith(postponed);
             postponed.ExceptWith(chunksToUpdate[res]);
         }
-        
+
         // decide what to do about the delayed chunks
         if (renderDelayed)
         {
@@ -126,7 +111,7 @@ internal class WriteableBitmapUpdater
             {
                 chunksOnDelayedViewports[res].IntersectWith(globalPostponedForDelayed[res]);
                 globalPostponedForDelayed[res].ExceptWith(chunksOnDelayedViewports[res]);
-                
+
                 chunksToUpdate[res].UnionWith(chunksOnDelayedViewports[res]);
                 postponed.ExceptWith(chunksOnDelayedViewports[res]);
             }
@@ -145,6 +130,7 @@ internal class WriteableBitmapUpdater
             to[guid].UnionWith(chunks);
         }
     }
+
     private (Dictionary<Guid, HashSet<VecI>> image, Dictionary<Guid, HashSet<VecI>> mask) FindPreviewChunksToRerender
         (AffectedChunkGatherer chunkGatherer, bool postpone)
     {
@@ -176,6 +162,41 @@ internal class WriteableBitmapUpdater
 
     private void UpdateImagePreviews(Dictionary<Guid, HashSet<VecI>> imagePreviewChunks, float scaling, List<IRenderInfo> infos)
     {
+        // update preview of the whole canvas
+        var cumulative = imagePreviewChunks.Aggregate(new HashSet<VecI>(), (set, pair) =>
+        {
+            set.UnionWith(pair.Value);
+            return set;
+        });
+        bool somethingChanged = false;
+        foreach (var chunkPos in cumulative)
+        {
+            somethingChanged = true;
+            ChunkResolution resolution = scaling switch
+            {
+                > 1 / 2f => ChunkResolution.Full,
+                > 1 / 4f => ChunkResolution.Half,
+                > 1 / 8f => ChunkResolution.Quarter,
+                _ => ChunkResolution.Eighth,
+            };
+            var pos = chunkPos * resolution.PixelSize();
+            var rendered = ChunkRenderer.MergeWholeStructure(chunkPos, resolution, helpers.Tracker.Document.StructureRoot);
+            doc.PreviewSurface.Canvas.Save();
+            doc.PreviewSurface.Canvas.Scale(scaling);
+            doc.PreviewSurface.Canvas.Scale(1 / (float)resolution.Multiplier());
+            if (rendered.IsT1)
+            {
+                doc.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(), resolution.PixelSize(), ClearPaint);
+                return;
+            }
+            using var renderedChunk = rendered.AsT0;
+            renderedChunk.DrawOnSurface(doc.PreviewSurface, pos, SmoothReplacingPaint);
+            doc.PreviewSurface.Canvas.Restore();
+        }
+        if (somethingChanged)
+            infos.Add(new CanvasPreviewDirty_RenderInfo());
+
+        // update previews of individual members
         foreach (var (guid, chunks) in imagePreviewChunks)
         {
             var memberVM = helpers.StructureHelper.Find(guid);
@@ -193,7 +214,7 @@ internal class WriteableBitmapUpdater
                     var pos = chunk * ChunkResolution.Full.PixelSize();
                     // the full res chunks are already rendered so drawing them again should be fast
                     if (!layer.LayerImage.DrawMostUpToDateChunkOn
-                        (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, SmoothReplacingPaint))
+                            (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, SmoothReplacingPaint))
                         memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
                 }
                 infos.Add(new PreviewDirty_RenderInfo(guid));
@@ -260,7 +281,7 @@ internal class WriteableBitmapUpdater
                     chunkPos * chunkSize,
                     new(chunkSize, chunkSize),
                     resolution
-                    ));
+                ));
             }
         }
     }
