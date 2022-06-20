@@ -12,6 +12,7 @@ internal enum Tool
     Eraser,
     ShiftLayer,
     FloodFill,
+    Brightness,
     // selection
     SelectRectangle,
     SelectEllipse,

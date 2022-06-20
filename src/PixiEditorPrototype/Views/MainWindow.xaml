@@ -591,6 +591,16 @@
                     Command="{Binding ActiveDocument.ResizeImageCommand}">
                     Resize Image
                 </Button>
+                <CheckBox
+                    IsChecked="{Binding BrightnessRepeat}">
+                    Brgt Repeat
+                </CheckBox>
+                <CheckBox
+                    IsChecked="{Binding BrightnessDarken}">
+                    Brgt Darken
+                </CheckBox>
+                <Label>BrgtCorFact</Label>
+                <TextBox Text="{Binding BrightnessCorrectionFactor}"/>
             </WrapPanel>
         </Border>
         <Border
@@ -650,6 +660,13 @@
                     Command="{Binding ChangeActiveToolCommand}"
                     CommandParameter="{x:Static models:Tool.Eraser}">
                     Eraser
+                </Button>
+                <Button
+                    Width="70"
+                    Margin="5"
+                    Command="{Binding ChangeActiveToolCommand}"
+                    CommandParameter="{x:Static models:Tool.Brightness}">
+                    Brightness
                 </Button>
                 <Button
                     Width="70"

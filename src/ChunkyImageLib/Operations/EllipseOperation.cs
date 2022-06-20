@@ -11,19 +11,20 @@ internal class EllipseOperation : IDrawOperation
     private readonly SKColor fillColor;
     private readonly int strokeWidth;
     private bool init = false;
-    private readonly SKPaint paint = new();
+    private readonly SKPaint paint;
     private SKPath? outerPath;
     private SKPath? innerPath;
     private SKPoint[]? ellipse;
     private SKPoint[]? ellipseFill;
     private RectI? ellipseFillRect;
 
-    public EllipseOperation(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
+    public EllipseOperation(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth, SKPaint? paint = null)
     {
         this.location = location;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
         this.strokeWidth = strokeWidth;
+        this.paint = paint?.Clone() ?? new SKPaint();
     }
 
     private void Init()
@@ -76,13 +77,13 @@ internal class EllipseOperation : IDrawOperation
             {
                 surf.Canvas.Save();
                 surf.Canvas.ClipPath(innerPath);
-                surf.Canvas.DrawColor(fillColor, SKBlendMode.SrcOver);
+                surf.Canvas.DrawColor(fillColor, paint.BlendMode);
                 surf.Canvas.Restore();
             }
             surf.Canvas.Save();
             surf.Canvas.ClipPath(outerPath);
             surf.Canvas.ClipPath(innerPath, SKClipOperation.Difference);
-            surf.Canvas.DrawColor(strokeColor, SKBlendMode.SrcOver);
+            surf.Canvas.DrawColor(strokeColor, paint.BlendMode);
             surf.Canvas.Restore();
         }
         surf.Canvas.Restore();
@@ -107,7 +108,7 @@ internal class EllipseOperation : IDrawOperation
             newLocation = newLocation.ReflectX((int)verAxisX);
         if (horAxisY is not null)
             newLocation = newLocation.ReflectY((int)horAxisY);
-        return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth);
+        return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, paint);
     }
 
     public void Dispose()

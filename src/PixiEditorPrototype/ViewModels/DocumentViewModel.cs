@@ -177,6 +177,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     private bool drawingPathBasedPen = false;
     private bool drawingLineBasedPen = false;
     private bool drawingPixelPerfectPen = false;
+    private bool drawingBrightness = false;
     private bool transformingRectangle = false;
     private bool transformingEllipse = false;
     private bool shiftingLayer = false;
@@ -389,6 +390,32 @@ internal class DocumentViewModel : INotifyPropertyChanged
         Helpers.ActionAccumulator.AddFinishedActions(new EndPathBasedPen_Action());
     }
 
+    public void StartUpdateBrightness(VecI pos, int strokeWidth, float correctionFactor, bool repeat, bool darken)
+    {
+        if (!CanStartUpdate())
+            return;
+        updateableChangeActive = true;
+        drawingBrightness = true;
+        var member = FindFirstSelectedMember();
+        Helpers.ActionAccumulator.AddActions(
+            new ChangeBrightness_Action(
+                member!.GuidValue, 
+                pos, 
+                correctionFactor, 
+                strokeWidth, 
+                repeat, 
+                darken));
+    }
+
+    public void EndBrightness()
+    {
+        if (!drawingBrightness)
+            return;
+        drawingBrightness = false;
+        updateableChangeActive = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndChangeBrightness_Action());
+    }
+    
     public void StartUpdateLineBasedPen(VecI pos, SKColor color, bool replacing = false)
     {
         if (!CanStartUpdate())

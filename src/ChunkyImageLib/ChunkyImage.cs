@@ -413,12 +413,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth)
+    public void EnqueueDrawEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth, SKPaint? paint = null)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            EllipseOperation operation = new(location, strokeColor, fillColor, strokeWidth);
+            EllipseOperation operation = new(location, strokeColor, fillColor, strokeWidth, paint);
             EnqueueOperation(operation);
         }
     }

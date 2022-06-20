@@ -31,6 +31,9 @@ internal class ViewModelMain : INotifyPropertyChanged
 
     public bool KeepOriginalImageOnTransform { get; set; } = false;
     public bool ReferenceAllLayers { get; set; } = false;
+    public bool BrightnessDarken { get; set; } = false;
+    public bool BrightnessRepeat { get; set; } = false;
+    public float BrightnessCorrectionFactor { get; set; } = 5f;
     public float StrokeWidth { get; set; } = 1f;
     public SKStrokeCap LineStrokeCap { get; set; } = SKStrokeCap.Butt;
 
@@ -180,6 +183,9 @@ internal class ViewModelMain : INotifyPropertyChanged
             case Tool.PixelPerfectPen:
                 ActiveDocument!.StartUpdatePixelPerfectPen((VecI)pos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
                 break;
+            case Tool.Brightness:
+                ActiveDocument!.StartUpdateBrightness((VecI)pos, (int)StrokeWidth, BrightnessCorrectionFactor, BrightnessRepeat, BrightnessDarken);
+                break;
             case Tool.Eraser:
                 ActiveDocument!.StartUpdateLineBasedPen((VecI)pos, SKColors.Transparent, true);
                 break;
@@ -263,6 +269,9 @@ internal class ViewModelMain : INotifyPropertyChanged
             case Tool.PixelPerfectPen:
                 ActiveDocument!.StartUpdatePixelPerfectPen((VecI)canvasPos, new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A));
                 break;
+            case Tool.Brightness:
+                ActiveDocument!.StartUpdateBrightness((VecI)canvasPos, (int)StrokeWidth, BrightnessCorrectionFactor, BrightnessRepeat, BrightnessDarken);
+                break;
             case Tool.Eraser:
                 ActiveDocument!.StartUpdateLineBasedPen((VecI)canvasPos, SKColors.Transparent, true);
                 break;
@@ -319,6 +328,9 @@ internal class ViewModelMain : INotifyPropertyChanged
                 break;
             case Tool.PixelPerfectPen:
                 ActiveDocument!.EndUPixelPerfectPen();
+                break;
+            case Tool.Brightness:
+                ActiveDocument!.EndBrightness();
                 break;
             case Tool.LineBasedPen:
             case Tool.Eraser:
