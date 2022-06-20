@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -146,8 +147,6 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     internal const double ScaleFactor = 1.09050773267; //2^(1/8)
 
-    private double[] roundZoomValues = new double[] { .01, .02, .03, .04, .05, .06, .07, .08, .1, .13, .17, .2, .25, .33, .5, .67, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64 };
-
     internal VecD ToScreenSpace(VecD p)
     {
         VecD delta = p - Center;
@@ -185,10 +184,32 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         sender.activeMouseDownEventArgs = null;
     }
 
+    private double[]? zoomValues;
+    
     public Zoombox()
     {
+        CalculateZoomValues();
         InitializeComponent();
         Loaded += (_, _) => OnPropertyChange(this, new DependencyPropertyChangedEventArgs());
+    }
+
+    private void CalculateZoomValues()
+    {
+        Span<double> roundZoomValues = stackalloc []{ .01, .02, .03, .04, .05, .06, .07, .08, .1, .13, .17, .2, .25, .33, .5, .67, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64 };
+        List<double> interpolatedValues = new();
+        for (int i = 0; i < roundZoomValues.Length - 1; i++)
+        {
+            double cur = roundZoomValues[i];
+            double next = roundZoomValues[i+1];
+            const int steps = 3;
+            for (int j = 0; j < steps; j++)
+            {
+                double fraction = j / (double)steps;
+                interpolatedValues.Add((next - cur) * fraction + cur);
+            }
+        }
+        interpolatedValues.Add(roundZoomValues[^1]);
+        zoomValues = interpolatedValues.ToArray();
     }
 
     private void RaiseViewportEvent()
@@ -232,9 +253,9 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
         int curIndex = GetClosestRoundZoomValueIndex(Scale);
         int nextIndex = curIndex;
-        if (!(curIndex == 0 && delta < 0 || curIndex == roundZoomValues.Length - 1 && delta > 0))
+        if (!(curIndex == 0 && delta < 0 || curIndex == zoomValues!.Length - 1 && delta > 0))
             nextIndex = delta < 0 ? curIndex - 1 : curIndex + 1;
-        double newScale = roundZoomValues[nextIndex];
+        double newScale = zoomValues![nextIndex];
 
         if (Math.Abs(newScale - 1) < 0.1) newScale = 1;
         newScale = Math.Clamp(newScale, MinScale, MaxScale);
@@ -249,9 +270,9 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         int index = -1;
         double delta = double.MaxValue;
-        for (int i = 0; i < roundZoomValues.Length; i++)
+        for (int i = 0; i < zoomValues!.Length; i++)
         {
-            double curDelta = Math.Abs(roundZoomValues[i] - value);
+            double curDelta = Math.Abs(zoomValues[i] - value);
             if (curDelta < delta)
             {
                 delta = curDelta;
