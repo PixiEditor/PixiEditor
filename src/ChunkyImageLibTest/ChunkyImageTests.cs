@@ -78,4 +78,22 @@ public class ChunkyImageTests
         image.Dispose();
         Assert.Equal(0, Chunk.ChunkCounter);
     }
+
+    [Fact]
+    public void EnqueueDrawRectangle_OutsideOfImage_PartsAreNotDrawn()
+    {
+        const int chunkSize = ChunkyImage.FullChunkSize;
+        using ChunkyImage image = new(new VecI(chunkSize));
+        image.EnqueueDrawRectangle(new ShapeData(
+                VecD.Zero,
+                new VecD(chunkSize * 10),
+                0,
+                0,
+                SKColors.Transparent,
+                SKColors.Red));
+        image.CommitChanges();
+        Assert.Collection(
+            image.FindAllChunks(), 
+            elem => Assert.Equal(VecI.Zero, elem));
+    }
 }

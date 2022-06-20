@@ -89,7 +89,7 @@ Decouples the state of a document from the UI.
         - [ ] Layer/Folder locking
         - [ ] Reference layer manipulation?
         - [x] Resize canvas
-        - [ ] Resize image
+        - [x] Resize image
         - [x] Paste image with transformation
         - [x] Rectangle
         - [x] Ellipse

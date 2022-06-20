@@ -580,10 +580,16 @@
                     Margin="5"
                     Text="{Binding ActiveDocument.ResizeHeight}" />
                 <Button
-                    Width="50"
+                    Width="80"
                     Margin="5"
                     Command="{Binding ActiveDocument.ResizeCanvasCommand}">
-                    Resize
+                    Resize Canvas
+                </Button>
+                <Button
+                    Width="80"
+                    Margin="5"
+                    Command="{Binding ActiveDocument.ResizeImageCommand}">
+                    Resize Image
                 </Button>
             </WrapPanel>
         </Border>

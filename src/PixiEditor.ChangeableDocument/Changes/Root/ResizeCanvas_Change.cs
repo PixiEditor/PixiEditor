@@ -22,25 +22,12 @@ internal class ResizeCanvas_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        if (target.Size == newSize)
+        if (target.Size == newSize || newSize.X < 1 || newSize.Y < 1)
             return new Error();
         originalSize = target.Size;
         originalHorAxisY = target.HorizontalSymmetryAxisY;
         originalVerAxisX = target.VerticalSymmetryAxisX;
         return new Success();
-    }
-
-    private void ForEachLayer(Folder folder, Action<Layer> action)
-    {
-        foreach (var child in folder.Children)
-        {
-            if (child is Layer layer)
-            {
-                action(layer);
-            }
-            else if (child is Folder innerFolder)
-                ForEachLayer(innerFolder, action);
-        }
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -49,23 +36,25 @@ internal class ResizeCanvas_Change : Change
         target.VerticalSymmetryAxisX = Math.Clamp(originalVerAxisX, 0, target.Size.X);
         target.HorizontalSymmetryAxisY = Math.Clamp(originalHorAxisY, 0, target.Size.Y);
 
-        ForEachLayer(target.StructureRoot, (layer) =>
+        target.ForEveryMember((member) =>
         {
-            layer.LayerImage.EnqueueResize(newSize);
-            layer.LayerImage.EnqueueClear();
-            layer.LayerImage.EnqueueDrawChunkyImage(anchor.FindOffsetFor(originalSize, newSize), layer.LayerImage);
+            if (member is Layer layer)
+            {
+                layer.LayerImage.EnqueueResize(newSize);
+                layer.LayerImage.EnqueueClear();
+                layer.LayerImage.EnqueueDrawChunkyImage(anchor.FindOffsetFor(originalSize, newSize), layer.LayerImage);
 
-            deletedChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedChunks()));
-            layer.LayerImage.CommitChanges();
-
-            if (layer.Mask is null)
+                deletedChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedChunks()));
+                layer.LayerImage.CommitChanges();
+            }
+            if (member.Mask is null)
                 return;
 
-            layer.Mask.EnqueueResize(newSize);
-            layer.Mask.EnqueueClear();
-            layer.Mask.EnqueueDrawChunkyImage(anchor.FindOffsetFor(originalSize, newSize), layer.Mask);
-            deletedMaskChunks.Add(layer.GuidValue, new CommittedChunkStorage(layer.Mask, layer.Mask.FindAffectedChunks()));
-            layer.Mask.CommitChanges();
+            member.Mask.EnqueueResize(newSize);
+            member.Mask.EnqueueClear();
+            member.Mask.EnqueueDrawChunkyImage(anchor.FindOffsetFor(originalSize, newSize), member.Mask);
+            deletedMaskChunks.Add(member.GuidValue, new CommittedChunkStorage(member.Mask, member.Mask.FindAffectedChunks()));
+            member.Mask.CommitChanges();
         });
         ignoreInUndo = false;
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
@@ -74,18 +63,20 @@ internal class ResizeCanvas_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.Size = originalSize;
-        ForEachLayer(target.StructureRoot, (layer) =>
+        target.ForEveryMember((member) =>
         {
-            layer.LayerImage.EnqueueResize(originalSize);
-            deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
-            layer.LayerImage.CommitChanges();
-
-            if (layer.Mask is null)
+            if (member is Layer layer)
+            {
+                layer.LayerImage.EnqueueResize(originalSize);
+                deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
+                layer.LayerImage.CommitChanges();
+            }
+            
+            if (member.Mask is null)
                 return;
-
-            layer.Mask.EnqueueResize(originalSize);
-            deletedMaskChunks[layer.GuidValue].ApplyChunksToImage(layer.Mask);
-            layer.Mask.CommitChanges();
+            member.Mask.EnqueueResize(originalSize);
+            deletedMaskChunks[member.GuidValue].ApplyChunksToImage(member.Mask);
+            member.Mask.CommitChanges();
         });
 
         target.HorizontalSymmetryAxisY = originalHorAxisY;
@@ -94,6 +85,10 @@ internal class ResizeCanvas_Change : Change
         foreach (var stored in deletedChunks)
             stored.Value.Dispose();
         deletedChunks = new();
+        
+        foreach (var stored in deletedMaskChunks)
+            stored.Value.Dispose();
+        deletedMaskChunks = new();
 
         return new Size_ChangeInfo(originalSize, originalVerAxisX, originalHorAxisY);
     }

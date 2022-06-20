@@ -30,6 +30,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? CreateNewFolderCommand { get; }
     public RelayCommand? DeleteStructureMemberCommand { get; }
     public RelayCommand? ResizeCanvasCommand { get; }
+    public RelayCommand? ResizeImageCommand { get; }
     public RelayCommand? CombineCommand { get; }
     public RelayCommand? ClearHistoryCommand { get; }
     public RelayCommand? CreateMaskCommand { get; }
@@ -211,6 +212,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         CreateNewFolderCommand = new RelayCommand(_ => Helpers.StructureHelper.CreateNewStructureMember(StructureMemberType.Folder));
         DeleteStructureMemberCommand = new RelayCommand(DeleteStructureMember);
         ResizeCanvasCommand = new RelayCommand(ResizeCanvas);
+        ResizeImageCommand = new RelayCommand(ResizeImage);
         CombineCommand = new RelayCommand(Combine);
         ClearHistoryCommand = new RelayCommand(ClearHistory);
         CreateMaskCommand = new RelayCommand(CreateMask);
@@ -236,6 +238,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
         var previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
+    }
+
+    private void ResizeImage(object? obj)
+    {
+        if (updateableChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new ResizeImage_Action(new(ResizeWidth, ResizeHeight), ResamplingMethod.NearestNeighbor));
     }
 
     public static DocumentViewModel FromSerializableDocument(ViewModelMain owner, SerializableDocument serDocument, string name)

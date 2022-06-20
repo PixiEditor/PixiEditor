@@ -575,7 +575,6 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
             if (operation.IgnoreEmptyChunks)
                 chunks.IntersectWith(FindAllChunks());
-            chunks.UnionWith(op.FindAffectedChunks());
             EnqueueOperation(op, chunks);
         }
     }
