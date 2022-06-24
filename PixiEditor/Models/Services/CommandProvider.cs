@@ -22,11 +22,6 @@ namespace PixiEditor.Models.Services
         public bool CanExecute(string name, Command command, object argument) =>
             _controller.CanExecuteEvaluators[name].EvaluateEvaluator(command, argument);
 
-        public FactoryEvaluator GetFactoryEvaluator(string name) => _controller.FactoryEvaluators[name];
-
-        public object GetFromFactory(string name, Command command, object argument) =>
-            _controller.FactoryEvaluators[name].EvaluateEvaluator(command, argument);
-
         public IconEvaluator GetIconEvaluator(string name) => _controller.IconEvaluators[name];
 
         public ImageSource GetIcon(string name, Command command, object argument) =>
