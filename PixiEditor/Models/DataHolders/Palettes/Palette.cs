@@ -1,10 +1,8 @@
 ﻿#nullable enable
+using System;
 using PixiEditor.Helpers;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Text.RegularExpressions;
-
 namespace PixiEditor.Models.DataHolders.Palettes
 {
     public class Palette : NotifyableObject

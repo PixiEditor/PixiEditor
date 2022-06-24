@@ -19,7 +19,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         // Using a DependencyProperty as the backing store for Palette.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PaletteProperty =
-            DependencyProperty.Register("Palette", typeof(Palette), typeof(PaletteItem), new PropertyMetadata(null));
+            DependencyProperty.Register("Palette", typeof(Palette), typeof(PaletteItem));
 
         public ICommand ImportPaletteCommand
         {
@@ -52,15 +52,10 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         public event EventHandler<EditableTextBlock.TextChangedEventArgs> OnRename;
 
+ 
         public PaletteItem()
         {
             InitializeComponent();
-        }
-
-        public void UpdateName(string newName)
-        {
-            titleTextBlock.Text = newName;
-            titleTextBlock.textBox.Text = newName;
         }
 
         private void EditableTextBlock_OnSubmit(object sender, EditableTextBlock.TextChangedEventArgs e)

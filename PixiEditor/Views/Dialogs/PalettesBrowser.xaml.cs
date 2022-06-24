@@ -10,10 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Navigation;
-using System.Windows.Threading;
 using Microsoft.Win32;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
@@ -171,7 +169,7 @@ namespace PixiEditor.Views.Dialogs
             Loaded += async (sender, args) =>
             {
                 localPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
-                await localPalettesFetcher.RefreshCache();
+                await localPalettesFetcher.RefreshCacheAll();
             };
             Closed += (s, e) =>
             {
@@ -187,21 +185,79 @@ namespace PixiEditor.Views.Dialogs
             {
                 Owner = Application.Current.MainWindow,
                 ImportPaletteCommand = importPaletteCommand,
-                PaletteListDataSources = dataSources
+                PaletteListDataSources = dataSources,
+                CurrentEditingPalette = currentEditingPalette
             };
-
-            browser.CurrentEditingPalette = currentEditingPalette;
 
             browser.Show();
             return browser;
         }
 
-        private async void LocalCacheRefreshed(List<Palette> obj)
+        private async void LocalCacheRefreshed(RefreshType refreshType, Palette itemAffected, string fileNameAffected)
         {
             await Dispatcher.InvokeAsync(async () =>
             {
-                await UpdatePaletteList();
+            switch (refreshType)
+            {
+                case RefreshType.All:
+                    await UpdatePaletteList();
+                    break;
+                case RefreshType.Created:
+                    HandleCachePaletteCreated(itemAffected);
+                    break;
+                case RefreshType.Updated:
+                    HandleCacheItemUpdated(itemAffected);
+                    break;
+                case RefreshType.Deleted:
+                    HandleCacheItemDeleted(fileNameAffected);
+                    break;
+                case RefreshType.Renamed:
+                    HandleCacheItemRenamed(itemAffected, fileNameAffected);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
+            }
+            
             });
+        }
+
+        private void HandleCacheItemRenamed(Palette itemAffected, string oldFileName)
+        {
+            var old = SortedResults.FirstOrDefault(x => x.FileName == oldFileName);
+            if (old != null)
+            {
+                old.Name = itemAffected.Name;
+                old.FileName = itemAffected.FileName;
+            }
+            
+            UpdateRenamedFavourite(Path.GetFileNameWithoutExtension(oldFileName), itemAffected.Name);
+        }
+
+        private void HandleCacheItemDeleted(string deletedItemFileName)
+        {
+            Palette item = SortedResults.FirstOrDefault(x => x.FileName == deletedItemFileName);
+            if (item != null)
+            {
+                SortedResults.Remove(item);
+            }
+        }
+
+        private void HandleCacheItemUpdated(Palette updatedItem)
+        {
+            var item = SortedResults.FirstOrDefault(x => x.FileName == updatedItem.FileName);
+            if (item == null) return;
+            
+            item.Name = updatedItem.Name;
+            item.IsFavourite = updatedItem.IsFavourite;
+            item.Colors = updatedItem.Colors;
+            
+            Sort();
+        }
+
+        private void HandleCachePaletteCreated(Palette updatedItem)
+        {
+            SortedResults.Add(updatedItem);
+            Sort();
         }
 
         private async void ToggleFavourite(Palette palette)
@@ -462,14 +518,12 @@ namespace PixiEditor.Views.Dialogs
         private void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             PaletteItem item = (PaletteItem)sender;
-
             string oldFileName = $"{e.OldText}.pal";
 
             if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name || e.NewText.Length > 50)
             {
                 item.Palette.FileName = oldFileName;
                 item.Palette.Name = e.OldText;
-                item.UpdateName(e.OldText);
                 return;
             }
 
@@ -488,7 +542,6 @@ namespace PixiEditor.Views.Dialogs
             {
                 item.Palette.FileName = oldFileName;
                 item.Palette.Name = e.OldText;
-                item.UpdateName(e.OldText);
                 return;
             }
 
@@ -496,6 +549,23 @@ namespace PixiEditor.Views.Dialogs
             File.Move(oldPath, newPath);
 
             item.Palette.FileName = finalNewName;
+            item.Palette.Name = e.NewText;
+            
+            HandleCacheItemRenamed(item.Palette, oldFileName);
+        }
+
+        private static void UpdateRenamedFavourite(string old, string newName)
+        {
+            var favourites = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes,
+                new List<string>());
+
+            if (favourites.Contains(old))
+            {
+                favourites.Remove(old);
+                favourites.Add(newName);
+            }
+
+            IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favourites);
         }
 
         private void BrowseOnLospec_OnClick(object sender, RoutedEventArgs e)

@@ -15,8 +15,10 @@ public class JascFileParser : PaletteFileParser
     public override string FileName => "Jasc Palette";
 
     public static async Task<PaletteFileData> ParseFile(string path)
-    {
-        string fileContent = await File.ReadAllTextAsync(path);
+    { 
+        using var stream = File.OpenText(path);
+        
+        string fileContent = await stream.ReadToEndAsync();
         string[] lines = fileContent.Split('\n');
         string name = Path.GetFileNameWithoutExtension(path);
         string fileType = lines[0];
