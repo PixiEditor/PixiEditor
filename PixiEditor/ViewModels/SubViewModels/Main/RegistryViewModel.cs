@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Security.AccessControl;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Win32;
 using PixiEditor.Models.Dialogs;
@@ -21,7 +15,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.OnStartupEvent += OwnerOnStartupEvent;
         }
 
-        private void OwnerOnStartupEvent(object? sender, EventArgs e)
+        private void OwnerOnStartupEvent(object sender, EventArgs e)
         {
             // Check if lospec-palette is associated in registry
 
@@ -63,7 +57,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 // Set the default value of the key
                 commandKey.SetValue("", $"\"{Process.GetCurrentProcess().MainModule?.FileName}\" \"%1\"");
             }
-            catch (Exception e)
+            catch
             {
                 NoticeDialog.Show("Failed to associate lospec-palette protocol", "Error");
             }

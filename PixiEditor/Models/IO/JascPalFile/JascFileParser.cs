@@ -13,8 +13,8 @@ public class JascFileParser : PaletteFileParser
     private static readonly string[] _supportedFileExtensions = new string[] { ".pal" };
     public override string[] SupportedFileExtensions => _supportedFileExtensions;
     public override string FileName => "Jasc Palette";
-
-    public static async Task<PaletteFileData> ParseFile(string path)
+    
+    private static async Task<PaletteFileData> ParseFile(string path)
     { 
         using var stream = File.OpenText(path);
         
@@ -39,8 +39,10 @@ public class JascFileParser : PaletteFileParser
         throw new JascFileException("Invalid JASC-PAL file.");
     }
 
-    public static async Task SaveFile(string path, PaletteFileData data)
+    public static async Task<bool> SaveFile(string path, PaletteFileData data)
     {
+        if (data is not { Colors.Length: > 0 }) return false;
+        
         string fileContent = "JASC-PAL\n0100\n" + data.Colors.Length;
         for (int i = 0; i < data.Colors.Length; i++)
         {
@@ -48,9 +50,21 @@ public class JascFileParser : PaletteFileParser
         }
 
         await File.WriteAllTextAsync(path, fileContent);
+        return true;
+
     }
 
-    public override async Task<PaletteFileData> Parse(string path) => await ParseFile(path);
+    public override async Task<PaletteFileData> Parse(string path)
+    {
+        try
+        {
+            return await ParseFile(path);
+        }
+        catch
+        {
+            return new PaletteFileData("Corrupted", Array.Empty<SKColor>()) { IsCorrupted = true };
+        }
+    }
 
     public override async Task Save(string path, PaletteFileData data) => await SaveFile(path, data);
 

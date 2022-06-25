@@ -17,7 +17,7 @@ namespace PixiEditor.Views
 
         public Color SelectedColor
         {
-            get => (Color) GetValue(SelectedColorProperty);
+            get => (Color)GetValue(SelectedColorProperty);
             set { SetValue(SelectedColorProperty, value); }
         }
 

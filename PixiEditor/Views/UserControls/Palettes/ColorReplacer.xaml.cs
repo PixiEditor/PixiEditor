@@ -31,7 +31,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         public Color NewColor
         {
-            get { return (Color) GetValue(NewColorProperty); }
+            get { return (Color)GetValue(NewColorProperty); }
             set { SetValue(NewColorProperty, value); }
         }
 
@@ -40,7 +40,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         public ICommand ReplaceColorsCommand
         {
-            get { return (ICommand) GetValue(ReplaceColorsCommandProperty); }
+            get { return (ICommand)GetValue(ReplaceColorsCommandProperty); }
             set { SetValue(ReplaceColorsCommandProperty, value); }
         }
 

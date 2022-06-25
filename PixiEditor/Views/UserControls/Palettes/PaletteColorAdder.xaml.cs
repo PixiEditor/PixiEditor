@@ -1,23 +1,12 @@
 ﻿using PixiEditor.Models.DataHolders;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixiEditor.Views.UserControls.Palettes
-
 {
     /// <summary>
     /// Interaction logic for PaletteColorAdder.xaml
@@ -43,7 +32,7 @@ namespace PixiEditor.Views.UserControls.Palettes
         private static void OnHintColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var adder = (PaletteColorAdder)d;
-            Color newColor = (Color) e.NewValue;
+            Color newColor = (Color)e.NewValue;
             if (newColor.A < 255)
             {
                 adder.HintColor = Color.FromArgb(255, newColor.R, newColor.G, newColor.B);
@@ -55,7 +44,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         public WpfObservableRangeCollection<SKColor> Swatches
         {
-            get { return (WpfObservableRangeCollection<SKColor>) GetValue(SwatchesProperty); }
+            get { return (WpfObservableRangeCollection<SKColor>)GetValue(SwatchesProperty); }
             set { SetValue(SwatchesProperty, value); }
         }
 
@@ -116,7 +105,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             }
         }
 
-        private void Swatches_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void Swatches_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateAddSwatchesButton();
         }

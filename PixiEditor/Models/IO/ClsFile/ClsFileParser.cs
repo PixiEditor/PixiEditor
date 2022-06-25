@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CLSEncoderDecoder;
+using PixiEditor.Models.DataHolders.Palettes;
 using SkiaSharp;
 
 namespace PixiEditor.Models.IO.ClsFile;
@@ -23,10 +24,11 @@ public class ClsFileParser : PaletteFileParser
             {
                 set = ClsColorSet.Load(path);
             }
-            catch (Exception e)
+            catch
             {
-                throw new FormatException("The provided file is invalid", e);
+                return new PaletteFileData("Corrupted", Array.Empty<SKColor>()) { IsCorrupted = true };
             }
+            
             PaletteFileData data = new(
                 set.Utf8Name,
                 set.Colors
@@ -38,19 +40,25 @@ public class ClsFileParser : PaletteFileParser
         });
     }
 
-    public override async Task Save(string path, PaletteFileData data)
-    {   
+    public override async Task<bool> Save(string path, PaletteFileData data)
+    {
+        if (data?.Colors == null || data.Colors.Length <= 0) return false;
+        
         string name = data.Title;
-        List<ClsColor> colors = data.Colors.Select(color => new ClsColor(color.Red, color.Green, color.Blue, color.Alpha)).ToList();
+        List<ClsColor> colors = data.Colors
+            .Select(color => new ClsColor(color.Red, color.Green, color.Blue, color.Alpha)).ToList();
         await Task.Run(() =>
         {
             if (name.Length == 0)
                 name = Path.GetFileNameWithoutExtension(path);
             if (name.Length > 64)
                 name = name.Substring(0, 64);
-            ClsColorSet set = new(colors, name); 
+            ClsColorSet set = new(colors, name);
             set.Save(path);
         });
+            
+        return true;
+
     }
 
 }

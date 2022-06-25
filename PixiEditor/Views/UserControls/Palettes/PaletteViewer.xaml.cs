@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,7 +8,6 @@ using System.Windows.Media;
 using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
@@ -28,8 +25,8 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         public WpfObservableRangeCollection<SKColor> Swatches
         {
-            get { return (WpfObservableRangeCollection<SKColor>) GetValue(SwatchesProperty); }
-            set { SetValue(SwatchesProperty, value); }
+            get => (WpfObservableRangeCollection<SKColor>)GetValue(SwatchesProperty);
+            set => SetValue(SwatchesProperty, value);
         }
         public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(
             "Colors", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer));
@@ -55,7 +52,7 @@ namespace PixiEditor.Views.UserControls.Palettes
 
         public ICommand ReplaceColorsCommand
         {
-            get { return (ICommand) GetValue(ReplaceColorsCommandProperty); }
+            get { return (ICommand)GetValue(ReplaceColorsCommandProperty); }
             set { SetValue(ReplaceColorsCommandProperty, value); }
         }
 
@@ -114,10 +111,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             }
             set => _filesFilter = value;
         }
-
-
-        private PaletteList _cachedPaletteList;
-
+        
         public PaletteViewer()
         {
             InitializeComponent();
@@ -149,6 +143,7 @@ namespace PixiEditor.Views.UserControls.Palettes
         {
             var parser = FileParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
             var data = await parser.Parse(fileName);
+            if(data.IsCorrupted || data.Colors.Length == 0) return;
             Colors.Clear();
             Colors.AddRange(data.Colors);
         }

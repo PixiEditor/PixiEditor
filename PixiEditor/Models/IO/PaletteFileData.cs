@@ -8,6 +8,7 @@ namespace PixiEditor.Models.IO
     {
         public string Title { get; set; }
         public SKColor[] Colors { get; set; }
+        public bool IsCorrupted { get; set; } = false;
 
         public PaletteFileData(SKColor[] colors)
         {

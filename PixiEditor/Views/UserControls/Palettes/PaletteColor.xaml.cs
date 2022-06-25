@@ -40,7 +40,6 @@ public partial class PaletteColor : UserControl
     public static readonly DependencyProperty CornerRadiusProperty =
         DependencyProperty.Register("CornerRadius", typeof(CornerRadius), typeof(PaletteColor), new PropertyMetadata(new CornerRadius(5f)));
 
-    private Point prevPos;
     private Point clickPoint;
 
     public PaletteColor()

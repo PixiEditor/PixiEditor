@@ -157,15 +157,18 @@ namespace PixiEditor.Views.Dialogs
 
         private LocalPalettesFetcher _localPalettesFetcher;
 
-        private string[] _stopItTexts = new[] { "That's enough. Tidy up your file names.", 
-            "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?" };
+        private string[] _stopItTexts = new[]
+        {
+            "That's enough. Tidy up your file names.", 
+            "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?" 
+        };
 
         public PalettesBrowser()
         {
             InitializeComponent();
             Instance = this;
             DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
-            ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite);
+            ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
             Loaded += async (sender, args) =>
             {
                 localPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
@@ -413,6 +416,11 @@ namespace PixiEditor.Views.Dialogs
                 scrollViewer.ScrollToHome();
             }
         }
+        
+        private bool CanToggleFavourite(Palette palette)
+        {
+            return palette != null && palette.Colors.Count > 0;
+        }
 
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -556,7 +564,8 @@ namespace PixiEditor.Views.Dialogs
 
         private static void UpdateRenamedFavourite(string old, string newName)
         {
-            var favourites = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes,
+            var favourites = IPreferences.Current.GetLocalPreference(
+                PreferencesConstants.FavouritePalettes,
                 new List<string>());
 
             if (favourites.Contains(old))
@@ -598,6 +607,7 @@ namespace PixiEditor.Views.Dialogs
             {
                 var data = await parser.Parse(fileName);
 
+                if(data.IsCorrupted) return;
                 string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
                 await localPalettesFetcher.SavePalette(name, data.Colors.ToArray());
             }

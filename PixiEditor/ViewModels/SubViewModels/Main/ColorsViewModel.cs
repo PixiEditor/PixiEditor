@@ -7,13 +7,9 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using SkiaSharp;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.ExternalServices;
@@ -40,7 +36,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public WpfObservableRangeCollection<PaletteListDataSource> PaletteDataSources { get; private set; }
 
         public LocalPalettesFetcher LocalPaletteFetcher => _localPaletteFetcher ??=
-            (LocalPalettesFetcher)PaletteDataSources.FirstOrDefault(x => x is LocalPalettesFetcher);
+            (LocalPalettesFetcher)PaletteDataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
         private SKColor primaryColor = SKColors.Black;
         private LocalPalettesFetcher _localPaletteFetcher;
@@ -81,9 +77,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             RemoveSwatchCommand = new RelayCommand(RemoveSwatch);
             SwapColorsCommand = new RelayCommand(SwapColors);
             SelectPaletteColorCommand = new RelayCommand<int>(SelectPaletteColor);
-            ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette, Owner.DocumentIsNotNull);
+            ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette, CanImportPalette);
             ReplaceColorsCommand = new RelayCommand<(SKColor oldColor, SKColor newColor)>(ReplaceColors, Owner.DocumentIsNotNull);
             Owner.OnStartupEvent += OwnerOnStartupEvent;
+        }
+
+        private bool CanImportPalette(List<string> paletteColors)
+        {
+            return Owner.DocumentIsNotNull(paletteColors) && paletteColors.Count > 0;
         }
 
         private void ReplaceColors((SKColor oldColor, SKColor newColor) colors)
@@ -120,7 +121,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private async void OwnerOnStartupEvent(object? sender, EventArgs e)
+        private async void OwnerOnStartupEvent(object sender, EventArgs e)
         {
             await ImportLospecPalette();
         }

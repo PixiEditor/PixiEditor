@@ -162,7 +162,7 @@ namespace PixiEditor.Models.DataProviders
                 if (foundParser != null)
                 {
                     var newPalette = await foundParser.Parse(file);
-                    if (newPalette != null)
+                    if (newPalette is { IsCorrupted: false })
                     {
                         Palette pal = CreatePalette(newPalette, file,
                             _cachedFavoritePalettes?.Contains(newPalette.Title) ?? false);
@@ -197,7 +197,8 @@ namespace PixiEditor.Models.DataProviders
 
         public async Task RefreshCacheAll()
         {
-            string[] files = DirectoryExtensions.GetFiles(PathToPalettesFolder,
+            string[] files = DirectoryExtensions.GetFiles(
+                PathToPalettesFolder,
                 string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)),
                 SearchOption.TopDirectoryOnly);
             CachedPalettes = await ParseAll(files);
@@ -215,6 +216,7 @@ namespace PixiEditor.Models.DataProviders
                 var foundParser = AvailableParsers.First(x => x.SupportedFileExtensions.Contains(extension));
                 {
                     PaletteFileData fileData = await foundParser.Parse(file);
+                    if(fileData.IsCorrupted) continue;
                     var palette = CreatePalette(fileData, file, _cachedFavoritePalettes?.Contains(fileData.Title) ?? false);
 
                     result.Add(palette);
@@ -288,7 +290,7 @@ namespace PixiEditor.Models.DataProviders
                     
                     waitableExceptionOccured = false;
                 }
-                catch(IOException ex)
+                catch(IOException)
                 {
                     waitableExceptionOccured = true;
                     await Task.Delay(100);
