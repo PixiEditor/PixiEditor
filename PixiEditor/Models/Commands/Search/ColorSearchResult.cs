@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Commands.Search
 
         public static DrawingImage GetIcon(SKColor color)
         {
-            var drawing = new GeometryDrawing() { Brush = new SolidColorBrush(color.ToColor()), Pen = new(Brushes.White, 1) };
+            var drawing = new GeometryDrawing() { Brush = new SolidColorBrush(color.ToOpaqueColor()), Pen = new(Brushes.White, 1) };
             var geometry = new EllipseGeometry(new(5, 5), 5, 5) { };
             drawing.Geometry = geometry;
             return new DrawingImage(drawing);

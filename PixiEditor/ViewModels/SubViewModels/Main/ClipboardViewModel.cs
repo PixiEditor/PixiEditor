@@ -69,14 +69,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
             if (CanPasteColor())
             {
-                color = SKColor.Parse(Clipboard.GetText().Trim()).ToColor();
+                color = SKColor.Parse(Clipboard.GetText().Trim()).ToOpaqueColor();
             }
             else
             {
                 color = Colors.Transparent;
             }
 
-            return ColorSearchResult.GetIcon(color.ToSKColor());
+            return ColorSearchResult.GetIcon(color.ToOpaqueSKColor());
         }
     }
 }
