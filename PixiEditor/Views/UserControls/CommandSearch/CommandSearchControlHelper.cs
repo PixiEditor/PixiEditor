@@ -18,8 +18,6 @@ internal static class CommandSearchControlHelper
         List<SearchResult> newResults = new();
         List<string> warnings = new();
 
-        warnings.Add("haha warning");
-
         if (string.IsNullOrWhiteSpace(query))
         {
             // show all recently opened
@@ -130,7 +128,12 @@ internal static class CommandSearchControlHelper
         }
         else if (query.StartsWith("rgb") || query.StartsWith("rgba"))
         {
-            Match match = Regex.Match(query, @"rgba?\(? *(?<r>\d{1,3}) *, *(?<g>\d{1,3}) *, *(?<b>\d{1,3})(?: *, *(?<a>\d{1,3}))?");
+            // matches strings that:
+            // - start with "rgb" or "rgba"
+            // - have a list of 3 or 4 numbers each up to 255 (rgb with 4 numbers is still allowed)
+            // - can have parenteses around the list
+            // - can have spaces in any reasonable places
+            Match match = Regex.Match(query, @"^rgba? *(?(?=\()\((?=.+\))|(?!.+\))) *(?<r>(?:1?\d{1,2})|(?:2[1-4]\d)|(?:25[1-5])) *, *(?<g>(?:1?\d{1,2})|(?:2[1-4]\d)|(?:25[1-5])) *, *(?<b>(?:1?\d{1,2})|(?:2[1-4]\d)|(?:25[1-5])) *(?:, *(?<a>(?:1?\d{1,2})|(?:2[1-4]\d)|(?:25[1-5])))?\)?$");
 
             if (match.Success)
             {
