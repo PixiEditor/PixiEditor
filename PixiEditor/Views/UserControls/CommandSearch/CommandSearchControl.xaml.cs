@@ -4,6 +4,7 @@ using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.DataHolders;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,6 +22,20 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
         get => (string)GetValue(SearchTermProperty);
         set => SetValue(SearchTermProperty, value);
     }
+
+    private string warnings = "";
+    public string Warnings
+    {
+        get => warnings;
+        set
+        {
+            warnings = value;
+            PropertyChanged?.Invoke(this, new(nameof(Warnings)));
+            PropertyChanged?.Invoke(this, new(nameof(HasWarnings)));
+        }
+    }
+
+    public bool HasWarnings => Warnings != string.Empty;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -58,9 +73,14 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
     private void UpdateSearchResults()
     {
         Results.Clear();
-        List<SearchResult> newResults = CommandSearchControlHelper.ConstructSearchResults(SearchTerm);
+        (List<SearchResult> newResults, List<string> warnings) = CommandSearchControlHelper.ConstructSearchResults(SearchTerm);
         foreach (var result in newResults)
             Results.Add(result);
+        Warnings = warnings.Aggregate(new StringBuilder(), static (builder, item) =>
+        {
+            builder.AppendLine(item);
+            return builder;
+        }).ToString();
         SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
     }
 
@@ -124,6 +144,8 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
 
     private static void OnSearchTermChange(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        ((CommandSearchControl)d).UpdateSearchResults();
+        CommandSearchControl control = ((CommandSearchControl)d);
+        control.UpdateSearchResults();
+        control.PropertyChanged?.Invoke(control, new PropertyChangedEventArgs(nameof(control.SearchTerm)));
     }
 }

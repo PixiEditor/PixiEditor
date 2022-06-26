@@ -204,6 +204,7 @@
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="OneOf" Version="3.0.216" />
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.2.0" />
 		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.2" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.1.0" />
