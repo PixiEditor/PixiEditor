@@ -30,7 +30,7 @@ namespace PixiEditor.Models.Commands.Search
 
         public override void Execute()
         {
-            CommandController.Current.Commands["PixiEditor.File.Open"].Methods.Execute(FilePath);
+            CommandController.Current.Commands["PixiEditor.File.OpenRecent"].Methods.Execute(FilePath);
         }
     }
 }

@@ -62,7 +62,13 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
         IsVisibleChanged += (_, args) =>
         {
             if (IsVisible)
-                Dispatcher.BeginInvoke(DispatcherPriority.Render, () => textBox.Focus());
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
+                {
+                    textBox.Focus();
+                    UpdateSearchResults();
+                });
+            }
         };
 
         textBox.LostFocus += TextBox_LostFocus;

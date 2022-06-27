@@ -53,7 +53,7 @@ namespace PixiEditor.Views.Dialogs
             InvalidateVisual();
         }
 
-        private void Cancel(object _)
+        private void Cancel(object arg)
         {
             DialogResult = false;
             Close();
