@@ -28,7 +28,7 @@ namespace PixiEditor.Models.Commands
 
         public void Add(Command item)
         {
-            _commandInternalNames.Add(item.Name, item);
+            _commandInternalNames.Add(item.InternalName, item);
             _commandShortcuts.Add(item.Shortcut, item);
         }
 
@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Commands
 
         public void ClearShortcuts() => _commandShortcuts.Clear();
 
-        public bool Contains(Command item) => _commandInternalNames.ContainsKey(item.Name);
+        public bool Contains(Command item) => _commandInternalNames.ContainsKey(item.InternalName);
 
         public void CopyTo(Command[] array, int arrayIndex) => _commandInternalNames.Values.CopyTo(array, arrayIndex);
 
@@ -50,7 +50,7 @@ namespace PixiEditor.Models.Commands
         {
             bool anyRemoved = false;
 
-            anyRemoved |= _commandInternalNames.Remove(item.Name);
+            anyRemoved |= _commandInternalNames.Remove(item.InternalName);
             anyRemoved |= _commandShortcuts.Remove(item);
 
             return anyRemoved;

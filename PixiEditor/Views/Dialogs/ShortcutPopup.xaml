@@ -10,8 +10,8 @@
         xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="ShortcutPopup" Height="740" Width="1220" WindowStyle="None"
-        MinHeight="770" MinWidth="620" Topmost="{Binding IsTopmost}">
+        Title="ShortcutPopup" Height="780" Width="1220" WindowStyle="None"
+        MinHeight="780" MinWidth="620" Topmost="{Binding IsTopmost}">
     <Window.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibility"/>
 
@@ -81,7 +81,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type commands:CommandGroup}">
                             <StackPanel Visibility="{Binding HasAssignedShortcuts, Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="{Binding Display}" Foreground="White" FontSize="15" FontWeight="Medium" Margin="10,8,0,5"/>
+                                <TextBlock Text="{Binding DisplayName}" Foreground="White" FontSize="15" FontWeight="Medium" Margin="10,8,0,5"/>
                                 <ItemsControl ItemsSource="{Binding VisibleCommands}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type commands:Command}">
@@ -105,7 +105,7 @@
                                                     <TextBlock Text="{Binding Shortcut.Key, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
                                                 </Border>
 
-                                                <TextBlock Text="{Binding Display}" Foreground="#FFEEEEEE" VerticalAlignment="Center" FontSize="14" Margin="8,0,0,0"/>
+                                                <TextBlock Text="{Binding DisplayName}" Foreground="#FFEEEEEE" VerticalAlignment="Center" FontSize="14" Margin="8,0,0,0"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -119,6 +119,7 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
+                <TextBlock FontSize="14" Margin="5" Foreground="LightGray" HorizontalAlignment="Left">You can rebind the shortcuts in settings</TextBlock>
             </WrapPanel>
         </ScrollViewer>
     </Grid>

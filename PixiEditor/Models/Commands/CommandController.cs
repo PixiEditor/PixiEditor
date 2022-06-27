@@ -127,9 +127,9 @@ namespace PixiEditor.Models.Commands
                     {
                         AddCommand(methodInfo, maybeServiceInstance, attribute, (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
                         {
-                            Name = name,
+                            InternalName = name,
                             IsDebug = isDebug,
-                            Display = attribute.DisplayName,
+                            DisplayName = attribute.DisplayName,
                             Description = attribute.Description,
                             IconPath = attribute.IconPath,
                             IconEvaluator = xIcon,
@@ -156,8 +156,8 @@ namespace PixiEditor.Models.Commands
 
                 var command = new Command.ToolCommand()
                 {
-                    Name = internalName,
-                    Display = $"Select {toolInstance.DisplayName} Tool",
+                    InternalName = internalName,
+                    DisplayName = $"Select {toolInstance.DisplayName} Tool",
                     Description = $"Select {toolInstance.DisplayName} Tool",
                     IconPath = $"@{toolInstance.ImagePath}",
                     IconEvaluator = IconEvaluator.Default,
@@ -188,7 +188,7 @@ namespace PixiEditor.Models.Commands
 
             void AddCommandToCommandsCollection(Command command)
             {
-                (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.Name.StartsWith(x.internalName));
+                (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.internalName));
                 if (group == default)
                     commands.Add("", command);
                 else

@@ -212,12 +212,12 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,0,0,20" Visibility="{Binding Visibility}">
-                                        <TextBlock Text="{Binding Display}" FontSize="22" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="22" FontWeight="SemiBold"/>
                                         <ItemsControl ItemsSource="{Binding Commands}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid Margin="0,5,5,0" Visibility="{Binding Visibility}">
-                                                        <TextBlock Text="{Binding Command.Display}" ToolTip="{Binding Command.Description}"/>
+                                                        <TextBlock Text="{Binding Command.DisplayName}" ToolTip="{Binding Command.Description}"/>
                                                         <usercontrols:ShortcutBox Width="120" Command="{Binding Command}" HorizontalAlignment="Right"/>
                                                     </Grid>
                                                 </DataTemplate>

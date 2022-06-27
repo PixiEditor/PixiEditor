@@ -21,7 +21,7 @@ namespace PixiEditor.Models.Commands
         {
             DisplayName = displayName;
             this.commands = commands.ToArray();
-            visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.Display)).ToArray();
+            visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName)).ToArray();
 
             foreach (var command in commands)
             {

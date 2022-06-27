@@ -4,12 +4,12 @@
     {
         public class DebugAttribute : BasicAttribute
         {
-            public DebugAttribute(string name, string display, string description) : base($"#DEBUG#{name}", display, description)
+            public DebugAttribute(string internalName, string displayName, string description) : base($"#DEBUG#{internalName}", displayName, description)
             {
             }
 
-            public DebugAttribute(string name, object parameter, string display, string description)
-                : base($"#DEBUG#{name}", parameter, display, description)
+            public DebugAttribute(string internalName, object parameter, string displayName, string description)
+                : base($"#DEBUG#{internalName}", parameter, displayName, description)
             {
             }
         }

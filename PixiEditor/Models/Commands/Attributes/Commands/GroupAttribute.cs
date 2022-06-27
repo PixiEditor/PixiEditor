@@ -10,12 +10,12 @@
             public string DisplayName { get; }
 
             /// <summary>
-            /// Groups all commands that start with the name <paramref name="name"/>
+            /// Groups all commands that start with the name <paramref name="internalName"/>
             /// </summary>
-            public GroupAttribute(string name, string display)
+            public GroupAttribute(string internalName, string displayName)
             {
-                InternalName = name;
-                DisplayName = display;
+                InternalName = internalName;
+                DisplayName = displayName;
             }
         }
     }

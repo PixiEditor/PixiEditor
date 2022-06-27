@@ -84,7 +84,7 @@ namespace PixiEditor.ViewModels
                 int visibleCommands = 0;
                 foreach (var command in group.Commands)
                 {
-                    if (command.Command.Display.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                    if (command.Command.DisplayName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
                     {
                         visibleCommands++;
                         command.Visibility = Visibility.Visible;
@@ -103,7 +103,7 @@ namespace PixiEditor.ViewModels
         {
             private Visibility visibility;
 
-            public string Display { get; set; }
+            public string DisplayName { get; set; }
 
             public List<CommandSearchResult> Commands { get; set; }
 
@@ -115,7 +115,7 @@ namespace PixiEditor.ViewModels
 
             public GroupSearchResult(CommandGroup group)
             {
-                Display = group.DisplayName;
+                DisplayName = group.DisplayName;
                 Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
             }
         }

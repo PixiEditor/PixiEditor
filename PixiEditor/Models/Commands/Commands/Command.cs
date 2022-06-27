@@ -6,20 +6,20 @@ using System.Windows.Media;
 
 namespace PixiEditor.Models.Commands
 {
-    [DebuggerDisplay("{Name,nq} ('{Display,nq}')")]
+    [DebuggerDisplay("{InternalName,nq} ('{DisplayName,nq}')")]
     public abstract partial class Command : NotifyableObject
     {
         private KeyCombination _shortcut;
 
         public bool IsDebug { get; init; }
 
-        public string Name { get; init; }
+        public string InternalName { get; init; }
 
         public string IconPath { get; init; }
 
         public IconEvaluator IconEvaluator { get; init; }
 
-        public string Display { get; init; }
+        public string DisplayName { get; init; }
 
         public string Description { get; init; }
 

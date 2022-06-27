@@ -37,7 +37,7 @@ namespace PixiEditor.Models.Commands.Evaluators
                 }
                 else
                 {
-                    path = $"Images/Commands/{command.Name.Replace('.', '/')}.png";
+                    path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
                 }
 
                 path = path.ToLower();

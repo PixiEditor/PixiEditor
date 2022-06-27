@@ -30,7 +30,7 @@ namespace PixiEditor.Models.Commands
             {
                 foreach (var command in shortcut.Value.Where(x => x.Shortcut != x.DefaultShortcut))
                 {
-                    shortcuts.Add(shortcut.Key, command.Name);
+                    shortcuts.Add(shortcut.Key, command.InternalName);
                 }
             }
 
