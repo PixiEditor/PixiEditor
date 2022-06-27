@@ -3,6 +3,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace PixiEditor.Views.UserControls
 {
@@ -48,27 +49,25 @@ namespace PixiEditor.Views.UserControls
             {
                 if (controller.Commands[e].Any())
                 {
-                    OptionsDialog<string> dialog = new("Already assigned", $"This shortcut is already asigned to '{controller.Commands[e].First().Display}'\nDo you want to replace the shortcut or switch shortcuts?")
+                    var oldShortcut = Command.Shortcut;
+                    bool enableSwap = oldShortcut is not { Key: Key.None, Modifiers: ModifierKeys.None };
+                    
+                    string text = enableSwap ?
+                        $"This shortcut is already assigned to '{controller.Commands[e].First().Display}'\nDo you want to replace the existing shortcut or swap the two?" :
+                        $"This shortcut is already assigned to '{controller.Commands[e].First().Display}'\nDo you want to replace the existing shortcut?";
+                    OptionsDialog<string> dialog = new("Already assigned", text);
+                    
+                    dialog.Add("Replace", x => controller.ReplaceShortcut(Command, e));
+                    if (enableSwap)
                     {
+                        dialog.Add("Swap", x =>
                         {
-                            "Replace", x => controller.ReplaceShortcut(Command, e) 
-                        },
-                        {
-                            "Switch", x =>
-                            {
-                                var oldCommand = controller.Commands[e].First();
-                                var oldShortcut = Command.Shortcut;
-                                controller.ReplaceShortcut(Command, e);
-                                controller.ReplaceShortcut(oldCommand, oldShortcut);
-                            }
-                        },
-                        {
-                            "Abort", x =>
-                            {
-                                box.KeyCombination = Command.Shortcut;
-                            }
-                        }
-                    };
+                            var oldCommand = controller.Commands[e].First();
+                            controller.ReplaceShortcut(Command, e);
+                            controller.ReplaceShortcut(oldCommand, oldShortcut);
+                        });
+                    }
+                    dialog.Add("Cancel", x => box.KeyCombination = Command.Shortcut);
 
                     dialog.ShowDialog();
                     changingCombination = false;

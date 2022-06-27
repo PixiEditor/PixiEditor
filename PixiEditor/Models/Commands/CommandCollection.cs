@@ -1,64 +1,80 @@
 ﻿using PixiEditor.Models.DataHolders;
 using System.Collections;
 using System.Diagnostics;
+using System.Windows.Input;
+using OneOf.Types;
 
 namespace PixiEditor.Models.Commands
 {
     [DebuggerDisplay("Count = {Count}")]
     public class CommandCollection : ICollection<Command>
     {
-        private readonly Dictionary<string, Command> _commandNames;
-        private readonly EnumerableDictionary<KeyCombination, Command> _commandShortcuts;
+        private readonly Dictionary<string, Command> _commandInternalNames;
+        private readonly OneToManyDictionary<KeyCombination, Command> _commandShortcuts;
 
-        public int Count => _commandNames.Count;
+        public int Count => _commandInternalNames.Count;
 
         public bool IsReadOnly => false;
 
-        public Command this[string name] => _commandNames[name];
+        public Command this[string name] => _commandInternalNames[name];
 
         public IEnumerable<Command> this[KeyCombination shortcut] => _commandShortcuts[shortcut];
 
         public CommandCollection()
         {
-            _commandNames = new();
+            _commandInternalNames = new();
             _commandShortcuts = new();
         }
 
         public void Add(Command item)
         {
-            _commandNames.Add(item.Name, item);
+            _commandInternalNames.Add(item.Name, item);
             _commandShortcuts.Add(item.Shortcut, item);
         }
 
         public void Clear()
         {
-            _commandNames.Clear();
+            _commandInternalNames.Clear();
             _commandShortcuts.Clear();
         }
 
         public void ClearShortcuts() => _commandShortcuts.Clear();
 
-        public bool Contains(Command item) => _commandNames.ContainsKey(item.Name);
+        public bool Contains(Command item) => _commandInternalNames.ContainsKey(item.Name);
 
-        public void CopyTo(Command[] array, int arrayIndex) => _commandNames.Values.CopyTo(array, arrayIndex);
+        public void CopyTo(Command[] array, int arrayIndex) => _commandInternalNames.Values.CopyTo(array, arrayIndex);
 
-        public IEnumerator<Command> GetEnumerator() => _commandNames.Values.GetEnumerator();
+        public IEnumerator<Command> GetEnumerator() => _commandInternalNames.Values.GetEnumerator();
 
         public bool Remove(Command item)
         {
             bool anyRemoved = false;
 
-            anyRemoved |= _commandNames.Remove(item.Name);
+            anyRemoved |= _commandInternalNames.Remove(item.Name);
             anyRemoved |= _commandShortcuts.Remove(item);
 
             return anyRemoved;
         }
 
-        public void AddShortcut(Command command, KeyCombination shortcut) => _commandShortcuts.Add(shortcut, command);
+        public void AddShortcut(Command command, KeyCombination shortcut)
+        {
+            _commandShortcuts.Remove(KeyCombination.None, command);
+            _commandShortcuts.Add(shortcut, command);
+        }
 
-        public void RemoveShortcut(Command command, KeyCombination shortcut) => _commandShortcuts.Remove(shortcut, command);
+        public void RemoveShortcut(Command command, KeyCombination shortcut)
+        {
+            _commandShortcuts.Remove(shortcut, command);
+            _commandShortcuts.Add(KeyCombination.None, command);
+        }
 
-        public void ClearShortcut(KeyCombination shortcut) => _commandShortcuts.Clear(shortcut);
+        public void ClearShortcut(KeyCombination shortcut)
+        {
+            if (shortcut is { Key: Key.None, Modifiers: ModifierKeys.None })
+                return;
+            _commandShortcuts.AddRange(KeyCombination.None, _commandShortcuts[shortcut]);
+            _commandShortcuts.Clear(shortcut);      
+        }
 
         public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<Command>>> GetShortcuts() =>
             _commandShortcuts;

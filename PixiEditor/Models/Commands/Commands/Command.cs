@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Commands
         }
 
         public event ShortcutChangedEventHandler ShortcutChanged;
-        
+
         protected abstract object GetParameter();
 
         protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute) =>
@@ -50,8 +50,8 @@ namespace PixiEditor.Models.Commands
 
         public bool CanExecute() => Methods.CanExecute(GetParameter());
 
-        public ImageSource GetIcon() => IconEvaluator.EvaluateEvaluator(this, GetParameter());
-        
+        public ImageSource GetIcon() => IconEvaluator.CallEvaluate(this, GetParameter());
+
         public delegate void ShortcutChangedEventHandler(Command command, ShortcutChangedEventArgs args);
     }
 }

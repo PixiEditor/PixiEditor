@@ -28,15 +28,20 @@ namespace PixiEditor.Helpers
         public static event MouseUpEventHandler OnMouseUp
         {
             add
-            {
+            { 
+// disable low-level hook in debug to prevent mouse lag when pausing in debugger
+#if !DEBUG
                 Subscribe();
+#endif
                 MouseUp += value;
             }
 
             remove
             {
                 MouseUp -= value;
+#if !DEBUG
                 Unsubscribe();
+#endif
             }
         }
 

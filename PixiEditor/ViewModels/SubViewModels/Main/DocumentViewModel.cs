@@ -63,7 +63,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.BitmapManager.CloseDocument(document);
         }
 
-        [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, Icon = "Tools/EraserImage.png")]
+        [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
         public void DeletePixels()
         {
             var doc = Owner.BitmapManager.ActiveDocument;

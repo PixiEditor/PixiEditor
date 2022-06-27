@@ -4,9 +4,6 @@ using System.Windows;
 
 namespace PixiEditor.Views.Dialogs
 {
-    /// <summary>
-    /// Interaction logic for AdvancedDialogPopup.xaml
-    /// </summary>
     public partial class OptionPopup : Window
     {
         public static readonly DependencyProperty PopupContentProperty =

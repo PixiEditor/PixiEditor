@@ -5,17 +5,17 @@
         [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
         public class GroupAttribute : Attribute
         {
-            public string Name { get; }
+            public string InternalName { get; }
 
-            public string Display { get; }
+            public string DisplayName { get; }
 
             /// <summary>
-            /// Group's all commands that start with the name <paramref name="name"/>
+            /// Groups all commands that start with the name <paramref name="name"/>
             /// </summary>
             public GroupAttribute(string name, string display)
             {
-                Name = name;
-                Display = display;
+                InternalName = name;
+                DisplayName = display;
             }
         }
     }

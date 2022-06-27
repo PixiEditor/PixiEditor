@@ -8,9 +8,9 @@ public partial class Command
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public abstract class CommandAttribute : Attribute
     {
-        public string Name { get; }
+        public string InternalName { get; }
 
-        public string Display { get; }
+        public string DisplayName { get; }
 
         public string Description { get; }
 
@@ -34,12 +34,12 @@ public partial class Command
         /// <summary>
         /// Gets or sets path to the icon. Must be bitmap image
         /// </summary>
-        public string Icon { get; set; }
+        public string IconPath { get; set; }
 
-        protected CommandAttribute(string name, string display, string description)
+        protected CommandAttribute(string internalName, string displayName, string description)
         {
-            Name = name;
-            Display = display;
+            InternalName = internalName;
+            DisplayName = displayName;
             Description = description;
         }
 

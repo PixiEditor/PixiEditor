@@ -1,6 +1,5 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.ViewModels.SubViewModels.UserPreferences;
 using System.Windows;
@@ -115,7 +114,7 @@ namespace PixiEditor.ViewModels
 
             public GroupSearchResult(CommandGroup group)
             {
-                Display = group.Display;
+                Display = group.DisplayName;
                 Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
             }
         }

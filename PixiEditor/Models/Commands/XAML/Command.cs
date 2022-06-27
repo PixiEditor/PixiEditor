@@ -36,7 +36,7 @@ namespace PixiEditor.Models.Commands.XAML
                     new Commands.Command.BasicCommand(null, null)
                     {
                         Name = Name,
-                        Display = attribute.Display,
+                        Display = attribute.DisplayName,
                         Description = attribute.Description,
                         DefaultShortcut = attribute.GetShortcut(),
                         Shortcut = attribute.GetShortcut()

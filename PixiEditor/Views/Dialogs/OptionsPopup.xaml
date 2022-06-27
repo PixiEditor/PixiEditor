@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
         x:Name="popup"
         Background="{StaticResource AccentColor}" Foreground="White">

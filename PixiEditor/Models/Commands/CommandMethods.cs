@@ -23,5 +23,5 @@ public class CommandMethods
         }
     }
 
-    public bool CanExecute(object parameter) => _canExecute.EvaluateEvaluator(_command, parameter);
+    public bool CanExecute(object parameter) => _canExecute.CallEvaluate(_command, parameter);
 }

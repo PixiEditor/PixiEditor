@@ -9,7 +9,7 @@ namespace PixiEditor.Models.Commands
         private readonly Command[] commands;
         private readonly Command[] visibleCommands;
 
-        public string Display { get; set; }
+        public string DisplayName { get; set; }
 
         public bool HasAssignedShortcuts { get; set; }
 
@@ -17,9 +17,9 @@ namespace PixiEditor.Models.Commands
 
         public IEnumerable<Command> VisibleCommands => visibleCommands;
 
-        public CommandGroup(string display, IEnumerable<Command> commands)
+        public CommandGroup(string displayName, IEnumerable<Command> commands)
         {
-            Display = display;
+            DisplayName = displayName;
             this.commands = commands.ToArray();
             visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.Display)).ToArray();
 
@@ -30,7 +30,7 @@ namespace PixiEditor.Models.Commands
             }
         }
 
-        private void Command_ShortcutChanged(Command _, ShortcutChangedEventArgs args)
+        private void Command_ShortcutChanged(Command cmd, ShortcutChangedEventArgs args)
         {
             if ((args.NewShortcut != KeyCombination.None && HasAssignedShortcuts) ||
                 (args.NewShortcut == KeyCombination.None && !HasAssignedShortcuts))

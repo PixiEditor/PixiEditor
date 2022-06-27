@@ -11,7 +11,7 @@ namespace PixiEditor.Models.Commands.Search
 
         public override bool CanExecute => Command.CanExecute();
 
-        public override ImageSource Icon => Command.IconEvaluator.EvaluateEvaluator(Command, this);
+        public override ImageSource Icon => Command.IconEvaluator.CallEvaluate(Command, this);
 
         public override KeyCombination Shortcut => Command.Shortcut;
 

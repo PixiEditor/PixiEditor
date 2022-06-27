@@ -22,7 +22,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         ///     Redo last action.
         /// </summary>
         [Command.Basic("PixiEditor.Undo.Redo", "Redo", "Redo next step", CanExecute = "PixiEditor.Undo.CanRedo", Key = Key.Y, Modifiers = ModifierKeys.Control,
-                       Icon = "E7A6", IconEvaluator = "PixiEditor.FontIcon")]
+                       IconPath = "E7A6", IconEvaluator = "PixiEditor.FontIcon")]
         public void Redo()
         {
             UndoRedoCalled?.Invoke(this, EventArgs.Empty);
@@ -39,7 +39,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         ///     Undo last action.
         /// </summary>
         [Command.Basic("PixiEditor.Undo.Undo", "Undo", "Undo previous step", CanExecute = "PixiEditor.Undo.CanUndo", Key = Key.Z, Modifiers = ModifierKeys.Control,
-         Icon = "E7A7", IconEvaluator = "PixiEditor.FontIcon")]
+         IconPath = "E7A7", IconEvaluator = "PixiEditor.FontIcon")]
         public void Undo()
         {
             UndoRedoCalled?.Invoke(this, EventArgs.Empty);

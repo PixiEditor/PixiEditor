@@ -24,7 +24,7 @@ namespace PixiEditor.Models.Commands
 
         public void SaveShortcuts()
         {
-            EnumerableDictionary<KeyCombination, string> shortcuts = new();
+            OneToManyDictionary<KeyCombination, string> shortcuts = new();
 
             foreach (var shortcut in _commands.Commands.GetShortcuts())
             {
@@ -37,7 +37,7 @@ namespace PixiEditor.Models.Commands
             File.WriteAllText(Path, JsonConvert.SerializeObject(shortcuts));
         }
 
-        public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> GetShortcuts() =>
+        public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> LoadShortcuts() =>
             JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>>>(File.ReadAllText(Path));
     }
 }

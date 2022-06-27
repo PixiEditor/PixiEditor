@@ -15,7 +15,7 @@
                 this.value = value;
             }
 
-            public override bool EvaluateEvaluator(Command command, object parameter) => value;
+            public override bool CallEvaluate(Command command, object parameter) => value;
         }
     }
 }

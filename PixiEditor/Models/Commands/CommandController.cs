@@ -5,7 +5,6 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
 using System.IO;
 using System.Reflection;
-using System.Windows.Input;
 using System.Windows.Media;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
 
@@ -42,137 +41,158 @@ namespace PixiEditor.Models.Commands
             IconEvaluators = new();
         }
 
-        public void Init(IServiceProvider services)
+        private static List<(string internalName, string displayName)> FindCommandGroups(Type[] typesToSearchForAttributes)
         {
-            KeyValuePair<KeyCombination, IEnumerable<string>>[] shortcuts = shortcutFile.GetShortcuts()?.ToArray()
-                ?? Array.Empty<KeyValuePair<KeyCombination, IEnumerable<string>>>();
+            List<(string internalName, string displayName)> result = new();
 
-            var types = typeof(CommandController).Assembly.GetTypes();
-
-            EnumerableDictionary<string, string> groups = new();
-            EnumerableDictionary<string, Command> commandGroups = new();
-
-            foreach (var type in types)
+            foreach (var type in typesToSearchForAttributes)
             {
-                object instanceType = null;
-
                 foreach (var group in type.GetCustomAttributes<CommandAttribute.GroupAttribute>())
                 {
-                    groups.Add(group.Display, group.Name);
-                }
-
-                var methods = type.GetMethods();
-
-                foreach (var method in methods)
-                {
-                    var evaluatorAttrs = method.GetCustomAttributes<Evaluator.EvaluatorAttribute>();
-
-                    if (instanceType is null && evaluatorAttrs.Any())
-                    {
-                        instanceType = services.GetService(type);
-                    }
-
-                    foreach (var attribute in evaluatorAttrs)
-                    {
-                        if (attribute is Evaluator.CanExecuteAttribute canExecute)
-                        {
-                            var required = (CommandController controller) => canExecute.Requires.Select(x => controller.CanExecuteEvaluators[x]);
-                            AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
-                                method,
-                                instanceType,
-                                canExecute,
-                                CanExecuteEvaluators,
-                                x => new CanExecuteEvaluator()
-                                {
-                                    Name = attribute.Name, 
-                                    Evaluate = y => x.Invoke(y) && required.Invoke(this).All(z => z.EvaluateEvaluator(null, y))
-                                });
-                        }
-                        else if (attribute is Evaluator.IconAttribute icon)
-                        {
-                            AddEvaluator<Evaluator.IconAttribute, IconEvaluator, ImageSource>(method, instanceType, icon, IconEvaluators);
-                        }
-                    }
+                    result.Add((group.InternalName, group.DisplayName));
                 }
             }
 
-            foreach (var type in types)
-            {
-                object instanceType = null;
-                var methods = type.GetMethods();
+            return result;
+        }
 
+        private static void ForEachMethod
+            (Type[] typesToSearchForMethods, IServiceProvider serviceProvider, Action<MethodInfo, object> action)
+        {
+            foreach (var type in typesToSearchForMethods)
+            {
+                object serviceInstance = serviceProvider.GetService(type);
+                var methods = type.GetMethods();
                 foreach (var method in methods)
                 {
-                    var commandAttrs = method.GetCustomAttributes<CommandAttribute.CommandAttribute>();
+                    action(method, serviceInstance);
+                }
+            }
+        }
 
-                    if (instanceType is null && commandAttrs.Any())
-                    {
-                        instanceType = services.GetService(type);
-                    }
+        public void Init(IServiceProvider serviceProvider)
+        {
+            KeyValuePair<KeyCombination, IEnumerable<string>>[] shortcuts = shortcutFile.LoadShortcuts()?.ToArray()
+                ?? Array.Empty<KeyValuePair<KeyCombination, IEnumerable<string>>>();
 
-                    foreach (var attribute in commandAttrs)
+            Type[] allTypesInPixiEditorAssembly = typeof(CommandController).Assembly.GetTypes();
+
+            List<(string internalName, string displayName)> commandGroupsData = FindCommandGroups(allTypesInPixiEditorAssembly);
+            OneToManyDictionary<string, Command> commands = new(); // internal name of the corr. group -> command in that group
+
+            // Find evaluators
+            ForEachMethod(allTypesInPixiEditorAssembly, serviceProvider, (methodInfo, maybeServiceInstance) =>
+            {
+                var evaluatorAttrs = methodInfo.GetCustomAttributes<Evaluator.EvaluatorAttribute>();
+                foreach (var attribute in evaluatorAttrs)
+                {
+                    switch (attribute)
                     {
-                        if (attribute is CommandAttribute.BasicAttribute basic)
-                        {
-                            AddCommand(method, instanceType, attribute, (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
+                        case Evaluator.CanExecuteAttribute canExecuteAttribute:
                             {
-                                Name = name,
-                                IsDebug = isDebug,
-                                Display = attribute.Display,
-                                Description = attribute.Description,
-                                IconPath = attribute.Icon,
-                                IconEvaluator = xIcon,
-                                DefaultShortcut = attribute.GetShortcut(),
-                                Shortcut = GetShortcut(name, attribute.GetShortcut()),
-                                Parameter = basic.Parameter,
-                            });
-                        }
+                                var getRequiredEvaluatorsObjectsOfCurrentEvaluator =
+                                    (CommandController controller) =>
+                                        canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x => controller.CanExecuteEvaluators[x]);
+
+                                AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
+                                    methodInfo,
+                                    maybeServiceInstance,
+                                    canExecuteAttribute,
+                                    CanExecuteEvaluators,
+                                    evaluateFunction => new CanExecuteEvaluator()
+                                    {
+                                        Name = attribute.Name,
+                                        Evaluate = evaluateFunctionArgument =>
+                                            evaluateFunction.Invoke(evaluateFunctionArgument) &&
+                                            getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(requiredEvaluator =>
+                                                requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument))
+                                    });
+                                break;
+                            }
+                        case Evaluator.IconAttribute icon:
+                            AddEvaluator<Evaluator.IconAttribute, IconEvaluator, ImageSource>(methodInfo, maybeServiceInstance, icon, IconEvaluators);
+                            break;
                     }
                 }
+            });
 
-                if (type.IsAssignableTo(typeof(Tool)))
+            // Find basic commands
+            ForEachMethod(allTypesInPixiEditorAssembly, serviceProvider, (methodInfo, maybeServiceInstance) =>
+            {
+                var commandAttrs = methodInfo.GetCustomAttributes<CommandAttribute.CommandAttribute>();
+
+                foreach (var attribute in commandAttrs)
                 {
-                    var toolAttr = type.GetCustomAttribute<CommandAttribute.ToolAttribute>();
-
-                    if (toolAttr != null)
+                    if (attribute is CommandAttribute.BasicAttribute basic)
                     {
-                        var tool = services.GetServices<Tool>().First(x => x.GetType() == type);
-                        string name = $"PixiEditor.Tools.Select.{type.Name}";
-
-                        var command = new Command.ToolCommand()
+                        AddCommand(methodInfo, maybeServiceInstance, attribute, (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
                         {
                             Name = name,
-                            Display = $"Select {tool.DisplayName} Tool",
-                            Description = $"Select {tool.DisplayName} Tool",
-                            IconPath = $"@{tool.ImagePath}",
-                            IconEvaluator = IconEvaluator.Default,
-                            TransientKey = toolAttr.Transient,
-                            DefaultShortcut = toolAttr.GetShortcut(),
-                            Shortcut = GetShortcut(name, toolAttr.GetShortcut()),
-                            ToolType = type,
-                        };
-
-                        Commands.Add(command);
-                        AddCommandToGroup(command);
+                            IsDebug = isDebug,
+                            Display = attribute.DisplayName,
+                            Description = attribute.Description,
+                            IconPath = attribute.IconPath,
+                            IconEvaluator = xIcon,
+                            DefaultShortcut = attribute.GetShortcut(),
+                            Shortcut = GetShortcut(name, attribute.GetShortcut()),
+                            Parameter = basic.Parameter,
+                        });
                     }
                 }
-            }
+            });
 
-            foreach (var commands in commandGroups)
+            // Find tool commands
+            foreach (var type in allTypesInPixiEditorAssembly)
             {
-                CommandGroups.Add(new(commands.Key, commands.Value));
-            }
+                if (!type.IsAssignableTo(typeof(Tool)))
+                    continue;
 
-            KeyCombination GetShortcut(string name, KeyCombination defaultShortcut) => shortcuts.FirstOrDefault(x => x.Value.Contains(name), new(defaultShortcut, null)).Key;
+                var toolAttr = type.GetCustomAttribute<CommandAttribute.ToolAttribute>();
+                if (toolAttr is null)
+                    continue;
 
-            void AddCommandToGroup(Command command)
-            {
-                var display = groups.FirstOrDefault(x => x.Value.Any(x => command.Name.StartsWith(x))).Key;
-                if (display == null)
+                Tool toolInstance = serviceProvider.GetServices<Tool>().First(x => x.GetType() == type);
+                string internalName = $"PixiEditor.Tools.Select.{type.Name}";
+
+                var command = new Command.ToolCommand()
                 {
-                    display = "Misc";
-                }
-                commandGroups.Add(display, command);
+                    Name = internalName,
+                    Display = $"Select {toolInstance.DisplayName} Tool",
+                    Description = $"Select {toolInstance.DisplayName} Tool",
+                    IconPath = $"@{toolInstance.ImagePath}",
+                    IconEvaluator = IconEvaluator.Default,
+                    TransientKey = toolAttr.Transient,
+                    DefaultShortcut = toolAttr.GetShortcut(),
+                    Shortcut = GetShortcut(internalName, toolAttr.GetShortcut()),
+                    ToolType = type,
+                };
+
+                Commands.Add(command);
+                AddCommandToCommandsCollection(command);
+            }
+
+            // save all commands into CommandGroups
+            foreach (var (groupInternalName, storedCommands) in commands)
+            {
+                var groupData = commandGroupsData.Where(group => group.internalName == groupInternalName).FirstOrDefault();
+                string groupDisplayName;
+                if (groupData == default)
+                    groupDisplayName = "Misc";
+                else
+                    groupDisplayName = groupData.displayName;
+                CommandGroups.Add(new(groupDisplayName, storedCommands));
+            }
+
+            KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut) 
+                => shortcuts.FirstOrDefault(x => x.Value.Contains(internalName), new(defaultShortcut, null)).Key;
+
+            void AddCommandToCommandsCollection(Command command)
+            {
+                (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.Name.StartsWith(x.internalName));
+                if (group == default)
+                    commands.Add("", command);
+                else
+                    commands.Add(group.internalName, command);
             }
 
             void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute, IDictionary<string, T> evaluators)
@@ -180,7 +200,7 @@ namespace PixiEditor.Models.Commands
                 where TAttr : Evaluator.EvaluatorAttribute
                 => AddEvaluatorFactory<TAttr, T, TParameter>(method, instance, attribute, evaluators, x => new T() { Name = attribute.Name, Evaluate = x });
 
-            void AddEvaluatorFactory<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute, IDictionary<string, T> evaluators, Func<Func<object, TParameter>, T> factory)
+            void AddEvaluatorFactory<TAttr, T, TParameter>(MethodInfo method, object serviceInstance, TAttr attribute, IDictionary<string, T> evaluators, Func<Func<object, TParameter>, T> factory)
                 where T : Evaluator<TParameter>, new()
                 where TAttr : Evaluator.EvaluatorAttribute
             {
@@ -192,7 +212,7 @@ namespace PixiEditor.Models.Commands
                 {
                     throw new Exception($"Too many parameters for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}");
                 }
-                else if (!method.IsStatic && instance is null)
+                else if (!method.IsStatic && serviceInstance is null)
                 {
                     throw new Exception($"No type instance for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name} found");
                 }
@@ -203,11 +223,11 @@ namespace PixiEditor.Models.Commands
 
                 if (parameters.Length == 1)
                 {
-                    func = x => (TParameter)method.Invoke(instance, new[] { CastParameter(x, parameters[0].ParameterType) });
+                    func = x => (TParameter)method.Invoke(serviceInstance, new[] { CastParameter(x, parameters[0].ParameterType) });
                 }
                 else
                 {
-                    func = x => (TParameter)method.Invoke(instance, null);
+                    func = x => (TParameter)method.Invoke(serviceInstance, null);
                 }
 
                 T evaluator = factory(func);
@@ -218,13 +238,8 @@ namespace PixiEditor.Models.Commands
             object CastParameter(object input, Type target)
             {
                 if (target == typeof(object) || target == input.GetType())
-                {
                     return input;
-                }
-                else
-                {
-                    return Convert.ChangeType(input, target);
-                }
+                return Convert.ChangeType(input, target);
             }
 
             TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
@@ -235,11 +250,11 @@ namespace PixiEditor.Models.Commands
                 {
                     if (method.GetParameters().Length > 1)
                     {
-                        throw new Exception($"Too many parameters for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}");
+                        throw new Exception($"Too many parameters for the CanExecute evaluator '{attribute.InternalName}' at {method.ReflectedType.FullName}.{method.Name}");
                     }
                     else if (!method.IsStatic && instance is null)
                     {
-                        throw new Exception($"No type instance for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name} found");
+                        throw new Exception($"No type instance for the CanExecute evaluator '{attribute.InternalName}' at {method.ReflectedType.FullName}.{method.Name} found");
                     }
                 }
 
@@ -256,10 +271,10 @@ namespace PixiEditor.Models.Commands
                     action = x => method.Invoke(instance, new[] { x });
                 }
 
-                string name = attribute.Name;
-                bool isDebug = attribute.Name.StartsWith("#DEBUG#");
+                string name = attribute.InternalName;
+                bool isDebug = attribute.InternalName.StartsWith("#DEBUG#");
 
-                if (attribute.Name.StartsWith("#DEBUG#"))
+                if (attribute.InternalName.StartsWith("#DEBUG#"))
                 {
                     name = name["#DEBUG#".Length..];
                 }
@@ -272,7 +287,7 @@ namespace PixiEditor.Models.Commands
                         attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default);
 
                 Commands.Add(command);
-                AddCommandToGroup(command);
+                AddCommandToCommandsCollection(command);
 
                 return command;
             }
@@ -290,7 +305,7 @@ namespace PixiEditor.Models.Commands
         }
 
         /// <summary>
-        /// Delets all shortcuts of <paramref name="newShortcut"/> and adds <paramref name="command"/>
+        /// Deletes all shortcuts of <paramref name="newShortcut"/> and adds <paramref name="command"/>
         /// </summary>
         public void ReplaceShortcut(Command command, KeyCombination newShortcut)
         {

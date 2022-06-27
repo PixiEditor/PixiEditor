@@ -23,7 +23,7 @@ namespace PixiEditor.Helpers
                     .SelectMany(x => x.GetCustomAttributes<CommandAttribute.CommandAttribute>());
             }
 
-            var command = _commands.SingleOrDefault(x => x.Name == name || x.Name == $"#DEBUG#{name}");
+            var command = _commands.SingleOrDefault(x => x.InternalName == name || x.InternalName == $"#DEBUG#{name}");
 
             if (command == null)
             {

@@ -5,16 +5,16 @@ public partial class Evaluator
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
     public class CanExecuteAttribute : EvaluatorAttribute
     {
-        public string[] Requires { get; }
+        public string[] NamesOfRequiredCanExecuteEvaluators { get; }
 
         public CanExecuteAttribute(string name) : base(name)
         {
-            Requires = Array.Empty<string>();
+            NamesOfRequiredCanExecuteEvaluators = Array.Empty<string>();
         }
 
         public CanExecuteAttribute(string name, params string[] requires) : base(name)
         {
-            Requires = requires;
+            NamesOfRequiredCanExecuteEvaluators = requires;
         }
     }
 }
