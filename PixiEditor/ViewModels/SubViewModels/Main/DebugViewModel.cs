@@ -13,7 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
     {
         public bool IsDebugBuild { get; set; }
 
-        public bool IsDebugModeEnabaled { get; set; }
+        public bool IsDebugModeEnabled { get; set; }
 
         public bool UseDebug { get; set; }
 
@@ -66,6 +66,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         [Conditional("DEBUG")]
         private void SetDebug() => IsDebugBuild = true;
 
-        private void UpdateDebugMode(bool setting) => UseDebug = IsDebugBuild || IsDebugModeEnabaled;
+        private void UpdateDebugMode(bool setting) => UseDebug = IsDebugBuild || IsDebugModeEnabled;
     }
 }

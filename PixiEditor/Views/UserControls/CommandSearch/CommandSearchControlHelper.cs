@@ -48,6 +48,7 @@ internal static class CommandSearchControlHelper
         newResults.AddRange(
             controller.Commands
                 .Where(x => x.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Where(static x => ViewModelMain.Current.DebugSubViewModel.UseDebug ? true : !x.IsDebug)
                 .OrderByDescending(x => x.Description.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
                 .Take(12)
                 .Select(command => new CommandSearchResult(command)
