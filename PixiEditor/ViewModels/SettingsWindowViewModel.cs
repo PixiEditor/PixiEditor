@@ -61,6 +61,7 @@ namespace PixiEditor.ViewModels
         {
             Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
             SettingsSubViewModel = new SettingsViewModel(this);
+            VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
         }
 
         public void UpdateSearchResults()
