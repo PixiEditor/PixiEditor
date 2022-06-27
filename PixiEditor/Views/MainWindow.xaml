@@ -168,7 +168,7 @@
                                     BasedOn="{StaticResource PixiEditorDockThemeMenuItemStyle}">
                                     <Setter
                                         Property="Command"
-                                        Value="{cmds:Command PixiEditor.File.Open, UseProvided=True}" />
+                                        Value="{cmds:Command PixiEditor.File.OpenRecent, UseProvided=True}" />
                                     <Setter
                                         Property="CommandParameter"
                                         Value="{Binding FilePath}" />

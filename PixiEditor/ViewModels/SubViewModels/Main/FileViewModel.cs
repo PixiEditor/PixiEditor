@@ -31,7 +31,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        public RecentlyOpenedCollection RecentlyOpened { get; set; } = new RecentlyOpenedCollection();
+        public RecentlyOpenedCollection RecentlyOpened { get; init; }
 
         public FileViewModel(ViewModelMain owner)
             : base(owner)
@@ -159,6 +159,32 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
+        [Command.Internal("PixiEditor.File.OpenRecent")]
+
+        public void OpenRecent(object parameter)
+        {
+            string path = (string)parameter;
+
+            foreach (Document document in Owner.BitmapManager.Documents)
+            {
+                if (document.DocumentFilePath == path)
+                {
+                    Owner.BitmapManager.ActiveDocument = document;
+                    return;
+                }
+            }
+
+            if (!File.Exists(path))
+            {
+                NoticeDialog.Show("The file does not exist", "Failed to open the file");
+                RecentlyOpened.Remove(path);
+                IPreferences.Current.UpdateLocalPreference("RecentlyOpened", RecentlyOpened.Select(x => x.FilePath));
+                return;
+            }
+
+            Open((string)parameter);
+        }
+        
         public void Open()
         {
             var filter = SupportedFilesHelper.BuildOpenFilter();
@@ -233,11 +259,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 return;
             }
 
-            var recentlyOpeneds = new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
+            var recentlyOpenedDocuments = new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
 
             RecentlyOpened.Clear();
 
-            foreach (var recent in recentlyOpeneds)
+            foreach (var recent in recentlyOpenedDocuments)
             {
                 RecentlyOpened.Add(recent);
             }

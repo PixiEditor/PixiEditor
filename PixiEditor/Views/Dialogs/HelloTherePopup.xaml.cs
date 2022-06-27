@@ -108,7 +108,7 @@ namespace PixiEditor.Views.Dialogs
         {
             Application.Current.MainWindow.Activate();
             Close();
-            FileViewModel.Open(parameter as string);
+            FileViewModel.OpenRecent(parameter);
         }
 
         private void OpenInExplorer(object parameter)
