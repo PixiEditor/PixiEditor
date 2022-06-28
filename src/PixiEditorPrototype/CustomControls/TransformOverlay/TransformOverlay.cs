@@ -59,6 +59,7 @@ internal class TransformOverlay : Control
         get => (TransformSideFreedom)GetValue(SideFreedomProperty);
         set => SetValue(SideFreedomProperty, value);
     }
+
     public ShapeCorners Corners
     {
         get => (ShapeCorners)GetValue(CornersProperty);
@@ -77,6 +78,7 @@ internal class TransformOverlay : Control
         set => SetValue(ZoomboxScaleProperty, value);
     }
 
+    private bool isResettingRequestedCorners = false;
     private bool isMoving = false;
     private VecD mousePosOnStartMove = new();
     private VecD originOnStartMove = new();
@@ -105,6 +107,7 @@ internal class TransformOverlay : Control
         Figures = (PathFigureCollection?)new PathFigureCollectionConverter()
             .ConvertFrom("M 0.50025839 0 0.4248062 0.12971572 0.34987079 0.25994821 h 0.1002584 V 0.45012906 H 0.25994831 V 0.34987066 L 0.12971577 0.42480604 0 0.5002582 0.12971577 0.57519373 0.25994831 0.65012926 V 0.5498709 H 0.45012919 V 0.74005175 H 0.34987079 L 0.42480619 0.87028439 0.50025839 1 0.57519399 0.87028439 0.65012959 0.74005175 H 0.54987119 V 0.5498709 H 0.74005211 V 0.65012926 L 0.87028423 0.57519358 1 0.5002582 0.87028423 0.42480604 0.74005169 0.34987066 v 0.1002584 H 0.54987077 V 0.25994821 h 0.1002584 L 0.5751938 0.12971572 Z"),
     };
+
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
@@ -163,7 +166,7 @@ internal class TransformOverlay : Control
             0, CrossSize / zoomboxScale,
             CrossSize / zoomboxScale, 0,
             handlePos.X - CrossSize / (zoomboxScale * 2), handlePos.Y - CrossSize / (zoomboxScale * 2)
-            );
+        );
         context.DrawGeometry(Brushes.Black, null, handleGeometry);
     }
 
@@ -217,10 +220,7 @@ internal class TransformOverlay : Control
 
             Corners = new ShapeCorners()
             {
-                BottomLeft = cornersOnStartMove.BottomLeft + delta,
-                BottomRight = cornersOnStartMove.BottomRight + delta,
-                TopLeft = cornersOnStartMove.TopLeft + delta,
-                TopRight = cornersOnStartMove.TopRight + delta,
+                BottomLeft = cornersOnStartMove.BottomLeft + delta, BottomRight = cornersOnStartMove.BottomRight + delta, TopLeft = cornersOnStartMove.TopLeft + delta, TopRight = cornersOnStartMove.TopRight + delta,
             };
 
             InternalState = InternalState with { Origin = originOnStartMove + delta };
@@ -231,11 +231,7 @@ internal class TransformOverlay : Control
             var angle = (mousePosOnStartRotate - InternalState.Origin).CCWAngleTo(pos - InternalState.Origin);
             if (SnapToAngles)
                 angle = TransformHelper.FindSnappingAngle(cornersOnStartRotate, angle);
-            InternalState = InternalState with
-            {
-                ProportionalAngle1 = propAngle1OnStartRotate + angle,
-                ProportionalAngle2 = propAngle2OnStartRotate + angle,
-            };
+            InternalState = InternalState with { ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle, };
             Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
         }
     }
@@ -279,11 +275,7 @@ internal class TransformOverlay : Control
         }
         else if (capturedAnchor == Anchor.Origin)
         {
-            InternalState = InternalState with
-            {
-                OriginWasManuallyDragged = true,
-                Origin = originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag,
-            };
+            InternalState = InternalState with { OriginWasManuallyDragged = true, Origin = originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag, };
         }
     }
 
@@ -309,14 +301,16 @@ internal class TransformOverlay : Control
     private static void OnRequestedCorners(DependencyObject obj, DependencyPropertyChangedEventArgs args)
     {
         TransformOverlay overlay = (TransformOverlay)obj;
+        if (overlay.isResettingRequestedCorners)
+            return;
         overlay.Corners = (ShapeCorners)args.NewValue;
         overlay.InternalState = new()
         {
-            ProportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle,
-            ProportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle,
-            OriginWasManuallyDragged = false,
-            Origin = TransformHelper.OriginFromCorners(overlay.Corners),
+            ProportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle, ProportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle, OriginWasManuallyDragged = false, Origin = TransformHelper.OriginFromCorners(overlay.Corners),
         };
+        overlay.isResettingRequestedCorners = true;
+        overlay.RequestedCorners = new ShapeCorners();
+        overlay.isResettingRequestedCorners = false;
     }
 
     private bool ReleaseAnchor()
