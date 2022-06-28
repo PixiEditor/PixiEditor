@@ -58,7 +58,7 @@
                     </Style>
                 </Border.Style>
             <Button
-                    ToolTip="Import" Cursor="Hand" 
+                    ToolTip="Use in current image" Cursor="Hand" 
                     Command="{Binding ImportPaletteCommand, ElementName=paletteItem}"
                     Style="{StaticResource ToolButtonStyle}"
                     Margin="0 3 0 0" Width="24" Height="24"
@@ -84,7 +84,8 @@
                 </Border.Style>
             <Button
                     Command="{Binding ElementName=paletteItem, Path=ToggleFavouriteCommand}"
-                    CommandParameter="{Binding ElementName=paletteItem, Path=Palette}">
+                    CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
+                    ToolTip="Add to favorites">
                 <Button.Style>
                     <Style BasedOn="{StaticResource ImageButtonStyle}" TargetType="Button">
                         <Style.Triggers>

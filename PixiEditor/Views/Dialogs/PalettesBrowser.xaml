@@ -89,7 +89,8 @@
                 <Button ToolTip="Add from current palette" Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
                     <Image Source="/Images/Plus-square.png"/>
                 </Button>
-                <Button Cursor="Hand" Click="OpenFolder_OnClick" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
+                <Button Cursor="Hand" Click="OpenFolder_OnClick" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24"
+                        ToolTip="Open palettes directory in explorer">
                     <Image Source="/Images/Folder.png"/>
                 </Button>
                 <Button HorizontalAlignment="Right" Margin="10 0 0 0" ToolTip="Browse palettes on Lospec"
