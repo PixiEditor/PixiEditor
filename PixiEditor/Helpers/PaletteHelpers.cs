@@ -9,6 +9,14 @@ namespace PixiEditor.Helpers
         {
             string filter = "";
 
+            List<string> allSupportedFormats = new();
+            foreach (var parser in parsers)
+            {
+                allSupportedFormats.AddRange(parser.SupportedFileExtensions);
+            }
+            string allSupportedFormatsString = string.Join(';', allSupportedFormats).Replace(".", "*.");
+            filter += $"Palette Files ({allSupportedFormatsString})|{allSupportedFormatsString}|";
+            
             foreach (var parser in parsers)
             {
                 string supportedFormats = string.Join(';', parser.SupportedFileExtensions).Replace(".", "*.");
