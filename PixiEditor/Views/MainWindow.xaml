@@ -318,6 +318,9 @@
                         <MenuItem
                             Header="Open _Install Location"
                             cmds:Menu.Command="PixiEditor.Debug.OpenInstallDirectory" />
+                        <MenuItem
+                            Header="Open Crash Reports Location"
+                            cmds:Menu.Command="PixiEditor.Debug.OpenCrashReportsDirectory" />
                         <Separator />
                         <MenuItem
                             Header="_Crash"

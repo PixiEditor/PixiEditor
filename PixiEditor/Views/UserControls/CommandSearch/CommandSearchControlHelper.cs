@@ -15,6 +15,10 @@ internal static class CommandSearchControlHelper
 {
     public static (List<SearchResult> results, List<string> warnings) ConstructSearchResults(string query)
     {
+        // avoid xaml designer error
+        if (ViewModelMain.Current is null)
+            return (new(), new());
+
         List<SearchResult> newResults = new();
         List<string> warnings = new();
 

@@ -82,6 +82,9 @@
                     <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
                     <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
                     <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
+                    <RowDefinition Height="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=Tag}"/>
                 </Grid.RowDefinitions>
 
                 <Label Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Misc</Label>
@@ -127,6 +130,15 @@
                     Width="110" Height="22" HorizontalAlignment="Left"
                     ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
                     SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
+
+                <Label Grid.Row="12" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Debug</Label>
+                <CheckBox Grid.Row="13" Grid.Column="1" VerticalAlignment="Center"
+                    IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}">Enable Debug Mode</CheckBox>
+                <Label Grid.Row="14" Grid.Column="1" Style="{StaticResource SettingsText}" VerticalAlignment="Center">
+                    <Hyperlink Command="{cmds:Command PixiEditor.Debug.OpenCrashReportsDirectory}" Style="{StaticResource SettingsLink}">
+                        Open Crash Reports Directory
+                    </Hyperlink>
+                </Label>
             </Grid>
 
             <StackPanel Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter},

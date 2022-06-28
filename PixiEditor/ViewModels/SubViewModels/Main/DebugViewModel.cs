@@ -15,7 +15,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public bool IsDebugModeEnabled { get; set; }
 
-        public bool UseDebug { get; set; }
+        private bool useDebug;
+        public bool UseDebug
+        {
+            get => useDebug;
+            set => SetProperty(ref useDebug, value);
+        }
 
         public DebugViewModel(ViewModelMain owner, IPreferences preferences)
             : base(owner)
@@ -28,6 +33,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         [Command.Debug("PixiEditor.Debug.OpenTempDirectory", "%Temp%/PixiEditor", "Open Temp Directory", "Open Temp Directory")]
         [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", "%LocalAppData%/PixiEditor", "Open Local AppData Directory", "Open Local AppData Directory")]
         [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", "%AppData%/PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", "%LocalAppData%/PixiEditor/crash_logs", "Open Crash Reports Directory", "Open Crash Reports Directory")]
         public static void OpenFolder(string path)
         {
             ProcessHelpers.ShellExecuteEV(path);
@@ -66,6 +72,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         [Conditional("DEBUG")]
         private void SetDebug() => IsDebugBuild = true;
 
-        private void UpdateDebugMode(bool setting) => UseDebug = IsDebugBuild || IsDebugModeEnabled;
+        private void UpdateDebugMode(bool setting)
+        {
+            IsDebugModeEnabled = setting;
+            UseDebug = IsDebugBuild || IsDebugModeEnabled;
+        }
     }
 }
