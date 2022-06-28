@@ -3,13 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using PixiEditor.Helpers.Converters;
 
 namespace PixiEditor.Views.UserControls.Palettes
 {
-    /// <summary>
-    /// Interaction logic for ColorReplacer.xaml
-    /// </summary>
     public partial class ColorReplacer : UserControl
     {
         public SKColor ColorToReplace
