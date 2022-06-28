@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using System;
 using PixiEditor.Helpers;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,7 @@ namespace PixiEditor.Models.DataHolders.Palettes
 {
     public class Palette : NotifyableObject
     {
-        private string _name;
+        private string _name = "";
 
         public string Name
         {

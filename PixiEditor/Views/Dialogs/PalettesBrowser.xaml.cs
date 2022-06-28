@@ -1,7 +1,15 @@
+using Microsoft.Win32;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels;
+using PixiEditor.Views.UserControls.Palettes;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,14 +20,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
-using Microsoft.Win32;
-using PixiEditor.Views.UserControls.Palettes;
-using SkiaSharp;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Dialogs
 {
@@ -143,11 +143,11 @@ namespace PixiEditor.Views.Dialogs
 
         private char[] separators = new char[] { ' ', ',' };
 
-        private SortingType _sortingType => (SortingType)Enum.Parse(typeof(SortingType), SortingType.Replace(" ", ""));
+        private SortingType InternalSortingType => (SortingType)Enum.Parse(typeof(SortingType), SortingType.Replace(" ", ""));
         public WpfObservableRangeCollection<SKColor> CurrentEditingPalette { get; set; }
         public static PalettesBrowser Instance { get; internal set; }
 
-        private LocalPalettesFetcher localPalettesFetcher
+        private LocalPalettesFetcher LocalPalettesFetcher
         {
             get
             {
@@ -159,8 +159,8 @@ namespace PixiEditor.Views.Dialogs
 
         private string[] _stopItTexts = new[]
         {
-            "That's enough. Tidy up your file names.", 
-            "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?" 
+            "That's enough. Tidy up your file names.",
+            "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?"
         };
 
         public PalettesBrowser()
@@ -171,13 +171,13 @@ namespace PixiEditor.Views.Dialogs
             ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
             Loaded += async (sender, args) =>
             {
-                localPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
-                await localPalettesFetcher.RefreshCacheAll();
+                LocalPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
+                await LocalPalettesFetcher.RefreshCacheAll();
             };
             Closed += (s, e) =>
             {
                 Instance = null;
-                localPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
+                LocalPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
             };
         }
 
@@ -200,27 +200,27 @@ namespace PixiEditor.Views.Dialogs
         {
             await Dispatcher.InvokeAsync(async () =>
             {
-            switch (refreshType)
-            {
-                case RefreshType.All:
-                    await UpdatePaletteList();
-                    break;
-                case RefreshType.Created:
-                    HandleCachePaletteCreated(itemAffected);
-                    break;
-                case RefreshType.Updated:
-                    HandleCacheItemUpdated(itemAffected);
-                    break;
-                case RefreshType.Deleted:
-                    HandleCacheItemDeleted(fileNameAffected);
-                    break;
-                case RefreshType.Renamed:
-                    HandleCacheItemRenamed(itemAffected, fileNameAffected);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
-            }
-            
+                switch (refreshType)
+                {
+                    case RefreshType.All:
+                        await UpdatePaletteList();
+                        break;
+                    case RefreshType.Created:
+                        HandleCachePaletteCreated(itemAffected);
+                        break;
+                    case RefreshType.Updated:
+                        HandleCacheItemUpdated(itemAffected);
+                        break;
+                    case RefreshType.Deleted:
+                        HandleCacheItemDeleted(fileNameAffected);
+                        break;
+                    case RefreshType.Renamed:
+                        HandleCacheItemRenamed(itemAffected, fileNameAffected);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
+                }
+
             });
         }
 
@@ -232,7 +232,7 @@ namespace PixiEditor.Views.Dialogs
                 old.Name = itemAffected.Name;
                 old.FileName = itemAffected.FileName;
             }
-            
+
             UpdateRenamedFavourite(Path.GetFileNameWithoutExtension(oldFileName), itemAffected.Name);
         }
 
@@ -249,11 +249,11 @@ namespace PixiEditor.Views.Dialogs
         {
             var item = SortedResults.FirstOrDefault(x => x.FileName == updatedItem.FileName);
             if (item == null) return;
-            
+
             item.Name = updatedItem.Name;
             item.IsFavourite = updatedItem.IsFavourite;
             item.Colors = updatedItem.Colors;
-            
+
             Sort();
         }
 
@@ -290,7 +290,7 @@ namespace PixiEditor.Views.Dialogs
             {
                 if (ConfirmationDialog.Show("Are you sure you want to delete this palette? This cannot be undone.", "Warning!") == ConfirmationType.Yes)
                 {
-                    localPalettesFetcher.DeletePalette(palette.FileName);
+                    LocalPalettesFetcher.DeletePalette(palette.FileName);
                     RemoveFavouritePalette(palette);
                 }
             }
@@ -416,7 +416,7 @@ namespace PixiEditor.Views.Dialogs
                 scrollViewer.ScrollToHome();
             }
         }
-        
+
         private bool CanToggleFavourite(Palette palette)
         {
             return palette != null && palette.Colors.Count > 0;
@@ -434,12 +434,12 @@ namespace PixiEditor.Views.Dialogs
 
         private void Sort(bool descending)
         {
-            if(PaletteList?.Palettes == null) return;
+            if (PaletteList?.Palettes == null) return;
 
             IOrderedEnumerable<Palette> sorted = null;
             if (!descending)
             {
-                switch (_sortingType)
+                switch (InternalSortingType)
                 {
                     case Models.DataHolders.Palettes.SortingType.Default:
                         sorted = PaletteList.Palettes.OrderByDescending(x => x.IsFavourite).ThenBy(x => PaletteList.Palettes.IndexOf(x));
@@ -454,7 +454,7 @@ namespace PixiEditor.Views.Dialogs
             }
             else
             {
-                switch (_sortingType)
+                switch (InternalSortingType)
                 {
                     case Models.DataHolders.Palettes.SortingType.Default:
                         sorted = PaletteList.Palettes.OrderByDescending(x => PaletteList.Palettes.IndexOf(x));
@@ -468,7 +468,7 @@ namespace PixiEditor.Views.Dialogs
                 }
             }
 
-            if(sorted != null)
+            if (sorted != null)
             {
                 SortedResults = new WpfObservableRangeCollection<Palette>(sorted);
             }
@@ -502,7 +502,7 @@ namespace PixiEditor.Views.Dialogs
                 i++;
             }
 
-            await localPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
+            await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
 
             var palette = _localPalettesFetcher.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
             if (palette != null)
@@ -558,7 +558,7 @@ namespace PixiEditor.Views.Dialogs
 
             item.Palette.FileName = finalNewName;
             item.Palette.Name = e.NewText;
-            
+
             HandleCacheItemRenamed(item.Palette, oldFileName);
         }
 
@@ -607,9 +607,9 @@ namespace PixiEditor.Views.Dialogs
             {
                 var data = await parser.Parse(fileName);
 
-                if(data.IsCorrupted) return;
+                if (data.IsCorrupted) return;
                 string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
-                await localPalettesFetcher.SavePalette(name, data.Colors.ToArray());
+                await LocalPalettesFetcher.SavePalette(name, data.Colors.ToArray());
             }
         }
 
