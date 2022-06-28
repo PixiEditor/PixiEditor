@@ -11,13 +11,27 @@ public static class ChunkRenderer
     public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root)
     {
         using RenderingContext context = new();
-        return MergeFolderContents(context, chunkPos, resolution, root, new All());
+        try
+        {
+            return MergeFolderContents(context, chunkPos, resolution, root, new All());
+        }
+        catch (ObjectDisposedException)
+        {
+            return new EmptyChunk();
+        }
     }
 
     public static OneOf<Chunk, EmptyChunk> MergeChosenMembers(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> members)
     {
         using RenderingContext context = new();
-        return MergeFolderContents(context, chunkPos, resolution, root, members);
+        try
+        {
+            return MergeFolderContents(context, chunkPos, resolution, root, members);
+        }
+        catch (ObjectDisposedException)
+        {
+            return new EmptyChunk();
+        }
     }
 
     private static OneOf<EmptyChunk, Chunk> RenderLayerWithMask
@@ -28,7 +42,7 @@ public static class ChunkRenderer
             !layer.IsVisible ||
             layer.Opacity == 0 ||
             (layer.Mask is not null && !layer.Mask.LatestOrCommittedChunkExists(chunkPos))
-            )
+        )
             return new EmptyChunk();
 
         context.UpdateFromMember(layer);
@@ -116,7 +130,7 @@ public static class ChunkRenderer
             folder.Opacity == 0 ||
             folder.Children.Count == 0 ||
             (folder.Mask is not null && folder.MaskIsVisible && !folder.Mask.LatestOrCommittedChunkExists(chunkPos))
-            )
+        )
             return new EmptyChunk();
 
         OneOf<Chunk, EmptyChunk> maybeContents = MergeFolderContents(context, chunkPos, resolution, folder, membersToMerge);
