@@ -23,112 +23,101 @@ using System.Windows.Navigation;
 
 namespace PixiEditor.Views.Dialogs
 {
-    public delegate void ListFetched(PaletteList list, int cacheId);
-
-    /// <summary>
-    /// Interaction logic for LospecPalettesBrowser.xaml
-    /// </summary>
     public partial class PalettesBrowser : Window
     {
-        public const int ItemsPerLoad = 10;
+        private const int ItemsPerLoad = 10;
 
         public PaletteList PaletteList
         {
-            get { return (PaletteList)GetValue(PaletteListProperty); }
-            set { SetValue(PaletteListProperty, value); }
+            get => (PaletteList)GetValue(PaletteListProperty);
+            set => SetValue(PaletteListProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for PaletteList.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PaletteListProperty =
-            DependencyProperty.Register("PaletteList", typeof(PaletteList), typeof(PalettesBrowser));
+            DependencyProperty.Register(nameof(PaletteList), typeof(PaletteList), typeof(PalettesBrowser));
 
         public ICommand ImportPaletteCommand
         {
-            get { return (ICommand)GetValue(ImportPaletteCommandProperty); }
-            set { SetValue(ImportPaletteCommandProperty, value); }
+            get => (ICommand)GetValue(ImportPaletteCommandProperty);
+            set => SetValue(ImportPaletteCommandProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for ImportPaletteCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ImportPaletteCommandProperty =
-            DependencyProperty.Register("ImportPaletteCommand", typeof(ICommand), typeof(PalettesBrowser));
+            DependencyProperty.Register(nameof(ImportPaletteCommand), typeof(ICommand), typeof(PalettesBrowser));
 
         public static readonly DependencyProperty DeletePaletteCommandProperty = DependencyProperty.Register(
-            "DeletePaletteCommand", typeof(ICommand), typeof(PalettesBrowser), new PropertyMetadata(default(ICommand)));
+            nameof(DeletePaletteCommand), typeof(ICommand), typeof(PalettesBrowser), new PropertyMetadata(default(ICommand)));
 
         public ICommand DeletePaletteCommand
         {
-            get { return (ICommand)GetValue(DeletePaletteCommandProperty); }
-            set { SetValue(DeletePaletteCommandProperty, value); }
+            get => (ICommand)GetValue(DeletePaletteCommandProperty);
+            set => SetValue(DeletePaletteCommandProperty, value);
         }
 
         public bool IsFetching
         {
-            get { return (bool)GetValue(IsFetchingProperty); }
-            set { SetValue(IsFetchingProperty, value); }
+            get => (bool)GetValue(IsFetchingProperty);
+            set => SetValue(IsFetchingProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for IsFetching.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsFetchingProperty =
-            DependencyProperty.Register("IsFetching", typeof(bool), typeof(PalettesBrowser), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(IsFetching), typeof(bool), typeof(PalettesBrowser), new PropertyMetadata(false));
 
         public int ColorsNumber
         {
-            get { return (int)GetValue(ColorsNumberProperty); }
-            set { SetValue(ColorsNumberProperty, value); }
+            get => (int)GetValue(ColorsNumberProperty);
+            set => SetValue(ColorsNumberProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for ColorsNumber.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ColorsNumberProperty =
-            DependencyProperty.Register("ColorsNumber", typeof(int), typeof(PalettesBrowser),
+            DependencyProperty.Register(nameof(ColorsNumber), typeof(int), typeof(PalettesBrowser),
                 new PropertyMetadata(8, ColorsNumberChanged));
 
         public WpfObservableRangeCollection<PaletteListDataSource> PaletteListDataSources
         {
-            get { return (WpfObservableRangeCollection<PaletteListDataSource>)GetValue(PaletteListDataSourcesProperty); }
-            set { SetValue(PaletteListDataSourcesProperty, value); }
+            get => (WpfObservableRangeCollection<PaletteListDataSource>)GetValue(PaletteListDataSourcesProperty);
+            set => SetValue(PaletteListDataSourcesProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for PaletteListDataSources.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PaletteListDataSourcesProperty =
-            DependencyProperty.Register("PaletteListDataSources", typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PalettesBrowser), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
+            DependencyProperty.Register(nameof(PaletteListDataSources), typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PalettesBrowser), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
         public bool SortAscending
         {
-            get { return (bool)GetValue(SortAscendingProperty); }
-            set { SetValue(SortAscendingProperty, value); }
+            get => (bool)GetValue(SortAscendingProperty);
+            set => SetValue(SortAscendingProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for SortDescending.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SortAscendingProperty =
-            DependencyProperty.Register("SortAscending", typeof(bool), typeof(PalettesBrowser), new PropertyMetadata(true, OnSortAscendingChanged));
+            DependencyProperty.Register(nameof(SortAscending), typeof(bool), typeof(PalettesBrowser), new PropertyMetadata(true, OnSortAscendingChanged));
 
 
         public static readonly DependencyProperty SortedResultsProperty = DependencyProperty.Register(
-            "SortedResults", typeof(WpfObservableRangeCollection<Palette>), typeof(PalettesBrowser), new PropertyMetadata(default(WpfObservableRangeCollection<Palette>)));
+            nameof(SortedResults), typeof(WpfObservableRangeCollection<Palette>), typeof(PalettesBrowser), new PropertyMetadata(default(WpfObservableRangeCollection<Palette>)));
 
         public WpfObservableRangeCollection<Palette> SortedResults
         {
-            get { return (WpfObservableRangeCollection<Palette>)GetValue(SortedResultsProperty); }
-            set { SetValue(SortedResultsProperty, value); }
+            get => (WpfObservableRangeCollection<Palette>)GetValue(SortedResultsProperty);
+            set => SetValue(SortedResultsProperty, value);
         }
 
         public static readonly DependencyProperty NameFilterProperty = DependencyProperty.Register(
-            "NameFilter", typeof(string), typeof(PalettesBrowser),
+            nameof(NameFilter), typeof(string), typeof(PalettesBrowser),
             new PropertyMetadata(default(string), OnNameFilterChanged));
 
         public string NameFilter
         {
-            get { return (string)GetValue(NameFilterProperty); }
-            set { SetValue(NameFilterProperty, value); }
+            get => (string)GetValue(NameFilterProperty);
+            set => SetValue(NameFilterProperty, value);
         }
 
         public static readonly DependencyProperty ShowOnlyFavouritesProperty = DependencyProperty.Register(
-            "ShowOnlyFavourites", typeof(bool), typeof(PalettesBrowser),
+            nameof(ShowOnlyFavourites), typeof(bool), typeof(PalettesBrowser),
             new PropertyMetadata(false, OnShowOnlyFavouritesChanged));
 
         public bool ShowOnlyFavourites
         {
-            get { return (bool)GetValue(ShowOnlyFavouritesProperty); }
-            set { SetValue(ShowOnlyFavouritesProperty, value); }
+            get => (bool)GetValue(ShowOnlyFavouritesProperty);
+            set => SetValue(ShowOnlyFavouritesProperty, value);
         }
 
         public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
@@ -151,13 +140,13 @@ namespace PixiEditor.Views.Dialogs
         {
             get
             {
-                return _localPalettesFetcher ??= (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+                return localPalettesFetcher ??= (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
             }
         }
 
-        private LocalPalettesFetcher _localPalettesFetcher;
+        private LocalPalettesFetcher localPalettesFetcher;
 
-        private string[] _stopItTexts = new[]
+        private readonly string[] stopItTexts = new[]
         {
             "That's enough. Tidy up your file names.",
             "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?"
@@ -169,12 +158,12 @@ namespace PixiEditor.Views.Dialogs
             Instance = this;
             DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
             ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
-            Loaded += async (sender, args) =>
+            Loaded += async (_, _) =>
             {
                 LocalPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
                 await LocalPalettesFetcher.RefreshCacheAll();
             };
-            Closed += (s, e) =>
+            Closed += (_, _) =>
             {
                 Instance = null;
                 LocalPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
@@ -248,7 +237,8 @@ namespace PixiEditor.Views.Dialogs
         private void HandleCacheItemUpdated(Palette updatedItem)
         {
             var item = SortedResults.FirstOrDefault(x => x.FileName == updatedItem.FileName);
-            if (item == null) return;
+            if (item is null) 
+                return;
 
             item.Name = updatedItem.Name;
             item.IsFavourite = updatedItem.IsFavourite;
@@ -379,8 +369,8 @@ namespace PixiEditor.Views.Dialogs
         private async void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (PaletteList?.Palettes == null) return;
-            var scrollViewer = (ScrollViewer)sender;
-            if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
+            var viewer = (ScrollViewer)sender;
+            if (viewer.VerticalOffset == viewer.ScrollableHeight)
             {
                 IsFetching = true;
                 var newPalettes = await FetchPaletteList(0, Filtering);
@@ -408,7 +398,7 @@ namespace PixiEditor.Views.Dialogs
 
         private async void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem item && item.Content is string value)
+            if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem { Content: string value })
             {
                 ColorsNumberMode = Enum.Parse<ColorsNumberMode>(value);
                 Filtering.ColorsNumberMode = ColorsNumberMode;
@@ -489,77 +479,33 @@ namespace PixiEditor.Views.Dialogs
 
         private async void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
         {
-            if (CurrentEditingPalette?.Count == 0) return;
+            if (CurrentEditingPalette?.Count == 0) 
+                return;
 
-            string finalFileName = "Unnamed Palette.pal";
-
-            string path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalFileName);
-            int i = 1;
-            while (File.Exists(path))
-            {
-                finalFileName = $"Unnamed Palette {i}.pal";
-                path = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalFileName);
-                i++;
-            }
-
+            string finalFileName = LocalPalettesFetcher.GetNonExistingName("Unnamed Palette.pal", true);
             await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
-
-            var palette = _localPalettesFetcher.CachedPalettes.FirstOrDefault(x => x.FileName == finalFileName);
-            if (palette != null)
-            {
-                if (SortedResults == null)
-                {
-                    SortedResults = new WpfObservableRangeCollection<Palette>();
-                }
-
-                if (SortedResults.Contains(palette))
-                {
-                    SortedResults.Move(SortedResults.IndexOf(palette), 0);
-                }
-                else
-                {
-                    SortedResults.Insert(0, palette);
-                }
-            }
         }
 
         private void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
         {
             PaletteItem item = (PaletteItem)sender;
-            string oldFileName = $"{e.OldText}.pal";
-
+            item.Palette.Name = e.OldText;
+            
             if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name || e.NewText.Length > 50)
-            {
-                item.Palette.FileName = oldFileName;
-                item.Palette.Name = e.OldText;
                 return;
-            }
 
-            string oldPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, oldFileName);
-
-            string finalNewName = $"{Palette.ReplaceInvalidChars(e.NewText)}.pal";
-            string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, LocalPalettesFetcher.GetNonExistingName(finalNewName, true));
+            string oldFileName = $"{e.OldText}.pal";
+            
+            string finalNewName = LocalPalettesFetcher.GetNonExistingName($"{Palette.ReplaceInvalidChars(e.NewText)}.pal", true);
+            string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
 
             if (newPath.Length > 250)
             {
-                NoticeDialog.Show(_stopItTexts[Random.Shared.Next(_stopItTexts.Length - 1)], "The name is too long.");
+                NoticeDialog.Show(stopItTexts[Random.Shared.Next(stopItTexts.Length - 1)], "The name is too long.");
                 return;
             }
-
-            if (!File.Exists(oldPath))
-            {
-                item.Palette.FileName = oldFileName;
-                item.Palette.Name = e.OldText;
-                return;
-            }
-
-
-            File.Move(oldPath, newPath);
-
-            item.Palette.FileName = finalNewName;
-            item.Palette.Name = e.NewText;
-
-            HandleCacheItemRenamed(item.Palette, oldFileName);
+            
+            LocalPalettesFetcher.RenamePalette(oldFileName, finalNewName);
         }
 
         private static void UpdateRenamedFavourite(string old, string newName)

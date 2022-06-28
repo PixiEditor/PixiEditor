@@ -2,56 +2,55 @@
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.IO.JascPalFile;
+using PixiEditor.Models.UserPreferences;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using PixiEditor.Models.IO.JascPalFile;
-using PixiEditor.Models.UserPreferences;
-using SkiaSharp;
 
 namespace PixiEditor.Models.DataProviders
 {
     public delegate void CacheUpdate(RefreshType refreshType, Palette itemAffected, string oldName);
-        
+
     public class LocalPalettesFetcher : PaletteListDataSource
     {
         public static string PathToPalettesFolder { get; } = Path.Join(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "PixiEditor", "Palettes");
 
-        public List<Palette> CachedPalettes { get; private set; }
+        private List<Palette> cachedPalettes;
 
-        public event CacheUpdate CacheUpdated; 
-        
-        private List<string> _cachedFavoritePalettes;
+        public event CacheUpdate CacheUpdated;
 
-        private FileSystemWatcher _watcher;
-        
+        private List<string> cachedFavoritePalettes;
+
+        private FileSystemWatcher watcher;
 
         public override void Initialize()
         {
             InitDir();
-            _watcher = new FileSystemWatcher(PathToPalettesFolder);
-            _watcher.Filter = "*.pal";
-            _watcher.Changed += FileSystemChanged;
-            _watcher.Deleted += FileSystemChanged;
-            _watcher.Renamed += RenamedFile;
-            _watcher.Created += FileSystemChanged;
+            watcher = new FileSystemWatcher(PathToPalettesFolder);
+            watcher.Filter = "*.pal";
+            watcher.Changed += FileSystemChanged;
+            watcher.Deleted += FileSystemChanged;
+            watcher.Renamed += RenamedFile;
+            watcher.Created += FileSystemChanged;
 
-            _watcher.EnableRaisingEvents = true;
-            _cachedFavoritePalettes = IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
-            
+            watcher.EnableRaisingEvents = true;
+            cachedFavoritePalettes = IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
+
             IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, updated =>
             {
-                _cachedFavoritePalettes = (List<string>)updated;
+                cachedFavoritePalettes = (List<string>)updated;
             });
         }
 
         public override async Task<PaletteList> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
         {
-            if(CachedPalettes == null)
+            if (cachedPalettes == null)
             {
                 await RefreshCacheAll();
             }
@@ -61,7 +60,7 @@ namespace PixiEditor.Models.DataProviders
                 Palettes = new WpfObservableRangeCollection<Palette>()
             };
 
-            var filteredPalettes = CachedPalettes.Where(filtering.Filter).ToArray();
+            var filteredPalettes = cachedPalettes.Where(filtering.Filter).ToArray();
 
             if (startIndex >= filteredPalettes.Length) return result;
 
@@ -91,108 +90,65 @@ namespace PixiEditor.Models.DataProviders
         {
             string newName = Path.GetFileNameWithoutExtension(currentName);
 
-            while (File.Exists(Path.Join(PathToPalettesFolder, newName + ".pal")))
+            if (File.Exists(Path.Join(PathToPalettesFolder, newName + ".pal")))
             {
-                newName += "(1)";
+                int number = 1;
+                while (true)
+                {
+                    string potentialName = $"{newName} ({number})";
+                    number++;
+                    if (File.Exists(Path.Join(PathToPalettesFolder, potentialName + ".pal")))
+                        continue;
+                    newName = potentialName;
+                    break;
+                }
             }
 
             if (appendExtension)
-            {
                 newName += ".pal";
-            }
 
             return newName;
         }
 
-        public async Task RefreshCache(RefreshType refreshType, string file)
+        public async Task SavePalette(string fileName, SKColor[] colors)
         {
-            Palette updated = null;
-            string affectedFileName = null;
+            watcher.EnableRaisingEvents = false;
+            string path = Path.Join(PathToPalettesFolder, fileName);
+            InitDir();
+            await JascFileParser.SaveFile(path, new PaletteFileData(colors));
+            watcher.EnableRaisingEvents = true;
             
-            switch (refreshType)
-            {
-                case RefreshType.All:
-                    throw new ArgumentException("To handle refreshing all items, use RefreshCacheAll");
-                case RefreshType.Created:
-                    updated = await RefreshCacheAdded(file);
-                    break;
-                case RefreshType.Updated:
-                    updated = await RefreshCacheUpdated(file);
-                    break;
-                case RefreshType.Deleted:
-                    affectedFileName = RefreshCacheDeleted(file);
-                    break;
-                case RefreshType.Renamed:
-                    throw new ArgumentException("To handle renaming, use RefreshCacheRenamed");
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
-            }
-            CacheUpdated?.Invoke(refreshType, updated, affectedFileName);
+            await RefreshCache(RefreshType.Created, path);
         }
 
-        public void RefreshCacheRenamed(string newFilePath, string oldFilePath)
+        public async Task DeletePalette(string name)
         {
-            string oldFileName = Path.GetFileName(oldFilePath);
-            int index = CachedPalettes.FindIndex(p => p.FileName == oldFileName);
-            if (index == -1) return;
+            if (!Directory.Exists(PathToPalettesFolder)) return;
+            string path = Path.Join(PathToPalettesFolder, name);
+            if (!File.Exists(path)) return;
+
+            watcher.EnableRaisingEvents = false;
+            File.Delete(path);
+            watcher.EnableRaisingEvents = true;
             
-            Palette palette = CachedPalettes[index];
-            palette.FileName = Path.GetFileName(newFilePath);
-            palette.Name = Path.GetFileNameWithoutExtension(newFilePath);
-            
-            CacheUpdated?.Invoke(RefreshType.Renamed, palette, oldFileName);
+            await RefreshCache(RefreshType.Deleted, path);
         }
 
-        private string RefreshCacheDeleted(string filePath)
+        public void RenamePalette(string oldFileName, string newFileName)
         {
-            string fileName = Path.GetFileName(filePath);
-            int index = CachedPalettes.FindIndex(p => p.FileName == fileName);
-            if (index == -1) return null;
+            if (!Directory.Exists(PathToPalettesFolder)) 
+                return;
             
-            CachedPalettes.RemoveAt(index);
-            return fileName;
-        }
+            string oldPath = Path.Join(PathToPalettesFolder, oldFileName);
+            string newPath = Path.Join(PathToPalettesFolder, newFileName);
+            if (!File.Exists(oldPath) || File.Exists(newPath)) 
+                return;
 
-        private async Task<Palette> RefreshCacheItem(string file, Action<Palette> action)
-        {
-            if (File.Exists(file))
-            {
-                string extension = Path.GetExtension(file);
-                var foundParser = AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(extension));
-                if (foundParser != null)
-                {
-                    var newPalette = await foundParser.Parse(file);
-                    if (newPalette is { IsCorrupted: false })
-                    {
-                        Palette pal = CreatePalette(newPalette, file,
-                            _cachedFavoritePalettes?.Contains(newPalette.Title) ?? false);
-                        action(pal);
-                        
-                        return pal;
-                    }
-                }
-            }
-            
-            return null;
-        }
-        
-        private async Task<Palette> RefreshCacheUpdated(string file)
-        {
-            return await RefreshCacheItem(file, palette =>
-            {
-                Palette existingPalette = CachedPalettes.FirstOrDefault(x => x.FileName == palette.FileName);
-                if (existingPalette != null)
-                {
-                    existingPalette.Colors = palette.Colors.ToList();
-                    existingPalette.Name = palette.Name;
-                    existingPalette.FileName = palette.FileName;
-                }
-            });
-        }
+            watcher.EnableRaisingEvents = false;
+            File.Move(oldPath, newPath);
+            watcher.EnableRaisingEvents = true;
 
-        private async Task<Palette> RefreshCacheAdded(string file)
-        {
-            return await RefreshCacheItem(file, CachedPalettes.Add);
+            RefreshCacheRenamed(newPath, oldPath);
         }
 
         public async Task RefreshCacheAll()
@@ -201,63 +157,8 @@ namespace PixiEditor.Models.DataProviders
                 PathToPalettesFolder,
                 string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)),
                 SearchOption.TopDirectoryOnly);
-            CachedPalettes = await ParseAll(files);
+            cachedPalettes = await ParseAll(files);
             CacheUpdated?.Invoke(RefreshType.All, null, null);
-        }
-
-        private async Task<List<Palette>> ParseAll(string[] files)
-        {
-            List<Palette> result = new List<Palette>();
-
-            foreach (var file in files)
-            {
-                string extension = Path.GetExtension(file);
-                if (!File.Exists(file)) continue;
-                var foundParser = AvailableParsers.First(x => x.SupportedFileExtensions.Contains(extension));
-                {
-                    PaletteFileData fileData = await foundParser.Parse(file);
-                    if(fileData.IsCorrupted) continue;
-                    var palette = CreatePalette(fileData, file, _cachedFavoritePalettes?.Contains(fileData.Title) ?? false);
-
-                    result.Add(palette);
-                }
-            }
-
-            return result;
-        }
-
-        private static Palette CreatePalette(PaletteFileData fileData, string file, bool isFavourite)
-        {
-            var palette = new Palette(
-                fileData.Title,
-                new List<string>(fileData.GetHexColors()),
-                Path.GetFileName(file))
-            {
-                IsFavourite = isFavourite
-            };
-
-            return palette;
-        }
-
-        public async Task SavePalette(string fileName, SKColor[] colors)
-        {
-            _watcher.EnableRaisingEvents = false;
-            string path = Path.Join(PathToPalettesFolder, fileName);
-            InitDir();
-            await JascFileParser.SaveFile(path, new PaletteFileData(colors));
-
-            
-            _watcher.EnableRaisingEvents = true;
-            await RefreshCache(RefreshType.Created, path);
-        }
-
-        public void DeletePalette(string name)
-        {
-            if (!Directory.Exists(PathToPalettesFolder)) return;
-            string path = Path.Join(PathToPalettesFolder, name);
-            if (!File.Exists(path)) return;
-
-            File.Delete(path);
         }
 
         private async void FileSystemChanged(object sender, FileSystemEventArgs e)
@@ -287,19 +188,153 @@ namespace PixiEditor.Models.DataProviders
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    
+
                     waitableExceptionOccured = false;
                 }
-                catch(IOException)
+                catch (IOException)
                 {
                     waitableExceptionOccured = true;
                     await Task.Delay(100);
                 }
-                
+
             }
             while (waitableExceptionOccured);
         }
-        
+
+        private async Task RefreshCache(RefreshType refreshType, string file)
+        {
+            Palette updated = null;
+            string affectedFileName = null;
+
+            switch (refreshType)
+            {
+                case RefreshType.All:
+                    throw new ArgumentException("To handle refreshing all items, use RefreshCacheAll");
+                case RefreshType.Created:
+                    updated = await RefreshCacheAdded(file);
+                    break;
+                case RefreshType.Updated:
+                    updated = await RefreshCacheUpdated(file);
+                    break;
+                case RefreshType.Deleted:
+                    affectedFileName = RefreshCacheDeleted(file);
+                    break;
+                case RefreshType.Renamed:
+                    throw new ArgumentException("To handle renaming, use RefreshCacheRenamed");
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
+            }
+            CacheUpdated?.Invoke(refreshType, updated, affectedFileName);
+        }
+
+        private void RefreshCacheRenamed(string newFilePath, string oldFilePath)
+        {
+            string oldFileName = Path.GetFileName(oldFilePath);
+            int index = cachedPalettes.FindIndex(p => p.FileName == oldFileName);
+            if (index == -1) return;
+
+            Palette palette = cachedPalettes[index];
+            palette.FileName = Path.GetFileName(newFilePath);
+            palette.Name = Path.GetFileNameWithoutExtension(newFilePath);
+
+            CacheUpdated?.Invoke(RefreshType.Renamed, palette, oldFileName);
+        }
+
+        private string RefreshCacheDeleted(string filePath)
+        {
+            string fileName = Path.GetFileName(filePath);
+            int index = cachedPalettes.FindIndex(p => p.FileName == fileName);
+            if (index == -1) return null;
+
+            cachedPalettes.RemoveAt(index);
+            return fileName;
+        }
+
+        private async Task<Palette> RefreshCacheItem(string file, Action<Palette> action)
+        {
+            if (File.Exists(file))
+            {
+                string extension = Path.GetExtension(file);
+                var foundParser = AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(extension));
+                if (foundParser != null)
+                {
+                    var newPalette = await foundParser.Parse(file);
+                    if (newPalette is { IsCorrupted: false })
+                    {
+                        Palette pal = CreatePalette(newPalette, file,
+                            cachedFavoritePalettes?.Contains(newPalette.Title) ?? false);
+                        action(pal);
+
+                        return pal;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<Palette> RefreshCacheUpdated(string file)
+        {
+            return await RefreshCacheItem(file, palette =>
+            {
+                Palette existingPalette = cachedPalettes.FirstOrDefault(x => x.FileName == palette.FileName);
+                if (existingPalette != null)
+                {
+                    existingPalette.Colors = palette.Colors.ToList();
+                    existingPalette.Name = palette.Name;
+                    existingPalette.FileName = palette.FileName;
+                }
+            });
+        }
+
+        private async Task<Palette> RefreshCacheAdded(string file)
+        {
+            return await RefreshCacheItem(file, palette =>
+            {
+                string fileName = Path.GetFileName(file);
+                int index = cachedPalettes.FindIndex(p => p.FileName == fileName);
+                if (index != -1)
+                {
+                    cachedPalettes.RemoveAt(index);
+                }
+                cachedPalettes.Add(palette);
+            });
+        }
+
+        private async Task<List<Palette>> ParseAll(string[] files)
+        {
+            List<Palette> result = new List<Palette>();
+
+            foreach (var file in files)
+            {
+                string extension = Path.GetExtension(file);
+                if (!File.Exists(file)) continue;
+                var foundParser = AvailableParsers.First(x => x.SupportedFileExtensions.Contains(extension));
+                {
+                    PaletteFileData fileData = await foundParser.Parse(file);
+                    if (fileData.IsCorrupted) continue;
+                    var palette = CreatePalette(fileData, file, cachedFavoritePalettes?.Contains(fileData.Title) ?? false);
+
+                    result.Add(palette);
+                }
+            }
+
+            return result;
+        }
+
+        private static Palette CreatePalette(PaletteFileData fileData, string file, bool isFavourite)
+        {
+            var palette = new Palette(
+                fileData.Title,
+                new List<string>(fileData.GetHexColors()),
+                Path.GetFileName(file))
+            {
+                IsFavourite = isFavourite
+            };
+
+            return palette;
+        }
+
         private void RenamedFile(object sender, RenamedEventArgs e)
         {
             RefreshCacheRenamed(e.FullPath, e.OldFullPath);
