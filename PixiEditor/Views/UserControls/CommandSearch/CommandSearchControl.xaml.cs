@@ -1,4 +1,5 @@
-﻿using PixiEditor.Helpers.Extensions;
+﻿using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.DataHolders;
@@ -36,11 +37,11 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
     }
 
     public bool HasWarnings => Warnings != string.Empty;
+    public RelayCommand ButtonClickedCommand { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private SearchResult? selectedResult;
-
     public SearchResult? SelectedResult
     {
         get => selectedResult;
@@ -54,10 +55,31 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
         }
     }
 
+    private SearchResult? mouseSelectedResult;
+    public SearchResult? MouseSelectedResult
+    {
+        get => mouseSelectedResult;
+        private set
+        {
+            if (mouseSelectedResult is not null)
+                mouseSelectedResult.IsMouseSelected = false;
+            if (value is not null)
+                value.IsMouseSelected = true;
+            mouseSelectedResult = value;
+        }
+    }
+
     public ObservableCollection<SearchResult> Results { get; } = new();
 
     public CommandSearchControl()
     {
+        ButtonClickedCommand = new RelayCommand(_ =>
+        {
+            Hide();
+            MouseSelectedResult?.Execute();
+            MouseSelectedResult = null;
+        });
+
         InitializeComponent();
         IsVisibleChanged += (_, args) =>
         {
@@ -67,13 +89,22 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
                 {
                     textBox.Focus();
                     UpdateSearchResults();
+                    Mouse.Capture(this, CaptureMode.SubTree);
                 });
             }
         };
 
-        textBox.LostFocus += TextBox_LostFocus;
-        textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
+        MouseDown += OnMouseDown;
+        PreviewKeyDown += OnPreviewKeyDown;
         Loaded += (_, _) => UpdateSearchResults();
+    }
+
+    private void OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        var pos = e.GetPosition(this);
+        bool outside = pos.X < 0 || pos.Y < 0 || pos.X > ActualWidth || pos.Y > ActualHeight;
+        if (outside)
+            Hide();
     }
 
     private void UpdateSearchResults()
@@ -90,20 +121,23 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
         SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
     }
 
-    private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+    private void Hide()
     {
+        FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null);
+        Keyboard.ClearFocus();
         Visibility = Visibility.Collapsed;
-        SelectedResult = null;
+        ReleaseMouseCapture();
     }
 
-    private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
         e.Handled = true;
 
         if (e.Key == Key.Enter && SelectedResult is not null)
         {
-            Visibility = Visibility.Collapsed;
+            Hide();
             SelectedResult.Execute();
+            SelectedResult = null;
         }
         else if (e.Key is Key.Down or Key.PageDown)
         {
@@ -117,8 +151,7 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
                  CommandController.Current.Commands["PixiEditor.Search.Toggle"].Shortcut
                  == new KeyCombination(e.Key, Keyboard.Modifiers))
         {
-            FocusManager.SetFocusedElement(FocusManager.GetFocusScope(textBox), null);
-            Keyboard.ClearFocus();
+            Hide();
         }
         else
         {
@@ -145,7 +178,7 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
     private void Button_MouseMove(object sender, MouseEventArgs e)
     {
         var searchResult = ((Button)sender).DataContext as SearchResult;
-        SelectedResult = searchResult;
+        MouseSelectedResult = searchResult;
     }
 
     private static void OnSearchTermChange(DependencyObject d, DependencyPropertyChangedEventArgs e)

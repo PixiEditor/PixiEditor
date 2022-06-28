@@ -46,7 +46,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="cmdssearch:SearchResult">
                                 <Button Padding="5" Height="40" BorderThickness="0" Background="Transparent"
-                                        Command="{Binding ExecuteCommand}"
+                                        Command="{Binding ButtonClickedCommand, ElementName=uc}"
                                         CommandParameter="{Binding}"
                                         MouseMove="Button_MouseMove">
                                     <Button.Style>
@@ -65,10 +65,22 @@
                                                                                 Value="Transparent" />
                                                                         </DataTrigger>
                                                                         <DataTrigger
-                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
+                                                                            Binding="{Binding IsMouseSelected, Mode=TwoWay}"
+                                                                            Value="False">
+                                                                            <Setter Property="Background"
+                                                                                Value="Transparent" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsMouseSelected, Mode=TwoWay}"
                                                                             Value="True">
                                                                             <Setter Property="Background"
                                                                                 Value="{StaticResource BrighterAccentColor}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
+                                                                            Value="True">
+                                                                            <Setter Property="Background"
+                                                                                Value="{StaticResource AlmostLightModeAccentColor}" />
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding CanExecute}"
                                                                             Value="False">

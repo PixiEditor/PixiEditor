@@ -9,6 +9,7 @@ namespace PixiEditor.Models.Commands.Search
     public abstract class SearchResult : NotifyableObject
     {
         private bool isSelected;
+        private bool isMouseSelected;
 
         public string SearchTerm { get; init; }
 
@@ -29,6 +30,13 @@ namespace PixiEditor.Models.Commands.Search
             get => isSelected;
             set => SetProperty(ref isSelected, value);
         }
+
+        public bool IsMouseSelected
+        {
+            get => isMouseSelected;
+            set => SetProperty(ref isMouseSelected, value);
+        }
+
 
         public abstract void Execute();
 
