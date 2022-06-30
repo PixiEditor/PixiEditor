@@ -27,6 +27,12 @@ namespace PixiEditor.Views.Dialogs
     {
         private const int ItemsPerLoad = 10;
 
+        private readonly string[] stopItTexts = new[]
+        {
+            "That's enough. Tidy up your file names.",
+            "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?"
+        };
+
         public PaletteList PaletteList
         {
             get => (PaletteList)GetValue(PaletteListProperty);
@@ -146,12 +152,6 @@ namespace PixiEditor.Views.Dialogs
 
         private LocalPalettesFetcher localPalettesFetcher;
 
-        private readonly string[] stopItTexts = new[]
-        {
-            "That's enough. Tidy up your file names.",
-            "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?"
-        };
-
         public PalettesBrowser()
         {
             InitializeComponent();
@@ -237,7 +237,7 @@ namespace PixiEditor.Views.Dialogs
         private void HandleCacheItemUpdated(Palette updatedItem)
         {
             var item = SortedResults.FirstOrDefault(x => x.FileName == updatedItem.FileName);
-            if (item is null) 
+            if (item is null)
                 return;
 
             item.Name = updatedItem.Name;
@@ -280,7 +280,7 @@ namespace PixiEditor.Views.Dialogs
             {
                 if (ConfirmationDialog.Show("Are you sure you want to delete this palette? This cannot be undone.", "Warning!") == ConfirmationType.Yes)
                 {
-                    LocalPalettesFetcher.DeletePalette(palette.FileName);
+                    _ = LocalPalettesFetcher.DeletePalette(palette.FileName);
                     RemoveFavouritePalette(palette);
                 }
             }
@@ -479,7 +479,7 @@ namespace PixiEditor.Views.Dialogs
 
         private async void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
         {
-            if (CurrentEditingPalette?.Count == 0) 
+            if (CurrentEditingPalette?.Count == 0)
                 return;
 
             string finalFileName = LocalPalettesFetcher.GetNonExistingName("Unnamed Palette.pal", true);
@@ -490,12 +490,12 @@ namespace PixiEditor.Views.Dialogs
         {
             PaletteItem item = (PaletteItem)sender;
             item.Palette.Name = e.OldText;
-            
+
             if (string.IsNullOrWhiteSpace(e.NewText) || e.NewText == item.Palette.Name || e.NewText.Length > 50)
                 return;
 
             string oldFileName = $"{e.OldText}.pal";
-            
+
             string finalNewName = LocalPalettesFetcher.GetNonExistingName($"{Palette.ReplaceInvalidChars(e.NewText)}.pal", true);
             string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
 
@@ -504,7 +504,7 @@ namespace PixiEditor.Views.Dialogs
                 NoticeDialog.Show(stopItTexts[Random.Shared.Next(stopItTexts.Length - 1)], "The name is too long.");
                 return;
             }
-            
+
             LocalPalettesFetcher.RenamePalette(oldFileName, finalNewName);
         }
 

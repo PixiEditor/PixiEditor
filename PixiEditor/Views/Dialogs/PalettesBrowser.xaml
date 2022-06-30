@@ -83,7 +83,7 @@
                                    FocusNext="True"
                                    Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}"/>
                 <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"
-                          IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}" Content="Favourites"/>
+                          IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}" Content="Favorites"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
                 <Button ToolTip="Add from current palette" Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
