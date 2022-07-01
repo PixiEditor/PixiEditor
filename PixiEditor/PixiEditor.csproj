@@ -286,6 +286,8 @@
 		<Resource Include="Images\Commands\PixiEditor\View\ZoomOut.png" />
 		<None Remove="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
 		<Resource Include="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
+		<None Remove="Fonts\feather.ttf" />
+		<Resource Include="Fonts\feather.ttf" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

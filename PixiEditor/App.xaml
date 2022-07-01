@@ -28,6 +28,7 @@
                 <ResourceDictionary Source="Styles/AvalonDock/PixiEditorDockTheme.xaml" />
                 <ResourceDictionary Source="Styles/TreeViewStyle.xaml" />
                 <ResourceDictionary Source="Styles/RadioButtonStyle.xaml" />
+                <ResourceDictionary Source="Styles/Fonts.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
