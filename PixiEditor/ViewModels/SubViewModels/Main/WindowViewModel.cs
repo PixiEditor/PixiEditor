@@ -23,10 +23,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             shortcutPopup = new(commandController);
         }
 
-        [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window")]
+        [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window", Key = Key.OemComma, Modifiers = ModifierKeys.Control)]
         public static void OpenSettingsWindow()
         {
-            SettingsWindow settings = new SettingsWindow();
+            var settings = new SettingsWindow();
             settings.Show();
         }
 
