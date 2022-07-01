@@ -18,7 +18,7 @@
                 </Style.Triggers>
             </Style>
         </StackPanel.Resources>
-        <TextBlock Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Prepend, ElementName=uc}" IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"/>
+        <TextBlock Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Foreground="{Binding PrependColor, ElementName=uc}" Text="{Binding Prepend, ElementName=uc}" IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"/>
 
         <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}">
             <TextBlock.Text>
@@ -29,6 +29,6 @@
             </TextBlock.Text>
         </TextBlock>
 
-        <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Append, ElementName=uc}"/>
+        <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" Visibility="{Binding HidePrepend, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}" Text="{Binding Append, ElementName=uc}" Foreground="{Binding ElementName=uc, Path=AppendColor}"/>
     </StackPanel>
 </UserControl>

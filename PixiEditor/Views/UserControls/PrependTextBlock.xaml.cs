@@ -48,7 +48,7 @@ namespace PixiEditor.Views.UserControls
         }
 
         public static readonly DependencyProperty PrependColorProperty =
-            DependencyProperty.Register(nameof(PrependColor), typeof(Brush), typeof(PrependTextBlock));
+            DependencyProperty.Register(nameof(PrependColor), typeof(Brush), typeof(PrependTextBlock), new PropertyMetadata(Brushes.White));
 
         public Brush PrependColor
         {
@@ -57,7 +57,7 @@ namespace PixiEditor.Views.UserControls
         }
 
         public static readonly DependencyProperty AppendColorProperty =
-            DependencyProperty.Register(nameof(AppendColor), typeof(Brush), typeof(PrependTextBlock));
+            DependencyProperty.Register(nameof(AppendColor), typeof(Brush), typeof(PrependTextBlock), new PropertyMetadata(Brushes.White));
 
         public Brush AppendColor
         {

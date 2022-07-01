@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using System;
@@ -10,9 +11,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using AvalonDock.Layout;
 
 namespace PixiEditor
 {
@@ -31,8 +35,12 @@ namespace PixiEditor
 
         public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
+        public event Action OnDataContextInitialized;
+
         public MainWindow()
         {
+            Current = this;
+
             services = new ServiceCollection()
                 .AddPixiEditor()
                 .BuildServiceProvider();
@@ -43,6 +51,7 @@ namespace PixiEditor
 
             InitializeComponent();
 
+            OnDataContextInitialized?.Invoke();
             pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
             UpdateWindowChromeBorderThickness();
@@ -54,17 +63,8 @@ namespace PixiEditor
             DataContext.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
             preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
             {
-                if (x)
-                {
-                    UpdateTaskbarIcon(DataContext.BitmapManager.ActiveDocument);
-                }
-                else
-                {
-                    UpdateTaskbarIcon(null);
-                }
+                UpdateTaskbarIcon(x ? DataContext.BitmapManager.ActiveDocument : null);
             });
-
-            Current = this;
 
             OnReleaseBuild();
         }
@@ -72,7 +72,6 @@ namespace PixiEditor
         public static MainWindow CreateWithDocuments(IEnumerable<Document> documents)
         {
             MainWindow window = new();
-
             BitmapManager bitmapManager = window.services.GetRequiredService<BitmapManager>();
 
             foreach (Document document in documents)
@@ -83,6 +82,21 @@ namespace PixiEditor
             bitmapManager.ActiveDocument = bitmapManager.Documents.FirstOrDefault();
 
             return window;
+        }
+
+        /// <summary>Brings main window to foreground.</summary>
+        public void BringToForeground()
+        {
+            if (WindowState == WindowState.Minimized || this.Visibility == Visibility.Hidden)
+            {
+                Show();
+                WindowState = WindowState.Normal;
+            }
+
+            Activate();
+            Topmost = true;
+            Topmost = false;
+            Focus();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -190,8 +204,13 @@ namespace PixiEditor
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                DataContext.FileSubViewModel.Open(files[0]);
+                if(files != null && files.Length > 0)
+                {
+                    if (Importer.IsSupportedFile(files[0]))
+                    {
+                        DataContext.FileSubViewModel.Open(files[0]);
+                    }
+                }
             }
         }
     }

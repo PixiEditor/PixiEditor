@@ -14,6 +14,25 @@ namespace PixiEditor.Models.DataHolders
     {
         public event EventHandler<DocumentSizeChangedEventArgs> DocumentSizeChanged;
 
+        public void ReplaceColor(SKColor oldColor, SKColor newColor)
+        {
+            StorageBasedChange change = new(this, Layers);
+
+            var args = new object[] { oldColor, newColor };
+
+            ReplaceColorProcess(args);
+
+            ChangesSaved = false;
+
+            UndoManager.AddUndoChange(change.ToChange(
+                StorageBasedChange.BasicUndoProcess,
+                new object[] { this },
+                ReplaceColorProcess,
+                args,
+                "Resize canvas"));
+        }
+
+
         /// <summary>
         ///     Resizes canvas to specified width and height to selected anchor.
         /// </summary>
@@ -110,6 +129,16 @@ namespace PixiEditor.Models.DataHolders
                     "Resize document"));
         }
 
+        private void ReplaceColorProcess(object[] args)
+        {
+            SKColor oldColor = (SKColor)args[0];
+            SKColor newColor = (SKColor)args[1];
+
+            foreach (var layer in Layers)
+            {
+                layer.ReplaceColor(oldColor, newColor);
+            }
+        }
 
         private void FlipDocumentProcess(object[] processArgs)
         {

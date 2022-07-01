@@ -1,4 +1,5 @@
-﻿using System.Windows.Data;
+﻿using System.Windows.Controls;
+using System.Windows.Data;
 using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
@@ -17,7 +18,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             Value = initialValue;
             Min = min;
             Max = max;
-            SettingControl = GenerateNumberInput();
         }
 
         public float Min { get; set; }
@@ -39,6 +39,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             };
             numbrInput.SetBinding(NumberInput.ValueProperty, binding);
             return numbrInput;
+        }
+
+        public override Control GenerateControl()
+        {
+            return GenerateNumberInput();
         }
     }
 }

@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Windows.Media;
+using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -21,7 +23,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             CrashCommand = new RelayCommand(_ => throw new InvalidOperationException("Debug Crash"));
         }
 
-        public static void OpenFolder(object parameter)
+        public void OpenFolder(object parameter)
         {
             ProcessHelpers.ShellExecuteEV(parameter as string);
         }

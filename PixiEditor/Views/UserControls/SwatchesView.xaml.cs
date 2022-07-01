@@ -38,15 +38,6 @@ namespace PixiEditor.Views.UserControls
             set => SetValue(SelectSwatchCommandProperty, value);
         }
 
-        public static readonly DependencyProperty RemoveSwatchCommandProperty =
-            DependencyProperty.Register(nameof(RemoveSwatchCommand), typeof(ICommand), typeof(SwatchesView));
-
-        public ICommand RemoveSwatchCommand
-        {
-            get => (ICommand)GetValue(RemoveSwatchCommandProperty);
-            set => SetValue(RemoveSwatchCommandProperty, value);
-        }
-
         public SwatchesView()
         {
             InitializeComponent();

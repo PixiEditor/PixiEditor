@@ -51,11 +51,14 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             }
         }
 
+        public override Control GenerateControl()
+        {
+            return GenerateDropdown();
+        }
+
         public EnumSetting(string name, string label)
             : base(name)
         {
-            SettingControl = GenerateDropdown();
-
             Label = label;
         }
 

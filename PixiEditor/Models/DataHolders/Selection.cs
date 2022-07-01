@@ -24,7 +24,7 @@ namespace PixiEditor.Models.DataHolders
             selectionBlue = new SKColor(142, 202, 255, 255);
         }
 
-        public ObservableCollection<Coordinates> SelectedPoints { get; private set; }
+        public System.Collections.ObjectModel.ObservableCollection<Coordinates> SelectedPoints { get; private set; }
 
         public Layer SelectionLayer
         {
@@ -42,14 +42,14 @@ namespace PixiEditor.Models.DataHolders
             switch (mode)
             {
                 case SelectionType.New:
-                    SelectedPoints = new ObservableCollection<Coordinates>(selection);
+                    SelectedPoints = new System.Collections.ObjectModel.ObservableCollection<Coordinates>(selection);
                     SelectionLayer.Reset();
                     break;
                 case SelectionType.Add:
-                    SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Concat(selection).Distinct());
+                    SelectedPoints = new System.Collections.ObjectModel.ObservableCollection<Coordinates>(SelectedPoints.Concat(selection).Distinct());
                     break;
                 case SelectionType.Subtract:
-                    SelectedPoints = new ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
+                    SelectedPoints = new System.Collections.ObjectModel.ObservableCollection<Coordinates>(SelectedPoints.Except(selection));
                     selectionColor = SKColors.Transparent;
                     break;
             }

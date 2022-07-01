@@ -267,10 +267,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter Property="Background" TargetName="Bd" Value="Gray" />
+                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="Gray" />
+                            <Setter Property="Foreground" Value="{StaticResource MainColor}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

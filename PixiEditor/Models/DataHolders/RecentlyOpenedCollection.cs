@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PixiEditor.Models.DataHolders
 {
-    public class RecentlyOpenedCollection : ObservableCollection<RecentlyOpenedDocument>
+    public class RecentlyOpenedCollection : System.Collections.ObjectModel.ObservableCollection<RecentlyOpenedDocument>
     {
         public RecentlyOpenedDocument this[string path]
         {

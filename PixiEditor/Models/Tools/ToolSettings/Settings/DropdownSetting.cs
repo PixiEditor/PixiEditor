@@ -11,7 +11,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             : base(name)
         {
             Values = values;
-            SettingControl = GenerateDropdown();
             Value = ((ComboBox)SettingControl).Items[0];
             Label = label;
         }
@@ -44,6 +43,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
                 };
                 comboBox.Items.Add(item);
             }
+        }
+
+        public override Control GenerateControl()
+        {
+            return GenerateDropdown();
         }
     }
 }
