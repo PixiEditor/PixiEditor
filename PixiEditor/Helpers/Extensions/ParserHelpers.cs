@@ -16,7 +16,8 @@ namespace PixiEditor.Helpers.Extensions
             Document document = new Document(serializableDocument.Width, serializableDocument.Height)
             {
                 Layers = serializableDocument.ToLayers(),
-                Swatches = new ObservableCollection<SKColor>(serializableDocument.Swatches.ToSKColors())
+                Swatches = new WpfObservableRangeCollection<SKColor>(serializableDocument.Swatches.ToSKColors()),
+                Palette = new WpfObservableRangeCollection<SKColor>(serializableDocument.Palette.ToSKColors())
             };
 
             document.LayerStructure.Groups = serializableDocument.ToGroups(document);
@@ -88,7 +89,9 @@ namespace PixiEditor.Helpers.Extensions
         {
             return new SerializableDocument(document.Width, document.Height,
                                             document.LayerStructure.Groups.ToSerializable(document),
-                                            document.Layers.ToSerializable()).AddSwatches(document.Swatches);
+                                            document.Layers.ToSerializable())
+                .AddSwatches(document.Swatches)
+                .AddPalette(document.Palette);
         }
 
         public static IEnumerable<SerializableLayer> ToSerializable(this IEnumerable<Layer> layers)
@@ -152,6 +155,12 @@ namespace PixiEditor.Helpers.Extensions
         private static SerializableDocument AddSwatches(this SerializableDocument document, IEnumerable<SKColor> colors)
         {
             document.Swatches.AddRange(colors);
+            return document;
+        }
+
+        private static SerializableDocument AddPalette(this SerializableDocument document, IEnumerable<SKColor> palette)
+        {
+            document.Palette.AddRange(palette);
             return document;
         }
     }

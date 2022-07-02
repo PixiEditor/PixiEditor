@@ -2,6 +2,8 @@
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using SkiaSharp;
+using System;
 using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
@@ -12,13 +14,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
 
         public RelayCommand CenterContentCommand { get; set; }
-
         public RelayCommand ClipCanvasCommand { get; set; }
-
         public RelayCommand DeletePixelsCommand { get; set; }
-
         public RelayCommand OpenResizePopupCommand { get; set; }
-
         public RelayCommand RotateToRightCommand { get; set; }
         public RelayCommand FlipCommand { get; set; }
 

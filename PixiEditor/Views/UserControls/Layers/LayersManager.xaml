@@ -14,7 +14,6 @@
             <RowDefinition Height="37.5"/>
             <RowDefinition Height="15"/>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
@@ -59,6 +58,13 @@
         </DockPanel>
         <Separator Grid.Row="1" Margin="0,-12, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
         <DockPanel LastChildFill="True" Grid.Row="2" Margin="0, -12, 0, 0">
+            <layerUserControls:ReferenceLayer
+                DockPanel.Dock="Bottom"
+                Visibility="{Binding Path=OpacityInputEnabled, ElementName=layersManager, 
+                Converter={BoolToVisibilityConverter}}" 
+                Background="{StaticResource MainColor}" 
+                Layer="{Binding LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.ReferenceLayer, ElementName=layersManager, Mode=TwoWay}"
+                Grid.Row="3" VerticalAlignment="Bottom"/>
             <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding CachedLayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -86,6 +92,5 @@
             </TreeView>
             <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
-        <layerUserControls:ReferenceLayer Visibility="{Binding Path=OpacityInputEnabled, ElementName=layersManager, Converter={BoolToVisibilityConverter}}" Background="{StaticResource MainColor}" Layer="{Binding LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.ReferenceLayer, ElementName=layersManager, Mode=TwoWay}" Grid.Row="3" VerticalAlignment="Bottom"/>
     </Grid>
 </UserControl>

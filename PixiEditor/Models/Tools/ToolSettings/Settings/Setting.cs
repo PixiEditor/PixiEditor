@@ -64,5 +64,7 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         public bool HasLabel => !string.IsNullOrEmpty(Label);
 
         public Control SettingControl { get; set; }
+
+        public abstract Control GenerateControl();
     }
 }

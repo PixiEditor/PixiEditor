@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interactivity;
@@ -45,6 +46,15 @@ namespace PixiEditor.Helpers.Behaviours
             set => SetValue(DeselectOnFocusLossProperty, value);
         }
 
+        public static readonly DependencyProperty FocusNextProperty = DependencyProperty.Register(
+            "FocusNext", typeof(bool), typeof(TextBoxFocusBehavior), new PropertyMetadata(false));
+
+        public bool FocusNext
+        {
+            get { return (bool)GetValue(FocusNextProperty); }
+            set { SetValue(FocusNextProperty, value); }
+        }
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -76,7 +86,15 @@ namespace PixiEditor.Helpers.Behaviours
 
         private void RemoveFocus()
         {
-            MainWindow.Current.mainGrid.Focus();
+            if (!FocusNext)
+            {
+                MainWindow.Current.mainGrid.Focus();
+            }
+            else
+            {
+                AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            }
+
         }
 
         private void AssociatedObjectGotKeyboardFocus(

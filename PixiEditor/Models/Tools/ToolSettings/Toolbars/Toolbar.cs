@@ -11,6 +11,17 @@ namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
         private static readonly List<Setting> SharedSettings = new List<Setting>();
 
         public ObservableCollection<Setting> Settings { get; set; } = new ObservableCollection<Setting>();
+        public bool SettingsGenerated { get; private set; }
+
+        public void GenerateSettings()
+        {
+            foreach (var setting in Settings)
+            {
+                setting.SettingControl = setting.GenerateControl();
+            }
+
+            SettingsGenerated = true;
+        }
 
         /// <summary>
         ///     Gets setting in toolbar by name.

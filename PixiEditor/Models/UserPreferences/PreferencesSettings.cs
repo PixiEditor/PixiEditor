@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.UserPreferences
@@ -136,9 +137,7 @@ namespace PixiEditor.Models.UserPreferences
 
             try
             {
-                return Preferences.ContainsKey(name)
-                        ? (T)Convert.ChangeType(Preferences[name], typeof(T))
-                        : fallbackValue;
+                return GetValue(Preferences, name, fallbackValue);
             }
             catch (InvalidCastException)
             {
@@ -163,9 +162,7 @@ namespace PixiEditor.Models.UserPreferences
 
             try
             {
-                return LocalPreferences.ContainsKey(name)
-                    ? (T)Convert.ChangeType(LocalPreferences[name], typeof(T))
-                    : fallbackValue;
+                return GetValue(LocalPreferences, name, fallbackValue);
             }
             catch (InvalidCastException)
             {
@@ -174,6 +171,19 @@ namespace PixiEditor.Models.UserPreferences
 
                 return fallbackValue;
             }
+        }
+
+        private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
+        {
+            if (!dict.ContainsKey(name)) return fallbackValue;
+            var preference = dict[name];
+            if(typeof(T) == preference.GetType()) return (T)preference;
+            if (preference.GetType() == typeof(JArray))
+            {
+                return ((JArray)preference).ToObject<T>();
+            }
+
+            return (T)Convert.ChangeType(dict[name], typeof(T));
         }
 
 #nullable disable

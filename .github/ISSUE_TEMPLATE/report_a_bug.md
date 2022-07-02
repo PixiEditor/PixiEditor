@@ -28,7 +28,7 @@ If bug makes PixiEditor crash, include crash report. If it is possible, include 
 **System information**
 
 Windows version: 11/10/8/7
-
+PixiEditor version: (for example: 0.1.8.0)
 
 **Additional context**
 

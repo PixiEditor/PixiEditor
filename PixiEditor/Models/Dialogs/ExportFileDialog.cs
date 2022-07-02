@@ -1,6 +1,5 @@
 ﻿using PixiEditor.Models.Enums;
 using PixiEditor.Views;
-using System.Drawing.Imaging;
 using System.Windows;
 
 namespace PixiEditor.Models.Dialogs
@@ -75,11 +74,7 @@ namespace PixiEditor.Models.Dialogs
 
         public override bool ShowDialog()
         {
-            ExportFilePopup popup = new ExportFilePopup
-            {
-                SaveWidth = FileWidth,
-                SaveHeight = FileHeight
-            };
+            ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight);
             popup.ShowDialog();
             if (popup.DialogResult == true)
             {
