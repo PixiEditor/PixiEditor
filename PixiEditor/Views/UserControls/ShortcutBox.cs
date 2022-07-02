@@ -47,14 +47,14 @@ namespace PixiEditor.Views.UserControls
 
             if (e != KeyCombination.None)
             {
-                if (controller.Commands[e].Any())
+                if (controller.Commands[e].SkipWhile(x => x == Command).FirstOrDefault() is { } oldCommand)
                 {
                     var oldShortcut = Command.Shortcut;
                     bool enableSwap = oldShortcut is not { Key: Key.None, Modifiers: ModifierKeys.None };
                     
                     string text = enableSwap ?
-                        $"This shortcut is already assigned to '{controller.Commands[e].First().DisplayName}'\nDo you want to replace the existing shortcut or swap the two?" :
-                        $"This shortcut is already assigned to '{controller.Commands[e].First().DisplayName}'\nDo you want to replace the existing shortcut?";
+                        $"This shortcut is already assigned to '{oldCommand.DisplayName}'\nDo you want to replace the existing shortcut or swap the two?" :
+                        $"This shortcut is already assigned to '{oldCommand.DisplayName}'\nDo you want to replace the existing shortcut?";
                     OptionsDialog<string> dialog = new("Already assigned", text);
                     
                     dialog.Add("Replace", x => controller.ReplaceShortcut(Command, e));
@@ -62,7 +62,6 @@ namespace PixiEditor.Views.UserControls
                     {
                         dialog.Add("Swap", x =>
                         {
-                            var oldCommand = controller.Commands[e].First();
                             controller.ReplaceShortcut(Command, e);
                             controller.ReplaceShortcut(oldCommand, oldShortcut);
                         });

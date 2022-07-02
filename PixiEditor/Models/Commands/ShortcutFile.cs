@@ -37,7 +37,9 @@ namespace PixiEditor.Models.Commands
             File.WriteAllText(Path, JsonConvert.SerializeObject(shortcuts));
         }
 
-        public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> LoadShortcuts() =>
-            JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>>>(File.ReadAllText(Path));
+        public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> LoadShortcuts() => LoadShortcuts(Path);
+
+        public static IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> LoadShortcuts(string path) =>
+            JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>>>(File.ReadAllText(path));
     }
 }

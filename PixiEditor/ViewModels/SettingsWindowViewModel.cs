@@ -1,8 +1,13 @@
-﻿using PixiEditor.Helpers;
+﻿using System.IO;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.ViewModels.SubViewModels.UserPreferences;
 using System.Windows;
+using System.Windows.Input;
+using Microsoft.Win32;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels
 {
@@ -62,6 +67,49 @@ namespace PixiEditor.ViewModels
                 { "Yes", x => CommandController.Current.ResetShortcuts() },
                 "Cancel"
             }.ShowDialog();
+        }
+
+        [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Export")]
+        public static void ExportShortcuts()
+        {
+            var dialog = new SaveFileDialog();
+            dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (dialog.ShowDialog().GetValueOrDefault())
+            {
+                File.Copy(CommandController.ShortcutsPath, dialog.FileName, true);
+            }
+            // Sometimes, focus was brought back to the last edited shortcut
+            Keyboard.ClearFocus();
+        }
+        
+        [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Import")]
+        public static void ImportShortcuts()
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (dialog.ShowDialog().GetValueOrDefault())
+            {
+                var shortcuts = ShortcutFile.LoadShortcuts(dialog.FileName)?.ToArray();
+                if (shortcuts is null)
+                {
+                    NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
+                    return;
+                }
+                CommandController.Current.ResetShortcuts();
+                CommandController.Current.Import(shortcuts, false);
+                File.Copy(dialog.FileName, CommandController.ShortcutsPath, true);
+                NoticeDialog.Show("Shortcuts were imported successfully", "Success");
+            }
+            // Sometimes, focus was brought back to the last edited shortcut
+            Keyboard.ClearFocus();
+        }
+
+        [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]
+        public static void OpenTemplatePopup()
+        {
+            new ImportShortcutTemplatePopup().ShowDialog();
         }
 
         public SettingsWindowViewModel()

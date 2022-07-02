@@ -14,6 +14,12 @@ namespace PixiEditor.Models.DataHolders
             _dictionary = new Dictionary<TKey, List<T>>();
         }
 
+        public OneToManyDictionary(IEnumerable<KeyValuePair<TKey, IEnumerable<T>>> enumerable)
+        {
+            _dictionary = new Dictionary<TKey, List<T>>(enumerable
+                .Select(x => new KeyValuePair<TKey, List<T>>(x.Key, x.Value.ToList())));
+        }
+
         public int Count => _dictionary.Count;
 
         public bool IsReadOnly => false;

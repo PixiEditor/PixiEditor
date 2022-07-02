@@ -15,6 +15,8 @@ namespace PixiEditor.Models.Commands
         private readonly ShortcutFile shortcutFile;
 
         public static CommandController Current { get; private set; }
+        
+        public static string ShortcutsPath { get; private set; }
 
         public CommandCollection Commands { get; }
 
@@ -28,12 +30,12 @@ namespace PixiEditor.Models.Commands
         {
             Current ??= this;
 
-            shortcutFile =
-                new(Path.Join(
-                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                        "PixiEditor",
-                        "shortcuts.json"),
-                    this);
+            ShortcutsPath = Path.Join(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "PixiEditor",
+                "shortcuts.json");
+            
+            shortcutFile = new(ShortcutsPath, this);
 
             Commands = new();
             CommandGroups = new();
@@ -41,6 +43,22 @@ namespace PixiEditor.Models.Commands
             IconEvaluators = new();
         }
 
+        public void Import(IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> shortcuts, bool save = true)
+        {
+            foreach (var shortcut in shortcuts)
+            {
+                foreach (var command in shortcut.Value)
+                {
+                    Commands[command].Shortcut = shortcut.Key;
+                }
+            }
+            
+            if (save)
+            {
+                shortcutFile.SaveShortcuts();
+            }
+        }
+        
         private static List<(string internalName, string displayName)> FindCommandGroups(Type[] typesToSearchForAttributes)
         {
             List<(string internalName, string displayName)> result = new();
@@ -323,6 +341,8 @@ namespace PixiEditor.Models.Commands
 
         public void ResetShortcuts()
         {
+            File.Copy(ShortcutsPath, Path.ChangeExtension(ShortcutsPath, ".json.bak"), true);
+            
             Commands.ClearShortcuts();
 
             foreach (var command in Commands)
