@@ -29,6 +29,7 @@
 
     <Style x:Key="MinimizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
         <Setter Property="Content" Value="&#xE949;" />
+        <Setter Property="Margin" Value="0,1,0,0" />
     </Style>
 
     <Style x:Key="MaximizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">

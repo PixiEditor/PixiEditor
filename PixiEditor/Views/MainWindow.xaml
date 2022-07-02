@@ -74,8 +74,8 @@
         </i:Interaction.Behaviors>
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource MainColor}">
             <Image DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top"
-                   Source="/Images/PixiEditorLogo.png" Width="20" Height="20" Margin="5,5,0,0" />
-            <Menu WindowChrome.IsHitTestVisibleInChrome="True" Margin="10, 4, 0, 0" DockPanel.Dock="Left"
+                   Source="/Images/PixiEditorLogo.png" Width="20" Height="20" Margin="5,2,0,0" />
+            <Menu WindowChrome.IsHitTestVisibleInChrome="True" Margin="10, 0, 0, 0" DockPanel.Dock="Left"
                   HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" IsMainMenu="True">
                 <Menu.Resources>
                     <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource menuItemStyle}" />
