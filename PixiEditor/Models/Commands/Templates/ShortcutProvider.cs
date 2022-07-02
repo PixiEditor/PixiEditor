@@ -32,10 +32,11 @@ public partial class ShortcutProvider
         Name = name;
     }
 
-    public static IEnumerable<ShortcutProvider> GetProviders() => new[]
+    public static IEnumerable<ShortcutProvider> GetProviders() => new ShortcutProvider[]
     {
         #if DEBUG
         Debug,
         #endif
+        Aseprite
     };
 }

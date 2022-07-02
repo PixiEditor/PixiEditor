@@ -5,7 +5,7 @@ namespace PixiEditor.Models.Commands.Templates;
 
 public partial class ShortcutProvider
 {
-    private static DebugProvider Debug { get; } = new DebugProvider();
+    private static DebugProvider Debug { get; } = new();
     
     public class DebugProvider : ShortcutProvider, IShortcutDefaults, IShortcutFile, IShortcutInstallation
     {

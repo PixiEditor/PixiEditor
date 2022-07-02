@@ -49,7 +49,7 @@ namespace PixiEditor.Models.Commands
             {
                 foreach (var command in shortcut.Value)
                 {
-                    Commands[command].Shortcut = shortcut.Key;
+                    ReplaceShortcut(Commands[command], shortcut.Key);
                 }
             }
             
