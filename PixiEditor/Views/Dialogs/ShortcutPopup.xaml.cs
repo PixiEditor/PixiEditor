@@ -14,6 +14,8 @@ namespace PixiEditor.Views.Dialogs
         public static readonly DependencyProperty ControllerProperty =
             DependencyProperty.Register(nameof(Controller), typeof(CommandController), typeof(ShortcutPopup));
 
+        Command settingsCommand;
+        
         public CommandController Controller
         {
             get => (CommandController)GetValue(ControllerProperty);
@@ -30,6 +32,7 @@ namespace PixiEditor.Views.Dialogs
             DataContext = this;
             InitializeComponent();
             Controller = controller;
+            settingsCommand = Controller.Commands["PixiEditor.Window.OpenSettingsWindow"];
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -37,6 +40,16 @@ namespace PixiEditor.Views.Dialogs
             e.Cancel = true;
 
             Hide();
+        }
+
+        private void ShortcutPopup_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (settingsCommand.Shortcut != new KeyCombination(e.Key, e.KeyboardDevice.Modifiers))
+            {
+                return;
+            }
+            
+            settingsCommand.Methods.Execute("Keybinds");
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

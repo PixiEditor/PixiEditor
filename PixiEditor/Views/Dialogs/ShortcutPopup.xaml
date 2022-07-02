@@ -13,7 +13,8 @@
         WindowStartupLocation="CenterScreen"
         SizeToContent="Height"
         Title="ShortcutPopup" Width="1220" WindowStyle="None"
-        MinHeight="780" MinWidth="620" Topmost="{Binding IsTopmost}">
+        MinHeight="780" MinWidth="620" Topmost="{Binding IsTopmost}"
+        KeyDown="ShortcutPopup_OnKeyDown">
     <Window.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibility"/>
 
