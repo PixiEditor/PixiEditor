@@ -33,7 +33,7 @@
                       Margin="10">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid Margin="0,5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -55,10 +55,10 @@
                                     Visibility="{Binding ProvidesFromInstallation, Converter={BoolToVisibilityConverter}}"
                                     IsEnabled="{Binding HasInstallationPresent}"/>
                             <Button Command="{xaml:Command PixiEditor.Shortcuts.Provider.ImportFile, UseProvided=True}"
-                                    CommandParameter="{Binding}" Content="Import"
+                                    CommandParameter="{Binding}" Content="Import file"
                                     Visibility="{Binding ProvidesImport, Converter={BoolToVisibilityConverter}}"/>
                             <Button Command="{xaml:Command PixiEditor.Shortcuts.Provider.ImportDefault, UseProvided=True}"
-                                    CommandParameter="{Binding}" Content="Use default"
+                                    CommandParameter="{Binding}" Content="Import defaults"
                                     Visibility="{Binding HasDefaultShortcuts, Converter={BoolToVisibilityConverter}}"/>
                         </StackPanel>
                     </Grid>

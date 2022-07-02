@@ -347,6 +347,7 @@ namespace PixiEditor.Models.Commands
 
             foreach (var command in Commands)
             {
+                Commands.RemoveShortcut(command, command.Shortcut);
                 Commands.AddShortcut(command, command.DefaultShortcut);
                 command.Shortcut = command.DefaultShortcut;
             }

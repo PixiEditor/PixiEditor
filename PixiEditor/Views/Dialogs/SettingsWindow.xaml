@@ -17,7 +17,7 @@
         mc:Ignorable="d"
         Title="Settings" Name="window" 
         Height="688" Width="780"
-        MinHeight="500" MinWidth="680"
+        MinHeight="500" MinWidth="665"
         WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
         WindowStartupLocation="CenterScreen"
         BorderBrush="Black" BorderThickness="1"
@@ -203,7 +203,7 @@
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Import}"
                             Content="Import"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.OpenTemplatePopup}"
-                            Content="Import other"/>
+                            Content="Import from..."/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Reset}"
                             Content="Reset all"/>
                 </StackPanel>
