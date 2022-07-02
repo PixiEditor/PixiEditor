@@ -45,8 +45,9 @@
         <dial:DialogTitleBar DockPanel.Dock="Top"
             TitleText="Settings" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
-        <ListBox DockPanel.Dock="Left" SelectedIndex="0" x:Name="pages" 
-                 Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}">
+        <ListBox DockPanel.Dock="Left" x:Name="pages" 
+                 Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
+                 SelectedItem="{Binding CurrentPage}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Margin="10 5 10 5" FontSize="15" Foreground="White" Text="{Binding}"/>
@@ -62,7 +63,7 @@
         </ListBox>
 
         <Grid Grid.Row="1" Grid.Column="1" Background="{StaticResource AccentColor}">
-            <Grid Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter},
+            <Grid Visibility="{Binding CurrentPage, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='General'}" Margin="15,10" Tag="27">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="15"/>
@@ -136,13 +137,13 @@
                     IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}">Enable Debug Mode</CheckBox>
                 <Label Grid.Row="14" Grid.Column="1" Style="{StaticResource SettingsText}" VerticalAlignment="Center">
                     <Hyperlink Command="{cmds:Command PixiEditor.Debug.OpenCrashReportsDirectory}" Style="{StaticResource SettingsLink}">
-                               <TextBlock Text="Open Crash Reports Directory"/>
-                               <TextBlock Text="" FontFamily="Feather"/>
+                               <Run Text="Open Crash Reports Directory"/>
+                               <Run Text="" FontFamily="Feather"/>
                     </Hyperlink>
                 </Label>
             </Grid>
 
-            <StackPanel Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter},
+            <StackPanel Visibility="{Binding CurrentPage, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='Discord'}" Margin="15,10">
                 <Grid Tag="27">
                     <Grid.ColumnDefinitions>
@@ -179,7 +180,7 @@
                     IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>
             </StackPanel>
 
-            <Grid Visibility="{Binding SelectedItem, ElementName=pages, Converter={converters:EqualityBoolToVisibilityConverter}, ConverterParameter='Keybinds'}"
+            <Grid Visibility="{Binding CurrentPage, Converter={converters:EqualityBoolToVisibilityConverter}, ConverterParameter='Keybinds'}"
                         Margin="10,10,10,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Dialogs
 {
@@ -19,9 +20,11 @@ namespace PixiEditor.Views.Dialogs
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public SettingsWindow()
+        public SettingsWindow(string page = "General")
         {
             InitializeComponent();
+            var viewModel = DataContext as SettingsWindowViewModel;
+            viewModel!.CurrentPage = page;
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)

@@ -10,6 +10,7 @@ namespace PixiEditor.ViewModels
     {
         private string searchTerm;
         private int visibleGroups;
+        private string currentPage;
 
         public bool ShowUpdateTab
         {
@@ -35,6 +36,12 @@ namespace PixiEditor.ViewModels
                     VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
                 }
             }
+        }
+
+        public string CurrentPage
+        {
+            get => currentPage;
+            set => SetProperty(ref currentPage, value);
         }
 
         public int VisibleGroups

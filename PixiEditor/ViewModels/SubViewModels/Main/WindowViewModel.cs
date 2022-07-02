@@ -10,23 +10,29 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
     [Command.Group("PixiEditor.Window", "Windows")]
     public class WindowViewModel : SubViewModel<ViewModelMain>
     {
+        private CommandController commandController;
         private ShortcutPopup shortcutPopup;
-        
+
+        private ShortcutPopup ShortcutPopup => shortcutPopup ?? (shortcutPopup = new(commandController));
+
         public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
 
-        
-        
         public WindowViewModel(ViewModelMain owner, CommandController commandController)
             : base(owner)
         {
             ShowAvalonDockWindowCommand = new(ShowAvalonDockWindow);
-            shortcutPopup = new(commandController);
+            this.commandController = commandController;
         }
 
         [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window", Key = Key.OemComma, Modifiers = ModifierKeys.Control)]
-        public static void OpenSettingsWindow()
+        public static void OpenSettingsWindow(string page)
         {
-            var settings = new SettingsWindow();
+            if (string.IsNullOrWhiteSpace(page))
+            {
+                page = "General";
+            }
+            
+            var settings = new SettingsWindow(page);
             settings.Show();
         }
 
@@ -39,8 +45,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "Open Shortcut Window", "Open Shortcut Window", Key = Key.F1)]
         public void ShowShortcutWindow()
         {
-            shortcutPopup.Show();
-            shortcutPopup.Activate();
+            ShortcutPopup.Show();
+            ShortcutPopup.Activate();
         }
         
         [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "Open Navigation Window", "Open Navigation Window")]
