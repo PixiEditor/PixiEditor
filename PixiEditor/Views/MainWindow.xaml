@@ -339,6 +339,38 @@
                         </MenuItem>
                     </MenuItem>
                 </cmds:Menu>
+                <Border Width="200" Height="25" 
+                        Background="{StaticResource DarkerAccentColor}"
+                        CornerRadius="5" BorderThickness="1"
+                        Margin="10,0,0,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Cursor="IBeam">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="False">
+                                    <Setter Property="BorderBrush" Value="{StaticResource BrighterAccentColor}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="BorderBrush" Value="{StaticResource AlmostLightModeAccentColor}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger
+                            EventName="MouseDown">
+                            <cmd:EventToCommand
+                                Command="{cmds:Command PixiEditor.Search.Toggle}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <Grid Margin="5,0" VerticalAlignment="Center">
+                        <TextBlock Foreground="White">Search...</TextBlock>
+                        <TextBlock Text="{cmds:ShortcutBinding PixiEditor.Search.Toggle}"
+                                   HorizontalAlignment="Right"
+                                   Foreground="White"/>
+                    </Grid>
+                </Border>
                 <StackPanel
                     DockPanel.Dock="Right"
                     VerticalAlignment="Top"
