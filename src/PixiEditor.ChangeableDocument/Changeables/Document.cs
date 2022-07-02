@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -12,8 +11,8 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
     (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
-    IReadOnlyReferenceLayer? IReadOnlyDocument.GetReferenceLayer() => ReferenceLayer;
-    
+    IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
+
     public static VecI DefaultSize { get; } = new VecI(64, 64);
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
@@ -31,6 +30,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
+
     public StructureMember? FindMember(Guid guid)
     {
         var list = FindMemberPath(guid);

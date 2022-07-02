@@ -6,7 +6,7 @@ internal class CreateReferenceLayer_UpdateableChange : UpdateableChange
 {
     private readonly Surface? surface;
     private ShapeCorners shape;
-    
+
     [GenerateUpdateableChangeActions]
     public CreateReferenceLayer_UpdateableChange(Surface? surface, ShapeCorners shape)
     {
@@ -19,14 +19,14 @@ internal class CreateReferenceLayer_UpdateableChange : UpdateableChange
     {
         this.shape = shape;
     }
-    
+
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        if (surface == null)
+        if (surface is null)
         {
             return new Error();
         }
-        
+
         target.ReferenceLayer = new ReferenceLayer(surface!, shape);
         return new Success();
     }

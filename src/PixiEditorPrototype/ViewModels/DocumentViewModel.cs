@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -46,6 +47,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public RelayCommand? TransformSelectedAreaCommand { get; }
 
     private VecI size = new VecI(64, 64);
+
     public void SetSize(VecI size)
     {
         this.size = size;
@@ -53,39 +55,48 @@ internal class DocumentViewModel : INotifyPropertyChanged
         RaisePropertyChanged(nameof(Width));
         RaisePropertyChanged(nameof(Height));
     }
+
     public VecI SizeBindable => size;
 
     private SKPath selectionPath = new SKPath();
+
     public void SetSelectionPath(SKPath selectionPath)
     {
         (var toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
         toDispose.Dispose();
         RaisePropertyChanged(nameof(SelectionPathBindable));
     }
+
     public SKPath SelectionPathBindable => selectionPath;
 
     private int horizontalSymmetryAxisY;
+
     public void SetHorizontalSymmetryAxisY(int horizontalSymmetryAxisY)
     {
         this.horizontalSymmetryAxisY = horizontalSymmetryAxisY;
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisYBindable));
     }
+
     public int HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
 
     private int verticalSymmetryAxisX;
+
     public void SetVerticalSymmetryAxisX(int verticalSymmetryAxisX)
     {
         this.verticalSymmetryAxisX = verticalSymmetryAxisX;
         RaisePropertyChanged(nameof(VerticalSymmetryAxisXBindable));
     }
+
     public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
 
     private bool horizontalSymmetryAxisEnabled;
+
     public void SetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
     {
         this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisEnabledBindable));
     }
+
     public bool HorizontalSymmetryAxisEnabledBindable
     {
         get => horizontalSymmetryAxisEnabled;
@@ -93,11 +104,13 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     private bool verticalSymmetryAxisEnabled;
+
     public void SetVerticalSymmetryAxisEnabled(bool verticalSymmetryAxisEnabled)
     {
         this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
         RaisePropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
     }
+
     public bool VerticalSymmetryAxisEnabledBindable
     {
         get => verticalSymmetryAxisEnabled;
@@ -105,6 +118,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
     }
 
     private string name = string.Empty;
+
     public string Name
     {
         get => name;
@@ -123,10 +137,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
     {
-        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
     };
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
@@ -135,11 +146,22 @@ internal class DocumentViewModel : INotifyPropertyChanged
     public int ResizeWidth { get; set; } = 1024;
     public int ResizeHeight { get; set; } = 1024;
 
-    public IReadOnlyReferenceLayer? ReferenceLayer => Helpers.Tracker.Document.GetReferenceLayer();
-    
-    public BitmapSource? ReferenceBitmap => ReferenceLayer?.Image.ToWriteableBitmap();
+    public IReadOnlyReferenceLayer? ReferenceLayer => Helpers.Tracker.Document.ReferenceLayer;
 
-    public ShapeCorners ReferenceShape => transformingReferenceLayer ? TransformViewModel.Corners : ReferenceLayer?.Shape ?? default;
+    public BitmapSource? ReferenceBitmap => ReferenceLayer?.Image.ToWriteableBitmap();
+    public VecI ReferenceBitmapSize => ReferenceLayer?.Image.Size ?? VecI.Zero;
+    public ShapeCorners ReferenceShape => ReferenceLayer?.Shape ?? default;
+
+    public Matrix ReferenceTransformMatrix
+    {
+        get
+        {
+            if (ReferenceLayer is null)
+                return Matrix.Identity;
+            var skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
+            return new Matrix(skiaMatrix.ScaleX, skiaMatrix.SkewY, skiaMatrix.SkewX, skiaMatrix.ScaleY, skiaMatrix.TransX, skiaMatrix.TransY);
+        }
+    }
 
     private DocumentHelpers Helpers { get; }
 
@@ -231,7 +253,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
                 new StructureMemberName_Action(guid, layer.Name),
                 new PasteImage_Action(surface, new(new RectD(new VecD(layer.OffsetX, layer.OffsetY), new(layer.Width, layer.Height))), guid, true, false),
                 new EndPasteImage_Action()
-                );
+            );
             if (layer.Opacity != 1)
                 acc.AddFinishedActions(
                     new StructureMemberOpacity_Action(guid, layer.Opacity),
@@ -263,6 +285,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return false;
         return true;
     }
+
     private void TransformSelectedArea(object? obj)
     {
         if (updateableChangeActive || FindFirstSelectedMember() is not LayerViewModel layer || SelectionPathBindable.IsEmpty)
@@ -478,7 +501,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public void ApplyTransform(object? param)
     {
-        if (!transformingRectangle && !pastingImage && !transformingSelectionPath && !transformingEllipse)
+        if (!transformingRectangle && !pastingImage && !transformingSelectionPath && !transformingEllipse && !transformingReferenceLayer)
             return;
 
         if (transformingRectangle)
@@ -565,7 +588,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             Helpers.ActionAccumulator.AddActions(new CreateReferenceLayer_Action(null, newCorners));
         }
     }
-    
+
     public void FloodFill(VecI pos, SKColor color)
     {
         var member = FindFirstSelectedMember();
@@ -610,18 +633,9 @@ internal class DocumentViewModel : INotifyPropertyChanged
         double shapeWidth;
         double shapeHeight;
 
-        if (referenceImage.Size.X > referenceImage.Size.Y)
-        {
-            shapeWidth = Width;
-            shapeHeight = Width / referenceImage.Size.X * referenceImage.Size.Y;
-        }
-        else
-        {
-            shapeWidth = Height / referenceImage.Size.Y * referenceImage.Size.X;
-            shapeHeight = Height;
-        }
-        
-        ShapeCorners corners = new ShapeCorners(new RectD(VecD.Zero, new(shapeWidth, shapeHeight)));
+        RectD referenceImageRect = new RectD(VecD.Zero, SizeBindable).AspectFit(new RectD(VecD.Zero, referenceImage.Size));
+        ShapeCorners corners = new ShapeCorners(referenceImageRect);
+
         Helpers.ActionAccumulator.AddActions(new CreateReferenceLayer_Action(referenceImage, corners));
         transformingReferenceLayer = true;
         TransformViewModel.ShowShapeTransform(corners);

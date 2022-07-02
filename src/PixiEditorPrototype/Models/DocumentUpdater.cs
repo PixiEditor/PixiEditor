@@ -18,6 +18,7 @@ internal class DocumentUpdater
 {
     private DocumentViewModel doc;
     private DocumentHelpers helper;
+
     public DocumentUpdater(DocumentViewModel doc, DocumentHelpers helper)
     {
         this.doc = doc;
@@ -82,12 +83,19 @@ internal class DocumentUpdater
             case StructureMemberMaskIsVisible_ChangeInfo info:
                 ProcessMaskIsVisible(info);
                 break;
-            case CreateReferenceLayer_ChangeInfo:
-                doc.RaisePropertyChanged(nameof(doc.ReferenceLayer));
-                doc.RaisePropertyChanged(nameof(doc.ReferenceBitmap));
-                doc.RaisePropertyChanged(nameof(doc.ReferenceShape));
+            case CreateReferenceLayer_ChangeInfo info:
+                ProcessCreateReferenceLayer(info);
                 break;
         }
+    }
+
+    private void ProcessCreateReferenceLayer(CreateReferenceLayer_ChangeInfo info)
+    {
+        doc.RaisePropertyChanged(nameof(doc.ReferenceLayer));
+        doc.RaisePropertyChanged(nameof(doc.ReferenceBitmap));
+        doc.RaisePropertyChanged(nameof(doc.ReferenceBitmapSize));
+        doc.RaisePropertyChanged(nameof(doc.ReferenceTransformMatrix));
+        doc.RaisePropertyChanged(nameof(doc.ReferenceShape));
     }
 
     private void ProcessMaskIsVisible(StructureMemberMaskIsVisible_ChangeInfo info)
