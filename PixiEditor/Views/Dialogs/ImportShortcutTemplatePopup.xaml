@@ -30,10 +30,10 @@
         <diag:DialogTitleBar DockPanel.Dock="Top"
                              TitleText="Import from template" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Templates, ElementName=window}"
-                      Margin="10">
+                      Margin="10,10,10,5">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="0,5">
+                    <Grid Margin="0,5,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
