@@ -188,6 +188,7 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
         newIndex = (newIndex % Results.Count + Results.Count) % Results.Count;
 
         SelectedResult = delta > 0 ? Results.IndexOrNext(x => x.CanExecute, newIndex) : Results.IndexOrPrevious(x => x.CanExecute, newIndex);
+        (itemscontrol.ItemContainerGenerator.ContainerFromIndex(newIndex) as FrameworkElement)?.BringIntoView();
     }
 
     private void Button_MouseMove(object sender, MouseEventArgs e)

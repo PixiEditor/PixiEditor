@@ -110,7 +110,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        [Command.Basic("PixiEditor.File.Open", "Open", "Open image", Key = Key.O, Modifiers = ModifierKeys.Control)]
+        [Command.Basic("PixiEditor.File.Open", "Open", "Open file", Key = Key.O, Modifiers = ModifierKeys.Control)]
         public void Open(string path)
         {
             if (path == null)

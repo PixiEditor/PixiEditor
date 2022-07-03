@@ -42,7 +42,7 @@
                 <TextBlock Text="{Binding Warnings, ElementName=uc}" TextAlignment="Center" Foreground="Gray" Margin="0,5,0,0"
                            Visibility="{Binding HasWarnings, Converter={BoolToVisibilityConverter}, ElementName=uc}"/>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding Results, ElementName=uc}">
+                    <ItemsControl ItemsSource="{Binding Results, ElementName=uc}" x:Name="itemscontrol">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="cmdssearch:SearchResult">
                                 <Button Padding="5" Height="40" BorderThickness="0" Background="Transparent"

@@ -54,15 +54,22 @@ internal static class CommandSearchControlHelper
                 .Where(x => x.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
                 .Where(static x => ViewModelMain.Current.DebugSubViewModel.UseDebug ? true : !x.IsDebug)
                 .OrderByDescending(x => x.Description.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
-                .Take(12)
+                .Take(18)
                 .Select(command => new CommandSearchResult(command)
                 {
                     SearchTerm = query,
                     Match = Match(command.Description, query)
                 }));
 
-        // add matching files
-        newResults.AddRange(MaybeParseFilePaths(query));
+        try
+        {
+            // add matching files
+            newResults.AddRange(MaybeParseFilePaths(query));
+        }
+        catch
+        {
+            // ignored
+        }
 
         // add matching recent files
         newResults.AddRange(
