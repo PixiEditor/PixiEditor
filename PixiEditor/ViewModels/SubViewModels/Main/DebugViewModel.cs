@@ -36,6 +36,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", "%LocalAppData%/PixiEditor/crash_logs", "Open Crash Reports Directory", "Open Crash Reports Directory")]
         public static void OpenFolder(string path)
         {
+            if (!Directory.Exists(path))
+            {
+                NoticeDialog.Show($"{path} does not exist.", "Location does not exist");
+                return;
+            }
+        
             ProcessHelpers.ShellExecuteEV(path);
         }
 
