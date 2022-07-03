@@ -6,7 +6,7 @@ using PixiEditor.ViewModels.SubViewModels.UserPreferences;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
-using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels
@@ -115,7 +115,9 @@ namespace PixiEditor.ViewModels
         public SettingsWindowViewModel()
         {
             Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
+            UpdateSearchResults();
             SettingsSubViewModel = new SettingsViewModel(this);
+            PreferencesSettings.Current.AddCallback("IsDebugModeEnabled", _ => UpdateSearchResults());
             VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
         }
 
@@ -125,18 +127,30 @@ namespace PixiEditor.ViewModels
             {
                 foreach (var group in Commands)
                 {
-                    group.Visibility = Visibility.Visible;
+                    var visibleCommands = 0;
+                    
                     foreach (var command in group.Commands)
                     {
-                        command.Visibility = Visibility.Visible;
+                        if ((command.Command.IsDebug && ViewModelMain.Current.DebugSubViewModel.UseDebug) ||
+                            !command.Command.IsDebug)
+                        {
+                            visibleCommands++;
+                            command.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            command.Visibility = Visibility.Collapsed;
+                        }
                     }
+                    
+                    group.Visibility = visibleCommands > 0 ? Visibility.Visible : Visibility.Collapsed;
                 }
                 return;
             }
 
             foreach (var group in Commands)
             {
-                int visibleCommands = 0;
+                var visibleCommands = 0;
                 foreach (var command in group.Commands)
                 {
                     if (command.Command.DisplayName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
