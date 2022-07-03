@@ -153,6 +153,21 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
         {
             Hide();
         }
+        else if (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            SearchTerm = "rgb(,,)";
+            textBox.CaretIndex = 4;
+            textBox.SelectionLength = 0;
+        }
+        else if (e.Key == Key.Space && SearchTerm.StartsWith("rgb") && char.IsDigit(SearchTerm[textBox.CaretIndex - 1]))
+        {
+            var prev = textBox.CaretIndex;
+            if (SearchTerm.Length == textBox.CaretIndex || SearchTerm[textBox.CaretIndex] != ',')
+            {
+                SearchTerm = SearchTerm.Insert(textBox.CaretIndex, ",");
+            }
+            textBox.CaretIndex = prev + 1;
+        }
         else
         {
             e.Handled = false;
