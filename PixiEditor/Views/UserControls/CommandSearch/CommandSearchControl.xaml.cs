@@ -10,6 +10,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using OneOf;
+using OneOf.Types;
+using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls.CommandSearch;
 #nullable enable
@@ -133,6 +136,8 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
     {
         e.Handled = true;
 
+        OneOf<SKColor, Error, None> result;
+
         if (e.Key == Key.Enter && SelectedResult is not null)
         {
             Hide();
@@ -153,13 +158,13 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
         {
             Hide();
         }
-        else if (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control)
+        else if (e.Key == Key.R && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
         {
             SearchTerm = "rgb(,,)";
             textBox.CaretIndex = 4;
             textBox.SelectionLength = 0;
         }
-        else if (e.Key == Key.Space && SearchTerm.StartsWith("rgb") && char.IsDigit(SearchTerm[textBox.CaretIndex - 1]))
+        else if (e.Key == Key.Space && SearchTerm.StartsWith("rgb") && textBox.CaretIndex > 0 && char.IsDigit(SearchTerm[textBox.CaretIndex - 1]))
         {
             var prev = textBox.CaretIndex;
             if (SearchTerm.Length == textBox.CaretIndex || SearchTerm[textBox.CaretIndex] != ',')
@@ -168,9 +173,40 @@ public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
             }
             textBox.CaretIndex = prev + 1;
         }
+        else if (e.Key == Key.S && e.KeyboardDevice.Modifiers == ModifierKeys.Control &&
+                 (result = CommandSearchControlHelper.MaybeParseColor(SearchTerm)).IsT0)
+        {
+            SwitchColor(result.AsT0);
+        }
         else
         {
             e.Handled = false;
+        }
+    }
+
+    private void SwitchColor(SKColor color)
+    {
+        if (SearchTerm.StartsWith('#'))
+        {
+            if (color.Alpha == 255)
+            {
+                SearchTerm = $"rgb({color.Red},{color.Green},{color.Blue})";
+            }
+            else
+            {
+                SearchTerm = $"rgba({color.Red},{color.Green},{color.Blue},{color.Alpha})";
+            }
+        }
+        else
+        {
+            if (color.Alpha == 255)
+            {
+                SearchTerm = $"#{color.Red:X2}{color.Green:X2}{color.Blue:X2}";
+            }
+            else
+            {
+                SearchTerm = $"#{color.Red:X2}{color.Green:X2}{color.Blue:X2}{color.Alpha:X2}";
+            }
         }
     }
 

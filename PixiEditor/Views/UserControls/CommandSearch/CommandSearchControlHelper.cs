@@ -130,7 +130,7 @@ internal static class CommandSearchControlHelper
         return Directory.Exists(directory);
     }
 
-    private static OneOf<SKColor, Error, None> MaybeParseColor(string query)
+    public static OneOf<SKColor, Error, None> MaybeParseColor(string query)
     {
         if (query.StartsWith('#'))
         {
