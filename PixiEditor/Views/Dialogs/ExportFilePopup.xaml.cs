@@ -1,24 +1,20 @@
 ﻿using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
-using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Views
 {
-    public partial class ExportFilePopup : Window, INotifyPropertyChanged
+    public partial class ExportFilePopup : Window
     {
         public static readonly DependencyProperty SaveHeightProperty =
-            DependencyProperty.Register("SaveHeight", typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
+            DependencyProperty.Register(nameof(SaveHeight), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
 
 
         public static readonly DependencyProperty SaveWidthProperty =
-            DependencyProperty.Register("SaveWidth", typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
+            DependencyProperty.Register(nameof(SaveWidth), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
 
         private readonly SaveFilePopupViewModel dataContext = new SaveFilePopupViewModel();
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private int imageWidth;
         private int imageHeight;

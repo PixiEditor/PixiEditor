@@ -10,12 +10,8 @@ using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -223,6 +219,7 @@ namespace PixiEditor.Views.Dialogs
             }
 
             UpdateRenamedFavourite(Path.GetFileNameWithoutExtension(oldFileName), itemAffected.Name);
+            Sort();
         }
 
         private void HandleCacheItemDeleted(string deletedItemFileName)
@@ -231,6 +228,7 @@ namespace PixiEditor.Views.Dialogs
             if (item != null)
             {
                 SortedResults.Remove(item);
+                PaletteList.Palettes.Remove(item);
             }
         }
 
@@ -250,6 +248,7 @@ namespace PixiEditor.Views.Dialogs
         private void HandleCachePaletteCreated(Palette updatedItem)
         {
             SortedResults.Add(updatedItem);
+            PaletteList.Palettes.Add(updatedItem);
             Sort();
         }
 
@@ -537,7 +536,7 @@ namespace PixiEditor.Views.Dialogs
             var parsers = ViewModelMain.Current.ColorsSubViewModel.PaletteParsers;
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = PaletteHelpers.GetFilter(parsers)
+                Filter = PaletteHelpers.GetFilter(parsers, true)
             };
 
             if (openFileDialog.ShowDialog() == true)

@@ -1,7 +1,6 @@
 ﻿using PixiEditor.Models.DataHolders;
 using SkiaSharp;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -25,9 +24,9 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(HintColorProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for HintColor.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty HintColorProperty =
-            DependencyProperty.Register("HintColor", typeof(Color), typeof(PaletteColorAdder), new PropertyMetadata(System.Windows.Media.Colors.Transparent, OnHintColorChanged));
+            DependencyProperty.Register(nameof(HintColor), typeof(Color), typeof(PaletteColorAdder), new PropertyMetadata(System.Windows.Media.Colors.Transparent, OnHintColorChanged));
 
         private static void OnHintColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -39,8 +38,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             }
         }
 
-        public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(
-            "Swatches", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnSwatchesChanged));
+        public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnSwatchesChanged));
 
         public WpfObservableRangeCollection<SKColor> Swatches
         {
@@ -54,15 +52,15 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(SelectedColorProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SelectedColor.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty SelectedColorProperty =
-            DependencyProperty.Register("SelectedColor", typeof(Color), typeof(PaletteColorAdder), 
+            DependencyProperty.Register(nameof(SelectedColor), typeof(Color), typeof(PaletteColorAdder),
                 new PropertyMetadata(System.Windows.Media.Colors.Black));
 
 
-        // Using a DependencyProperty as the backing store for Colors.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty ColorsProperty =
-            DependencyProperty.Register("Colors", typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnColorsChanged));
+            DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnColorsChanged));
 
         private static void OnColorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -73,7 +71,7 @@ namespace PixiEditor.Views.UserControls.Palettes
                 adder.UpdateAddButton();
                 adder.Colors.CollectionChanged += adder.Colors_CollectionChanged;
             }
-            else if(e.OldValue != null)
+            else if (e.OldValue != null)
             {
                 adder.Colors.CollectionChanged -= adder.Colors_CollectionChanged;
             }
@@ -130,7 +128,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             }
         }
 
-        private void PortableColorPicker_ColorChanged(object sender, RoutedEventArgs e) => 
+        private void PortableColorPicker_ColorChanged(object sender, RoutedEventArgs e) =>
             AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor));
 
         private static SKColor ToSKColor(Color color) => new SKColor(color.R, color.G, color.B, color.A);
@@ -141,8 +139,8 @@ namespace PixiEditor.Views.UserControls.Palettes
 
             foreach (var color in Swatches)
             {
-                if(color.Alpha < 255) continue; // No alpha support for now, palette colors shouldn't be transparent
-                
+                if (color.Alpha < 255) continue; // No alpha support for now, palette colors shouldn't be transparent
+
                 if (!Colors.Contains(color))
                 {
                     Colors.Add(color);

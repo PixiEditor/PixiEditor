@@ -5,8 +5,6 @@ using PixiEditor.Models.UserPreferences;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Windows.Media;
-using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -32,18 +30,19 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             UpdateDebugMode(preferences.GetPreference<bool>("IsDebugModeEnabled"));
         }
 
-        [Command.Debug("PixiEditor.Debug.OpenTempDirectory", "%Temp%/PixiEditor", "Open Temp Directory", "Open Temp Directory")]
-        [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", "%LocalAppData%/PixiEditor", "Open Local AppData Directory", "Open Local AppData Directory")]
-        [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", "%AppData%/PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory")]
-        [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", "%LocalAppData%/PixiEditor/crash_logs", "Open Crash Reports Directory", "Open Crash Reports Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"%Temp%\PixiEditor", "Open Temp Directory", "Open Temp Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", @"%LocalAppData%\PixiEditor", "Open Local AppData Directory", "Open Local AppData Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"%AppData%\PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory")]
+        [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", @"%LocalAppData%\PixiEditor\crash_logs", "Open Crash Reports Directory", "Open Crash Reports Directory")]
         public static void OpenFolder(string path)
         {
-            if (!Directory.Exists(path))
+            string expandedPath = Environment.ExpandEnvironmentVariables(path);
+            if (!Directory.Exists(expandedPath))
             {
-                NoticeDialog.Show($"{path} does not exist.", "Location does not exist");
+                NoticeDialog.Show($"{expandedPath} does not exist.", "Location does not exist");
                 return;
             }
-        
+
             ProcessHelpers.ShellExecuteEV(path);
         }
 

@@ -15,7 +15,7 @@ namespace PixiEditor.Models.Commands
         private readonly ShortcutFile shortcutFile;
 
         public static CommandController Current { get; private set; }
-        
+
         public static string ShortcutsPath { get; private set; }
 
         public CommandCollection Commands { get; }
@@ -34,7 +34,7 @@ namespace PixiEditor.Models.Commands
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "PixiEditor",
                 "shortcuts.json");
-            
+
             shortcutFile = new(ShortcutsPath, this);
 
             Commands = new();
@@ -52,13 +52,13 @@ namespace PixiEditor.Models.Commands
                     ReplaceShortcut(Commands[command], shortcut.Key);
                 }
             }
-            
+
             if (save)
             {
                 shortcutFile.SaveShortcuts();
             }
         }
-        
+
         private static List<(string internalName, string displayName)> FindCommandGroups(Type[] typesToSearchForAttributes)
         {
             List<(string internalName, string displayName)> result = new();
@@ -201,7 +201,7 @@ namespace PixiEditor.Models.Commands
                 CommandGroups.Add(new(groupDisplayName, storedCommands));
             }
 
-            KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut) 
+            KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut)
                 => shortcuts.FirstOrDefault(x => x.Value.Contains(internalName), new(defaultShortcut, null)).Key;
 
             void AddCommandToCommandsCollection(Command command)
@@ -255,7 +255,7 @@ namespace PixiEditor.Models.Commands
 
             object CastParameter(object input, Type target)
             {
-                if (target == typeof(object) || target == input.GetType())
+                if (target == typeof(object) || target == input?.GetType())
                     return input;
                 return Convert.ChangeType(input, target);
             }
@@ -342,7 +342,7 @@ namespace PixiEditor.Models.Commands
         public void ResetShortcuts()
         {
             File.Copy(ShortcutsPath, Path.ChangeExtension(ShortcutsPath, ".json.bak"), true);
-            
+
             Commands.ClearShortcuts();
 
             foreach (var command in Commands)

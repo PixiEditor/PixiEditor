@@ -4,8 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:views="clr-namespace:PixiEditor.Views"
+             xmlns:controls="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              mc:Ignorable="d"
-             d:DesignHeight="200" d:DesignWidth="800" Name="paletteItem">
+             d:DesignHeight="200" 
+             d:DesignWidth="800" 
+             Name="paletteItem">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
@@ -57,16 +60,16 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-            <Button
+                <Button
                     ToolTip="Use in current image" Cursor="Hand" 
-                    Command="{Binding ImportPaletteCommand, ElementName=paletteItem}"
                     Style="{StaticResource ToolButtonStyle}"
                     Margin="0 3 0 0" Width="24" Height="24"
-                    CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}">
-                <Button.Background>
-                    <ImageBrush ImageSource="/Images/Check-square.png"/>
-                </Button.Background>
-            </Button>
+                    CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}"
+                    Command="{Binding ImportPaletteCommand, ElementName=paletteItem}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Check-square.png"/>
+                    </Button.Background>
+                </Button>
             </Border>
             <Border Margin="2 0 -2 0" Width="28" Height="28" HorizontalAlignment="Right" CornerRadius="2.5"
                     Padding="2">
@@ -82,31 +85,32 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-            <Button
+                <Button
                     Command="{Binding ElementName=paletteItem, Path=ToggleFavouriteCommand}"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
                     ToolTip="Add to favorites">
-                <Button.Style>
-                    <Style BasedOn="{StaticResource ImageButtonStyle}" TargetType="Button">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ElementName=paletteItem, Path=Palette.IsFavourite}" Value="False">
-                                <Setter Property="Background">
-                                    <Setter.Value>
-                                        <ImageBrush ImageSource="/Images/Star.png"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding ElementName=paletteItem, Path=Palette.IsFavourite}" Value="True">
-                                <Setter Property="Background">
-                                    <Setter.Value>
-                                        <ImageBrush ImageSource="/Images/Star-filled.png"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button></Border>
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource ImageButtonStyle}" TargetType="Button">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=paletteItem, Path=Palette.IsFavourite}" Value="False">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <ImageBrush ImageSource="/Images/Star.png"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=paletteItem, Path=Palette.IsFavourite}" Value="True">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <ImageBrush ImageSource="/Images/Star-filled.png"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Border>
             <Border Width="28" Height="28" CornerRadius="2.5"
                     Margin="5 0 0 0" Padding="2">
                 <Border.Style>

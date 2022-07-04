@@ -2,8 +2,6 @@
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Undo;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -23,7 +21,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty GroupGuidProperty =
-            DependencyProperty.Register("GroupGuid", typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
+            DependencyProperty.Register(nameof(GroupGuid), typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
 
         public LayersViewModel LayersViewModel
         {
@@ -32,7 +30,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty LayersViewModelProperty =
-            DependencyProperty.Register("LayersViewModel", typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel), LayersViewModelCallback));
+            DependencyProperty.Register(nameof(LayersViewModel), typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel), LayersViewModelCallback));
 
         public bool IsVisibleUndoTriggerable
         {
@@ -41,7 +39,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty IsVisibleUndoTriggerableProperty =
-            DependencyProperty.Register("IsVisibleUndoTriggerable", typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true));
+            DependencyProperty.Register(nameof(IsVisibleUndoTriggerable), typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true));
 
         public float GroupOpacity
         {
@@ -50,7 +48,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty GroupOpacityProperty =
-            DependencyProperty.Register("GroupOpacity", typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
+            DependencyProperty.Register(nameof(GroupOpacity), typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
 
 
         public static string LayerGroupControlDataName = typeof(LayerGroupControl).FullName;
@@ -77,7 +75,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty GroupNameProperty =
-            DependencyProperty.Register("GroupName", typeof(string), typeof(LayerGroupControl), new PropertyMetadata(default(string)));
+            DependencyProperty.Register(nameof(GroupName), typeof(string), typeof(LayerGroupControl), new PropertyMetadata(default(string)));
 
         public GuidStructureItem GroupData
         {
@@ -86,7 +84,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty GroupDataProperty =
-            DependencyProperty.Register("GroupData", typeof(GuidStructureItem), typeof(LayerGroupControl), new PropertyMetadata(default(GuidStructureItem), GroupDataChangedCallback));
+            DependencyProperty.Register(nameof(GroupData), typeof(GuidStructureItem), typeof(LayerGroupControl), new PropertyMetadata(default(GuidStructureItem), GroupDataChangedCallback));
 
         public void GeneratePreviewImage()
         {
@@ -115,7 +113,7 @@ namespace PixiEditor.Views.UserControls.Layers
         }
 
         public static readonly DependencyProperty PreviewImageProperty =
-            DependencyProperty.Register("PreviewImage", typeof(WriteableBitmap), typeof(LayerGroupControl), new PropertyMetadata(default(WriteableBitmap)));
+            DependencyProperty.Register(nameof(PreviewImage), typeof(WriteableBitmap), typeof(LayerGroupControl), new PropertyMetadata(default(WriteableBitmap)));
 
         public LayerGroupControl()
         {

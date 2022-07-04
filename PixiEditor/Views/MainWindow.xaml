@@ -12,6 +12,7 @@
     xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
     xmlns:cmd="http://www.galasoft.ch/mvvmlight"
     xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
@@ -22,6 +23,7 @@
     xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:commandSearch="clr-namespace:PixiEditor.Views.UserControls.CommandSearch"
+    xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
     WindowStyle="None"
@@ -342,7 +344,7 @@
                 <Border Width="200" Height="25" 
                         Background="{StaticResource DarkerAccentColor}"
                         CornerRadius="5" BorderThickness="1"
-                        Margin="10,0,0,0"
+                        Margin="10,-6,0,0"
                         WindowChrome.IsHitTestVisibleInChrome="True"
                         Cursor="IBeam">
                     <Border.Style>
@@ -413,92 +415,93 @@
                 <Button
                     Margin="1,0,0,0"
                     Command="{cmds:Command PixiEditor.Undo.Undo}"
-                    ToolTip="Undo"Style="{StaticResource ToolSettingsGlyphButton}" 
+                    ToolTip="Undo"
+                    Style="{StaticResource ToolSettingsGlyphButton}" 
 					Content="&#xE7A7;"/>
-            <Button 
+                <Button 
 				Command="{cmds:Command PixiEditor.Undo.Redo}" 
 				ToolTip="Redo"
                 Style="{StaticResource ToolSettingsGlyphButton}" 
 				Content="&#xE7A6;"/>
-            <ToggleButton 
+                <ToggleButton 
 				Width="30" 
 				BorderThickness="0"
 				ToolTip="Pen Mode" 
 				Focusable="False"
                 IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
-                <ToggleButton.Style>
-                    <Style TargetType="ToggleButton">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                    <ToggleButton.Style>
+                        <Style TargetType="ToggleButton">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border BorderBrush="{TemplateBinding BorderBrush}" 
                                             Background="{TemplateBinding Background}" Focusable="False">
-                                        <ContentPresenter HorizontalAlignment="Center"
+                                            <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center" Focusable="False"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsChecked" Value="False">
-                                <Setter Property="Background" Value="Transparent"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#404040"/>
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Background" Value="#707070"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </ToggleButton.Style>
-                <Image Height="20" Source="../Images/penMode.png"/>
-            </ToggleButton>
-            <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
-            <Label Style="{StaticResource BaseLabel}" FontSize="12"
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="False">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#404040"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Background" Value="#707070"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ToggleButton.Style>
+                    <Image Height="20" Source="../Images/penMode.png"/>
+                </ToggleButton>
+                <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
+                <Label Style="{StaticResource BaseLabel}" FontSize="12"
                    VerticalAlignment="Center" Content="{Binding ToolsSubViewModel.ActiveTool.DisplayName}"
                    ToolTip="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"/>
-            <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
-                            <Label
+                <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="10, 0, 0, 0" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
+                                <Label
                                 Visibility="{Binding HasLabel, Converter={StaticResource BoolToVisibilityConverter}}"
                                 Foreground="White" Content="{Binding Label}" />
-                            <ContentControl Content="{Binding SettingControl}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </StackPanel>
-        <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
-            <Grid AllowDrop="True" Drop="MainWindow_Drop">
-                <DockingManager ActiveContent="{Binding BitmapManager.ActiveWindow, Mode=TwoWay}"
+                                <ContentControl Content="{Binding SettingControl}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
+                <Grid AllowDrop="True" Drop="MainWindow_Drop">
+                    <DockingManager ActiveContent="{Binding BitmapManager.ActiveWindow, Mode=TwoWay}"
                                            DocumentsSource="{Binding BitmapManager.Documents}">
-                    <DockingManager.Theme>
-                        <avalonDockTheme:PixiEditorDockTheme />
-                    </DockingManager.Theme>
+                        <DockingManager.Theme>
+                            <avalonDockTheme:PixiEditorDockTheme />
+                        </DockingManager.Theme>
 
-                    <avalondock:DockingManager.LayoutItemContainerStyleSelector>
-                        <ui:PanelsStyleSelector>
-                            <ui:PanelsStyleSelector.DocumentTabStyle>
-                                <Style TargetType="{x:Type avalondock:LayoutItem}">
-                                    <Setter Property="Title" Value="{Binding Model.Name}" />
-                                    <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
-                                </Style>
-                            </ui:PanelsStyleSelector.DocumentTabStyle>
-                        </ui:PanelsStyleSelector>
-                    </avalondock:DockingManager.LayoutItemContainerStyleSelector>
-                    <DockingManager.LayoutItemTemplateSelector>
-                        <ui:DocumentsTemplateSelector>
-                            <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
-                                <DataTemplate DataType="{x:Type dataHolders:Document}">
-                                    <usercontrols:DrawingViewPort
+                        <avalondock:DockingManager.LayoutItemContainerStyleSelector>
+                            <ui:PanelsStyleSelector>
+                                <ui:PanelsStyleSelector.DocumentTabStyle>
+                                    <Style TargetType="{x:Type avalondock:LayoutItem}">
+                                        <Setter Property="Title" Value="{Binding Model.Name}" />
+                                        <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
+                                    </Style>
+                                </ui:PanelsStyleSelector.DocumentTabStyle>
+                            </ui:PanelsStyleSelector>
+                        </avalondock:DockingManager.LayoutItemContainerStyleSelector>
+                        <DockingManager.LayoutItemTemplateSelector>
+                            <ui:DocumentsTemplateSelector>
+                                <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
+                                    <DataTemplate DataType="{x:Type dataHolders:Document}">
+                                        <usercontrols:DrawingViewPort
                                         CenterViewportTrigger="{Binding CenterViewportTrigger}"
                                         ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
                                         GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
@@ -517,128 +520,123 @@
                                         IsUsingZoomTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
                                         IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"
                                         Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="PreviewMouseDown">
-                                                <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                        <usercontrols:DrawingViewPort.ContextMenu>
-                                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                                <ContextMenu.Template>
-                                                    <ControlTemplate>
-                                                        <Border Height="120" Background="{StaticResource AccentColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="100"/>
-                                                                    <ColumnDefinition Width="{Binding XamlAccesibleViewModel.BitmapManager.ActiveDocument.Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <Border BorderThickness="0 0 1 0" BorderBrush="Black">
-                                                                    <StackPanel Orientation="Vertical" Grid.Column="0">
-                                                                    <MenuItem
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                    <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <usercontrols:DrawingViewPort.ContextMenu>
+                                                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                                    <ContextMenu.Template>
+                                                        <ControlTemplate>
+                                                            <Border Height="120" Background="{StaticResource AccentColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="100"/>
+                                                                        <ColumnDefinition Width="{Binding XamlAccesibleViewModel.BitmapManager.ActiveDocument.Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Border BorderThickness="0 0 1 0" BorderBrush="Black">
+                                                                        <StackPanel Orientation="Vertical" Grid.Column="0">
+                                                                            <MenuItem
 																		Header="_Select All"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.SelectAll" />
-																	<MenuItem
+                                                                            <MenuItem
 																		Header="_Deselect"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.Clear" />
-																	<Separator />
-																	<MenuItem
+                                                                            <Separator />
+                                                                            <MenuItem
 																		Header="_Cut"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Cut" />
-																	<MenuItem
+                                                                            <MenuItem
 																		Header="_Copy"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Copy" />
-																	<MenuItem
+                                                                            <MenuItem
 																		Header="_Paste"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
-                                                                    </StackPanel>
-                                                                </Border>
-                                                                <ScrollViewer Margin="5" Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                                                    <ItemsControl ItemsSource="{Binding XamlAccesibleViewModel.BitmapManager.ActiveDocument.Palette}" AlternationCount="9999">
-                                                                        <ItemsControl.ItemsPanel>
-                                                                            <ItemsPanelTemplate>
-                                                                                <WrapPanel Orientation="Horizontal"
+                                                                        </StackPanel>
+                                                                    </Border>
+                                                                    <ScrollViewer Margin="5" Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                                                        <ItemsControl ItemsSource="{Binding XamlAccesibleViewModel.BitmapManager.ActiveDocument.Palette}" AlternationCount="9999">
+                                                                            <ItemsControl.ItemsPanel>
+                                                                                <ItemsPanelTemplate>
+                                                                                    <WrapPanel Orientation="Horizontal"
                                   HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                                                            </ItemsPanelTemplate>
-                                                                        </ItemsControl.ItemsPanel>
-                                                                        <ItemsControl.ItemTemplate>
-                                                                            <DataTemplate>
-                                                                                <palettes:PaletteColor Cursor="Hand" CornerRadius="0" ToolTip="Click to select as main color." Width="22" Height="22" Color="{Binding}">
-                                                                                    <b:Interaction.Triggers>
-                                                                                        <b:EventTrigger EventName="MouseLeftButtonUp">
-                                                                                            <b:InvokeCommandAction
+                                                                                </ItemsPanelTemplate>
+                                                                            </ItemsControl.ItemsPanel>
+                                                                            <ItemsControl.ItemTemplate>
+                                                                                <DataTemplate>
+                                                                                    <palettes:PaletteColor Cursor="Hand" CornerRadius="0" ToolTip="Click to select as main color." Width="22" Height="22" Color="{Binding}">
+                                                                                        <b:Interaction.Triggers>
+                                                                                            <b:EventTrigger EventName="MouseLeftButtonUp">
+                                                                                                <b:InvokeCommandAction
                                      Command="{Binding DataContext.XamlAccesibleViewModel.ColorsSubViewModel.SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}"
                                     CommandParameter="{Binding}" />
-                                                                                        </b:EventTrigger>
-                                                                                    </b:Interaction.Triggers>
-                                                                                </palettes:PaletteColor>
-                                                                            </DataTemplate>
-                                                                        </ItemsControl.ItemTemplate>
-                                                                    </ItemsControl>
-                                                                </ScrollViewer>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </ContextMenu.Template>
-                                            </ContextMenu>
-                                        </usercontrols:DrawingViewPort.ContextMenu>
-                                    </usercontrols:DrawingViewPort>
-                                </DataTemplate>
-                            </ui:DocumentsTemplateSelector.DocumentsViewTemplate>
-                        </ui:DocumentsTemplateSelector>
-                    </DockingManager.LayoutItemTemplateSelector>
-                    <avalondock:LayoutRoot x:Name="LayoutRoot">
-                        <LayoutPanel Orientation="Horizontal">
-                            <LayoutDocumentPane/>
-                            <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="290">
+                                                                                            </b:EventTrigger>
+                                                                                        </b:Interaction.Triggers>
+                                                                                    </palettes:PaletteColor>
+                                                                                </DataTemplate>
+                                                                            </ItemsControl.ItemTemplate>
+                                                                        </ItemsControl>
+                                                                    </ScrollViewer>
+                                                                </Grid>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </ContextMenu.Template>
+                                                </ContextMenu>
+                                            </usercontrols:DrawingViewPort.ContextMenu>
+                                        </usercontrols:DrawingViewPort>
+                                    </DataTemplate>
+                                </ui:DocumentsTemplateSelector.DocumentsViewTemplate>
+                            </ui:DocumentsTemplateSelector>
+                        </DockingManager.LayoutItemTemplateSelector>
+                        <avalondock:LayoutRoot x:Name="LayoutRoot">
+                            <LayoutPanel Orientation="Horizontal">
+                                <LayoutDocumentPane/>
+                                <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="290">
 
-                                <LayoutAnchorablePane x:Name="colorPane">
-                                    <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
+                                    <LayoutAnchorablePane x:Name="colorPane">
+                                        <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
                                                       CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"
+                                            <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"
                                                                          SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" 
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
-                                            <i:Interaction.Behaviors>
-                                                <behaviours:GlobalShortcutFocusBehavior/>
-                                            </i:Interaction.Behaviors>
-                                        </usercontrols:SmallColorPicker>
-                                    </LayoutAnchorable>
-                                    <LayoutAnchorable ContentId="colorSliders" Title="Color Sliders" CanHide="False"
+                                                <i:Interaction.Behaviors>
+                                                    <behaviours:GlobalShortcutFocusBehavior/>
+                                                </i:Interaction.Behaviors>
+                                            </usercontrols:SmallColorPicker>
+                                        </LayoutAnchorable>
+                                        <LayoutAnchorable ContentId="colorSliders" Title="Color Sliders" CanHide="False"
                                                       CanClose="False" CanAutoHide="False" x:Name="colorSlidersPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <colorpicker:ColorSliders Style="{StaticResource DefaultColorPickerStyle}" 
+                                            <colorpicker:ColorSliders Style="{StaticResource DefaultColorPickerStyle}" 
                                                                   ColorState="{Binding ElementName=mainColorPicker, Path=ColorState, Delay=10, Mode=TwoWay}">
-                                            <i:Interaction.Behaviors>
-                                                <behaviours:GlobalShortcutFocusBehavior/>
-                                            </i:Interaction.Behaviors>
-                                        </colorpicker:ColorSliders>
-                                    </LayoutAnchorable>
-                                    <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
+                                                <i:Interaction.Behaviors>
+                                                    <behaviours:GlobalShortcutFocusBehavior/>
+                                                </i:Interaction.Behaviors>
+                                            </colorpicker:ColorSliders>
+                                        </LayoutAnchorable>
+                                        <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False" x:Name="paletteAnchorable"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
-                                        <Grid>
-                                            <palettes:CompactPaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
-                                        Converter={converters:NotNullToBoolConverter}}"
-                                                                           SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
-                                                                           Colors="{Binding BitmapManager.ActiveDocument.Palette}" 
-                                                                           Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, 
-                                                Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
-                                            <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument,
-                                        Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
-                                                              Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"
-                                                                    SelectColorCommand="{Binding ColorsSubViewModel.SelectColorCommand}"
-                                                              HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,
-                                                Converter={converters:SKColorToMediaColorConverter}}"
-                                                                DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
-                                                                FileParsers="{Binding ColorsSubViewModel.PaletteParsers}"
-                                                                    Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, 
-                                                Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter},
-                                                ConverterParameter=Hidden}"
-                                                                ImportPaletteCommand="{Binding ColorsSubViewModel.ImportPaletteCommand}"
-                                                                           ReplaceColorsCommand="{Binding ColorsSubViewModel.ReplaceColorsCommand}"/>
-                                        </Grid>
-                                    </avalondock:LayoutAnchorable>
-                                    <avalondock:LayoutAnchorable
+                                            <Grid>
+                                                <palettes:CompactPaletteViewer 
+                                                    IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument, Converter={converters:NotNullToBoolConverter}}"
+                                                    SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
+                                                    Colors="{Binding BitmapManager.ActiveDocument.Palette}" 
+                                                    Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
+                                                <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument, Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
+                                                    Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"
+                                                    SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
+                                                    HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:SKColorToMediaColorConverter}}"
+                                                    DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
+                                                    FileParsers="{Binding ColorsSubViewModel.PaletteParsers}"
+                                                    Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}, ConverterParameter=Hidden}"
+                                                    ImportPaletteCommand="{cmds:Command PixiEditor.Colors.ImportPalette, UseProvided=True}"
+                                                    ReplaceColorsCommand="{cmds:Command PixiEditor.Colors.ReplaceColors, UseProvided=True}"/>
+                                            </Grid>
+                                        </avalondock:LayoutAnchorable>
+                                        <avalondock:LayoutAnchorable
 										ContentId="swatches"
 										Title="Swatches"
 										CanHide="False"
@@ -646,13 +644,12 @@
 										CanAutoHide="False"
 										CanDockAsTabbedDocument="False"
 										CanFloat="True">
-										<usercontrols:SwatchesView
-											SelectSwatchCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
-											RemoveSwatchCommand="{cmds:Command PixiEditor.Colors.RemoveSwatch, UseProvided=True}"
-											Swatches="{Binding BitmapManager.ActiveDocument.Swatches}" />
-									</avalondock:LayoutAnchorable>
-                                </LayoutAnchorablePane>
-                                <LayoutAnchorablePane>
+                                            <usercontrols:SwatchesView
+											    SelectSwatchCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
+											    Swatches="{Binding BitmapManager.ActiveDocument.Swatches}" />
+                                        </avalondock:LayoutAnchorable>
+                                    </LayoutAnchorablePane>
+                                    <LayoutAnchorablePane>
                                         <LayoutAnchorable
                                             ContentId="layers"
                                             Title="Layers"
@@ -698,14 +695,14 @@
                                                 PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" />
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
-                            </LayoutAnchorablePaneGroup>
-                        </LayoutPanel>
-                    </avalondock:LayoutRoot>
-                </DockingManager>
+                                </LayoutAnchorablePaneGroup>
+                            </LayoutPanel>
+                        </avalondock:LayoutRoot>
+                    </DockingManager>
+                </Grid>
             </Grid>
-        </Grid>
 
-        <Border
+            <Border
                 Grid.Row="2"
                 Grid.Column="0"
                 Background="{StaticResource AccentColor}"

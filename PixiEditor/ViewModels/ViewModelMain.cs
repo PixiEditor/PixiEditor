@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Threading;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
@@ -16,11 +8,11 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using PixiEditor.Views.Dialogs;
 using SkiaSharp;
+using System.ComponentModel;
+using System.Windows;
 
 namespace PixiEditor.ViewModels
 {
@@ -80,7 +72,7 @@ namespace PixiEditor.ViewModels
         public WindowViewModel WindowSubViewModel { get; set; }
 
         public SearchViewModel SearchSubViewModel { get; set; }
-        
+
         public RegistryViewModel RegistrySubViewModel { get; set; }
 
         public IPreferences Preferences { get; set; }
@@ -158,20 +150,7 @@ namespace PixiEditor.ViewModels
             WindowSubViewModel = services.GetService<WindowViewModel>();
             StylusSubViewModel = services.GetService<StylusViewModel>();
             RegistrySubViewModel = services.GetService<RegistryViewModel>();
-            AddDebugOnlyViewModels();
-            AddReleaseOnlyViewModels();
-            
-            Shortcut[] colorShortcuts = new Shortcut[10];
-            colorShortcuts[9] = new Shortcut(
-                Key.D0, ColorsSubViewModel.SelectPaletteColorCommand, 9);
-            for (int i = 0; i < colorShortcuts.Length - 1; i++)
-            {
-                //35 is a D1 key integer value
-                colorShortcuts[i] = new Shortcut((Key)35 + i, ColorsSubViewModel.SelectPaletteColorCommand, i);
-            }
 
-            ShortcutController.ShortcutGroups.Add(new ShortcutGroup("Palette Colors", colorShortcuts));
-            
             MiscSubViewModel = services.GetService<MiscViewModel>();
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;

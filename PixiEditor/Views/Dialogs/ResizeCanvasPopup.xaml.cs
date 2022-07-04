@@ -9,12 +9,12 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class ResizeCanvasPopup : ResizeablePopup
     {
-        // Using a DependencyProperty as the backing store for SelectedAnchorPoint.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty SelectedAnchorPointProperty =
-            DependencyProperty.Register("SelectedAnchorPoint", typeof(AnchorPoint), typeof(ResizeCanvasPopup),
+            DependencyProperty.Register(nameof(SelectedAnchorPoint), typeof(AnchorPoint), typeof(ResizeCanvasPopup),
                 new PropertyMetadata(AnchorPoint.Top | AnchorPoint.Left));
 
-        
+
         public ResizeCanvasPopup()
         {
             InitializeComponent();
