@@ -6,16 +6,13 @@ namespace PixiEditor.Helpers.Behaviours
 {
     public class MouseBehavior : Behavior<FrameworkElement>
     {
-        public static readonly DependencyProperty MouseYProperty = DependencyProperty.Register(
-            "MouseY", typeof(double), typeof(MouseBehavior), new PropertyMetadata(default(double)));
+        public static readonly DependencyProperty MouseYProperty = DependencyProperty.Register(nameof(MouseY), typeof(double), typeof(MouseBehavior), new PropertyMetadata(default(double)));
 
-        public static readonly DependencyProperty MouseXProperty = DependencyProperty.Register(
-            "MouseX", typeof(double), typeof(MouseBehavior), new PropertyMetadata(default(double)));
+        public static readonly DependencyProperty MouseXProperty = DependencyProperty.Register(nameof(MouseX), typeof(double), typeof(MouseBehavior), new PropertyMetadata(default(double)));
 
-        // Using a DependencyProperty as the backing store for RelativeTo.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty RelativeToProperty =
-            DependencyProperty.Register(
-                "RelativeTo",
+            DependencyProperty.Register(nameof(RelativeTo),
                 typeof(FrameworkElement),
                 typeof(MouseBehavior),
                 new PropertyMetadata(default(FrameworkElement)));

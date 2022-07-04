@@ -11,8 +11,7 @@ namespace PixiEditor.Views.UserControls.Palettes
     /// </summary>
     public partial class CompactPaletteViewer : UserControl
     {
-        public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(
-            "Colors", typeof(WpfObservableRangeCollection<SKColor>), typeof(CompactPaletteViewer));
+        public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<SKColor>), typeof(CompactPaletteViewer));
 
         public WpfObservableRangeCollection<SKColor> Colors
         {
@@ -26,9 +25,9 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(SelectColorCommandProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SelectColorCommand.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty SelectColorCommandProperty =
-            DependencyProperty.Register("SelectColorCommand", typeof(ICommand), typeof(CompactPaletteViewer));
+            DependencyProperty.Register(nameof(SelectColorCommand), typeof(ICommand), typeof(CompactPaletteViewer));
 
         public CompactPaletteViewer()
         {

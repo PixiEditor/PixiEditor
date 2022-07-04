@@ -14,9 +14,9 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(ColorToReplaceProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ColorToReplace.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty ColorToReplaceProperty =
-            DependencyProperty.Register("ColorToReplace", typeof(SKColor), typeof(ColorReplacer), new PropertyMetadata(SKColors.White));
+            DependencyProperty.Register(nameof(ColorToReplace), typeof(SKColor), typeof(ColorReplacer), new PropertyMetadata(SKColors.White));
 
 
         public Color HintColor
@@ -31,8 +31,7 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(NewColorProperty, value); }
         }
 
-        public static readonly DependencyProperty ReplaceColorsCommandProperty = DependencyProperty.Register(
-            "ReplaceColorsCommand", typeof(ICommand), typeof(ColorReplacer), new PropertyMetadata(default(ICommand)));
+        public static readonly DependencyProperty ReplaceColorsCommandProperty = DependencyProperty.Register(nameof(ReplaceColorsCommand), typeof(ICommand), typeof(ColorReplacer), new PropertyMetadata(default(ICommand)));
 
         public ICommand ReplaceColorsCommand
         {
@@ -41,14 +40,14 @@ namespace PixiEditor.Views.UserControls.Palettes
         }
 
 
-        // Using a DependencyProperty as the backing store for NewColor.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty NewColorProperty =
-            DependencyProperty.Register("NewColor", typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
+            DependencyProperty.Register(nameof(NewColor), typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
 
 
-        // Using a DependencyProperty as the backing store for HintColor.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty HintColorProperty =
-            DependencyProperty.Register("HintColor", typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
+            DependencyProperty.Register(nameof(HintColor), typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
 
 
 
@@ -58,9 +57,9 @@ namespace PixiEditor.Views.UserControls.Palettes
             set { SetValue(IsCollapsedProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for IsCollapsed.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty IsCollapsedProperty =
-            DependencyProperty.Register("IsCollapsed", typeof(bool), typeof(ColorReplacer), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(IsCollapsed), typeof(bool), typeof(ColorReplacer), new PropertyMetadata(false));
 
 
 

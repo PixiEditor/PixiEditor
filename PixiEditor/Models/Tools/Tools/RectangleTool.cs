@@ -1,14 +1,15 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.R)]
     public class RectangleTool : ShapeTool
     {
         private string defaultActionDisplay = "Click and move to draw a rectangle. Hold Shift to draw a square.";
@@ -17,7 +18,7 @@ namespace PixiEditor.Models.Tools.Tools
             ActionDisplay = defaultActionDisplay;
         }
 
-        public override string Tooltip => $"Draws rectangle on canvas ({ShortcutKey}). Hold Shift to draw a square.";
+        public override string Tooltip => $"Draws rectangle on canvas ({Shortcut}). Hold Shift to draw a square.";
 
         public bool Filled { get; set; } = false;
 

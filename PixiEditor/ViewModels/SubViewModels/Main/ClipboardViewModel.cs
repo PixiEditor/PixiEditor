@@ -1,62 +1,82 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Media;
-using PixiEditor.Helpers;
+﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Position;
+using SkiaSharp;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Clipboard", "Clipboard")]
     public class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
-        public RelayCommand CopyCommand { get; set; }
-
-        public RelayCommand DuplicateCommand { get; set; }
-
-        public RelayCommand CutCommand { get; set; }
-
-        public RelayCommand PasteCommand { get; set; }
-
         public ClipboardViewModel(ViewModelMain owner)
             : base(owner)
         {
-            CopyCommand = new RelayCommand(Copy);
-            DuplicateCommand = new RelayCommand(Duplicate, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
-            CutCommand = new RelayCommand(Cut, Owner.SelectionSubViewModel.SelectionIsNotEmpty);
-            PasteCommand = new RelayCommand(Paste, CanPaste);
         }
 
-        public void Duplicate(object parameter)
+        [Command.Basic("PixiEditor.Clipboard.Duplicate", "Duplicate", "Duplicate selected area/layer", CanExecute = "PixiEditor.HasDocument", Key = Key.J, Modifiers = ModifierKeys.Control)]
+        public void Duplicate()
         {
-            Copy(null);
-            Paste(null);
+            Copy();
+            Paste();
         }
 
-        public void Cut(object parameter)
+        [Command.Basic("PixiEditor.Clipboard.Cut", "Cut", "Cut selected area/layer", CanExecute = "PixiEditor.HasDocument", Key = Key.X, Modifiers = ModifierKeys.Control)]
+        public void Cut()
         {
-            Copy(null);
+            Copy();
             Owner.BitmapManager.BitmapOperations.DeletePixels(
                 new[] { Owner.BitmapManager.ActiveDocument.ActiveLayer },
                 Owner.BitmapManager.ActiveDocument.ActiveSelection.SelectedPoints.ToArray());
         }
 
-        public void Paste(object parameter)
+        [Command.Basic("PixiEditor.Clipboard.Paste", "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
+        public void Paste()
         {
             if (Owner.BitmapManager.ActiveDocument == null) return;
             ClipboardController.PasteFromClipboard(Owner.BitmapManager.ActiveDocument);
         }
 
-        private bool CanPaste(object property)
+        [Command.Basic("PixiEditor.Clipboard.PasteColor", "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
+        public void PasteColor()
+        {
+            Owner.ColorsSubViewModel.PrimaryColor = SKColor.Parse(Clipboard.GetText().Trim());
+        }
+
+        [Command.Basic("PixiEditor.Clipboard.Copy", "Copy", "Copy to clipboard", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control)]
+        public void Copy()
+        {
+            ClipboardController.CopyToClipboard(Owner.BitmapManager.ActiveDocument);
+        }
+
+        [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
+        public bool CanPaste()
         {
             return Owner.DocumentIsNotNull(null) && ClipboardController.IsImageInClipboard();
         }
 
-        private void Copy(object parameter)
+        [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
+        public static bool CanPasteColor() => Regex.IsMatch(Clipboard.GetText().Trim(), "^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$");
+
+        [Evaluator.Icon("PixiEditor.Clipboard.PasteColorIcon")]
+        public static ImageSource GetPasteColorIcon()
         {
-            ClipboardController.CopyToClipboard(Owner.BitmapManager.ActiveDocument);
+            Color color;
+
+            if (CanPasteColor())
+            {
+                color = SKColor.Parse(Clipboard.GetText().Trim()).ToOpaqueColor();
+            }
+            else
+            {
+                color = Colors.Transparent;
+            }
+
+            return ColorSearchResult.GetIcon(color.ToOpaqueSKColor());
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Tools;
@@ -13,14 +14,11 @@ using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Tools", "Tools")]
     public class ToolsViewModel : SubViewModel<ViewModelMain>
     {
         private Cursor toolCursor;
         private Tool activeTool;
-
-        public RelayCommand SelectToolCommand { get; set; } // Command that handles tool switching.
-
-        public RelayCommand ChangeToolSizeCommand { get; set; }
 
         public Tool LastActionTool { get; private set; }
 
@@ -29,11 +27,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public Cursor ToolCursor
         {
             get => toolCursor;
-            set
-            {
-                toolCursor = value;
-                RaisePropertyChanged("ToolCursor");
-            }
+            set => SetProperty(ref toolCursor, value);
         }
 
         public Tool ActiveTool
@@ -63,10 +57,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         public ToolsViewModel(ViewModelMain owner)
             : base(owner)
-        {
-            SelectToolCommand = new RelayCommand(SetTool, Owner.DocumentIsNotNull);
-            ChangeToolSizeCommand = new RelayCommand(ChangeToolSize);
-        }
+        { }
 
         public void SetupTools(IServiceProvider services)
         {
@@ -81,7 +72,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         {
             foreach (var tool in ToolSet)
             {
-                tool.ShortcutKey = Owner.ShortcutController.GetToolShortcutKey(tool.GetType());
+                tool.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
             }
         }
 
@@ -91,6 +82,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             SetActiveTool(typeof(T));
         }
 
+        [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]
         public void SetActiveTool(Tool tool)
         {
             if (ActiveTool == tool) return;
@@ -192,9 +184,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             }
         }
 
-        private void ChangeToolSize(object parameter)
+        [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size", Key = Key.OemCloseBrackets)]
+        [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Decrease Tool Size", Key = Key.OemOpenBrackets)]
+        public void ChangeToolSize(int increment)
         {
-            int increment = (int)parameter;
             int newSize = ToolSize + increment;
             if (newSize > 0)
             {

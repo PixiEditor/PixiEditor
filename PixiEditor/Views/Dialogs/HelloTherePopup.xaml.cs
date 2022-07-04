@@ -34,7 +34,7 @@ namespace PixiEditor.Views.Dialogs
 
         public RelayCommand OpenRecentCommand { get; set; }
 
-        public RelayCommand OpenHyperlinkCommand { get => FileViewModel.Owner.MiscSubViewModel.OpenHyperlinkCommand; }
+        public RelayCommand OpenHyperlinkCommand { get => null; }
 
         public RelayCommand OpenInExplorerCommand { get; set; }
 
@@ -94,14 +94,14 @@ namespace PixiEditor.Views.Dialogs
         {
             Application.Current.MainWindow.Activate();
             Close();
-            FileViewModel.OpenAny();
+            FileViewModel.Open();
         }
 
         private void OpenNewFile(object parameter)
         {
             Application.Current.MainWindow.Activate();
             Close();
-            FileViewModel.OpenNewFilePopup(parameter);
+            FileViewModel.OpenNewFilePopup();
         }
 
         private void OpenRecent(object parameter)

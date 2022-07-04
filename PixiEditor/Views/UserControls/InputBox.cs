@@ -1,9 +1,4 @@
 ﻿using PixiEditor.Models.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,9 +13,9 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(SubmitCommandProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SubmitCommand.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty SubmitCommandProperty =
-            DependencyProperty.Register("SubmitCommand", typeof(ICommand), typeof(InputBox));
+            DependencyProperty.Register(nameof(SubmitCommand), typeof(ICommand), typeof(InputBox));
 
         public object SubmitCommandParameter
         {
@@ -28,9 +23,9 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(SubmitCommandParameterProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SubmitCommandParameter.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty SubmitCommandParameterProperty =
-            DependencyProperty.Register("SubmitCommandParameter", typeof(object), typeof(InputBox), new PropertyMetadata(null));
+            DependencyProperty.Register(nameof(SubmitCommandParameter), typeof(object), typeof(InputBox), new PropertyMetadata(null));
 
         public event EventHandler<InputBoxEventArgs> OnSubmit;
 
@@ -46,7 +41,7 @@ namespace PixiEditor.Views.UserControls
         {
             if (e.Key != Key.Enter) return;
 
-            if(SubmitCommand != null && SubmitCommand.CanExecute(SubmitCommandParameter))
+            if (SubmitCommand != null && SubmitCommand.CanExecute(SubmitCommandParameter))
             {
                 SubmitCommand.Execute(SubmitCommandParameter);
             }

@@ -1,3 +1,4 @@
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.ImageManipulation;
@@ -6,11 +7,11 @@ using PixiEditor.Models.Position;
 using PixiEditor.Models.Services;
 using PixiEditor.ViewModels;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.O, Transient = Key.LeftAlt)]
     internal class ColorPickerTool : ReadonlyTool
     {
         private readonly DocumentProvider _docProvider;
@@ -28,7 +29,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override bool RequiresPreciseMouseData => true;
 
-        public override string Tooltip => $"Picks the primary color from the canvas. ({ShortcutKey})";
+        public override string Tooltip => $"Picks the primary color from the canvas. ({Shortcut})";
 
         public override void Use(IReadOnlyList<Coordinates> recordedMouseMovement)
         {

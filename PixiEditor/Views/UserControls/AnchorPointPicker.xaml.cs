@@ -11,7 +11,7 @@ namespace PixiEditor.Views
     public partial class AnchorPointPicker : UserControl
     {
         public static readonly DependencyProperty AnchorPointProperty =
-            DependencyProperty.Register("AnchorPoint", typeof(AnchorPoint), typeof(AnchorPointPicker),
+            DependencyProperty.Register(nameof(AnchorPoint), typeof(AnchorPoint), typeof(AnchorPointPicker),
                 new PropertyMetadata());
 
 

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace PixiEditor.Views.UserControls
 {
-    /// <summary>
-    /// Interaction logic for ListSwitchButton.xaml
-    /// </summary>
     public class ListSwitchButton : Button
     {
         public ObservableCollection<SwitchItem> Items
@@ -17,9 +13,8 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(ItemsProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Items.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ItemsProperty =
-            DependencyProperty.Register("Items", typeof(ObservableCollection<SwitchItem>), typeof(ListSwitchButton), new PropertyMetadata(default(ObservableCollection<SwitchItem>), CollChanged));
+            DependencyProperty.Register(nameof(Items), typeof(ObservableCollection<SwitchItem>), typeof(ListSwitchButton), new PropertyMetadata(default(ObservableCollection<SwitchItem>), CollChanged));
 
         private static void CollChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -39,10 +34,8 @@ namespace PixiEditor.Views.UserControls
             set { SetValue(ActiveItemProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ActiveItem.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ActiveItemProperty =
-            DependencyProperty.Register("ActiveItem", typeof(SwitchItem), typeof(ListSwitchButton), new PropertyMetadata(new SwitchItem(Brushes.Transparent, "", null)));
-
+            DependencyProperty.Register(nameof(ActiveItem), typeof(SwitchItem), typeof(ListSwitchButton), new PropertyMetadata(new SwitchItem(Brushes.Transparent, "", null)));
 
         static ListSwitchButton()
         {

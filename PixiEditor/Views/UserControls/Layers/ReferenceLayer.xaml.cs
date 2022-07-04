@@ -1,12 +1,9 @@
 ﻿using Microsoft.Win32;
-using PixiEditor.Helpers;
-using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Layers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using static PixiEditor.Helpers.SupportedFilesHelper;
 
 namespace PixiEditor.Views.UserControls.Layers
 {
@@ -21,9 +18,9 @@ namespace PixiEditor.Views.UserControls.Layers
             set { SetValue(ReferenceLayerProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ReferenceLayer.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty ReferenceLayerProperty =
-            DependencyProperty.Register("Layer", typeof(Layer), typeof(ReferenceLayer), new PropertyMetadata(default(Layer)));
+            DependencyProperty.Register(nameof(Layer), typeof(Layer), typeof(ReferenceLayer), new PropertyMetadata(default(Layer)));
 
 
         public ReferenceLayer()

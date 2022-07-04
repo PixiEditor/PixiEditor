@@ -33,6 +33,11 @@ namespace PixiEditor.Models.Services
         public IEnumerable<Layer> GetLayers() => _bitmapManager.ActiveDocument?.Layers;
 
         /// <summary>
+        /// Gets the layer structure of the opened document
+        /// </summary>
+        public LayerStructure GetStructure() => _bitmapManager.ActiveDocument?.LayerStructure;
+
+        /// <summary>
         /// Gets the active layer
         /// </summary>
         public Layer GetLayer() => _bitmapManager.ActiveLayer;
@@ -47,6 +52,9 @@ namespace PixiEditor.Models.Services
         /// </summary>
         public Layer GetReferenceLayer() => _bitmapManager.ActiveDocument?.ReferenceLayer;
 
+        /// <summary>
+        /// Gets the reference layer surface of the active document
+        /// </summary>
         public Surface GetReferenceSurface() => _bitmapManager.ActiveDocument?.ReferenceLayer?.LayerBitmap;
 
         /// <summary>

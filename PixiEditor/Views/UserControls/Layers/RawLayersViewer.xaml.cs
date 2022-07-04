@@ -1,9 +1,7 @@
-﻿using System;
+﻿using PixiEditor.Models.Layers;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using PixiEditor.Models.Layers;
 
 namespace PixiEditor.Views.UserControls.Layers
 {
@@ -18,10 +16,9 @@ namespace PixiEditor.Views.UserControls.Layers
             set { SetValue(LayersProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Layers.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty LayersProperty =
-            DependencyProperty.Register(
-                "Layers",
+            DependencyProperty.Register(nameof(Layers),
                 typeof(ObservableCollection<Layer>),
                 typeof(RawLayersViewer),
                 new PropertyMetadata(default(ObservableCollection<Layer>)));
@@ -32,9 +29,9 @@ namespace PixiEditor.Views.UserControls.Layers
             set { SetValue(StructureProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Structure.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty StructureProperty =
-            DependencyProperty.Register("Structure", typeof(LayerStructure), typeof(RawLayersViewer), new PropertyMetadata(default(LayerStructure)));
+            DependencyProperty.Register(nameof(Structure), typeof(LayerStructure), typeof(RawLayersViewer), new PropertyMetadata(default(LayerStructure)));
 
         public RawLayersViewer()
         {

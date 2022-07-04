@@ -17,6 +17,7 @@
 		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+        <ImplicitUsings>true</ImplicitUsings>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
@@ -138,6 +139,13 @@
 		<None Remove="Images\Check-square.png" />
 		<None Remove="Images\CheckerTile.png" />
 		<None Remove="Images\ChevronDown.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\Copy.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\Cut.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\Paste.png" />
+		<None Remove="Images\Commands\PixiEditor\Colors\Swap.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\CenterContent.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
 		<None Remove="Images\ChevronsDown.png" />
 		<None Remove="Images\CopyAdd.png" />
 		<None Remove="Images\Database.png" />
@@ -209,6 +217,7 @@
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="OneOf" Version="3.0.216" />
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
 		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.3" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.1.0" />
@@ -225,6 +234,14 @@
 		<Resource Include="Images\Check-square.png" />
 		<Resource Include="Images\CheckerTile.png" />
 		<Resource Include="Images\ChevronDown.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\Copy.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\Cut.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\Paste.png" />
+		<Resource Include="Images\Commands\PixiEditor\Colors\Swap.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\CenterContent.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\New.png" />
 		<Resource Include="Images\ChevronsDown.png" />
 		<Resource Include="Images\CopyAdd.png" />
 		<Resource Include="Images\Database.png" />
@@ -266,6 +283,37 @@
 		<Resource Include="Images\Tools\SelectImage.png" />
 		<Resource Include="Images\Tools\ZoomImage.png" />
 		<Resource Include="Images\Trash.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenSettingsWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenSettingsWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenStartupWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenStartupWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenNavigationWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenNavigationWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\File\New.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\Open.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\NewDocument.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\Clear.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\Clear.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\SelectAll.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\SelectAll.png" />
+		<None Remove="Images\Commands\PixiEditor\Search\Toggle.png" />
+		<Resource Include="Images\Commands\PixiEditor\Search\Toggle.png" />
+		<None Remove="Images\Commands\PixiEditor\Links\OpenDocumentation.png" />
+		<Resource Include="Images\Commands\PixiEditor\Links\OpenDocumentation.png" />
+		<None Remove="Images\Commands\PixiEditor\Links\OpenRepository.png" />
+		<Resource Include="Images\Commands\PixiEditor\Links\OpenRepository.png" />
+		<None Remove="Images\Commands\PixiEditor\File\Export.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\Export.png" />
+		<None Remove="Images\Commands\PixiEditor\View\ToggleGrid.png" />
+		<Resource Include="Images\Commands\PixiEditor\View\ToggleGrid.png" />
+		<None Remove="Images\Commands\PixiEditor\View\ZoomIn.png" />
+		<Resource Include="Images\Commands\PixiEditor\View\ZoomIn.png" />
+		<None Remove="Images\Commands\PixiEditor\View\ZoomOut.png" />
+		<Resource Include="Images\Commands\PixiEditor\View\ZoomOut.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
+		<None Remove="Fonts\feather.ttf" />
+		<Resource Include="Fonts\feather.ttf" />
 		<None Remove="Images\Load.png" />
 		<Resource Include="Images\Load.png" />
 		<None Remove="Images\Plus-square.png" />

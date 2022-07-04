@@ -6,11 +6,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-        xmlns:shortcuts="clr-namespace:PixiEditor.Models.Controllers.Shortcuts" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
+        xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="ShortcutPopup" Height="770" Width="620" WindowStyle="None"
-        MinHeight="770" MinWidth="620" Topmost="{Binding IsTopmost}">
+        SizeToContent="Height"
+        Title="ShortcutPopup" WindowStyle="None"
+        MinHeight="780" MinWidth="620" Topmost="{Binding IsTopmost}"
+        Width="950" MaxHeight="1000"
+        KeyDown="ShortcutPopup_OnKeyDown">
     <Window.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibility"/>
 
@@ -74,50 +79,61 @@
 
         <TextBlock Grid.Row="0" FontSize="15" VerticalAlignment="Center" HorizontalAlignment="Center">Shortcuts</TextBlock>
 
-        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-            <WrapPanel HorizontalAlignment="Center">
-                <ItemsControl ItemsSource="{Binding Controller.ShortcutGroups}" Background="Transparent">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type shortcuts:ShortcutGroup}">
-                            <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="{Binding Name}" Foreground="White" FontSize="15" FontWeight="Medium" Margin="10,8,0,5"/>
-                                <ItemsControl ItemsSource="{Binding Shortcuts}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type shortcuts:Shortcut}">
-                                            <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
-                                                <ItemsControl ItemsSource="{Binding Modifiers}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate DataType="{x:Type ModifierKeys}">
-                                                            <Border Style="{StaticResource KeyBorder}">
-                                                                <TextBlock Text="{Binding BindsDirectlyToSource=True, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <StackPanel Orientation="Horizontal"/>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                </ItemsControl>
-                                                <Border Style="{StaticResource KeyBorderLast}">
-                                                    <TextBlock Text="{Binding ShortcutKey, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
-                                                </Border>
+        <DockPanel Grid.Row="3">
+            <TextBlock FontSize="14" Margin="10" Foreground="LightGray" HorizontalAlignment="Left" DockPanel.Dock="Bottom">
+                <Hyperlink Style="{StaticResource SettingsLink}"
+                            Command="{cmds:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}"
+                            CommandParameter="Keybinds">
+                    <Run Text="Edit"/>
+                    <Run Text="" FontFamily="{StaticResource Feather}"/>
+                </Hyperlink>
+            </TextBlock>
+            <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                <WrapPanel HorizontalAlignment="Center" Margin="2">
+                    <ItemsControl ItemsSource="{Binding Controller.CommandGroups}" Background="Transparent">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type commands:CommandGroup}">
+                                <StackPanel Visibility="{Binding HasAssignedShortcuts, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="{Binding DisplayName}" Foreground="White" FontSize="15" FontWeight="Medium" Margin="10,8,0,5"/>
+                                    <ItemsControl ItemsSource="{Binding VisibleCommands}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type commands:Command}">
+                                                <StackPanel Orientation="Horizontal" Margin="20,0,0,0" Visibility="{Binding Shortcut.Key, ConverterParameter=None, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}}"
+                                                            ToolTip="{Binding Description}">
+                                                    <ItemsControl ItemsSource="{Binding Shortcut.Modifiers, Converter={converters:ModifierFlagToModifiersConverter}}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate DataType="{x:Type ModifierKeys}">
+                                                                <Border Style="{StaticResource KeyBorder}">
+                                                                    <TextBlock Text="{Binding BindsDirectlyToSource=True, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <StackPanel Orientation="Horizontal"/>
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                    </ItemsControl>
+                                                    <Border Style="{StaticResource KeyBorderLast}">
+                                                        <TextBlock Text="{Binding Shortcut.Key, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
+                                                    </Border>
 
-                                                <TextBlock Text="{Binding Description}" Foreground="#FFEEEEEE" VerticalAlignment="Center" FontSize="14" Margin="8,0,0,0"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel ItemWidth="300"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-            </WrapPanel>
-        </ScrollViewer>
+                                                    <TextBlock Text="{Binding DisplayName}" Foreground="#FFEEEEEE" VerticalAlignment="Center" FontSize="14" Margin="8,0,0,0"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel ItemWidth="300"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </WrapPanel>
+            </ScrollViewer>
+        </DockPanel>
     </Grid>
 </Window>
