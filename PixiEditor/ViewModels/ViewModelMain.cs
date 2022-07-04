@@ -20,6 +20,7 @@ using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using PixiEditor.Views.Dialogs;
+using SkiaSharp;
 
 namespace PixiEditor.ViewModels
 {
@@ -79,6 +80,8 @@ namespace PixiEditor.ViewModels
         public WindowViewModel WindowSubViewModel { get; set; }
 
         public SearchViewModel SearchSubViewModel { get; set; }
+        
+        public RegistryViewModel RegistrySubViewModel { get; set; }
 
         public IPreferences Preferences { get; set; }
 
@@ -136,7 +139,6 @@ namespace PixiEditor.ViewModels
             FileSubViewModel = services.GetService<FileViewModel>();
             ToolsSubViewModel = services.GetService<ToolsViewModel>();
             ToolsSubViewModel.SelectedToolChanged += BitmapManager_SelectedToolChanged;
-            ToolsSubViewModel?.SetupTools(services);
 
             IoSubViewModel = services.GetService<IoViewModel>();
             LayersSubViewModel = services.GetService<LayersViewModel>();
@@ -144,6 +146,10 @@ namespace PixiEditor.ViewModels
             UndoSubViewModel = services.GetService<UndoViewModel>();
             ViewportSubViewModel = services.GetService<ViewportViewModel>();
             ColorsSubViewModel = services.GetService<ColorsViewModel>();
+            ColorsSubViewModel?.SetupPaletteParsers(services);
+
+            ToolsSubViewModel?.SetupTools(services);
+
             DocumentSubViewModel = services.GetService<DocumentViewModel>();
             DiscordViewModel = services.GetService<DiscordViewModel>();
             UpdateSubViewModel = services.GetService<UpdateViewModel>();
@@ -151,7 +157,21 @@ namespace PixiEditor.ViewModels
 
             WindowSubViewModel = services.GetService<WindowViewModel>();
             StylusSubViewModel = services.GetService<StylusViewModel>();
+            RegistrySubViewModel = services.GetService<RegistryViewModel>();
+            AddDebugOnlyViewModels();
+            AddReleaseOnlyViewModels();
+            
+            Shortcut[] colorShortcuts = new Shortcut[10];
+            colorShortcuts[9] = new Shortcut(
+                Key.D0, ColorsSubViewModel.SelectPaletteColorCommand, 9);
+            for (int i = 0; i < colorShortcuts.Length - 1; i++)
+            {
+                //35 is a D1 key integer value
+                colorShortcuts[i] = new Shortcut((Key)35 + i, ColorsSubViewModel.SelectPaletteColorCommand, i);
+            }
 
+            ShortcutController.ShortcutGroups.Add(new ShortcutGroup("Palette Colors", colorShortcuts));
+            
             MiscSubViewModel = services.GetService<MiscViewModel>();
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
@@ -180,6 +200,12 @@ namespace PixiEditor.ViewModels
         {
             return BitmapManager.ActiveDocument != null;
         }
+
+        public bool DocumentIsNotNull((SKColor oldColor, SKColor newColor) obj)
+        {
+            return DocumentIsNotNull(null);
+        }
+
         public void CloseWindow(object property)
         {
             if (!(property is CancelEventArgs))

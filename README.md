@@ -82,7 +82,7 @@ Struggling with something? You can find support in a few places:
 
 ### Software Requirements
 
-* .NET 6
+* .NET 5
 
 * Visual Studio
 

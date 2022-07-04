@@ -59,7 +59,6 @@ namespace PixiEditor.Views
             DependencyProperty.Register("OnScrollAction", typeof(Action), typeof(NumberInput), new PropertyMetadata(null));
 
 
-
         public NumberInput()
         {
             InitializeComponent();
@@ -81,6 +80,15 @@ namespace PixiEditor.Views
         {
             get => (float)GetValue(MaxProperty);
             set => SetValue(MaxProperty, value);
+        }
+
+        public static readonly DependencyProperty FocusNextProperty = DependencyProperty.Register(
+            "FocusNext", typeof(bool), typeof(NumberInput), new PropertyMetadata(false));
+
+        public bool FocusNext
+        {
+            get { return (bool)GetValue(FocusNextProperty); }
+            set { SetValue(FocusNextProperty, value); }
         }
 
         private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

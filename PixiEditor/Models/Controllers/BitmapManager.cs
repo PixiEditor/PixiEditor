@@ -22,7 +22,7 @@ namespace PixiEditor.Models.Controllers
         public ICanvasInputTarget InputTarget => ToolSessionController;
         public BitmapOperationsUtility BitmapOperations { get; set; }
 
-        public ObservableCollection<Document> Documents { get; set; } = new ObservableCollection<Document>();
+        public System.Collections.ObjectModel.ObservableCollection<Document> Documents { get; set; } = new System.Collections.ObjectModel.ObservableCollection<Document>();
 
         private Document activeDocument;
         public Document ActiveDocument

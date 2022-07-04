@@ -13,6 +13,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -144,13 +145,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void Owner_OnStartupEvent(object sender, System.EventArgs e)
         {
-            var args = Environment.GetCommandLineArgs();
-            var file = args.Last();
-            if (Importer.IsSupportedFile(file) && File.Exists(file))
+            var args = StartupArgs.Args;
+            var file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+            if (file != null)
             {
                 Open(file);
             }
-            else if (Owner.BitmapManager.Documents.Count == 0 || !args.Contains("--crash"))
+            else if ((Owner.BitmapManager.Documents.Count == 0
+                     || !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
             {
                 if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
                 {

@@ -18,7 +18,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
         {
             Label = label;
             Value = isChecked;
-            SettingControl = GenerateCheckBox();
         }
 
         private Control GenerateCheckBox()
@@ -37,6 +36,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             checkBox.SetBinding(ToggleButton.IsCheckedProperty, binding);
 
             return checkBox;
+        }
+
+        public override Control GenerateControl()
+        {
+            return GenerateCheckBox();
         }
     }
 }

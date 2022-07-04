@@ -3,6 +3,9 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using System.Windows.Input;
+using SkiaSharp;
+using System;
+using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {

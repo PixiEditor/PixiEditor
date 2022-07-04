@@ -29,6 +29,7 @@
                 <ResourceDictionary Source="Styles/TreeViewStyle.xaml" />
                 <ResourceDictionary Source="Styles/RadioButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -135,6 +135,8 @@
 
 	<ItemGroup>
 		<None Remove="Images\AnchorDot.png" />
+		<None Remove="Images\Arrow-right.png" />
+		<None Remove="Images\Check-square.png" />
 		<None Remove="Images\CheckerTile.png" />
 		<None Remove="Images\ChevronDown.png" />
 		<None Remove="Images\Commands\PixiEditor\Clipboard\Copy.png" />
@@ -144,11 +146,18 @@
 		<None Remove="Images\Commands\PixiEditor\Document\CenterContent.png" />
 		<None Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
 		<None Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
+		<None Remove="Images\ChevronsDown.png" />
+		<None Remove="Images\CopyAdd.png" />
+		<None Remove="Images\Database.png" />
 		<None Remove="Images\DiagonalRed.png" />
+		<None Remove="Images\Download.png" />
+		<None Remove="Images\Edit.png" />
 		<None Remove="Images\Eye-off.png" />
 		<None Remove="Images\Eye.png" />
 		<None Remove="Images\Folder-add.png" />
 		<None Remove="Images\Folder.png" />
+		<None Remove="Images\Globe.png" />
+		<None Remove="Images\hard-drive.png" />
 		<None Remove="Images\Layer-add.png" />
 		<None Remove="Images\MoveImage.png" />
 		<None Remove="Images\MoveViewportImage.png" />
@@ -157,6 +166,9 @@
 		<None Remove="Images\PixiEditorLogo.png" />
 		<None Remove="Images\PixiParserLogo.png" />
 		<None Remove="Images\Placeholder.png" />
+		<None Remove="Images\Processing.gif" />
+		<None Remove="Images\Replace.png" />
+		<None Remove="Images\Search.png" />
 		<None Remove="Images\SelectImage.png" />
 		<None Remove="Images\SocialMedia\DiscordIcon.png" />
 		<None Remove="Images\SocialMedia\DonateIcon.png" />
@@ -190,14 +202,15 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Dirkster.AvalonDock" Version="4.60.1" />
+		<PackageReference Include="CLSEncoderDecoder" Version="1.0.0" />
+		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.1" />
 		<PackageReference Include="ByteSize" Version="2.1.1" />
 		<PackageReference Include="DiscordRichPresence" Version="1.0.175" />
 		<PackageReference Include="Expression.Blend.Sdk">
 			<Version>1.0.2</Version>
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
-		<PackageReference Include="Hardware.Info" Version="1.1.1.1" />
+		<PackageReference Include="Hardware.Info" Version="10.0.0" />
 		<PackageReference Include="MessagePack" Version="2.3.85" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="MvvmLightLibs" Version="5.4.1.1">
@@ -205,17 +218,20 @@
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="OneOf" Version="3.0.216" />
-		<PackageReference Include="PixiEditor.ColorPicker" Version="3.2.0" />
-		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.2" />
+		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
+		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.3" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.1.0" />
-		<PackageReference Include="SkiaSharp" Version="2.80.3" />
+		<PackageReference Include="SkiaSharp" Version="2.88.0" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
 		<PackageReference Include="WriteableBitmapEx">
 			<Version>1.6.8</Version>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<Resource Include="Images\AnchorDot.png" />
+		<Resource Include="Images\Arrow-right.png" />
+		<Resource Include="Images\Check-square.png" />
 		<Resource Include="Images\CheckerTile.png" />
 		<Resource Include="Images\ChevronDown.png" />
 		<Resource Include="Images\Commands\PixiEditor\Clipboard\Copy.png" />
@@ -226,17 +242,27 @@
 		<Resource Include="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
 		<Resource Include="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
 		<Resource Include="Images\Commands\PixiEditor\File\New.png" />
+		<Resource Include="Images\ChevronsDown.png" />
+		<Resource Include="Images\CopyAdd.png" />
+		<Resource Include="Images\Database.png" />
 		<Resource Include="Images\DiagonalRed.png" />
+		<Resource Include="Images\Download.png" />
+		<Resource Include="Images\Edit.png" />
 		<Resource Include="Images\Eye-off.png" />
 		<Resource Include="Images\Eye.png" />
 		<Resource Include="Images\Folder-add.png" />
 		<Resource Include="Images\Folder.png" />
+		<Resource Include="Images\Globe.png" />
+		<Resource Include="Images\hard-drive.png" />
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\penMode.png" />
 		<Resource Include="Images\PixiBotLogo.png" />
 		<Resource Include="Images\PixiEditorLogo.png" />
 		<Resource Include="Images\PixiParserLogo.png" />
 		<Resource Include="Images\Placeholder.png" />
+		<Resource Include="Images\Processing.gif" />
+		<Resource Include="Images\Replace.png" />
+		<Resource Include="Images\Search.png" />
 		<Resource Include="Images\SocialMedia\DiscordIcon.png" />
 		<Resource Include="Images\SocialMedia\DonateIcon.png" />
 		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
@@ -288,6 +314,18 @@
 		<Resource Include="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
 		<None Remove="Fonts\feather.ttf" />
 		<Resource Include="Fonts\feather.ttf" />
+		<None Remove="Images\Load.png" />
+		<Resource Include="Images\Load.png" />
+		<None Remove="Images\Plus-square.png" />
+		<Resource Include="Images\Plus-square.png" />
+		<None Remove="Images\Save.png" />
+		<Resource Include="Images\Save.png" />
+		<None Remove="Images\Star.png" />
+		<Resource Include="Images\Star.png" />
+		<None Remove="Images\Star-filled.png" />
+		<Resource Include="Images\Star-filled.png" />
+		<None Remove="Images\Shuffle.png" />
+		<Resource Include="Images\Shuffle.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
@@ -319,5 +357,4 @@
 			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
 		</None>
 	</ItemGroup>
-
 </Project>

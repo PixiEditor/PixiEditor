@@ -8,7 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
+using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Models.Layers
 {
@@ -30,6 +36,7 @@ namespace PixiEditor.Models.Layers
         private float opacity = 1f;
 
         private string layerHighlightColor = "#666666";
+
 
         public Layer(string name, int maxWidth, int maxHeight)
         {
@@ -692,6 +699,43 @@ namespace PixiEditor.Models.Layers
             LayerBitmap = result;
             Width = newWidth;
             Height = newHeight;
+        }
+
+
+        public void ReplaceColor(SKColor oldColor, SKColor newColor)
+        {
+            if (LayerBitmap == null)
+            {
+                return;
+            }
+
+            int maxThreads = Environment.ProcessorCount;
+            int rowsPerThread = Height / maxThreads;
+
+            Parallel.For(0, maxThreads, i =>
+            {
+                int startRow = i * rowsPerThread;
+                int endRow = (i + 1) * rowsPerThread;
+                if (i == maxThreads - 1)
+                {
+                    endRow = Height;
+                }
+
+                for (int y = startRow; y < endRow; y++)
+                {
+                    for (int x = 0; x < Width; x++)
+                    {
+                        if (LayerBitmap.GetSRGBPixel(x, y) == oldColor)
+                        {
+                            LayerBitmap.SetSRGBPixelUnmanaged(x, y, newColor);
+                        }
+                    }
+                }
+            });
+
+            layerBitmap.SkiaSurface.Canvas.DrawPaint(new SKPaint { BlendMode = SKBlendMode.Dst });
+
+            InvokeLayerBitmapChange();
         }
     }
 }

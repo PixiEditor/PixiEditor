@@ -1,6 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Controllers.Shortcuts;
+using PixiEditor.Models.DataProviders;
+using PixiEditor.Models.IO;
+using PixiEditor.Models.IO.ClsFile;
+using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Models.Services;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
@@ -32,7 +37,7 @@ namespace PixiEditor.Helpers.Extensions
                 .AddSingleton<ViewportViewModel>()
                 .AddSingleton<ColorsViewModel>()
                 .AddSingleton<DocumentViewModel>()
-                .AddSingleton<MiscViewModel>()
+                .AddSingleton<RegistryViewModel>()
                 .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
                 .AddSingleton<DebugViewModel>()
                 .AddSingleton<SearchViewModel>()
@@ -54,6 +59,11 @@ namespace PixiEditor.Helpers.Extensions
                 .AddSingleton<Tool, ColorPickerTool>()
                 .AddSingleton<Tool, BrightnessTool>()
                 .AddSingleton<Tool, ZoomTool>()
+                // Palette Parsers
+                .AddSingleton<PaletteFileParser, JascFileParser>()
+                .AddSingleton<PaletteFileParser, ClsFileParser>()
+                // Palette data sources
+                .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
                 // Other
                 .AddSingleton<DocumentProvider>();
     }

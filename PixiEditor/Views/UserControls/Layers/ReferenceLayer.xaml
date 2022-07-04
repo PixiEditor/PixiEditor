@@ -12,7 +12,7 @@
         </i:Interaction.Behaviors>
         <Grid>
             <Grid Background="Transparent"/>
-        <Grid Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Center">
+        <Grid Grid.Row="0"  VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="*"/>
@@ -65,8 +65,8 @@
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetName="middleStackPanel" Storyboard.TargetProperty="Height" From="0" To="40" Duration="0:0:0.15"/>
-                                    <DoubleAnimation Storyboard.TargetName="layerVisibilityCheckboxGrid" Storyboard.TargetProperty="Height" From="0" To="16" Duration="0:0:0.15"/>
-                                </Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="layerVisibilityCheckboxGrid" Storyboard.TargetProperty="Height" From="0" To="16" Duration="0:0:0.15"/>
+                            </Storyboard>
                         </BeginStoryboard>
                         </EventTrigger>
 

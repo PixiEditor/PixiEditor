@@ -5,6 +5,8 @@ using PixiEditor.Models.UserPreferences;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Windows.Media;
+using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {

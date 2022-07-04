@@ -1,5 +1,4 @@
-﻿using PixiEditor.Models;
-using PixiEditor.Models.Enums;
+﻿using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using System;
 using System.Collections.Generic;
@@ -21,7 +20,7 @@ namespace PixiEditor.Helpers
             allFileTypeDialogsData = new List<FileTypeDialogData>();
 
             var allFormats = Enum.GetValues(typeof(FileType)).Cast<FileType>().ToList();
-            
+
             foreach (var format in allFormats)
             {
                 var fileTypeDialogData = new FileTypeDialogData(format);
@@ -73,6 +72,16 @@ namespace PixiEditor.Helpers
             var filter = string.Join("|", allSupportedExtensions.Select(i => i.SaveFilter));
 
             return filter;
+        }
+
+        public static FileType GetSaveFileTypeFromFilterIndex(bool includePixi, int filterIndex)
+        {
+            var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
+            //filter index starts at 1 for some reason
+            int index = filterIndex - 1;
+            if (allSupportedExtensions.Count <= index)
+                return FileType.Unset;
+            return allSupportedExtensions[index].FileType;
         }
 
         public static string BuildOpenFilter()

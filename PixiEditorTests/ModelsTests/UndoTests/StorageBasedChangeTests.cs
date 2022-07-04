@@ -30,7 +30,7 @@ namespace PixiEditorTests.ModelsTests.UndoTests
             testBitmap.SetSRGBPixel(0, 0, SKColors.Black);
             testBitmap2.SetSRGBPixel(4, 4, SKColors.Blue);
             Random random = new Random();
-            testDocument.Layers = new WpfObservableRangeCollection<Layer>()
+            testDocument.Layers = new PixiEditor.Models.DataHolders.WpfObservableRangeCollection<Layer>()
             {
                 new Layer("Test layer" + random.Next(int.MinValue, int.MaxValue), testBitmap, testDocument.Width, testDocument.Height),
                 new Layer("Test layer 2" + random.Next(int.MinValue, int.MaxValue), testBitmap2, testDocument.Width, testDocument.Height) { Offset = new System.Windows.Thickness(2, 3, 0, 0) }

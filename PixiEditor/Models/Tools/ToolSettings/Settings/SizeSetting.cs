@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Views;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings
@@ -10,7 +11,6 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             : base(name)
         {
             Value = 1;
-            SettingControl = GenerateTextBox();
             Label = label;
         }
 
@@ -31,6 +31,11 @@ namespace PixiEditor.Models.Tools.ToolSettings.Settings
             };
             tb.SetBinding(SizeInput.SizeProperty, binding);
             return tb;
+        }
+
+        public override Control GenerateControl()
+        {
+            return GenerateTextBox();
         }
     }
 }

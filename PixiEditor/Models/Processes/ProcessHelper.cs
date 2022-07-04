@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Security.Principal;
 
 namespace PixiEditor.Models.Processes
 {
@@ -21,6 +22,11 @@ namespace PixiEditor.Models.Processes
             }
 
             return proc;
+        }
+
+        public static bool IsRunningAsAdministrator()
+        {
+            return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         }
     }
 }
