@@ -708,9 +708,11 @@
                 Background="{StaticResource AccentColor}"
                 Grid.RowSpan="2"
                 CornerRadius="5,0,5,5">
-                <StackPanel
-                    Orientation="Vertical"
-                    Cursor="Arrow">
+                <Grid Cursor="Arrow">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
                     <ItemsControl
                         ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
@@ -740,7 +742,10 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </StackPanel>
+                    <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:SKColorToMediaColorConverter}}"
+                            BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
+                            Grid.Row="1" Height="30"/>
+                </Grid>
             </Border>
 
             <Grid
