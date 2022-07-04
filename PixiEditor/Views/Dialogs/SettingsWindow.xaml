@@ -137,8 +137,8 @@
                     IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}">Enable Debug Mode</CheckBox>
                 <Label Grid.Row="14" Grid.Column="1" Style="{StaticResource SettingsText}" VerticalAlignment="Center">
                     <Hyperlink Command="{cmds:Command PixiEditor.Debug.OpenCrashReportsDirectory}" Style="{StaticResource SettingsLink}">
-                               <Run Text="Open Crash Reports Directory"/>
-                               <Run Text="" FontFamily="Feather"/>
+                        <Run Text="Open Crash Reports Directory"/>
+                        <Run Text="" FontFamily="{StaticResource Feather}"/>
                     </Hyperlink>
                 </Label>
             </Grid>
