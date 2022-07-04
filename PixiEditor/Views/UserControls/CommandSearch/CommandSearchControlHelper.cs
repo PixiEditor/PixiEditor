@@ -37,12 +37,13 @@ internal static class CommandSearchControlHelper
 
         // add matching colors
         MaybeParseColor(query).Switch(
-            (SKColor color) =>
+            color =>
             {
                 newResults.Add(new ColorSearchResult(color)
                 {
                     SearchTerm = query
                 });
+                newResults.Add(ColorSearchResult.PastePalette(color, query));
             },
             (Error _) => warnings.Add("Invalid color"),
             static (None _) => { }

@@ -9,21 +9,42 @@ namespace PixiEditor.Models.Commands.Search
     {
         private readonly DrawingImage icon;
         private readonly SKColor color;
+        private string text;
+        private bool requiresDocument;
+        private readonly Action<SKColor> target;
 
-        public override string Text => $"Set color to {color}";
+        public override string Text => text;
 
         public override string Description => $"{color} rgba({color.Red}, {color.Green}, {color.Blue}, {color.Alpha})";
 
-        public override bool CanExecute => true;
+        public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
 
         public override ImageSource Icon => icon;
 
-        public override void Execute() => ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = color;
+        public override void Execute() => target(color);
 
-        public ColorSearchResult(SKColor color)
+        private ColorSearchResult(SKColor color, Action<SKColor> target)
         {
             this.color = color;
             icon = GetIcon(color);
+            this.target = target;
+        }
+        
+        public ColorSearchResult(SKColor color) : this(color, x => ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = x)
+        {
+            text = $"Set color to {color}";
+        }
+
+        public static ColorSearchResult PastePalette(SKColor color, string searchTerm = null)
+        {
+            var result = new ColorSearchResult(color, x => ViewModelMain.Current.BitmapManager.ActiveDocument.Palette.Add(x))
+            {
+                SearchTerm = searchTerm
+            };
+            result.text = $"Add color {color} to palette";
+            result.requiresDocument = true;
+            
+            return result;
         }
 
         public static DrawingImage GetIcon(SKColor color)
