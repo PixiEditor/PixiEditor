@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 
@@ -28,20 +29,28 @@ internal class ManipulationOperation
     public void Update(ManipulationDeltaEventArgs args)
     {
         args.Handled = true;
+        double thresholdFactor = 1;
+        var manipulators = args.Manipulators.Select(man => Zoombox.ToVecD(man.GetPosition(owner.mainCanvas))).ToList();
+        if (manipulators.Count >= 2)
+        {
+            double dist = (manipulators[0] - manipulators[1]).Length / 140;
+            thresholdFactor = 1 / dist;
+        }
+
         VecD screenTranslation = new(args.DeltaManipulation.Translation.X, args.DeltaManipulation.Translation.Y);
         VecD screenOrigin = new(args.ManipulationOrigin.X, args.ManipulationOrigin.Y);
         double deltaAngle = args.DeltaManipulation.Rotation / 180 * Math.PI;
         if (owner.FlipX ^ owner.FlipY)
             deltaAngle = -deltaAngle;
-        Manipulate(args.DeltaManipulation.Scale.X, screenTranslation, screenOrigin, deltaAngle);
+        Manipulate(args.DeltaManipulation.Scale.X, screenTranslation, screenOrigin, deltaAngle, thresholdFactor);
     }
 
-    private void Manipulate(double deltaScale, VecD screenTranslation, VecD screenOrigin, double rotation)
+    private void Manipulate(double deltaScale, VecD screenTranslation, VecD screenOrigin, double rotation, double thresholdFactor)
     {
         double newScale = Math.Clamp(owner.Scale * deltaScale, owner.MinScale, Zoombox.MaxScale);
 
         updatedAngle += rotation;
-        if (!startedRotating && Math.Abs(ZoomboxOperationHelper.SubtractOnCircle(initialAngle, updatedAngle)) > 0.35)
+        if (!startedRotating && Math.Abs(ZoomboxOperationHelper.SubtractOnCircle(initialAngle, updatedAngle)) > 0.35 * thresholdFactor)
             startedRotating = true;
 
         double newAngle = startedRotating ? rotationProcess!.UpdateRotation(updatedAngle) : initialAngle;
