@@ -114,6 +114,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             await ImportLospecPalette();
         }
 
+        [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "Open Palette Browser", "Open Palette Browser", CanExecute = "PixiEditor.HasDocument", IconPath = "Globe.png")]
+        public void OpenPalettesBrowser() => PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand, Owner.BitmapManager.ActiveDocument.Palette);
+        
         private async Task ImportLospecPalette()
         {
             var args = StartupArgs.Args;
