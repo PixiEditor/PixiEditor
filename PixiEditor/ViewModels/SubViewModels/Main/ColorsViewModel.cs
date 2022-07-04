@@ -201,7 +201,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public bool CanSelectPaletteColor(int index)
         {
             var document = Owner.BitmapManager.ActiveDocument;
-            return document.Palette is not null && document.Palette.Count > index;
+            return document?.Palette is not null && document.Palette.Count > index;
         }
 
         [Evaluator.Icon("PixiEditor.Colors.FirstPaletteColorIcon")]
@@ -231,7 +231,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             var document = Owner.BitmapManager.ActiveDocument;
 
             SKColor color;
-            if (document.Palette is null || document.Palette.Count <= index)
+            if (document?.Palette is null || document.Palette.Count <= index)
                 color = SKColors.Gray;
             else
                 color = document.Palette[index];
