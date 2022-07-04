@@ -4,20 +4,19 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace PixiEditor.Helpers.Converters
-{
-    public class IndexOfConverter
-        : SingleInstanceConverter<IndexOfConverter>
-    {
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is Layer layer && ViewModelMain.Current.BitmapManager.ActiveDocument != null)
-            {
-                int index = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
-                return index;
-            }
+namespace PixiEditor.Helpers.Converters;
 
-            return Binding.DoNothing;
+public class IndexOfConverter
+    : SingleInstanceConverter<IndexOfConverter>
+{
+    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is Layer layer && ViewModelMain.Current.BitmapManager.ActiveDocument != null)
+        {
+            int index = ViewModelMain.Current.BitmapManager.ActiveDocument.Layers.IndexOf(layer);
+            return index;
         }
+
+        return Binding.DoNothing;
     }
 }

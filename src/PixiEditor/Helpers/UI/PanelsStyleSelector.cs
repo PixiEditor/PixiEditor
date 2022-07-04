@@ -2,19 +2,18 @@
 using System.Windows.Controls;
 using PixiEditor.Models.DataHolders;
 
-namespace PixiEditor.Helpers.UI
-{
-    public class PanelsStyleSelector : StyleSelector
-    {
-        public Style DocumentTabStyle { get; set; }
+namespace PixiEditor.Helpers.UI;
 
-        public override Style SelectStyle(object item, DependencyObject container)
+public class PanelsStyleSelector : StyleSelector
+{
+    public Style DocumentTabStyle { get; set; }
+
+    public override Style SelectStyle(object item, DependencyObject container)
+    {
+        if (item is Document)
         {
-            if (item is Document)
-            {
-                return DocumentTabStyle;
-            }
-            return base.SelectStyle(item, container);
+            return DocumentTabStyle;
         }
+        return base.SelectStyle(item, container);
     }
 }

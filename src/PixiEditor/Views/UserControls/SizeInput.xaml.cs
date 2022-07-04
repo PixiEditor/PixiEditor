@@ -3,134 +3,133 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace PixiEditor.Views
+namespace PixiEditor.Views;
+
+/// <summary>
+///     Interaction logic for SizeInput.xaml.
+/// </summary>
+public partial class SizeInput : UserControl
 {
-    /// <summary>
-    ///     Interaction logic for SizeInput.xaml.
-    /// </summary>
-    public partial class SizeInput : UserControl
+    public static readonly DependencyProperty SizeProperty =
+        DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));
+
+    public static readonly DependencyProperty MaxSizeProperty =
+        DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
+
+    public static readonly DependencyProperty BehaveLikeSmallEmbeddedFieldProperty =
+        DependencyProperty.Register(nameof(BehaveLikeSmallEmbeddedField), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
+
+    public static readonly DependencyProperty UnitProperty =
+        DependencyProperty.Register(nameof(Unit), typeof(SizeUnit), typeof(SizeInput), new PropertyMetadata(SizeUnit.Pixel));
+
+    public Action OnScrollAction
     {
-        public static readonly DependencyProperty SizeProperty =
-            DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));
-
-        public static readonly DependencyProperty MaxSizeProperty =
-            DependencyProperty.Register(nameof(MaxSize), typeof(int), typeof(SizeInput), new PropertyMetadata(int.MaxValue));
-
-        public static readonly DependencyProperty BehaveLikeSmallEmbeddedFieldProperty =
-            DependencyProperty.Register(nameof(BehaveLikeSmallEmbeddedField), typeof(bool), typeof(SizeInput), new PropertyMetadata(true));
-
-        public static readonly DependencyProperty UnitProperty =
-            DependencyProperty.Register(nameof(Unit), typeof(SizeUnit), typeof(SizeInput), new PropertyMetadata(SizeUnit.Pixel));
-
-        public Action OnScrollAction
-        {
-            get { return (Action)GetValue(OnScrollActionProperty); }
-            set { SetValue(OnScrollActionProperty, value); }
-        }
+        get { return (Action)GetValue(OnScrollActionProperty); }
+        set { SetValue(OnScrollActionProperty, value); }
+    }
 
 
-        public static readonly DependencyProperty OnScrollActionProperty =
-            DependencyProperty.Register(nameof(OnScrollAction), typeof(Action), typeof(SizeInput), new PropertyMetadata(null));
+    public static readonly DependencyProperty OnScrollActionProperty =
+        DependencyProperty.Register(nameof(OnScrollAction), typeof(Action), typeof(SizeInput), new PropertyMetadata(null));
 
-        public SizeInput()
-        {
-            InitializeComponent();
-        }
+    public SizeInput()
+    {
+        InitializeComponent();
+    }
 
-        private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-        {
+    private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        textBox.Focus();
+    }
+
+    public int Size
+    {
+        get => (int)GetValue(SizeProperty);
+        set => SetValue(SizeProperty, value);
+    }
+
+    public int MaxSize
+    {
+        get => (int)GetValue(MaxSizeProperty);
+        set => SetValue(MaxSizeProperty, value);
+    }
+
+    public bool BehaveLikeSmallEmbeddedField
+    {
+        get => (bool)GetValue(BehaveLikeSmallEmbeddedFieldProperty);
+        set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
+    }
+
+    public void FocusAndSelect()
+    {
+        textBox.Focus();
+        textBox.SelectAll();
+    }
+
+    private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        Point pos = Mouse.GetPosition(textBox);
+        int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
+        var charRect = textBox.GetRectFromCharacterIndex(charIndex);
+        double middleX = (charRect.Left + charRect.Right) / 2;
+        if (pos.X > middleX)
+            textBox.CaretIndex = charIndex + 1;
+        else
+            textBox.CaretIndex = charIndex;
+        e.Handled = true;
+        if (!textBox.IsFocused)
             textBox.Focus();
-        }
+    }
 
-        public int Size
+    public SizeUnit Unit
+    {
+        get => (SizeUnit)GetValue(UnitProperty);
+        set => SetValue(UnitProperty, value);
+    }
+
+    private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        int newValue = (int)e.NewValue;
+        int maxSize = (int)d.GetValue(MaxSizeProperty);
+
+        if (newValue > maxSize)
         {
-            get => (int)GetValue(SizeProperty);
-            set => SetValue(SizeProperty, value);
+            d.SetValue(SizeProperty, maxSize);
+
+            return;
         }
-
-        public int MaxSize
+        else if (newValue <= 0)
         {
-            get => (int)GetValue(MaxSizeProperty);
-            set => SetValue(MaxSizeProperty, value);
+            d.SetValue(SizeProperty, 1);
+
+            return;
         }
+    }
 
-        public bool BehaveLikeSmallEmbeddedField
+    private void Border_MouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        int step = e.Delta / 100;
+
+        if (Keyboard.IsKeyDown(Key.LeftShift))
         {
-            get => (bool)GetValue(BehaveLikeSmallEmbeddedFieldProperty);
-            set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
+            Size += step * 2;
         }
-
-        public void FocusAndSelect()
+        else if (Keyboard.IsKeyDown(Key.LeftCtrl))
         {
-            textBox.Focus();
-            textBox.SelectAll();
-        }
-
-        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Point pos = Mouse.GetPosition(textBox);
-            int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
-            var charRect = textBox.GetRectFromCharacterIndex(charIndex);
-            double middleX = (charRect.Left + charRect.Right) / 2;
-            if (pos.X > middleX)
-                textBox.CaretIndex = charIndex + 1;
-            else
-                textBox.CaretIndex = charIndex;
-            e.Handled = true;
-            if (!textBox.IsFocused)
-                textBox.Focus();
-        }
-
-        public SizeUnit Unit
-        {
-            get => (SizeUnit)GetValue(UnitProperty);
-            set => SetValue(UnitProperty, value);
-        }
-
-        private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            int newValue = (int)e.NewValue;
-            int maxSize = (int)d.GetValue(MaxSizeProperty);
-
-            if (newValue > maxSize)
+            if (step < 0)
             {
-                d.SetValue(SizeProperty, maxSize);
-
-                return;
-            }
-            else if (newValue <= 0)
-            {
-                d.SetValue(SizeProperty, 1);
-
-                return;
-            }
-        }
-
-        private void Border_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            int step = e.Delta / 100;
-
-            if (Keyboard.IsKeyDown(Key.LeftShift))
-            {
-                Size += step * 2;
-            }
-            else if (Keyboard.IsKeyDown(Key.LeftCtrl))
-            {
-                if (step < 0)
-                {
-                    Size /= 2;
-                }
-                else
-                {
-                    Size *= 2;
-                }
+                Size /= 2;
             }
             else
             {
-                Size += step;
+                Size *= 2;
             }
-
-            OnScrollAction?.Invoke();
         }
+        else
+        {
+            Size += step;
+        }
+
+        OnScrollAction?.Invoke();
     }
 }

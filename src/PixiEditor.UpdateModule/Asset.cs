@@ -1,16 +1,15 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PixiEditor.UpdateModule
+namespace PixiEditor.UpdateModule;
+
+public class Asset
 {
-    public class Asset
-    {
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
 
-        [JsonPropertyName("content_type")]
-        public string ContentType { get; set; }
-    }
+    [JsonPropertyName("content_type")]
+    public string ContentType { get; set; }
 }

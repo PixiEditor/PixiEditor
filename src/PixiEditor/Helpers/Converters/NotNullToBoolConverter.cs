@@ -2,22 +2,21 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace PixiEditor.Helpers.Converters
+namespace PixiEditor.Helpers.Converters;
+
+[ValueConversion(typeof(object), typeof(bool))]
+public class NotNullToBoolConverter
+    : SingleInstanceConverter<NotNullToBoolConverter>
 {
-    [ValueConversion(typeof(object), typeof(bool))]
-    public class NotNullToBoolConverter
-        : SingleInstanceConverter<NotNullToBoolConverter>
+    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            bool result = value is not null;
+        bool result = value is not null;
 
-            return parameter is null ? result : !result;
-        }
+        return parameter is null ? result : !result;
+    }
 
-        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value;
-        }
+    public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value;
     }
 }

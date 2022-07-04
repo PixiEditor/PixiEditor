@@ -2,19 +2,18 @@
 using PixiEditor.Helpers.Converters;
 using Xunit;
 
-namespace PixiEditorTests.Helpers
+namespace PixiEditorTests.Helpers;
+
+public class DoubleToIntConverterTest
 {
-    public class DoubleToIntConverterTest
+    [Fact]
+    public void TestThatConvertConvertsDoubleToInt()
     {
-        [Fact]
-        public void TestThatConvertConvertsDoubleToInt()
-        {
-            DoubleToIntConverter converter = new DoubleToIntConverter();
+        DoubleToIntConverter converter = new DoubleToIntConverter();
 
-            object value = converter.Convert(5.123, typeof(int), null, CultureInfo.CurrentCulture);
+        object value = converter.Convert(5.123, typeof(int), null, CultureInfo.CurrentCulture);
 
-            Assert.IsType<int>(value);
-            Assert.Equal(5, (int)value);
-        }
+        Assert.IsType<int>(value);
+        Assert.Equal(5, (int)value);
     }
 }

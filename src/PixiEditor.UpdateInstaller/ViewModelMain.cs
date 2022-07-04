@@ -2,59 +2,58 @@
 using System.IO;
 using PixiEditor.UpdateModule;
 
-namespace PixiEditor.UpdateInstaller
+namespace PixiEditor.UpdateInstaller;
+
+public class ViewModelMain : ViewModelBase
 {
-    public class ViewModelMain : ViewModelBase
+    private float progressValue;
+
+    public ViewModelMain()
     {
-        private float progressValue;
+        Current = this;
 
-        public ViewModelMain()
-        {
-            Current = this;
-
-            string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
+        string updateDirectory = Path.GetDirectoryName(Extensions.GetExecutablePath());
 
 #if DEBUG
-            updateDirectory = Environment.GetCommandLineArgs()[1];
+        updateDirectory = Environment.GetCommandLineArgs()[1];
 #endif
-            UpdateDirectory = updateDirectory;
-        }
+        UpdateDirectory = updateDirectory;
+    }
 
-        public ViewModelMain Current { get; private set; }
+    public ViewModelMain Current { get; private set; }
 
-        public UpdateModule.UpdateInstaller Installer { get; set; }
+    public UpdateModule.UpdateInstaller Installer { get; set; }
 
-        public string UpdateDirectory { get; private set; }
+    public string UpdateDirectory { get; private set; }
 
-        public float ProgressValue
+    public float ProgressValue
+    {
+        get => progressValue;
+        set
         {
-            get => progressValue;
-            set
-            {
-                progressValue = value;
-                RaisePropertyChanged(nameof(ProgressValue));
-            }
+            progressValue = value;
+            RaisePropertyChanged(nameof(ProgressValue));
         }
+    }
 
-        public void InstallUpdate()
+    public void InstallUpdate()
+    {
+        string[] files = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip");
+
+        if (files.Length > 0)
         {
-            string[] files = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip");
-
-            if (files.Length > 0)
-            {
-                Installer = new UpdateModule.UpdateInstaller(files[0], UpdateDirectory);
-                Installer.ProgressChanged += Installer_ProgressChanged;
-                Installer.Install();
-            }
-            else
-            {
-                ProgressValue = 100;
-            }
+            Installer = new UpdateModule.UpdateInstaller(files[0], UpdateDirectory);
+            Installer.ProgressChanged += Installer_ProgressChanged;
+            Installer.Install();
         }
-
-        private void Installer_ProgressChanged(object sender, UpdateProgressChangedEventArgs e)
+        else
         {
-            ProgressValue = e.Progress;
+            ProgressValue = 100;
         }
+    }
+
+    private void Installer_ProgressChanged(object sender, UpdateProgressChangedEventArgs e)
+    {
+        ProgressValue = e.Progress;
     }
 }

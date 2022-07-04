@@ -1,16 +1,15 @@
 ﻿using PixiEditor.Models.Commands.Evaluators;
 
-namespace PixiEditor.Models.Commands
+namespace PixiEditor.Models.Commands;
+
+public partial class Command
 {
-    public partial class Command
+    public class BasicCommand : Command
     {
-        public class BasicCommand : Command
-        {
-            public object Parameter { get; init; }
+        public object Parameter { get; init; }
 
-            protected override object GetParameter() => Parameter;
+        protected override object GetParameter() => Parameter;
 
-            public BasicCommand(Action<object> onExecute, CanExecuteEvaluator canExecute) : base(onExecute, canExecute) { }
-        }
+        public BasicCommand(Action<object> onExecute, CanExecuteEvaluator canExecute) : base(onExecute, canExecute) { }
     }
 }

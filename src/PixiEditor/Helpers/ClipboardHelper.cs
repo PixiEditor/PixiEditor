@@ -1,45 +1,44 @@
 ﻿using System.Windows;
 
-namespace PixiEditor.Helpers
+namespace PixiEditor.Helpers;
+
+class ClipboardHelper
 {
-    class ClipboardHelper
+    public static bool TrySetDataObject(DataObject obj, bool copy)
     {
-        public static bool TrySetDataObject(DataObject obj, bool copy)
+        try
         {
-            try
-            {
-                Clipboard.SetDataObject(obj, copy);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            Clipboard.SetDataObject(obj, copy);
+            return true;
         }
-
-        public static DataObject TryGetDataObject()
+        catch
         {
-            try
-            {
-                return (DataObject)Clipboard.GetDataObject();
-            }
-            catch
-            {
-                return null;
-            }
+            return false;
         }
+    }
 
-        public static bool TryClear()
+    public static DataObject TryGetDataObject()
+    {
+        try
         {
-            try
-            {
-                Clipboard.Clear();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return (DataObject)Clipboard.GetDataObject();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public static bool TryClear()
+    {
+        try
+        {
+            Clipboard.Clear();
+            return true;
+        }
+        catch
+        {
+            return false;
         }
     }
 }

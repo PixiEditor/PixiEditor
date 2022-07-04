@@ -1,51 +1,50 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace PixiEditor.Views
+namespace PixiEditor.Views;
+
+/// <summary>
+///     Interaction logic for NewFilePopup.xaml.
+/// </summary>
+public partial class NewFilePopup : Window
 {
-    /// <summary>
-    ///     Interaction logic for NewFilePopup.xaml.
-    /// </summary>
-    public partial class NewFilePopup : Window
+    public static readonly DependencyProperty FileHeightProperty =
+        DependencyProperty.Register(nameof(FileHeight), typeof(int), typeof(NewFilePopup));
+
+    public static readonly DependencyProperty FileWidthProperty =
+        DependencyProperty.Register(nameof(FileWidth), typeof(int), typeof(NewFilePopup));
+
+    public NewFilePopup()
     {
-        public static readonly DependencyProperty FileHeightProperty =
-            DependencyProperty.Register(nameof(FileHeight), typeof(int), typeof(NewFilePopup));
+        InitializeComponent();
+        Owner = Application.Current.MainWindow;
+        Loaded += OnDialogShown;
+    }
 
-        public static readonly DependencyProperty FileWidthProperty =
-            DependencyProperty.Register(nameof(FileWidth), typeof(int), typeof(NewFilePopup));
+    private void OnDialogShown(object sender, RoutedEventArgs e)
+    {
+        sizePicker.FocusWidthPicker();
+    }
 
-        public NewFilePopup()
-        {
-            InitializeComponent();
-            Owner = Application.Current.MainWindow;
-            Loaded += OnDialogShown;
-        }
+    public int FileHeight
+    {
+        get => (int)GetValue(FileHeightProperty);
+        set => SetValue(FileHeightProperty, value);
+    }
 
-        private void OnDialogShown(object sender, RoutedEventArgs e)
-        {
-            sizePicker.FocusWidthPicker();
-        }
+    public int FileWidth
+    {
+        get => (int)GetValue(FileWidthProperty);
+        set => SetValue(FileWidthProperty, value);
+    }
 
-        public int FileHeight
-        {
-            get => (int)GetValue(FileHeightProperty);
-            set => SetValue(FileHeightProperty, value);
-        }
+    private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = true;
+    }
 
-        public int FileWidth
-        {
-            get => (int)GetValue(FileWidthProperty);
-            set => SetValue(FileWidthProperty, value);
-        }
-
-        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
-
-        private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.CloseWindow(this);
-        }
+    private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
+    {
+        SystemCommands.CloseWindow(this);
     }
 }

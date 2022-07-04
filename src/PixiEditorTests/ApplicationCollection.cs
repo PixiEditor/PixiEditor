@@ -1,9 +1,8 @@
 ﻿using Xunit;
 
-namespace PixiEditorTests
+namespace PixiEditorTests;
+
+[CollectionDefinition("Application collection")]
+public class ApplicationCollection : ICollectionFixture<ApplicationFixture>
 {
-    [CollectionDefinition("Application collection")]
-    public class ApplicationCollection : ICollectionFixture<ApplicationFixture>
-    {
-    }
 }

@@ -5,124 +5,123 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace PixiEditor.Models.Layers
+namespace PixiEditor.Models.Layers;
+
+public class LayerGroup : NotifyableObject, IHasGuid
 {
-    public class LayerGroup : NotifyableObject, IHasGuid
+    public Guid GuidValue { get; init; }
+
+    private GuidStructureItem structureData;
+    public GuidStructureItem StructureData
     {
-        public Guid GuidValue { get; init; }
+        get => structureData;
+        set => SetProperty(ref structureData, value);
+    }
 
-        private GuidStructureItem structureData;
-        public GuidStructureItem StructureData
+    private ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
+
+    private ObservableCollection<LayerGroup> Subfolders { get; set; } = new ObservableCollection<LayerGroup>();
+
+    private ObservableCollection<IHasGuid> items = null;
+    public ObservableCollection<IHasGuid> Items => items ??= BuildItems();
+
+    private ObservableCollection<IHasGuid> BuildItems()
+    {
+        List<IHasGuid> obj = new(Layers.Reverse());
+        foreach (var subfolder in Subfolders)
         {
-            get => structureData;
-            set => SetProperty(ref structureData, value);
+            obj.Insert(Math.Clamp(subfolder.DisplayIndex - DisplayIndex, 0, obj.Count), subfolder);
         }
 
-        private ObservableCollection<Layer> Layers { get; set; } = new ObservableCollection<Layer>();
+        obj.Reverse();
 
-        private ObservableCollection<LayerGroup> Subfolders { get; set; } = new ObservableCollection<LayerGroup>();
+        return new ObservableCollection<IHasGuid>(obj);
+    }
 
-        private ObservableCollection<IHasGuid> items = null;
-        public ObservableCollection<IHasGuid> Items => items ??= BuildItems();
+    private string name;
 
-        private ObservableCollection<IHasGuid> BuildItems()
+    public string Name
+    {
+        get => name;
+        set
         {
-            List<IHasGuid> obj = new(Layers.Reverse());
-            foreach (var subfolder in Subfolders)
-            {
-                obj.Insert(Math.Clamp(subfolder.DisplayIndex - DisplayIndex, 0, obj.Count), subfolder);
-            }
-
-            obj.Reverse();
-
-            return new ObservableCollection<IHasGuid>(obj);
+            name = value;
+            RaisePropertyChanged(nameof(Name));
         }
+    }
 
-        private string name;
+    private bool isExpanded = false;
 
-        public string Name
+    public bool IsExpanded
+    {
+        get => isExpanded;
+        set
         {
-            get => name;
-            set
-            {
-                name = value;
-                RaisePropertyChanged(nameof(Name));
-            }
+            isExpanded = value;
+            UpdateIsExpandedInDocument(value);
+            RaisePropertyChanged(nameof(IsExpanded));
         }
+    }
 
-        private bool isExpanded = false;
+    private int displayIndex;
 
-        public bool IsExpanded
+    public int DisplayIndex
+    {
+        get => displayIndex;
+        set
         {
-            get => isExpanded;
-            set
-            {
-                isExpanded = value;
-                UpdateIsExpandedInDocument(value);
-                RaisePropertyChanged(nameof(IsExpanded));
-            }
+            displayIndex = value;
+            RaisePropertyChanged(nameof(DisplayIndex));
         }
+    }
 
-        private int displayIndex;
+    private int topIndex;
 
-        public int DisplayIndex
+    public int TopIndex
+    {
+        get => topIndex;
+        set
         {
-            get => displayIndex;
-            set
-            {
-                displayIndex = value;
-                RaisePropertyChanged(nameof(DisplayIndex));
-            }
+            topIndex = value;
+            RaisePropertyChanged(nameof(TopIndex));
         }
+    }
 
-        private int topIndex;
+    private bool isRenaming;
 
-        public int TopIndex
+    public bool IsRenaming
+    {
+        get => isRenaming;
+        set
         {
-            get => topIndex;
-            set
-            {
-                topIndex = value;
-                RaisePropertyChanged(nameof(TopIndex));
-            }
+            SetProperty(ref isRenaming, value);
         }
+    }
 
-        private bool isRenaming;
-
-        public bool IsRenaming
+    private void UpdateIsExpandedInDocument(bool value)
+    {
+        var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(GuidValue);
+        if (folder != null)
         {
-            get => isRenaming;
-            set
-            {
-                SetProperty(ref isRenaming, value);
-            }
+            folder.IsExpanded = value;
         }
+    }
 
-        private void UpdateIsExpandedInDocument(bool value)
-        {
-            var folder = ViewModelMain.Current.BitmapManager.ActiveDocument.LayerStructure.GetGroupByGuid(GuidValue);
-            if (folder != null)
-            {
-                folder.IsExpanded = value;
-            }
-        }
+    public LayerGroup(IEnumerable<Layer> layers, IEnumerable<LayerGroup> subfolders, string name,
+        int displayIndex, int topIndex, GuidStructureItem structureData)
+        : this(layers, subfolders, name, Guid.NewGuid(), displayIndex, topIndex, structureData)
+    {
+    }
 
-        public LayerGroup(IEnumerable<Layer> layers, IEnumerable<LayerGroup> subfolders, string name,
-            int displayIndex, int topIndex, GuidStructureItem structureData)
-            : this(layers, subfolders, name, Guid.NewGuid(), displayIndex, topIndex, structureData)
-        {
-        }
-
-        public LayerGroup(IEnumerable<Layer> layers, IEnumerable<LayerGroup> subfolders, string name,
-            Guid guid, int displayIndex, int topIndex, GuidStructureItem structureData)
-        {
-            Layers = new ObservableCollection<Layer>(layers);
-            Subfolders = new ObservableCollection<LayerGroup>(subfolders);
-            Name = name;
-            GuidValue = guid;
-            DisplayIndex = displayIndex;
-            TopIndex = topIndex;
-            StructureData = structureData;
-        }
+    public LayerGroup(IEnumerable<Layer> layers, IEnumerable<LayerGroup> subfolders, string name,
+        Guid guid, int displayIndex, int topIndex, GuidStructureItem structureData)
+    {
+        Layers = new ObservableCollection<Layer>(layers);
+        Subfolders = new ObservableCollection<LayerGroup>(subfolders);
+        Name = name;
+        GuidValue = guid;
+        DisplayIndex = displayIndex;
+        TopIndex = topIndex;
+        StructureData = structureData;
     }
 }

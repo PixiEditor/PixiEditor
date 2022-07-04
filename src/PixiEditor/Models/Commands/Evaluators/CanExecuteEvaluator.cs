@@ -1,21 +1,20 @@
-﻿namespace PixiEditor.Models.Commands.Evaluators
+﻿namespace PixiEditor.Models.Commands.Evaluators;
+
+public class CanExecuteEvaluator : Evaluator<bool>
 {
-    public class CanExecuteEvaluator : Evaluator<bool>
+    public static CanExecuteEvaluator AlwaysTrue { get; } = new StaticValueEvaluator(true);
+
+    public static CanExecuteEvaluator AlwaysFalse { get; } = new StaticValueEvaluator(false);
+
+    private class StaticValueEvaluator : CanExecuteEvaluator
     {
-        public static CanExecuteEvaluator AlwaysTrue { get; } = new StaticValueEvaluator(true);
+        private readonly bool value;
 
-        public static CanExecuteEvaluator AlwaysFalse { get; } = new StaticValueEvaluator(false);
-
-        private class StaticValueEvaluator : CanExecuteEvaluator
+        public StaticValueEvaluator(bool value)
         {
-            private readonly bool value;
-
-            public StaticValueEvaluator(bool value)
-            {
-                this.value = value;
-            }
-
-            public override bool CallEvaluate(Command command, object parameter) => value;
+            this.value = value;
         }
+
+        public override bool CallEvaluate(Command command, object parameter) => value;
     }
 }

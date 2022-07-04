@@ -1,13 +1,12 @@
 ﻿using System;
 
-namespace PixiEditor.Helpers
+namespace PixiEditor.Helpers;
+
+public class ExecutionTrigger<T>
 {
-    public class ExecutionTrigger<T>
+    public event EventHandler<T> Triggered;
+    public void Execute(object sender, T args)
     {
-        public event EventHandler<T> Triggered;
-        public void Execute(object sender, T args)
-        {
-            Triggered?.Invoke(sender, args);
-        }
+        Triggered?.Invoke(sender, args);
     }
 }

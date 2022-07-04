@@ -3,39 +3,38 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace PixiEditor.Models.Tools.ToolSettings.Settings
+namespace PixiEditor.Models.Tools.ToolSettings.Settings;
+
+public class SizeSetting : Setting<int>
 {
-    public class SizeSetting : Setting<int>
+    public SizeSetting(string name, string label = null)
+        : base(name)
     {
-        public SizeSetting(string name, string label = null)
-            : base(name)
-        {
-            Value = 1;
-            Label = label;
-        }
+        Value = 1;
+        Label = label;
+    }
 
-        private SizeInput GenerateTextBox()
+    private SizeInput GenerateTextBox()
+    {
+        SizeInput tb = new SizeInput
         {
-            SizeInput tb = new SizeInput
-            {
-                Width = 65,
-                Height = 20,
-                VerticalAlignment = VerticalAlignment.Center,
-                MaxSize = 9999,
-                IsEnabled = true
-            };
+            Width = 65,
+            Height = 20,
+            VerticalAlignment = VerticalAlignment.Center,
+            MaxSize = 9999,
+            IsEnabled = true
+        };
 
-            Binding binding = new Binding("Value")
-            {
-                Mode = BindingMode.TwoWay,
-            };
-            tb.SetBinding(SizeInput.SizeProperty, binding);
-            return tb;
-        }
-
-        public override Control GenerateControl()
+        Binding binding = new Binding("Value")
         {
-            return GenerateTextBox();
-        }
+            Mode = BindingMode.TwoWay,
+        };
+        tb.SetBinding(SizeInput.SizeProperty, binding);
+        return tb;
+    }
+
+    public override Control GenerateControl()
+    {
+        return GenerateTextBox();
     }
 }

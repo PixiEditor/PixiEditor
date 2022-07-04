@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditor.Models.Enums
+namespace PixiEditor.Models.Enums;
+
+public enum ColorsNumberMode
 {
-    public enum ColorsNumberMode
-    {
-        Any,
-        Max,
-        Min,
-        Exact
-    }
+    Any,
+    Max,
+    Min,
+    Exact
 }

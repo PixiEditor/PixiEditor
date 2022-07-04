@@ -12,58 +12,57 @@ using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
-namespace PixiEditor.Helpers.Extensions
+namespace PixiEditor.Helpers.Extensions;
+
+public static class ServiceCollectionHelpers
 {
-    public static class ServiceCollectionHelpers
-    {
-        /// <summary>
-        /// Add's all the services required to fully run PixiEditor's MainWindow
-        /// </summary>
-        public static IServiceCollection AddPixiEditor(this IServiceCollection collection) => collection
-                .AddSingleton<ViewModelMain>()
-                .AddSingleton<IPreferences, PreferencesSettings>()
-                // View Models
-                .AddSingleton<StylusViewModel>()
-                .AddSingleton<WindowViewModel>()
-                .AddSingleton<ToolsViewModel>()
-                .AddSingleton<FileViewModel>()
-                .AddSingleton<UpdateViewModel>()
-                .AddSingleton<IoViewModel>()
-                .AddSingleton<LayersViewModel>()
-                .AddSingleton<ClipboardViewModel>()
-                .AddSingleton<UndoViewModel>()
-                .AddSingleton<SelectionViewModel>()
-                .AddSingleton<ViewportViewModel>()
-                .AddSingleton<ColorsViewModel>()
-                .AddSingleton<DocumentViewModel>()
-                .AddSingleton<RegistryViewModel>()
-                .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
-                .AddSingleton<DebugViewModel>()
-                .AddSingleton<SearchViewModel>()
-                // Controllers
-                .AddSingleton<ShortcutController>()
-                .AddSingleton<CommandController>()
-                .AddSingleton<BitmapManager>()
-                // Tools
-                .AddSingleton<Tool, MoveViewportTool>()
-                .AddSingleton<Tool, MoveTool>()
-                .AddSingleton<Tool, PenTool>()
-                .AddSingleton<Tool, SelectTool>()
-                .AddSingleton<Tool, MagicWandTool>()
-                .AddSingleton<Tool, FloodFillTool>()
-                .AddSingleton<Tool, LineTool>()
-                .AddSingleton<Tool, CircleTool>()
-                .AddSingleton<Tool, RectangleTool>()
-                .AddSingleton<Tool, EraserTool>()
-                .AddSingleton<Tool, ColorPickerTool>()
-                .AddSingleton<Tool, BrightnessTool>()
-                .AddSingleton<Tool, ZoomTool>()
-                // Palette Parsers
-                .AddSingleton<PaletteFileParser, JascFileParser>()
-                .AddSingleton<PaletteFileParser, ClsFileParser>()
-                // Palette data sources
-                .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
-                // Other
-                .AddSingleton<DocumentProvider>();
-    }
+    /// <summary>
+    /// Add's all the services required to fully run PixiEditor's MainWindow
+    /// </summary>
+    public static IServiceCollection AddPixiEditor(this IServiceCollection collection) => collection
+        .AddSingleton<ViewModelMain>()
+        .AddSingleton<IPreferences, PreferencesSettings>()
+        // View Models
+        .AddSingleton<StylusViewModel>()
+        .AddSingleton<WindowViewModel>()
+        .AddSingleton<ToolsViewModel>()
+        .AddSingleton<FileViewModel>()
+        .AddSingleton<UpdateViewModel>()
+        .AddSingleton<IoViewModel>()
+        .AddSingleton<LayersViewModel>()
+        .AddSingleton<ClipboardViewModel>()
+        .AddSingleton<UndoViewModel>()
+        .AddSingleton<SelectionViewModel>()
+        .AddSingleton<ViewportViewModel>()
+        .AddSingleton<ColorsViewModel>()
+        .AddSingleton<DocumentViewModel>()
+        .AddSingleton<RegistryViewModel>()
+        .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
+        .AddSingleton<DebugViewModel>()
+        .AddSingleton<SearchViewModel>()
+        // Controllers
+        .AddSingleton<ShortcutController>()
+        .AddSingleton<CommandController>()
+        .AddSingleton<BitmapManager>()
+        // Tools
+        .AddSingleton<Tool, MoveViewportTool>()
+        .AddSingleton<Tool, MoveTool>()
+        .AddSingleton<Tool, PenTool>()
+        .AddSingleton<Tool, SelectTool>()
+        .AddSingleton<Tool, MagicWandTool>()
+        .AddSingleton<Tool, FloodFillTool>()
+        .AddSingleton<Tool, LineTool>()
+        .AddSingleton<Tool, CircleTool>()
+        .AddSingleton<Tool, RectangleTool>()
+        .AddSingleton<Tool, EraserTool>()
+        .AddSingleton<Tool, ColorPickerTool>()
+        .AddSingleton<Tool, BrightnessTool>()
+        .AddSingleton<Tool, ZoomTool>()
+        // Palette Parsers
+        .AddSingleton<PaletteFileParser, JascFileParser>()
+        .AddSingleton<PaletteFileParser, ClsFileParser>()
+        // Palette data sources
+        .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
+        // Other
+        .AddSingleton<DocumentProvider>();
 }

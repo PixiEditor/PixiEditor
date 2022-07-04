@@ -6,105 +6,104 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditor.ViewModels
+namespace PixiEditor.ViewModels;
+
+internal class ImportFilePopupViewModel : ViewModelBase
 {
-    internal class ImportFilePopupViewModel : ViewModelBase
+    private string filePath;
+
+    private int importHeight = 16;
+
+    private int importWidth = 16;
+    public ImportFilePopupViewModel()
     {
-        private string filePath;
+        CloseButtonCommand = new RelayCommand(CloseWindow);
+        DragMoveCommand = new RelayCommand(MoveWindow);
+        OkCommand = new RelayCommand(OkButton);
+    }
 
-        private int importHeight = 16;
+    public RelayCommand CloseButtonCommand { get; set; }
 
-        private int importWidth = 16;
-        public ImportFilePopupViewModel()
+    public RelayCommand DragMoveCommand { get; set; }
+
+    public RelayCommand OkCommand { get; set; }
+
+    public string FilePath
+    {
+        get => filePath;
+        set
         {
-            CloseButtonCommand = new RelayCommand(CloseWindow);
-            DragMoveCommand = new RelayCommand(MoveWindow);
-            OkCommand = new RelayCommand(OkButton);
-        }
-
-        public RelayCommand CloseButtonCommand { get; set; }
-
-        public RelayCommand DragMoveCommand { get; set; }
-
-        public RelayCommand OkCommand { get; set; }
-
-        public string FilePath
-        {
-            get => filePath;
-            set
+            if (filePath != value)
             {
-                if (filePath != value)
-                {
-                    filePath = value;
-                    CheckForPath(value);
-                    RaisePropertyChanged(nameof(FilePath));
-                }
+                filePath = value;
+                CheckForPath(value);
+                RaisePropertyChanged(nameof(FilePath));
             }
         }
+    }
 
-        public int ImportWidth
+    public int ImportWidth
+    {
+        get => importWidth;
+        set
         {
-            get => importWidth;
-            set
+            if (importWidth != value)
             {
-                if (importWidth != value)
-                {
-                    importWidth = value;
-                    RaisePropertyChanged(nameof(ImportWidth));
-                }
+                importWidth = value;
+                RaisePropertyChanged(nameof(ImportWidth));
             }
         }
+    }
 
-        public int ImportHeight
+    public int ImportHeight
+    {
+        get => importHeight;
+        set
         {
-            get => importHeight;
-            set
+            if (importHeight != value)
             {
-                if (importHeight != value)
-                {
-                    importHeight = value;
-                    RaisePropertyChanged(nameof(ImportHeight));
-                }
+                importHeight = value;
+                RaisePropertyChanged(nameof(ImportHeight));
             }
         }
+    }
 
-        private void CheckForPath(string path)
+    private void CheckForPath(string path)
+    {
+        if (SupportedFilesHelper.IsSupportedFile(path))
         {
-            if (SupportedFilesHelper.IsSupportedFile(path))
+            try
             {
-                try
-                {
-                    filePath = path;
-                    var bitmap = new BitmapImage(new Uri(path));
-                    ImportHeight = bitmap.PixelHeight;
-                    ImportWidth = bitmap.PixelWidth;
-                }
-                catch (NotSupportedException)
-                {
-                    throw new CorruptedFileException();
-                }
-                catch (FileFormatException)
-                {
-                    throw new CorruptedFileException();
-                }
+                filePath = path;
+                var bitmap = new BitmapImage(new Uri(path));
+                ImportHeight = bitmap.PixelHeight;
+                ImportWidth = bitmap.PixelWidth;
+            }
+            catch (NotSupportedException)
+            {
+                throw new CorruptedFileException();
+            }
+            catch (FileFormatException)
+            {
+                throw new CorruptedFileException();
             }
         }
+    }
 
-        private void CloseWindow(object parameter)
-        {
-            ((Window)parameter).DialogResult = false;
-            CloseButton(parameter);
-        }
+    private void CloseWindow(object parameter)
+    {
+        ((Window)parameter).DialogResult = false;
+        CloseButton(parameter);
+    }
 
-        private void MoveWindow(object parameter)
-        {
-            DragMove(parameter);
-        }
+    private void MoveWindow(object parameter)
+    {
+        DragMove(parameter);
+    }
 
-        private void OkButton(object parameter)
-        {
-            ((Window)parameter).DialogResult = true;
-            CloseButton(parameter);
-        }
+    private void OkButton(object parameter)
+    {
+        ((Window)parameter).DialogResult = true;
+        CloseButton(parameter);
     }
 }

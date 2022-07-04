@@ -3,60 +3,59 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace PixiEditor.Helpers
+namespace PixiEditor.Helpers;
+
+[Serializable]
+public class NotifyableObject : INotifyPropertyChanged
 {
-    [Serializable]
-    public class NotifyableObject : INotifyPropertyChanged
+    [field: NonSerialized]
+    public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
+
+    public void AddPropertyChangedCallback(string propertyName, Action action)
     {
-        [field: NonSerialized]
-        public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
-
-        public void AddPropertyChangedCallback(string propertyName, Action action)
+        if (action == null)
         {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(propertyName));
-            }
-
-            if (string.IsNullOrWhiteSpace(propertyName))
-            {
-                PropertyChanged += (_, _) => action();
-                return;
-            }
-
-            PropertyChanged += (sender, e) =>
-            {
-                if (e.PropertyName == propertyName)
-                {
-                    action();
-                }
-            };
+            throw new ArgumentNullException(nameof(propertyName));
         }
 
-        protected void RaisePropertyChanged(string property)
+        if (string.IsNullOrWhiteSpace(propertyName))
         {
-            if (property != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
+            PropertyChanged += (_, _) => action();
+            return;
         }
 
-        protected bool SetProperty<T>(ref T backingStore, T value, Action beforeChange = null, [CallerMemberName] string propertyName = "") =>
-            SetProperty(ref backingStore, value, out _, beforeChange, propertyName);
-
-        protected bool SetProperty<T>(ref T backingStore, T value, out T oldValue, Action beforeChange = null, [CallerMemberName] string propertyName = "")
+        PropertyChanged += (sender, e) =>
         {
-            if (EqualityComparer<T>.Default.Equals(backingStore, value))
+            if (e.PropertyName == propertyName)
             {
-                oldValue = backingStore;
-                return false;
+                action();
             }
+        };
+    }
 
-            beforeChange?.Invoke();
+    protected void RaisePropertyChanged(string property)
+    {
+        if (property != null)
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(property));
+        }
+    }
+
+    protected bool SetProperty<T>(ref T backingStore, T value, Action beforeChange = null, [CallerMemberName] string propertyName = "") =>
+        SetProperty(ref backingStore, value, out _, beforeChange, propertyName);
+
+    protected bool SetProperty<T>(ref T backingStore, T value, out T oldValue, Action beforeChange = null, [CallerMemberName] string propertyName = "")
+    {
+        if (EqualityComparer<T>.Default.Equals(backingStore, value))
+        {
             oldValue = backingStore;
-            backingStore = value;
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            return true;
+            return false;
         }
+
+        beforeChange?.Invoke();
+        oldValue = backingStore;
+        backingStore = value;
+        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        return true;
     }
 }

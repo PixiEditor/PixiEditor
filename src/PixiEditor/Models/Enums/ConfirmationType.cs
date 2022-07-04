@@ -1,9 +1,8 @@
-﻿namespace PixiEditor.Models.Enums
+﻿namespace PixiEditor.Models.Enums;
+
+public enum ConfirmationType
 {
-    public enum ConfirmationType
-    {
-        Yes,
-        No,
-        Canceled
-    }
+    Yes,
+    No,
+    Canceled
 }

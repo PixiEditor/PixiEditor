@@ -4,137 +4,136 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
-namespace PixiEditor.Models.Controllers
+namespace PixiEditor.Models.Controllers;
+
+public class ToolSessionController : ICanvasInputTarget
 {
-    public class ToolSessionController : ICanvasInputTarget
+    public event EventHandler<MouseMovementEventArgs> PixelMousePositionChanged;
+    public event EventHandler<(double, double)> PreciseMousePositionChanged;
+    public event EventHandler<(Key, KeyStates)> KeyStateChanged;
+
+    public event EventHandler<ToolSession> SessionStarted;
+    public event EventHandler<ToolSession> SessionEnded;
+
+    public MouseButtonState LeftMouseState { get; private set; }
+
+    public bool IsShiftDown => keyboardState.ContainsKey(Key.LeftShift) ? keyboardState[Key.LeftShift] == KeyStates.Down : false;
+    public bool IsCtrlDown => keyboardState.ContainsKey(Key.LeftCtrl) ? keyboardState[Key.LeftCtrl] == KeyStates.Down : false;
+    public bool IsAltDown => keyboardState.ContainsKey(Key.LeftAlt) ? keyboardState[Key.LeftAlt] == KeyStates.Down : false;
+
+    public Coordinates LastPixelPosition => new(lastPixelX, lastPixelY);
+
+    private int lastPixelX;
+    private int lastPixelY;
+
+    private Dictionary<Key, KeyStates> keyboardState = new();
+    private Tool currentTool = null;
+    private ToolSession currentSession = null;
+
+    private void TryStartToolSession(Tool tool, double mouseXOnCanvas, double mouseYOnCanvas)
     {
-        public event EventHandler<MouseMovementEventArgs> PixelMousePositionChanged;
-        public event EventHandler<(double, double)> PreciseMousePositionChanged;
-        public event EventHandler<(Key, KeyStates)> KeyStateChanged;
+        if (currentSession != null)
+            return;
+        currentSession = new(tool, mouseXOnCanvas, mouseYOnCanvas, keyboardState);
+        SessionStarted?.Invoke(this, currentSession);
+    }
 
-        public event EventHandler<ToolSession> SessionStarted;
-        public event EventHandler<ToolSession> SessionEnded;
+    private void TryStopToolSession()
+    {
+        if (currentSession == null)
+            return;
+        currentSession.EndSession(keyboardState);
+        SessionEnded?.Invoke(this, currentSession);
+        currentSession = null;
+    }
 
-        public MouseButtonState LeftMouseState { get; private set; }
+    public void OnKeyDown(Key key)
+    {
+        key = ConvertRightKeys(key);
+        UpdateKeyState(key, KeyStates.Down);
+        currentSession?.OnKeyDown(key);
+        KeyStateChanged?.Invoke(this, (key, KeyStates.Down));
+    }
 
-        public bool IsShiftDown => keyboardState.ContainsKey(Key.LeftShift) ? keyboardState[Key.LeftShift] == KeyStates.Down : false;
-        public bool IsCtrlDown => keyboardState.ContainsKey(Key.LeftCtrl) ? keyboardState[Key.LeftCtrl] == KeyStates.Down : false;
-        public bool IsAltDown => keyboardState.ContainsKey(Key.LeftAlt) ? keyboardState[Key.LeftAlt] == KeyStates.Down : false;
+    public void OnKeyUp(Key key)
+    {
+        key = ConvertRightKeys(key);
+        UpdateKeyState(key, KeyStates.None);
+        currentSession?.OnKeyUp(key);
+        KeyStateChanged?.Invoke(this, (key, KeyStates.None));
+    }
 
-        public Coordinates LastPixelPosition => new(lastPixelX, lastPixelY);
+    private void UpdateKeyState(Key key, KeyStates state)
+    {
+        key = ConvertRightKeys(key);
+        if (!keyboardState.ContainsKey(key))
+            keyboardState.Add(key, state);
+        else
+            keyboardState[key] = state;
+    }
 
-        private int lastPixelX;
-        private int lastPixelY;
+    private Key ConvertRightKeys(Key key)
+    {
+        if (key == Key.RightAlt)
+            return Key.LeftAlt;
+        if (key == Key.RightCtrl)
+            return Key.LeftCtrl;
+        if (key == Key.RightShift)
+            return Key.LeftShift;
+        return key;
+    }
 
-        private Dictionary<Key, KeyStates> keyboardState = new();
-        private Tool currentTool = null;
-        private ToolSession currentSession = null;
+    public void ForceStopActiveSessionIfAny() => TryStopToolSession();
 
-        private void TryStartToolSession(Tool tool, double mouseXOnCanvas, double mouseYOnCanvas)
+    public void OnToolChange(Tool tool)
+    {
+        currentTool = tool;
+        TryStopToolSession();
+    }
+
+    public void OnMouseMove(double newCanvasX, double newCanvasY)
+    {
+        //update internal state
+
+        int newX = (int)Math.Floor(newCanvasX);
+        int newY = (int)Math.Floor(newCanvasY);
+        bool pixelPosChanged = false;
+        if (lastPixelX != newX || lastPixelY != newY)
         {
-            if (currentSession != null)
-                return;
-            currentSession = new(tool, mouseXOnCanvas, mouseYOnCanvas, keyboardState);
-            SessionStarted?.Invoke(this, currentSession);
+            lastPixelX = newX;
+            lastPixelY = newY;
+            pixelPosChanged = true;
         }
 
-        private void TryStopToolSession()
-        {
-            if (currentSession == null)
-                return;
-            currentSession.EndSession(keyboardState);
-            SessionEnded?.Invoke(this, currentSession);
-            currentSession = null;
-        }
 
-        public void OnKeyDown(Key key)
-        {
-            key = ConvertRightKeys(key);
-            UpdateKeyState(key, KeyStates.Down);
-            currentSession?.OnKeyDown(key);
-            KeyStateChanged?.Invoke(this, (key, KeyStates.Down));
-        }
+        //call session events
+        if (currentSession != null && pixelPosChanged)
+            currentSession.OnPixelPositionChange(new(newX, newY));
 
-        public void OnKeyUp(Key key)
-        {
-            key = ConvertRightKeys(key);
-            UpdateKeyState(key, KeyStates.None);
-            currentSession?.OnKeyUp(key);
-            KeyStateChanged?.Invoke(this, (key, KeyStates.None));
-        }
+        //call internal events
+        PreciseMousePositionChanged?.Invoke(this, (newCanvasX, newCanvasY));
+        if (pixelPosChanged)
+            PixelMousePositionChanged?.Invoke(this, new MouseMovementEventArgs(new Coordinates(newX, newY)));
+    }
 
-        private void UpdateKeyState(Key key, KeyStates state)
-        {
-            key = ConvertRightKeys(key);
-            if (!keyboardState.ContainsKey(key))
-                keyboardState.Add(key, state);
-            else
-                keyboardState[key] = state;
-        }
+    public void OnLeftMouseButtonDown(double canvasPosX, double canvasPosY)
+    {
+        //update internal state
+        LeftMouseState = MouseButtonState.Pressed;
 
-        private Key ConvertRightKeys(Key key)
-        {
-            if (key == Key.RightAlt)
-                return Key.LeftAlt;
-            if (key == Key.RightCtrl)
-                return Key.LeftCtrl;
-            if (key == Key.RightShift)
-                return Key.LeftShift;
-            return key;
-        }
+        //call session events
 
-        public void ForceStopActiveSessionIfAny() => TryStopToolSession();
+        if (currentTool == null)
+            throw new Exception("Current tool must not be null here");
+        TryStartToolSession(currentTool, canvasPosX, canvasPosY);
+    }
 
-        public void OnToolChange(Tool tool)
-        {
-            currentTool = tool;
-            TryStopToolSession();
-        }
+    public void OnLeftMouseButtonUp()
+    {
+        //update internal state
+        LeftMouseState = MouseButtonState.Released;
 
-        public void OnMouseMove(double newCanvasX, double newCanvasY)
-        {
-            //update internal state
-
-            int newX = (int)Math.Floor(newCanvasX);
-            int newY = (int)Math.Floor(newCanvasY);
-            bool pixelPosChanged = false;
-            if (lastPixelX != newX || lastPixelY != newY)
-            {
-                lastPixelX = newX;
-                lastPixelY = newY;
-                pixelPosChanged = true;
-            }
-
-
-            //call session events
-            if (currentSession != null && pixelPosChanged)
-                currentSession.OnPixelPositionChange(new(newX, newY));
-
-            //call internal events
-            PreciseMousePositionChanged?.Invoke(this, (newCanvasX, newCanvasY));
-            if (pixelPosChanged)
-                PixelMousePositionChanged?.Invoke(this, new MouseMovementEventArgs(new Coordinates(newX, newY)));
-        }
-
-        public void OnLeftMouseButtonDown(double canvasPosX, double canvasPosY)
-        {
-            //update internal state
-            LeftMouseState = MouseButtonState.Pressed;
-
-            //call session events
-
-            if (currentTool == null)
-                throw new Exception("Current tool must not be null here");
-            TryStartToolSession(currentTool, canvasPosX, canvasPosY);
-        }
-
-        public void OnLeftMouseButtonUp()
-        {
-            //update internal state
-            LeftMouseState = MouseButtonState.Released;
-
-            //call session events
-            TryStopToolSession();
-        }
+        //call session events
+        TryStopToolSession();
     }
 }

@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel;
 
-namespace PixiEditor.UpdateInstaller
-{
-    public class ViewModelBase : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
+namespace PixiEditor.UpdateInstaller;
 
-        protected void RaisePropertyChanged(string property)
+public class ViewModelBase : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
+
+    protected void RaisePropertyChanged(string property)
+    {
+        if (property != null)
         {
-            if (property != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
+            PropertyChanged(this, new PropertyChangedEventArgs(property));
         }
     }
 }

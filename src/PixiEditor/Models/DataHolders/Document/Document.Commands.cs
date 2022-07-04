@@ -1,17 +1,16 @@
 ﻿using PixiEditor.Helpers;
 
-namespace PixiEditor.Models.DataHolders
+namespace PixiEditor.Models.DataHolders;
+
+public partial class Document
 {
-    public partial class Document
+    public RelayCommand RequestCloseDocumentCommand { get; set; }
+
+    public RelayCommand SetAsActiveOnClickCommand { get; set; }
+
+    private void SetRelayCommands()
     {
-        public RelayCommand RequestCloseDocumentCommand { get; set; }
-
-        public RelayCommand SetAsActiveOnClickCommand { get; set; }
-
-        private void SetRelayCommands()
-        {
-            RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
-            SetAsActiveOnClickCommand = new RelayCommand(SetAsActiveOnClick);
-        }
+        RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
+        SetAsActiveOnClickCommand = new RelayCommand(SetAsActiveOnClick);
     }
 }

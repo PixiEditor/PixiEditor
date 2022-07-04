@@ -4,71 +4,70 @@ using System.Text.RegularExpressions;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace PixiEditor.Models.Commands.Search
+namespace PixiEditor.Models.Commands.Search;
+
+public abstract class SearchResult : NotifyableObject
 {
-    public abstract class SearchResult : NotifyableObject
+    private bool isSelected;
+    private bool isMouseSelected;
+
+    public string SearchTerm { get; init; }
+
+    public virtual Inline[] TextBlockContent => GetInlines().ToArray();
+
+    public Match Match { get; init; }
+
+    public abstract string Text { get; }
+
+    public virtual string Description { get; }
+
+    public abstract bool CanExecute { get; }
+
+    public abstract ImageSource Icon { get; }
+
+    public bool IsSelected
     {
-        private bool isSelected;
-        private bool isMouseSelected;
+        get => isSelected;
+        set => SetProperty(ref isSelected, value);
+    }
 
-        public string SearchTerm { get; init; }
+    public bool IsMouseSelected
+    {
+        get => isMouseSelected;
+        set => SetProperty(ref isMouseSelected, value);
+    }
 
-        public virtual Inline[] TextBlockContent => GetInlines().ToArray();
 
-        public Match Match { get; init; }
+    public abstract void Execute();
 
-        public abstract string Text { get; }
+    public virtual KeyCombination Shortcut { get; }
 
-        public virtual string Description { get; }
+    public RelayCommand ExecuteCommand { get; }
 
-        public abstract bool CanExecute { get; }
+    public SearchResult()
+    {
+        ExecuteCommand = new(_ => Execute(), _ => CanExecute);
+    }
 
-        public abstract ImageSource Icon { get; }
-
-        public bool IsSelected
+    private IEnumerable<Inline> GetInlines()
+    {
+        if (Match == null)
         {
-            get => isSelected;
-            set => SetProperty(ref isSelected, value);
+            yield return new Run(Text);
+            yield break;
         }
 
-        public bool IsMouseSelected
+        foreach (Group group in Match.Groups.Values.Skip(1))
         {
-            get => isMouseSelected;
-            set => SetProperty(ref isMouseSelected, value);
-        }
+            var run = new Run(group.Value);
 
-
-        public abstract void Execute();
-
-        public virtual KeyCombination Shortcut { get; }
-
-        public RelayCommand ExecuteCommand { get; }
-
-        public SearchResult()
-        {
-            ExecuteCommand = new(_ => Execute(), _ => CanExecute);
-        }
-
-        private IEnumerable<Inline> GetInlines()
-        {
-            if (Match == null)
+            if (group.Value.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase))
             {
-                yield return new Run(Text);
-                yield break;
+                yield return new Bold(run);
             }
-
-            foreach (Group group in Match.Groups.Values.Skip(1))
+            else
             {
-                var run = new Run(group.Value);
-
-                if (group.Value.Equals(SearchTerm, StringComparison.OrdinalIgnoreCase))
-                {
-                    yield return new Bold(run);
-                }
-                else
-                {
-                    yield return run;
-                }
+                yield return run;
             }
         }
     }

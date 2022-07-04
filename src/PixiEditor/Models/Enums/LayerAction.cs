@@ -1,10 +1,9 @@
-﻿namespace PixiEditor.Models.Enums
+﻿namespace PixiEditor.Models.Enums;
+
+public enum LayerAction
 {
-    public enum LayerAction
-    {
-        Add,
-        Remove,
-        Move,
-        SetActive
-    }
+    Add,
+    Remove,
+    Move,
+    SetActive
 }

@@ -4,43 +4,42 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace PixiEditor.Models.Tools.ToolSettings.Settings
+namespace PixiEditor.Models.Tools.ToolSettings.Settings;
+
+public class BoolSetting : Setting<bool>
 {
-    public class BoolSetting : Setting<bool>
+    public BoolSetting(string name, string label = "")
+        : this(name, false, label)
     {
-        public BoolSetting(string name, string label = "")
-            : this(name, false, label)
+    }
+
+    public BoolSetting(string name, bool isChecked, string label = "")
+        : base(name)
+    {
+        Label = label;
+        Value = isChecked;
+    }
+
+    private Control GenerateCheckBox()
+    {
+        CheckBox checkBox = new CheckBox
         {
-        }
+            IsChecked = Value,
+            VerticalAlignment = VerticalAlignment.Center
+        };
 
-        public BoolSetting(string name, bool isChecked, string label = "")
-            : base(name)
+        Binding binding = new Binding("Value")
         {
-            Label = label;
-            Value = isChecked;
-        }
+            Mode = BindingMode.TwoWay
+        };
 
-        private Control GenerateCheckBox()
-        {
-            CheckBox checkBox = new CheckBox
-            {
-                IsChecked = Value,
-                VerticalAlignment = VerticalAlignment.Center
-            };
+        checkBox.SetBinding(ToggleButton.IsCheckedProperty, binding);
 
-            Binding binding = new Binding("Value")
-            {
-                Mode = BindingMode.TwoWay
-            };
+        return checkBox;
+    }
 
-            checkBox.SetBinding(ToggleButton.IsCheckedProperty, binding);
-
-            return checkBox;
-        }
-
-        public override Control GenerateControl()
-        {
-            return GenerateCheckBox();
-        }
+    public override Control GenerateControl()
+    {
+        return GenerateCheckBox();
     }
 }

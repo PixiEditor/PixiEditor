@@ -2,76 +2,75 @@
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using Xunit;
 
-namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests
+namespace PixiEditorTests.ModelsTests.ToolsTests.ToolbarTests;
+
+[Collection("Application collection")]
+public class ToolbarBaseTests
 {
-    [Collection("Application collection")]
-    public class ToolbarBaseTests
+    [StaFact]
+    public void TestThatGetSettingReturnsCorrectSetting()
     {
-        [StaFact]
-        public void TestThatGetSettingReturnsCorrectSetting()
-        {
-            BasicToolbar toolbar = new BasicToolbar();
-            string settingName = "ToolSize";
+        BasicToolbar toolbar = new BasicToolbar();
+        string settingName = "ToolSize";
 
-            Setting setting = toolbar.GetSetting(settingName);
+        Setting setting = toolbar.GetSetting(settingName);
 
-            Assert.NotNull(setting);
-            Assert.Equal(settingName, setting.Name);
-        }
+        Assert.NotNull(setting);
+        Assert.Equal(settingName, setting.Name);
+    }
 
-        [StaFact]
-        public void TestThatGenericGetSettingReturnsSettingWithCorrectType()
-        {
-            const string settingName = "test";
-            const bool settingValue = true;
-            Setting<bool> expected = new BoolSetting(settingName, settingValue);
+    [StaFact]
+    public void TestThatGenericGetSettingReturnsSettingWithCorrectType()
+    {
+        const string settingName = "test";
+        const bool settingValue = true;
+        Setting<bool> expected = new BoolSetting(settingName, settingValue);
 
-            BasicToolbar toolbar = new BasicToolbar();
-            toolbar.Settings.Add(expected);
+        BasicToolbar toolbar = new BasicToolbar();
+        toolbar.Settings.Add(expected);
 
-            BoolSetting actual = toolbar.GetSetting<BoolSetting>(settingName);
+        BoolSetting actual = toolbar.GetSetting<BoolSetting>(settingName);
 
-            Assert.Equal(expected.Value, actual.Value);
-        }
+        Assert.Equal(expected.Value, actual.Value);
+    }
 
-        [StaFact]
-        public void TestThatGenericGetSettingReturnsNullWhenSettingIsNotFound()
-        {
-            BasicToolbar toolbar = new BasicToolbar();
+    [StaFact]
+    public void TestThatGenericGetSettingReturnsNullWhenSettingIsNotFound()
+    {
+        BasicToolbar toolbar = new BasicToolbar();
 
-            BoolSetting actual = toolbar.GetSetting<BoolSetting>("invalid");
+        BoolSetting actual = toolbar.GetSetting<BoolSetting>("invalid");
 
-            Assert.Null(actual);
-        }
+        Assert.Null(actual);
+    }
 
-        [StaFact]
-        public void TestThatGenericGetSettingReturnsNullWhenSettingHasWrongType()
-        {
-            const string settingName = "test";
-            BasicToolbar toolbar = new BasicToolbar();
-            toolbar.Settings.Add(new BoolSetting(settingName));
+    [StaFact]
+    public void TestThatGenericGetSettingReturnsNullWhenSettingHasWrongType()
+    {
+        const string settingName = "test";
+        BasicToolbar toolbar = new BasicToolbar();
+        toolbar.Settings.Add(new BoolSetting(settingName));
 
-            SizeSetting actual = toolbar.GetSetting<SizeSetting>(settingName);
+        SizeSetting actual = toolbar.GetSetting<SizeSetting>(settingName);
 
-            Assert.Null(actual);
-        }
+        Assert.Null(actual);
+    }
 
-        [StaFact]
-        public void TestThatSaveToolbarSettingsSavesSettingAndLoadsItIntoNewToolbar()
-        {
-            BasicToolbar toolbar = new BasicToolbar();
+    [StaFact]
+    public void TestThatSaveToolbarSettingsSavesSettingAndLoadsItIntoNewToolbar()
+    {
+        BasicToolbar toolbar = new BasicToolbar();
 
-            toolbar.GetSetting<SizeSetting>("ToolSize").Value = 5;
+        toolbar.GetSetting<SizeSetting>("ToolSize").Value = 5;
 
-            toolbar.SaveToolbarSettings();
+        toolbar.SaveToolbarSettings();
 
-            BasicShapeToolbar shapeToolbar = new BasicShapeToolbar();
+        BasicShapeToolbar shapeToolbar = new BasicShapeToolbar();
 
-            Assert.NotEqual(5, shapeToolbar.GetSetting<SizeSetting>("ToolSize").Value);
+        Assert.NotEqual(5, shapeToolbar.GetSetting<SizeSetting>("ToolSize").Value);
 
-            shapeToolbar.LoadSharedSettings();
+        shapeToolbar.LoadSharedSettings();
 
-            Assert.Equal(5, shapeToolbar.GetSetting<SizeSetting>("ToolSize").Value);
-        }
+        Assert.Equal(5, shapeToolbar.GetSetting<SizeSetting>("ToolSize").Value);
     }
 }

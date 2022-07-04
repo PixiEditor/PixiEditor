@@ -1,22 +1,21 @@
 ﻿using PixiEditor.Models.DataHolders;
 using System.Windows.Media;
 
-namespace PixiEditor.Models.Commands.Search
+namespace PixiEditor.Models.Commands.Search;
+
+public class CommandSearchResult : SearchResult
 {
-    public class CommandSearchResult : SearchResult
-    {
-        public Command Command { get; }
+    public Command Command { get; }
 
-        public override string Text => Command.Description;
+    public override string Text => Command.Description;
 
-        public override bool CanExecute => Command.CanExecute();
+    public override bool CanExecute => Command.CanExecute();
 
-        public override ImageSource Icon => Command.IconEvaluator.CallEvaluate(Command, this);
+    public override ImageSource Icon => Command.IconEvaluator.CallEvaluate(Command, this);
 
-        public override KeyCombination Shortcut => Command.Shortcut;
+    public override KeyCombination Shortcut => Command.Shortcut;
 
-        public CommandSearchResult(Command command) => Command = command;
+    public CommandSearchResult(Command command) => Command = command;
 
-        public override void Execute() => Command.Execute();
-    }
+    public override void Execute() => Command.Execute();
 }

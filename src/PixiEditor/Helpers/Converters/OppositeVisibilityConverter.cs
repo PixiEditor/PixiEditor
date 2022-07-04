@@ -3,29 +3,28 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace PixiEditor.Helpers.Converters
+namespace PixiEditor.Helpers.Converters;
+
+public class OppositeVisibilityConverter
+    : SingleInstanceConverter<OppositeVisibilityConverter>
 {
-    public class OppositeVisibilityConverter
-        : SingleInstanceConverter<OppositeVisibilityConverter>
+    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        if (value.ToString().ToLower() == "visible")
         {
-            if (value.ToString().ToLower() == "visible")
-            {
-                return Visibility.Hidden;
-            }
-
-            return Visibility.Visible;
+            return Visibility.Hidden;
         }
 
-        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is Visibility visibility)
-            {
-                return visibility == Visibility.Visible ? "Hidden" : "Visible";
-            }
+        return Visibility.Visible;
+    }
 
-            return null;
+    public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is Visibility visibility)
+        {
+            return visibility == Visibility.Visible ? "Hidden" : "Visible";
         }
+
+        return null;
     }
 }

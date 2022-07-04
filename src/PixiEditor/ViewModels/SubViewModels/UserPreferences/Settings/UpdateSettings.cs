@@ -2,38 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
+namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
+
+public class UpdateSettings : SettingsGroup
 {
-    public class UpdateSettings : SettingsGroup
+    private bool checkUpdatesOnStartup = GetPreference("CheckUpdatesOnStartup", true);
+
+    public bool CheckUpdatesOnStartup
     {
-        private bool checkUpdatesOnStartup = GetPreference("CheckUpdatesOnStartup", true);
-
-        public bool CheckUpdatesOnStartup
+        get => checkUpdatesOnStartup;
+        set
         {
-            get => checkUpdatesOnStartup;
-            set
-            {
-                checkUpdatesOnStartup = value;
-                string name = nameof(CheckUpdatesOnStartup);
-                RaiseAndUpdatePreference(name, value);
-            }
+            checkUpdatesOnStartup = value;
+            string name = nameof(CheckUpdatesOnStartup);
+            RaiseAndUpdatePreference(name, value);
         }
+    }
 
-        private string updateChannelName = GetPreference("UpdateChannel", "Release");
+    private string updateChannelName = GetPreference("UpdateChannel", "Release");
 
-        public string UpdateChannelName
+    public string UpdateChannelName
+    {
+        get => updateChannelName;
+        set
         {
-            get => updateChannelName;
-            set
-            {
-                updateChannelName = value;
-                RaiseAndUpdatePreference("UpdateChannel", value);
-            }
+            updateChannelName = value;
+            RaiseAndUpdatePreference("UpdateChannel", value);
         }
+    }
 
-        public IEnumerable<string> UpdateChannels
-        {
-            get => ViewModelMain.Current.UpdateSubViewModel.UpdateChannels.Select(x => x.Name);
-        }
+    public IEnumerable<string> UpdateChannels
+    {
+        get => ViewModelMain.Current.UpdateSubViewModel.UpdateChannels.Select(x => x.Name);
     }
 }

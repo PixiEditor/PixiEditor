@@ -6,75 +6,74 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace PixiEditorTests.ModelsTests.DataHoldersTests
+namespace PixiEditorTests.ModelsTests.DataHoldersTests;
+
+public class SelectionTests
 {
-    public class SelectionTests
+    [Fact]
+    public void TestThatSetSelectionNewSetsCorrectSelection()
     {
-        [Fact]
-        public void TestThatSetSelectionNewSetsCorrectSelection()
-        {
-            Selection selection = new Selection(Array.Empty<Coordinates>(), new(10, 10));
-            Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
+        Selection selection = new Selection(Array.Empty<Coordinates>(), new(10, 10));
+        Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
 
-            selection.SetSelection(points, SelectionType.New);
-            selection.SetSelection(points, SelectionType.New); // Doing it twice, to check if it sets every time properly
+        selection.SetSelection(points, SelectionType.New);
+        selection.SetSelection(points, SelectionType.New); // Doing it twice, to check if it sets every time properly
 
-            Assert.Equal(points.Length, selection.SelectedPoints.Count);
-        }
+        Assert.Equal(points.Length, selection.SelectedPoints.Count);
+    }
 
-        [Fact]
-        public void TestThatSetSelectionAddSetsCorrectSelection()
-        {
-            Selection selection = new Selection(Array.Empty<Coordinates>(), new PixelSize(10, 10));
-            Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
-            Coordinates[] points2 = { new Coordinates(2, 4), new Coordinates(5, 7) };
+    [Fact]
+    public void TestThatSetSelectionAddSetsCorrectSelection()
+    {
+        Selection selection = new Selection(Array.Empty<Coordinates>(), new PixelSize(10, 10));
+        Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
+        Coordinates[] points2 = { new Coordinates(2, 4), new Coordinates(5, 7) };
 
-            selection.SetSelection(points, SelectionType.Add);
-            selection.SetSelection(points2, SelectionType.Add); // Doing it twice, to check if it sets every time properly
+        selection.SetSelection(points, SelectionType.Add);
+        selection.SetSelection(points2, SelectionType.Add); // Doing it twice, to check if it sets every time properly
 
-            Assert.Equal(points.Length + points2.Length, selection.SelectedPoints.Count);
-        }
+        Assert.Equal(points.Length + points2.Length, selection.SelectedPoints.Count);
+    }
 
-        [Fact]
-        public void TestThatSetSelectionSubtractSetsCorrectSelection()
-        {
-            Selection selection = new Selection(Array.Empty<Coordinates>(), new PixelSize(10, 10));
-            Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
-            Coordinates[] points2 = { new Coordinates(1, 1) };
+    [Fact]
+    public void TestThatSetSelectionSubtractSetsCorrectSelection()
+    {
+        Selection selection = new Selection(Array.Empty<Coordinates>(), new PixelSize(10, 10));
+        Coordinates[] points = { new Coordinates(0, 0), new Coordinates(1, 1) };
+        Coordinates[] points2 = { new Coordinates(1, 1) };
 
-            selection.SetSelection(points, SelectionType.Add);
-            selection.SetSelection(points2, SelectionType.Subtract); // Doing it twice, to check if it sets every time properly
+        selection.SetSelection(points, SelectionType.Add);
+        selection.SetSelection(points2, SelectionType.Subtract); // Doing it twice, to check if it sets every time properly
 
-            Assert.Single(selection.SelectedPoints);
-        }
+        Assert.Single(selection.SelectedPoints);
+    }
 
-        [Fact]
-        public void TestClearWorks()
-        {
-            Selection selection = new Selection(new[] { new Coordinates(0, 0), new Coordinates(5, 7) }, new PixelSize(10, 10));
-            selection.Clear();
+    [Fact]
+    public void TestClearWorks()
+    {
+        Selection selection = new Selection(new[] { new Coordinates(0, 0), new Coordinates(5, 7) }, new PixelSize(10, 10));
+        selection.Clear();
 
-            Assert.Empty(selection.SelectedPoints);
-            Assert.Equal(1, selection.SelectionLayer.Width);
-            Assert.Equal(1, selection.SelectionLayer.Height);
-        }
+        Assert.Empty(selection.SelectedPoints);
+        Assert.Equal(1, selection.SelectionLayer.Width);
+        Assert.Equal(1, selection.SelectionLayer.Height);
+    }
 
-        [Fact]
-        public void TestThatUndoWorks()
-        {
-            using Document document = new Document(10, 10);
+    [Fact]
+    public void TestThatUndoWorks()
+    {
+        using Document document = new Document(10, 10);
 
-            IEnumerable<Coordinates> oldSelection = new List<Coordinates>(document.ActiveSelection.SelectedPoints);
+        IEnumerable<Coordinates> oldSelection = new List<Coordinates>(document.ActiveSelection.SelectedPoints);
 
-            document.ActiveSelection.SetSelection(new[] { new Coordinates(0, 0), new Coordinates(5, 7) }, SelectionType.Add);
+        document.ActiveSelection.SetSelection(new[] { new Coordinates(0, 0), new Coordinates(5, 7) }, SelectionType.Add);
 
-            Assert.NotEqual(oldSelection, document.ActiveSelection.SelectedPoints);
+        Assert.NotEqual(oldSelection, document.ActiveSelection.SelectedPoints);
 
-            SelectionHelpers.AddSelectionUndoStep(document, oldSelection, SelectionType.Add);
+        SelectionHelpers.AddSelectionUndoStep(document, oldSelection, SelectionType.Add);
 
-            document.UndoManager.Undo();
+        document.UndoManager.Undo();
 
-            Assert.Equal(oldSelection, document.ActiveSelection.SelectedPoints);
-        }
+        Assert.Equal(oldSelection, document.ActiveSelection.SelectedPoints);
     }
 }

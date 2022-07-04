@@ -1,13 +1,12 @@
 ﻿using PixiEditor.Models.Tools.ToolSettings.Settings;
 
-namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
+namespace PixiEditor.Models.Tools.ToolSettings.Toolbars;
+
+public class BasicShapeToolbar : BasicToolbar
 {
-    public class BasicShapeToolbar : BasicToolbar
+    public BasicShapeToolbar()
     {
-        public BasicShapeToolbar()
-        {
-            Settings.Add(new BoolSetting("Fill", "Fill shape: "));
-            Settings.Add(new ColorSetting("FillColor",  "Fill color"));
-        }
+        Settings.Add(new BoolSetting("Fill", "Fill shape: "));
+        Settings.Add(new ColorSetting("FillColor",  "Fill color"));
     }
 }

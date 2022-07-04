@@ -1,9 +1,8 @@
-﻿namespace PixiEditor.Models.DataHolders.Palettes
+﻿namespace PixiEditor.Models.DataHolders.Palettes;
+
+public enum SortingType
 {
-    public enum SortingType
-    {
-        Default,
-        Alphabetical,
-        ColorCount
-    }
+    Default,
+    Alphabetical,
+    ColorCount
 }

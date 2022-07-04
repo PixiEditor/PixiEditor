@@ -2,25 +2,24 @@
 using System.Globalization;
 using System.Windows.Input;
 
-namespace PixiEditor.Helpers.Converters
+namespace PixiEditor.Helpers.Converters;
+
+public class KeyToStringConverter
+    : SingleInstanceConverter<KeyToStringConverter>
 {
-    public class KeyToStringConverter
-        : SingleInstanceConverter<KeyToStringConverter>
+    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        if (value is Key key)
         {
-            if (value is Key key)
-            {
-                return InputKeyHelpers.GetKeyboardKey(key);
-            }
-            else if (value is ModifierKeys)
-            {
-                return value.ToString();
-            }
-            else
-            {
-                return string.Empty;
-            }
+            return InputKeyHelpers.GetKeyboardKey(key);
+        }
+        else if (value is ModifierKeys)
+        {
+            return value.ToString();
+        }
+        else
+        {
+            return string.Empty;
         }
     }
 }

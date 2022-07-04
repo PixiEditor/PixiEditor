@@ -1,7 +1,6 @@
-﻿namespace PixiEditor.Models.Tools
+﻿namespace PixiEditor.Models.Tools;
+
+public interface ICachedDocumentTool
 {
-    public interface ICachedDocumentTool
-    {
-        public void DocumentChanged();
-    }
+    public void DocumentChanged();
 }

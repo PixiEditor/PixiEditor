@@ -1,35 +1,34 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace PixiEditor.Views
+namespace PixiEditor.Views;
+
+/// <summary>
+///     Interaction logic for ResizeDocumentPopup.xaml
+/// </summary>
+public partial class ResizeDocumentPopup : ResizeablePopup
 {
-    /// <summary>
-    ///     Interaction logic for ResizeDocumentPopup.xaml
-    /// </summary>
-    public partial class ResizeDocumentPopup : ResizeablePopup
+    public ResizeDocumentPopup()
     {
-        public ResizeDocumentPopup()
-        {
-            InitializeComponent();
-            Owner = Application.Current.MainWindow;
-            DataContext = this;
-            Loaded += (_, _) => sizePicker.FocusWidthPicker();
-        }
+        InitializeComponent();
+        Owner = Application.Current.MainWindow;
+        DataContext = this;
+        Loaded += (_, _) => sizePicker.FocusWidthPicker();
+    }
 
-        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
+    private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = true;
+    }
 
-        private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.CloseWindow(this);
-        }
+    private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
+    {
+        SystemCommands.CloseWindow(this);
+    }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-            Close();
-        }
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        DialogResult = true;
+        Close();
     }
 }

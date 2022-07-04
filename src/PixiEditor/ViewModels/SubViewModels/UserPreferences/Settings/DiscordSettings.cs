@@ -1,89 +1,88 @@
-﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
+﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
+
+public class DiscordSettings : SettingsGroup
 {
-    public class DiscordSettings : SettingsGroup
+    private bool enableRichPresence = GetPreference(nameof(EnableRichPresence), true);
+
+    public bool EnableRichPresence
     {
-        private bool enableRichPresence = GetPreference(nameof(EnableRichPresence), true);
-
-        public bool EnableRichPresence
+        get => enableRichPresence;
+        set
         {
-            get => enableRichPresence;
-            set
-            {
-                enableRichPresence = value;
-                RaiseAndUpdatePreference(nameof(EnableRichPresence), value);
-            }
+            enableRichPresence = value;
+            RaiseAndUpdatePreference(nameof(EnableRichPresence), value);
         }
+    }
 
-        private bool showDocumentName = GetPreference(nameof(ShowDocumentName), false);
+    private bool showDocumentName = GetPreference(nameof(ShowDocumentName), false);
 
-        public bool ShowDocumentName
+    public bool ShowDocumentName
+    {
+        get => showDocumentName;
+        set
         {
-            get => showDocumentName;
-            set
-            {
-                showDocumentName = value;
-                RaiseAndUpdatePreference(nameof(ShowDocumentName), value);
-                RaisePropertyChanged(nameof(DetailPreview));
-            }
+            showDocumentName = value;
+            RaiseAndUpdatePreference(nameof(ShowDocumentName), value);
+            RaisePropertyChanged(nameof(DetailPreview));
         }
+    }
 
-        private bool showDocumentSize = GetPreference(nameof(ShowDocumentSize), true);
+    private bool showDocumentSize = GetPreference(nameof(ShowDocumentSize), true);
 
-        public bool ShowDocumentSize
+    public bool ShowDocumentSize
+    {
+        get => showDocumentSize;
+        set
         {
-            get => showDocumentSize;
-            set
-            {
-                showDocumentSize = value;
-                RaiseAndUpdatePreference(nameof(ShowDocumentSize), value);
-                RaisePropertyChanged(nameof(StatePreview));
-            }
+            showDocumentSize = value;
+            RaiseAndUpdatePreference(nameof(ShowDocumentSize), value);
+            RaisePropertyChanged(nameof(StatePreview));
         }
+    }
 
-        private bool showLayerCount = GetPreference(nameof(ShowLayerCount), true);
+    private bool showLayerCount = GetPreference(nameof(ShowLayerCount), true);
 
-        public bool ShowLayerCount
+    public bool ShowLayerCount
+    {
+        get => showLayerCount;
+        set
         {
-            get => showLayerCount;
-            set
-            {
-                showLayerCount = value;
-                RaiseAndUpdatePreference(nameof(ShowLayerCount), value);
-                RaisePropertyChanged(nameof(StatePreview));
-            }
+            showLayerCount = value;
+            RaiseAndUpdatePreference(nameof(ShowLayerCount), value);
+            RaisePropertyChanged(nameof(StatePreview));
         }
+    }
 
-        public string DetailPreview
+    public string DetailPreview
+    {
+        get
         {
-            get
-            {
-                return ShowDocumentName ? $"Editing coolPixelArt.pixi" : "Editing an image";
-            }
+            return ShowDocumentName ? $"Editing coolPixelArt.pixi" : "Editing an image";
         }
+    }
 
-        public string StatePreview
+    public string StatePreview
+    {
+        get
         {
-            get
+            string state = string.Empty;
+
+            if (ShowDocumentSize)
             {
-                string state = string.Empty;
-
-                if (ShowDocumentSize)
-                {
-                    state = "16x16";
-                }
-
-                if (ShowDocumentSize && ShowLayerCount)
-                {
-                    state += ", ";
-                }
-
-                if (ShowLayerCount)
-                {
-                    state += "2 Layers";
-                }
-
-                return state;
+                state = "16x16";
             }
+
+            if (ShowDocumentSize && ShowLayerCount)
+            {
+                state += ", ";
+            }
+
+            if (ShowLayerCount)
+            {
+                state += "2 Layers";
+            }
+
+            return state;
         }
     }
 }

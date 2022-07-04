@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditor.Models.DataHolders.Palettes
+namespace PixiEditor.Models.DataHolders.Palettes;
+
+public enum PaletteFileType
 {
-    public enum PaletteFileType
-    {
-        JascPal
-    }
+    JascPal
 }

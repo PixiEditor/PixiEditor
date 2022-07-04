@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel;
 
-namespace PixiEditor.Models.Enums
+namespace PixiEditor.Models.Enums;
+
+public enum DocumentScope
 {
-    public enum DocumentScope
-    {
-        [Description("Single Layer")]
-        SingleLayer,
-        [Description("All Layers")]
-        AllLayers
-    }
+    [Description("Single Layer")]
+    SingleLayer,
+    [Description("All Layers")]
+    AllLayers
 }

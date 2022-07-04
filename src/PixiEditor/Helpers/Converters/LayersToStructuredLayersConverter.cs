@@ -6,107 +6,106 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 
-namespace PixiEditor.Helpers.Converters
+namespace PixiEditor.Helpers.Converters;
+
+// TODO: Implement rebuilding only changed items instead whole tree
+public class LayersToStructuredLayersConverter
+    : MultiValueMarkupConverter
 {
-    // TODO: Implement rebuilding only changed items instead whole tree
-    public class LayersToStructuredLayersConverter
-        : MultiValueMarkupConverter
+    private static StructuredLayerTree cachedTree;
+    private List<Guid> lastLayerGuids = new List<Guid>();
+    private IList<Layer> lastLayers = new List<Layer>();
+    private WpfObservableRangeCollection<GuidStructureItem> lastStructure = new WpfObservableRangeCollection<GuidStructureItem>();
+
+    public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        private static StructuredLayerTree cachedTree;
-        private List<Guid> lastLayerGuids = new List<Guid>();
-        private IList<Layer> lastLayers = new List<Layer>();
-        private WpfObservableRangeCollection<GuidStructureItem> lastStructure = new WpfObservableRangeCollection<GuidStructureItem>();
-
-        public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        if (values[0] is WpfObservableRangeCollection<Layer> layers && values[1] is LayerStructure structure)
         {
-            if (values[0] is WpfObservableRangeCollection<Layer> layers && values[1] is LayerStructure structure)
+            if (cachedTree == null)
             {
-                if (cachedTree == null)
-                {
-                    cachedTree = new StructuredLayerTree(layers, structure);
-                }
-
-                if (TryFindStructureDifferences(structure) ||
-                    lastLayerGuids.Count != layers.Count ||
-                    LayerOrderIsDifferent(layers) ||
-                    LayersAreDifferentObjects(layers, lastLayers))
-                {
-                    cachedTree = new StructuredLayerTree(layers, structure);
-                    lastLayers = layers;
-                    lastLayerGuids = layers.Select(x => x.GuidValue).ToList();
-                    lastStructure = structure.CloneGroups();
-                }
-
-                return cachedTree.RootDirectoryItems;
+                cachedTree = new StructuredLayerTree(layers, structure);
             }
 
-            return DependencyProperty.UnsetValue;
-        }
-
-        public override object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new ArgumentException("Value is not a StructuredLayerTree");
-        }
-
-        private bool LayerOrderIsDifferent(IList<Layer> layers)
-        {
-            var guids = layers.Select(x => x.GuidValue).ToArray();
-            return !guids.SequenceEqual(lastLayerGuids);
-        }
-
-        /// <summary>
-        /// This should trigger if you open and close the same files twice.
-        /// Even though the layers are technically the same, having two different objects screws things up down the line.
-        /// </summary>
-        private bool LayersAreDifferentObjects(IList<Layer> layers, IList<Layer> lastLayers)
-        {
-            for (int i = 0; i < layers.Count; i++)
+            if (TryFindStructureDifferences(structure) ||
+                lastLayerGuids.Count != layers.Count ||
+                LayerOrderIsDifferent(layers) ||
+                LayersAreDifferentObjects(layers, lastLayers))
             {
-                if (layers[i] != lastLayers[i])
-                    return true;
+                cachedTree = new StructuredLayerTree(layers, structure);
+                lastLayers = layers;
+                lastLayerGuids = layers.Select(x => x.GuidValue).ToList();
+                lastStructure = structure.CloneGroups();
             }
-            return false;
+
+            return cachedTree.RootDirectoryItems;
         }
 
-        private bool TryFindStructureDifferences(LayerStructure structure)
-        {
-            bool structureModified = false;
+        return DependencyProperty.UnsetValue;
+    }
 
-            if (lastStructure.Count != structure.Groups.Count)
-            {
+    public override object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    {
+        throw new ArgumentException("Value is not a StructuredLayerTree");
+    }
+
+    private bool LayerOrderIsDifferent(IList<Layer> layers)
+    {
+        var guids = layers.Select(x => x.GuidValue).ToArray();
+        return !guids.SequenceEqual(lastLayerGuids);
+    }
+
+    /// <summary>
+    /// This should trigger if you open and close the same files twice.
+    /// Even though the layers are technically the same, having two different objects screws things up down the line.
+    /// </summary>
+    private bool LayersAreDifferentObjects(IList<Layer> layers, IList<Layer> lastLayers)
+    {
+        for (int i = 0; i < layers.Count; i++)
+        {
+            if (layers[i] != lastLayers[i])
                 return true;
-            }
-
-
-            foreach (GuidStructureItem treeItem in lastStructure)
-            {
-                var matchingGroup = structure.Groups.FirstOrDefault(x => x.GroupGuid == treeItem.GroupGuid);
-                List<GuidStructureItem> changedGroups = new List<GuidStructureItem>();
-                if (matchingGroup == null || StructureMismatch(treeItem, matchingGroup))
-                {
-                    structureModified = true;
-                }
-
-            }
-
-            return structureModified;
         }
+        return false;
+    }
 
-        private bool StructureMismatch(GuidStructureItem first, GuidStructureItem second)
+    private bool TryFindStructureDifferences(LayerStructure structure)
+    {
+        bool structureModified = false;
+
+        if (lastStructure.Count != structure.Groups.Count)
         {
-            bool rootMismatch = first.EndLayerGuid != second.EndLayerGuid || first.StartLayerGuid != second.StartLayerGuid || first.IsVisible != second.IsVisible || first.IsExpanded != second.IsExpanded || first.Opacity != second.Opacity || first.Subgroups.Count != second.Subgroups.Count || second.Name != first.Name;
+            return true;
+        }
 
-            if (!rootMismatch && first.Subgroups.Count > 0)
+
+        foreach (GuidStructureItem treeItem in lastStructure)
+        {
+            var matchingGroup = structure.Groups.FirstOrDefault(x => x.GroupGuid == treeItem.GroupGuid);
+            List<GuidStructureItem> changedGroups = new List<GuidStructureItem>();
+            if (matchingGroup == null || StructureMismatch(treeItem, matchingGroup))
             {
-                for (int i = 0; i < first.Subgroups.Count; i++)
+                structureModified = true;
+            }
+
+        }
+
+        return structureModified;
+    }
+
+    private bool StructureMismatch(GuidStructureItem first, GuidStructureItem second)
+    {
+        bool rootMismatch = first.EndLayerGuid != second.EndLayerGuid || first.StartLayerGuid != second.StartLayerGuid || first.IsVisible != second.IsVisible || first.IsExpanded != second.IsExpanded || first.Opacity != second.Opacity || first.Subgroups.Count != second.Subgroups.Count || second.Name != first.Name;
+
+        if (!rootMismatch && first.Subgroups.Count > 0)
+        {
+            for (int i = 0; i < first.Subgroups.Count; i++)
+            {
+                if (StructureMismatch(first.Subgroups[i], second.Subgroups[i]))
                 {
-                    if (StructureMismatch(first.Subgroups[i], second.Subgroups[i]))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
-            return rootMismatch;
         }
+        return rootMismatch;
     }
 }

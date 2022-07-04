@@ -4,67 +4,66 @@ using PixiEditor.Helpers;
 
 #pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
 
-namespace PixiEditor.Models.Tools.ToolSettings.Settings
+namespace PixiEditor.Models.Tools.ToolSettings.Settings;
+
+public abstract class Setting<T, TControl> : Setting<T>
+    where TControl : Control
 {
-    public abstract class Setting<T, TControl> : Setting<T>
-        where TControl : Control
+    protected Setting(string name)
+        : base(name)
     {
-        protected Setting(string name)
-            : base(name)
-        {
-        }
-
-        public new TControl SettingControl
-        {
-            get => (TControl)base.SettingControl;
-            set => base.SettingControl = value;
-        }
     }
 
-    public abstract class Setting<T> : Setting
+    public new TControl SettingControl
     {
-        protected Setting(string name)
-            : base(name)
-        {
-        }
+        get => (TControl)base.SettingControl;
+        set => base.SettingControl = value;
+    }
+}
 
-        public event EventHandler<SettingValueChangedEventArgs<T>> ValueChanged;
+public abstract class Setting<T> : Setting
+{
+    protected Setting(string name)
+        : base(name)
+    {
+    }
 
-        public new T Value
+    public event EventHandler<SettingValueChangedEventArgs<T>> ValueChanged;
+
+    public new T Value
+    {
+        get => (T)base.Value;
+        set
         {
-            get => (T)base.Value;
-            set
+            T oldValue = default;
+            if (base.Value != null)
             {
-                T oldValue = default;
-                if (base.Value != null)
-                {
-                    oldValue = Value;
-                }
-
-                base.Value = value;
-                ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<T>(oldValue, Value));
-                RaisePropertyChanged(nameof(Value));
+                oldValue = Value;
             }
+
+            base.Value = value;
+            ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<T>(oldValue, Value));
+            RaisePropertyChanged(nameof(Value));
         }
     }
+}
 
-    public abstract class Setting : NotifyableObject
+public abstract class Setting : NotifyableObject
+{
+    protected Setting(string name)
     {
-        protected Setting(string name)
-        {
-            Name = name;
-        }
-
-        public object Value { get; set; }
-
-        public string Name { get; }
-
-        public string Label { get; set; }
-
-        public bool HasLabel => !string.IsNullOrEmpty(Label);
-
-        public Control SettingControl { get; set; }
-
-        public abstract Control GenerateControl();
+        Name = name;
     }
+
+    public object Value { get; set; }
+
+    public string Name { get; }
+
+    public string Label { get; set; }
+
+    public bool HasLabel => !string.IsNullOrEmpty(Label);
+
+    public Control SettingControl { get; set; }
+
+    public abstract Control GenerateControl();
 }

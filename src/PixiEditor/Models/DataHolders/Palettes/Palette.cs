@@ -2,43 +2,42 @@
 using PixiEditor.Helpers;
 using System.Collections.Generic;
 using System.IO;
-namespace PixiEditor.Models.DataHolders.Palettes
+namespace PixiEditor.Models.DataHolders.Palettes;
+
+public class Palette : NotifyableObject
 {
-    public class Palette : NotifyableObject
+    private string _name = "";
+
+    public string Name
     {
-        private string _name = "";
+        get => _name;
+        set => SetProperty(ref _name, value);
+    }
+    public List<string> Colors { get; set; }
 
-        public string Name
+    private string? fileName;
+
+    public string? FileName
+    {
+        get => fileName;
+        set
         {
-            get => _name;
-            set => SetProperty(ref _name, value);
+            fileName = ReplaceInvalidChars(value);
+            RaisePropertyChanged(nameof(FileName));
         }
-        public List<string> Colors { get; set; }
+    }
 
-        private string? fileName;
+    public bool IsFavourite { get; set; }
 
-        public string? FileName
-        {
-            get => fileName;
-            set
-            {
-                fileName = ReplaceInvalidChars(value);
-                RaisePropertyChanged(nameof(FileName));
-            }
-        }
+    public Palette(string name, List<string> colors, string fileName)
+    {
+        Name = name;
+        Colors = colors;
+        FileName = fileName;
+    }
 
-        public bool IsFavourite { get; set; }
-
-        public Palette(string name, List<string> colors, string fileName)
-        {
-            Name = name;
-            Colors = colors;
-            FileName = fileName;
-        }
-
-        public static string? ReplaceInvalidChars(string? filename)
-        {
-            return filename == null ? null : string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
-        }
+    public static string? ReplaceInvalidChars(string? filename)
+    {
+        return filename == null ? null : string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
     }
 }

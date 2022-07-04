@@ -1,4 +1,3 @@
-﻿namespace PixiEditor.Models.Enums
-{
-  public enum SizeUnit { Pixel, Percentage }
-}
+﻿namespace PixiEditor.Models.Enums;
+
+public enum SizeUnit { Pixel, Percentage }

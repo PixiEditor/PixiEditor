@@ -4,40 +4,39 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace PixiEditor.UpdateInstaller
-{
-    /// <summary>
-    ///     Interaction logic for MainWindow.xaml.
-    /// </summary>
-    public partial class MainWindow
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-            DataContext = new ViewModelMain();
-        }
+namespace PixiEditor.UpdateInstaller;
 
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
+/// <summary>
+///     Interaction logic for MainWindow.xaml.
+/// </summary>
+public partial class MainWindow
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+        DataContext = new ViewModelMain();
+    }
+
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        ViewModelMain vmm = (ViewModelMain)DataContext;
+        await Task.Run(() =>
         {
-            ViewModelMain vmm = (ViewModelMain)DataContext;
-            await Task.Run(() =>
+            try
             {
-                try
-                {
-                    vmm.InstallUpdate();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Update error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    File.AppendAllText("ErrorLog.txt", $"Error PixiEditor.UpdateInstaller: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");
-                }
-                finally
-                {
-                    string pixiEditorExecutablePath = Directory.GetFiles(vmm.UpdateDirectory, "PixiEditor.exe")[0];
-                    Process.Start(pixiEditorExecutablePath);
-                }
-            });
-            Close();
-        }
+                vmm.InstallUpdate();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Update error", MessageBoxButton.OK, MessageBoxImage.Error);
+                File.AppendAllText("ErrorLog.txt", $"Error PixiEditor.UpdateInstaller: {DateTime.Now}\n{ex.Message}\n{ex.StackTrace}\n-----\n");
+            }
+            finally
+            {
+                string pixiEditorExecutablePath = Directory.GetFiles(vmm.UpdateDirectory, "PixiEditor.exe")[0];
+                Process.Start(pixiEditorExecutablePath);
+            }
+        });
+        Close();
     }
 }

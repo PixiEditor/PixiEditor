@@ -1,29 +1,28 @@
 ﻿using System.Collections.Generic;
 
-namespace PixiEditor.Helpers.Extensions
-{
-    public static class DictionaryHelper
-    {
-        public static void AddRangeOverride<TKey, TValue>(
-            this IDictionary<TKey, TValue> dict,
-            IDictionary<TKey, TValue> dictToAdd)
-        {
-            foreach (KeyValuePair<TKey, TValue> item in dictToAdd)
-            {
-                dict[item.Key] = item.Value;
-            }
-        }
+namespace PixiEditor.Helpers.Extensions;
 
-        public static void AddRangeNewOnly<TKey, TValue>(
-            this IDictionary<TKey, TValue> dict,
-            IDictionary<TKey, TValue> dictToAdd)
+public static class DictionaryHelper
+{
+    public static void AddRangeOverride<TKey, TValue>(
+        this IDictionary<TKey, TValue> dict,
+        IDictionary<TKey, TValue> dictToAdd)
+    {
+        foreach (KeyValuePair<TKey, TValue> item in dictToAdd)
         {
-            foreach (KeyValuePair<TKey, TValue> item in dictToAdd)
+            dict[item.Key] = item.Value;
+        }
+    }
+
+    public static void AddRangeNewOnly<TKey, TValue>(
+        this IDictionary<TKey, TValue> dict,
+        IDictionary<TKey, TValue> dictToAdd)
+    {
+        foreach (KeyValuePair<TKey, TValue> item in dictToAdd)
+        {
+            if (!dict.ContainsKey(item.Key))
             {
-                if (!dict.ContainsKey(item.Key))
-                {
-                    dict.Add(item.Key, item.Value);
-                }
+                dict.Add(item.Key, item.Value);
             }
         }
     }

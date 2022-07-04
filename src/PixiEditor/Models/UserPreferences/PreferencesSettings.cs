@@ -6,222 +6,221 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.ViewModels;
 
-namespace PixiEditor.Models.UserPreferences
+namespace PixiEditor.Models.UserPreferences;
+
+[DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
+public class PreferencesSettings : IPreferences
 {
-    [DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
-    public class PreferencesSettings : IPreferences
+    public static IPreferences Current => ViewModelMain.Current.Preferences;
+
+    public bool IsLoaded { get; private set; } = false;
+
+    public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData, "user_preferences.json");
+
+    public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData, "editor_data.json");
+
+    public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
+
+    public Dictionary<string, object> LocalPreferences { get; set; } = new Dictionary<string, object>();
+
+    public void Init()
     {
-        public static IPreferences Current => ViewModelMain.Current.Preferences;
+        Init(PathToRoamingUserPreferences, PathToLocalPreferences);
+    }
 
-        public bool IsLoaded { get; private set; } = false;
+    public void Init(string path, string localPath)
+    {
+        PathToRoamingUserPreferences = path;
+        PathToLocalPreferences = localPath;
 
-        public string PathToRoamingUserPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.ApplicationData, "user_preferences.json");
-
-        public string PathToLocalPreferences { get; private set; } = GetPathToSettings(Environment.SpecialFolder.LocalApplicationData, "editor_data.json");
-
-        public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
-
-        public Dictionary<string, object> LocalPreferences { get; set; } = new Dictionary<string, object>();
-
-        public void Init()
+        if (IsLoaded == false)
         {
-            Init(PathToRoamingUserPreferences, PathToLocalPreferences);
+            Preferences = InitPath(path);
+            LocalPreferences = InitPath(localPath);
+
+            IsLoaded = true;
+        }
+    }
+
+    public void UpdatePreference<T>(string name, T value)
+    {
+        if (IsLoaded == false)
+        {
+            Init();
         }
 
-        public void Init(string path, string localPath)
+        Preferences[name] = value;
+
+        if (Callbacks.ContainsKey(name))
         {
-            PathToRoamingUserPreferences = path;
-            PathToLocalPreferences = localPath;
-
-            if (IsLoaded == false)
+            foreach (var action in Callbacks[name])
             {
-                Preferences = InitPath(path);
-                LocalPreferences = InitPath(localPath);
-
-                IsLoaded = true;
+                action.Invoke(value);
             }
         }
 
-        public void UpdatePreference<T>(string name, T value)
+        Save();
+    }
+
+    public void UpdateLocalPreference<T>(string name, T value)
+    {
+        if (IsLoaded == false)
         {
-            if (IsLoaded == false)
-            {
-                Init();
-            }
-
-            Preferences[name] = value;
-
-            if (Callbacks.ContainsKey(name))
-            {
-                foreach (var action in Callbacks[name])
-                {
-                    action.Invoke(value);
-                }
-            }
-
-            Save();
+            Init();
         }
 
-        public void UpdateLocalPreference<T>(string name, T value)
+        LocalPreferences[name] = value;
+
+        if (Callbacks.ContainsKey(name))
         {
-            if (IsLoaded == false)
+            foreach (var action in Callbacks[name])
             {
-                Init();
+                action.Invoke(value);
             }
-
-            LocalPreferences[name] = value;
-
-            if (Callbacks.ContainsKey(name))
-            {
-                foreach (var action in Callbacks[name])
-                {
-                    action.Invoke(value);
-                }
-            }
-
-            Save();
         }
 
-        public void Save()
-        {
-            if (IsLoaded == false)
-            {
-                Init();
-            }
+        Save();
+    }
 
-            File.WriteAllText(PathToRoamingUserPreferences, JsonConvert.SerializeObject(Preferences));
-            File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
+    public void Save()
+    {
+        if (IsLoaded == false)
+        {
+            Init();
         }
 
-        public Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
+        File.WriteAllText(PathToRoamingUserPreferences, JsonConvert.SerializeObject(Preferences));
+        File.WriteAllText(PathToLocalPreferences, JsonConvert.SerializeObject(LocalPreferences));
+    }
 
-        public void AddCallback(string name, Action<object> action)
+    public Dictionary<string, List<Action<object>>> Callbacks { get; set; } = new Dictionary<string, List<Action<object>>>();
+
+    public void AddCallback(string name, Action<object> action)
+    {
+        if (action == null)
         {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-
-            if (Callbacks.ContainsKey(name))
-            {
-                Callbacks[name].Add(action);
-                return;
-            }
-
-            Callbacks.Add(name, new List<Action<object>>() { action });
+            throw new ArgumentNullException(nameof(action));
         }
 
-        public void AddCallback<T>(string name, Action<T> action)
+        if (Callbacks.ContainsKey(name))
         {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-
-            AddCallback(name, new Action<object>(o => action((T)o)));
+            Callbacks[name].Add(action);
+            return;
         }
+
+        Callbacks.Add(name, new List<Action<object>>() { action });
+    }
+
+    public void AddCallback<T>(string name, Action<T> action)
+    {
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(action));
+        }
+
+        AddCallback(name, new Action<object>(o => action((T)o)));
+    }
 
 #nullable enable
 
-        public T? GetPreference<T>(string name)
+    public T? GetPreference<T>(string name)
+    {
+        return GetPreference(name, default(T));
+    }
+
+    public T? GetPreference<T>(string name, T? fallbackValue)
+    {
+        if (IsLoaded == false)
         {
-            return GetPreference(name, default(T));
+            Init();
         }
 
-        public T? GetPreference<T>(string name, T? fallbackValue)
+        try
         {
-            if (IsLoaded == false)
-            {
-                Init();
-            }
+            return GetValue(Preferences, name, fallbackValue);
+        }
+        catch (InvalidCastException)
+        {
+            Preferences.Remove(name);
+            Save();
 
-            try
-            {
-                return GetValue(Preferences, name, fallbackValue);
-            }
-            catch (InvalidCastException)
-            {
-                Preferences.Remove(name);
-                Save();
+            return fallbackValue;
+        }
+    }
 
-                return fallbackValue;
-            }
+    public T? GetLocalPreference<T>(string name)
+    {
+        return GetLocalPreference(name, default(T));
+    }
+
+    public T? GetLocalPreference<T>(string name, T? fallbackValue)
+    {
+        if (IsLoaded == false)
+        {
+            Init();
         }
 
-        public T? GetLocalPreference<T>(string name)
+        try
         {
-            return GetLocalPreference(name, default(T));
+            return GetValue(LocalPreferences, name, fallbackValue);
+        }
+        catch (InvalidCastException)
+        {
+            LocalPreferences.Remove(name);
+            Save();
+
+            return fallbackValue;
+        }
+    }
+
+    private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
+    {
+        if (!dict.ContainsKey(name)) return fallbackValue;
+        var preference = dict[name];
+        if(typeof(T) == preference.GetType()) return (T)preference;
+        if (preference.GetType() == typeof(JArray))
+        {
+            return ((JArray)preference).ToObject<T>();
         }
 
-        public T? GetLocalPreference<T>(string name, T? fallbackValue)
-        {
-            if (IsLoaded == false)
-            {
-                Init();
-            }
-
-            try
-            {
-                return GetValue(LocalPreferences, name, fallbackValue);
-            }
-            catch (InvalidCastException)
-            {
-                LocalPreferences.Remove(name);
-                Save();
-
-                return fallbackValue;
-            }
-        }
-
-        private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
-        {
-            if (!dict.ContainsKey(name)) return fallbackValue;
-            var preference = dict[name];
-            if(typeof(T) == preference.GetType()) return (T)preference;
-            if (preference.GetType() == typeof(JArray))
-            {
-                return ((JArray)preference).ToObject<T>();
-            }
-
-            return (T)Convert.ChangeType(dict[name], typeof(T));
-        }
+        return (T)Convert.ChangeType(dict[name], typeof(T));
+    }
 
 #nullable disable
 
-        private static string GetPathToSettings(Environment.SpecialFolder folder, string fileName)
-        {
-            return Path.Join(
+    private static string GetPathToSettings(Environment.SpecialFolder folder, string fileName)
+    {
+        return Path.Join(
             Environment.GetFolderPath(folder),
             "PixiEditor",
             fileName);
-        }
+    }
 
-        private static Dictionary<string, object> InitPath(string path)
+    private static Dictionary<string, object> InitPath(string path)
+    {
+        string dir = Path.GetDirectoryName(path);
+
+        if (!Directory.Exists(dir))
         {
-            string dir = Path.GetDirectoryName(path);
-
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-
-            if (!File.Exists(path))
-            {
-                File.WriteAllText(path, "{\n}");
-            }
-            else
-            {
-                string json = File.ReadAllText(path);
-                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
-
-                // dictionary is null if the user deletes the content of the preference file.
-                if (dictionary != null)
-                {
-                    return dictionary;
-                }
-            }
-
-            return new Dictionary<string, object>();
+            Directory.CreateDirectory(dir);
         }
+
+        if (!File.Exists(path))
+        {
+            File.WriteAllText(path, "{\n}");
+        }
+        else
+        {
+            string json = File.ReadAllText(path);
+            var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+            // dictionary is null if the user deletes the content of the preference file.
+            if (dictionary != null)
+            {
+                return dictionary;
+            }
+        }
+
+        return new Dictionary<string, object>();
     }
 }

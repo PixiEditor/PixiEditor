@@ -1,12 +1,11 @@
 ﻿using ColorPicker;
 
-namespace PixiEditor.Views.UserControls
+namespace PixiEditor.Views.UserControls;
+
+public partial class SmallColorPicker : DualPickerControlBase
 {
-    public partial class SmallColorPicker : DualPickerControlBase
+    public SmallColorPicker()
     {
-        public SmallColorPicker()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

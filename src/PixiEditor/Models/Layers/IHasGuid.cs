@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace PixiEditor.Models.Layers
+namespace PixiEditor.Models.Layers;
+
+public interface IHasGuid
 {
-    public interface IHasGuid
-    {
-        Guid GuidValue { get; }
-    }
+    Guid GuidValue { get; }
 }

@@ -12,79 +12,79 @@ using PixiEditor.Models.Processes;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.UpdateModule;
 
-namespace PixiEditor.ViewModels.SubViewModels.Main
+namespace PixiEditor.ViewModels.SubViewModels.Main;
+
+public class UpdateViewModel : SubViewModel<ViewModelMain>
 {
-    public class UpdateViewModel : SubViewModel<ViewModelMain>
+    private bool updateReadyToInstall = false;
+
+    public UpdateChecker UpdateChecker { get; set; }
+
+    public UpdateChannel[] UpdateChannels { get; } = new UpdateChannel[2];
+
+    private string versionText;
+
+    public string VersionText
     {
-        private bool updateReadyToInstall = false;
-
-        public UpdateChecker UpdateChecker { get; set; }
-
-        public UpdateChannel[] UpdateChannels { get; } = new UpdateChannel[2];
-
-        private string versionText;
-
-        public string VersionText
+        get => versionText;
+        set
         {
-            get => versionText;
-            set
+            versionText = value;
+            RaisePropertyChanged(nameof(VersionText));
+        }
+    }
+
+    public bool UpdateReadyToInstall
+    {
+        get => updateReadyToInstall;
+        set
+        {
+            updateReadyToInstall = value;
+            RaisePropertyChanged(nameof(UpdateReadyToInstall));
+            if (value)
             {
-                versionText = value;
-                RaisePropertyChanged(nameof(VersionText));
+                VersionText = $"to install update (current {VersionHelpers.GetCurrentAssemblyVersionString()})"; // Button shows "Restart" before this text
             }
         }
+    }
 
-        public bool UpdateReadyToInstall
+    public UpdateViewModel(ViewModelMain owner)
+        : base(owner)
+    {
+        Owner.OnStartupEvent += Owner_OnStartupEvent;
+        IPreferences.Current.AddCallback<string>("UpdateChannel", (val) => UpdateChecker.Channel = GetUpdateChannel(val));
+        InitUpdateChecker();
+    }
+
+    public async Task<bool> CheckForUpdate()
+    {
+        bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
+        bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
+        bool updateFileDoesNotExists = !File.Exists(
+            Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+        bool updateExeDoesNotExists = !File.Exists(
+            Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
+        if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
         {
-            get => updateReadyToInstall;
-            set
+            VersionText = "Downloading update...";
+            if (updateCompatible)
             {
-                updateReadyToInstall = value;
-                RaisePropertyChanged(nameof(UpdateReadyToInstall));
-                if (value)
-                {
-                    VersionText = $"to install update (current {VersionHelpers.GetCurrentAssemblyVersionString()})"; // Button shows "Restart" before this text
-                }
+                await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
             }
-        }
-
-        public UpdateViewModel(ViewModelMain owner)
-            : base(owner)
-        {
-            Owner.OnStartupEvent += Owner_OnStartupEvent;
-            IPreferences.Current.AddCallback<string>("UpdateChannel", (val) => UpdateChecker.Channel = GetUpdateChannel(val));
-            InitUpdateChecker();
-        }
-
-        public async Task<bool> CheckForUpdate()
-        {
-            bool updateAvailable = await UpdateChecker.CheckUpdateAvailable();
-            bool updateCompatible = await UpdateChecker.IsUpdateCompatible();
-            bool updateFileDoesNotExists = !File.Exists(
-                Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
-            bool updateExeDoesNotExists = !File.Exists(
-                Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
-            if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
+            else
             {
-                VersionText = "Downloading update...";
-                if (updateCompatible)
-                {
-                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
-                }
-                else
-                {
-                    await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
-                }
-
-                UpdateReadyToInstall = true;
-                return true;
+                await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
             }
 
-            return false;
+            UpdateReadyToInstall = true;
+            return true;
         }
 
-        private static void AskToInstall()
-        {
+        return false;
+    }
+
+    private static void AskToInstall()
+    {
 #if RELEASE || DEV_RELEASE
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
@@ -114,97 +114,96 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 }
             }
 #endif
-        }
+    }
 
-        private static void InstallHeadless(string updaterPath)
+    private static void InstallHeadless(string updaterPath)
+    {
+        try
         {
-            try
-            {
-                ProcessHelper.RunAsAdmin(updaterPath);
-                Application.Current.Shutdown();
-            }
-            catch (Win32Exception)
-            {
-                NoticeDialog.Show(
-                    "Couldn't update without administrator rights.",
-                    "Insufficient permissions");
-            }
-        }
-
-        private static void OpenExeInstaller(string updateExeFile)
-        {
-            bool alreadyUpdated = VersionHelpers.GetCurrentAssemblyVersion().ToString() ==
-                    updateExeFile.Split('-')[1].Split(".exe")[0];
-
-            if (!alreadyUpdated)
-            {
-                RestartToUpdate(updateExeFile);
-            }
-            else
-            {
-                File.Delete(updateExeFile);
-            }
-        }
-
-        private static void RestartToUpdate(string updateExeFile)
-        {
-            Process.Start(updateExeFile);
+            ProcessHelper.RunAsAdmin(updaterPath);
             Application.Current.Shutdown();
         }
+        catch (Win32Exception)
+        {
+            NoticeDialog.Show(
+                "Couldn't update without administrator rights.",
+                "Insufficient permissions");
+        }
+    }
 
-        [Command.Internal("PixiEditor.Restart")]
-        public static void RestartApplication()
+    private static void OpenExeInstaller(string updateExeFile)
+    {
+        bool alreadyUpdated = VersionHelpers.GetCurrentAssemblyVersion().ToString() ==
+                              updateExeFile.Split('-')[1].Split(".exe")[0];
+
+        if (!alreadyUpdated)
+        {
+            RestartToUpdate(updateExeFile);
+        }
+        else
+        {
+            File.Delete(updateExeFile);
+        }
+    }
+
+    private static void RestartToUpdate(string updateExeFile)
+    {
+        Process.Start(updateExeFile);
+        Application.Current.Shutdown();
+    }
+
+    [Command.Internal("PixiEditor.Restart")]
+    public static void RestartApplication()
+    {
+        try
+        {
+            ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
+            Application.Current.Shutdown();
+        }
+        catch (Win32Exception)
+        {
+            NoticeDialog.Show("Couldn't update without administrator rights.", "Insufficient permissions");
+        }
+    }
+
+    private void Owner_OnStartupEvent(object sender, EventArgs e)
+    {
+        ConditionalUPDATE();
+    }
+
+    [Conditional("UPDATE")]
+    private async void ConditionalUPDATE()
+    {
+        if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
         {
             try
             {
-                ProcessHelper.RunAsAdmin(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "PixiEditor.UpdateInstaller.exe"));
-                Application.Current.Shutdown();
+                await CheckForUpdate();
             }
-            catch (Win32Exception)
+            catch (System.Net.Http.HttpRequestException)
             {
-                NoticeDialog.Show("Couldn't update without administrator rights.", "Insufficient permissions");
+                NoticeDialog.Show("Could not check if there is an update available", "Update check failed");
             }
+
+            AskToInstall();
         }
+    }
 
-        private void Owner_OnStartupEvent(object sender, EventArgs e)
-        {
-            ConditionalUPDATE();
-        }
+    private void InitUpdateChecker()
+    {
+        UpdateChannels[0] = new UpdateChannel("Release", "PixiEditor", "PixiEditor");
+        UpdateChannels[1] = new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel");
 
-        [Conditional("UPDATE")]
-        private async void ConditionalUPDATE()
-        {
-            if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
-            {
-                try
-                {
-                    await CheckForUpdate();
-                }
-                catch (System.Net.Http.HttpRequestException)
-                {
-                    NoticeDialog.Show("Could not check if there is an update available", "Update check failed");
-                }
+        string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");
 
-                AskToInstall();
-            }
-        }
+        string version = VersionHelpers.GetCurrentAssemblyVersionString();
+        UpdateChecker = new UpdateChecker(version, GetUpdateChannel(updateChannel));
+        VersionText = $"Version {version}";
+    }
 
-        private void InitUpdateChecker()
-        {
-            UpdateChannels[0] = new UpdateChannel("Release", "PixiEditor", "PixiEditor");
-            UpdateChannels[1] = new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel");
-
-            string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");
-
-            string version = VersionHelpers.GetCurrentAssemblyVersionString();
-            UpdateChecker = new UpdateChecker(version, GetUpdateChannel(updateChannel));
-            VersionText = $"Version {version}";
-        }
-
-        private UpdateChannel GetUpdateChannel(string channelName)
-        {
-            UpdateChannel selectedChannel = UpdateChannels.FirstOrDefault(x => x.Name == channelName, UpdateChannels[0]);
-            return selectedChannel;
-        }
+    private UpdateChannel GetUpdateChannel(string channelName)
+    {
+        UpdateChannel selectedChannel = UpdateChannels.FirstOrDefault(x => x.Name == channelName, UpdateChannels[0]);
+        return selectedChannel;
     }
 }

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PixiEditor.Models.Enums
+namespace PixiEditor.Models.Enums;
+
+public enum SelectionShape
 {
-    public enum SelectionShape
-    {
-        Rectangle,
-        Circle
-    }
+    Rectangle,
+    Circle
 }

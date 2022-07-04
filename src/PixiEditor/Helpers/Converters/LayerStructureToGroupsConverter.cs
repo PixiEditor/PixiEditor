@@ -8,46 +8,45 @@ using System.Linq;
 using System.Windows.Data;
 using PixiEditor.Models.DataHolders;
 
-namespace PixiEditor.Helpers.Converters
+namespace PixiEditor.Helpers.Converters;
+
+public class LayerStructureToGroupsConverter
+    : SingleInstanceMultiValueConverter<LayerStructureToGroupsConverter>
 {
-    public class LayerStructureToGroupsConverter
-        : SingleInstanceMultiValueConverter<LayerStructureToGroupsConverter>
+    public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        if (values[0] is not LayerStructure structure)
         {
-            if (values[0] is not LayerStructure structure)
-            {
-                return Binding.DoNothing;
-            }
-
-            return GetSubGroups(structure.Groups);
+            return Binding.DoNothing;
         }
 
-        private System.Collections.ObjectModel.ObservableCollection<GuidStructureItem> GetSubGroups(IEnumerable<GuidStructureItem> groups)
-        {
-            WpfObservableRangeCollection<GuidStructureItem> finalGroups = new WpfObservableRangeCollection<GuidStructureItem>();
-            foreach (var group in groups)
-            {
-                finalGroups.AddRange(GetSubGroups(group));
-            }
+        return GetSubGroups(structure.Groups);
+    }
 
-            return finalGroups;
+    private System.Collections.ObjectModel.ObservableCollection<GuidStructureItem> GetSubGroups(IEnumerable<GuidStructureItem> groups)
+    {
+        WpfObservableRangeCollection<GuidStructureItem> finalGroups = new WpfObservableRangeCollection<GuidStructureItem>();
+        foreach (var group in groups)
+        {
+            finalGroups.AddRange(GetSubGroups(group));
         }
 
-        private IEnumerable<GuidStructureItem> GetSubGroups(GuidStructureItem group)
+        return finalGroups;
+    }
+
+    private IEnumerable<GuidStructureItem> GetSubGroups(GuidStructureItem group)
+    {
+        List<GuidStructureItem> groups = new List<GuidStructureItem>() { group };
+
+        foreach (var subGroup in group.Subgroups)
         {
-            List<GuidStructureItem> groups = new List<GuidStructureItem>() { group };
-
-            foreach (var subGroup in group.Subgroups)
+            groups.Add(subGroup);
+            if (subGroup.Subgroups.Count > 0)
             {
-                groups.Add(subGroup);
-                if (subGroup.Subgroups.Count > 0)
-                {
-                    groups.AddRange(GetSubGroups(subGroup));
-                }
+                groups.AddRange(GetSubGroups(subGroup));
             }
-
-            return groups.Distinct();
         }
+
+        return groups.Distinct();
     }
 }

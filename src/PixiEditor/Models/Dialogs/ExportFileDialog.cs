@@ -2,89 +2,88 @@
 using PixiEditor.Views;
 using System.Windows;
 
-namespace PixiEditor.Models.Dialogs
+namespace PixiEditor.Models.Dialogs;
+
+public class ExportFileDialog : CustomDialog
 {
-    public class ExportFileDialog : CustomDialog
+    FileType _chosenFormat;
+
+    private int fileHeight;
+
+    private string filePath;
+
+    private int fileWidth;
+
+    public ExportFileDialog(Size fileDimensions)
     {
-        FileType _chosenFormat;
+        FileHeight = (int)fileDimensions.Height;
+        FileWidth = (int)fileDimensions.Width;
+    }
 
-        private int fileHeight;
-
-        private string filePath;
-
-        private int fileWidth;
-
-        public ExportFileDialog(Size fileDimensions)
+    public int FileWidth
+    {
+        get => fileWidth;
+        set
         {
-            FileHeight = (int)fileDimensions.Height;
-            FileWidth = (int)fileDimensions.Width;
-        }
-
-        public int FileWidth
-        {
-            get => fileWidth;
-            set
+            if (fileWidth != value)
             {
-                if (fileWidth != value)
-                {
-                    fileWidth = value;
-                    RaisePropertyChanged("Width");
-                }
+                fileWidth = value;
+                RaisePropertyChanged("Width");
             }
         }
+    }
 
-        public int FileHeight
+    public int FileHeight
+    {
+        get => fileHeight;
+        set
         {
-            get => fileHeight;
-            set
+            if (fileHeight != value)
             {
-                if (fileHeight != value)
-                {
-                    fileHeight = value;
-                    RaisePropertyChanged("FileHeight");
-                }
+                fileHeight = value;
+                RaisePropertyChanged("FileHeight");
             }
         }
+    }
 
-        public string FilePath
+    public string FilePath
+    {
+        get => filePath;
+        set
         {
-            get => filePath;
-            set
+            if (filePath != value)
             {
-                if (filePath != value)
-                {
-                    filePath = value;
-                    RaisePropertyChanged("FilePath");
-                }
+                filePath = value;
+                RaisePropertyChanged("FilePath");
             }
         }
+    }
 
-        public FileType ChosenFormat
+    public FileType ChosenFormat
+    {
+        get => _chosenFormat;
+        set
         {
-            get => _chosenFormat;
-            set
+            if (_chosenFormat != value)
             {
-                if (_chosenFormat != value)
-                {
-                    _chosenFormat = value;
-                    RaisePropertyChanged(nameof(ChosenFormat));
-                }
+                _chosenFormat = value;
+                RaisePropertyChanged(nameof(ChosenFormat));
             }
         }
+    }
 
-        public override bool ShowDialog()
+    public override bool ShowDialog()
+    {
+        ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight);
+        popup.ShowDialog();
+        if (popup.DialogResult == true)
         {
-            ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight);
-            popup.ShowDialog();
-            if (popup.DialogResult == true)
-            {
-                FileWidth = popup.SaveWidth;
-                FileHeight = popup.SaveHeight;
-                FilePath = popup.SavePath;
-                ChosenFormat = popup.SaveFormat;
-            }
-
-            return (bool)popup.DialogResult;
+            FileWidth = popup.SaveWidth;
+            FileHeight = popup.SaveHeight;
+            FilePath = popup.SavePath;
+            ChosenFormat = popup.SaveFormat;
         }
+
+        return (bool)popup.DialogResult;
     }
 }

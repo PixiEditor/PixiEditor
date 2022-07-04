@@ -8,48 +8,47 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using PixiEditor.Models.Dialogs;
 
-namespace PixiEditor.Models.ExternalServices
+namespace PixiEditor.Models.ExternalServices;
+
+public static class LospecPaletteFetcher
 {
-    public static class LospecPaletteFetcher
+    public const string LospecApiUrl = "https://lospec.com/palette-list";
+
+    public static async Task<Palette> FetchPalette(string slug)
     {
-        public const string LospecApiUrl = "https://lospec.com/palette-list";
-
-        public static async Task<Palette> FetchPalette(string slug)
+        try
         {
-            try
-            {
-                using HttpClient client = new HttpClient();
-                string url = @$"{LospecApiUrl}/{slug}.json";
+            using HttpClient client = new HttpClient();
+            string url = @$"{LospecApiUrl}/{slug}.json";
 
-                HttpResponseMessage response = await client.GetAsync(url);
-                if (response.StatusCode == HttpStatusCode.OK)
+            HttpResponseMessage response = await client.GetAsync(url);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<Palette>(content);
+
+                if (obj is { Colors: { } })
                 {
-                    string content = await response.Content.ReadAsStringAsync();
-                    var obj = JsonConvert.DeserializeObject<Palette>(content);
-
-                    if (obj is { Colors: { } })
-                    {
-                        ReadjustColors(obj.Colors);
-                    }
-
-                    return obj;
+                    ReadjustColors(obj.Colors);
                 }
-            }
-            catch(HttpRequestException)
-            {
-                NoticeDialog.Show("Failed to download palette.", "Error");
-                return null;
-            }
 
+                return obj;
+            }
+        }
+        catch(HttpRequestException)
+        {
+            NoticeDialog.Show("Failed to download palette.", "Error");
             return null;
         }
 
-        private static void ReadjustColors(List<string> colors)
+        return null;
+    }
+
+    private static void ReadjustColors(List<string> colors)
+    {
+        for (int i = 0; i < colors.Count; i++)
         {
-            for (int i = 0; i < colors.Count; i++)
-            {
-                colors[i] = colors[i].Insert(0, "#");
-            }
+            colors[i] = colors[i].Insert(0, "#");
         }
     }
 }

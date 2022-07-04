@@ -3,51 +3,50 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 
-namespace PixiEditor.Models.Tools.ToolSettings.Settings
+namespace PixiEditor.Models.Tools.ToolSettings.Settings;
+
+public class DropdownSetting : Setting<object>
 {
-    public class DropdownSetting : Setting<object>
+    public DropdownSetting(string name, string[] values, string label)
+        : base(name)
     {
-        public DropdownSetting(string name, string[] values, string label)
-            : base(name)
-        {
-            Values = values;
-            Value = ((ComboBox)SettingControl).Items[0];
-            Label = label;
-        }
+        Values = values;
+        Value = ((ComboBox)SettingControl).Items[0];
+        Label = label;
+    }
 
-        public string[] Values { get; set; }
+    public string[] Values { get; set; }
 
-        private ComboBox GenerateDropdown()
+    private ComboBox GenerateDropdown()
+    {
+        ComboBox combobox = new ComboBox
         {
-            ComboBox combobox = new ComboBox
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        GenerateItems(combobox);
+
+        Binding binding = new Binding("Value")
+        {
+            Mode = BindingMode.TwoWay
+        };
+        combobox.SetBinding(Selector.SelectedValueProperty, binding);
+        return combobox;
+    }
+
+    private void GenerateItems(ComboBox comboBox)
+    {
+        for (int i = 0; i < Values.Length; i++)
+        {
+            ComboBoxItem item = new ComboBoxItem
             {
-                VerticalAlignment = VerticalAlignment.Center
+                Content = Values[i]
             };
-            GenerateItems(combobox);
-
-            Binding binding = new Binding("Value")
-            {
-                Mode = BindingMode.TwoWay
-            };
-            combobox.SetBinding(Selector.SelectedValueProperty, binding);
-            return combobox;
+            comboBox.Items.Add(item);
         }
+    }
 
-        private void GenerateItems(ComboBox comboBox)
-        {
-            for (int i = 0; i < Values.Length; i++)
-            {
-                ComboBoxItem item = new ComboBoxItem
-                {
-                    Content = Values[i]
-                };
-                comboBox.Items.Add(item);
-            }
-        }
-
-        public override Control GenerateControl()
-        {
-            return GenerateDropdown();
-        }
+    public override Control GenerateControl()
+    {
+        return GenerateDropdown();
     }
 }

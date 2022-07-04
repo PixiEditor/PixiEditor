@@ -1,9 +1,8 @@
-﻿namespace PixiEditor.Models.Enums
+﻿namespace PixiEditor.Models.Enums;
+
+public enum SelectionType
 {
-    public enum SelectionType
-    {
-        New,
-        Add,
-        Subtract
-    }
+    New,
+    Add,
+    Subtract
 }

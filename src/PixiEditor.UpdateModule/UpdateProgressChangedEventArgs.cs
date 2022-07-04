@@ -1,14 +1,13 @@
 ﻿using System;
 
-namespace PixiEditor.UpdateModule
-{
-    public class UpdateProgressChangedEventArgs : EventArgs
-    {
-        public UpdateProgressChangedEventArgs(float progress)
-        {
-            Progress = progress;
-        }
+namespace PixiEditor.UpdateModule;
 
-        public float Progress { get; set; }
+public class UpdateProgressChangedEventArgs : EventArgs
+{
+    public UpdateProgressChangedEventArgs(float progress)
+    {
+        Progress = progress;
     }
+
+    public float Progress { get; set; }
 }

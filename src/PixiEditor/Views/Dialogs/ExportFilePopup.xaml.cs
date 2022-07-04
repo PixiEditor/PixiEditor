@@ -3,81 +3,80 @@ using PixiEditor.ViewModels;
 using System.Windows;
 using System.Windows.Input;
 
-namespace PixiEditor.Views
+namespace PixiEditor.Views;
+
+public partial class ExportFilePopup : Window
 {
-    public partial class ExportFilePopup : Window
+    public static readonly DependencyProperty SaveHeightProperty =
+        DependencyProperty.Register(nameof(SaveHeight), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
+
+
+    public static readonly DependencyProperty SaveWidthProperty =
+        DependencyProperty.Register(nameof(SaveWidth), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
+
+    private readonly SaveFilePopupViewModel dataContext = new SaveFilePopupViewModel();
+
+    private int imageWidth;
+    private int imageHeight;
+    public string SizeHint => $"If you want to share the image, try {GetBestPercentage()}% for the best clarity";
+
+    private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
-        public static readonly DependencyProperty SaveHeightProperty =
-            DependencyProperty.Register(nameof(SaveHeight), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
+        e.CanExecute = true;
+    }
 
+    private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
+    {
+        SystemCommands.CloseWindow(this);
+    }
 
-        public static readonly DependencyProperty SaveWidthProperty =
-            DependencyProperty.Register(nameof(SaveWidth), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
+    public ExportFilePopup(int imageWidth, int imageHeight)
+    {
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
 
-        private readonly SaveFilePopupViewModel dataContext = new SaveFilePopupViewModel();
+        InitializeComponent();
+        Owner = Application.Current.MainWindow;
+        DataContext = dataContext;
+        Loaded += (_, _) => sizePicker.FocusWidthPicker();
 
-        private int imageWidth;
-        private int imageHeight;
-        public string SizeHint => $"If you want to share the image, try {GetBestPercentage()}% for the best clarity";
+        SaveWidth = imageWidth;
+        SaveHeight = imageHeight;
+    }
 
-        private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    private int GetBestPercentage()
+    {
+        int maxDim = Math.Max(imageWidth, imageWidth);
+        for (int i = 16; i >= 1; i--)
         {
-            e.CanExecute = true;
+            if (maxDim * i <= 1280)
+                return i * 100;
         }
+        return 100;
+    }
 
-        private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.CloseWindow(this);
-        }
-
-        public ExportFilePopup(int imageWidth, int imageHeight)
-        {
-            this.imageWidth = imageWidth;
-            this.imageHeight = imageHeight;
-
-            InitializeComponent();
-            Owner = Application.Current.MainWindow;
-            DataContext = dataContext;
-            Loaded += (_, _) => sizePicker.FocusWidthPicker();
-
-            SaveWidth = imageWidth;
-            SaveHeight = imageHeight;
-        }
-
-        private int GetBestPercentage()
-        {
-            int maxDim = Math.Max(imageWidth, imageWidth);
-            for (int i = 16; i >= 1; i--)
-            {
-                if (maxDim * i <= 1280)
-                    return i * 100;
-            }
-            return 100;
-        }
-
-        public int SaveWidth
-        {
-            get => (int)GetValue(SaveWidthProperty);
-            set => SetValue(SaveWidthProperty, value);
-        }
+    public int SaveWidth
+    {
+        get => (int)GetValue(SaveWidthProperty);
+        set => SetValue(SaveWidthProperty, value);
+    }
 
 
-        public int SaveHeight
-        {
-            get => (int)GetValue(SaveHeightProperty);
-            set => SetValue(SaveHeightProperty, value);
-        }
+    public int SaveHeight
+    {
+        get => (int)GetValue(SaveHeightProperty);
+        set => SetValue(SaveHeightProperty, value);
+    }
 
-        public string SavePath
-        {
-            get => dataContext.FilePath;
-            set => dataContext.FilePath = value;
-        }
+    public string SavePath
+    {
+        get => dataContext.FilePath;
+        set => dataContext.FilePath = value;
+    }
 
-        public FileType SaveFormat
-        {
-            get => dataContext.ChosenFormat;
-            set => dataContext.ChosenFormat = value;
-        }
+    public FileType SaveFormat
+    {
+        get => dataContext.ChosenFormat;
+        set => dataContext.ChosenFormat = value;
     }
 }

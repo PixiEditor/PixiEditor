@@ -4,75 +4,74 @@ using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace PixiEditor.Models.Commands.Evaluators
+namespace PixiEditor.Models.Commands.Evaluators;
+
+public class IconEvaluator : Evaluator<ImageSource>
 {
-    public class IconEvaluator : Evaluator<ImageSource>
+    public static IconEvaluator Default { get; } = new CommandNameEvaluator();
+
+    public override ImageSource CallEvaluate(Command command, object parameter) =>
+        base.CallEvaluate(command, parameter ?? command);
+
+    [DebuggerDisplay("IconEvaluator.Default")]
+    private class CommandNameEvaluator : IconEvaluator
     {
-        public static IconEvaluator Default { get; } = new CommandNameEvaluator();
+        public static string[] resources = GetResourceNames();
 
-        public override ImageSource CallEvaluate(Command command, object parameter) =>
-            base.CallEvaluate(command, parameter ?? command);
+        public static Dictionary<string, BitmapImage> images = new();
 
-        [DebuggerDisplay("IconEvaluator.Default")]
-        private class CommandNameEvaluator : IconEvaluator
+        public override ImageSource CallEvaluate(Command command, object parameter)
         {
-            public static string[] resources = GetResourceNames();
+            string path;
 
-            public static Dictionary<string, BitmapImage> images = new();
-
-            public override ImageSource CallEvaluate(Command command, object parameter)
+            if (command.IconPath != null)
             {
-                string path;
-
-                if (command.IconPath != null)
+                if (command.IconPath.StartsWith('@'))
                 {
-                    if (command.IconPath.StartsWith('@'))
-                    {
-                        path = command.IconPath[1..];
-                    }
-                    else
-                    {
-                        path = $"Images/{command.IconPath}";
-                    }
+                    path = command.IconPath[1..];
                 }
                 else
                 {
-                    path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
+                    path = $"Images/{command.IconPath}";
                 }
-
-                path = path.ToLower();
-
-                if (path.StartsWith("/"))
-                {
-                    path = path[1..];
-                }
-
-                if (resources.Contains(path))
-                {
-                    var image = images.GetValueOrDefault(path);
-
-                    if (image == null)
-                    {
-                        image = new BitmapImage(new($"pack://application:,,,/{path}"));
-                        images.Add(path, image);
-                    }
-
-                    return image;
-                }
-
-                return null;
             }
-
-            private static string[] GetResourceNames()
+            else
             {
-                var assembly = Assembly.GetExecutingAssembly();
-                string resName = assembly.GetName().Name + ".g.resources";
-                using var stream = assembly.GetManifestResourceStream(resName);
-                using var reader = new System.Resources.ResourceReader(stream);
-
-                return reader.Cast<DictionaryEntry>().Select(entry =>
-                         (string)entry.Key).ToArray();
+                path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
             }
+
+            path = path.ToLower();
+
+            if (path.StartsWith("/"))
+            {
+                path = path[1..];
+            }
+
+            if (resources.Contains(path))
+            {
+                var image = images.GetValueOrDefault(path);
+
+                if (image == null)
+                {
+                    image = new BitmapImage(new($"pack://application:,,,/{path}"));
+                    images.Add(path, image);
+                }
+
+                return image;
+            }
+
+            return null;
+        }
+
+        private static string[] GetResourceNames()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            string resName = assembly.GetName().Name + ".g.resources";
+            using var stream = assembly.GetManifestResourceStream(resName);
+            using var reader = new System.Resources.ResourceReader(stream);
+
+            return reader.Cast<DictionaryEntry>().Select(entry =>
+                (string)entry.Key).ToArray();
         }
     }
 }

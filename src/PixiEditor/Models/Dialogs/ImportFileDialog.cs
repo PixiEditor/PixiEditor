@@ -1,68 +1,67 @@
 ﻿using PixiEditor.Views;
 
-namespace PixiEditor.Models.Dialogs
+namespace PixiEditor.Models.Dialogs;
+
+internal class ImportFileDialog : CustomDialog
 {
-    internal class ImportFileDialog : CustomDialog
+    private int fileHeight;
+
+    private string filePath;
+    private int fileWidth;
+
+    public int FileWidth
     {
-        private int fileHeight;
-
-        private string filePath;
-        private int fileWidth;
-
-        public int FileWidth
+        get => fileWidth;
+        set
         {
-            get => fileWidth;
-            set
+            if (fileWidth != value)
             {
-                if (fileWidth != value)
-                {
-                    fileWidth = value;
-                    RaisePropertyChanged("Width");
-                }
+                fileWidth = value;
+                RaisePropertyChanged("Width");
             }
         }
+    }
 
-        public int FileHeight
+    public int FileHeight
+    {
+        get => fileHeight;
+        set
         {
-            get => fileHeight;
-            set
+            if (fileHeight != value)
             {
-                if (fileHeight != value)
-                {
-                    fileHeight = value;
-                    RaisePropertyChanged("FileHeight");
-                }
+                fileHeight = value;
+                RaisePropertyChanged("FileHeight");
             }
         }
+    }
 
-        public string FilePath
+    public string FilePath
+    {
+        get => filePath;
+        set
         {
-            get => filePath;
-            set
+            if (filePath != value)
             {
-                if (filePath != value)
-                {
-                    filePath = value;
-                    RaisePropertyChanged("FilePath");
-                }
+                filePath = value;
+                RaisePropertyChanged("FilePath");
             }
         }
+    }
 
-        public override bool ShowDialog()
+    public override bool ShowDialog()
+    {
+        ImportFilePopup popup = new ImportFilePopup
         {
-            ImportFilePopup popup = new ImportFilePopup
-            {
-                FilePath = FilePath
-            };
-            popup.ShowDialog();
-            if (popup.DialogResult == true)
-            {
-                FileHeight = popup.ImportHeight;
-                FileWidth = popup.ImportWidth;
-                FilePath = popup.FilePath;
-            }
-
-            return (bool)popup.DialogResult;
+            FilePath = FilePath
+        };
+        popup.ShowDialog();
+        if (popup.DialogResult == true)
+        {
+            FileHeight = popup.ImportHeight;
+            FileWidth = popup.ImportWidth;
+            FilePath = popup.FilePath;
         }
+
+        return (bool)popup.DialogResult;
     }
 }

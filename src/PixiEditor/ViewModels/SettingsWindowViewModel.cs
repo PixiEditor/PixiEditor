@@ -9,151 +9,130 @@ using Microsoft.Win32;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
 
-namespace PixiEditor.ViewModels
-{
-    public class SettingsWindowViewModel : ViewModelBase
-    {
-        private string searchTerm;
-        private int visibleGroups;
-        private string currentPage;
+namespace PixiEditor.ViewModels;
 
-        public bool ShowUpdateTab
+public class SettingsWindowViewModel : ViewModelBase
+{
+    private string searchTerm;
+    private int visibleGroups;
+    private string currentPage;
+
+    public bool ShowUpdateTab
+    {
+        get
         {
-            get
-            {
 #if UPDATE || DEBUG
-                return true;
+            return true;
 #else
                 return false;
 #endif
+        }
+    }
+
+    public string SearchTerm
+    {
+        get => searchTerm;
+        set
+        {
+            if (SetProperty(ref searchTerm, value, out var oldValue) &&
+                !(string.IsNullOrWhiteSpace(value) && string.IsNullOrWhiteSpace(oldValue)))
+            {
+                UpdateSearchResults();
+                VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
             }
         }
+    }
 
-        public string SearchTerm
+    public string CurrentPage
+    {
+        get => currentPage;
+        set => SetProperty(ref currentPage, value);
+    }
+
+    public int VisibleGroups
+    {
+        get => visibleGroups;
+        private set => SetProperty(ref visibleGroups, value);
+    }
+
+    public SettingsViewModel SettingsSubViewModel { get; set; }
+
+    public List<GroupSearchResult> Commands { get; }
+
+    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Reset")]
+    public static void ResetCommand()
+    {
+        var dialog = new OptionsDialog<string>("Are you sure?", "Are you sure you want to reset all shortcuts to their default value?")
         {
-            get => searchTerm;
-            set
-            {
-                if (SetProperty(ref searchTerm, value, out var oldValue) &&
-                    !(string.IsNullOrWhiteSpace(value) && string.IsNullOrWhiteSpace(oldValue)))
-                {
-                    UpdateSearchResults();
-                    VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
-                }
-            }
-        }
+            { "Yes", x => CommandController.Current.ResetShortcuts() },
+            "Cancel"
+        }.ShowDialog();
+    }
 
-        public string CurrentPage
+    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Export")]
+    public static void ExportShortcuts()
+    {
+        var dialog = new SaveFileDialog();
+        dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
+        dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        if (dialog.ShowDialog().GetValueOrDefault())
         {
-            get => currentPage;
-            set => SetProperty(ref currentPage, value);
+            File.Copy(CommandController.ShortcutsPath, dialog.FileName, true);
         }
-
-        public int VisibleGroups
-        {
-            get => visibleGroups;
-            private set => SetProperty(ref visibleGroups, value);
-        }
-
-        public SettingsViewModel SettingsSubViewModel { get; set; }
-
-        public List<GroupSearchResult> Commands { get; }
-
-        [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Reset")]
-        public static void ResetCommand()
-        {
-            var dialog = new OptionsDialog<string>("Are you sure?", "Are you sure you want to reset all shortcuts to their default value?")
-            {
-                { "Yes", x => CommandController.Current.ResetShortcuts() },
-                "Cancel"
-            }.ShowDialog();
-        }
-
-        [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Export")]
-        public static void ExportShortcuts()
-        {
-            var dialog = new SaveFileDialog();
-            dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            if (dialog.ShowDialog().GetValueOrDefault())
-            {
-                File.Copy(CommandController.ShortcutsPath, dialog.FileName, true);
-            }
-            // Sometimes, focus was brought back to the last edited shortcut
-            Keyboard.ClearFocus();
-        }
+        // Sometimes, focus was brought back to the last edited shortcut
+        Keyboard.ClearFocus();
+    }
         
-        [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Import")]
-        public static void ImportShortcuts()
+    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Import")]
+    public static void ImportShortcuts()
+    {
+        var dialog = new OpenFileDialog();
+        dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
+        dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        if (dialog.ShowDialog().GetValueOrDefault())
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            if (dialog.ShowDialog().GetValueOrDefault())
+            var shortcuts = ShortcutFile.LoadShortcuts(dialog.FileName)?.ToArray();
+            if (shortcuts is null)
             {
-                var shortcuts = ShortcutFile.LoadShortcuts(dialog.FileName)?.ToArray();
-                if (shortcuts is null)
-                {
-                    NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
-                    return;
-                }
-                CommandController.Current.ResetShortcuts();
-                CommandController.Current.Import(shortcuts, false);
-                File.Copy(dialog.FileName, CommandController.ShortcutsPath, true);
-                NoticeDialog.Show("Shortcuts were imported successfully", "Success");
-            }
-            // Sometimes, focus was brought back to the last edited shortcut
-            Keyboard.ClearFocus();
-        }
-
-        [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]
-        public static void OpenTemplatePopup()
-        {
-            new ImportShortcutTemplatePopup().ShowDialog();
-        }
-
-        public SettingsWindowViewModel()
-        {
-            Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
-            UpdateSearchResults();
-            SettingsSubViewModel = new SettingsViewModel(this);
-            PreferencesSettings.Current.AddCallback("IsDebugModeEnabled", _ => UpdateSearchResults());
-            VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
-        }
-
-        public void UpdateSearchResults()
-        {
-            if (string.IsNullOrWhiteSpace(searchTerm))
-            {
-                foreach (var group in Commands)
-                {
-                    var visibleCommands = 0;
-                    
-                    foreach (var command in group.Commands)
-                    {
-                        if ((command.Command.IsDebug && ViewModelMain.Current.DebugSubViewModel.UseDebug) ||
-                            !command.Command.IsDebug)
-                        {
-                            visibleCommands++;
-                            command.Visibility = Visibility.Visible;
-                        }
-                        else
-                        {
-                            command.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                    
-                    group.Visibility = visibleCommands > 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
+                NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
                 return;
             }
+            CommandController.Current.ResetShortcuts();
+            CommandController.Current.Import(shortcuts, false);
+            File.Copy(dialog.FileName, CommandController.ShortcutsPath, true);
+            NoticeDialog.Show("Shortcuts were imported successfully", "Success");
+        }
+        // Sometimes, focus was brought back to the last edited shortcut
+        Keyboard.ClearFocus();
+    }
 
+    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]
+    public static void OpenTemplatePopup()
+    {
+        new ImportShortcutTemplatePopup().ShowDialog();
+    }
+
+    public SettingsWindowViewModel()
+    {
+        Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
+        UpdateSearchResults();
+        SettingsSubViewModel = new SettingsViewModel(this);
+        PreferencesSettings.Current.AddCallback("IsDebugModeEnabled", _ => UpdateSearchResults());
+        VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
+    }
+
+    public void UpdateSearchResults()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
             foreach (var group in Commands)
             {
                 var visibleCommands = 0;
+                    
                 foreach (var command in group.Commands)
                 {
-                    if (command.Command.DisplayName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                    if ((command.Command.IsDebug && ViewModelMain.Current.DebugSubViewModel.UseDebug) ||
+                        !command.Command.IsDebug)
                     {
                         visibleCommands++;
                         command.Visibility = Visibility.Visible;
@@ -163,48 +142,68 @@ namespace PixiEditor.ViewModels
                         command.Visibility = Visibility.Collapsed;
                     }
                 }
-
+                    
                 group.Visibility = visibleCommands > 0 ? Visibility.Visible : Visibility.Collapsed;
             }
+            return;
         }
 
-        public class GroupSearchResult : NotifyableObject
+        foreach (var group in Commands)
         {
-            private Visibility visibility;
-
-            public string DisplayName { get; set; }
-
-            public List<CommandSearchResult> Commands { get; set; }
-
-            public Visibility Visibility
+            var visibleCommands = 0;
+            foreach (var command in group.Commands)
             {
-                get => visibility;
-                set => SetProperty(ref visibility, value);
+                if (command.Command.DisplayName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                {
+                    visibleCommands++;
+                    command.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    command.Visibility = Visibility.Collapsed;
+                }
             }
 
-            public GroupSearchResult(CommandGroup group)
-            {
-                DisplayName = group.DisplayName;
-                Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
-            }
+            group.Visibility = visibleCommands > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+
+    public class GroupSearchResult : NotifyableObject
+    {
+        private Visibility visibility;
+
+        public string DisplayName { get; set; }
+
+        public List<CommandSearchResult> Commands { get; set; }
+
+        public Visibility Visibility
+        {
+            get => visibility;
+            set => SetProperty(ref visibility, value);
         }
 
-        public class CommandSearchResult : NotifyableObject
+        public GroupSearchResult(CommandGroup group)
         {
-            private Visibility visibility;
+            DisplayName = group.DisplayName;
+            Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
+        }
+    }
 
-            public Command Command { get; set; }
+    public class CommandSearchResult : NotifyableObject
+    {
+        private Visibility visibility;
 
-            public Visibility Visibility
-            {
-                get => visibility;
-                set => SetProperty(ref visibility, value);
-            }
+        public Command Command { get; set; }
 
-            public CommandSearchResult(Command command)
-            {
-                Command = command;
-            }
+        public Visibility Visibility
+        {
+            get => visibility;
+            set => SetProperty(ref visibility, value);
+        }
+
+        public CommandSearchResult(Command command)
+        {
+            Command = command;
         }
     }
 }

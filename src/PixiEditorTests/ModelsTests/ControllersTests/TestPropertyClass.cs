@@ -1,7 +1,6 @@
-﻿namespace PixiEditorTests.ModelsTests.ControllersTests
+﻿namespace PixiEditorTests.ModelsTests.ControllersTests;
+
+public class TestPropertyClass
 {
-    public class TestPropertyClass
-    {
-        public int IntProperty { get; set; }
-    }
+    public int IntProperty { get; set; }
 }

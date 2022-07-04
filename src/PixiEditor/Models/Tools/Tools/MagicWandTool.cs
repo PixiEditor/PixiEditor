@@ -14,83 +14,82 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 
-namespace PixiEditor.Models.Tools.Tools
+namespace PixiEditor.Models.Tools.Tools;
+
+[Command.Tool(Key = Key.W)]
+internal class MagicWandTool : ReadonlyTool, ICachedDocumentTool
 {
-    [Command.Tool(Key = Key.W)]
-    internal class MagicWandTool : ReadonlyTool, ICachedDocumentTool
+    private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
+
+    private BitmapManager BitmapManager { get; }
+
+    private IEnumerable<Coordinates> oldSelection;
+    private List<Coordinates> newSelection = new List<Coordinates>();
+
+    public override string Tooltip => $"Magic Wand ({Shortcut}). Flood's the selection";
+
+    private Layer cachedDocument;
+
+    public MagicWandTool(BitmapManager manager)
     {
-        private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
+        BitmapManager = manager;
 
-        private BitmapManager BitmapManager { get; }
+        Toolbar = new MagicWandToolbar();
 
-        private IEnumerable<Coordinates> oldSelection;
-        private List<Coordinates> newSelection = new List<Coordinates>();
+        ActionDisplay = "Click to flood the selection.";
+    }
 
-        public override string Tooltip => $"Magic Wand ({Shortcut}). Flood's the selection";
+    public override void Use(IReadOnlyList<Coordinates> pixels)
+    {
+        if (pixels.Count > 1)
+            return;
 
-        private Layer cachedDocument;
+        oldSelection = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
 
-        public MagicWandTool(BitmapManager manager)
+        SelectionType selectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
+        DocumentScope documentScope = Toolbar.GetEnumSetting<DocumentScope>(nameof(DocumentScope)).Value;
+
+        Document document = BitmapManager.ActiveDocument;
+        Layer layer;
+
+        if (documentScope == DocumentScope.SingleLayer)
         {
-            BitmapManager = manager;
-
-            Toolbar = new MagicWandToolbar();
-
-            ActionDisplay = "Click to flood the selection.";
+            layer = BitmapManager.ActiveLayer;
+        }
+        else
+        {
+            ValidateCache(document);
+            layer = cachedDocument;
         }
 
-        public override void Use(IReadOnlyList<Coordinates> pixels)
-        {
-            if (pixels.Count > 1)
-                return;
-
-            oldSelection = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
-
-            SelectionType selectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
-            DocumentScope documentScope = Toolbar.GetEnumSetting<DocumentScope>(nameof(DocumentScope)).Value;
-
-            Document document = BitmapManager.ActiveDocument;
-            Layer layer;
-
-            if (documentScope == DocumentScope.SingleLayer)
-            {
-                layer = BitmapManager.ActiveLayer;
-            }
-            else
-            {
-                ValidateCache(document);
-                layer = cachedDocument;
-            }
-
-            Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
+        Selection selection = BitmapManager.ActiveDocument.ActiveSelection;
 
 
-            newSelection.Clear();
+        newSelection.Clear();
 
-            ToolCalculator.GetLinearFillAbsolute(
-                   layer,
-                   pixels[0],
-                   BitmapManager.ActiveDocument.Width,
-                   BitmapManager.ActiveDocument.Height,
-                   SKColors.White,
-                   newSelection);
+        ToolCalculator.GetLinearFillAbsolute(
+            layer,
+            pixels[0],
+            BitmapManager.ActiveDocument.Width,
+            BitmapManager.ActiveDocument.Height,
+            SKColors.White,
+            newSelection);
 
-            selection.SetSelection(newSelection, selectionType);
+        selection.SetSelection(newSelection, selectionType);
 
-            SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelection, selectionType);
-        }
+        SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelection, selectionType);
+    }
 
-        public void DocumentChanged()
-        {
-            cachedDocument = null;
-        }
+    public void DocumentChanged()
+    {
+        cachedDocument = null;
+    }
 
-        private void ValidateCache(Document document)
-        {
-            cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(
-                new Int32Rect(0, 0, document.Width, document.Height),
-                document.Layers,
-                document.LayerStructure), document.Width, document.Height);
-        }
+    private void ValidateCache(Document document)
+    {
+        cachedDocument ??= new Layer("_CombinedLayers", BitmapUtils.CombineLayers(
+            new Int32Rect(0, 0, document.Width, document.Height),
+            document.Layers,
+            document.LayerStructure), document.Width, document.Height);
     }
 }

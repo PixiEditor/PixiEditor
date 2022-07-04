@@ -2,45 +2,44 @@
 using System;
 using System.Collections.Generic;
 
-namespace PixiEditor.Models.IO
+namespace PixiEditor.Models.IO;
+
+public class PaletteFileData
 {
-    public class PaletteFileData
+    public string Title { get; set; }
+    public SKColor[] Colors { get; set; }
+    public bool IsCorrupted { get; set; } = false;
+
+    public PaletteFileData(SKColor[] colors)
     {
-        public string Title { get; set; }
-        public SKColor[] Colors { get; set; }
-        public bool IsCorrupted { get; set; } = false;
+        Colors = colors;
+        Title = "";
+    }
 
-        public PaletteFileData(SKColor[] colors)
+    public PaletteFileData(List<string> colors)
+    {
+        Colors = new SKColor[colors.Count];
+        for (int i = 0; i < colors.Count; i++)
         {
-            Colors = colors;
-            Title = "";
+            Colors[i] = SKColor.Parse(colors[i]);
         }
 
-        public PaletteFileData(List<string> colors)
-        {
-            Colors = new SKColor[colors.Count];
-            for (int i = 0; i < colors.Count; i++)
-            {
-                Colors[i] = SKColor.Parse(colors[i]);
-            }
+        Title = "";
+    }
 
-            Title = "";
-        }
+    public PaletteFileData(string title, SKColor[] colors)
+    {
+        Title = title;
+        Colors = colors;
+    }
 
-        public PaletteFileData(string title, SKColor[] colors)
+    public string[] GetHexColors()
+    {
+        string[] colors = new string[Colors.Length];
+        for (int i = 0; i < Colors.Length; i++)
         {
-            Title = title;
-            Colors = colors;
+            colors[i] = Colors[i].ToString();
         }
-
-        public string[] GetHexColors()
-        {
-            string[] colors = new string[Colors.Length];
-            for (int i = 0; i < Colors.Length; i++)
-            {
-                colors[i] = Colors[i].ToString();
-            }
-            return colors;
-        }
+        return colors;
     }
 }

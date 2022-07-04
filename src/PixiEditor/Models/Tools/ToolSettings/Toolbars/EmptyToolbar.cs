@@ -1,8 +1,7 @@
 ﻿using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
-namespace PixiEditor.Models.Tools.ToolSettings
+namespace PixiEditor.Models.Tools.ToolSettings;
+
+public class EmptyToolbar : Toolbar
 {
-    public class EmptyToolbar : Toolbar
-    {
-    }
 }

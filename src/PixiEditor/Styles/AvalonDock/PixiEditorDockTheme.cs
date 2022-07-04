@@ -10,17 +10,16 @@
 using System;
 using AvalonDock.Themes;
 
-namespace PixiEditor.Styles.AvalonDock
+namespace PixiEditor.Styles.AvalonDock;
+
+/// <inheritdoc/>
+public class PixiEditorDockTheme : Theme
 {
     /// <inheritdoc/>
-    public class PixiEditorDockTheme : Theme
+    public override Uri GetResourceUri()
     {
-        /// <inheritdoc/>
-        public override Uri GetResourceUri()
-        {
-            return new Uri(
-                "/PixiEditor;component/Styles/AvalonDock/PixiEditorDockTheme.xaml",
-                UriKind.Relative);
-        }
+        return new Uri(
+            "/PixiEditor;component/Styles/AvalonDock/PixiEditorDockTheme.xaml",
+            UriKind.Relative);
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace PixiEditor.Models.Enums
+﻿namespace PixiEditor.Models.Enums;
+
+public enum FileType
 {
-    public enum FileType
-    {
-        Unset, Pixi, Png, Jpeg, Bmp, Gif
-    }
+    Unset, Pixi, Png, Jpeg, Bmp, Gif
 }

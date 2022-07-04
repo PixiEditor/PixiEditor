@@ -1,8 +1,7 @@
-namespace PixiEditor.Models.Enums
+namespace PixiEditor.Models.Enums;
+
+public enum FlipType
 {
-    public enum FlipType
-    {
-        Horizontal,
-        Vertical
-    }
+    Horizontal,
+    Vertical
 }

@@ -12,116 +12,115 @@ using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace PixiEditor.Models.Tools.Tools
+namespace PixiEditor.Models.Tools.Tools;
+
+[Command.Tool(Key = Key.M)]
+internal class SelectTool : ReadonlyTool
 {
-    [Command.Tool(Key = Key.M)]
-    internal class SelectTool : ReadonlyTool
+    private readonly RectangleTool rectangleTool;
+    private readonly CircleTool circleTool;
+    private IEnumerable<Coordinates> oldSelectedPoints;
+
+    private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
+
+    private BitmapManager BitmapManager { get; }
+
+    public SelectTool(BitmapManager bitmapManager)
     {
-        private readonly RectangleTool rectangleTool;
-        private readonly CircleTool circleTool;
-        private IEnumerable<Coordinates> oldSelectedPoints;
+        ActionDisplay = "Click and move to select an area.";
+        Toolbar = new SelectToolToolbar();
+        BitmapManager = bitmapManager;
 
-        private static Selection ActiveSelection { get => ViewModelMain.Current.BitmapManager.ActiveDocument.ActiveSelection; }
+        rectangleTool = new RectangleTool();
+        circleTool = new CircleTool();
+    }
 
-        private BitmapManager BitmapManager { get; }
+    public SelectionType SelectionType { get; set; } = SelectionType.Add;
 
-        public SelectTool(BitmapManager bitmapManager)
+    public override string Tooltip => $"Selects area. ({Shortcut})";
+
+    public override void BeforeUse()
+    {
+        base.BeforeUse();
+        SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
+
+        oldSelectedPoints = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
+    }
+
+    public override void AfterUse(SKRectI sessionRect)
+    {
+        base.AfterUse(sessionRect);
+        if (ActiveSelection.SelectedPoints.Count <= 1)
         {
-            ActionDisplay = "Click and move to select an area.";
-            Toolbar = new SelectToolToolbar();
-            BitmapManager = bitmapManager;
-
-            rectangleTool = new RectangleTool();
-            circleTool = new CircleTool();
+            // If we have not selected multiple points, clear the selection
+            ActiveSelection.Clear();
         }
 
-        public SelectionType SelectionType { get; set; } = SelectionType.Add;
+        SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
+    }
 
-        public override string Tooltip => $"Selects area. ({Shortcut})";
+    public override void Use(IReadOnlyList<Coordinates> pixels)
+    {
+        Select(pixels, Toolbar.GetEnumSetting<SelectionShape>("SelectShape").Value);
+    }
 
-        public override void BeforeUse()
+    public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
+    {
+        List<Coordinates> result = new List<Coordinates>();
+        ToolCalculator.GenerateRectangleNonAlloc(
+            start, end, true, 1, result);
+        return result;
+    }
+
+    public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
+    {
+        List<Coordinates> result = new List<Coordinates>();
+        ToolCalculator.GenerateEllipseNonAlloc(
+            start, end, true, result);
+        return result;
+    }
+
+    /// <summary>
+    ///     Gets coordinates of every pixel in root layer.
+    /// </summary>
+    /// <returns>Coordinates array of pixels.</returns>
+    public IEnumerable<Coordinates> GetAllSelection()
+    {
+        return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument);
+    }
+
+    /// <summary>
+    ///     Gets coordinates of every pixel in chosen document.
+    /// </summary>
+    /// <returns>Coordinates array of pixels.</returns>
+    public IEnumerable<Coordinates> GetAllSelection(Document document)
+    {
+        return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
+    }
+
+    private void Select(IReadOnlyList<Coordinates> pixels, SelectionShape shape)
+    {
+        IEnumerable<Coordinates> selection;
+
+        BitmapManager.ActiveDocument.ActiveSelection.SetSelection(oldSelectedPoints, SelectionType.New);
+
+        if (pixels.Count < 2)
         {
-            base.BeforeUse();
-            SelectionType = Toolbar.GetEnumSetting<SelectionType>("SelectMode").Value;
-
-            oldSelectedPoints = new ReadOnlyCollection<Coordinates>(ActiveSelection.SelectedPoints);
+            selection = new List<Coordinates>();
+        }
+        else if (shape == SelectionShape.Circle)
+        {
+            selection = GetCircleSelectionForPoints(pixels[^1], pixels[0]);
+        }
+        else if (shape == SelectionShape.Rectangle)
+        {
+            selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
+        }
+        else
+        {
+            throw new NotImplementedException($"Selection shape '{shape}' has not been implemented");
         }
 
-        public override void AfterUse(SKRectI sessionRect)
-        {
-            base.AfterUse(sessionRect);
-            if (ActiveSelection.SelectedPoints.Count <= 1)
-            {
-                // If we have not selected multiple points, clear the selection
-                ActiveSelection.Clear();
-            }
-
-            SelectionHelpers.AddSelectionUndoStep(ViewModelMain.Current.BitmapManager.ActiveDocument, oldSelectedPoints, SelectionType);
-        }
-
-        public override void Use(IReadOnlyList<Coordinates> pixels)
-        {
-            Select(pixels, Toolbar.GetEnumSetting<SelectionShape>("SelectShape").Value);
-        }
-
-        public IEnumerable<Coordinates> GetRectangleSelectionForPoints(Coordinates start, Coordinates end)
-        {
-            List<Coordinates> result = new List<Coordinates>();
-            ToolCalculator.GenerateRectangleNonAlloc(
-                start, end, true, 1, result);
-            return result;
-        }
-
-        public IEnumerable<Coordinates> GetCircleSelectionForPoints(Coordinates start, Coordinates end)
-        {
-            List<Coordinates> result = new List<Coordinates>();
-            ToolCalculator.GenerateEllipseNonAlloc(
-                start, end, true, result);
-            return result;
-        }
-
-        /// <summary>
-        ///     Gets coordinates of every pixel in root layer.
-        /// </summary>
-        /// <returns>Coordinates array of pixels.</returns>
-        public IEnumerable<Coordinates> GetAllSelection()
-        {
-            return GetAllSelection(ViewModelMain.Current.BitmapManager.ActiveDocument);
-        }
-
-        /// <summary>
-        ///     Gets coordinates of every pixel in chosen document.
-        /// </summary>
-        /// <returns>Coordinates array of pixels.</returns>
-        public IEnumerable<Coordinates> GetAllSelection(Document document)
-        {
-            return GetRectangleSelectionForPoints(new Coordinates(0, 0), new Coordinates(document.Width - 1, document.Height - 1));
-        }
-
-        private void Select(IReadOnlyList<Coordinates> pixels, SelectionShape shape)
-        {
-            IEnumerable<Coordinates> selection;
-
-            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(oldSelectedPoints, SelectionType.New);
-
-            if (pixels.Count < 2)
-            {
-                selection = new List<Coordinates>();
-            }
-            else if (shape == SelectionShape.Circle)
-            {
-                selection = GetCircleSelectionForPoints(pixels[^1], pixels[0]);
-            }
-            else if (shape == SelectionShape.Rectangle)
-            {
-                selection = GetRectangleSelectionForPoints(pixels[^1], pixels[0]);
-            }
-            else
-            {
-                throw new NotImplementedException($"Selection shape '{shape}' has not been implemented");
-            }
-
-            BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
-        }
+        BitmapManager.ActiveDocument.ActiveSelection.SetSelection(selection, SelectionType);
     }
 }

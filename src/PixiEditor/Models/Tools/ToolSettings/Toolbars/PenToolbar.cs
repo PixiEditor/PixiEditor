@@ -5,13 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 
-namespace PixiEditor.Models.Tools.ToolSettings.Toolbars
+namespace PixiEditor.Models.Tools.ToolSettings.Toolbars;
+
+public class PenToolbar : BasicToolbar
 {
-    public class PenToolbar : BasicToolbar
+    public PenToolbar()
     {
-        public PenToolbar()
-        {
-            Settings.Add(new BoolSetting("PixelPerfectEnabled", "Pixel perfect"));
-        }
+        Settings.Add(new BoolSetting("PixelPerfectEnabled", "Pixel perfect"));
     }
 }

@@ -1,40 +1,39 @@
 ﻿using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views;
 
-namespace PixiEditor.Models.Dialogs
+namespace PixiEditor.Models.Dialogs;
+
+public class NewFileDialog : CustomDialog
 {
-    public class NewFileDialog : CustomDialog
+    private int height = IPreferences.Current.GetPreference("DefaultNewFileHeight", Constants.DefaultCanvasSize);
+
+    private int width = IPreferences.Current.GetPreference("DefaultNewFileWidth", Constants.DefaultCanvasSize);
+
+    public int Width
     {
-        private int height = IPreferences.Current.GetPreference("DefaultNewFileHeight", Constants.DefaultCanvasSize);
+        get => width;
+        set => SetProperty(ref width, value);
+    }
 
-        private int width = IPreferences.Current.GetPreference("DefaultNewFileWidth", Constants.DefaultCanvasSize);
+    public int Height
+    {
+        get => height;
+        set => SetProperty(ref height, value);
+    }
 
-        public int Width
+    public override bool ShowDialog()
+    {
+        NewFilePopup popup = new()
         {
-            get => width;
-            set => SetProperty(ref width, value);
-        }
+            FileWidth = Width,
+            FileHeight = Height
+        };
 
-        public int Height
-        {
-            get => height;
-            set => SetProperty(ref height, value);
-        }
+        popup.ShowDialog();
 
-        public override bool ShowDialog()
-        {
-            NewFilePopup popup = new()
-            {
-                FileWidth = Width,
-                FileHeight = Height
-            };
+        Height = popup.FileHeight;
+        Width = popup.FileWidth;
 
-            popup.ShowDialog();
-
-            Height = popup.FileHeight;
-            Width = popup.FileWidth;
-
-            return popup.DialogResult.GetValueOrDefault();
-        }
+        return popup.DialogResult.GetValueOrDefault();
     }
 }

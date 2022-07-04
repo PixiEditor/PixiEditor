@@ -1,8 +1,7 @@
-﻿namespace PixiEditor.Models.Enums
+﻿namespace PixiEditor.Models.Enums;
+
+public enum BrightnessMode
 {
-    public enum BrightnessMode
-    {
-        Default,
-        Repeat
-    }
+    Default,
+    Repeat
 }

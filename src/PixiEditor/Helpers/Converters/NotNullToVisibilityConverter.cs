@@ -3,24 +3,23 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace PixiEditor.Helpers.Converters
+namespace PixiEditor.Helpers.Converters;
+
+[ValueConversion(typeof(object), typeof(Visibility))]
+public class NotNullToVisibilityConverter
+    : MarkupConverter
 {
-    [ValueConversion(typeof(object), typeof(Visibility))]
-    public class NotNullToVisibilityConverter
-        : MarkupConverter
+    public bool Inverted { get; set; }
+
+    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        public bool Inverted { get; set; }
+        bool isNull = value is not null;
 
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        if (Inverted)
         {
-            bool isNull = value is not null;
-
-            if (Inverted)
-            {
-                isNull = !isNull;
-            }
-
-            return isNull ? Visibility.Visible : Visibility.Collapsed;
+            isNull = !isNull;
         }
+
+        return isNull ? Visibility.Visible : Visibility.Collapsed;
     }
 }
